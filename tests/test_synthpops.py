@@ -1,3 +1,4 @@
+import os
 import synthpops as sp
 import sciris as sc
 
@@ -11,9 +12,9 @@ def test_all():
     census_location = 'seattle_metro' # for census distributions
     location = 'Washington' # for state wide age mixing patterns
 
-    age_bracket_distr = sp.read_age_bracket_distr(census_location, datadir=dropbox_path)
+    age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(census_location, datadir=dropbox_path)
+    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
     age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
@@ -27,7 +28,6 @@ def test_all():
 
     ### Test age mixing matrix ###
     num_agebrackets = 18
-    setting_codes = ['H','S','W','R']
 
     # flu-like weights. calibrated to empirical diary survey data.
     weights_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 2.79}

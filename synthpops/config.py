@@ -21,7 +21,7 @@ datadirdict = {
 # Try to find the folder on load
 if username in datadirdict.keys():
     datadir = datadirdict[username]
-    print(f'synthpops: your username was found; your data folder is {datadir}.')
+    print(f'Loading synthpops data from {datadir}.')
 else:
     print(f'synthpops: your username "{username}" is not configured. Please use synthpops.set_datadir() to configure.')
 

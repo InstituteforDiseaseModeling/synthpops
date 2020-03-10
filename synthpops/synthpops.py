@@ -2,8 +2,7 @@ import os
 import numpy as np
 import pylab as pl
 import pandas as pd
-import sciris as sc
-from .config import datadir
+from .config import datadir # TODO: not currently used
 
 def norm_dic(dic):
     """
@@ -17,34 +16,34 @@ def norm_dic(dic):
         new_dic[i] = float(dic[i])/total
     return new_dic
 
-def get_gender_fraction_by_age_path(location, datadir=datadir):
+def get_gender_fraction_by_age_path(datadir, location):
     """ Return filepath for all Seattle Metro gender fractions by age bracket. """
     return os.path.join(datadir,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
 
-def read_gender_fraction_by_age_bracket(location, datadir=datadir):
+def read_gender_fraction_by_age_bracket(datadir, location):
     """ 
     Return dict of gender fractions by age bracket for all Seattle Metro.
 
     """
-    f = get_gender_fraction_by_age_path(location, datadir=datadir)
+    f = get_gender_fraction_by_age_path(datadir, location)
     df = pd.read_csv(f)
     dic = {}
     dic['male'] = dict(zip(np.arange(len(df)),df.fraction_male))
     dic['female'] = dict(zip(np.arange(len(df)),df.fraction_female))
     return dic
 
-def get_age_bracket_distr_path(location, datadir=datadir):
+def get_age_bracket_distr_path(datadir, location):
     """ Return filepath for age distribution by age brackets. """
     return os.path.join(datadir,'census','age distributions',location + '_age_bracket_distr.dat')
 
 
-def read_age_bracket_distr(location, datadir=datadir):
+def read_age_bracket_distr(datadir, location):
     """
     Return dict of age distribution by age brackets. 
 
     """
 
-    f = get_age_bracket_distr_path(location, datadir=datadir)
+    f = get_age_bracket_distr_path(datadir, location)
     df = pd.read_csv(f)
     return dict(zip(df.age_bracket,df.percent))
 
@@ -78,13 +77,13 @@ def get_contact_matrix(synpop_path,location,setting_code,num_agebrackets):
     file_path = os.path.join(datadir,'SyntheticPopulations','asymmetric_matrices','data_' + setting_code + str(num_agebrackets),'M' + str(num_agebrackets) + '_' + location + '_' + setting_code + '.dat')
     return np.array(pd.read_csv(file_path,delimiter = ' ', header = None))
 
-def get_contact_matrix_dic(location, datadir=datadir, num_agebrackets):
+def get_contact_matrix_dic(datadir, location, num_agebrackets):
     """
     Return a dict of setting specific age mixing matrices. 
     """
     matrix_dic = {}
     for setting_code in ['H','S','W','R']:
-        matrix_dic[setting_code] = get_contact_matrix(location, datadir=datadir,setting_code,num_agebrackets)
+        matrix_dic[setting_code] = get_contact_matrix(datadir, location,setting_code,num_agebrackets)
     return matrix_dic
 
 def combine_matrices(matrix_dic,weights_dic,num_agebrackets):
