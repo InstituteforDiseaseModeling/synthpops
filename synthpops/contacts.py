@@ -1,3 +1,24 @@
+import sciris as sc
+from . import synthpops as sp
+
+
+def make_popdict(n, use_seattle=True):
+    ''' Create a dictionary of n people '''
+    id_len = 6 # Length of each person's ID
+    popdict = sc.odict() # Sciris ordered dictionary, so you can do e.g. popdict[50]
+    for i in range(n):
+        uid = str(sc.uuid())[:id_len]
+        popdict[uid] = {}
+        if use_seattle:
+            age,sex = sp.get_seattle_age_sex() # TODO: refactor to draw outside of the loop
+            popdict[uid]['age'] = age
+            popdict[uid]['sex'] = sex
+            popdict[uid]['loc'] = None
+        else:
+            raise NotImplementedError
+    return popdict
+    
+
 
 def make_contacts(popdict, use_age=True, use_sex=True, use_loc=False, directed=False):
     '''
@@ -36,6 +57,8 @@ def make_contacts(popdict, use_age=True, use_sex=True, use_loc=False, directed=F
                 },
         }
     '''
+    
+    popdict = sc.dcp(popdict) # To avoid modifyig in-place
     
     # Do stuff :)
     
