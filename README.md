@@ -1,14 +1,14 @@
-# synthpop
+# synthpops
 
-Synthetic population generation functions.
+Synthetic populations generation functions.
 
 See `test_synthpop.py` for example usage.
 
 NOTE: this module needs to load in data in order to function. To set the data location, do
 
 ```python
-import synthpop
-synthpop.set_data_folder('my-data-folder')
+import synthpops
+synthpops.set_datadir('my-data-folder')
 ```
 
 The data folder will need to have files in this kind of structure:
