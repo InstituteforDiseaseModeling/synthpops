@@ -190,6 +190,22 @@ def get_age_sex(gender_fraction_by_age,age_bracket_distr,age_by_brackets,age_bra
         age = pl.median([min_age, age, max_age]) # Normalize
         return age, sex
 
+def get_seattle_age_sex(census_location='seattle_metro', location='Washington'):
+    ''' Define default age and sex distributions for Seattle '''
+    dropbox_path = datadir
+
+    age_bracket_distr = read_age_bracket_distr(dropbox_path, census_location)
+
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+
+    age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
+    age_brackets = get_age_brackets_from_df(age_brackets_filepath)
+    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+
+    age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_by_brackets_dic,age_brackets)
+    return age,sex
+
+
 def get_mortality_rates_filepath(path):
     return os.path.join(path,'mortality_rates_by_age_bracket.dat')
 
