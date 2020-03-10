@@ -6,7 +6,7 @@ def test_all():
     ''' Run all tests '''
 
     sp.validate() # Validate that data files can be found
-
+    dropbox_path = sp.datadir
 
     census_location = 'seattle_metro' # for census distributions
     location = 'Washington' # for state wide age mixing patterns
