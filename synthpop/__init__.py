@@ -1,1 +1,2 @@
-from synthpop import *
+from .config import *
+from .synthpop import *
