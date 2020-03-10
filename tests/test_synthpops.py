@@ -1,4 +1,4 @@
-from covid_abm_tools import *
+import synthpops
 
 
 dropbox_path = os.path.join('/home','dmistry','Dropbox (IDM)','seattle_network')

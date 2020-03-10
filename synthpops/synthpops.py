@@ -1,8 +1,8 @@
+import os
 import numpy as np
 import pylab as pl
 import pandas as pd
-import os
-from copy import deepcopy
+import sciris as sc
 
 def norm_dic(dic):
     """
@@ -259,7 +259,7 @@ if __name__ == "__main__":
 
     # shut down schools
 
-    no_schools_weights = deepcopy(weights_dic)
+    no_schools_weights = sc.dcp(weights_dic)
     no_schools_weights['S'] = 0.1 # research shows that even with school closure, kids still have some contact with their friends from school.
 
     f_reduced_contacts_students = 0.5

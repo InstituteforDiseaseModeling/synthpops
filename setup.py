@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 # Get version
 cwd = os.path.abspath(os.path.dirname(__file__))
-versionpath = os.path.join(cwd, 'synthpop', 'version.py')
+versionpath = os.path.join(cwd, 'synthpops', 'version.py')
 version = runpy.run_path(versionpath)['__version__']
 
 CLASSIFIERS = [
@@ -19,7 +19,7 @@ CLASSIFIERS = [
 ]
 
 setup(
-    name="synthpop",
+    name="synthpops",
     version=version,
     author="Dina Mistry",
     author_email="dmistry@idmod.org",
