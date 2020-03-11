@@ -24,7 +24,10 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
     
     # Optionally take in either aes or sexes, too
     if ages is None or sexes is None:
-        gen_ages,gen_sexes = sp.get_seattle_age_sex_n(n_people = n)
+        if use_seattle:
+            gen_ages,gen_sexes = sp.get_seattle_age_sex_n(n_people = n)
+        else:
+            raise NotImplementedError('Currently, only Seattle is supported')
         random_inds = np.random.permutation(n)
         if ages is None:
             ages = [gen_ages[r] for r in random_inds]
@@ -34,13 +37,10 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
     popdict = {}
     for uid in uids:
         popdict[uid] = {}
-        if use_seattle:
-            age,sex = ages[i],sexes[i]
-            popdict[uid]['age'] = age
-            popdict[uid]['sex'] = sex
-            popdict[uid]['loc'] = None
-        else:
-            raise NotImplementedError
+        popdict[uid]['age'] = ages[i]
+        popdict[uid]['sex'] = sexes[i]
+        popdict[uid]['loc'] = None
+        
     return popdict
 
 
