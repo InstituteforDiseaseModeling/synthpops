@@ -5,34 +5,34 @@ from .config import datadir
 import os
 
 
-def make_popdict(n, use_seattle=True):
-    ''' Create a dictionary of n people '''
-    id_len = 6 # Length of each person's ID
-    popdict = sc.dict() # Sciris ordered dictionary, so you can do e.g. popdict[50]
-    for i in range(n):
-        uid = str(sc.uuid())[:id_len]
-        popdict[uid] = {}
-        if use_seattle:
-            age,sex = sp.get_seattle_age_sex() # TODO: refactor to draw outside of the loop
-            popdict[uid]['age'] = age
-            popdict[uid]['sex'] = sex
-            popdict[uid]['loc'] = None
-        else:
-            raise NotImplementedError
-    return popdict
-
-def make_popdict_n(n, use_seattle=True):
+def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """
-    ages,sexes = sp.get_seattle_age_sex_n(n_people = n)
-    z = list(zip(ages,sexes))
-    np.random.shuffle(z)
-    ages,sexes = zip(*z)
-    ages,sexes = list(ages),list(sexes)
+    
+    
+    # A list of UIDs was supplied as the first argument
+    if isinstance(n, list):
+        uids = n
+        n = len(uids)
+    elif uids is not None: # UIDs were supplied, use them
+        n = len(uids)
+    
+    # Not supplied, generate
+    if uids is None:
+        uids = []
+        for i in range(n):
+            uids.append(str(sc.uuid())[:id_len])
+    
+    # Optionally take in either aes or sexes, too
+    if ages is None or sexes is None:
+        gen_ages,gen_sexes = sp.get_seattle_age_sex_n(n_people = n)
+        random_inds = np.random.permutation(n)
+        if ages is None:
+            ages = [gen_ages[r] for r in random_inds]
+        if sexes is None:
+            sexes = [gen_sexes[r] for r in random_inds]
 
-    id_len = 6
-    popdict = sc.odict()
-    for i in range(n):
-        uid = str(sc.uuid())[:id_len]
+    popdict = {}
+    for uid in uids:
         popdict[uid] = {}
         if use_seattle:
             age,sex = ages[i],sexes[i]
@@ -91,12 +91,13 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
 
                 dropbox_path = datadir
-                census_location, location = 'seattle_metro', 'Washington'
+                # census_location = 'seattle_metro'
+                location = 'Washington'
                 num_agebrackets = 18
 
-                age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
+                # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-                gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+                # gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
                 age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
                 age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
