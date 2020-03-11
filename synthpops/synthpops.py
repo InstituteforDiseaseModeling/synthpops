@@ -196,7 +196,7 @@ def get_n_contact_ids_by_age(contact_ids_by_age_dic,contact_ages,age_brackets,ag
                 potential_contacts += contact_ids_by_age_dic[a]
             contact_id = np.random.choice( potential_contacts )
         contact_ids.add(contact_id)
-    return list(contact_ids)
+    return contact_ids
 
 @nb.njit((nb.int64,))
 def pt(rate):
@@ -233,7 +233,6 @@ def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people
 
     for b in bracket_count:
         sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
-        # print(age_brackets[b])
         ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
         sexes_in_bracket = np.random.choice(np.arange(2),bracket_count[b],p = sex_probabilities)
 
