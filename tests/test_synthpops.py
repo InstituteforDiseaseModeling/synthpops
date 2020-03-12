@@ -8,6 +8,8 @@ import numpy as np
 
 def test_all():
     ''' Run all tests '''
+    
+    sc.heading('Running all tests')
 
     sp.validate() # Validate that data files can be found
     dropbox_path = sp.datadir
@@ -89,11 +91,14 @@ def test_all():
     return
 
 def test_n_single_ages(n_people=1e4):
+    
+    sc.heading('Running single ages')
+    
     sp.validate()
     dropbox_path = sp.datadir
 
     census_location = 'seattle_metro' # for census distributions
-    location = 'Washington' # for state wide age mixing patterns
+    # location = 'Washington' # for state wide age mixing patterns
 
     age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
@@ -102,7 +107,6 @@ def test_n_single_ages(n_people=1e4):
     age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     # age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
-
 
     ### Test selecting an age and sex for an individual ###
     a,s = sp.get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
@@ -118,12 +122,14 @@ def test_n_single_ages(n_people=1e4):
         # print(a,s)
     return
 
+
 def test_multiple_ages(n_people=1e4):
-    sp.validate()
+    sc.heading('Running multiple ages')
+
     dropbox_path = sp.datadir
 
     census_location = 'seattle_metro'
-    location = 'Washington'
+    # location = 'Washington'
 
     age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
@@ -149,11 +155,9 @@ def read_age_bracket_distr(datadir,location):
 #%% Run as a script
 if __name__ == '__main__':
     sc.tic()
-    # parsobj = test_parsobj()
-    # test_all()
-    # test_n_single_ages(n_people=1e4)
+    test_all()
+    test_n_single_ages(n_people=1e4)
     test_multiple_ages(n_people=1e4)
-
     sc.toc()
 
 

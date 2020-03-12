@@ -1,4 +1,4 @@
-import os
+import pylab as pl
 import synthpops as sp
 import sciris as sc
 import numpy as np
@@ -18,11 +18,31 @@ def test_make_popdict(n=default_n):
     return popdict
 
 
+def test_make_popdict_supplied(n=default_n):
+    sc.heading(f'Making "supplied" popdict for {n} people')
+    
+    fixed_age = 40
+    fixed_sex = 1
+    
+    uids = [str(i) for i in pl.arange(n)]
+    ages = fixed_age*pl.ones(n)
+    sexes = fixed_sex*pl.ones(n)
+
+    # Simply compile these into a dict
+    popdict = sp.make_popdict(uids=uids, ages=ages, sexes=sexes)
+    
+    assert popdict[uids[0]]['age'] == fixed_age
+    assert popdict[uids[0]]['sex'] == fixed_sex
+
+    return popdict
+
+
 def test_make_contacts(n=default_n,weights_dic=default_w,use_social_layers=default_social_layers,directed=directed):
     sc.heading(f'Making contact matrix for {n} people')
     
     popdict = popdict = sp.make_popdict(n=n)
     contacts = sp.make_contacts(popdict,weights_dic=weights_dic,use_social_layers = use_social_layers,directed=directed,use_student_weights = True)
+
     
     return contacts
 
