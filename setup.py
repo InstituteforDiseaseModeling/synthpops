@@ -21,7 +21,7 @@ CLASSIFIERS = [
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry",
+    author="Dina Mistry, Cliff Kerr",
     author_email="dmistry@idmod.org",
     description="Synthetic population generation",
     keywords=['synthetic population', 'census', 'demography'],
@@ -35,5 +35,6 @@ setup(
         "scipy>=1.2.0",
         "sciris>=0.15.7",
         "pandas",
+        "numba",
     ],
 )
