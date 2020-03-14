@@ -23,7 +23,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
     if uids is None:
         uids = []
         for i in range(n):
-            uids.append(str(sc.uuid())[:id_len])
+            uids.append(sc.uuid(length=id_len))
 
     # Optionally take in either aes or sexes, too
     if ages is None or sexes is None:
