@@ -8,16 +8,16 @@ import os
 def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """
 
-    if n < 3000:
-        raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
-
-
     # A list of UIDs was supplied as the first argument
     if isinstance(n, list):
         uids = n
+
+    # UIDs were supplied, use them
+    if uids is not None:
         n = len(uids)
-    elif uids is not None: # UIDs were supplied, use them
-        n = len(uids)
+
+    if n < 3000:
+        raise NotImplementedError("Stop! I can't work with fewer than 3000 people currently.")
 
     # Not supplied, generate
     if uids is None:
@@ -49,7 +49,11 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
     return popdict
 
 
-def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True, use_loc=False, use_social_layers=False,use_student_weights=False,student_age_min=3,student_age_max=20,worker_age_min=20,worker_age_max=70,student_teacher_ratio=30,directed=False, use_seattle = True):
+def make_contacts(popdict, weights_dic, n_contacts=30, use_age=True, use_sex=True,
+                  use_loc=False, use_social_layers=True, use_student_weights=True,
+                  student_age_min=3, student_age_max=20, worker_age_min=20,
+                  worker_age_max=70, student_teacher_ratio=30, directed=False,
+                  use_seattle=True):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -87,7 +91,10 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
         }
     '''
 
-    popdict = sc.dcp(popdict) # To avoid modifyig in-place
+    if not use_student_weights:
+        raise NotImplementedError
+
+    popdict = sc.dcp(popdict) # To avoid modifying in-place
 
 
     if use_seattle and not use_social_layers:
@@ -97,7 +104,8 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
 
                 dropbox_path = datadir
-                census_location, location = 'seattle_metro', 'Washington'
+                # census_location = 'seattle_metro'
+                location = 'Washington'
                 num_agebrackets = 18
 
                 # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)

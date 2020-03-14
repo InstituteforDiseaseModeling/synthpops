@@ -20,7 +20,7 @@ def make_contacts():
     kwargs = dict(weights_dic=weights_dic,
                   use_social_layers=True,
                   directed=False,
-                  use_student_weights=True)
+                  use_student_weights=True) # Crashes if False
 
     popdict = sp.make_popdict(n=n)
     contacts = sp.make_contacts(popdict, **kwargs)
