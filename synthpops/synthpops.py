@@ -3,6 +3,8 @@ import numpy as np
 import pylab as pl
 import pandas as pd
 from .config import datadir # TODO: not currently used
+import numba  as nb
+
 
 def norm_dic(dic):
     """
@@ -45,7 +47,8 @@ def read_age_bracket_distr(datadir, location):
 
     f = get_age_bracket_distr_path(datadir, location)
     df = pd.read_csv(f)
-    return dict(zip(df.age_bracket,df.percent))
+    # return dict(zip(df.age_bracket,df.percent))
+    return dict(zip(np.arange(len(df)), df.percent))
 
 def get_age_brackets_from_df(ab_filepath):
     """
@@ -96,7 +99,7 @@ def get_ages(synpop_path,location,num_agebrackets):
     """
     Return synthetic age counts for num_agebrackets age brackets.
     """
-    file_path = os.path.join(datadir,'SyntheticPopulations','synthetic_ages','data_a85','a85_' + location + '.dat')
+    file_path = os.path.join(datadir,'SyntheticPopulations','synthetic_ages','data_a' + str(num_agebrackets),'a' + str(num_agebrackets) + '_' + location + '.dat')
     df = pd.read_csv(file_path, delimiter = ' ', header = None)
     return dict(zip(df.iloc[:,0].values, df.iloc[:,1].values))
 
@@ -106,6 +109,13 @@ def get_ids_by_age_dic(age_by_id_dic):
         ids_by_age_dic.setdefault( age_by_id_dic[i], [])
         ids_by_age_dic[ age_by_id_dic[i] ].append(i)
     return ids_by_age_dic
+
+def get_uids_by_age_dic(popdict):
+    uids_by_age_dic = {}
+    for uid in popdict:
+        uids_by_age_dic.setdefault( popdict[uid]['age'], [])
+        uids_by_age_dic[ popdict[uid]['age'] ].append(uid)
+    return uids_by_age_dic
 
 def sample_single(distr):
     """
@@ -133,6 +143,20 @@ def sample_bracket(distr,brackets):
     n = np.random.multinomial(1,sorted_distr, size = 1)[0]
     index = np.where(n)[0][0]
     return index
+
+def sample_n(nk,distr):
+    if type(distr) == dict:
+        distr = norm_dic(distr)
+        sorted_keys = sorted(distr.keys())
+        sorted_distr = [distr[k] for k in sorted_keys]
+        n = np.random.multinomial(nk,sorted_distr,size = 1)[0]
+        dic = dict(zip(sorted_keys,n))
+        return dic
+    elif type(distr) == np.ndarray:
+        distr = distr / np.sum(distr)
+        n = np.random.multinomial(nk, distr, size = 1)[0]
+        dic = dict(zip(np.arange(len(distr)), n))
+        return dic
 
 def sample_contact_age(age,age_brackets,age_by_brackets_dic,age_mixing_matrix):
     """
@@ -164,19 +188,25 @@ def get_n_contact_ids_by_age(contact_ids_by_age_dic,contact_ages,age_brackets,ag
     contact_ids = set()
     for contact_age in contact_ages:
         if len(contact_ids_by_age_dic[contact_age]) > 0:
-            contact_id = np.choice( contact_ids_by_age_dic[contact_age] )
+            contact_id = np.random.choice( contact_ids_by_age_dic[contact_age] )
         else:
             b_contact = age_by_brackets_dic[contact_age]
             potential_contacts = []
             for a in age_brackets[b_contact]:
                 potential_contacts += contact_ids_by_age_dic[a]
-            contact_id = np.choice( potential_contacts )
+            contact_id = np.random.choice( potential_contacts )
         contact_ids.add(contact_id)
     return contact_ids
 
-def get_age_sex(gender_fraction_by_age,age_bracket_distr,age_by_brackets,age_brackets,min_age=0, max_age=99, age_mean=40, age_std=20):
+@nb.njit((nb.int64,))
+def pt(rate):
+    ''' A Poisson trial '''
+    return np.random.poisson(rate, 1)[0]
+
+
+def get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets,min_age=0, max_age=99, age_mean=40, age_std=20):
     '''
-    Define age-sex distributions.
+    Return person's age and sex based on gender and age census data defined for age brackets. Else, return random age and sex.
      
     '''
     try:
@@ -190,6 +220,27 @@ def get_age_sex(gender_fraction_by_age,age_bracket_distr,age_by_brackets,age_bra
         age = pl.median([min_age, age, max_age]) # Normalize
         return age, sex
 
+def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people=1,min_age=0, max_age = 99, age_mean = 40, age_std=20):
+    """
+    Return n_people age and sex sampled from gender and age census data defined for age brackets. Else, return random ages and sex.
+    Two lists ordered by age bracket so that people from the first age bracket show up at the front of both lists and people from the last age bracket show up at the end.
+
+
+    """
+    bracket_count = sample_n(n_people,age_bracket_distr)
+    ages, sexes = [], []
+
+
+    for b in bracket_count:
+        sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
+        ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
+        sexes_in_bracket = np.random.choice(np.arange(2),bracket_count[b],p = sex_probabilities)
+
+        ages += list(ages_in_bracket)
+        sexes += list(sexes_in_bracket)
+
+    return ages, sexes
+
 def get_seattle_age_sex(census_location='seattle_metro', location='Washington'):
     ''' Define default age and sex distributions for Seattle '''
     dropbox_path = datadir
@@ -200,10 +251,24 @@ def get_seattle_age_sex(census_location='seattle_metro', location='Washington'):
 
     age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    # age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
 
-    age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_by_brackets_dic,age_brackets)
+    age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
     return age,sex
+
+def get_seattle_age_sex_n(census_location='seattle_metro',location='Washington',n_people=1e4):
+    dropbox_path = datadir
+    
+    age_bracket_distr = read_age_bracket_distr(dropbox_path, census_location)
+
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+
+    age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
+    age_brackets = get_age_brackets_from_df(age_brackets_filepath)
+
+    ages,sexes = get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
+    return ages,sexes
+
 
 
 def get_mortality_rates_filepath(path):
