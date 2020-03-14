@@ -18,13 +18,13 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
         n = len(uids)
     elif uids is not None: # UIDs were supplied, use them
         n = len(uids)
-    
+
     # Not supplied, generate
     if uids is None:
         uids = []
         for i in range(n):
             uids.append(str(sc.uuid())[:id_len])
-    
+
     # Optionally take in either aes or sexes, too
     if ages is None or sexes is None:
 
@@ -44,7 +44,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
         popdict[uid]['age'] = ages[i]
         popdict[uid]['sex'] = sexes[i]
         popdict[uid]['loc'] = None
-        popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {'M': set()}
 
     return popdict
@@ -58,7 +57,7 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
     is a list of contact IDs for each individual. If directed=False (default),
     if person A is a contact of person B, then person B is also a contact of person
     A.
-    
+
     Example output (input is the same, minus the "contacts" field):
         popdict = {
             '8acf08f0': {
@@ -87,9 +86,9 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 },
         }
     '''
-    
+
     popdict = sc.dcp(popdict) # To avoid modifyig in-place
- 
+
 
     if use_seattle and not use_social_layers:
         if use_age:
@@ -151,9 +150,9 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 age_mixing_matrix_dic['M'] = sp.get_contact_matrix(dropbox_path,location,'M',num_agebrackets)
 
                 # weights_dic is calibrated to empirical survey data but for all people by all ages!
-                # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights 
+                # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights
                 # really a guess of what it should be - will fix to be flexible later
-                
+
                 student_weights_dic = sc.dcp(weights_dic)
                 non_student_weights_dic = sc.dcp(weights_dic)
                 if use_student_weights:
