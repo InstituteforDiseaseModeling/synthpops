@@ -100,9 +100,9 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 census_location, location = 'seattle_metro', 'Washington'
                 num_agebrackets = 18
 
-                age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
+                # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-                gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+                # gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
                 age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
                 age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
@@ -135,12 +135,13 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
 
                 dropbox_path = datadir
-                census_location, location = 'seattle_metro', 'Washington'
+                # census_location = 'seattle_metro'
+                location = 'Washington'
                 num_agebrackets = 18
 
-                age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
+                # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-                gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+                # gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
                 age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
                 age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
