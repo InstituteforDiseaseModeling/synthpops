@@ -37,12 +37,11 @@ def test_make_popdict_supplied(n=default_n):
     return popdict
 
 
-def test_make_contacts(n=default_n,weights_dic=default_w,use_social_layers=default_social_layers,directed=directed):
+def test_make_contacts(n=default_n,weights_dic=default_w,use_social_layers=default_social_layers,directed=directed,n_contacts = 20):
     sc.heading(f'Making contact matrix for {n} people')
     
     popdict = popdict = sp.make_popdict(n=n)
-    contacts = sp.make_contacts(popdict,weights_dic=weights_dic,use_social_layers = use_social_layers,directed=directed,use_student_weights = True)
-
+    contacts = sp.make_contacts_2(popdict,weights_dic=weights_dic,use_social_layers = use_social_layers,directed=directed,use_student_weights = True,n_contacts = 20)
     
     return contacts
 
@@ -55,7 +54,7 @@ if __name__ == '__main__':
 
     popdict = test_make_popdict(3000)
 
-    contacts = test_make_contacts(10000,weights_dic,use_social_layers = True,directed = False)
+    contacts = test_make_contacts(10000,weights_dic,use_social_layers = True,directed = False,n_contacts = 20)
     uids = contacts.keys()
     uids = [uid for uid in uids]
 
