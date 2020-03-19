@@ -2,13 +2,10 @@ import os
 import synthpops as sp
 import sciris as sc
 
-import pandas as pd
-import numpy as np
-
 
 def test_all(location='seattle_metro',state_location='Washington',country_location='usa'):
     ''' Run all tests '''
-    
+
     sc.heading('Running all tests')
 
     sp.validate() # Validate that data files can be found
@@ -48,7 +45,7 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
     f_reduced_contacts_students = 0.5
     f_reduced_contacts_nonstudents = 0.2
 
-    if age < 20: 
+    if age < 20:
         n_reduced_contacts = int(n_contacts * (1 - f_reduced_contacts_students))
     else:
         n_reduced_contacts = int(n_contacts * (1 - f_reduced_contacts_nonstudents))
@@ -58,7 +55,7 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
 
 
     ### mortality rates and associated functions ###
-    mortality_rates_path = sp.get_mortality_rates_filepath(dropbox_path) 
+    mortality_rates_path = sp.get_mortality_rates_filepath(dropbox_path)
     mortality_rates_by_age_bracket = sp.get_mortality_rates_by_age_bracket(mortality_rates_path)
     mortality_rate_age_brackets = sp.get_age_brackets_from_df(os.path.join(dropbox_path,'mortality_age_brackets.dat'))
 
@@ -71,7 +68,7 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
 
 
 def test_n_single_ages(n_people=1e4,location='seattle_metro',state_location='Washington',country_location='usa'):
-    
+
     sc.heading('Running single ages')
     sp.validate()
     datadir = sp.datadir

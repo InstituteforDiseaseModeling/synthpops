@@ -13,7 +13,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, 
         raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
 
     # A list of UIDs was supplied as the first argument
-    if isinstance(n,list):
+    if isinstance(n, list):
         uids = n
         n = len(uids)
     elif uids is not None: # UIDs were supplied, use them
@@ -23,7 +23,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, 
     if uids is None:
         uids = []
         for i in range(n):
-            uids.append(str(sc.uuid())[:id_len])
+            uids.append(sc.uuid(length=id_len))
 
     # Optionally take in either ages or sexes, too
     if ages is None or sexes is None:
