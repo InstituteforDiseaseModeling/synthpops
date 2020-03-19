@@ -3,10 +3,11 @@
 import sciris as sc
 import synthpops as sp
 
-to_profile = 'make_contacts' # Must be one of the options listed below
+to_profile = 'sample_n_contact_ages' # Must be one of the options listed below
 
 func_options = {'make_popdict': sp.make_popdict,
                 'make_contacts': sp.make_contacts,
+                'sample_n_contact_ages': sp.sample_n_contact_ages,
                 }
 
 def make_contacts():
@@ -19,7 +20,7 @@ def make_contacts():
     kwargs = dict(weights_dic=weights_dic,
                   use_social_layers=True,
                   directed=False,
-                  use_student_weights=True)
+                  use_student_weights=True) # Crashes if False
 
     popdict = sp.make_popdict(n=n)
     contacts = sp.make_contacts(popdict, **kwargs)
