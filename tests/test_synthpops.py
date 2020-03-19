@@ -125,6 +125,10 @@ if __name__ == '__main__':
     test_n_single_ages(1e4,location,state_location,country_location)
     test_multiple_ages(1e4,location,state_location,country_location)
 
+    ages,sexes = sp.get_usa_age_sex_n(location,state_location,1e2)
+    print(ages,sexes)
+
+
     sc.toc()
 
 
