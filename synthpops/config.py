@@ -8,19 +8,19 @@ import os
 
 __all__ = ['datadir' ,'set_datadir', 'validate']
 
-# This whole point!
+# Declaring this here makes it globally available as synthpops.datadir
 datadir = None
 
 # Set user-specific configurations
-username = os.path.split(os.path.expanduser('~'))[-1]
+userpath = os.path.expanduser('~')
+username = os.path.split(userpath)[-1]
 datadirdict = {
 
     # 'dmistry': '/home/dmistry/Dropbox (IDM)/seattle_network',
-    'dmistry': os.path.join('/home','dmistry','Dropbox (IDM)','synthpops'),
-    'cliffk': os.path.join('/home','cliffk','idm','covid-19','data','seattle_network'),
-    'lgeorge': os.path.join(os.path.expanduser('~'),'Dropbox','synthpops'),
-    'ccollins': os.path.join(os.path.expanduser('~'),'Dropbox','synthpops')
-
+    'dmistry': os.path.join(userpath,'Dropbox (IDM)','synthpops'),
+    'cliffk': os.path.join(userpath,'idm','Dropbox','synthpops'),
+    'lgeorge': os.path.join(userpath,'Dropbox','synthpops'),
+    'ccollins': os.path.join(userpath,'Dropbox','synthpops')
 }
 
 # Try to find the folder on load
