@@ -14,7 +14,8 @@ datadir = None
 # Set user-specific configurations
 username = os.path.split(os.path.expanduser('~'))[-1]
 datadirdict = {
-    'dmistry': '/home/dmistry/Dropbox (IDM)/seattle_network',
+    # 'dmistry': '/home/dmistry/Dropbox (IDM)/seattle_network',
+    'dmistry': '/home/dmistry/Dropbox (IDM)/synthpops',
     'cliffk': '/home/cliffk/idm/covid-19/data/seattle_network',
 }
 
