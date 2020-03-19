@@ -61,11 +61,15 @@ def read_age_bracket_distr(datadir, location, state_location=None, country_locat
 
 
 def get_census_age_brackets_path(datadir,country_location=None):
+    # if country_location == None:
+        # return os.path.join(datadir,'census','age distributions','census_age_brackets.dat')
+    # else:
+        # return os.path.join(datadir,'demographics',country_location,'census_age_brackets.dat')
+    
     if country_location == None:
-        return os.path.join(datadir,'census','age distributions','census_age_brackets.dat')
+        return os.path.join(datadir,'demographics','generic_census_age_brackets.dat')
     else:
         return os.path.join(datadir,'demographics',country_location,'census_age_brackets.dat')
-
 
 def get_age_brackets_from_df(ab_filepath):
     """
