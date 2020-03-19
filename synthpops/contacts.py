@@ -8,23 +8,23 @@ import os
 def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """
 
-    if n < 3000:
-        raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
-
-
     # A list of UIDs was supplied as the first argument
     if isinstance(n, list):
         uids = n
+
+    # UIDs were supplied, use them
+    if uids is not None:
         n = len(uids)
-    elif uids is not None: # UIDs were supplied, use them
-        n = len(uids)
-    
+
+    if n < 3000:
+        raise NotImplementedError("Stop! I can't work with fewer than 3000 people currently.")
+
     # Not supplied, generate
     if uids is None:
         uids = []
         for i in range(n):
-            uids.append(str(sc.uuid())[:id_len])
-    
+            uids.append(sc.uuid(length=id_len))
+
     # Optionally take in either aes or sexes, too
     if ages is None or sexes is None:
 
@@ -44,13 +44,16 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, use_seattle=True, id_
         popdict[uid]['age'] = ages[i]
         popdict[uid]['sex'] = sexes[i]
         popdict[uid]['loc'] = None
-        popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {'M': set()}
 
     return popdict
 
 
-def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True, use_loc=False, use_social_layers=False,use_student_weights=False,student_age_min=3,student_age_max=20,worker_age_min=20,worker_age_max=70,student_teacher_ratio=30,directed=False, use_seattle = True):
+def make_contacts(popdict, weights_dic, n_contacts=30, use_age=True, use_sex=True,
+                  use_loc=False, use_social_layers=True, use_student_weights=True,
+                  student_age_min=3, student_age_max=20, worker_age_min=20,
+                  worker_age_max=70, student_teacher_ratio=30, directed=False,
+                  use_seattle=True):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -58,7 +61,7 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
     is a list of contact IDs for each individual. If directed=False (default),
     if person A is a contact of person B, then person B is also a contact of person
     A.
-    
+
     Example output (input is the same, minus the "contacts" field):
         popdict = {
             '8acf08f0': {
@@ -87,9 +90,12 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 },
         }
     '''
-    
-    popdict = sc.dcp(popdict) # To avoid modifyig in-place
- 
+
+    if not use_student_weights:
+        raise NotImplementedError
+
+    popdict = sc.dcp(popdict) # To avoid modifying in-place
+
 
     if use_seattle and not use_social_layers:
         if use_age:
@@ -98,12 +104,13 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
 
                 dropbox_path = datadir
-                census_location, location = 'seattle_metro', 'Washington'
+                # census_location = 'seattle_metro'
+                location = 'Washington'
                 num_agebrackets = 18
 
-                age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
+                # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-                gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+                # gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
                 age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
                 age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
@@ -136,12 +143,13 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
 
                 dropbox_path = datadir
-                census_location, location = 'seattle_metro', 'Washington'
+                # census_location = 'seattle_metro'
+                location = 'Washington'
                 num_agebrackets = 18
 
-                age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
+                # age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, census_location)
 
-                gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
+                # gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, census_location)
 
                 age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
                 age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
@@ -151,9 +159,9 @@ def make_contacts(popdict,weights_dic,n_contacts=30, use_age=True, use_sex=True,
                 age_mixing_matrix_dic['M'] = sp.get_contact_matrix(dropbox_path,location,'M',num_agebrackets)
 
                 # weights_dic is calibrated to empirical survey data but for all people by all ages!
-                # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights 
+                # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights
                 # really a guess of what it should be - will fix to be flexible later
-                
+
                 student_weights_dic = sc.dcp(weights_dic)
                 non_student_weights_dic = sc.dcp(weights_dic)
                 if use_student_weights:
