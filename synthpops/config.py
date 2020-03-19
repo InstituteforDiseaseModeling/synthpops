@@ -15,7 +15,7 @@ datadir = None
 username = os.path.split(os.path.expanduser('~'))[-1]
 datadirdict = {
     'dmistry': '/home/dmistry/Dropbox (IDM)/seattle_network',
-    'cliffk': '/home/cliffk/idm/covid/data/seattle_network',
+    'cliffk': '/home/cliffk/idm/Dropbox/seattle_network',
 }
 
 # Try to find the folder on load
