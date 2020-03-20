@@ -4,6 +4,7 @@ import pylab as pl
 import pandas as pd
 from .config import datadir # TODO: not currently used
 import numba  as nb
+from collections import Counter
 
 
 def norm_dic(dic):
@@ -93,6 +94,15 @@ def get_age_by_brackets_dic(age_brackets):
         for a in age_brackets[b]:
             age_by_brackets_dic[a] = b
     return age_by_brackets_dic
+
+
+def get_aggregate_ages(ages,age_by_brackets_dic,num_agebrackets):
+    bracket_keys = set(age_by_brackets_dic.values())
+    aggregate_ages = dict.fromkeys(bracket_keys,0)
+    for a in ages:
+        b = age_by_brackets_dic[a]
+        aggregate_ages[b] += ages[a]
+    return aggregate_ages
 
 
 def get_contact_matrix(datadir,location,setting_code,num_agebrackets):
@@ -189,7 +199,6 @@ def sample_n(nk,distr):
         dic = dict(zip(np.arange(len(distr)), n))
         return dic
 
-
 def sample_contact_age(age,age_brackets,age_by_brackets_dic,age_mixing_matrix):
     """
     Return age of contact by age of individual sampled from an age mixing matrix. 
@@ -257,9 +266,9 @@ def get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets,min_age=0,
         sex = np.random.binomial(1, gender_fraction_by_age['male'][b])
         return age, sex
     except:
-        sex = pl.randint(2) # Define female (0) or male (1) -- evenly distributed
-        age = pl.normal(age_mean, age_std) # Define age distribution for the crew and guests
-        age = pl.median([min_age, age, max_age]) # Normalize
+        sex = np.random.randint(2) # Define female (0) or male (1) -- evenly distributed
+        age = np.random.normal(age_mean, age_std) # Define age distribution for the crew and guests
+        age = np.median([min_age, age, max_age]) # Bound age by the interval
         return age, sex
 
 
@@ -269,15 +278,24 @@ def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people
     Two lists ordered by age bracket so that people from the first age bracket show up at the front of both lists and people from the last age bracket show up at the end.
     """
     n_people = int(n_people)
-    bracket_count = sample_n(n_people,age_bracket_distr)
-    ages, sexes = [], []
 
-    for b in bracket_count:
-        sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
-        ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
-        sexes_in_bracket = np.random.choice(np.arange(2),bracket_count[b],p = sex_probabilities)
-        ages += list(ages_in_bracket)
-        sexes += list(sexes_in_bracket)
+    if age_bracket_distr is None:
+        sexes = np.random.binomial(1,p = 0.5,size = n_people)
+        # ages = np.random.randint(min_age,max_age+1,size = n_people) # should return a flat distribution if we don't know the age distribution, not a normal distribution...
+        ages = np.random.normal(age_mean,age_std,size = n_people)
+        # ages = [a for a in ages if a >= 0]
+        ages = [np.median([min_age, int(a), max_age]) for a in ages]
+
+    else:
+        bracket_count = sample_n(n_people,age_bracket_distr)
+        ages, sexes = [], []
+
+        for b in bracket_count:
+            sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
+            ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
+            sexes_in_bracket = np.random.choice(np.arange(2),bracket_count[b],p = sex_probabilities)
+            ages += list(ages_in_bracket)
+            sexes += list(sexes_in_bracket)
 
     return ages, sexes
 
@@ -288,7 +306,6 @@ def get_seattle_age_sex(census_location='seattle_metro', location='Washington'):
     age_bracket_distr = read_age_bracket_distr(dropbox_path, census_location)
     gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path, census_location)
     age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
-    # age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
@@ -301,7 +318,6 @@ def get_seattle_age_sex_n(census_location='seattle_metro',location='Washington',
     age_bracket_distr = read_age_bracket_distr(dropbox_path, census_location)
     gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path, census_location)
     age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
-    # age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
 
     ages,sexes = get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
@@ -315,7 +331,6 @@ def get_usa_age_sex(location='seattle_metro', state_location='Washington'):
     age_bracket_distr = read_age_bracket_distr(dropbox_path,location,state_location,country_location)
     gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
     age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
-    # age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
@@ -329,10 +344,60 @@ def get_usa_age_sex_n(location='seattle_metro',state_location='Washington',n_peo
     age_bracket_distr = read_age_bracket_distr(dropbox_path,location,state_location,country_location)
     gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
     age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
-    # age_brackets_filepath = os.path.join(dropbox_path,'census','age distributions','census_age_brackets.dat')
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
 
     ages,sexes = get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
+    return ages,sexes
+
+
+def get_usa_age_n(sexes=None,location='seattle_metro',state_location='Washington'):
+    """ Define ages, maybe from supplied sexes"""
+    dropbox_path = datadir
+    country_location = 'usa'
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
+    age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
+    age_brackets = get_age_brackets_from_df(age_brackets_filepath)
+    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+
+    sex_count = Counter(sexes)
+    sex_age_distr = {0: gender_fraction_by_age['female'], 1: gender_fraction_by_age['male']}
+
+    ages,sexes = [],[]
+
+    for sex in sex_count:
+        bracket_count = sample_n(sex_count[sex],sex_age_distr[sex])
+        for b in bracket_count:
+            ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
+            ages += list(ages_in_bracket)
+        sexes += [sex] * sex_count[sex]
+    return ages,sexes
+
+
+def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
+    """ Define sexes from supplied ages """
+    dropbox_path = datadir
+    country_location = 'usa'
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
+    age_brackets_filepath = get_census_age_brackets_path(dropbox_path)
+    age_brackets = get_age_brackets_from_df(age_brackets_filepath)
+    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+
+    age_count = Counter(ages)
+    bracket_count = get_aggregate_ages(age_count,age_by_brackets_dic,len(age_brackets))
+
+    ages,sexes = [],[]
+
+    for b in bracket_count:
+        
+        sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
+        sexes_in_bracket = np.random.binomial(1,p = gender_fraction_by_age['female'][b], size = bracket_count[b])
+        # sexes_in_bracket = np.random.choice(np.arange(2), bracket_count[b], sex_probabilities)
+        ages_in_bracket = []
+        for a in age_brackets[b]:
+            ages_in_bracket += [a] * age_count[a]
+        ages += ages_in_bracket
+        sexes += list(sexes_in_bracket)
+
     return ages,sexes
 
 

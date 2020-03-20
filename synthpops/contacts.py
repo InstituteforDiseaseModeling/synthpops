@@ -1,5 +1,6 @@
 import sciris as sc
 import numpy as np
+import networkx as nx
 from . import synthpops as sp
 from .config import datadir
 import os
@@ -7,10 +8,11 @@ import os
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, location=None, use_usa=True, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
-    n = int(n)
+    if n is float: 
+        n = int(n)
 
-    if n < 2000:
-        raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
+        if n < 2000:
+            raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
 
     # A list of UIDs was supplied as the first argument
     if isinstance(n, list):
@@ -26,18 +28,40 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, 
             uids.append(sc.uuid(length=id_len))
 
     # Optionally take in either ages or sexes, too
-    if ages is None or sexes is None:
+    if ages is None and sexes is None:
         if use_usa:
             if location is None: location, state_location = 'seattle_metro', 'Washington'
             gen_ages,gen_sexes = sp.get_usa_age_sex_n(location,state_location,n_people=n)
         else:
-            raise NotImplementedError('Currently, only locations in the US are supported. Next version!')
-        random_inds = np.random.permutation(n)
-        if ages is None:
-            ages = [gen_ages[r] for r in random_inds]
-        if sexes is None:
-            sexes = [gen_sexes[r] for r in random_inds]
+            if location is None:
+                gen_ages,gen_sexes = sp.get_age_sex_n(None,None,None,n_people=n)
 
+            else:
+                raise NotImplementedError('Currently, only locations in the US are supported. Next version!')
+
+    # you only have ages...
+    elif ages is not None and sexes is None:
+        if use_usa:
+            if location is None: location, state_location = 'seattle_metro', 'Washington'
+            gen_ages,gen_sexes = sp.get_usa_sex_n(ages,location,state_location)
+        else:
+            raise NotImplementedError('Currently, only locations in the US are supported.')
+
+    # you only have sexes...
+    elif ages is None and sexes is not None:
+        if use_usa:
+            if location is None: location, state_location = 'seattle_metro', 'Washington'
+            gen_ages,gen_sexes = sp.get_usa_age_n(sexes,location,state_location)
+        else:
+            raise NotImplementedError('Currently, only locations in the US are supported')
+
+    # randomize your generated ages and sexes
+    if ages is None or sexes is None:
+        random_inds = np.random.permutation(n)
+        ages = [gen_ages[r] for r in random_inds]
+        sexes = [gen_sexes[r] for r in random_inds]
+
+    # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i,uid in enumerate(uids):
         popdict[uid] = {}
@@ -46,6 +70,33 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, 
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {'M': set()}
 
+    return popdict
+
+
+def make_contacts_generic(popdict,network_distr_args):
+
+    n_contacts = network_distr_args['average_degree']
+    network_type = network_distr_args['network_type']
+    directed = network_distr_args['directed']
+
+    uids = popdict.keys()
+    uids = [uid for uid in uids]
+
+    N = len(popdict)
+
+    if network_type == 'poisson_degree':
+        p = float(n_contacts)/N
+
+        G = nx.erdos_renyi_graph(N,p,directed=directed)
+
+    A = [a for a in G.adjacency()]
+
+    for n,uid in enumerate(uids):
+        source_uid = uids[n]
+        targets = [t for t in A[n][1].keys()]
+        target_uids = [uids[target] for target in targets]
+        popdict[uid]['contacts']['M'] = set(target_uids)
+        
     return popdict
 
 
@@ -93,6 +144,7 @@ def make_contacts_without_social_layers_usa(popdict,n_contacts_dic,state_locatio
                     popdict[c]['contacts']['M'].add(i)
 
     return popdict
+
 
 def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,location,activity_args,network_distr_args):
 
@@ -261,7 +313,7 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
     Parameters
     ----------
     popdict : dict
-        From make_pop
+        From make_pop - should already have age!
 
     n_contacts_dic : dict
         Number of average contacts by setting
@@ -270,7 +322,7 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
         Name of state to call in state age mixing patterns
 
     location : str
-        Name of location to call in age profile and in future household size
+        Name of location to call in age profile and in future household size, but also cruise ships!
 
     options_args : dict
         Dictionary of options flags
@@ -287,6 +339,10 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
 
     if location             is None: location = 'seattle_metro'
     if state_location       is None: state_location = 'Washington'
+
+    cruise_ships = ['Diamond_Princess','Grand_Princess']
+
+
     # using default influenza calibrated weights! Question whether these should be appropriate
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 7}
 
@@ -306,7 +362,6 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
         # here you should just create random contacts (regardless of age and sex)
 
     # fill in the other keys as False!
-    # if any(key not in options_args for key in options_keys):
     for key in options_keys:
         if key not in options_args:
             options_args[key] = False
@@ -321,10 +376,16 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
             if options_args['use_age'] and options_args['use_social_layers']:
                 popdict = make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,location,activity_args,network_distr_args)
         else:
-            raise NotImplementedError("Stop! I can't create other populations yet.")
+            # if location in cruise_ships:
+                # popdict = make_contacts_cruise_ship()
+            # else:
+                # raise NotImplementedError("Stop! I can't create this population yet.")
+            raise NotImplementedError("Stop! I can't create populations outside of the US yet.")
     else:
         # this should probably be the generic case with a default age and sex distribution
-        raise NotImplementedError("Stop! I can't create generic populations quite yet.")
+        popdict = make_contacts_generic(popdict,network_distr_args)
+
+        # raise NotImplementedError("Stop! I can't create generic populations quite yet.")
 
     # print(options_args)
     return popdict
