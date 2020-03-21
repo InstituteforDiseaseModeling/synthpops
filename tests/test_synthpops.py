@@ -114,18 +114,21 @@ if __name__ == '__main__':
 
     # location = 'seattle_metro' # for census distributions
     # state_location = 'Washington' # for state wide age mixing patterns
-    location = 'portland_metro'
-    state_location = 'Oregon'
-    country_location = 'usa'
+    # location = 'portland_metro'
+    # state_location = 'Oregon'
+    # country_location = 'usa'
 
-    test_all(location,state_location,country_location)
-    test_n_single_ages(1e4,location,state_location,country_location)
-    test_multiple_ages(1e4,location,state_location,country_location)
+    # test_all(location,state_location,country_location)
+    # test_n_single_ages(1e4,location,state_location,country_location)
+    # test_multiple_ages(1e4,location,state_location,country_location)
 
-    ages,sexes = sp.get_usa_age_sex_n(location,state_location,1e2)
-    print(ages,sexes)
+    # ages,sexes = sp.get_usa_age_sex_n(location,state_location,1e2)
+    # print(ages,sexes)
 
-
+    country_location = 'Algeria'
+    age_brackets_filepath = sp.get_census_age_brackets_path(sp.datadir,country_location)
+    age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
+    print(age_brackets)
     sc.toc()
 
 

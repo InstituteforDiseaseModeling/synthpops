@@ -134,7 +134,7 @@ if __name__ == '__main__':
     sc.tic()
 
     # popdict = test_make_popdict(10000)
-    # contacts = test_make_contacts(10000)s
+    # contacts = test_make_contacts(10000)
 
     location = 'portland_metro'
     state_location = 'Oregon'
@@ -148,8 +148,6 @@ if __name__ == '__main__':
     # popdict = test_make_popdict_generic(1e4)
 
     contacts = test_make_contacts_generic(1e4)
-
-
 
     sc.toc()
 
