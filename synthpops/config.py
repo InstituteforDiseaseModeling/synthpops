@@ -15,10 +15,9 @@ datadir = None
 userpath = os.path.expanduser('~')
 username = os.path.split(userpath)[-1]
 datadirdict = {
-    # 'dmistry': '/home/dmistry/Dropbox (IDM)/seattle_network',
-    'dmistry': os.path.join(userpath,'Dropbox (IDM)','synthpops'),
-    'cliffk': os.path.join(userpath,'idm','Dropbox','synthpops'),
-    'lgeorge': os.path.join(userpath,'Dropbox','synthpops'),
+    'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
+    'cliffk':   os.path.join(userpath,'idm','Dropbox','synthpops'),
+    'lgeorge':  os.path.join(userpath,'Dropbox','synthpops'),
     'ccollins': os.path.join(userpath,'Dropbox','synthpops')
 }
 
