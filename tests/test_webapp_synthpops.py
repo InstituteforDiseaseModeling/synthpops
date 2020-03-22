@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import synthpops as sp
 import sciris as sc
@@ -7,8 +6,8 @@ import sciris as sc
 def test_webapp_synthpops_calls(n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
     datadir = sp.datadir
 
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location=state_location,use_bayesian=use_bayesian)
-    age_brackets = sp.get_census_age_brackets(datadir,use_bayesian=use_bayesian)
+    sp.read_age_bracket_distr(datadir,location,state_location=state_location,use_bayesian=use_bayesian)
+    sp.get_census_age_brackets(datadir,use_bayesian=use_bayesian)
     num_agebrackets = 16
 
     n_contacts_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 7}
@@ -20,17 +19,16 @@ def test_webapp_synthpops_calls(n,location='seattle_metro',state_location='Washi
         print(contact_matrix_dic[k].shape)
 
     n = int(n)
-    ages = sp.get_age_n(n,location=location,state_location=state_location,use_bayesian=use_bayesian)
+    sp.get_age_n(n,location=location,state_location=state_location,use_bayesian=use_bayesian)
 
     return
 
 
 def test_webapp_contacts_calls(n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
 
-    datadir = sp.datadir
     n = int(n)
     popdict = sp.make_popdict(n=n,state_location=state_location,location=location,use_bayesian=True)
-    
+
     print(popdict)
 
     return
@@ -86,14 +84,14 @@ if __name__ == '__main__':
 
     sp.validate()
     datadir = sp.datadir
-    
+
     location = 'seattle_metro'
     state_location = 'Washington'
 
     # location = 'portland_metro'
     # state_location = 'Oregon'
     country_location = 'usa'
-    
+
     use_bayesian = True
 
     # sheet_name = 'United States of America'
