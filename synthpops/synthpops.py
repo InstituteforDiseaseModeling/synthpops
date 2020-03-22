@@ -1,8 +1,7 @@
 import os
 import numpy as np
-import pylab as pl
 import pandas as pd
-from .config import datadir # TODO: not currently used
+from .config import datadir
 import numba  as nb
 from collections import Counter
 
@@ -31,7 +30,7 @@ def get_gender_fraction_by_age_path(datadir, location, state_location=None, coun
 
 
 def read_gender_fraction_by_age_bracket(datadir, location, state_location=None, country_location=None):
-    """ 
+    """
     Return dict of gender fractions by age bracket for all Seattle Metro.
     """
     if state_location == None:
@@ -83,7 +82,7 @@ def get_age_brackets_from_df(ab_filepath):
 
 def get_census_age_brackets_path(datadir,country_location=None,use_bayesian=False):
     """
-    Returns filepath for census age brackets : depends on the country or source of contact pattern data. 
+    Returns filepath for census age brackets : depends on the country or source of contact pattern data.
     For the webapp where we currently use the contact matrices from K. Prem et al, set flag use_bayesian to True.
     """
     if use_bayesian:
@@ -135,8 +134,8 @@ def get_aggregate_ages(ages,age_by_brackets_dic,num_agebrackets):
 
 
 def get_aggregate_age_dict_conversion(larger_aggregate_ages,larger_age_brackets,smaller_age_brackets,age_by_brackets_dic_larger,age_by_brackets_dic_smaller):
-    """ 
-    Convert the aggregate age count in larger_aggregate_ages from a larger number of age brackets to a smaller number of age brackets 
+    """
+    Convert the aggregate age count in larger_aggregate_ages from a larger number of age brackets to a smaller number of age brackets
     """
     if len(larger_age_brackets) < len(smaller_age_brackets) : raise NotImplementedError('Cannot reduce aggregate ages any further.')
     smaller_aggregate_ages = dict.fromkeys(smaller_age_brackets.keys(),0)
@@ -187,7 +186,7 @@ def get_symmetric_community_matrix(ages):
 
 def get_contact_matrix(datadir,state_location,setting_code,num_agebrackets=None,use_bayesian=False,sheet_name='United States of America'):
     """
-    Return setting specific contact matrix for num_agebrackets age brackets. 
+    Return setting specific contact matrix for num_agebrackets age brackets.
     For setting code M, returns an influenza weighted combination of the settings: H, S, W, R.
     """
 
@@ -212,7 +211,7 @@ def get_contact_matrix(datadir,state_location,setting_code,num_agebrackets=None,
 
 def get_contact_matrix_dic(datadir, state_location, num_agebrackets=None,use_bayesian=False,sheet_name='United States of America'):
     """
-    Return a dict of setting specific age mixing matrices. 
+    Return a dict of setting specific age mixing matrices.
     """
     matrix_dic = {}
     for setting_code in ['H','S','W','R']:
@@ -221,8 +220,8 @@ def get_contact_matrix_dic(datadir, state_location, num_agebrackets=None,use_bay
 
 
 def combine_matrices(matrix_dic,weights_dic,num_agebrackets):
-    """ 
-    Returns a contact matrix that is a linear combination of setting specific matrices given weights for each setting. 
+    """
+    Returns a contact matrix that is a linear combination of setting specific matrices given weights for each setting.
     """
     M = np.zeros((num_agebrackets,num_agebrackets))
     for setting_code in weights_dic:
@@ -291,8 +290,8 @@ def sample_bracket(distr,brackets):
 
 
 def sample_n(nk,distr):
-    """ 
-    Return count for n samples from a distribution 
+    """
+    Return count for n samples from a distribution
     """
     if type(distr) == dict:
         distr = norm_dic(distr)
@@ -309,7 +308,7 @@ def sample_n(nk,distr):
 
 def sample_contact_age(age,age_brackets,age_by_brackets_dic,age_mixing_matrix):
     """
-    Return age of contact by age of individual sampled from an age mixing matrix. 
+    Return age of contact by age of individual sampled from an age mixing matrix.
     Age of contact is uniformly drawn from the age bracket sampled from the age mixing matrix.
     """
     b = age_by_brackets_dic[age]
@@ -319,7 +318,7 @@ def sample_contact_age(age,age_brackets,age_by_brackets_dic,age_mixing_matrix):
 
 def sample_n_contact_ages(n_contacts,age,age_brackets,age_by_brackets_dic,age_mixing_matrix_dic,weights_dic,num_agebrackets=18):
     """
-    Return n_contacts sampled from an age mixing matrix. Combines setting specific weights to create an age mixing matrix 
+    Return n_contacts sampled from an age mixing matrix. Combines setting specific weights to create an age mixing matrix
     from which contact ages are sampled.
 
     For school closures or other social distancing methods, reduce n_contacts and the weights of settings that should be affected.
@@ -411,7 +410,7 @@ def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people
 
 
 def get_seattle_age_sex(census_location='seattle_metro', location='Washington'):
-    ''' 
+    '''
     Define default age and sex distributions for Seattle
     '''
     dropbox_path = datadir
@@ -510,7 +509,7 @@ def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
     ages,sexes = [],[]
 
     for b in bracket_count:
-        
+
         sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
         sexes_in_bracket = np.random.binomial(1,p = gender_fraction_by_age['female'][b], size = bracket_count[b])
         # sexes_in_bracket = np.random.choice(np.arange(2), bracket_count[b], sex_probabilities)
@@ -524,7 +523,7 @@ def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
 
 
 def get_age_n(n,location='seattle_metro',state_location='Washington',country_location='usa',use_bayesian=False):
-    """ 
+    """
     Define ages, regardless of sex. For webapp, set use_bayesian to True so that ages are drawn from the age brackets that match the contact matrices used by the webapp.
     """
     dropbox_path = datadir

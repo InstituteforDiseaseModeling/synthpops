@@ -3,29 +3,25 @@ import numpy as np
 import networkx as nx
 from . import synthpops as sp
 from .config import datadir
-import os
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, location=None, use_usa=True, use_bayesian=False, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
-    if n is float: 
-        n = int(n)
 
-        if n < 2000:
-            raise NotImplementedError("Stop! I can't work with fewer than 2000 people currently.")
+    min_people = 2000
 
     # A list of UIDs was supplied as the first argument
-    if isinstance(n, list):
-        uids = n
+    if uids is not None: # UIDs were supplied, use them
         n = len(uids)
-    elif uids is not None: # UIDs were supplied, use them
-        n = len(uids)
-
-    # Not supplied, generate
-    if uids is None:
+    else: # Not supplied, generate
+        n = int(n)
         uids = []
         for i in range(n):
             uids.append(sc.uuid(length=id_len))
+
+    # Check that there are enough people
+    if n < min_people:
+        raise NotImplementedError(f"Stop! I can't work with fewer than {min_people} people currently.")
 
     # Optionally take in either ages or sexes, too
     if ages is None and sexes is None:
@@ -104,7 +100,7 @@ def make_contacts_generic(popdict,network_distr_args):
         targets = [t for t in A[n][1].keys()]
         target_uids = [uids[target] for target in targets]
         popdict[uid]['contacts']['M'] = set(target_uids)
-        
+
     return popdict
 
 
@@ -112,9 +108,9 @@ def make_contacts_without_social_layers_bayesian(popdict,n_contacts_dic,state_lo
     """
     For use with webapp.
     Create contact network according to overall age-mixing contact matrices from K. Prem et al.
-    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created. 
+    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created.
     However, this does separate agents according to their age and gives them contacts likely for their age.
-    For all ages, the average number of contacts is constant, although location specific data may prove this to not be true. 
+    For all ages, the average number of contacts is constant, although location specific data may prove this to not be true.
     """
 
     uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
@@ -156,8 +152,8 @@ def make_contacts_with_social_layers_bayesian(popdict,n_contacts_dic,state_locat
     """
     For use with webapp.
     Create contact network according to overall age-mixing contact matrices from K. Prem et al for different social settings.
-    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created. 
-    However, this does separate agents according to their age and gives them contacts likely for their age specified by 
+    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created.
+    However, this does separate agents according to their age and gives them contacts likely for their age specified by
     the social settings they are likely to participate in. College students may also be workers, however here they are
     only students and we assume that any of their contacts in the work environment are likely to look like their contacts at school.
     """
@@ -187,9 +183,9 @@ def make_contacts_with_social_layers_bayesian(popdict,n_contacts_dic,state_locat
 
     student_n_dic['W'] = 0
     non_student_n_dic['S'] = teachers_school_weight # make some teachers
-    # 5 categories : 
+    # 5 categories :
     # infants & toddlers : H, R
-    # school-aged students : H, S, R 
+    # school-aged students : H, S, R
     # college-aged students / workers : H, S, W, R
     # non-student workers : H, W, R
     # retired elderly : H, R - some may be workers too but it's low. directed means they won't have contacts in the workplace, but undirected means they will at least a little.
@@ -295,9 +291,9 @@ def make_contacts_without_social_layers_usa(popdict,n_contacts_dic,state_locatio
     """
     For internal IDM use only.
     Create contact network according to overall age-mixing contact matrices from D. Mistry et al.
-    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created. 
+    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created.
     However, this does separate agents according to their age and gives them contacts likely for their age.
-    For all ages, the average number of contacts is constant, although location specific data may prove this to not be true. 
+    For all ages, the average number of contacts is constant, although location specific data may prove this to not be true.
     """
 
     # using a flat contact matrix
@@ -346,8 +342,8 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     """
     For internal IDM use only.
     Create contact network according to overall age-mixing contact matrices from D. Mistry et al for different social settings.
-    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created. 
-    However, this does separate agents according to their age and gives them contacts likely for their age specified by 
+    Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created.
+    However, this does separate agents according to their age and gives them contacts likely for their age specified by
     the social settings they are likely to participate in. College students may also be workers, however here they are
     only students and we assume that any of their contacts in the work environment are likely to look like their contacts at school.
     """
@@ -371,7 +367,7 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     directed = network_distr_args['directed']
 
     # weights_dic is calibrated to empirical survey data but for all people by all ages!
-    # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights 
+    # to figure out the weights for individual ranges, this is an approach to rescale school and workplace weights
 
     # problems: this doesn't capture school enrollment rates or work enrollment rates
     student_n_dic = sc.dcp(n_contacts_dic)
@@ -385,9 +381,9 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
 
     student_n_dic['W'] = 0
     non_student_n_dic['S'] = teachers_school_weight # make some teachers
-    # 5 categories : 
+    # 5 categories :
     # infants & toddlers : H, R
-    # school-aged students : H, S, R 
+    # school-aged students : H, S, R
     # college-aged students / workers : H, S, W, R
     # non-student workers : H, W, R
     # retired elderly : H, R - some may be workers too but it's low. directed means they won't have contacts in the workplace, but undirected means they will at least a little.
@@ -496,7 +492,7 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
     and potentially other factors. This function adds a new subkey, contacts, which
     is a list of contact IDs for each individual. If directed=False (default),
     if person A is a contact of person B, then person B is also a contact of person A.
-    
+
     Example output (input is the same, minus the "contacts" field):
         popdict = {
             '8acf08f0': {
@@ -528,13 +524,13 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
         Name of location to call in age profile and in future household size, but also cruise ships!
 
     options_args : dict
-        Dictionary of options flags 
+        Dictionary of options flags
 
     activity_args : dict
         Dictionary of actitivity age bounds, student-teacher ratio
 
     network_distr_args : dict
-        Dictionary of network distribution args - average degree, direction, network type, 
+        Dictionary of network distribution args - average degree, direction, network type,
         can also include powerlaw exponents, block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures
         checkout https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
         network_type : default is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.

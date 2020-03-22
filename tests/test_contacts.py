@@ -1,9 +1,8 @@
 import synthpops as sp
 import sciris as sc
 import numpy as np
-import numba as nb
 
-default_n = 1000
+default_n = 3000
 # default_w = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 2.79} # default flu-like weights
 # default_w['R'] = 7 # increase the general community weight because the calibrate weight 2.79 doesn't include contacts from the general community that you don't know but are near!
 
@@ -31,14 +30,14 @@ def test_make_popdict_supplied(n=default_n):
     n = int(n)
     fixed_age = 40
     fixed_sex = 1
-    
+
     uids = [str(i) for i in np.arange(n)]
     ages = fixed_age*np.ones(n)
     sexes = fixed_sex*np.ones(n)
 
     # Simply compile these into a dict
     popdict = sp.make_popdict(uids=uids, ages=ages, sexes=sexes)
-    
+
     assert popdict[uids[0]]['age'] == fixed_age
     assert popdict[uids[0]]['sex'] == fixed_sex
 
@@ -49,7 +48,7 @@ def test_make_popdict_supplied_ages(n=default_n):
     sc.heading(f'Making "supplied" popdict for {n} people')
     n = int(n)
     fixed_age = 40
-    
+
     uids = [str(i) for i in np.arange(n)]
     ages = fixed_age*np.ones(n)
     ages[-10:] = fixed_age*2
@@ -76,7 +75,7 @@ def test_make_popdict_supplied_sexes(n=default_n):
 
 def test_make_contacts(n=default_n):
     sc.heading(f'Making contacts for {n} people')
-    
+
     popdict = popdict = sp.make_popdict(n=n)
 
     options_args = dict.fromkeys(['use_age','use_sex','use_loc','use_usa','use_social_layers'], True)
@@ -133,21 +132,21 @@ def test_make_contacts_generic(n=default_n):
 if __name__ == '__main__':
     sc.tic()
 
-    # popdict = test_make_popdict(10000)
-    # contacts = test_make_contacts(10000)
+    popdict = test_make_popdict(n)
+    contacts = test_make_contacts(n)
 
     location = 'portland_metro'
     state_location = 'Oregon'
 
-    # n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'R': 10}
-    # contacts = test_make_contacts_and_show_some_layers(n=10000,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location)
+    n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'R': 10}
+    contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location)
 
-    # popdict = test_make_popdict_supplied(1e4)
-    # popdict = test_make_popdict_supplied_ages(1e4)
-    # popdict = test_make_popdict_supplied_sexes(20)
-    # popdict = test_make_popdict_generic(1e4)
+    popdict = test_make_popdict_supplied(1e4)
+    popdict = test_make_popdict_supplied_ages(1e4)
+    popdict = test_make_popdict_supplied_sexes(20)
+    popdict = test_make_popdict_generic(1e4)
 
-    contacts = test_make_contacts_generic(1e4)
+    contacts = test_make_contacts_generic(n)
 
     sc.toc()
 
