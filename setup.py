@@ -36,5 +36,6 @@ setup(
         "sciris>=0.15.7",
         "pandas",
         "numba",
+        "networkx",
     ],
 )
