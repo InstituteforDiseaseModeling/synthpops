@@ -125,10 +125,10 @@ if __name__ == '__main__':
     ages,sexes = sp.get_usa_age_sex_n(location,state_location,1e2)
     print(ages,sexes)
 
-    country_location = 'Algeria'
-    age_brackets_filepath = sp.get_census_age_brackets_path(sp.datadir,country_location)
-    age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
-    print(age_brackets)
+    # country_location = 'Algeria'
+    # age_brackets_filepath = sp.get_census_age_brackets_path(sp.datadir,country_location)
+    # age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
+    # print(age_brackets)
     sc.toc()
 
 

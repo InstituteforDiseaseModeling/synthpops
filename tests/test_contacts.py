@@ -132,8 +132,8 @@ def test_make_contacts_generic(n=default_n):
 if __name__ == '__main__':
     sc.tic()
 
-    popdict = test_make_popdict(n)
-    contacts = test_make_contacts(n)
+    popdict = test_make_popdict(default_n)
+    contacts = test_make_contacts(default_n)
 
     location = 'portland_metro'
     state_location = 'Oregon'
@@ -141,12 +141,12 @@ if __name__ == '__main__':
     n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'R': 10}
     contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location)
 
-    popdict = test_make_popdict_supplied(1e4)
-    popdict = test_make_popdict_supplied_ages(1e4)
+    popdict = test_make_popdict_supplied(default_n)
+    popdict = test_make_popdict_supplied_ages(default_n)
     popdict = test_make_popdict_supplied_sexes(20)
-    popdict = test_make_popdict_generic(1e4)
+    popdict = test_make_popdict_generic(default_n)
 
-    contacts = test_make_contacts_generic(n)
+    contacts = test_make_contacts_generic(default_n)
 
     sc.toc()
 
