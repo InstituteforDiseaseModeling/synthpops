@@ -2,8 +2,9 @@ import numpy as np
 import synthpops as sp
 import sciris as sc
 
+default_n = 1000
 
-def test_webapp_synthpops_calls(n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
+def test_webapp_synthpops_calls(n=default_n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
     datadir = sp.datadir
 
     sp.read_age_bracket_distr(datadir,location,state_location=state_location,use_bayesian=use_bayesian)
@@ -19,12 +20,12 @@ def test_webapp_synthpops_calls(n,location='seattle_metro',state_location='Washi
         print(contact_matrix_dic[k].shape)
 
     n = int(n)
-    sp.get_age_n(n,location=location,state_location=state_location,use_bayesian=use_bayesian)
+    sp.get_age_n(n=default_n,location=location,state_location=state_location,use_bayesian=use_bayesian)
 
     return
 
 
-def test_webapp_contacts_calls(n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
+def test_webapp_contacts_calls(n=default_n,location='seattle_metro',state_location='Washington',use_bayesian=True,sheet_name='United States of America'):
 
     n = int(n)
     popdict = sp.make_popdict(n=n,state_location=state_location,location=location,use_bayesian=True)
@@ -34,7 +35,7 @@ def test_webapp_contacts_calls(n,location='seattle_metro',state_location='Washin
     return
 
 
-def test_webapp_make_contacts(n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',use_bayesian=True,sheet_name='Pakistan'):
+def test_webapp_make_contacts(n=default_n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',use_bayesian=True,sheet_name='Pakistan'):
     sc.heading(f'Making popdict for {n} peoplse')
     n = int(n)
     popdict = sp.make_popdict(n=n,state_location=state_location,location=location,use_bayesian=use_bayesian)
@@ -57,7 +58,7 @@ def test_webapp_make_contacts(n,n_contacts_dic=None,state_location='Washington',
     return popdict
 
 
-def test_webapp_make_contacts_and_show_some_layers(n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',use_bayesian=True,sheet_name='United States of America'):
+def test_webapp_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',use_bayesian=True,sheet_name='United States of America'):
     sc.heading(f'Making popdict for {n} people')
     n = int(n)
     popdict = sp.make_popdict(n=n,state_location=state_location,location=location,use_bayesian=use_bayesian)
