@@ -1,10 +1,10 @@
 import os
 import numpy as np
 import pandas as pd
-from .config import datadir
+import sciris as sc
 import numba  as nb
 from collections import Counter
-
+from .config import datadir
 
 def norm_dic(dic):
     """
@@ -347,8 +347,11 @@ def get_n_contact_ids_by_age(contact_ids_by_age_dic,contact_ages,age_brackets,ag
     """
     contact_ids = set()
     for contact_age in contact_ages:
-        if len(contact_ids_by_age_dic[contact_age]) > 0:
-            contact_id = np.random.choice( contact_ids_by_age_dic[contact_age] )
+        age_list = sorted(list(contact_ids_by_age_dic.keys()))
+        ind = sc.findnearest(age_list, contact_age)
+        these_ids = contact_ids_by_age_dic[age_list[ind]]
+        if len(these_ids) > 0:
+            contact_id = np.random.choice(these_ids)
         else:
             b_contact = age_by_brackets_dic[contact_age]
             potential_contacts = []

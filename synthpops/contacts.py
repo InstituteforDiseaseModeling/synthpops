@@ -8,7 +8,7 @@ from .config import datadir
 def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, location=None, use_usa=True, use_bayesian=False, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
 
-    min_people = 2000
+    min_people = 1000
 
     # A list of UIDs was supplied as the first argument
     if uids is not None: # UIDs were supplied, use them
@@ -21,7 +21,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, 
 
     # Check that there are enough people
     if n < min_people:
-        raise NotImplementedError(f"Stop! I can't work with fewer than {min_people} people currently.")
+        print('Warning: with {n}<{min_people} people, contact matrices will be approximate')
 
     # Optionally take in either ages or sexes, too
     if ages is None and sexes is None:

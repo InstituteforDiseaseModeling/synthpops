@@ -2,7 +2,7 @@ import synthpops as sp
 import sciris as sc
 import numpy as np
 
-default_n = 3000
+default_n = 1000
 # default_w = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 2.79} # default flu-like weights
 # default_w['R'] = 7 # increase the general community weight because the calibrate weight 2.79 doesn't include contacts from the general community that you don't know but are near!
 
