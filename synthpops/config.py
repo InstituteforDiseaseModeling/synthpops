@@ -12,6 +12,7 @@ __all__ = ['datadir', 'localdatadir', 'set_datadir', 'validate']
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
 localdatadir = None
+full_data_available = False
 
 # Set the local data folder
 thisdir = sc.thisdir(__file__)
@@ -29,6 +30,7 @@ datadirdict = {
 
 # Try to find the folder on load
 if username in datadirdict.keys():
+    full_data_available = True
     datadir = datadirdict[username]
     if not os.path.isdir(datadir):
         errormsg = f'Your username "{username}" was found, but the folder {datadir} does not exist. Please fix synthpops/config.py and try again.'
