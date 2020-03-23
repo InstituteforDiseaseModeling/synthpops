@@ -539,8 +539,6 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
     if location             is None: location = 'seattle_metro'
     if state_location       is None: state_location = 'Washington'
 
-    cruise_ships = ['Diamond_Princess','Grand_Princess']
-
     # using default influenza calibrated weights! Question whether these should be appropriate
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 7}
 
