@@ -5,11 +5,18 @@ The point of this file is to set the location of the data folder.
 #%% Housekeeping
 
 import os
+import sciris as sc
 
-__all__ = ['datadir' ,'set_datadir', 'validate']
+__all__ = ['datadir', 'localdatadir', 'set_datadir', 'validate']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
+localdatadir = None
+full_data_available = False
+
+# Set the local data folder
+thisdir = sc.thisdir(__file__)
+localdatadir = os.path.join(thisdir, os.pardir, 'data')
 
 # Set user-specific configurations
 userpath = os.path.expanduser('~')
@@ -23,9 +30,15 @@ datadirdict = {
 
 # Try to find the folder on load
 if username in datadirdict.keys():
+    full_data_available = True
     datadir = datadirdict[username]
-else:
-    print(f'synthpops: your username "{username}" is not configured. Please use synthpops.set_datadir() to configure.')
+    if not os.path.isdir(datadir):
+        errormsg = f'Your username "{username}" was found, but the folder {datadir} does not exist. Please fix synthpops/config.py and try again.'
+        raise FileNotFoundError(errormsg)
+
+# Replace with local data dir if Dropbox folder is not found
+if datadir is None:
+    datadir = localdatadir
 
 
 #%% Functions
@@ -34,7 +47,7 @@ def set_datadir(folder):
     ''' Set the folder to something user-specific '''
     global datadir
     datadir = folder
-    print(f'Done; data directory set to {folder}.')
+    print(f'Done: data directory set to {folder}.')
     return
 
 
