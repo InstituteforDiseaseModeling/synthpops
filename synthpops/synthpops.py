@@ -19,6 +19,26 @@ def norm_dic(dic):
     return new_dic
 
 
+def norm_age_group(age_dic,age_min,age_max):
+    dic = {}
+    for a in range(age_min,age_max+1):
+        dic[a] = age_dic[a]
+    return norm_dic(dic)
+
+
+def get_age_brackets_from_df(ab_filepath):
+    """
+    Returns dict of age bracket ranges from ab_filepath.
+    """
+    ab_df = pd.read_csv(ab_filepath,header = None)
+    dic = {}
+    for index,row in enumerate(ab_df.iterrows()):
+        age_min = row[1].values[0]
+        age_max = row[1].values[1]
+        dic[index] = np.arange(age_min,age_max+1)
+    return dic
+
+
 def get_gender_fraction_by_age_path(datadir, location, state_location=None, country_location=None):
     """
     Return filepath for all Seattle Metro gender fractions by age bracket.
@@ -58,6 +78,49 @@ def get_age_bracket_distr_path(datadir, location, state_location=None, country_l
             return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_age_bracket_distr.dat')
 
 
+def get_household_size_distr_path(datadir,location,state_location=None,country_location=None,use_bayesian=False):
+    if use_bayesian:
+        raise NotImplementedError("I don't have household size distributions for bayesian locations... Try again.")
+    else:
+        if state_location == None:
+            return os.path.join(datadir,'census','household size distributions',location + '_household_size_distr.dat')
+        else:
+            return os.path.join(datadir,'demographics',country_location,state_location,'census','household size distributions',location + '_household_size_distr.dat')
+
+
+def get_household_size_distr(datadir,location,state_location=None,country_location=None,use_bayesian=False):
+    df = pd.read_csv(get_household_size_distr_path(datadir,location,state_location,country_location,use_bayesian))
+    return dict( zip(df.household_size, df.percent) )
+
+
+def get_head_age_brackets(datadir,country_location=None,use_bayesian=False):
+    if use_bayesian:
+        raise NotImplementedError("I don't have data for bayesian locations... Try again.")
+    else:
+        f = os.path.join(datadir,'demographics',country_location,'household living arrangements','head_age_brackets.dat')
+        return get_age_brackets_from_df(f)
+
+
+def get_household_head_age_by_size_df(datadir,country_location=None,use_bayesian=False):
+    if use_bayesian:
+        raise NotImplementedError("This data is unavailable. ")
+    else:
+        return pd.read_csv(os.path.join(datadir,'demographics',country_location,'household living arrangements','household_head_age_and_size_count.dat'))
+
+
+def get_head_age_by_size_distr(datadir,country_location=None,use_bayesian=False):
+    hha_df = get_household_head_age_by_size_df(datadir,country_location,use_bayesian)
+    hha_brackets = get_head_age_brackets(datadir,country_location,use_bayesian)
+    hha_by_size = np.zeros((2 + len(hha_df), len(hha_brackets)) )
+    hha_by_size[0,:] += 1
+    for s in range(2,len(hha_df)+2):
+        # hha_by_size[s,:] = 
+        d = hha_df[hha_df['family_size'] == s].values[0][1:]
+        print(d,d.shape)
+        hha_by_size[s-1] = d
+    return hha_by_size
+
+
 def read_age_bracket_distr(datadir, location, state_location=None, country_location=None,use_bayesian=False):
     """
     Return dict of age distribution by age brackets.
@@ -65,19 +128,6 @@ def read_age_bracket_distr(datadir, location, state_location=None, country_locat
     """
     df = pd.read_csv(get_age_bracket_distr_path(datadir,location,state_location,country_location,use_bayesian))
     return dict(zip(np.arange(len(df)), df.percent))
-
-
-def get_age_brackets_from_df(ab_filepath):
-    """
-    Returns dict of age bracket ranges from ab_filepath.
-    """
-    ab_df = pd.read_csv(ab_filepath,header = None)
-    dic = {}
-    for index,row in enumerate(ab_df.iterrows()):
-        age_min = row[1].values[0]
-        age_max = row[1].values[1]
-        dic[index] = np.arange(age_min,age_max+1)
-    return dic
 
 
 def get_census_age_brackets_path(datadir,country_location=None,use_bayesian=False):
@@ -278,14 +328,52 @@ def sample_single(distr):
         return index
 
 
+def resample_age(single_year_age_distr,age):
+    if age == 0:
+        age_min = 0
+        age_max = 1
+    elif age == 1:
+        age_min = 0
+        age_max = 2
+    elif age >= 2 and age <= 97:
+        age_min = age - 2
+        age_max = age + 2
+    elif age == 98:
+        age_min = 96
+        age_max = 99
+    elif age == 99:
+        age_min = 97
+        age_max = 99
+    # else:
+        # age_min = 98
+        # age_max = 100
+    
+    age_distr = norm_age_group(single_year_age_distr,age_min,age_max)
+    n = np.random.multinomial(1,[age_distr[a] for a in range(age_min,age_max+1)],size = 1)[0]
+    age_range = np.arange(age_min,age_max+1)
+    index = np.where(n)[0]
+    return age_range[index][0]
+
+
+def sample_from_range(distr,min_val,max_val):
+    new_distr = norm_age_group(distr,min_val,max_val)
+    return sample_single(new_distr)
+
+
 def sample_bracket(distr,brackets):
     """
     Return a sampled bracket from a distribution.
     """
-    sorted_keys = sorted(distr.keys())
-    sorted_distr = [distr[k] for k in sorted_keys]
-    n = np.random.multinomial(1,sorted_distr, size = 1)[0]
-    index = np.where(n)[0][0]
+    if type(distr) == dict:
+        sorted_keys = sorted(distr.keys())
+        sorted_distr = [distr[k] for k in sorted_keys]
+        n = np.random.multinomial(1,sorted_distr, size = 1)[0]
+        index = np.where(n)[0][0]
+    # elif type(distr) == np.ndarray:
+        # distr = distr / np.sum(distr)
+        # n = np.random.multinomial(1,distr,size = 1)[0]
+        # index = np.where(n)[0][0]
+        # 
     return index
 
 
