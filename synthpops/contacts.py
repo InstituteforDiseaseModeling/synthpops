@@ -3,7 +3,8 @@ import numpy as np
 import networkx as nx
 from . import synthpops as sp
 from .config import datadir
-
+import os
+import pandas as pd
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, location=None, use_usa=True, use_bayesian=False, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
@@ -485,6 +486,64 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     return popdict
 
 
+def make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes):
+    file_path = os.path.join(datadir,'demographics',country_location,state_location)
+
+    households_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
+
+    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_uids.dat')
+
+    df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
+
+    age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
+
+    uids = age_by_uid_dic.keys()
+
+    # you have both ages and sexes so we'll just populate that for you...
+    popdict = {}
+    for i,uid in enumerate(uids):
+        popdict[uid] = {}
+        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        for k in ['H','S','W','R']:
+            popdict[uid]['contacts'][k] = set()
+
+    fh = open(households_by_uid_path,'r')
+    for c,line in enumerate(fh):
+        r = line.strip().split(' ')
+        for uid in r:
+
+            for juid in r:
+                if uid != juid:
+                    popdict[uid]['contacts']['H'].add(juid)
+    fh.close()
+
+    fs = open(schools_by_uid_path,'r')
+    for c,line in enumerate(fs):
+        r = line.strip().split(' ')
+        for uid in r:
+            for juid in r:
+                if uid != juid:
+                    popdict[uid]['contacts']['S'].add(juid)
+    fs.close()
+
+    fw = open(workplaces_by_uid_path,'r')
+    for c,line in enumerate(fw):
+        r = line.strip().split(' ')
+        for uid in r:
+            for juid in r:
+                if uid != juid:
+                    popdict[uid]['contacts']['W'].add(juid)
+    fw.close()
+
+    return popdict
+
+
+
 def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
@@ -555,7 +614,7 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
     # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 0, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 70, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age','use_sex','use_loc','use_social_layers','use_activity_rates','use_usa','use_bayesian']
+    options_keys = ['use_age','use_sex','use_loc','use_social_layers','use_activity_rates','use_usa','use_bayesian','use_microstructure']
     if options_args         is None: options_args = dict.fromkeys(options_keys,False)
 
     # fill in the other keys as False!
@@ -563,7 +622,13 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
         if key not in options_args:
             options_args[key] = False
 
-    if options_args['use_bayesian']:
+    if options_args['use_microstructure']:
+        if 'Nhomes' not in network_distr_args: network_distr_args['Nhomes'] = 20000
+        country_location = 'usa'
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Nhomes'])
+
+
+    elif options_args['use_bayesian']:
         if sheet_name is None: sheet_name = 'United States of America'
         if options_args['use_social_layers']:
             popdict = make_contacts_with_social_layers_bayesian(popdict,n_contacts_dic,state_location,location,sheet_name,activity_args,network_distr_args)

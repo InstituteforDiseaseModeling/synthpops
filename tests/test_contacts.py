@@ -124,8 +124,27 @@ def test_make_contacts_generic(n=default_n):
             print(k,len(contact_ages),'contact ages',contact_ages)
         print()
 
-    return popdict
+    return contacts
 
+
+def test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Nhomes=50000):
+
+    popdict = {}
+    options_args = dict.fromkeys(['use_microstructure'],True)
+    contacts = sp.make_contacts(popdict,state_location=state_location,location=location,options_args=options_args)
+    uids = contacts.keys()
+    uids = [uid for uid in uids]
+    for n,uid in enumerate(uids):
+        if n > 20:
+            break
+        layers = contacts[uid]['contacts']
+        print('uid',uid,'age',contacts[uid]['age'],'total contacts', np.sum([len(contacts[uid]['contacts'][k]) for k in layers]))
+        for k in layers:
+            contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][k]]
+            print(k,len(contact_ages),'contact ages',contact_ages)
+        print()
+
+    return contacts
 
 
 #%% Run as a script
@@ -139,15 +158,15 @@ if __name__ == '__main__':
     state_location = 'Oregon'
 
     n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'R': 10}
-    contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location)
+    # contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location)
 
-    popdict = test_make_popdict_supplied(default_n)
-    popdict = test_make_popdict_supplied_ages(default_n)
-    popdict = test_make_popdict_supplied_sexes(20)
-    popdict = test_make_popdict_generic(default_n)
+    # popdict = test_make_popdict_supplied(default_n)
+    # popdict = test_make_popdict_supplied_ages(default_n)
+    # popdict = test_make_popdict_supplied_sexes(20)
+    # popdict = test_make_popdict_generic(default_n)
 
-    contacts = test_make_contacts_generic(default_n)
-
+    # contacts = test_make_contacts_generic(default_n)
+    test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Nhomes=50000)
     sc.toc()
 
 
