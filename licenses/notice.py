@@ -19,7 +19,7 @@ from typing.io import IO
 NOTICE_FILE = "NOTICE"
 
 project_name = "synthpops"
-project = Path(os.path.dirname(os.path.abspath(__file__))).parent.resolve()
+project = Path(os.path.dirname(os.path.abspath(__file__))).resolve()
 excludes = ['pip', 'setuptools', 'wheel', 'pkg-resources', project_name]
 encoding = "utf-8"
 
