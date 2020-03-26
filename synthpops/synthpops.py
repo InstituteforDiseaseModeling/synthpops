@@ -4,7 +4,9 @@ import pandas as pd
 import sciris as sc
 import numba  as nb
 from collections import Counter
+from copy import deepcopy
 from .config import datadir
+
 
 def norm_dic(dic):
     """
@@ -21,6 +23,8 @@ def norm_dic(dic):
 
 def norm_age_group(age_dic,age_min,age_max):
     dic = {}
+    if age_max == 100:
+        age_max = 99
     for a in range(age_min,age_max+1):
         dic[a] = age_dic[a]
     return norm_dic(dic)
@@ -288,6 +292,25 @@ def get_ages(synpop_path,location,num_agebrackets):
     return dict(zip(df.iloc[:,0].values, df.iloc[:,1].values))
 
 
+def get_aggregate_matrix(M,age_by_brackets_dic,num_agebrackets):
+    N = len(M)
+    M_agg = np.zeros((num_agebrackets,num_agebrackets))
+    for i in range(N):
+        bi = age_by_brackets_dic[i]
+        for j in range(N):
+            bj = age_by_brackets_dic[j]
+            M_agg[bi][bj] += M[i][j]
+    return M_agg
+
+
+def get_asymmetric_matrix(symmetric_matrix,aggregate_ages):
+    M = deepcopy(symmetric_matrix)
+    for a in aggregate_ages:
+        M[a,:] = M[a,:]/float(aggregate_ages[a])
+
+    return M
+
+
 def get_ids_by_age_dic(age_by_id_dic):
     """
     Returns a dictionary listing out ids for each age
@@ -401,7 +424,10 @@ def sample_contact_age(age,age_brackets,age_by_brackets_dic,age_mixing_matrix):
     """
     b = age_by_brackets_dic[age]
     b_contact = sample_single(age_mixing_matrix[b,:])
-    return np.random.choice(age_brackets[b_contact])
+    a = np.random.choice(age_brackets[b_contact])
+    if a == 100:
+        a = 99
+    return a
 
 
 def sample_n_contact_ages(n_contacts,age,age_brackets,age_by_brackets_dic,age_mixing_matrix_dic,weights_dic,num_agebrackets=18):
@@ -496,6 +522,9 @@ def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people
             sexes_in_bracket = np.random.choice(np.arange(2),bracket_count[b],p = sex_probabilities)
             ages += list(ages_in_bracket)
             sexes += list(sexes_in_bracket)
+    for n,a in enumerate(ages):
+        if a == 100:
+            ages[n] = 99
 
     return ages, sexes
 
@@ -540,6 +569,8 @@ def get_usa_age_sex(location='seattle_metro', state_location='Washington'):
     age_brackets = get_age_brackets_from_df(age_brackets_filepath)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
+    if age == 100:
+        age = 99
     return age,sex
 
 
@@ -580,6 +611,9 @@ def get_usa_age_n(sexes,location='seattle_metro',state_location='Washington'):
             ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
             ages += list(ages_in_bracket)
         sexes += [sex] * sex_count[sex]
+    for n,a in enumerate(ages):
+        if a == 100:
+            ages[n] = 99
     return ages,sexes
 
 
@@ -609,6 +643,9 @@ def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
             ages_in_bracket += [a] * age_count[a]
         ages += ages_in_bracket
         sexes += list(sexes_in_bracket)
+    for n,a in enumerate(ages):
+        if a == 100:
+            ages[n] = 99
 
     return ages,sexes
 
@@ -627,6 +664,9 @@ def get_age_n(n,location='seattle_metro',state_location='Washington',country_loc
     for b in bracket_count:
         ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
         ages += list(ages_in_bracket)
+    for n,a in enumerate(ages):
+        if a == 100:
+            ages[n] = 99
 
     return ages
 
