@@ -549,7 +549,7 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
 
 
 
-def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
+def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -626,9 +626,14 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
             options_args[key] = False
 
     if options_args['use_microstructure']:
-        if 'Nhomes' not in network_distr_args: network_distr_args['Nhomes'] = 20000
+        Nhomes = 20000
+        if 'Nhomes' in network_distr_args: Nhomes = network_distr_args['Nhomes']
+        valid_nhomes = [20000, 50000]
+        if Nhomes not in valid_nhomes:
+            errormsg = f'Since microstructure data is loaded from files, the only valid choices are {valid_nhomes}, not {Nhomes}'
+            raise ValueError(errormsg)
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Nhomes'])
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes)
 
 
     elif options_args['use_bayesian']:
