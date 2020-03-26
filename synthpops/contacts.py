@@ -503,7 +503,6 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
 
     age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
-
     uids = age_by_uid_dic.keys()
 
     # you have both ages and sexes so we'll just populate that for you...
@@ -546,7 +545,6 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     fw.close()
 
     return popdict
-
 
 
 def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):

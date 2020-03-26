@@ -64,8 +64,9 @@ print(household_size_distr)
 
 
 
-# Nhomes = 20000
-Nhomes = 10000
+Nhomes = 100000
+# Nhomes = 10000
+# Nhomes = 10000
 
 # create_homes = True
 create_homes = False
@@ -130,7 +131,7 @@ if create_homes:
     sp.write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
 
 
-# age_by_uid_dic = sp.read_in_age_by_uid(datadir,location,state_location,country_location,Nhomes)
+age_by_uid_dic = sp.read_in_age_by_uid(datadir,location,state_location,country_location,Nhomes)
 
 
 sc_df = sp.get_school_enrollment_rates_df(datadir,location,'county')
@@ -142,23 +143,28 @@ school_sizes_count = sp.get_school_sizes_by_bracket(datadir,location)
 # print(school_sizes_count)
 
 
-# uids_by_age_dic = sp.get_ids_by_age_dic(age_by_uid_dic)
+uids_by_age_dic = sp.get_ids_by_age_dic(age_by_uid_dic)
 
 
-# create_work_and_school = True
-create_work_and_school = False
+create_work_and_school = True
+# create_work_and_school = False
 if create_work_and_school:
 
     uids_in_school,uids_in_school_by_age,ages_in_school_count = sp.get_uids_in_school(datadir,location,state_location,country_location,'county',Nhomes)
 
+    # print(uids_in_school_by_age)
+    print(uids_in_school)
+
     gen_school_sizes = sp.generate_school_sizes(school_sizes_count,uids_in_school)
     # print(gen_school_sizes)
-
+    # print(gen_school_sizes)
     # print(age_brackets)
     # print(age_by_brackets_dic[34])
 
     gen_schools,gen_school_uids = sp.send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
-
+    print(gen_schools)
+    for gn,g in enumerate(gen_schools):
+        print(gn,'\n',g)
     # for s in range(5):
         # print(Counter(gen_schools[s]))
         # print(gen_schools[s])
@@ -178,19 +184,21 @@ if create_work_and_school:
     workplace_size_count = sp.get_workplace_sizes(datadir,country_location)
 
     workplace_sizes = sp.generate_workplace_sizes(workplace_size_count,workplace_size_brackets,workers_by_age_to_assign_count)
-    # print(workplace_sizes)
+    print('work')
+    print(workplace_sizes)
     # print(workplace_size_count)
     # print(workplace_size_brackets)
 
     gen_workplaces,gen_workplace_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = sp.assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
     # print(age_by_brackets_dic[75])
+    # print(workers_by_age_to_assign_count)
 
     # print(np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
-    # for a in workers_by_age_to_assign_count:
-        # print(a,workers_by_age_to_assign_count[a])
+    for a in workers_by_age_to_assign_count:
+        print(a,workers_by_age_to_assign_count[a])
 
-# create_work_and_school = True
-create_work_and_school = False
+create_work_and_school = True
+# create_work_and_school = False
 if create_work_and_school:
     sp.write_schools_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,gen_school_uids,age_by_uid_dic)
     sp.write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,gen_workplace_uids,age_by_uid_dic)
@@ -206,6 +214,6 @@ if read_pop:
     # print(popdict[uids[i]])
 
 scdf = sp.get_school_sizes_df(datadir,location)
-print(sorted(scdf.TotalEnrollment.values))
+# print(sorted(scdf.TotalEnrollment.values))
 school_sizes = sp.get_school_sizes_by_bracket(datadir,location)
-print(school_sizes)
+# print(school_sizes)
