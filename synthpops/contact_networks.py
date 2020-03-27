@@ -17,6 +17,88 @@ def generate_household_sizes(Nhomes,hh_size_distr):
     return hh_sizes
 
 
+def trim_households(N_extra,hh_size_distr):
+    ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
+    print(ss)
+    f = N_extra / np.round(ss,16)
+    print(f,'f')
+    hh_sizes_trim = np.zeros(len(hh_size_distr))
+    for s in hh_size_distr:
+        print(s,hh_size_distr[s], hh_size_distr[s] * s)
+        hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
+    print(np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr]))
+
+    N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
+    s_range = np.arange(1,max(hh_size_distr) + 1)
+    p = [hh_size_distr[s] for s in hh_size_distr]
+
+    while (N_gen < N_extra):
+        ns = np.random.choice(s_range,p = p)
+        print(ns,N_gen,N_extra)
+        N_gen += ns
+
+        hh_sizes_trim[ns-1] +=1
+
+    print(hh_sizes_trim)
+
+    last_house_size = int(N_gen - N_extra)
+
+    print(N_gen,'N_gen',last_house_size)
+    print(hh_sizes_trim)
+    if last_house_size > 0:
+        hh_sizes_trim[last_house_size-1] -= 1
+    elif last_house_size < 0:
+        hh_sizes_trim[-last_house_size-1] +=1
+    else:
+        pass
+    print(hh_sizes_trim)
+
+    return hh_sizes_trim
+
+
+
+def generate_household_sizes_from_fixed_pop_size(N,hh_size_distr):
+    ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
+    print(ss)
+    f = N / np.round(ss,1)
+    hh_sizes = np.zeros(len(hh_size_distr))
+
+    for s in hh_size_distr:
+        print(s,hh_size_distr[s], hh_size_distr[s] * s)
+        hh_sizes[s-1] = int(hh_size_distr[s] * f)
+    # print(hh_sizes)
+    print(np.sum([hh_sizes[s-1] * s for s in hh_size_distr]))
+    N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype= int)
+
+    trim_hh = trim_households(N_gen - N, hh_size_distr)
+
+    new_hh_sizes = hh_sizes - trim_hh
+    print('sum',np.sum([new_hh_sizes[s-1] * s for s in hh_size_distr]))
+
+    new_hh_sizes = new_hh_sizes.astype(int)
+
+    return new_hh_sizes
+
+def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
+    n = len(uids_in_school)
+
+    size_distr = sp.norm_dic(school_sizes_by_bracket)
+    ss = np.sum([size_distr[s] * s for s in size_distr])
+
+    f = n/ss
+    sc = {}
+    for s in size_distr:
+        sc[s] = int(f * size_distr[s])
+
+    school_sizes = []
+    for s in sc:
+        school_sizes += [int(s)] * sc[s]
+    np.random.shuffle(school_sizes)
+    return school_sizes
+
+
+
+
 def get_totalpopsize_from_household_sizes(hh_sizes):
     return np.sum([hh_sizes[s] * (s+1) for s in range(len(hh_sizes))])
 
@@ -32,6 +114,7 @@ def generate_household_head_age_by_size(hha_by_size_counts,hha_brackets,hh_size,
 
 def generate_living_alone(hh_sizes,hha_by_size_counts,hha_brackets,single_year_age_distr):
     size = 1
+    print(hh_sizes)
     homes = np.zeros((hh_sizes[size-1],1))
 
     for h in range(hh_sizes[size-1]):
@@ -51,7 +134,6 @@ def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age
     for h in range(hh_sizes[size-1]):
 
         hha = generate_household_head_age_by_size(hha_by_size_counts,hha_brackets,size,single_year_age_distr)
-
         # if hha >= 65 and hha <= 85:
             # if np.random.binomial(1,p_coin[size]):
 
@@ -82,8 +164,9 @@ def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age
                         bi = sp.sample_single(b_prob)
                         ai = sp.sample_from_range(single_year_age_distr,age_brackets[bi][0],age_brackets[bi][-1])
 
-            ai = sp.resample_age(single_year_age_distr,ai)
+            # ai = sp.resample_age(single_year_age_distr,ai)
             homes[h][n] = ai
+        # print(size, homes[h,:])
 
     return homes
 
@@ -96,16 +179,22 @@ def generate_all_households(hh_sizes,hha_by_size_counts,hha_brackets,age_bracket
     for s in range(2,8):
         homes_dic[s] = generate_larger_households(s,hh_sizes,hha_by_size_counts,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,single_year_age_distr)
     
+    # print('inside', np.sum([hh_sizes[s-1] * s for s in np.arange(1,8)]))
+    # print('n homes', np.sum(hh_sizes))
+
     homes = []
     for s in homes_dic:
         homes += list(homes_dic[s])
 
+    # print(homes[0])
+    # print(len(homes))
+    nhomes = len(homes)
+    # print(np.sum([ len(homes[n]) for n in range(nhomes)]))
     np.random.shuffle(homes)
-    # print(homes)
     return homes_dic,homes
 
 
-def assign_uids_by_homes(homes,id_len=6):
+def assign_uids_by_homes(homes,id_len=16):
 
     setting_codes = ['H','S','W','R']
 
@@ -119,9 +208,9 @@ def assign_uids_by_homes(homes,id_len=6):
             uid = sc.uuid(length=id_len)
             age_by_uid_dic[uid] = a
             home_ids.append(uid)
-
-        if h % 50 == 0:
-            print(h,home_ids, [age_by_uid_dic[ uid ] for uid in home_ids])
+            # print(len(age_by_uid_dic), len(home_ids),len(home))
+        # if h % 50 == 0:
+            # print(h,home_ids, [age_by_uid_dic[ uid ] for uid in home_ids])
         homes_by_uids.append(home_ids)
 
 
@@ -129,12 +218,17 @@ def assign_uids_by_homes(homes,id_len=6):
 
 
 def write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic):
-    print(datadir)
     file_path = os.path.join(datadir,'demographics',country_location,state_location)
     os.makedirs(file_path,exist_ok=True)
-    households_by_age_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_synthetic_households_with_ages.dat')
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_age_by_uid.dat')
+
+    # households_by_age_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_synthetic_households_with_ages.dat')
+    # households_by_uid_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_synthetic_households_with_uids.dat')
+    # age_by_uid_path = os.path.join(file_path,location + '_' + str(len(homes_by_uids)) + '_age_by_uid.dat')
+
+
+    households_by_age_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
+    households_by_uid_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
 
     fh_age = open(households_by_age_path,'w')
     fh_uid = open(households_by_uid_path,'w')
@@ -149,7 +243,6 @@ def write_homes_by_age_and_uid(datadir,location,state_location,country_location,
             fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
             fh_uid.write( uid + ' ')
             f_age_uid.write( uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
-
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -157,11 +250,14 @@ def write_homes_by_age_and_uid(datadir,location,state_location,country_location,
     f_age_uid.close()
 
 
-def read_in_age_by_uid(datadir,location,state_location,country_location,Nhomes):
+# def read_in_age_by_uid(datadir,location,state_location,country_location,Nhomes):
+def read_in_age_by_uid(datadir,location,state_location,country_location,N):
+
     file_path = os.path.join(datadir,'demographics',country_location,state_location)
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(N) + '_age_by_uid.dat')
+
+    # age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
     df = pd.read_csv(age_by_uid_path,header = None, delimiter = ' ')
-    
     return dict( zip(df.iloc[:,0].values, df.iloc[:,1].values) )
 
 
@@ -172,7 +268,6 @@ def get_school_enrollment_rates_df(datadir,location,level):
     df = pd.read_csv(file_path)
     if location == 'seattle_metro':
         d = df[df['NAME'].isin(['King County, Washington','Geographic Area Name'])]
-
     return d
 
 
@@ -200,7 +295,6 @@ def get_school_enrollment_rates(datadir,location,level):
                 age_bracket = age_bracket = age_bracket.split(' and ')
             sa = int(age_bracket[0])
             ea = int(age_bracket[1])
-            print(sa,ea,df.iloc[1,n])
 
             rates[len(age_brackets)] = float(df.iloc[1,n])
             age_brackets[len(age_brackets)] = np.arange(sa,ea+1)
@@ -242,7 +336,6 @@ def get_school_sizes_by_bracket(datadir,location):
 
     for b in bracket_count:
         size = int(np.mean(size_brackets[b]))
-        print(b,size, bracket_count[b])
         count_by_mean[size] = bracket_count[b]
 
     return count_by_mean
@@ -252,16 +345,41 @@ def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
     n = len(uids_in_school)
 
     size_distr = sp.norm_dic(school_sizes_by_bracket)
-    ss = np.sum([size_distr[s] * s for s in size_distr])
 
-    f = n/ss
-    sc = {}
-    for s in size_distr:
-        sc[s] = int(f * size_distr[s])
+
+    # s_range = np.arange(1,max(hh_size_distr) + 1)
+    # p = [hh_size_distr[s] for s in hh_size_distr]
+
+    # while (N_gen < N_extra):
+    #     ns = np.random.choice(s_range,p = p)
 
     school_sizes = []
-    for s in sc:
-        school_sizes += [int(s)] * sc[s]
+
+    s_range = sorted(size_distr.keys())
+    p = [size_distr[s] for s in s_range]
+    print(n)
+    while n > 0:
+
+        s = np.random.choice(s_range, p = p)
+        n -= s
+        print(s,n)
+        school_sizes.append(s)
+
+    if n < 0:
+        print('stop')
+    # ss = np.sum([size_distr[s] * s for s in size_distr])
+
+    # f = n/ss
+    # print(f)
+    # print(size_distr)
+    # sc = {}
+    # for s in size_distr:
+        # sc[s] = int(f * size_distr[s])
+        # print(sc[s],s,size_distr[s])
+
+    # for s in sc:
+        # school_sizes += [int(s)] * sc[s]
+    
     np.random.shuffle(school_sizes)
     return school_sizes
 
@@ -300,7 +418,14 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
 
     ages_in_school_distr = sp.norm_dic(ages_in_school_count)
 
+    total_school_count = len(uids_in_school)
+
     for n,size in enumerate(school_sizes):
+
+        if len(uids_in_school) == 0:
+            break
+
+        # print(len(uids_in_school))
 
         ages_in_school_distr = sp.norm_dic(ages_in_school_count)
 
@@ -311,8 +436,8 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
         aindex = np.where(achoice)[0][0]
 
         uid = uids_in_school_by_age[aindex][0]
-        # uids_in_school_by_age[aindex] = uids_in_school_by_age[aindex][1:]
         uids_in_school_by_age[aindex].remove(uid)
+        uids_in_school.pop(uid,None)
         ages_in_school_count[aindex] -= 1
         ages_in_school_distr = sp.norm_dic(ages_in_school_count)
 
@@ -323,6 +448,10 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
         b_prob = contact_matrix_dic['S'][bindex,:]
 
         for i in range(1,size):
+            if len(uids_in_school) == 0:
+                break
+
+
             bi = sp.sample_single(b_prob)
             # while bi >= 7:
                 # bi = sp.sample_single(b_prob)
@@ -339,7 +468,8 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
             new_school_uids.append(uid)
 
             uids_in_school_by_age[ai].remove(uid)
-            # uids_in_school_by_age[ai] = uids_in_school_by_age[ai][1:]
+            uids_in_school.pop(uid,None)
+            # print(len(uids_in_school))
             ages_in_school_count[ai] -= 1
             ages_in_school_distr = sp.norm_dic(ages_in_school_count)
 
@@ -436,9 +566,9 @@ def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_cou
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=40):
+def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=80):
 
-    teacher_age_min = 24
+    teacher_age_min = 26
     teacher_age_max = 75
 
     for n in range(len(syn_schools)):
@@ -457,7 +587,6 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
             teachers.append(a)
 
             potential_worker_uids_by_age[a].remove(uid)
-            # potential_worker_uids_by_age[a] = potential_worker_uids_by_age[a][1:]
             workers_by_age_to_assign_count[a] -= 1
             potential_worker_ages_left_count[a] -= 1
             potential_worker_uids.pop(uid,None)
@@ -465,7 +594,6 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
             school.append(a)
             school_uids.append(uid)
 
-        # print(teachers)
         syn_schools[n] = school
         syn_school_uids[n] = school_uids
 
@@ -494,7 +622,6 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
 
         uid = potential_worker_uids_by_age[aindex][0]
         potential_worker_uids_by_age[aindex].remove(uid)
-        # potential_worker_uids_by_age[aindex] = potential_worker_uids_by_age[aindex][1:]
         workers_by_age_to_assign_count[aindex] -= 1
 
         potential_worker_uids.pop(uid,None)
@@ -524,7 +651,6 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
             if len(potential_worker_uids_by_age[ai]) > 0:
                 # continue
 
-                # print(n,len(potential_worker_uids),ai,len(potential_worker_uids_by_age[ai]))
                 uid = potential_worker_uids_by_age[ai][0]
 
                 new_work.append(ai)
@@ -542,7 +668,7 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
 
 
 def write_schools_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,schools_by_uids,age_by_uid_dic):
-    # print(datadir)
+
     file_path = os.path.join(datadir,'demographics',country_location,state_location)
     os.makedirs(file_path,exist_ok=True)
     schools_by_age_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_ages.dat')
@@ -554,18 +680,15 @@ def write_schools_by_age_and_uid(datadir,location,state_location,country_locatio
     for n,ids in enumerate(schools_by_uids):
 
         school = schools_by_uids[n]
-
+        print(school)
         for uid in schools_by_uids[n]:
 
             fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
             fh_uid.write( uid + ' ')
-            # f_age_uid.write( uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
-
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
     fh_uid.close()
-    # f_age_uid.close()
 
 
 def write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,workplaces_by_uids,age_by_uid_dic):
@@ -574,11 +697,9 @@ def write_workplaces_by_age_and_uid(datadir,location,state_location,country_loca
     os.makedirs(file_path,exist_ok=True)
     workplaces_by_age_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_ages.dat')
     workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
-    # age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
 
     fh_age = open(workplaces_by_age_path,'w')
     fh_uid = open(workplaces_by_uid_path,'w')
-    # f_age_uid = open(age_by_uid_path,'w')
 
     for n,ids in enumerate(workplaces_by_uids):
 
@@ -588,75 +709,117 @@ def write_workplaces_by_age_and_uid(datadir,location,state_location,country_loca
 
             fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
             fh_uid.write( uid + ' ')
-            # f_age_uid.write( uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
-
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
     fh_uid.close()
-    # f_age_uid.close()
 
 
-def make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes):
-    file_path = os.path.join(datadir,'demographics',country_location,state_location)
+# def make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes):
+#     file_path = os.path.join(datadir,'demographics',country_location,state_location)
 
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
+#     households_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_households_with_uids.dat')
+#     age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_uids.dat')
+#     workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
+#     schools_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_uids.dat')
 
-    df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
+#     df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
 
-    age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
+#     age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
+#     uids = age_by_uid_dic.keys()
 
-    uids = age_by_uid_dic.keys()
+#     # you have both ages and sexes so we'll just populate that for you...
+#     popdict = {}
+#     for i,uid in enumerate(uids):
+#         popdict[uid] = {}
+#         popdict[uid]['age'] = age_by_uid_dic[uid]
+#         popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
+#         popdict[uid]['loc'] = None
+#         popdict[uid]['contacts'] = {}
+#         for k in ['H','S','W','R']:
+#             popdict[uid]['contacts'][k] = set()
 
-    # you have both ages and sexes so we'll just populate that for you...
-    popdict = {}
-    for i,uid in enumerate(uids):
-        popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
-        popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
-        popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {}
-        for k in ['H','S','W','R']:
-            popdict[uid]['contacts'][k] = set()
+#     fh = open(households_by_uid_path,'r')
+#     for c,line in enumerate(fh):
+#         r = line.strip().split(' ')
+#         for uid in r:
 
-    fh = open(households_by_uid_path,'r')
-    for c,line in enumerate(fh):
-        r = line.strip().split(' ')
-        for uid in r:
+#             for juid in r:
+#                 if uid != juid:
+#                     popdict[uid]['contacts']['H'].add(juid)
+#     fh.close()
 
-            for juid in r:
-                if uid != juid:
-                    popdict[uid]['contacts']['H'].add(juid)
-    fh.close()
+#     fs = open(schools_by_uid_path,'r')
+#     for c,line in enumerate(fs):
+#         r = line.strip().split(' ')
+#         for uid in r:
+#             for juid in r:
+#                 if uid != juid:
+#                     popdict[uid]['contacts']['S'].add(juid)
+#     fs.close()
 
-    fs = open(schools_by_uid_path,'r')
-    for c,line in enumerate(fs):
-        r = line.strip().split(' ')
-        for uid in r:
-            for juid in r:
-                if uid != juid:
-                    popdict[uid]['contacts']['S'].add(juid)
-    fs.close()
+#     fw = open(workplaces_by_uid_path,'r')
+#     for c,line in enumerate(fw):
+#         r = line.strip().split(' ')
+#         for uid in r:
+#             for juid in r:
+#                 if uid != juid:
+#                     popdict[uid]['contacts']['W'].add(juid)
+#     fw.close()
 
-    fw = open(workplaces_by_uid_path,'r')
-    for c,line in enumerate(fw):
-        r = line.strip().split(' ')
-        for uid in r:
-            for juid in r:
-                if uid != juid:
-                    popdict[uid]['contacts']['W'].add(juid)
-    fw.close()
-
-    return popdict
-
+#     return popdict
 
 
+def generate_synthetic_population(n,datadir,location='seattle_metro',state_location='Washington',country_location='usa',use_bayesian=False):
+
+    age_brackets = sp.get_census_age_brackets(datadir,country_location,use_bayesian)
+    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+    if use_bayesian: num_agebrackets = 16
+    else: num_agebrackets = 18
+
+    contact_matrix_dic = sp.get_contact_matrix_dic(datadir,state_location,num_agebrackets)
+
+    hh_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location,use_bayesian)
+
+    if n < 3000:
+        raise NotImplementedError
+    n = int(n)
 
 
+def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
+
+    """ Trim down contacts in school or work environments """
+    if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 10}
+
+    if use_clusters:
+        pass
+
+    else:
+        for n,uid in enumerate(contacts):
+            for k in ['S','W']:
+                setting_contacts = contacts[uid]['contacts'][k]
+                if len(setting_contacts) > trimmed_size_dic[k]/2:
+                    close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
+                    contacts[uid]['contacts'][k] = set(close_contacts)
 
 
+        for n, uid in enumerate(contacts):
+            for k in ['S','W']:
+                for c in contacts[uid]['contacts'][k]:
+                    contacts[c]['contacts'][k].add(uid)
+
+        test_sizes = True
+        # test_sizes = False
+        if test_sizes:
+
+            for k in ['S','W']:
+                sizes = []
+                for n, uid in enumerate(contacts):
+                    if len(contacts[uid]['contacts'][k]) > 0:
+                        sizes.append(len(contacts[uid]['contacts'][k]))
+                print(k,np.mean(sizes))
+
+    return contacts
 

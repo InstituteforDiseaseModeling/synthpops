@@ -491,26 +491,25 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     return popdict
 
 
-def make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes):
+def make_contacts_from_microstructure(datadir,location,state_location,country_location,Npop):
     file_path = os.path.join(datadir,'demographics',country_location,state_location)
 
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
+    households_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_schools_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
 
     age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
-
     uids = age_by_uid_dic.keys()
 
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i,uid in enumerate(uids):
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
@@ -546,7 +545,6 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     fw.close()
 
     return popdict
-
 
 
 def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
@@ -626,9 +624,9 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
             options_args[key] = False
 
     if options_args['use_microstructure']:
-        if 'Nhomes' not in network_distr_args: network_distr_args['Nhomes'] = 20000
+        if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 20000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Nhomes'])
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'])
 
 
     elif options_args['use_bayesian']:

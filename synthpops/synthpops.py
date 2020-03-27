@@ -4,7 +4,9 @@ import pandas as pd
 import sciris as sc
 import numba  as nb
 from collections import Counter
+from copy import deepcopy
 from .config import datadir
+
 
 def norm_dic(dic):
     """
@@ -181,6 +183,25 @@ def get_aggregate_ages(ages,age_by_brackets_dic,num_agebrackets):
         b = age_by_brackets_dic[a]
         aggregate_ages[b] += ages[a]
     return aggregate_ages
+
+
+def get_aggregate_matrix(M,age_by_brackets_dic,num_agebrackets):
+    N = len(M)
+    M_agg = np.zeros((num_agebrackets,num_agebrackets))
+    for i in range(N):
+        bi = age_by_brackets_dic[i]
+        for j in range(N):
+            bj = age_by_brackets_dic[j]
+            M_agg[bi][bj] += M[i][j]
+    return M_agg
+
+
+def get_asymmetric_matrix(symmetric_matrix,aggregate_ages):
+    M = deepcopy(symmetric_matrix)
+    for a in aggregate_ages:
+        M[a,:] = M[a,:]/float(aggregate_ages[a])
+
+    return M
 
 
 def get_aggregate_age_dict_conversion(larger_aggregate_ages,larger_age_brackets,smaller_age_brackets,age_by_brackets_dic_larger,age_by_brackets_dic_smaller):
