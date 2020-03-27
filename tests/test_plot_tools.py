@@ -9,27 +9,29 @@ from matplotlib.colors import LogNorm, LinearSegmentedColormap
 from matplotlib.ticker import LogLocator, LogFormatter
 import matplotlib.font_manager as font_manager
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-# 
+#
 import functools
 import os
 from collections import Counter
 
+try:
+    username = os.path.split(os.path.expanduser('~'))[-1]
+    fontdirdict = {
+        'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
+        'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
+    }
+    if username not in fontdirdict:
+        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
 
-username = os.path.split(os.path.expanduser('~'))[-1]
-fontdirdict = {
-    'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
-    'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
-}
-if username not in fontdirdict:
-    fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
+    font_path = fontdirdict[username]
 
-font_path = fontdirdict[username]
-
-fontpath = fontdirdict[username]
-font_style = 'Roboto_Condensed'
-fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
-prop = font_manager.FontProperties(fname = fontstyle_path)
-mplt.rcParams['font.family'] = prop.get_name()
+    fontpath = fontdirdict[username]
+    font_style = 'Roboto_Condensed'
+    fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
+    prop = font_manager.FontProperties(fname = fontstyle_path)
+    mplt.rcParams['font.family'] = prop.get_name()
+except:
+    mplt.rcParams['font.family'] = 'Roboto'
 
 datadir = sp.datadir
 
@@ -66,7 +68,7 @@ def test_plot_generated_contact_matrix(datadir,setting_code,n=5000,aggregate_fla
 
 
 if __name__ == '__main__':
-    
+
     n = int(100000)
 
     state_location = 'Washington'
@@ -76,7 +78,7 @@ if __name__ == '__main__':
     setting_code = 'H'
     setting_code = 'S'
     # setting_code = 'W'
-    
+
     # aggregate_flag = True
     aggregate_flag = False
     logcolors_flag = True
