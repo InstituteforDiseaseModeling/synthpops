@@ -24,4 +24,10 @@ if __name__ == '__main__':
     network_distr_args = {'Npop': int(n)}
     contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
 
-    sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
+    uids = contacts.keys()
+    uids = [uid for uid in uids]
+    print(contacts[uids[22]]['contacts'])
+
+    contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
+    print(contacts[uids[22]]['contacts'])
+

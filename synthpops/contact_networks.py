@@ -791,62 +791,35 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
 def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
 
     """ Trim down contacts in school or work environments """
-    if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 20}
+    if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 10}
 
     if use_clusters:
-
         pass
 
     else:
         for n,uid in enumerate(contacts):
-            # if n > 50:
-#                 break
+            for k in ['S','W']:
+                setting_contacts = contacts[uid]['contacts'][k]
+                if len(setting_contacts) > trimmed_size_dic[k]/2:
+                    close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
+                    contacts[uid]['contacts'][k] = set(close_contacts)
 
-
-            age = contacts[uid]['age']
-            print()
-            print(uid,'age', age)
-            school = contacts[uid]['contacts']['S']
-            school_ages = [contacts[c]['age'] for c in school]
-            work = contacts[uid]['contacts']['W']
-            work_ages = [contacts[c]['age'] for c in work]
-            # print('S',school)
-            # print('W',work)
-            if len(school) > 0:
-                print('S',len(school),'age',age)
-
-                close_contacts = np.random.choice(list(school), size = int(trimmed_size_dic['S']/2) )
-                # trim = np.random.choice(school_ages, size = trimmed_size_dic['S'])
-                print(close_contacts,len(close_contacts))
-
-                contacts[uid]['contacts']['S'] = set(close_contacts)
-
-            # if len(work) > 0:
-                # print('W',len(work),'age',age)
 
         for n, uid in enumerate(contacts):
+            for k in ['S','W']:
+                for c in contacts[uid]['contacts'][k]:
+                    contacts[c]['contacts'][k].add(uid)
 
-            age = contacts[uid]['age']
-            school = contacts[uid]['contacts']['S']
-            school_ages = [contacts[c]['age'] for c in school]
-            work = contacts[uid]['contacts']['W']
-            work_ages = [contacts[c]['age'] for c in work]
+        test_sizes = True
+        # test_sizes = False
+        if test_sizes:
 
-            if len(school) > 0:
-                # print(len(school))
-                for c in school:
-                    contacts[c]['contacts']['S'].add(uid)
-
-        sizes = []
-
-        for n, uid in enumerate(contacts):
-
-            school = contacts[uid]['contacts']['S']
-            if len(school) > 0:
-                print(len(school))
-                sizes.append(len(school))
-
-        print(np.mean(sizes))
+            for k in ['S','W']:
+                sizes = []
+                for n, uid in enumerate(contacts):
+                    if len(contacts[uid]['contacts'][k]) > 0:
+                        sizes.append(len(contacts[uid]['contacts'][k]))
+                print(k,np.mean(sizes))
 
     return contacts
 
