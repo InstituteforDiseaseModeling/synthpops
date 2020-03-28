@@ -20,7 +20,10 @@ if __name__ == '__main__':
 
     n = 2500
 
-    options_args = {'use_microstructure': True}
+    use_bayesian = True
+    # use_bayesian = False
+
+    options_args = {'use_microstructure': True, 'use_bayesian': use_bayesian}
     network_distr_args = {'Npop': int(n)}
     contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
 
@@ -30,4 +33,3 @@ if __name__ == '__main__':
 
     contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
     print(contacts[uids[22]]['contacts'])
-

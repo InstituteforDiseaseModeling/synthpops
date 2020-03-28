@@ -55,6 +55,9 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
     leg = []
     implot = []
 
+
+    titles = {'H': 'Household', 'S': 'School', 'W': 'Work'}
+
     if aggregate_flag:
         num_agebrackets = len(set(age_by_brackets_dic.values()))
         aggregate_M = sp.get_aggregate_matrix(freq_matrix_dic[setting_code],age_by_brackets_dic,num_agebrackets)
@@ -74,11 +77,11 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
         if density_or_frequency == 'density':
             if aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['S'] = {'vmin': 1e-4, 'vmax': 1e-2}
+                vbounds['S'] = {'vmin': 1e-4, 'vmax': 1e-1}
                 vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
             else:
-                vbounds['H'] = {'vmin': 1e-4, 'vmax': 1e-1}
-                vbounds['S'] = {'vmin': 1e-4, 'vmax': 1e-2}
+                vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
                 vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
 
         elif density_or_frequency == 'frequency':
@@ -114,6 +117,7 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
         ax[i].tick_params(labelsize = 18)
         ax[i].set_xlabel('Age', fontsize = 22)
         ax[i].set_ylabel('Age of Contacts',fontsize = 22)
+        ax[i].set_title(titles[setting_code] + ' Contact Patterns', fontsize = 26)
 
         if aggregate_flag:
             tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]

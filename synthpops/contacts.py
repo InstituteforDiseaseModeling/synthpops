@@ -491,8 +491,11 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     return popdict
 
 
-def make_contacts_from_microstructure(datadir,location,state_location,country_location,Npop):
-    file_path = os.path.join(datadir,'demographics',country_location,state_location)
+def make_contacts_from_microstructure(datadir,location,state_location,country_location,Npop,use_bayesian=True):
+    if use_bayesian:
+        file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    else:
+        file_path = os.path.join(datadir,'demographics',country_location,state_location)
 
     households_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_households_with_uids.dat')
     age_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_age_by_uid.dat')
@@ -626,10 +629,10 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
     if options_args['use_microstructure']:
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 20000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'])
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'],options_args['use_bayesian'])
 
 
-    elif options_args['use_bayesian']:
+    elif not options_args['use_microstructure'] and options_args['use_bayesian']:
         if sheet_name is None: sheet_name = 'United States of America'
         if options_args['use_social_layers']:
             popdict = make_contacts_with_social_layers_bayesian(popdict,n_contacts_dic,state_location,location,sheet_name,activity_args,network_distr_args)
@@ -653,3 +656,38 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
 
     return popdict
 
+
+def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
+
+    """ Trim down contacts in school or work environments """
+    if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 20}
+
+    if use_clusters:
+        pass
+
+    else:
+        for n,uid in enumerate(contacts):
+            for k in ['S','W']:
+                setting_contacts = contacts[uid]['contacts'][k]
+                if len(setting_contacts) > trimmed_size_dic[k]/2:
+                    close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
+                    contacts[uid]['contacts'][k] = set(close_contacts)
+
+
+        for n, uid in enumerate(contacts):
+            for k in ['S','W']:
+                for c in contacts[uid]['contacts'][k]:
+                    contacts[c]['contacts'][k].add(uid)
+
+        test_sizes = True
+        # test_sizes = False
+        if test_sizes:
+
+            for k in ['S','W']:
+                sizes = []
+                for n, uid in enumerate(contacts):
+                    if len(contacts[uid]['contacts'][k]) > 0:
+                        sizes.append(len(contacts[uid]['contacts'][k]))
+                print(k,np.mean(sizes))
+
+    return contacts
