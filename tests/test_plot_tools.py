@@ -14,6 +14,8 @@ import functools
 import os
 from collections import Counter
 
+do_save = False
+
 try:
     username = os.path.split(os.path.expanduser('~'))[-1]
     fontdirdict = {
@@ -36,7 +38,9 @@ except:
 datadir = sp.datadir
 
 
-def test_plot_generated_contact_matrix(datadir,setting_code,n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
+def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
+
+    datadir = sp.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -87,7 +91,7 @@ if __name__ == '__main__':
     # density_or_frequency = 'frequency'
 
     # fig = sp.plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_count,age_brackets,age_by_brackets_dic,density_or_frequency,logcolors_flag,aggregate_flag)
-    fig = test_plot_generated_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+    fig = test_plot_generated_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
 
-
-    fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
+    if do_save:
+        fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
