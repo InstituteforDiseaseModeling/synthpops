@@ -13,8 +13,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import functools
 import os
 from collections import Counter
+import pytest
 
 do_save = False
+
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 try:
     username = os.path.split(os.path.expanduser('~'))[-1]
