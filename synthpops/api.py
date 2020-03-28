@@ -1,6 +1,15 @@
 import sciris as sc
 import synthpops as sp
 
+# Put this here so it's accessible as sp.api.choices
+popsize_choices = [5000,
+                   10000,
+                   20000,
+                   50000,
+                   100000,
+                   122000,
+                ]
+
 
 def make_network(n=None, max_contacts=None):
     '''
@@ -15,25 +24,13 @@ def make_network(n=None, max_contacts=None):
 
     '''
 
-    choices = [
-        1000,
-        2000,
-        2500,
-        3000,
-        5000,
-        20000,
-        50000,
-        100000,
-        122000,
-    ]
-
     default_n = 20000
     default_max_contacts = {'S':20, 'W':10}
 
     if n is None: n = default_n
     n = int(n)
-    if n not in choices:
-        choicestr = ', '.join([str(choice) for choice in choices])
+    if n not in popsize_choices:
+        choicestr = ', '.join([str(choice) for choice in popsize_choices])
         errormsg = f'Number of people must be one of {choicestr}, not {n}'
         raise ValueError(errormsg)
 

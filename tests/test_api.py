@@ -12,6 +12,10 @@ def test_api():
 
     network = sp.make_network(n=n, max_contacts=max_contacts)
 
+    with pytest.raises(ValueError):
+        network = sp.make_network(n=298437) # Not a supported number
+
+
     return network
 
 

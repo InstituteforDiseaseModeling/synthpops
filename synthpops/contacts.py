@@ -658,7 +658,7 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
     return popdict
 
 
-def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
+def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
     """ Trim down contacts in school or work environments """
     if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 20}
@@ -689,6 +689,7 @@ def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
                 for n, uid in enumerate(contacts):
                     if len(contacts[uid]['contacts'][k]) > 0:
                         sizes.append(len(contacts[uid]['contacts'][k]))
-                print(k,np.mean(sizes))
+                if verbose:
+                    print(k,np.mean(sizes))
 
     return contacts
