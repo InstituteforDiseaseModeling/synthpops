@@ -73,7 +73,7 @@ def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=Tr
 
 if __name__ == '__main__':
 
-    n = int(100000)
+    n = int(10000)
 
     state_location = 'Washington'
     location = 'seattle_metro'
