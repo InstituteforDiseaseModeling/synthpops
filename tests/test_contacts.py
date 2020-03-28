@@ -10,6 +10,9 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
+
 def test_make_popdict(n=default_n):
     sc.heading(f'Making popdict for {n} people')
 

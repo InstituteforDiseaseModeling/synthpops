@@ -13,7 +13,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import functools
 import os
 from collections import Counter
+import pytest
 
+do_save = False
+
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 try:
     username = os.path.split(os.path.expanduser('~'))[-1]
@@ -37,7 +42,9 @@ except:
 datadir = sp.datadir
 
 
-def test_plot_generated_contact_matrix(datadir,setting_code,n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density',use_bayesian=True):
+def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density',use_bayesian=True):
+
+    datadir = sp.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -124,6 +131,6 @@ if __name__ == '__main__':
     # fig = test_plot_generated_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency,use_bayesian=True)
     fig = test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency,use_bayesian=True)
 
-
-    # fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
+    if do_save:
+        fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
     plt.show()

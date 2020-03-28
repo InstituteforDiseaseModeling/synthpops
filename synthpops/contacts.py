@@ -658,17 +658,20 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
     return popdict
 
 
-def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
+def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
     """ Trim down contacts in school or work environments """
-    if trimmed_size_dic is None: trimmed_size_dic = {'S': 20, 'W': 20}
+
+    trimmed_size_dic = sc.mergedicts({'S': 20, 'W': 10}, trimmed_size_dic)
+
+    keys = trimmed_size_dic.keys()
 
     if use_clusters:
-        pass
+        raise NotImplementedError
 
     else:
         for n,uid in enumerate(contacts):
-            for k in ['S','W']:
+            for k in keys:
                 setting_contacts = contacts[uid]['contacts'][k]
                 if len(setting_contacts) > trimmed_size_dic[k]/2:
                     close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
@@ -676,19 +679,19 @@ def trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False):
 
 
         for n, uid in enumerate(contacts):
-            for k in ['S','W']:
+            for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
 
         test_sizes = True
-        # test_sizes = False
         if test_sizes:
 
-            for k in ['S','W']:
+            for k in keys:
                 sizes = []
                 for n, uid in enumerate(contacts):
                     if len(contacts[uid]['contacts'][k]) > 0:
                         sizes.append(len(contacts[uid]['contacts'][k]))
-                print(k,np.mean(sizes))
+                if verbose:
+                    print(k,np.mean(sizes))
 
     return contacts
