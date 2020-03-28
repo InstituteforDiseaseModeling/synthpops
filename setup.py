@@ -37,5 +37,6 @@ setup(
         "pandas",
         "numba",
         "networkx",
+        "cmocean",
     ],
 )
