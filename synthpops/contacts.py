@@ -550,7 +550,8 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     return popdict
 
 
-def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
+
+def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
