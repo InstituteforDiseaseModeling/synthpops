@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     popdict = {}
 
-    n = 2500
+    n = 5000
 
     use_bayesian = True
     # use_bayesian = False
