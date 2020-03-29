@@ -11,9 +11,9 @@ popsize_choices = [5000,
                 ]
 
 
-def make_network(n=None, max_contacts=None):
+def make_population(n=None, max_contacts=None, as_objdict=False):
     '''
-    Make a full network including both people (ages, sexes)
+    Make a full population network including both people (ages, sexes) and contacts.
 
     Args:
         n (int): number of people to create
@@ -43,9 +43,19 @@ def make_network(n=None, max_contacts=None):
     network_distr_args = {'Npop': int(n)}
 
     # Heavy lift 1: make the contacts and their connections
-    network = sp.make_contacts(state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    population = sp.make_contacts(state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
-    network = sp.trim_contacts(network, trimmed_size_dic=max_contacts, use_clusters=False)
+    population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
 
-    return network
+    # Change types
+    if as_objdict:
+        population = sc.objdict(population)
+    for key,person in population.items():
+        if as_objdict:
+            population[key] = sc.objdict(population[key])
+            population[key]['contacts'] = sc.objdict(population[key]['contacts'])
+        for layerkey in population[key]['contacts'].keys():
+            population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
+
+    return population
