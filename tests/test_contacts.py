@@ -10,6 +10,9 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
+
 def test_make_popdict(n=default_n):
     sc.heading(f'Making popdict for {n} people')
 
@@ -132,9 +135,8 @@ def test_make_contacts_generic(n=default_n):
 
 def test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Nhomes=50000):
 
-    popdict = {}
     options_args = dict.fromkeys(['use_microstructure'],True)
-    contacts = sp.make_contacts(popdict,state_location=state_location,location=location,options_args=options_args)
+    contacts = sp.make_contacts(state_location=state_location,location=location,options_args=options_args)
     uids = contacts.keys()
     uids = [uid for uid in uids]
     for n,uid in enumerate(uids):
@@ -169,7 +171,7 @@ if __name__ == '__main__':
     popdict = test_make_popdict_generic(default_n)
 
     contacts = test_make_contacts_generic(default_n)
-    test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Nhomes=50000)
+    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Nhomes=50000)
     sc.toc()
 
 

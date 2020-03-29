@@ -491,26 +491,28 @@ def make_contacts_with_social_layers_usa(popdict,n_contacts_dic,state_location,l
     return popdict
 
 
-def make_contacts_from_microstructure(datadir,location,state_location,country_location,Nhomes):
-    file_path = os.path.join(datadir,'demographics',country_location,state_location)
+def make_contacts_from_microstructure(datadir,location,state_location,country_location,Npop,use_bayesian=True):
+    if use_bayesian:
+        file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    else:
+        file_path = os.path.join(datadir,'demographics',country_location,state_location)
 
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_age_by_uid.dat')
+    households_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Nhomes) + '_synthetic_schools_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_schools_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
 
     age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
-
     uids = age_by_uid_dic.keys()
 
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i,uid in enumerate(uids):
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
@@ -549,7 +551,7 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
 
 
 
-def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
+def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -626,12 +628,12 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
             options_args[key] = False
 
     if options_args['use_microstructure']:
-        if 'Nhomes' not in network_distr_args: network_distr_args['Nhomes'] = 20000
+        if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 20000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Nhomes'])
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'],options_args['use_bayesian'])
 
 
-    elif options_args['use_bayesian']:
+    elif not options_args['use_microstructure'] and options_args['use_bayesian']:
         if sheet_name is None: sheet_name = 'United States of America'
         if options_args['use_social_layers']:
             popdict = make_contacts_with_social_layers_bayesian(popdict,n_contacts_dic,state_location,location,sheet_name,activity_args,network_distr_args)
@@ -655,3 +657,41 @@ def make_contacts(popdict,n_contacts_dic=None,state_location=None,location=None,
 
     return popdict
 
+
+def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
+
+    """ Trim down contacts in school or work environments """
+
+    trimmed_size_dic = sc.mergedicts({'S': 20, 'W': 10}, trimmed_size_dic)
+
+    keys = trimmed_size_dic.keys()
+
+    if use_clusters:
+        raise NotImplementedError
+
+    else:
+        for n,uid in enumerate(contacts):
+            for k in keys:
+                setting_contacts = contacts[uid]['contacts'][k]
+                if len(setting_contacts) > trimmed_size_dic[k]/2:
+                    close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
+                    contacts[uid]['contacts'][k] = set(close_contacts)
+
+
+        for n, uid in enumerate(contacts):
+            for k in keys:
+                for c in contacts[uid]['contacts'][k]:
+                    contacts[c]['contacts'][k].add(uid)
+
+        test_sizes = True
+        if test_sizes:
+
+            for k in keys:
+                sizes = []
+                for n, uid in enumerate(contacts):
+                    if len(contacts[uid]['contacts'][k]) > 0:
+                        sizes.append(len(contacts[uid]['contacts'][k]))
+                if verbose:
+                    print(k,np.mean(sizes))
+
+    return contacts

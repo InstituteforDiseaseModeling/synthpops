@@ -1,6 +1,10 @@
 import os
 import synthpops as sp
 import sciris as sc
+import pytest
+
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 
 def test_all(location='seattle_metro',state_location='Washington',country_location='usa'):

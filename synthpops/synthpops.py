@@ -187,6 +187,25 @@ def get_aggregate_ages(ages,age_by_brackets_dic,num_agebrackets):
     return aggregate_ages
 
 
+def get_aggregate_matrix(M,age_by_brackets_dic,num_agebrackets):
+    N = len(M)
+    M_agg = np.zeros((num_agebrackets,num_agebrackets))
+    for i in range(N):
+        bi = age_by_brackets_dic[i]
+        for j in range(N):
+            bj = age_by_brackets_dic[j]
+            M_agg[bi][bj] += M[i][j]
+    return M_agg
+
+
+def get_asymmetric_matrix(symmetric_matrix,aggregate_ages):
+    M = deepcopy(symmetric_matrix)
+    for a in aggregate_ages:
+        M[a,:] = M[a,:]/float(aggregate_ages[a])
+
+    return M
+
+
 def get_aggregate_age_dict_conversion(larger_aggregate_ages,larger_age_brackets,smaller_age_brackets,age_by_brackets_dic_larger,age_by_brackets_dic_smaller):
     """
     Convert the aggregate age count in larger_aggregate_ages from a larger number of age brackets to a smaller number of age brackets
