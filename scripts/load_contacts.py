@@ -4,6 +4,7 @@ import pandas as pd
 from numba import jit
 import random
 import itertools
+import synthpops as sp
 
 contact_size = {'S': 20, 'W': 10, 'H': 0}
 
@@ -72,11 +73,13 @@ def hydrate_edgelist(data):
         edgelist.extend(generate_random_connect_cluster(np.array(wcluster), connection_proba["workplaces"], relative_infection_proba["workplaces"], "workplaces"))
     return pd.DataFrame(edgelist, columns=["person1", "person2", "relative_infection_proba", "cluster_type"]).drop_duplicates()
 
-sc.tic()
 fn = '../data/synthpop_122000.pop'
 data = sc.loadobj(fn)
-sc.toc()
+
+sc.tic()
 popdict = rehydrate(data)
+# popdict = sp.trim_contacts(popdict)
 sc.toc()
+sc.tic()
 edgelist = hydrate_edgelist(data=data)
 sc.toc()
