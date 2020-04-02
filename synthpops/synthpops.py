@@ -43,16 +43,6 @@ def get_age_brackets_from_df(ab_file_path):
     return dic
 
 
-# def get_gender_fraction_by_age_path(datadir, location, state_location=None, country_location=None):
-#     """
-#     Return file_path for all Seattle Metro gender fractions by age bracket.
-#     """
-#     if state_location == None:
-#         return os.path.join(datadir,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
-#     else:
-#         return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
-
-
 def get_gender_fraction_by_age_path(datadir, location=None, state_location=None):
     """
     Return file_path for gender fractions by age bracket. This should only be used if the data is available.
@@ -63,21 +53,6 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None)
     else:
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_gender_fraction_by_age_bracket.dat')
         # return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
-
-
-# def read_gender_fraction_by_age_bracket(datadir, location, state_location=None, country_location=None):
-#     """
-#     Return dict of gender fractions by age bracket for all Seattle Metro.
-#     """
-#     if state_location == None:
-#         f = get_gender_fraction_by_age_path(datadir, location)
-#     else:
-#         f = get_gender_fraction_by_age_path(datadir, location, state_location, country_location)
-#     df = pd.read_csv(f)
-#     dic = {}
-#     dic['male'] = dict(zip(np.arange(len(df)),df.fraction_male))
-#     dic['female'] = dict(zip(np.arange(len(df)),df.fraction_female))
-#     return dic
 
 
 def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, file_path=None):
@@ -95,20 +70,6 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
     return dic
 
 
-# def get_age_bracket_distr_path(datadir, location, state_location=None, country_location=None,use_bayesian=False):
-#     """
-#     Return file_path for age distribution by age brackets.
-#     For the webapp, if using in combination with age-mixing contact matrices, set use_bayesian to True. Otherwise, there are no associated contact matrices to use and you'll need to use a generic contact network later on.
-#     """
-#     if use_bayesian:
-#         return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr.dat')
-#     else:
-#         if state_location == None:
-#             return os.path.join(datadir,'census','age distributions',location + '_age_bracket_distr.dat')
-#         else:
-#             return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_age_bracket_distr.dat')
-
-
 def get_age_bracket_distr_path(datadir, location=None, state_location=None):
     """
     Return file_path for age distribution by age brackets.
@@ -120,15 +81,6 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None):
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr.dat')
 
 
-# def read_age_bracket_distr(datadir, location, state_location=None, country_location=None,use_bayesian=False):
-#     """
-#     Return dict of age distribution by age brackets.
-#     For the webapp, if using in combination with age-mixing contact matrices set use_bayesian to True. Otherwise, there are no associated contact matrices to use and you'll need to use a generic contact network later on.
-#     """
-#     df = pd.read_csv(get_age_bracket_distr_path(datadir,location,state_location,country_location,use_bayesian))
-#     return dict(zip(np.arange(len(df)), df.percent))
-
-
 def read_age_bracket_distr(datadir, location=None, state_location=None, file_path=None):
     """
     Return dict of age distribution by age brackets.
@@ -137,16 +89,6 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, file_pat
         file_path = get_age_bracket_distr_path(datadir,location,state_location)
     df = pd.read_csv(file_path)
     return dict(zip(np.arange(len(df)), df.percent))
-
-
-# def get_household_size_distr_path(datadir,location,state_location=None,country_location=None,use_bayesian=False):
-#     if use_bayesian:
-#         raise NotImplementedError("I don't have household size distributions for bayesian locations... Try again.")
-#     else:
-#         if state_location == None:
-#             return os.path.join(datadir,'census','household size distributions',location + '_household_size_distr.dat')
-#         else:
-#             return os.path.join(datadir,'demographics',country_location,state_location,'census','household size distributions',location + '_household_size_distr.dat')
 
 
 def get_household_size_distr_path(datadir, location=None, state_location=None):
@@ -160,14 +102,6 @@ def get_household_size_distr_path(datadir, location=None, state_location=None):
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'household size distributions',location + '_household_size_distr.dat')
 
 
-# def get_household_size_distr(datadir,location,state_location=None,country_location=None,use_bayesian=False):
-#     """
-#     Return a dictionary of the distribution of household sizes.
-#     """
-#     df = pd.read_csv(get_household_size_distr_path(datadir,location,state_location,country_location,use_bayesian))
-#     return dict( zip(df.household_size, df.percent) )
-
-
 def get_household_size_distr(datadir, location=None, state_location=None, file_path=None):
     """
     Return a dictionary of the distributions of household sizes. If you don't give the file_path, then supply the location and state_location strings.
@@ -176,14 +110,6 @@ def get_household_size_distr(datadir, location=None, state_location=None, file_p
         file_path = get_household_size_distr_path(datadir,location,state_location)
     df = pd.read_csv(file_path)
     return dict( zip(df.household_size, df.percent) )
-
-
-# def get_head_age_brackets(datadir,country_location=None,use_bayesian=False):
-#     if use_bayesian:
-#         raise NotImplementedError("I don't have data for bayesian locations... Try again.")
-#     else:
-#         f = os.path.join(datadir,'demographics',country_location,'household living arrangements','head_age_brackets.dat')
-#         return get_age_brackets_from_df(f)
 
 
 def get_head_age_brackets_path(datadir, state_location=None, country_location=None):
@@ -208,13 +134,6 @@ def get_head_age_brackets(datadir, state_location=None,country_location=None, fi
     return get_age_brackets_from_df(file_path)
 
 
-# def get_household_head_age_by_size_df(datadir,country_location=None,use_bayesian=False):
-    # if use_bayesian:
-        # raise NotImplementedError("This data is unavailable. ")
-    # else:
-        # return pd.read_csv(os.path.join(datadir,'demographics',country_location,'household living arrangements','household_head_age_and_size_count.dat'))
-
-
 def get_household_head_age_by_size_path(datadir,state_location=None,country_location=None):
     """
     Return file_path for head of household age by size counts or distribution. If the data doesn't exist at the state level, only give the country_location.
@@ -237,22 +156,6 @@ def get_household_head_age_by_size_df(datadir,state_location=None,country_locati
     return pd.read_csv(file_path)
 
 
-# def get_head_age_by_size_distr(datadir,country_location=None,use_bayesian=False):
-#     """
-#     Return an array of head of household age bracket counts (col) given by size (row).
-#     """
-#     hha_df = get_household_head_age_by_size_df(datadir,country_location,use_bayesian)
-#     hha_brackets = get_head_age_brackets(datadir,country_location,use_bayesian)
-#     hha_by_size = np.zeros((2 + len(hha_df), len(hha_brackets)) )
-#     hha_by_size[0,:] += 1
-#     for s in range(2,len(hha_df)+2):
-#         # hha_by_size[s,:] = 
-#         d = hha_df[hha_df['family_size'] == s].values[0][1:]
-#         print(d,d.shape)
-#         hha_by_size[s-1] = d
-#     return hha_by_size
-
-
 def get_head_age_by_size_distr(datadir,state_location=None,country_location=None,file_path=None,household_size_1_included=False):
     """
     Return an array of head of household age bracket counts (col) given by size (row).
@@ -273,20 +176,6 @@ def get_head_age_by_size_distr(datadir,state_location=None,country_location=None
     return hha_by_size
 
 
-# def get_census_age_brackets_path(datadir,country_location=None,use_bayesian=False):
-#     """
-#     Returns file_path for census age brackets : depends on the country or source of contact pattern data.
-#     For the webapp where we currently use the contact matrices from K. Prem et al, set flag use_bayesian to True.
-#     """
-#     if use_bayesian:
-#         return os.path.join(datadir,'demographics','contact_matrices_152_countries','bayesian_152_countries_age_brackets.dat')
-#     else:
-#         if country_location == None:
-#             return os.path.join(datadir,'demographics','generic_census_age_brackets.dat')
-#         elif country_location == 'usa':
-#             return os.path.join(datadir,'demographics',country_location,'census_age_brackets.dat')
-
-
 def get_census_age_brackets_path(datadir,state_location=None,country_location=None):
     """
     Returns file_path for census age brackets: depends on the state or country of the source data on contact patterns.
@@ -298,22 +187,6 @@ def get_census_age_brackets_path(datadir,state_location=None,country_location=No
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'census_age_brackets.dat')
     else:
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'census_age_brackets.dat')
-
-
-# def get_census_age_brackets(datadir,country_location=None,use_bayesian=False):
-#     """
-#     Returns census age brackets: depends on the country or source of contact pattern data.
-#     For the webapp where we currently use the contact matrices from K. Prem et al, set flag use_bayesian to True.
-#     """
-#     if use_bayesian:
-#         file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries','bayesian_152_countries_age_brackets.dat')
-#     else:
-#         if country_location == None:
-#             file_path = os.path.join(datadir,'demographics','generic_census_age_brackets.dat')
-#         elif country_location == 'usa':
-#             file_path = os.path.join(datadir,'demographics',country_location,'census_age_brackets.dat')
-
-#     return get_age_brackets_from_df(file_path)
 
 
 def get_census_age_brackets(datadir,state_location=None,country_location=None,file_path=None):
@@ -425,46 +298,6 @@ def get_symmetric_community_matrix(ages):
     return M
 
 
-# def get_contact_matrix(datadir,state_location,setting_code,num_agebrackets=None,use_bayesian=False,sheet_name='United States of America'):
-#     """
-#     Return setting specific contact matrix for num_agebrackets age brackets. For setting code M, returns an influenza weighted combination of the settings: H, S, W, R.
-#     """
-#     # notably this uses a different definition of the community matrix : has assortative age structure
-#     if use_bayesian:
-#         setting_names = {'H': 'home', 'S': 'school', 'W' : 'work', 'R': 'other_locations'}
-#         if setting_code in ['H','S','W','R']:
-#             file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries','MUestimates_' + setting_names[setting_code] + '_1.xlsx')
-#             try:
-#                 df = pd.read_excel(file_path, sheet_name = sheet_name,header = 0)
-#             except:
-#                 file_path = file_path.replace('_1.xlsx','_2.xlsx')
-#                 df = pd.read_excel(file_path, sheet_name = sheet_name,header = None)
-#             return np.array(df)
-#         # elif setting_code == 'R':
-#             # age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location,country_location)
-#         else: raise NotImplementedError('Setting contact matrix does not exist.')
-#     else:
-#         file_path = os.path.join(datadir,'SyntheticPopulations','asymmetric_matrices','data_' + setting_code + str(num_agebrackets),'M' + str(num_agebrackets) + '_' + state_location + '_' + setting_code + '.dat')
-#         return np.array(pd.read_csv(file_path,delimiter = ' ', header = None))
-
-
-# def get_contact_matrix_path(datadir,setting_code,sheet_name='United States of America'):
-#     """
-#     Return setting specific contact matrix given sheet name to use.
-#     """
-#     setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
-#     if setting_code in setting_names:
-#         file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries','MUestimates_' + setting_names[setting_code] + '_1.xlsx')
-#         try:
-#             df = pd.read_excel(file_path, sheet_name = sheet_name,header = 0)
-#         except:
-#             file_path = file_path.replace('_1.xlsx','_2.xlsx')
-#             df = pd.read_excel(file_path, sheet_name = sheet_name, header = None)
-#         return np.array(df)
-#     else:
-#         raise NotImplementedError("Invalid setting code. Try again.")
-
-
 def get_contact_matrix(datadir,setting_code,sheet_name=None,file_path = None, delimiter = ' ', header = None):
     """
     Return setting specific contact matrix givn sheet name to use. If file_path is given, then delimiter and header should also be specified.
@@ -487,16 +320,6 @@ def get_contact_matrix(datadir,setting_code,sheet_name=None,file_path = None, de
             return np.array(df)
         except:
             raise NotImplementedError("Contact matrix did not open. Check inputs.")
-
-
-# def get_contact_matrix_dic(datadir, state_location, num_agebrackets=None,use_bayesian=False,sheet_name='United States of America'):
-#     """
-#     Return a dict of setting specific age mixing matrices.
-#     """
-#     matrix_dic = {}
-#     for setting_code in ['H','S','W','R']:
-#         matrix_dic[setting_code] = get_contact_matrix(datadir,state_location,setting_code,num_agebrackets,use_bayesian,sheet_name)
-#     return matrix_dic
 
 
 def get_contact_matrix_dic(datadir,setting_code,sheet_name=None,file_path_dic=None,delimiter = ' ',header = None):
@@ -781,8 +604,6 @@ def get_usa_age_sex(location='seattle_metro', state_location='Washington'):
     age_brackets = get_age_brackets_from_df(age_brackets_file_path)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
-    if age == 100:
-        age = 99
     return age,sex
 
 
@@ -823,9 +644,7 @@ def get_usa_age_n(sexes,location='seattle_metro',state_location='Washington'):
             ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
             ages += list(ages_in_bracket)
         sexes += [sex] * sex_count[sex]
-    for n,a in enumerate(ages):
-        if a == 100:
-            ages[n] = 99
+
     return ages,sexes
 
 
@@ -855,9 +674,6 @@ def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
             ages_in_bracket += [a] * age_count[a]
         ages += ages_in_bracket
         sexes += list(sexes_in_bracket)
-    for n,a in enumerate(ages):
-        if a == 100:
-            ages[n] = 99
 
     return ages,sexes
 
@@ -876,9 +692,6 @@ def get_age_n(n,location='seattle_metro',state_location='Washington',country_loc
     for b in bracket_count:
         ages_in_bracket = np.random.choice(age_brackets[b],bracket_count[b])
         ages += list(ages_in_bracket)
-    for n,a in enumerate(ages):
-        if a == 100:
-            ages[n] = 99
 
     return ages
 
