@@ -11,10 +11,12 @@ if not sp.config.full_data_available:
 
 def test_api():
 
-    n = 5000
+    n = 20000
     max_contacts = {'S':20, 'W':10}
 
+    sc.tic()
     population = sp.make_population(n=n, max_contacts=max_contacts)
+    sc.toc()
 
     with pytest.raises(ValueError):
         population = sp.make_population(n=298437) # Not a supported number
@@ -90,6 +92,6 @@ def test_plot_pop():
 
 
 if __name__ == '__main__':
-    # pop1 = test_api()
-    pop2 = test_plot_pop()
+    pop1 = test_api()
+    # pop2 = test_plot_pop()
     print('Done.')
