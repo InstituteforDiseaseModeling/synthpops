@@ -50,40 +50,38 @@ datadir = sp.datadir
 state_location = 'Washington'
 location = 'seattle_metro'
 country_location = 'usa'
-use_bayesian = False
+sheet_name = 'United States of America'
 
-age_brackets = sp.get_census_age_brackets(datadir,country_location,use_bayesian)
+age_brackets = sp.get_census_age_brackets(datadir,state_location,country_location)
 age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
 num_agebrackets = 18
-contact_matrix_dic = sp.get_contact_matrix_dic(datadir,state_location,num_agebrackets)
+contact_matrix_dic = sp.get_contact_matrix_dic(datadir,sheet_name)
 
 
-household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location,use_bayesian)
+household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location)
 print(household_size_distr)
 
 
 
-Nhomes = 100000
+# Nhomes = 100000
 # Nhomes = 10000
-# Nhomes = 10000
+Nhomes = 6666
 
-# create_homes = True
-create_homes = False
+create_homes = True
+# create_homes = False
 if create_homes:
-    household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location,use_bayesian)
-    print(household_size_distr)
+    household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location)
+    print('size distr',household_size_distr)
 
     Nhomes_to_sample_smooth = 100000
     hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth,household_size_distr)
     totalpop = sp.get_totalpopsize_from_household_sizes(hh_sizes)
-
     # hh_sizes = sp.generate_household_sizes(Nhomes,household_size_distr)
 
-    syn_ages,syn_sexes = sp.get_usa_age_sex_n(location,state_location,totalpop)
+    syn_ages,syn_sexes = sp.get_usa_age_sex_n(datadir,location,state_location,country_location,totalpop)
     syn_age_count = Counter(syn_ages)
     syn_age_distr = sp.norm_dic(Counter(syn_ages))
-
 
     N = Nhomes
     hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(N,household_size_distr)
@@ -91,21 +89,13 @@ if create_homes:
 
     print(totalpop,'pop')
 
-    hha_df = sp.get_household_head_age_by_size_df(datadir,country_location,use_bayesian)
-    hha_brackets = sp.get_head_age_brackets(datadir,country_location,use_bayesian)
-    hha_by_size = sp.get_head_age_by_size_distr(datadir,country_location,use_bayesian)
+    hha_df = sp.get_household_head_age_by_size_df(datadir,state_location,country_location)
+    hha_brackets = sp.get_head_age_brackets(datadir,country_location=country_location)
+    hha_by_size = sp.get_head_age_by_size_distr(datadir,country_location=country_location)
 
-
-    homes_dic,homes = sp.generate_all_households(hh_sizes,hha_by_size,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,syn_age_distr)
-
-    c = 0
-    for s in homes_dic:
-        c += s * len(homes_dic[s])
-    print('c',c)
-
+    homes_dic,homes = sp.generate_all_households(N,hh_sizes,hha_by_size,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
     new_ages_count = Counter(age_by_uid_dic.values())
-    print('a',len(age_by_uid_dic))
 
     fig = plt.figure(figsize = (6,4))
     ax = fig.add_subplot(111)
@@ -116,7 +106,6 @@ if create_homes:
 
     for a in range(100):
         expected = int(syn_age_distr[a] * totalpop)
-        # print(a, expected, new_ages_count[a], '%.2f' % (-1*(expected - new_ages_count[a])/float(expected) * 100 ))
         y_exp[a] = expected
         y_sim[a] = new_ages_count[a]
 
@@ -126,25 +115,25 @@ if create_homes:
     leg.draw_frame(False)
     ax.set_xlim(left = 0, right = 100)
 
-    fig.savefig('synthetic_age_comparison.pdf',format = 'pdf')
+    # fig.savefig('synthetic_age_comparison.pdf',format = 'pdf')
+    # plt.show()
 
     sp.write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
 
 
 age_by_uid_dic = sp.read_in_age_by_uid(datadir,location,state_location,country_location,Nhomes)
 
+level = 'county'
+sc_df = sp.get_school_enrollment_rates_df(datadir,location,state_location,level)
+rates_by_age = sp.get_school_enrollment_rates(datadir,location,state_location,level)
 
-sc_df = sp.get_school_enrollment_rates_df(datadir,location,'county')
-rates_by_age = sp.get_school_enrollment_rates(datadir,location,'county')
-
-
-school_sizes_count = sp.get_school_sizes_by_bracket(datadir,location)
+school_sizes_count = sp.get_school_sizes_by_bracket(datadir,location,state_location)
 
 # print(school_sizes_count)
 
-
 uids_by_age_dic = sp.get_ids_by_age_dic(age_by_uid_dic)
-
+# for a in sorted(uids_by_age_dic):
+    # print(a, len(uids_by_age_dic[a]))
 
 create_work_and_school = True
 # create_work_and_school = False
@@ -153,7 +142,7 @@ if create_work_and_school:
     uids_in_school,uids_in_school_by_age,ages_in_school_count = sp.get_uids_in_school(datadir,location,state_location,country_location,'county',Nhomes)
 
     # print(uids_in_school_by_age)
-    print(uids_in_school)
+    # print(uids_in_school)
 
     gen_school_sizes = sp.generate_school_sizes(school_sizes_count,uids_in_school)
     # print(gen_school_sizes)
@@ -162,9 +151,9 @@ if create_work_and_school:
     # print(age_by_brackets_dic[34])
 
     gen_schools,gen_school_uids = sp.send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
-    print(gen_schools)
+    # print('gen',gen_schools)
     for gn,g in enumerate(gen_schools):
-        print(gn,'\n',g)
+        print(gn,'school','\n',sorted(g))
     # for s in range(5):
         # print(Counter(gen_schools[s]))
         # print(gen_schools[s])
@@ -185,7 +174,7 @@ if create_work_and_school:
 
     workplace_sizes = sp.generate_workplace_sizes(workplace_size_count,workplace_size_brackets,workers_by_age_to_assign_count)
     print('work')
-    print(workplace_sizes)
+    # print(workplace_sizes)
     # print(workplace_size_count)
     # print(workplace_size_brackets)
 
@@ -194,11 +183,11 @@ if create_work_and_school:
     # print(workers_by_age_to_assign_count)
 
     # print(np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
-    for a in workers_by_age_to_assign_count:
-        print(a,workers_by_age_to_assign_count[a])
+    # for a in workers_by_age_to_assign_count:
+        # print(a,workers_by_age_to_assign_count[a])
 
-create_work_and_school = True
-# create_work_and_school = False
+# create_work_and_school = True
+create_work_and_school = False
 if create_work_and_school:
     sp.write_schools_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,gen_school_uids,age_by_uid_dic)
     sp.write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,Nhomes,gen_workplace_uids,age_by_uid_dic)
@@ -213,7 +202,7 @@ if read_pop:
 # for i in range(20):
     # print(popdict[uids[i]])
 
-scdf = sp.get_school_sizes_df(datadir,location)
+scdf = sp.get_school_sizes_df(datadir,location,state_location)
 # print(sorted(scdf.TotalEnrollment.values))
-school_sizes = sp.get_school_sizes_by_bracket(datadir,location)
+school_sizes = sp.get_school_sizes_by_bracket(datadir,location,state_location)
 # print(school_sizes)
