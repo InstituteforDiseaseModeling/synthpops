@@ -13,22 +13,6 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 import cmocean
 
-# Set user-specific configurations
-username = os.path.split(os.path.expanduser('~'))[-1]
-fontdirdict = {
-    'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
-}
-if username not in fontdirdict:
-    fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
-
-try:
-    fontpath = fontdirdict[username]
-    font_style = 'Roboto_Condensed'
-    fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
-    prop = font_manager.FontProperties(fname = fontstyle_path)
-    mplt.rcParams['font.family'] = prop.get_name()
-except:
-    pass
 
 def generate_household_sizes(Nhomes,hh_size_distr):
     max_size = max(hh_size_distr.keys())
