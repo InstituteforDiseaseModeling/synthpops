@@ -20,7 +20,7 @@ def calculate_contact_matrix(contacts,density_or_frequency='density'):
     uids = contacts.keys()
     uids = [uid for uid in uids]
 
-    num_ages = 100
+    num_ages = 101
 
     F_dic = {}
     for k in ['M','H','S','W','R']:
@@ -35,9 +35,13 @@ def calculate_contact_matrix(contacts,density_or_frequency='density'):
 
             if len(contact_ages) > 0:
                 if density_or_frequency == 'density':
-                    F_dic[k][age, contact_ages] += 1 / len(contact_ages)
+                    for ca in contact_ages:
+                        F_dic[k][age,ca] += 1.0/len(contact_ages)
+                    # F_dic[k][age, contact_ages] += 1 / len(contact_ages)
                 elif density_or_frequency == 'frequency':
-                    F_dic[k][age, contact_ages] += 1
+                    for ca in contact_ages:
+                        F_dic[k][age,ca] += 1.0
+                    # F_dic[k][age, contact_ages] += 1
 
     return F_dic
 
@@ -81,7 +85,7 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
                 vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
             else:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
                 vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
 
         elif density_or_frequency == 'frequency':
