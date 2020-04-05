@@ -516,8 +516,11 @@ def get_employment_rates(datadir,location,state_location,country_location):
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'employment',location + '_employment_pct_by_age.csv')
     df = pd.read_csv(file_path)
     dic = dict(zip(df.Age,df.Percent))
-    # for a in range(75,101):
+    # for a in range(75,81):
         # dic[a] = dic[a]/2.
+    # Census records give the last group as 75+ but very unlikely over 80 are working so reduce this likelihood
+    for a in range(81,100):
+        dic[a] = dic[a]/10.
     return dic
 
 
@@ -572,7 +575,7 @@ def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_cou
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=25,verbose=False):
+def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=30,verbose=False):
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
     teacher_age_min = 26 # US teachers need at least undergrad to teach and typically some additional time to gain certification from a teaching program - it should take a few years after college
     teacher_age_max = 75 # use max age from employment records.
@@ -585,7 +588,6 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
         nteachers = int(size/float(student_teacher_ratio))
         nteachers = max(1,nteachers)
         if verbose:
-            print( size/float(student_teacher_ratio) )
             print('nteachers',nteachers,'student-teacher ratio',size/nteachers)
         teachers = []
         teacher_uids = []
@@ -606,8 +608,8 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
 
         syn_schools[n] = school
         syn_school_uids[n] = school_uids
-        # print('school with teachers',sorted(school))
         if verbose:
+            print('school with teachers',sorted(school))
             print('nkids', (np.array(school)<=19).sum(),'n20+', (np.array(school) > 19).sum() )
             print('kid-adult ratio' ,(np.array(school)<=19).sum()/ (np.array(school) > 19).sum() )
 
@@ -738,8 +740,8 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
 
     household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location)
 
-    # if n < 5000:
-        # raise NotImplementedError("Population is too small to currently be generated properly. Try a size larger than 5000.")
+    if n < 5000:
+        raise NotImplementedError("Population is too small to currently be generated properly. Try a size larger than 5000.")
     n = int(n)
 
     # this could be unnecessary if we get the single year age distribution in a different way.
@@ -791,7 +793,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
 
         plt.show()
 
-    # save households and uids to file
+    # save households and uids to file - always need to do this...
     write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
 
     age_by_uid_dic = read_in_age_by_uid(datadir,location,state_location,country_location,n)
