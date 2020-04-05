@@ -18,18 +18,17 @@ if __name__ == '__main__':
 
     popdict = {}
 
-    n = 5000
+    n = 100000
 
-    use_bayesian = True
-    # use_bayesian = False
-
-    options_args = {'use_microstructure': True, 'use_bayesian': use_bayesian}
+    options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
-    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
 
-    uids = contacts.keys()
-    uids = [uid for uid in uids]
-    print(contacts[uids[22]]['contacts'])
+    sc.tic()
+    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    # uids = contacts.keys()
+    # uids = [uid for uid in uids]
+    # print(contacts[uids[3]]['contacts'])
 
     contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
-    print(contacts[uids[22]]['contacts'])
+    # print(contacts[uids[3]]['contacts'])
+    sc.toc()
