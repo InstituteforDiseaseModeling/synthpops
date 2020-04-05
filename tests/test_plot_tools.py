@@ -116,9 +116,9 @@ if __name__ == '__main__':
     location = 'seattle_metro'
     country_location = 'usa'
 
-    # setting_code = 'H'
+    setting_code = 'H'
     # setting_code = 'S'
-    setting_code = 'W'
+    # setting_code = 'W'
     
     aggregate_flag = True
     aggregate_flag = False

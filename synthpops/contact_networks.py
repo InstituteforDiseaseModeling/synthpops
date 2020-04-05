@@ -10,9 +10,25 @@ from .config import datadir
 from copy import deepcopy
 import matplotlib as mplt
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
 import cmocean
 
+# Set user-specific configurations
+username = os.path.split(os.path.expanduser('~'))[-1]
+fontdirdict = {
+    'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
+}
+if username not in fontdirdict:
+    fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
 
+try:
+    fontpath = fontdirdict[username]
+    font_style = 'Roboto_Condensed'
+    fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
+    prop = font_manager.FontProperties(fname = fontstyle_path)
+    mplt.rcParams['font.family'] = prop.get_name()
+except:
+    pass
 
 def generate_household_sizes(Nhomes,hh_size_distr):
     max_size = max(hh_size_distr.keys())
@@ -112,8 +128,7 @@ def generate_living_alone(hh_sizes,hha_by_size_counts,hha_brackets,single_year_a
 
 def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,single_year_age_distr):
 
-    p_coin = dict.fromkeys(np.arange(2,len(hh_sizes)+1), 0.0) # if we produce too many adults over 40
-    ya_coin = 0.15 # produce far too many children without this
+    ya_coin = 0.15 # produce far too few young adults without this
 
     homes = np.zeros((hh_sizes[size-1],size))
 
@@ -130,24 +145,12 @@ def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age
             bi = sp.sample_single(b_prob)
             ai = sp.sample_from_range(single_year_age_distr,age_brackets[bi][0],age_brackets[bi][-1])
 
-            if ai >= 40:
-                if np.random.binomial(1,p_coin[size]):
-                    while (ai > 40):
-                        bi = sp.sample_single(b_prob)
-                        ai = sp.sample_from_range(single_year_age_distr,age_brackets[bi][0],age_brackets[bi][-1])
-
-            elif ai >= 5 and ai <= 20:
+            if ai > 5 and ai <= 20:
                 if np.random.binomial(1,ya_coin):
-                    ai = sp.sample_from_range(single_year_age_distr,25,35)
+                    ai = sp.sample_from_range(single_year_age_distr,25,30)
 
             ai = sp.resample_age(single_year_age_distr,ai)
-            ai = sp.resample_age(single_year_age_distr,ai)
-            # if ai > 0 and ai < 3:
-                # print(ai)
-                # ai = np.random.choice(np.arange(ai-1,ai+2))
-            # else:
-                # if np.random.binomial(1,0.5):
-                    # ai = np.random.choice(np.arange(0,3))
+
             homes[h][n] = ai
 
     return homes
@@ -790,8 +793,10 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
         leg = ax.legend(fontsize = 18)
         leg.draw_frame(False)
         ax.set_xlim(left = 0, right = 100)
+        ax.set_xticks(np.arange(0,101,5))
 
         plt.show()
+        fig.savefig('synthetic_age_comparison_' + str(n) + '.pdf',format = 'pdf')
 
     # save households and uids to file - always need to do this...
     write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
