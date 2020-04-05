@@ -332,14 +332,10 @@ def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
     p = [size_distr[s] for s in s_range]
     
     while n > 0:
-
         s = np.random.choice(s_range, p = p)
         n -= s
         school_sizes.append(s)
 
-    # if n < 0:
-        # print('stop')
-    
     np.random.shuffle(school_sizes)
     return school_sizes
 
@@ -371,7 +367,11 @@ def get_uids_in_school(datadir,location,state_location,country_location,level,N,
     return uids_in_school,uids_in_school_by_age,ages_in_school_count
 
 
-def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic):
+def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose=False):
+    """
+    A method to send 'students' to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.git 
+    """
+
     syn_schools = []
     syn_school_uids = []
     age_range = np.arange(101)
@@ -381,8 +381,6 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
     left_in_bracket = sp.get_aggregate_ages(ages_in_school_count,age_by_brackets_dic)
 
     for n,size in enumerate(school_sizes):
-
-        school_finished = False # if there's no more people you can possibly add because of the age distribution of who's left
 
         if len(uids_in_school) == 0: # no more students left to send to school!
             break
@@ -399,7 +397,7 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
         if bindex >= 4:
-            if np.random.binomial(1,p=0.):
+            if np.random.binomial(1,p=0.8):
                 achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
                 aindex = np.where(achoice)[0][0]
 
@@ -412,8 +410,8 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
         new_school.append(aindex)
         new_school_uids.append(uid)
 
-        print('reference school age',aindex,'school size',size,'students left',len(uids_in_school),left_in_bracket)
-        # print(ages_in_school_count)
+        if verbose:
+            print('reference school age',aindex,'school size',size,'students left',len(uids_in_school),left_in_bracket)
 
         bindex = age_by_brackets_dic[aindex]
         b_prob = contact_matrix_dic['S'][bindex,:]
@@ -430,17 +428,18 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
                 ages_in_school_count[ai] -= 1
                 left_in_bracket[age_by_brackets_dic[ai]] -= 1
             uids_in_school = {}
-            print('last school',size,len(new_school))
+            if verbose:
+                print('last school','size from distribution',size,'size generated',len(new_school))
 
         else:
+            bi_min = max(0,bindex-1)
+            bi_max = bindex + 1
+
             for i in range(1,size):
                 if len(uids_in_school) == 0:
                     break
 
-                # no one left to send? 
-                bi_min = max(0,bindex-1)
-                bi_max = bindex + 1
-                # print('b range',bi_min, bi_max)
+                # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with 
                 if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min,bi_max+1)]) == 0:
                     break
 
@@ -456,15 +455,12 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
                         bi = sp.sample_single(b_prob)
                         a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
-                # while a_in_school_b_prob_sum == 0 or bi >= 10:
-                # while left_in_bracket[bi] == 0 or bi >= 10:
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
                 # while left_in_bracket[bi] == 0:
                     
                     bi = sp.sample_single(b_prob)
                     a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
-                
                 ai = sp.sample_from_range(ages_in_school_distr,age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0] # grab the next student in line
 
@@ -483,10 +479,10 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
         new_school = np.array(new_school)
         kids = new_school <=19
         new_school_age_counter = Counter(new_school)
+        if verbose:
+            print('new school ages',len(new_school),sorted(new_school),'nkids',kids.sum(),'n20+',len(new_school)-kids.sum(),'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()) )
 
-        print('new school ages',sorted(new_school),'nkids',kids.sum(),'n20+',len(new_school)-kids.sum(),'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()) )
-
-    print('people in school', np.sum([ len(school) for school in syn_schools ]))
+    print('people in school', np.sum([ len(school) for school in syn_schools ]),'left to send',len(uids_in_school))
     return syn_schools,syn_school_uids
 
 
@@ -520,9 +516,8 @@ def get_employment_rates(datadir,location,state_location,country_location):
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'employment',location + '_employment_pct_by_age.csv')
     df = pd.read_csv(file_path)
     dic = dict(zip(df.Age,df.Percent))
-    # for a in range(65,100):
-    for a in range(75,101):
-        dic[a] = dic[a]/2.
+    # for a in range(75,101):
+        # dic[a] = dic[a]/2.
     return dic
 
 
@@ -577,10 +572,9 @@ def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_cou
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=50):
+def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=25,verbose=False):
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
     teacher_age_min = 26 # US teachers need at least undergrad to teach and typically some additional time to gain certification from a teaching program - it should take a few years after college
-    # teacher_age_max = 65 # 
     teacher_age_max = 75 # use max age from employment records.
 
     for n in range(len(syn_schools)):
@@ -589,9 +583,10 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
 
         size = len(school)
         nteachers = int(size/float(student_teacher_ratio))
-        print( size/float(student_teacher_ratio) )
         nteachers = max(1,nteachers)
-        print('nteachers',nteachers)
+        if verbose:
+            print( size/float(student_teacher_ratio) )
+            print('nteachers',nteachers,'student-teacher ratio',size/nteachers)
         teachers = []
         teacher_uids = []
 
@@ -612,8 +607,9 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
         syn_schools[n] = school
         syn_school_uids[n] = school_uids
         # print('school with teachers',sorted(school))
-        print('nkids', (np.array(school)<=19).sum() )
-        print('student teacher ratio' ,(np.array(school)<=19).sum()/ (np.array(school) > 19).sum() )
+        if verbose:
+            print('nkids', (np.array(school)<=19).sum(),'n20+', (np.array(school) > 19).sum() )
+            print('kid-adult ratio' ,(np.array(school)<=19).sum()/ (np.array(school) > 19).sum() )
 
     return syn_schools,syn_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count
 
@@ -808,7 +804,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     uids_in_school,uids_in_school_by_age,ages_in_school_count = get_uids_in_school(datadir,location,state_location,country_location,level,n,age_by_uid_dic) # this will call in school enrollment rates
 
     gen_school_sizes = generate_school_sizes(school_sizes_count,uids_in_school)
-    gen_schools,gen_school_uids = send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
+    gen_schools,gen_school_uids = send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose)
 
     # Figure out who's going to be working
     employment_rates = get_employment_rates(datadir,location,state_location,country_location)
@@ -816,7 +812,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_count,uids_by_age_dic)
 
     # Assign teachers and update school lists
-    gen_schools,gen_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools,gen_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count)
+    gen_schools,gen_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools,gen_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,verbose=True)
 
 
     # Generate non-school workplace sizes needed to send everyone to work
