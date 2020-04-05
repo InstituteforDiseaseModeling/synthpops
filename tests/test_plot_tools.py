@@ -42,7 +42,7 @@ except:
 datadir = sp.datadir
 
 
-def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density',use_bayesian=True):
+def test_plot_generated_contact_matrix(datadir,setting_code='S',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
 
     datadir = sp.datadir
 
@@ -52,11 +52,11 @@ def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=Tr
 
     popdict = {}
 
-    options_args = {'use_microstructure': True, 'use_bayesian':use_bayesian}
+    options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
     contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
 
-    age_brackets = sp.get_census_age_brackets(datadir,country_location)
+    age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     ages = []
@@ -66,7 +66,7 @@ def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=Tr
     num_agebrackets = len(age_brackets)
 
     age_count = Counter(ages)
-    aggregate_age_count = sp.get_aggregate_ages(age_count,age_by_brackets_dic,num_agebrackets)
+    aggregate_age_count = sp.get_aggregate_ages(age_count,age_by_brackets_dic)
 
     freq_matrix_dic = sp.calculate_contact_matrix(contacts,density_or_frequency)
 
@@ -75,7 +75,7 @@ def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=Tr
     return fig
 
 
-def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density',use_bayesian=True):
+def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -83,12 +83,12 @@ def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggre
 
     popdict = {}
 
-    options_args = {'use_microstructure': True, 'use_bayesian':use_bayesian}
+    options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
     contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
     contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
 
-    age_brackets = sp.get_census_age_brackets(datadir,country_location,use_bayesian)
+    age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     ages = []
@@ -98,7 +98,7 @@ def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggre
     num_agebrackets = len(age_brackets)
 
     age_count = Counter(ages)
-    aggregate_age_count = sp.get_aggregate_ages(age_count,age_by_brackets_dic,num_agebrackets)
+    aggregate_age_count = sp.get_aggregate_ages(age_count,age_by_brackets_dic)
 
     freq_matrix_dic = sp.calculate_contact_matrix(contacts,density_or_frequency)
 
@@ -110,15 +110,15 @@ def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggre
 
 if __name__ == '__main__':
     
-    n = int(50000)
+    n = int(120000)
 
     state_location = 'Washington'
     location = 'seattle_metro'
     country_location = 'usa'
 
-    setting_code = 'H'
+    # setting_code = 'H'
     # setting_code = 'S'
-    # setting_code = 'W'
+    setting_code = 'W'
     
     aggregate_flag = True
     aggregate_flag = False
@@ -128,8 +128,8 @@ if __name__ == '__main__':
     # density_or_frequency = 'frequency'
 
     # fig = sp.plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_count,age_brackets,age_by_brackets_dic,density_or_frequency,logcolors_flag,aggregate_flag)
-    # fig = test_plot_generated_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency,use_bayesian=True)
-    fig = test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency,use_bayesian=True)
+    fig = test_plot_generated_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+    # fig = test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
 
     if do_save:
         fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
