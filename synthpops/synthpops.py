@@ -23,8 +23,6 @@ def norm_dic(dic):
 
 def norm_age_group(age_dic,age_min,age_max):
     dic = {}
-    if age_max == 100:
-        age_max = 99
     for a in range(age_min,age_max+1):
         dic[a] = age_dic[a]
     return norm_dic(dic)
@@ -51,7 +49,7 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None)
     if any(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location, state_location, and country_location strings.")
     else:
-        return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_gender_fraction_by_age_bracket.dat')
+        return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_gender_fraction_by_age_bracket_16.dat')
         # return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
 
 
@@ -60,7 +58,7 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
     Return dict of gender fractions by age bracket, either by location, state_location, country_location strings, or by the file_path if that's given.
     """
     if file_path is None:
-        f = get_gender_fraction_by_age_path(datadir,location,state_location,file_path)
+        file_path = get_gender_fraction_by_age_path(datadir,location,state_location)
         df = pd.read_csv(file_path)
     else:
         df = pd.read_csv(file_path)
@@ -78,7 +76,7 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None):
     if any(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     else:
-        return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr.dat')
+        return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr_16.dat')
 
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, file_path=None):
@@ -88,26 +86,27 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, file_pat
     if file_path is None:
         file_path = get_age_bracket_distr_path(datadir,location,state_location)
     df = pd.read_csv(file_path)
+    print(file_path)
     return dict(zip(np.arange(len(df)), df.percent))
 
 
-def get_household_size_distr_path(datadir, location=None, state_location=None):
+def get_household_size_distr_path(datadir, location=None, state_location=None,country_location=None):
     """
     Return file_path for household size distribution
     """
-    levels = [location,state_location]
+    levels = [location,state_location,country_location]
     if any(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     else:
-        return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'household size distributions',location + '_household_size_distr.dat')
+        return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'household size distributions',location + '_household_size_distr.dat')
 
 
-def get_household_size_distr(datadir, location=None, state_location=None, file_path=None):
+def get_household_size_distr(datadir, location=None, state_location=None,country_location=None, file_path=None):
     """
     Return a dictionary of the distributions of household sizes. If you don't give the file_path, then supply the location and state_location strings.
     """
     if file_path is None:
-        file_path = get_household_size_distr_path(datadir,location,state_location)
+        file_path = get_household_size_distr_path(datadir,location,state_location,country_location)
     df = pd.read_csv(file_path)
     return dict( zip(df.household_size, df.percent) )
 
@@ -141,7 +140,7 @@ def get_household_head_age_by_size_path(datadir,state_location=None,country_loca
     levels = [state_location,country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif state_location in None:
+    elif state_location is None:
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'household living arrangements','household_head_age_and_size_count.dat')
     else:
         return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'household living arrangements','household_head_age_and_size_count.dat')
@@ -153,6 +152,7 @@ def get_household_head_age_by_size_df(datadir,state_location=None,country_locati
     """
     if file_path is None:
         file_path = get_household_head_age_by_size_path(datadir,state_location,country_location)
+    print(file_path)
     return pd.read_csv(file_path)
 
 
@@ -161,7 +161,7 @@ def get_head_age_by_size_distr(datadir,state_location=None,country_location=None
     Return an array of head of household age bracket counts (col) given by size (row).
     """
     if file_path is None:
-        file_path = get_household_head_age_by_size_path(datadir,state_location,country_location,file_path)
+        file_path = get_household_head_age_by_size_path(datadir,state_location,country_location)
     hha_df = get_household_head_age_by_size_df(datadir,state_location,country_location,file_path)
     hha_by_size = np.zeros((2 + len(hha_df), len(hha_df.columns)-1))
     if household_size_1_included:
@@ -195,7 +195,7 @@ def get_census_age_brackets(datadir,state_location=None,country_location=None,fi
     """
     if file_path is None:
         file_path = get_census_age_brackets_path(datadir,state_location,country_location)
-
+    print(file_path)
     return get_age_brackets_from_df(file_path)
 
 
@@ -322,7 +322,7 @@ def get_contact_matrix(datadir,setting_code,sheet_name=None,file_path = None, de
             raise NotImplementedError("Contact matrix did not open. Check inputs.")
 
 
-def get_contact_matrix_dic(datadir,setting_code,sheet_name=None,file_path_dic=None,delimiter = ' ',header = None):
+def get_contact_matrix_dic(datadir,sheet_name=None,file_path_dic=None,delimiter = ' ',header = None):
     """
     Return a dict of setting specific age mixing matrices.
     """
@@ -348,9 +348,12 @@ def get_ids_by_age_dic(age_by_id_dic):
     """
     Returns a dictionary listing out ids for each age from a dictionary that maps id to age.
     """
-    ids_by_age_dic = {}
+    max_val = max([v for v in age_by_id_dic.values()])
+    ids_by_age_dic = dict.fromkeys(np.arange(max_val+1))
+    for i in ids_by_age_dic:
+        ids_by_age_dic[i] = []
     for i in age_by_id_dic:
-        ids_by_age_dic.setdefault( age_by_id_dic[i], [])
+        # ids_by_age_dic.setdefault( age_by_id_dic[i], [])
         ids_by_age_dic[ age_by_id_dic[i] ].append(i)
     return ids_by_age_dic
 
@@ -565,74 +568,62 @@ def get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people
     return ages, sexes
 
 
-def get_seattle_age_sex(datadir,location='seattle_metro', state_location='Washington'):
+def get_seattle_age_sex(datadir,location='seattle_metro', state_location='Washington', country_location='usa'):
     '''
     Define default age and sex distributions for Seattle
     '''
     age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, census_location)
-    age_brackets_file_path = get_census_age_brackets_path(datadir)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
     return age,sex
 
 
-def get_seattle_age_sex_n(census_location='seattle_metro',location='Washington',n_people=1e4):
+def get_seattle_age_sex_n(datadir,location='seattle_metro',state_location='Washington', country_location='usa', n_people=1e4):
     '''
     Define default age and sex distributions for Seattle
     '''
-    dropbox_path = datadir
-    age_bracket_distr = read_age_bracket_distr(dropbox_path, census_location)
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path, census_location)
-    age_brackets_file_path = get_census_age_brackets_path(dropbox_path)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
+    age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
 
     ages,sexes = get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
     return ages,sexes
 
 
-def get_usa_age_sex(location='seattle_metro', state_location='Washington'):
+def get_usa_age_sex(datadir,location='seattle_metro', state_location='Washington', country_location='usa'):
     '''
     Define default age and sex distributions for Seattle
     '''
-    dropbox_path = datadir
-    country_location = 'usa'
-    age_bracket_distr = read_age_bracket_distr(dropbox_path,location,state_location,country_location)
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
-    age_brackets_file_path = get_census_age_brackets_path(dropbox_path)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
+    age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
 
     age,sex = get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
     return age,sex
 
 
-def get_usa_age_sex_n(location='seattle_metro',state_location='Washington',n_people=1e4):
+def get_usa_age_sex_n(datadir,location='seattle_metro', state_location='Washington', country_location='usa', n_people=1e4):
     """
     Define default age and sex distributions for any place in the United States.
     """
-    dropbox_path = datadir
-    country_location = 'usa'
-    age_bracket_distr = read_age_bracket_distr(dropbox_path,location,state_location,country_location)
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
-    age_brackets_file_path = get_census_age_brackets_path(dropbox_path)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
+    age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
 
     ages,sexes = get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
     return ages,sexes
 
 
-def get_usa_age_n(sexes,location='seattle_metro',state_location='Washington'):
+def get_usa_age_n(datadir,sexes,location='seattle_metro', state_location='Washington', country_location='usa'):
     """
     Define ages, maybe from supplied sexes for any place in the United States.
     """
-    dropbox_path = datadir
-    country_location = 'usa'
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
-    age_brackets_file_path = get_census_age_brackets_path(dropbox_path)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
 
+    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
     sex_count = Counter(sexes)
     sex_age_distr = {0: gender_fraction_by_age['female'], 1: gender_fraction_by_age['male']}
 
@@ -648,15 +639,12 @@ def get_usa_age_n(sexes,location='seattle_metro',state_location='Washington'):
     return ages,sexes
 
 
-def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
+def get_usa_sex_n(datadir,ages,location='seattle_metro', state_location='Washington', country_location='usa'):
     """
     Define sexes from supplied ages for any place in the United States.
     """
-    dropbox_path = datadir
-    country_location = 'usa'
-    gender_fraction_by_age = read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
-    age_brackets_file_path = get_census_age_brackets_path(dropbox_path)
-    age_brackets = get_age_brackets_from_df(age_brackets_file_path)
+    gender_fraction_by_age = read_gender_fraction_by_age_bracket(datadir, location, state_location)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
 
     age_count = Counter(ages)
@@ -678,14 +666,15 @@ def get_usa_sex_n(ages,location='seattle_metro',state_location='Washington'):
     return ages,sexes
 
 
-def get_age_n(n,location='seattle_metro',state_location='Washington',country_location='usa',use_bayesian=False):
+def get_age_n(datadir,n,location='seattle_metro',state_location='Washington', country_location='usa'):
     """
     Define ages, regardless of sex. For webapp, set use_bayesian to True so that ages are drawn from the age brackets that match the contact matrices used by the webapp.
     """
-    dropbox_path = datadir
-    age_brackets = get_census_age_brackets(dropbox_path,country_location,use_bayesian)
+    age_brackets = get_census_age_brackets(datadir, state_location, country_location)
+    print(age_brackets)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
-    age_bracket_distr = read_age_bracket_distr(datadir,location,state_location,country_location,use_bayesian)
+    age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
+    print(age_bracket_distr)
 
     ages = []
     bracket_count = sample_n(n,age_bracket_distr)
