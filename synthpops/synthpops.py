@@ -86,7 +86,6 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, file_pat
     if file_path is None:
         file_path = get_age_bracket_distr_path(datadir,location,state_location)
     df = pd.read_csv(file_path)
-    print(file_path)
     return dict(zip(np.arange(len(df)), df.percent))
 
 
@@ -152,7 +151,6 @@ def get_household_head_age_by_size_df(datadir,state_location=None,country_locati
     """
     if file_path is None:
         file_path = get_household_head_age_by_size_path(datadir,state_location,country_location)
-    print(file_path)
     return pd.read_csv(file_path)
 
 
@@ -195,7 +193,6 @@ def get_census_age_brackets(datadir,state_location=None,country_location=None,fi
     """
     if file_path is None:
         file_path = get_census_age_brackets_path(datadir,state_location,country_location)
-    print(file_path)
     return get_age_brackets_from_df(file_path)
 
 
@@ -671,10 +668,8 @@ def get_age_n(datadir,n,location='seattle_metro',state_location='Washington', co
     Define ages, regardless of sex. For webapp, set use_bayesian to True so that ages are drawn from the age brackets that match the contact matrices used by the webapp.
     """
     age_brackets = get_census_age_brackets(datadir, state_location, country_location)
-    print(age_brackets)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
     age_bracket_distr = read_age_bracket_distr(datadir, location, state_location)
-    print(age_bracket_distr)
 
     ages = []
     bracket_count = sample_n(n,age_bracket_distr)
