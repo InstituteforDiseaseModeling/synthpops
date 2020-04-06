@@ -70,7 +70,7 @@ Examples live in the `examples` folder. These can be run as:
   
   This creates and saves to file households, schools, and workplaces of individuals with unique ids, and a table mapping ids to ages. Two versions of each contact layer (households, schools, or workplaces) are saved; one with the unique ids of each individual in each group (a single household, school or workplace), and one with their ages (for easy viewing of the age mixing patterns created).
 
-* `python examples/load_contacts_and_show_some_layers.py
+* `python examples/load_contacts_and_show_some_layers.py`
   
   This loads a multilayer contact network made of three layers and shows the age and ages of contacts for the first 20 people. 
 
