@@ -1,6 +1,6 @@
 # synthpops
 
-Synthetic populations generation functions.
+synthpops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. synthpops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network.
 
 ## Installation
 
