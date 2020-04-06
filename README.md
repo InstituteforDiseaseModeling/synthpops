@@ -47,4 +47,4 @@ sp.generate_synthetic_population(npop,datadir,location=location,state_location=s
 
 ```
 
-See also: `test_synthpop.py` for example usage.
+See also: `test_synthpop.py` for example usage of reading in demographic data and generating populations matching those demographics, `test_contacts.py` for example usage of generating random contact networks with individuals matching demographic data or reading in synthetic contact networks with 3 layers (households, schools, and workplaces), and `test_contact_network_generation.py` for generating synthetic contact networks  in households, schools, and workplaces with Seattle Metro data (writing to file).
