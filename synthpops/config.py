@@ -22,8 +22,7 @@ localdatadir = os.path.join(thisdir, os.pardir, 'data')
 userpath = os.path.expanduser('~')
 username = os.path.split(userpath)[-1]
 datadirdict = {
-    'dmistry': os.path.join('data'),
-    # 'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
+    'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
     'cliffk':   os.path.join(userpath,'idm','Dropbox','synthpops'),
     'lgeorge':  os.path.join(userpath,'Dropbox','synthpops'),
     'ccollins': os.path.join(userpath,'Dropbox','synthpops')
