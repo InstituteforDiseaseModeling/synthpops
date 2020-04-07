@@ -54,7 +54,7 @@ def test_plot_generated_contact_matrix(datadir,setting_code='S',n=5000,aggregate
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
-    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args,datadir=datadir)
 
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
@@ -85,7 +85,7 @@ def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggre
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
-    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args,datadir=datadir)
     contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
 
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)

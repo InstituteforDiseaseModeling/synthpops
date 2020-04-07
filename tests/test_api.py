@@ -61,7 +61,7 @@ def test_plot_pop():
 
     fig = pl.figure(figsize=(24,18))
     ax = pl.subplot(111)
-    sc.turbocolormap(apply=True)
+    # sc.turbocolormap(apply=True)
     minval = 0 # ages.min()
     maxval = 100 # ages.min()
     colors = sc.vectocolor(ages, minval=minval, maxval=maxval)
@@ -71,7 +71,7 @@ def test_plot_pop():
     pl.colorbar()
 
     if plotconnections:
-        lcols = dict(H=[0,0,0], S=[0,0.5,1], W=[0,0.7,0], R=[1,1,0])
+        lcols = dict(H=[0,0,0], S=[0,0.5,1], W=[0,0.7,0], C=[1,1,0])
         for index in indices:
             person = people[index]
             contacts = person.contacts

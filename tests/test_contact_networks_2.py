@@ -18,13 +18,13 @@ if __name__ == '__main__':
 
     popdict = {}
 
-    n = 100000
+    n = 50000
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
 
     sc.tic()
-    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args, datadir=datadir)
     # uids = contacts.keys()
     # uids = [uid for uid in uids]
     # print(contacts[uids[3]]['contacts'])

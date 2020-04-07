@@ -7,7 +7,7 @@ if not sp.config.full_data_available:
     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 
-def test_all(location='seattle_metro',state_location='Washington',country_location='usa'):
+def test_all(location='seattle_metro',state_location='Washington',country_location='usa',sheet_name='United States of America'):
     ''' Run all tests '''
 
     sc.heading('Running all tests')
@@ -17,7 +17,7 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
 
     age_bracket_distr = sp.read_age_bracket_distr(dropbox_path,location,state_location,country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path,location,state_location,country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(dropbox_path)
+    age_brackets_filepath = sp.get_census_age_brackets_path(dropbox_path,state_location,country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
@@ -29,10 +29,9 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
     num_agebrackets = 18
 
     # flu-like weights. calibrated to empirical diary survey data.
-    weights_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 2.79}
+    weights_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'C': 2.79}
 
-    age_mixing_matrix_dic = sp.get_contact_matrix_dic(dropbox_path,state_location,num_agebrackets)
-    age_mixing_matrix_dic['M'] = sp.get_contact_matrix(dropbox_path,state_location,'M',num_agebrackets)
+    age_mixing_matrix_dic = sp.get_contact_matrix_dic(dropbox_path,sheet_name)
 
     ### Test sampling contacts based on age ###
     age, sex = sp.get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets) # sample an age (and sex) from the seattle metro distribution
@@ -79,7 +78,7 @@ def test_n_single_ages(n_people=1e4,location='seattle_metro',state_location='Was
 
     age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location,country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location,state_location,country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir)
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir,state_location,country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
     ### Test selecting an age and sex for an individual ###
@@ -103,7 +102,7 @@ def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Was
 
     age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location,country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location,state_location,country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir)
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir,state_location,country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
     ages, sexes = sp.get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
@@ -116,17 +115,19 @@ def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Was
 if __name__ == '__main__':
     sc.tic()
 
+    datadir = 'data'
+
     location = 'seattle_metro' # for census distributions
     state_location = 'Washington' # for state wide age mixing patterns
-    location = 'portland_metro'
-    state_location = 'Oregon'
+    # location = 'portland_metro'
+    # state_location = 'Oregon'
     country_location = 'usa'
 
     test_all(location,state_location,country_location)
     test_n_single_ages(1e4,location,state_location,country_location)
     test_multiple_ages(1e4,location,state_location,country_location)
 
-    ages,sexes = sp.get_usa_age_sex_n(location,state_location,1e2)
+    ages,sexes = sp.get_usa_age_sex_n(datadir,location,state_location,country_location,1e2)
     print(ages,sexes)
 
     # country_location = 'Algeria'

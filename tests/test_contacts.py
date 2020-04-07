@@ -156,6 +156,8 @@ def test_make_contacts_from_microstructure(location='seattle_metro',state_locati
 if __name__ == '__main__':
     sc.tic()
 
+    datadir = 'data'
+
     # popdict = test_make_popdict(default_n)
     # contacts = test_make_contacts(default_n)
 
