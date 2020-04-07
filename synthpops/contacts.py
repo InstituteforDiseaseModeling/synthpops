@@ -6,7 +6,7 @@ from .config import datadir
 import os
 import pandas as pd
 
-# def make_popdict(n=None, uids=None, ages=None, sexes=None, state_location=None, location=None, use_usa=True, use_bayesian=False, id_len=6):
+
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
 
@@ -120,7 +120,7 @@ def make_contacts_without_social_layers_152(popdict,n_contacts_dic,location,stat
     """
 
     uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location,country_location=country_location)
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
@@ -163,14 +163,13 @@ def make_contacts_with_social_layers_152(popdict,n_contacts_dic,location,state_l
     """
 
     uids_by_age_dic = sp.get_uids_by_age_dic(popdict)
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location=state_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location=state_location,country_location=country_location)
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = sp.get_contact_matrix_dic(datadir,sheet_name=sheet_name)
     age_mixing_matrix_dic['M'] = sp.combine_matrices(age_mixing_matrix_dic,n_contacts_dic,num_agebrackets) # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
-
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -306,8 +305,8 @@ def make_contacts_without_social_layers_and_sex(popdict,n_contacts_dic,location,
     if country_location is None:
         raise NotImplementedError
 
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location)
-    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location=location,state_location=state_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location,country_location=country_location)
+    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location=location,state_location=state_location,country_location=country_location)
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
@@ -355,8 +354,8 @@ def make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,sta
     if country_location is None:
         raise NotImplementedError
 
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location)
-    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location=location,state_location=state_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir,location=location,state_location=state_location,country_location=country_location)
+    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location=location,state_location=state_location,country_location=country_location)
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
@@ -486,18 +485,18 @@ def make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,sta
 
     return popdict
 
-def make_contacts_from_microstructure(location,state_location,country_location,Npop):
+def make_contacts_from_microstructure(datadir,location,state_location,country_location,n):
     """
     Return a popdict from synthetic household, school, and workplace files with uids.
     """
 
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
 
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_age_by_uid.dat')
+    households_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(Npop) + '_synthetic_schools_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
 
@@ -518,29 +517,20 @@ def make_contacts_from_microstructure(location,state_location,country_location,N
     fh = open(households_by_uid_path,'r')
     for c,line in enumerate(fh):
         r = line.strip().split(' ')
-        # group = set(r)
-        # if c < 3:
-            # print(c,'H','r',r)
+ 
         for uid in r:
-            # popdict[uid]['contacts']['H'] = sc.dcp(group)
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
-            # if c < 3:
-                # print('hello',c,popdict[uid]['contacts']['H'],uid)
     fh.close()
 
     fs = open(schools_by_uid_path,'r')
     for c,line in enumerate(fs):
         r = line.strip().split(' ')
         group = set(r)
-        # if c < 3:
-            # print(r)
+
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
-            # popdict[uid]['contacts']['S'] = sc.dcp(group)
             popdict[uid]['contacts']['S'].remove(uid)
-            # if c < 3:
-                # print('jello?',popdict[uid]['contacts']['S'],uid)
     fs.close()
 
     fw = open(workplaces_by_uid_path,'r')
@@ -549,15 +539,13 @@ def make_contacts_from_microstructure(location,state_location,country_location,N
         group = set(r)
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
-            # popdict[uid]['contacts']['W'] = sc.dcp(group)
             popdict[uid]['contacts']['W'].remove(uid)
-
     fw.close()
 
     return popdict
 
 
-def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,country_location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
+def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,country_location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None,datadir=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -607,7 +595,7 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
         checkout https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
         network_type : default is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
     '''
-
+    if datadir              is None : datadir = sp.datadir
     if location             is None : location = 'seattle_metro'
     if state_location       is None : state_location = 'Washington'
     if sheet_name           is None : sheet_name = 'United States of America'
@@ -616,6 +604,8 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
 
     if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'} # general we should default to undirected because directionality doesn't make sense for infectious diseases
     if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
+    if 'directed' not in network_distr_args: network_distr_args['directed'] = False
+    if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
 
     # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
     # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
@@ -636,7 +626,7 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
     if options_args['use_microstructure']:
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(location,state_location,country_location,network_distr_args['Npop'])
+        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else: 

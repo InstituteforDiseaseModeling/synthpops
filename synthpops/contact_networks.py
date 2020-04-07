@@ -133,7 +133,8 @@ def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age
                 if np.random.binomial(1,ya_coin):
                     ai = sp.sample_from_range(single_year_age_distr,25,30)
 
-            ai = sp.resample_age(single_year_age_distr,ai)
+            if size > 2:
+                ai = sp.resample_age(single_year_age_distr,ai)
 
             homes[h][n] = ai
 
@@ -218,8 +219,7 @@ def read_in_age_by_uid(datadir,location,state_location,country_location,N):
 
 
 def get_school_enrollment_rates_df(datadir,location,state_location,level):
-    # if 'synthpops' in datadir:
-        # file_path = datadir.replace('synthpops','COVID-19 (1)')
+
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools',level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
     df = pd.read_csv(file_path)
     if location == 'seattle_metro':
@@ -273,16 +273,14 @@ def get_school_enrollment_rates(datadir,location,state_location,level):
 
 
 def get_school_sizes_df(datadir,location,state_location):
-    # if 'synthpops' in datadir:
-        # file_path = datadir.replace('synthpops','COVID-19 (1)')
+
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools','Total_Enrollment_fiftypercentschools2017.dat')
     df = pd.read_csv(file_path)
     return df
 
 
 def get_school_size_brackets(datadir,location,state_location):
-    # if 'synthpops' in datadir:
-        # file_path = datadir.replace('synthpops','COVID-19 (1)')
+
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools','school_size_brackets.dat')
     return sp.get_age_brackets_from_df(file_path)
 
