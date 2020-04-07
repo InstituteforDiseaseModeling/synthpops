@@ -174,7 +174,7 @@ if __name__ == '__main__':
     popdict = test_make_popdict_generic(default_n)
 
     contacts = test_make_contacts_generic(default_n)
-    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=5000)
+    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
     sc.toc()
 
 

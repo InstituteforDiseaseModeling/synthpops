@@ -28,7 +28,7 @@ def test_plot_pop():
     plotconnections = True
     doclear = False
     pause = 0.2
-    n = 5000
+    n = 20000
     alpha = 0.5
 
     # indices = pl.arange(1000)

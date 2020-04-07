@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     popdict = {}
 
-    n = 50000
+    n = 20000
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}

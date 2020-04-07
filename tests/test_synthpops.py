@@ -56,17 +56,6 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
     contact_ages = sp.sample_n_contact_ages(n_reduced_contacts,age,age_brackets,age_by_brackets_dic,age_mixing_matrix_dic,no_schools_weights)
     print(contact_ages)
 
-
-    ### mortality rates and associated functions ###
-    mortality_rates_path = sp.get_mortality_rates_filepath(dropbox_path)
-    mortality_rates_by_age_bracket = sp.get_mortality_rates_by_age_bracket(mortality_rates_path)
-    mortality_rate_age_brackets = sp.get_age_brackets_from_df(os.path.join(dropbox_path,'mortality_age_brackets.dat'))
-
-    mortality_rates = sp.get_mortality_rates_by_age(mortality_rates_by_age_bracket,mortality_rate_age_brackets)
-    age = 80
-    prob_of_death = sp.calc_death(age,mortality_rates)
-    print(prob_of_death)
-
     return
 
 

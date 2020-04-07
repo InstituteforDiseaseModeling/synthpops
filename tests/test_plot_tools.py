@@ -110,7 +110,7 @@ def test_plot_generated_trimmed_contact_matrix(datadir,setting_code,n=5000,aggre
 
 if __name__ == '__main__':
     
-    n = int(120000)
+    n = int(20000)
 
     state_location = 'Washington'
     location = 'seattle_metro'
