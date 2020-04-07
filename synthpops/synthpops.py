@@ -234,6 +234,7 @@ def get_aggregate_matrix(M,age_by_brackets_dic):
     Return symmetric contact matrix aggregated to age brackets. Do not use for community (homogeneous) mixing matrix. 
     """
     N = len(M)
+    num_agebrackets = len(set(age_by_brackets_dic.values()))
     M_agg = np.zeros((num_agebrackets,num_agebrackets))
     for i in range(N):
         bi = age_by_brackets_dic[i]

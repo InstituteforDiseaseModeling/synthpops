@@ -64,7 +64,7 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
 
     if aggregate_flag:
         num_agebrackets = len(set(age_by_brackets_dic.values()))
-        aggregate_M = sp.get_aggregate_matrix(freq_matrix_dic[setting_code],age_by_brackets_dic,num_agebrackets)
+        aggregate_M = sp.get_aggregate_matrix(freq_matrix_dic[setting_code],age_by_brackets_dic)
         asymmetric_M = sp.get_asymmetric_matrix(aggregate_M,aggregate_age_count)
     else:
         num_agebrackets = len(age_brackets)
@@ -81,12 +81,12 @@ def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_
         if density_or_frequency == 'density':
             if aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['S'] = {'vmin': 1e-4, 'vmax': 1e-1}
-                vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
+                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
             else:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['W'] = {'vmin': 1e-4, 'vmax': 1e-1}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
+                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-1}
 
         elif density_or_frequency == 'frequency':
             if aggregate_flag:
