@@ -296,8 +296,8 @@ plt.register_cmap(name='turbo_r', data=mpl_data_r, lut=turbo_colormap_data.shape
 
 # if __name__ == '__main__':
 
-N = 100
-p = 0.08
+N = 1000
+p = 0.15
 
 # G = nx.erdos_renyi_graph(N,p)
 G = nx.random_geometric_graph(N,p)
@@ -322,16 +322,16 @@ for n in pos:
 
 path_len = nx.single_source_shortest_path_length(G,ncenter)
 
-# plt.figure(figsize=(8,8))
-# nx.draw_networkx_edges(G,pos,nodelist = [ncenter], alpha = 0.2, lw = 0.4)
-# nx.draw_networkx_nodes(G,pos,nodelist = [k for k in path_len.keys()],
-#                             node_size = 30, 
-#                             # node_color = [v for v in path_len.values()], 
-#                             node_color = np.arange(N),
-#                             cmap = mplt.cm.get_cmap('turbo')
-#                             )
+plt.figure(figsize=(10,10))
+nx.draw_networkx_edges(G,pos,nodelist = [ncenter], alpha = 0.2, lw = 0.2)
+nx.draw_networkx_nodes(G,pos,nodelist = [k for k in path_len.keys()],
+                            node_size = 20, 
+                            node_color = [v for v in path_len.values()], 
+                            # node_color = np.arange(N),
+                            cmap = mplt.cm.get_cmap('turbo')
+                            )
 
 
-# plt.show()
+plt.show()
 
 
