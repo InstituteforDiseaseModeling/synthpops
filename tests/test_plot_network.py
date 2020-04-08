@@ -299,13 +299,13 @@ plt.register_cmap(name='turbo_r', data=mpl_data_r, lut=turbo_colormap_data.shape
 N = 100
 p = 0.08
 
-G = nx.erdos_renyi_graph(N,p)
-# G = nx.random_geometric_graph(N,p)
+# G = nx.erdos_renyi_graph(N,p)
+G = nx.random_geometric_graph(N,p)
 
-bb = nx.betweenness_centrality(G)
-nx.set_node_attributes(G, bb, 'betweenness')
+# bb = nx.betweenness_centrality(G)
+# nx.set_node_attributes(G, bb, 'betweenness')
 
-nx.set_node_attributes(G, [bb,bb], 'pos')
+# nx.set_node_attributes(G, [bb,bb], 'pos')
 
 pos = nx.get_node_attributes(G,'pos')
 print(pos)
@@ -314,6 +314,7 @@ dmin = 1
 ncenter = 0
 for n in pos:
     x,y = pos[n]
+    print(x,y)
     d = (x-0.5)**2 + (y-0.5)**2
     if d < dmin:
         ncenter = n
