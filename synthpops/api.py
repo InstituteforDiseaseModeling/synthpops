@@ -7,7 +7,7 @@ popsize_choices = [5000,
                    20000,
                    50000,
                    100000,
-                   122000,
+                   120000,
                 ]
 
 
@@ -24,7 +24,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
 
     '''
 
-    default_n = 20000
+    default_n = 10000
     default_max_contacts = {'S':20, 'W':10}
 
     if n is None: n = default_n
@@ -36,14 +36,16 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
+    country_location = 'usa'
     state_location = 'Washington'
     location = 'seattle_metro'
+
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
 
     # Heavy lift 1: make the contacts and their connections
-    population = sp.make_contacts(state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
+    population = sp.make_contacts(location=location,state_location = state_location,country_location=country_location, options_args = options_args, network_distr_args = network_distr_args)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)

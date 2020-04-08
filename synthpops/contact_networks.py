@@ -133,8 +133,8 @@ def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age
                 if np.random.binomial(1,ya_coin):
                     ai = sp.sample_from_range(single_year_age_distr,25,30)
 
-            if size > 2:
-                ai = sp.resample_age(single_year_age_distr,ai)
+            # if size > 2:
+            ai = sp.resample_age(single_year_age_distr,ai)
 
             homes[h][n] = ai
 
@@ -183,7 +183,7 @@ def assign_uids_by_homes(homes,id_len=16):
 
 def write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic):
     
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
     os.makedirs(file_path,exist_ok=True)
 
     households_by_age_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
@@ -212,23 +212,25 @@ def write_homes_by_age_and_uid(datadir,location,state_location,country_location,
 
 def read_in_age_by_uid(datadir,location,state_location,country_location,N):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
     age_by_uid_path = os.path.join(file_path,location + '_' + str(N) + '_age_by_uid.dat')
     df = pd.read_csv(age_by_uid_path,header = None, delimiter = ' ')
     return dict( zip(df.iloc[:,0].values, df.iloc[:,1].values) )
 
 
-def get_school_enrollment_rates_df(datadir,location,state_location,level):
+def get_school_enrollment_rates_df(datadir,location,state_location,country_location,level):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools',level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools',level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
     df = pd.read_csv(file_path)
     if location == 'seattle_metro':
         d = df[df['NAME'].isin(['King County, Washington','Geographic Area Name'])]
+    else:
+        d = df[df['NAME'] == location]
     return d
 
 
-def get_school_enrollment_rates(datadir,location,state_location,level):
-    df = get_school_enrollment_rates_df(datadir,location,state_location,level)
+def get_school_enrollment_rates(datadir,location,state_location,country_location,level):
+    df = get_school_enrollment_rates_df(datadir,location,state_location,country_location,level)
     skip_labels = ['Error','public','private','(X)']
     include_labels = ['Percent']
 
@@ -272,25 +274,25 @@ def get_school_enrollment_rates(datadir,location,state_location,level):
     return rates_by_age
 
 
-def get_school_sizes_df(datadir,location,state_location):
+def get_school_sizes_df(datadir,location,state_location,country_location):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools','Total_Enrollment_fiftypercentschools2017.dat')
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools','Total_Enrollment_fiftypercentschools2017.dat')
     df = pd.read_csv(file_path)
     return df
 
 
-def get_school_size_brackets(datadir,location,state_location):
+def get_school_size_brackets(datadir,location,state_location,country_location):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,location,'schools','school_size_brackets.dat')
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools','school_size_brackets.dat')
     return sp.get_age_brackets_from_df(file_path)
 
 
-def get_school_sizes_by_bracket(datadir,location,state_location):
-    df = get_school_sizes_df(datadir,location,state_location)
+def get_school_sizes_by_bracket(datadir,location,state_location,country_location):
+    df = get_school_sizes_df(datadir,location,state_location,country_location)
     sizes = df.iloc[:,0].values
     size_count = Counter(sizes)
 
-    size_brackets = get_school_size_brackets(datadir,location,state_location)
+    size_brackets = get_school_size_brackets(datadir,location,state_location,country_location)
     size_by_bracket_dic = sp.get_age_by_brackets_dic(size_brackets) # not actually ages just a useful function for mapping ints back to their bracket or grouping key
 
     bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
@@ -331,7 +333,7 @@ def get_uids_in_school(datadir,location,state_location,country_location,level,N,
     uids_in_school_by_age = {}
     ages_in_school_count = dict.fromkeys(np.arange(101),0)
 
-    rates = get_school_enrollment_rates(datadir,location,state_location,level)
+    rates = get_school_enrollment_rates(datadir,location,state_location,country_location,level)
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
@@ -511,13 +513,13 @@ def get_employment_rates(datadir,location,state_location,country_location):
 
 def get_workplace_size_brackets(datadir,country_location):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'usa_work_size_brackets.dat')
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'work_size_brackets.dat')
     return sp.get_age_brackets_from_df(file_path)
 
 
 def get_workplace_sizes(datadir,country_location):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'usa_work_size_count.dat')
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'work_size_count.dat')
     df = pd.read_csv(file_path)
     return dict(zip(df.work_size_bracket,df.size_count))
 
@@ -670,7 +672,7 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
 
 def write_schools_by_age_and_uid(datadir,location,state_location,country_location,n,schools_by_uids,age_by_uid_dic):
     
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
     os.makedirs(file_path,exist_ok=True)
     schools_by_age_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_ages.dat')
     schools_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
@@ -693,7 +695,7 @@ def write_schools_by_age_and_uid(datadir,location,state_location,country_locatio
 
 def write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,n,workplaces_by_uids,age_by_uid_dic):
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
     os.makedirs(file_path,exist_ok=True)
     workplaces_by_age_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_ages.dat')
     workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
@@ -778,7 +780,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
         ax.set_xticks(np.arange(0,101,5))
 
         plt.show()
-        fig.savefig('synthetic_age_comparison_' + str(n) + '.pdf',format = 'pdf')
+        # fig.savefig('synthetic_age_comparison_' + str(n) + '.pdf',format = 'pdf')
 
     # save households and uids to file - always need to do this...
     write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
@@ -788,7 +790,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
 
 
     # Generate school sizes
-    school_sizes_count = get_school_sizes_by_bracket(datadir,location,state_location)
+    school_sizes_count = get_school_sizes_by_bracket(datadir,location,state_location,country_location)
     # figure out who's going to go to school as a student
     uids_in_school,uids_in_school_by_age,ages_in_school_count = get_uids_in_school(datadir,location,state_location,country_location,level,n,age_by_uid_dic) # this will call in school enrollment rates
 

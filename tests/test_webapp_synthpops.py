@@ -4,10 +4,10 @@ import sciris as sc
 
 default_n = 1000
 
-def test_webapp_synthpops_calls(n=default_n,location='seattle_metro',state_location='Washington',sheet_name='United States of America'):
+def test_webapp_synthpops_calls(n=default_n,location='seattle_metro',state_location='Washington',country_location='usa',sheet_name='United States of America'):
     datadir = sp.datadir
 
-    sp.read_age_bracket_distr(datadir,location=location,state_location=state_location)
+    sp.read_age_bracket_distr(datadir,location=location,state_location=state_location,country_location=country_location)
     sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     num_agebrackets = 16
 
@@ -20,15 +20,15 @@ def test_webapp_synthpops_calls(n=default_n,location='seattle_metro',state_locat
         print(contact_matrix_dic[k].shape)
 
     n = int(n)
-    sp.get_age_n(datadir,n=default_n,location=location,state_location=state_location)
+    sp.get_age_n(datadir,n=default_n,location=location,state_location=state_location,country_location=country_location)
 
     return
 
 
-def test_webapp_contacts_calls(n=default_n,location='seattle_metro',state_location='Washington',sheet_name='United States of America'):
+def test_webapp_contacts_calls(n=default_n,location='seattle_metro',state_location='Washington',country_location='usa',sheet_name='United States of America'):
 
     n = int(n)
-    popdict = sp.make_popdict(n=n,state_location=state_location,location=location)
+    popdict = sp.make_popdict(n=n,state_location=state_location,location=location,country_location=country_location)
 
     print(popdict)
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     n = int(3e3)
 
-    test_webapp_synthpops_calls(n,location=location,state_location=state_location,sheet_name=sheet_name)
-    test_webapp_contacts_calls(n,location=location,state_location=state_location,sheet_name=sheet_name)
-    test_webapp_make_contacts(n,state_location=state_location,location=location)
-    test_webapp_make_contacts_and_show_some_layers(n,state_location=state_location,location=location)
+    test_webapp_synthpops_calls(n,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name)
+    test_webapp_contacts_calls(n,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name)
+    test_webapp_make_contacts(n,state_location=state_location,location=location,country_location=country_location)
+    test_webapp_make_contacts_and_show_some_layers(n,state_location=state_location,location=location,country_location=country_location)

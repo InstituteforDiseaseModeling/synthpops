@@ -51,8 +51,10 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location, state_location, and country_location strings.")
     else:
-        if country_location is None:
-            return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_gender_fraction_by_age_bracket_16.dat')
+        if state_location is None: # use this is if you want to get national data 
+            return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'age distributions',location + '_gender_fraction_by_age_bracket_16.dat')
+        # if country_location is None:
+            # return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_gender_fraction_by_age_bracket_16.dat')
         else:
             return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'age distributions',location + '_gender_fraction_by_age_bracket_16.dat')
         # return os.path.join(datadir,'demographics',country_location,state_location,'census','age distributions',location + '_gender_fraction_by_age_bracket.dat')
@@ -83,8 +85,10 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     else:
-        if country_location is None:
-            return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr_16.dat')
+        if state_location is None: # use this for national data.
+            return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'age distributions',location + '_age_bracket_distr_16.dat')
+        # if country_location is None:
+            # return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr_16.dat')
         else:
             return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'age distributions',location + '_age_bracket_distr_16.dat')
 
@@ -104,10 +108,13 @@ def get_household_size_distr_path(datadir, location=None, state_location=None,co
     Return file_path for household size distribution
     """
     levels = [location,state_location,country_location]
-    if any(level is None for level in levels):
+    if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     else:
-        return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'household size distributions',location + '_household_size_distr.dat')
+        if state_location is None: # use for national data
+            return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'household size distributions',location + '_household_size_distr.dat')
+        else:
+            return os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'household size distributions',location + '_household_size_distr.dat')
 
 
 def get_household_size_distr(datadir, location=None, state_location=None,country_location=None, file_path=None):
@@ -268,27 +275,28 @@ def get_aggregate_age_dict_conversion(larger_aggregate_ages,larger_age_brackets,
     return smaller_aggregate_ages
 
 
-def write_16_age_brackets_distr(location,state_location,country_location):
-    """
-    Write to file age distribution to match the age brackets for contact matrices currently used by the webapp (from K. Prem et al).
-    """
-    census_age_bracket_distr = read_age_bracket_distr(datadir,location,state_location)
-    census_age_brackets = get_census_age_brackets(datadir,country_location)
-    webapp_age_brackets = get_census_age_brackets(datadir,'bayesian')
+### no longer necessary
+# def write_16_age_brackets_distr(location,state_location,country_location,census_path=None):
+#     """
+#     Write to file age distribution to match the age brackets for contact matrices currently used by the webapp (from K. Prem et al).
+#     """
+#     census_age_bracket_distr = read_age_bracket_distr(datadir,location,state_location,country_location)
+#     census_age_brackets = get_census_age_brackets(datadir,state_location,country_location,census_path)
+#     webapp_age_brackets = get_census_age_brackets(datadir,state_location,country_location)
 
-    census_age_by_brackets_dic = get_age_by_brackets_dic(census_age_brackets)
-    webapp_age_by_brackets_dic = get_age_by_brackets_dic(webapp_age_brackets)
+#     census_age_by_brackets_dic = get_age_by_brackets_dic(census_age_brackets)
+#     webapp_age_by_brackets_dic = get_age_by_brackets_dic(webapp_age_brackets)
 
-    webapp_age_bracket_distr = get_aggregate_age_dict_conversion(census_age_bracket_distr,census_age_brackets,webapp_age_brackets,census_age_by_brackets_dic,webapp_age_by_brackets_dic)
+#     webapp_age_bracket_distr = get_aggregate_age_dict_conversion(census_age_bracket_distr,census_age_brackets,webapp_age_brackets,census_age_by_brackets_dic,webapp_age_by_brackets_dic)
 
-    fp = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions')
-    os.makedirs(fp,exist_ok=True)
-    f = open(os.path.join(fp,location + '_age_bracket_distr.dat'),'w')
-    f.write('age_bracket,percent\n')
-    for b in sorted(webapp_age_bracket_distr.keys()):
-        sa,ea = webapp_age_brackets[b][0],webapp_age_brackets[b][-1]
-        f.write(str(sa) + '_' + str(ea) + ',' + str(webapp_age_bracket_distr[b]) + '\n')
-    f.close()
+#     fp = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'age distributions')
+#     os.makedirs(fp,exist_ok=True)
+#     f = open(os.path.join(fp,location + '_age_bracket_distr.dat'),'w')
+#     f.write('age_bracket,percent\n')
+#     for b in sorted(webapp_age_bracket_distr.keys()):
+#         sa,ea = webapp_age_brackets[b][0],webapp_age_brackets[b][-1]
+#         f.write(str(sa) + '_' + str(ea) + ',' + str(webapp_age_bracket_distr[b]) + '\n')
+#     f.close()
 
 
 def get_symmetric_community_matrix(ages):

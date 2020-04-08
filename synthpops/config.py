@@ -12,7 +12,7 @@ __all__ = ['datadir', 'localdatadir', 'set_datadir', 'validate']
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
 localdatadir = None
-full_data_available = False
+full_data_available = False # this is likely not necesary anymore
 
 # Set the local data folder
 thisdir = sc.thisdir(__file__)
@@ -22,10 +22,10 @@ localdatadir = os.path.join(thisdir, os.pardir, 'data')
 userpath = os.path.expanduser('~')
 username = os.path.split(userpath)[-1]
 datadirdict = {
-    'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
-    'cliffk':   os.path.join(userpath,'idm','Dropbox','synthpops'),
-    'lgeorge':  os.path.join(userpath,'Dropbox','synthpops'),
-    'ccollins': os.path.join(userpath,'Dropbox','synthpops')
+    # 'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
+    # 'cliffk':   os.path.join(userpath,'idm','Dropbox','synthpops'),
+    # 'lgeorge':  os.path.join(userpath,'Dropbox','synthpops'),
+    # 'ccollins': os.path.join(userpath,'Dropbox','synthpops')
 }
 
 # Try to find the folder on load
@@ -38,6 +38,7 @@ if username in datadirdict.keys():
 
 # Replace with local data dir if Dropbox folder is not found
 if datadir is None:
+    full_data_available = True
     datadir = localdatadir
 
 
@@ -48,7 +49,7 @@ def set_datadir(folder):
     global datadir
     datadir = folder
     print(f'Done: data directory set to {folder}.')
-    return
+    return datadir
 
 
 def validate(verbose=True):

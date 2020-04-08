@@ -12,7 +12,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
 
     min_people = 1000
 
-    if location is None: location             = 'seattle_metro'
+    if location             is None: location = 'seattle_metro'
     if state_location is None: state_location = 'Washington'
 
     # A list of UIDs was supplied as the first argument
@@ -36,7 +36,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
                 gen_sexes = list(np.random.binomial(1,p=0.5,size = n))
             else:
                 if location is None: location, state_location = 'seattle_metro', 'Washington'
-                gen_ages,gen_sexes = sp.get_usa_age_sex_n(datadir,location,state_location,country_location,n_people=n)
+                gen_ages,gen_sexes = sp.get_usa_age_sex_n(datadir,location=location,state_location=state_location,country_location=country_location,n_people=n)
         else:
             # if location is None:
             gen_ages,gen_sexes = sp.get_age_sex_n(None,None,None,n_people=n)
@@ -46,7 +46,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     elif ages is not None and sexes is None:
         if country_location == 'usa':
             if location is None: location, state_location = 'seattle_metro', 'Washington'
-            gen_ages,gen_sexes = sp.get_usa_sex_n(datadir,ages,location,state_location,country_location)
+            gen_ages,gen_sexes = sp.get_usa_sex_n(datadir,ages,location=location,state_location=state_location,country_location=country_location)
         else:
             gen_ages = ages
             gen_sexes = list(np.random.binomial(1,p=0.5,size = n))
@@ -56,7 +56,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     elif ages is None and sexes is not None:
         if country_location == 'usa':
             if location is None: location, state_location = 'seattle_metro', 'Washington'
-            gen_ages,gen_sexes = sp.get_usa_age_n(datadir,sexes,location,state_location,country_location)
+            gen_ages,gen_sexes = sp.get_usa_age_n(datadir,sexes,location=location,state_location=state_location,country_location=country_location)
         else:
             # gen_sexes = sexes
             # gen_ages = sp.get_age_n(datadir,n=n,location=location,state_location=state_location,country_location=country_location)
@@ -485,12 +485,34 @@ def make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,sta
 
     return popdict
 
+
+def rehydrate(data):
+    """
+    populate popdict with uids, ages and contacts from generated microstructure data 
+    that was saved to data object
+    """
+    popdict = sc.dcp(data['popdict'])
+    mapping = {'H': 'households', 'S': 'schools', 'W': 'workplaces'}
+    for key,label in mapping.items():
+        for r in data[label]:
+            for uid in r:
+                popdict[uid]['contacts'][key] = set(r)
+                popdict[uid]['contacts'][key].remove(uid)
+
+    return popdict
+
+
+def save_synthpop(datadir,contacts):
+
+    filename = os.path.join(datadir,'synthpop_' + str(len(contacts)) + '.pop')
+    sc.saveobj(filename = filename,obj=contacts)
+
+
 def make_contacts_from_microstructure(datadir,location,state_location,country_location,n):
     """
     Return a popdict from synthetic household, school, and workplace files with uids.
     """
-
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location)
+    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
 
     households_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     age_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_age_by_uid.dat')
@@ -545,7 +567,7 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     return popdict
 
 
-def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,country_location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None,datadir=None):
+def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,country_location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -595,14 +617,15 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
         checkout https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
         network_type : default is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
     '''
-    if datadir              is None : datadir = sp.datadir
+    # if datadir              is None : datadir = sp.datadir
     if location             is None : location = 'seattle_metro'
     if state_location       is None : state_location = 'Washington'
+    if country_location     is None : country_location = 'usa'
     if sheet_name           is None : sheet_name = 'United States of America'
 
-    if n_contacts_dic       is None: n_contacts_dic = {'H': 3, 'S': 20, 'W': 20, 'C': 10}
+    if n_contacts_dic       is None : n_contacts_dic = {'H': 3, 'S': 20, 'W': 20, 'C': 10}
 
-    if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'} # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    if network_distr_args   is None : network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'} # general we should default to undirected because directionality doesn't make sense for infectious diseases
     if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
     if 'directed' not in network_distr_args: network_distr_args['directed'] = False
     if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
@@ -630,7 +653,7 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else: 
-        # for locations with sex by age data
+        # for locations with sex by age data - likely only for the US
         if options_args['use_age_mixing'] and options_args['use_sex']:
             if options_args['use_social_layers']:
                 popdict = make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,state_location,country_location,sheet_name,activity_args,network_distr_args)
@@ -688,3 +711,23 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                     print(k,np.mean(sizes))
 
     return contacts
+
+
+def show_layers(popdict,show_ages=False):
+
+    uids = popdict.keys()
+    uids = [uid for uid in uids]
+
+    layers = popdict[uids[0]]['contacts'].keys()
+    if show_ages:
+        for uid in uids:
+            print(uid,popdict[uid]['age'])
+            for k in layers:
+                contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
+                print(k,sorted(contact_ages))
+
+    else:
+        for uid in uids:
+            print(uid)
+            for k in layers:
+                print(k,contacts[uid]['contacts'][k])

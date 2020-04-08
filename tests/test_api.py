@@ -90,6 +90,6 @@ def test_plot_pop():
 
 
 if __name__ == '__main__':
-    # pop1 = test_api()
+    pop1 = test_api()
     pop2 = test_plot_pop()
     print('Done.')

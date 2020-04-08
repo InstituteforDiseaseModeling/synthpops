@@ -104,8 +104,7 @@ def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Was
 if __name__ == '__main__':
     sc.tic()
 
-    datadir = 'data'
-
+    datadir = sp.datadir
     location = 'seattle_metro' # for census distributions
     state_location = 'Washington' # for state wide age mixing patterns
     # location = 'portland_metro'

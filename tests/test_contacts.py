@@ -157,7 +157,7 @@ if __name__ == '__main__':
     sc.tic()
 
     datadir = 'data'
-
+    datadir = sp.datadir
     # popdict = test_make_popdict(default_n)
     # contacts = test_make_contacts(default_n)
 
@@ -168,17 +168,17 @@ if __name__ == '__main__':
     n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'C': 10}
     # contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location, country_location=country_location)
 
-    popdict = test_make_popdict_supplied(default_n)
-    popdict = test_make_popdict_supplied_ages(default_n)
-    popdict = test_make_popdict_supplied_sexes(20)
-    popdict = test_make_popdict_generic(default_n)
+    # popdict = test_make_popdict_supplied(default_n)
+    # popdict = test_make_popdict_supplied_ages(default_n)
+    # popdict = test_make_popdict_supplied_sexes(20)
+    # popdict = test_make_popdict_generic(default_n)
 
-    contacts = test_make_contacts_generic(default_n)
-    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
+    # contacts = test_make_contacts_generic(default_n)
+    # contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
     sc.toc()
 
-
-
+    d =sp.make_population(20000)
+    print(datadir)
 
 
 print('Done.')

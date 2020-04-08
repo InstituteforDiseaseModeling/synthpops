@@ -24,11 +24,17 @@ if __name__ == '__main__':
     network_distr_args = {'Npop': int(n)}
 
     sc.tic()
-    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args, datadir=datadir)
+    contacts = sp.make_contacts(popdict,state_location = state_location,location = location, options_args = options_args, network_distr_args = network_distr_args)
     # uids = contacts.keys()
     # uids = [uid for uid in uids]
     # print(contacts[uids[3]]['contacts'])
 
-    contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
+    # contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
     # print(contacts[uids[3]]['contacts'])
+
+
+
+    sp.save_synthpop(os.path.join(datadir,'demographics',country_location,state_location),contacts)
+
     sc.toc()
+
