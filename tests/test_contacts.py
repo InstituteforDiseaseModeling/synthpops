@@ -3,7 +3,7 @@ import sciris as sc
 import numpy as np
 import pytest
 
-default_n = 1000
+default_n = 10000
 
 default_social_layers = True
 directed = False
@@ -89,7 +89,7 @@ def test_make_contacts(n=default_n):
     return contacts
 
 
-def test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=None,state_location='Oregon',location='portland_metro',country_location='usa'):
+def test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',country_location='usa'):
     sc.heading(f'Make contacts for {int(n)} people and showing some layers')
 
     popdict = sp.make_popdict(n=1e4,state_location=state_location,location=location)
@@ -160,12 +160,12 @@ if __name__ == '__main__':
     # popdict = test_make_popdict(default_n)
     # contacts = test_make_contacts(default_n)
 
-    location = 'portland_metro'
-    state_location = 'Oregon'
+    location = 'seattle_metro'
+    state_location = 'Washington'
     country_location = 'usa'
 
     n_contacts_dic = {'H': 3, 'S': 30, 'W': 30, 'C': 10}
-    # contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location, country_location=country_location)
+    contacts = test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location, country_location=country_location)
 
     # popdict = test_make_popdict_supplied(default_n)
     # popdict = test_make_popdict_supplied_ages(default_n)

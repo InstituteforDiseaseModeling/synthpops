@@ -359,7 +359,6 @@ def make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,sta
     age_brackets = sp.get_census_age_brackets(datadir,state_location=state_location,country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
-    print(age_brackets)
 
     age_mixing_matrix_dic = sp.get_contact_matrix_dic(datadir,sheet_name)
 
