@@ -11,7 +11,7 @@ if not sp.config.full_data_available:
 
 def test_api():
 
-    n = 5000
+    n = 120000
     max_contacts = {'S':20, 'W':10}
 
     population = sp.make_population(n=n, max_contacts=max_contacts)
@@ -26,6 +26,7 @@ def test_api():
 def test_plot_pop():
 
     plotconnections = True
+
     doclear = False
     pause = 0.2
     n = 20000

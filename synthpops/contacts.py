@@ -502,9 +502,9 @@ def rehydrate(data):
     return popdict
 
 
-def save_synthpop(datadir,contacts):
+def save_synthpop(datadir,contacts,location):
 
-    filename = os.path.join(datadir,'synthpop_' + str(len(contacts)) + '.pop')
+    filename = os.path.join(datadir,location + '_synthpop_' + str(len(contacts)) + '.pop')
     sc.saveobj(filename = filename,obj=contacts)
 
 
