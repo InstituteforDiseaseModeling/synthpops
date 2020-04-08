@@ -730,4 +730,4 @@ def show_layers(popdict,show_ages=False):
         for uid in uids:
             print(uid)
             for k in layers:
-                print(k,contacts[uid]['contacts'][k])
+                print(k,popdict[uid]['contacts'][k])
