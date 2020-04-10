@@ -166,6 +166,5 @@ if __name__ == '__main__':
             else:
                 fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf')            
         
-        # fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
         fig.savefig(fig_path,format = 'pdf')
     plt.show()
