@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     if do_save:
         fig_path = datadir.replace('data','figures')
-        os.makedirs(exist_ok=True)
+        os.makedirs(fig_path,exist_ok=True)
 
         if setting_code in ['S','W']:
             if do_trimmed:
