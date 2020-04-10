@@ -17,6 +17,27 @@ import pytest
 
 do_save = False
 
+if not sp.config.full_data_available:
+    pytest.skip("Data not available, tests not possible", allow_module_level=True)
+
+try:
+    username = os.path.split(os.path.expanduser('~'))[-1]
+    fontdirdict = {
+        'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
+        'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
+    }
+    if username not in fontdirdict:
+        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
+
+    font_path = fontdirdict[username]
+
+    fontpath = fontdirdict[username]
+    font_style = 'Roboto_Condensed'
+    fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
+    prop = font_manager.FontProperties(fname = fontstyle_path)
+    mplt.rcParams['font.family'] = prop.get_name()
+except:
+    mplt.rcParams['font.family'] = 'Roboto'
 
 def test_plot_generated_contact_matrix(setting_code='S',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
 
@@ -91,26 +112,60 @@ if __name__ == '__main__':
     datadir = sp.datadir
 
     
-    n = int(20000)
+    n = int(100000)
 
     state_location = 'Washington'
     location = 'seattle_metro'
     country_location = 'usa'
 
-    setting_code = 'H'
-    # setting_code = 'S'
+    # setting_code = 'H'
+    setting_code = 'S'
     # setting_code = 'W'
     
     aggregate_flag = True
-    aggregate_flag = False
+    # aggregate_flag = False
     logcolors_flag = True
+    # logcolors_flag = False
 
-    density_or_frequency = 'density'
-    # density_or_frequency = 'frequency'
+    # density_or_frequency = 'density'
+    density_or_frequency = 'frequency'
 
-    # fig = test_plot_generated_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
-    fig = test_plot_generated_trimmed_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+    do_save = True
+
+    do_trimmed = True
+    do_trimmed = False
+
+    if setting_code in ['S','W']:
+        if do_trimmed:
+            fig = test_plot_generated_trimmed_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+        else:
+            fig = test_plot_generated_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+    elif setting_code == 'H':
+        fig = test_plot_generated_contact_matrix(setting_code,n,aggregate_flag,logcolors_flag,density_or_frequency)
+
 
     if do_save:
-        fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
+        fig_path = datadir.replace('data','figures')
+        os.makedirs(exist_ok=True)
+
+        if setting_code in ['S','W']:
+            if do_trimmed:
+                if aggregate_flag:
+                    fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets.pdf')
+                else:
+                    fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf')
+            else:
+                if aggregate_flag:
+                    fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets.pdf')
+                else:
+                    fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf')
+
+        elif setting_code == 'H':
+            if aggregate_flag:
+                fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets.pdf')
+            else:
+                fig_path = os.path.join(fig_path,'contact_matrices_152_countries',country_location,state_location,location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf')            
+        
+        # fig.savefig('n_' + str(n) + '_people_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '.pdf',format = 'pdf')
+        fig.savefig(fig_path,format = 'pdf')
     plt.show()
