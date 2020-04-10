@@ -18,9 +18,10 @@ if __name__ == '__main__':
     level = 'county'
 
     n = 120000
-    verbose = True
+    # verbose = True
+    verbose = False
     plot = True
-    # plot = False
+    plot = False
 
     sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,level=level,verbose=verbose,plot=plot)
 
