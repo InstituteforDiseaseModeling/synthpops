@@ -322,7 +322,11 @@ def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
         s = np.random.choice(s_range, p = p)
         n -= s
         school_sizes.append(s)
+    if n < 0:
+        print(n, school_sizes[-1])
+        school_sizes[-1] = school_sizes[-1] + n
 
+    print('schools',school_sizes[-1])
     np.random.shuffle(school_sizes)
     return school_sizes
 
@@ -479,7 +483,7 @@ def get_uids_potential_workers(uids_in_school,uids_in_school_by_age,age_by_uid_d
     potential_worker_ages_left_count = dict.fromkeys(np.arange(101),0)
 
     for a in range(101):
-        if a >= 16: # US Census employment records start at 16
+        if a >= 15: # US Census employment records start at 16
             potential_worker_uids_by_age[a] = []
 
     for uid in uids_in_school:
@@ -506,8 +510,8 @@ def get_employment_rates(datadir,location,state_location,country_location):
     # for a in range(75,81):
         # dic[a] = dic[a]/2.
     # Census records give the last group as 75+ but very unlikely over 80 are working so reduce this likelihood
-    for a in range(81,100):
-        dic[a] = dic[a]/10.
+    # for a in range(81,101):
+        # dic[a] = dic[a]/10.
     return dic
 
 
@@ -534,16 +538,21 @@ def generate_workplace_sizes(workplace_sizes_by_bracket,workplace_size_brackets,
         size_distr[size] = workplace_sizes_by_bracket[b]
 
     size_distr = sp.norm_dic(size_distr)
-    ss = np.sum([size_distr[s] * s for s in size_distr])
-
-    f = nw/ss
-    sc = {}
-    for s in size_distr:
-        sc[s] = int(f * size_distr[s])
-
     workplace_sizes = []
-    for s in sc:
-        workplace_sizes += [int(s)] * sc[s]
+
+    s_range = sorted(size_distr.keys())
+    p = [size_distr[s] for s in s_range]
+
+    while nw > 0:
+        s = np.random.choice(s_range, p = p)
+        nw -= s
+        workplace_sizes.append(s)
+
+    if nw < 0:
+        # print('work',nw, workplace_sizes[-1])
+        workplace_sizes[-1] = workplace_sizes[-1] + nw
+        # print(workplace_sizes[-1])
+    # print('work sizes total',nw,np.sum(workplace_sizes))
     np.random.shuffle(workplace_sizes)
     return workplace_sizes
 
@@ -558,6 +567,7 @@ def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_cou
             except:
                 c = 0
             workers_by_age_to_assign_count[a] = c
+            # print(a,c)
 
     return workers_by_age_to_assign_count
 
@@ -566,6 +576,8 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
     teacher_age_min = 26 # US teachers need at least undergrad to teach and typically some additional time to gain certification from a teaching program - it should take a few years after college
     teacher_age_max = 75 # use max age from employment records.
+
+    all_teachers = dict.fromkeys(np.arange(101),0)
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
@@ -584,6 +596,7 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
             a = sp.sample_from_range(workers_by_age_to_assign_count,teacher_age_min,teacher_age_max)
             uid = potential_worker_uids_by_age[a][0]
             teachers.append(a)
+            all_teachers[a] += 1
 
             potential_worker_uids_by_age[a].remove(uid)
             workers_by_age_to_assign_count[a] -= 1
@@ -613,6 +626,9 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
 
         workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
 
+        if np.sum([workers_by_age_to_assign_distr[a] for a in workers_by_age_to_assign_distr]) == 0:
+            break
+
         new_work = []
         new_work_uids = []
 
@@ -622,6 +638,8 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
         while len(potential_worker_uids_by_age[aindex]) == 0:
             achoice = np.random.multinomial(1, [workers_by_age_to_assign_distr[a] for a in age_range])
             aindex = np.where(achoice)[0][0]
+            # print(workers_by_age_to_assign_distr, aindex)
+
 
         uid = potential_worker_uids_by_age[aindex][0]
         potential_worker_uids_by_age[aindex].remove(uid)
@@ -641,18 +659,21 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
             bi = sp.sample_single(b_prob)
             
             a_in_work_prob = np.sum([workers_by_age_to_assign_distr[a] for a in age_brackets[bi]])
-            while bi <= 3 and bi >= 12: # census records say no one under 16 works so skip this bracket, matrix has low contact rates for ages above 65
+            # while bi <= 3 and bi >= 12: # census records say no one under 16 works so skip this bracket, matrix has low contact rates for ages above 65
+            while bi <= 3:
                 bi = sp.sample_single(b_prob)
 
             while a_in_work_prob == 0:
                 bi = sp.sample_single(b_prob)
                 a_in_work_prob = np.sum([workers_by_age_to_assign_distr[a] for a in age_brackets[bi]])
-
+            # if bi == 12:
+                # print(bi,age_brackets[bi])
             ai = sp.sample_from_range(workers_by_age_to_assign_distr,age_brackets[bi][0],age_brackets[bi][-1])
     
             # while len(potential_worker_uids_by_age[ai]) == 0:
                 # ai = sp.sample_from_range(workers_by_age_to_assign_distr,age_brackets[bi][0],age_brackets[bi][-1])
-            if len(potential_worker_uids_by_age[ai]) > 0:
+            # if len(potential_worker_uids_by_age[ai]) > 0:
+            if workers_by_age_to_assign_count[ai] > 0 and len(potential_worker_uids_by_age[ai]) > 0:
 
                 uid = potential_worker_uids_by_age[ai][0]
 
@@ -664,8 +685,42 @@ def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worke
                 workers_by_age_to_assign_count[ai] -= 1
                 workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
 
+            else:
+                # workers_left_in_bracket = [a for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
+                workers_left_in_bracket = [a for a in age_brackets[bi] if workers_by_age_to_assign_count[a] > 0 and len(potential_worker_uids_by_age[a]) > 0]
+                if len(workers_left_in_bracket) > 0:
+                    anew = np.random.choice(workers_left_in_bracket)
+
+                    uid = potential_worker_uids_by_age[anew][0]
+
+                    new_work.append(anew)
+                    new_work_uids.append(uid)
+
+                    potential_worker_uids_by_age[anew].remove(uid)
+                    potential_worker_uids.pop(uid,None)
+                    workers_by_age_to_assign_count[anew] -= 1
+                    workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
+
+                else:
+                    workers_left_all = [a for a in workers_by_age_to_assign_count if workers_by_age_to_assign_count[a] > 0 and len(potential_worker_uids_by_age[a]) > 0]
+                    if len(workers_left_all) > 0:
+                        anew = np.random.choice(workers_left_all)
+
+                        uid = potential_worker_uids_by_age[anew][0]
+
+                        new_work.append(anew)
+                        new_work_uids.append(uid)
+
+                        potential_worker_uids_by_age[anew].remove(uid)
+                        potential_worker_uids.pop(uid,None)
+                        workers_by_age_to_assign_count[anew] -= 1
+                        workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
+
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
+
+    # for a in workers_by_age_to_assign_count:
+        # print(a, workers_by_age_to_assign_count[a])
 
     return syn_workplaces,syn_workplace_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count
 
@@ -803,7 +858,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_count,uids_by_age_dic)
 
     # Assign teachers and update school lists
-    gen_schools,gen_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools,gen_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,verbose=True)
+    gen_schools,gen_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools,gen_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,verbose=verbose)
 
 
     # Generate non-school workplace sizes needed to send everyone to work
@@ -811,9 +866,27 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     workplace_size_count = get_workplace_sizes(datadir,country_location)
     workplace_sizes = generate_workplace_sizes(workplace_size_count,workplace_size_brackets,workers_by_age_to_assign_count)
 
+    verbose = False
+    if verbose:
+        for a in employment_rates:
+            print(a, workers_by_age_to_assign_count[a]/len(uids_by_age_dic[a]), employment_rates[a])
+
     # Assign all workers who are not staff at schools to workplaces
     gen_workplaces,gen_workplace_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
 
+    workers_placed_by_age_count = dict.fromkeys(np.arange(16,101),0)
+    for w in gen_workplaces:
+        for a in w:
+            workers_placed_by_age_count[a] += 1
+
+    # verbose = True
+    if verbose:
+        for a in workers_placed_by_age_count:
+            print(a,workers_placed_by_age_count[a],int(employment_rates[a] * len(uids_by_age_dic[a])),workers_placed_by_age_count[a]/len(uids_by_age_dic[a]),employment_rates[a], workers_placed_by_age_count[a]/len(uids_by_age_dic[a])/employment_rates[a])
+    print('workers left to place',np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
+    print('work sizes made',np.sum([len(w) for w in gen_workplaces]))
+    print(np.sum(workplace_sizes))
+    print(workplace_sizes[-1],len(gen_workplaces[-1]))
 
     # save schools and workplace uids to file
     write_schools_by_age_and_uid(datadir,location,state_location,country_location,n,gen_school_uids,age_by_uid_dic)
