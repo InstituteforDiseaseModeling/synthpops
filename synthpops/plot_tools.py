@@ -46,7 +46,7 @@ def calculate_contact_matrix(contacts,density_or_frequency='density'):
     return F_dic
 
 
-def plot_contact_frequency(freq_matrix_dic,setting_code,age_count,aggregate_age_count,age_brackets,age_by_brackets_dic,density_or_frequency='density',logcolors_flag=False,aggregate_flag=True):
+def plot_contact_frequency(freq_matrix_dic,age_count,aggregate_age_count,age_brackets,age_by_brackets_dic,setting_code='H',density_or_frequency='density',logcolors_flag=False,aggregate_flag=True):
 
     print(setting_code)
     cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
