@@ -1,4 +1,6 @@
-# synthpops
+=========
+synthpops
+=========
 
 Synthetic populations generation functions.
 
