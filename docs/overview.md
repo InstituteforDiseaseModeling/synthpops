@@ -1,5 +1,5 @@
 
-#`synthpops` overview
+# `synthpops` overview
 
 The role of `synthpops` is to construct random networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
 
@@ -124,7 +124,7 @@ Three data sets are required for households:
 	10-20   0.314776879 , 0.895460015 , 0.412465791
 	20-30   0.132821425 , 0.405073038 , 1.433888594
 
-In the first instance, these matrices can be drawn from the Prem et al. paper, although other data sources may be preferable because that paper generalizes European social structures to other countries which may not always be appropriate. (this again needs to be phrased carefully, lest we draw the ire of other groups. The issue is more that a projection can miss features not present in the space spanned by the patterns in those countries).
+In the first instance, these matrices can be drawn from the Prem et al. paper, although other data sources may be preferable because that paper generalizes European social structures to other countries which may not always be appropriate. (this again needs to be phrased carefully, lest we draw the ire of other research groups. The issue is more that a projection can miss features not present in the space spanned by the patterns in those countries).
 
 In theory this household contact matrix should vary with household size, but it is unlikely that data at that resolution is available (without more careful analysis - such data can be generated from DHS data). 
 
