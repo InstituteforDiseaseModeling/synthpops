@@ -12,12 +12,13 @@ Installation
 Requirements
 ============
 
-NOTE: this module needs to load in data in order to function. To set the data location, do::
+NOTE: this module needs to load in data in order to function. To set the data location, do
 
-python
+
+```python
 import synthpops
 synthpops.set_datadir('my-data-folder')
-
+```
 
 The data folder will need to have files in this kind of structure:
 
