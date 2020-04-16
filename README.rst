@@ -7,7 +7,7 @@ Synthetic populations generation functions.
 Installation
 ============
 
-`python setup.py develop`
+``python setup.py develop``
 
 Requirements
 ============
