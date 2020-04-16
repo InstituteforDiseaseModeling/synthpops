@@ -1,27 +1,34 @@
-# `synthpops` overview
+====================
+`synthpops` overview
+====================
 
-The role of `synthpops` is to construct random networks of people that satisfy statistical properties of specific real-world populations (such as age distribution, household size). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
+The role of `synthpops` is to construct random networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
 
-Fundamentally, the network can be considered a multigraph where
+Fundamentally, the network can be considered a multilayer network where
 
 - Nodes are people, with attributes like age and sex
-- Edges represent interactions between people, with attributes like type (e.g. 'school', 'work'). The relationship between the type of interaction and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops simply reports whether the edge exists or not. Note that the relevant quantiy in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of contacts and transmission probability per contact. 
+- Edges represent interactions between people, with attributes like setting in which the interactions take place (e.g. 'school', 'work'). The relationship between the interaction setting and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops simply reports whether the edge exists or not. Note that the relevant quantiy in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of contacts (Not quite, this should be rephrased) and transmission probability per contact. 
 
-The network is a multigraph in the sense that it is possible for people to be connected multiple types by edges of different types. The types of edges are referred to as _contact layers_. For example, the 'work' contact layer is a representation of all of the pairwise connections between people associated with work, and the 'household' contact layer represents the pairwise connections associated with homes. Typically these networks are clustered e.g. everyone within a household interacts with each other, but not with any other households (which they may interact with instead via work or random community contacts). 
+The network is a multilayer network in the sense that it is possible for people to be connected by multiple edges each in different layers of the network. The layers are referred to as _contact layers_. For example, the 'work' contact layer is a representation of all of the pairwise connections between people at work, and the 'household' contact layer represents the pairwise connections between household members. Typically these networks are clustered e.g. everyone within a household interacts with each other, but not with any other households (which they may interact with instead via their school, work or as random community contacts). 
 
 `synthpops` functions in two stages
 
-1. Generate households, workplaces, schools, people, and assign people to each location. Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
-2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_contacts`
+1. Generate households, workplaces, schools, people, and assign people to each location (would rather say group here). Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
+2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_contacts` (`covasim` talks to `synthpops.make_population` now instead). 
 
-# Algorithm
+Algorithm
+=========
 
-This section describes the algorithm used to determine the interactions between people in each contact layer. The fundamental algorithm is the same for homes, schools, and workplaces, but with some minor variations for each.
+This section describes the algorithm used to generate the connections between people in each contact layer. The fundamental algorithm is the same for homes, schools, and workplaces, but with some minor variations for each.
 
-The general idea is to use the contact matrices (age mixing matrices) in "Projecting social contact matrices in 152 countries using contact surveys and demographic data" by Prem et al. (2017). These matrices represent the average number of contacts between people in 10 year age bins. For example, a household is relatively unlikely consist of a 25 year old and a 15 year old, so for the 25-30 year age bin, there are a low number of expected contacts with the 15-20 year age bin (c.f., Fig. 2c in Prem et al.). 
+Add references to other agent based models that do something similar and the actual model that inspired the methodology (it is not simply Prem et al, 2017 - should add Mossong 2008, Fumanelli 2012, Mistry 2020, etc.). 
 
-The overall workflow is contained in `synthpops.generate_synthetic_population` and is described below. We start with a population of people - that is, a pool of people that have already been assigned ages and sexes. For each location
+The general idea is to use age-specific contact matrices which describe age mixing patterns. Here, we use the contact matrices from "Projecting social contact matrices in 152 countries using contact surveys and demographic data" by Prem et al. (2017) (would likely just reference the paper in standard citation style rather than full name), however other age-specific contact matrices can be used. These matrices represent the average number of contacts between people in 5 year age bins. For example, a household of two individuals is relatively unlikely to consist of a 25 year old and a 15 year old, so for the 25-29 year age bin, there are a low number of expected contacts with the 15-19 year age bin (c.f., Fig. 2c in Prem et al.). 
 
+The overall workflow is contained in `synthpops.generate_synthetic_population` and is described below. We start by generating our population in the household layer. For each location
+
+(remove) with a population of people - that is, a pool of people that have already been assigned ages and sexes. For each location
+(next section needs to be split into homes, then other layers because of the difference in methods, mixing up location with group - location needs to refer to a geographical area like a city, rather than a specific household)
 1. A collection of locations (homes, schools, workplaces) is instantiated with sizes drawn from a setting-specific distribution
 2. For each location, a 'reference person' is randomly selected and added to the location. 
 3. The age bin of the reference person identifies the row of the contact matrix for that location. The remaining people at the location are then selected by sampling an age for the distribution of contacts for the reference person (i.e., sampling from a column of the contact matrix) and assigning someone with that age to that location
@@ -30,7 +37,9 @@ We now go through the specific data sources and setting-specific particulars
 
 ## Instantiating people
 
-The first step in producing a synthetic population is to construct the pool of people (ages and sexes). The core implementation is in `synthpops.get_age_sex_n` and this is called via `synthpops.get_usa_age_sex_n` which additionally loads data files for the USA from disk. 
+(Population generated through households, not a pool of people. This is why we may generate a population that doesn't match the age distribution well. This and the next section on households are in sort of a reverse order. First, use the age profile given in age brackets to produce a an age distribution in 1 year age bins. Then start creating households based on size and attributes of reference person. Then fill in household members and this produces the age distribution.) 
+
+The first step in producing a synthetic population is to construct the pool of people (ages and sexes). The core implementation is in `synthpops.get_age_sex_n` and this is called via `synthpops.get_usa_age_sex_n` which additionally loads data files for the USA from disk.  
 
 The inputs required for this step are:
 
@@ -52,7 +61,7 @@ The inputs required for this step are:
 	60_64       , 0.05761405140489549
 	65_69       , 0.04487122889235999
 	70_74       , 0.030964420778483555
-	75_79       , 0.05110673396642193
+	75_100       , 0.05110673396642193
 
 **Gender fraction by age bracket** specifying the proportion of people of each sex in each age bin
 
@@ -72,7 +81,7 @@ The inputs required for this step are:
 	60_64       , 0.48506827992361634 , 0.5149317200763837
 	65_69       , 0.4738430790785841  , 0.5261569209214159
 	70_74       , 0.4619759942672877  , 0.5380240057327123
-	75_99       , 0.40409019781651095 , 0.5959098021834891
+	75_100       , 0.40409019781651095 , 0.5959098021834891
 
 People are sampled using 1-year age bins (so they are assigned an actual age) and therefore these distributions are 'interpolated' into single year distributions. This is done in several different places but fundamentally performs the same thing - normalizing all data sources into single-year distributions. These data can therefore be gathered using whatever age bins are present in any given dataset.
 
@@ -83,12 +92,12 @@ The output of this population generation process is a collection of ages and sex
 As locations, households are special in that
 
 - Unlike schools and workplaces, everyone must be assigned to a household
-- The exact size of the household is important (e.g., a 2 person household looks very different to a 4 person household) and some households only have 1 person
-- The head of the household/reference person can be well defined in data
+- The exact size of the household is important (e.g., a 2 person household looks very different to a 4 person household) and some households only have 1 person (needs to be rephrased - large households may not look too different if one individual is not included)
+- The head of the household/reference person can be well defined by data
 
 Three data sets are required for households:
 
-**Age of the head of the household for each household size** - the distribution is what matters so it doesn't matter if absolute counts are available or not, each *row* could be normalized.
+**Age of the head of the household for each household size** - the distribution is what matters so it doesn't matter if absolute counts are available or not, each *row* could be normalized. (make a note that other attributes can be used for a similar algorithm if this is not available, however these methods are not yet implemented, table needs description for column values)
 
 	family_size , 18-20 , 20-24 , 25-29 , 30-34 , 35-39 , 40-44 , 45-49 , 50-54 , 55-64 , 65-74 , 75-99
 	2           , 163   , 999   , 2316  , 2230  , 1880  , 1856  , 2390  , 3118  , 9528  , 9345  , 5584
@@ -116,23 +125,23 @@ Three data sets are required for households:
 	10-20   0.314776879 , 0.895460015 , 0.412465791
 	20-30   0.132821425 , 0.405073038 , 1.433888594
 
-In the first instance, these matrices can be drawn from the Prem et al. paper, although other data sources may be preferable because that paper generalizes European social structures to other countries which may not always be appropriate. 
+In the first instance, these matrices can be drawn from the Prem et al. paper, although other data sources may be preferable because that paper generalizes European social structures to other countries which may not always be appropriate. (this again needs to be phrased carefully, lest we draw the ire of other groups. The issue is more that a projection can miss features not present in the space spanned by the patterns in those countries).
 
-In theory this household contact matrix should vary with household size, but it is unlikely that data at that resolution is available. 
+In theory this household contact matrix should vary with household size, but it is unlikely that data at that resolution is available (without more careful analysis - such data can be generated from DHS data). 
 
 The `synthpops` functions implement household initialization as follows
 
 1. `synthpops.generate_household_sizes_from_fixed_pop_size` generates empty households with known size based on the distribution of household sizes
 2. `synthpops.generate_all_households` takes in the remaining sources above, and then
-	- Calls `generate_living_alone` to populate households with 1 person
+	- Calls `generate_living_alone` to populate households with 1 person (describe this - either from data or not)
 	- Calls `generate_larger_households` repeatedly with with different household sizes to populate those households
 
 ## Schools
 
 Schools are special in that
 
-- Only school-age children are eligible to go to school
-- Some people work as teachers at schools
+- Only school-age children are eligible to go to school (anyone going to school can go - hard coded some things so that it's less likely to choose adults, but still possible)
+- Some people work as teachers or other staff at schools
 
 The data required for schools are:
 
@@ -143,7 +152,7 @@ The data required for schools are:
 	51-100      , 0.1
 	101-300     , 0.3
 
-**Enrolment by age** specifying the percentage of people of each age attending school. See `synthpops.get_school_enrollment_rates` but note that this mainly implements parsing a Seattle-specific data file to produce the following data structure, which could equivalently be read directly from a file:
+**Enrollment by age** specifying the percentage of people of each age attending school. See `synthpops.get_school_enrollment_rates` but note that this mainly implements parsing a Seattle-specific data file to produce the following data structure, which could equivalently be read directly from a file:
 
 	age , percent
 	0   , 0
@@ -161,7 +170,7 @@ The data required for schools are:
 	12  , 0.987
 	13  , 0.987
 
-**School contact matrix** specifying the number/weight of contacts by age bin. Similar to the household contact matrix and also provided by the Prem et al. paper. For example:
+**School contact matrix** specifying the number/weight of contacts by age bin. Similar to the household contact matrix and also provided by the Prem et al. paper (remove this reference). For example:
 
 	        0-10        , 10-20       , 20-30
 	0-10    0.659867911 , 0.503965302 , 0.214772978
@@ -183,9 +192,9 @@ The data required for schools are:
 
 	student_teacher_ratio=30
 
-One particular is that the matrices in the Prem et al. paper include interactions between students and teachers. Also, they include universities.
+One particular is that the matrices in the Prem et al. paper include interactions between students and teachers (remove this reference, replace with a note that in general contact matrices include interactions between students and teachers). Also, they include universities.
 
-The workflow is then
+The workflow is then (all of the following is drawn from metholody learned from past papers so reference them here)
 
 1. `synthpops.get_uids_in_school` uses the enrolment rates to determine which people attend school. This then provides the number of students needing to be assigned to schools.
 2. `synthpops.generate_school_sizes` generates schools according to the school size distribution until there are enough places for every students to be assigned a school
@@ -197,7 +206,7 @@ The workflow is then
 
 ## Workplaces
 
-_Note that work and school are currently exclusive, because the people attending schools are removed from the list of eligible workers. This doesn't necessarily need to be the case though_
+_Note that work and school are currently exclusive, because the people attending schools are removed from the list of eligible workers. This doesn't necessarily need to be the case though_ (in fact, we know that in any countries and cultures around the world, people take on multiple roles as both students and workers, either part-time or full-time in one or both activities)
 
 Finally, all remaining workers are assigned to workplaces. Workplaces are special in that there is little/no age structure so workers of all ages are present in every workplace.
 
