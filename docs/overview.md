@@ -1,6 +1,5 @@
-====================
-`synthpops` overview
-====================
+
+#`synthpops` overview
 
 The role of `synthpops` is to construct random networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
 
@@ -16,8 +15,8 @@ The network is a multilayer network in the sense that it is possible for people 
 1. Generate households, workplaces, schools, people, and assign people to each location (would rather say group here). Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
 2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_contacts` (`covasim` talks to `synthpops.make_population` now instead). 
 
-Algorithm
-=========
+## Algorithm
+
 
 This section describes the algorithm used to generate the connections between people in each contact layer. The fundamental algorithm is the same for homes, schools, and workplaces, but with some minor variations for each.
 
