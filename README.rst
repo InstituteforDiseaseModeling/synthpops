@@ -12,7 +12,7 @@ Installation
 Requirements
 ============
 
-NOTE: this module needs to load in data in order to function. To set the data location, do:
+NOTE: this module needs to load in data in order to function. To set the data location, do::
 
 python
 import synthpops
