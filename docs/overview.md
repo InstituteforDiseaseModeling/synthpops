@@ -1,7 +1,7 @@
 
 # `synthpops` overview
 
-The role of `synthpops` is to construct synthetic networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
+The role of `synthpops` is to construct synthetic networks of people that satisfy statistical properties of real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
 
 Fundamentally, the network can be considered a multilayer network where
 
@@ -18,19 +18,19 @@ The generated network is a multilayer network in the sense that it is possible f
 ## Algorithm
 
 
-This section describes the algorithm used to generate the connections between people in each contact layer. The fundamental algorithm is the same for homes, schools, and workplaces, but with some minor variations for each.
+This section describes the algorithm used to generate the connections between people in each contact layer for a given location in the real world. The fundamental algorithm is the same for homes, schools, and workplaces, but with some variations for each.
 
-Add references to other agent based models that do something similar and the actual model that inspired the methodology (it is not simply Prem et al, 2017 - should add Mossong 2008, Fumanelli 2012, Mistry 2020, etc.). 
+The method draws upon previously published models to infer high resolution age specific contact patterns in different physical settings and locations (Mossong 2008, Fumanelli 2012, Prem 2017, Mistry 2020). The general idea is to use age-specific contact matrices which describe age mixing patterns for a specific population. Here, we use the contact matrices from "Projecting social contact matrices in 152 countries using contact surveys and demographic data" by Prem et al. (2017), however other age-specific contact matrices can be used. These matrices represent the average number of contacts between people in 5 year age bins. For example, a household of two individuals is relatively unlikely to consist of a 25 year old and a 15 year old, so for the 25-29 year age bin, there are a low number of expected contacts with the 15-19 year age bin (c.f., Fig. 2c in Prem et al.). 
 
-The general idea is to use age-specific contact matrices which describe age mixing patterns. Here, we use the contact matrices from "Projecting social contact matrices in 152 countries using contact surveys and demographic data" by Prem et al. (2017) (would likely just reference the paper in standard citation style rather than full name), however other age-specific contact matrices can be used. These matrices represent the average number of contacts between people in 5 year age bins. For example, a household of two individuals is relatively unlikely to consist of a 25 year old and a 15 year old, so for the 25-29 year age bin, there are a low number of expected contacts with the 15-19 year age bin (c.f., Fig. 2c in Prem et al.). 
-
-The overall workflow is contained in `synthpops.generate_synthetic_population` and is described below. We start by generating our population in the household layer. For each location
-
-(remove) with a population of people - that is, a pool of people that have already been assigned ages and sexes. For each location
-(next section needs to be split into homes, then other layers because of the difference in methods, mixing up location with group - location needs to refer to a geographical area like a city, rather than a specific household)
-1. A collection of locations (homes, schools, workplaces) is instantiated with sizes drawn from a setting-specific distribution
-2. For each location, a 'reference person' is randomly selected and added to the location. 
-3. The age bin of the reference person identifies the row of the contact matrix for that location. The remaining people at the location are then selected by sampling an age for the distribution of contacts for the reference person (i.e., sampling from a column of the contact matrix) and assigning someone with that age to that location
+The overall workflow is contained in `synthpops.generate_synthetic_population` and is described below. We start by generating our population in the household layer.
+1. A collection of households is instantiated with sizes drawn from census data.
+2. For each household, the age of a 'reference' person is sampled from data on that maps household size to a reference person in those households. The reference person may be referred to as the head of the household, a parent in the household, or some other definition specific to the data being used. If no data mapping household size to ages of reference individuals are available, then the age of the reference person is sampled from the age distribution of adults for the location. 
+3. The age bin of the reference people indentifies the row of the contact matrix for that location. The remaining household members are then selected by sampling an age for the distribution of contacts for the reference person's age (i.e., normalizing the values of the row and sampling for a column) and assigning someone with that age to the household.
+4. As households are generated, individuals are given ids. 
+5. With households constructed, students are chosen according to enrollment data by age.
+6. Students are assigned to schools using a similar method as above, where we select the age of a reference person and then select their contacts in school from age specific contact matrix for the school setting and data on school sizes.
+7. With all students assigned to schools, teachers are selected from the labor force according to employment data. 
+8. The rest of the labor force are assigned to workplaces by selecting a reference person and their contacts using an age specific contact matrix and data on workplace sizes.
 
 We now go through the specific data sources and setting-specific particulars
 
@@ -38,7 +38,7 @@ We now go through the specific data sources and setting-specific particulars
 
 (Population generated through households, not a pool of people. This is why we may generate a population that doesn't match the age distribution well. This and the next section on households are in sort of a reverse order. First, use the age profile given in age brackets to produce a an age distribution in 1 year age bins. Then start creating households based on size and attributes of reference person. Then fill in household members and this produces the age distribution.) 
 
-The first step in producing a synthetic population is to construct the pool of people (ages and sexes). The core implementation is in `synthpops.get_age_sex_n` and this is called via `synthpops.get_usa_age_sex_n` which additionally loads data files for the USA from disk.  
+The first step in producing a synthetic population is to construct the pool of people (ages and sexes). The core implementation is in `synthpops.get_age_sex_n` and this is called via `synthpops.get_usa_age_sex_n` which additionally loads data files for the USA from disk.
 
 The inputs required for this step are:
 
