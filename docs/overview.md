@@ -12,8 +12,8 @@ The generated network is a multilayer network in the sense that it is possible f
 
 `synthpops` functions in two stages
 
-1. Generate people in households, and assign individuals to workplaces and schools. Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
-2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_population`. 
+1. Generate people living in households, and then assign individuals to workplaces and schools. Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`. 
+2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_population`. `covasim` assigns community contacts at random on a daily basis to reflect the random and stochastic aspect of contacts in many public spaces, such as shopping centres, parks, and community centres.  
 
 ## Algorithm
 
