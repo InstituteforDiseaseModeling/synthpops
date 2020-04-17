@@ -1,12 +1,12 @@
 
 # `synthpops` overview
 
-The role of `synthpops` is to construct random networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
+The role of `synthpops` is to construct synthetic networks of people that satisfy statistical properties of specific real-world populations (such as the age distribution, household size, etc.). These synthetic populations can then be used in agent based models like `covasim` to simulate epidemics.
 
 Fundamentally, the network can be considered a multilayer network where
 
 - Nodes are people, with attributes like age and sex
-- Edges represent interactions between people, with attributes like setting in which the interactions take place (e.g. 'school', 'work'). The relationship between the interaction setting and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops simply reports whether the edge exists or not. Note that the relevant quantiy in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of contacts (Not quite, this should be rephrased) and transmission probability per contact. 
+- Edges represent interactions between people, with attributes like the setting in which the interactions take place (e.g. 'school', 'work'). The relationship between the interaction setting and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops simply reports whether the edge exists or not. Note that the relevant quantiy in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of contacts (Not quite, this should be rephrased) and transmission probability per contact. 
 
 The network is a multilayer network in the sense that it is possible for people to be connected by multiple edges each in different layers of the network. The layers are referred to as _contact layers_. For example, the 'work' contact layer is a representation of all of the pairwise connections between people at work, and the 'household' contact layer represents the pairwise connections between household members. Typically these networks are clustered e.g. everyone within a household interacts with each other, but not with any other households (which they may interact with instead via their school, work or as random community contacts). 
 
