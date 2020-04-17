@@ -5,15 +5,15 @@ The role of `synthpops` is to construct synthetic networks of people that satisf
 
 Fundamentally, the network can be considered a multilayer network where
 
-- Nodes are people, with attributes like age and sex
-- Edges represent interactions between people, with attributes like the setting in which the interactions take place (e.g. 'school', 'work'). The relationship between the interaction setting and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops simply reports whether the edge exists or not. Note that the relevant quantiy in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of contacts (Not quite, this should be rephrased) and transmission probability per contact. 
+- Nodes are people, with attributes like age
+- Edges represent interactions between people, with attributes like the setting in which the interactions take place (e.g. 'household','school', 'work'). The relationship between the interaction setting and properties governing disease transmission (e.g. frequency of contact, risk associated with each contact) is mapped separately by `covasim`. Synthpops reports whether the edge exists or not. Note that the relevant quantity in `covasim` is the parameter `beta`, which captures the probability of transmission via a given edge per timestep. The value of this parameter captures both number of effective contacts for disease transmission and transmission probability per contact. 
 
-The network is a multilayer network in the sense that it is possible for people to be connected by multiple edges each in different layers of the network. The layers are referred to as _contact layers_. For example, the 'work' contact layer is a representation of all of the pairwise connections between people at work, and the 'household' contact layer represents the pairwise connections between household members. Typically these networks are clustered e.g. everyone within a household interacts with each other, but not with any other households (which they may interact with instead via their school, work or as random community contacts). 
+The generated network is a multilayer network in the sense that it is possible for people to be connected by multiple edges each in different layers of the network. The layers are referred to as _contact layers_. For example, the 'work' contact layer is a representation of all of the pairwise connections between people at work, and the 'household' contact layer represents the pairwise connections between household members. Typically these networks are clustered e.g. everyone within a household interacts with each other, but not with other households (they may interact with members of households instead via their school, work or as community contacts). 
 
 `synthpops` functions in two stages
 
-1. Generate households, workplaces, schools, people, and assign people to each location (would rather say group here). Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
-2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_contacts` (`covasim` talks to `synthpops.make_population` now instead). 
+1. Generate people in households, and assign individuals to workplaces and schools. Save the output to a cache file on disk. Implemented in `synthpops.generate_synthetic_population`
+2. Load the cached file and produce a dictionary that can be used by `covasim`. Implemented in `synthpops.make_population`. 
 
 ## Algorithm
 
