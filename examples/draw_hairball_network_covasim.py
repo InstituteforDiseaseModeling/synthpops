@@ -34,7 +34,7 @@ def create_sim(TRACE_PROB=None,  TEST_PROB=None, TRACE_TIME=None, TEST_DELAY=Non
     sim = cova.Sim()
 
     # PARAMETERS
-    pars = {'pop_size': 20e3}  # start with a small pool << actual population e4 # DEBUG
+    pars = {'pop_size': 10e3}  # start with a small pool << actual population e4 # DEBUG
 
     # diagnosed individuals maintain same beta
     pars.update({
@@ -57,12 +57,9 @@ if __name__ == '__main__':
     do_run = True
     verbose = False
 
-    # fn = f'sim_sar.sim'
-    # sim = create_sim()
-    # sim.initialize()
-
-    n = int(10e3)
-    population = sp.make_population(n)
+    fn = f'sim_sar.sim'
+    sim = create_sim()
+    sim.initialize()
 
     # Need to create contacts
 
@@ -72,39 +69,24 @@ if __name__ == '__main__':
     for i, layer in enumerate(['h', 's', 'w', 'c']):
         print(titles[layer])
         ax = plt.subplot(2, 2, i+1)
-
-    #     hdf = sim.people.contacts[layer].to_df()
+        hdf = sim.people.contacts[layer].to_df()
 
         G = nx.Graph()
-        edges = set()
+
         if layer in ['h', 's', 'w']:
+            G.add_nodes_from(set(list(hdf['p1'].unique()) + list(hdf['p2'].unique())))
+            f = hdf['p1']
+            t = hdf['p2']
+            G.add_edges_from(zip(f, t))
+        else:
+            p = sim.pars['contacts']['c']/sim.pars['pop_size']
+            G = nx.erdos_renyi_graph(sim.pars['pop_size'],p)
 
-            nodes = population.keys()
-            nodes = [uid for uid in nodes]
-            if layer == 'H':
-                G.add_nodes_from(nodes)
+        print('Nodes:', G.number_of_nodes())
+        print('Edges:', G.number_of_edges())
 
-            for uid in nodes:
-                # print(population[uid]['contacts'][layer.upper()])
-                for cuid in population[uid]['contacts'][layer.upper()]:
-                    edges.add((uid, cuid))
-
-            G.add_edges_from(edges)
-
-            # if layer == 'S':
-            #     for node in G.nodes():
-            #         if G.degee(node) == 0:
-            #             G.remove_node(node)
-
-        # else:
-        #     p = 20./n
-        #     G = nx.erdos_renyi_graph(n, p)
-
-        # print('Nodes:', G.number_of_nodes())
-        # print('Edges:', G.number_of_edges())
-
-        # nx.draw(G, ax=ax, node_size=1, width=0.05)
-        # ax.set_title(titles[layer], fontsize=24)
+    #     nx.draw(G, ax=ax, node_size=1, width=0.05)
+    #     ax.set_title(titles[layer], fontsize=24)
 
     # datadir = sp.datadir
     # fig_path = datadir.replace('data', 'figures')
