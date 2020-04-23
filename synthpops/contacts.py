@@ -544,6 +544,8 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
             popdict[uid]['contacts']['H'].remove(uid)
     fh.close()
 
+    count = dict.fromkeys(popdict.keys(), 0)
+
     fs = open(schools_by_uid_path,'r')
     for c,line in enumerate(fs):
         r = line.strip().split(' ')
@@ -552,7 +554,12 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
+            count[uid] += 1
     fs.close()
+
+    for uid in count:
+        if count[uid] > 1:
+            print(uid, count[uid])
 
     fw = open(workplaces_by_uid_path,'r')
     for c,line in enumerate(fw):
