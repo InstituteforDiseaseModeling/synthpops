@@ -196,26 +196,26 @@ def plot_comparison(matrix, age_count, aggregate_age_count, age_brackets, age_by
 
         fig.add_axes(cax[i])
         cbar = fig.colorbar(im[i], cax=cax[i])
-        cbar.ax.tick_params(axis='y', labelsize=22)
+        cbar.ax.tick_params(axis='y', labelsize=18)
         cbar.ax.set_ylabel('')
         tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
         ax[i].set_xticks(np.arange(len(tick_labels)))
-        ax[i].set_xticklabels(tick_labels, fontsize=22)
+        # ax[i].set_xticklabels(tick_labels, fontsize=20)
         ax[i].set_xticklabels(tick_labels, fontsize=20, rotation=50)
         ax[i].set_yticks(np.arange(len(tick_labels)))
-        ax[i].set_yticklabels(tick_labels, fontsize=22)
-        ax[i].set_xlabel('Age', fontsize=28)
-        ax[i].set_ylabel('Age of Contact', fontsize=28)
+        ax[i].set_yticklabels(tick_labels, fontsize=20)
+        ax[i].set_xlabel('Age', fontsize=22)
+        ax[i].set_ylabel('Age of Contact', fontsize=22)
 
-    ax[0].set_title('Simulated Contact Matrix: ' + titles[setting_code], fontsize=28)
-    ax[1].set_title('Data Contact Matrix: ' + titles[setting_code], fontsize=28)
+    ax[0].set_title('Simulated Contact Matrix: ' + titles[setting_code], fontsize=24)
+    ax[1].set_title('Data Contact Matrix: ' + titles[setting_code], fontsize=24)
 
     return fig
 
 def plot_comparison_3panel(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, do_trimmed=True, trimmed_size_dic=None):
 
-    # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
-    cmap = mplt.cm.get_cmap(cmocean.cm.tempo_r)
+    cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
+    # cmap = mplt.cm.get_cmap(cmocean.cm.tempo_r)
     # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
     # cmap = mplt.cm.get_cmap('magma')
 
@@ -311,7 +311,7 @@ def plot_comparison_3panel(matrix, age_count, aggregate_age_count, age_brackets,
 
 
 if __name__ == '__main__':
-    
+
     datadir = sp.datadir
 
     n = 100e3
@@ -323,8 +323,8 @@ if __name__ == '__main__':
     sheet_name = 'United States of America'
 
     setting_code = 'H'
-    # setting_code = 'S'
-    # setting_code = 'W'
+    setting_code = 'S'
+    setting_code = 'W'
 
     aggregate_flag = True
     # aggregate_flag = False
@@ -366,10 +366,10 @@ if __name__ == '__main__':
 
     symmetric_matrix = calculate_contact_matrix(contacts, density_or_frequency, setting_code)
 
-    fig = plot_comparison_3panel(symmetric_matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, location, state_location, country_location, sheet_name, setting_code, density_or_frequency, logcolors_flag, aggregate_flag, do_trimmed, trimmed_size_dic)
+    fig = plot_comparison(symmetric_matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, location, state_location, country_location, sheet_name, setting_code, density_or_frequency, logcolors_flag, aggregate_flag, do_trimmed, trimmed_size_dic)
     plt.show()
 
-    # fig_path = datadir.replace('data', 'figures')
-    # fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '_comparison.png')
+    fig_path = datadir.replace('data', 'figures')
+    fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '_comparison.pdf')
     # fig.savefig(fig_path, format='png')
-
+    fig.savefig(fig_path, format='pdf')

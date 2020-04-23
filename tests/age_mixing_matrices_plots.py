@@ -92,8 +92,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         if density_or_frequency == 'density':
             if aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e-0}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e1}
+                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e1}
             else:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
                 vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
@@ -102,7 +102,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         elif density_or_frequency == 'frequency':
             if aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e0}
+                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e1}
                 vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
             else:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
@@ -114,27 +114,27 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     implot = im
 
     divider = make_axes_locatable(ax)
-    cax = divider.new_horizontal(size="4%", pad=0.15)
+    cax = divider.new_horizontal(size="3.5%", pad=0.1)
 
     fig.add_axes(cax)
     cbar = fig.colorbar(implot, cax=cax)
     cbar.ax.tick_params(axis='y', labelsize=20)
     if density_or_frequency == 'frequency':
-        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=18)
+        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=20)
     else:
-        cbar.ax.set_ylabel('Density of Contacts', fontsize=18)
-    ax.tick_params(labelsize=18)
+        cbar.ax.set_ylabel('Density of Contacts', fontsize=20)
+    ax.tick_params(labelsize=20)
     ax.set_xlabel('Age', fontsize=22)
     ax.set_ylabel('Age of Contacts', fontsize=22)
-    ax.set_title(titles[setting_code] + ' Contact Patterns', fontsize=26)
+    ax.set_title(titles[setting_code] + ' Contact Patterns', fontsize=28)
 
     if aggregate_flag:
         tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
         ax.set_xticks(np.arange(len(tick_labels)))
-        ax.set_xticklabels(tick_labels, fontsize=16)
-        ax.set_xticklabels(tick_labels, fontsize=16, rotation=50)
+        ax.set_xticklabels(tick_labels, fontsize=18)
+        ax.set_xticklabels(tick_labels, fontsize=18, rotation=50)
         ax.set_yticks(np.arange(len(tick_labels)))
-        ax.set_yticklabels(tick_labels, fontsize=16)
+        ax.set_yticklabels(tick_labels, fontsize=18)
 
     return fig
 
@@ -222,7 +222,7 @@ def plot_data_contact_matrix(datadir, location='seattle_metro', state_location='
         elif density_or_frequency == 'frequency':
             # if aggregate_flag:
             vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-            vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e0}
+            vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e1}
             vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
             # else:
                 # vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
@@ -241,21 +241,21 @@ def plot_data_contact_matrix(datadir, location='seattle_metro', state_location='
     cbar = fig.colorbar(implot, cax=cax)
     cbar.ax.tick_params(axis='y', labelsize=20)
     if density_or_frequency == 'frequency':
-        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=18)
+        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=20)
     else:
-        cbar.ax.set_ylabel('Density of Contacts', fontsize=18)
-    ax.tick_params(labelsize=18)
-    ax.set_xlabel('Age', fontsize=22)
-    ax.set_ylabel('Age of Contacts', fontsize=22)
-    ax.set_title(titles[setting_code] + ' Contact Patterns', fontsize=26)
+        cbar.ax.set_ylabel('Density of Contacts', fontsize=20)
+    ax.tick_params(labelsize=20)
+    ax.set_xlabel('Age', fontsize=24)
+    ax.set_ylabel('Age of Contacts', fontsize=24)
+    ax.set_title(titles[setting_code] + ' Contact Patterns', fontsize=28)
 
     if aggregate_flag:
         tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
         ax.set_xticks(np.arange(len(tick_labels)))
-        ax.set_xticklabels(tick_labels, fontsize=16)
-        ax.set_xticklabels(tick_labels, fontsize=16, rotation=50)
+        ax.set_xticklabels(tick_labels, fontsize=1)
+        ax.set_xticklabels(tick_labels, fontsize=18, rotation=50)
         ax.set_yticks(np.arange(len(tick_labels)))
-        ax.set_yticklabels(tick_labels, fontsize=16)
+        ax.set_yticklabels(tick_labels, fontsize=18)
 
     return fig
 
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     
     datadir = sp.datadir
 
-    n = 100e3
+    n = 120e3
 
     location = 'seattle_metro'
     state_location = 'Washington'
@@ -273,6 +273,8 @@ if __name__ == '__main__':
     sheet_name = 'United States of America'
 
     setting_code = 'H'
+    setting_code = 'S'
+    setting_code = 'W'
 
     aggregate_flag = True
     # aggregate_flag = False
@@ -280,11 +282,11 @@ if __name__ == '__main__':
     logcolors_flag = True
     # logcolors_flag = False
 
-    density_or_frequency = 'density'
-    # density_or_frequency = 'frequency'
+    # density_or_frequency = 'density'
+    density_or_frequency = 'frequency'
 
-    # do_save = True
-    do_save = False
+    do_save = True
+    # do_save = False
 
     do_trimmed = True
     # do_trimmed = False
@@ -324,8 +326,8 @@ if __name__ == '__main__':
         fig.savefig(fig_path, format='pdf')
     plt.show()
 
-fig = plot_data_contact_matrix(datadir, location, state_location, country_location, sheet_name, setting_code, logcolors_flag)
-fig_path = datadir.replace('data', 'figures')
+# fig = plot_data_contact_matrix(datadir, location, state_location, country_location, sheet_name, setting_code, logcolors_flag)
+# fig_path = datadir.replace('data', 'figures')
 # plt.show()
 
-fig.savefig(os.path.join(fig_path, 'contact_matrices_152_countries', country_location, 'contact_matrix_' + country_location + '_' + setting_code + '.pdf'), format='pdf')
+# fig.savefig(os.path.join(fig_path, 'contact_matrices_152_countries', country_location, 'contact_matrix_' + country_location + '_' + setting_code + '.pdf'), format='pdf')
