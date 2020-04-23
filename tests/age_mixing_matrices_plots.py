@@ -73,7 +73,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
     cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
 
-    fig = plt.figure(figsize=(9, 9))
+    fig = plt.figure(figsize=(7, 7), tight_layout=True)
     ax = fig.add_subplot(111)
 
     titles = {'H': 'Household', 'S': 'School', 'W': 'Work'}
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     
     datadir = sp.datadir
 
-    n = 120e3
+    n = 100e3
 
     location = 'seattle_metro'
     state_location = 'Washington'
@@ -291,7 +291,7 @@ if __name__ == '__main__':
     do_trimmed = True
     # do_trimmed = False
 
-    trimmed_size_dic = {'S': 20, 'W': 20}
+    trimmed_size_dic = {'S': 20, 'W': 10}
 
     if setting_code in ['S', 'W']:
         if do_trimmed:
@@ -324,6 +324,7 @@ if __name__ == '__main__':
             else:
                 fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '.pdf')
         fig.savefig(fig_path, format='pdf')
+        fig.savefig(fig_path.replace('pdf', 'png'), format='png', dpi=300)
     plt.show()
 
 # fig = plot_data_contact_matrix(datadir, location, state_location, country_location, sheet_name, setting_code, logcolors_flag)
