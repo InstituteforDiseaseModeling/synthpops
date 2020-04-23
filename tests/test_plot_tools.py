@@ -9,7 +9,7 @@ from matplotlib.colors import LogNorm, LinearSegmentedColormap
 from matplotlib.ticker import LogLocator, LogFormatter
 import matplotlib.font_manager as font_manager
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-# 
+
 import functools
 import os
 from collections import Counter
@@ -27,17 +27,18 @@ try:
         'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
     }
     if username not in fontdirdict:
-        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'),'Dropbox','GoogleFonts')
+        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
 
     font_path = fontdirdict[username]
 
     fontpath = fontdirdict[username]
     font_style = 'Roboto_Condensed'
-    fontstyle_path = os.path.join(fontpath,font_style,font_style.replace('_','') + '-Light.ttf')
-    prop = font_manager.FontProperties(fname = fontstyle_path)
+    fontstyle_path = os.path.join(fontpath, font_style, font_style.replace('_', '') + '-Light.ttf')
+    prop = font_manager.FontProperties(fname=fontstyle_path)
     mplt.rcParams['font.family'] = prop.get_name()
 except:
     mplt.rcParams['font.family'] = 'Roboto'
+
 
 def test_plot_generated_contact_matrix(setting_code='H',n=5000,aggregate_flag=True,logcolors_flag=True,density_or_frequency='density'):
 
