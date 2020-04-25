@@ -7,7 +7,7 @@ real-world populations (such as the age distribution, household size, etc.). |SP
 generic populations with different network characteristics, as well as synthetic populations that
 interact in different layers of a multilayer contact network. These synthetic populations can then
 be used with agent-based models like |Cov_l| to simulate epidemics. |SP| is available on GitHub_.
-For more information, on |Cov_s| see `Covasim on GitHub`_.
+For more information on |Cov_s| see `Covasim on GitHub`_.
 
 .. _GitHub: https://github.com/InstituteforDiseaseModeling/synthpops
 .. _Covasim on GitHub: https://github.com/InstituteforDiseaseModeling/covasim
