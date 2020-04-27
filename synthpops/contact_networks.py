@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 import cmocean
 
+# np.random.seed(0)
+
 
 def generate_household_sizes(Nhomes,hh_size_distr):
     max_size = max(hh_size_distr.keys())
@@ -219,7 +221,10 @@ def read_in_age_by_uid(datadir,location,state_location,country_location,N):
 
 
 def get_school_enrollment_rates_df(datadir,location,state_location,country_location,level):
-
+    print(location)
+    print(state_location)
+    print(country_location)
+    print(level)
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools',level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
     df = pd.read_csv(file_path)
     if location == 'seattle_metro':
@@ -331,31 +336,91 @@ def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
     return school_sizes
 
 
-def get_uids_in_school(datadir,location,state_location,country_location,level,N,age_by_uid_dic=None):
+def read_setting_groups(datadir, location, state_location, country_location, n, setting, with_ages=False):
+    if with_ages:
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks', location + '_' + str(n) + '_synthetic_' + setting + '_with_ages.dat')
+    else:
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks', location + '_' + str(n) + '_synthetic_' + setting + '_with_uids.dat')
+    groups = []
+    foo = open(file_path, 'r')
+    for c, line in enumerate(foo):
+        group = line.strip().split(' ')
+        if with_ages:
+            group = [int(a) for a in group]
+        groups.append(group)
+    return groups
+
+
+# def get_uids_in_school(datadir,location,state_location,country_location,level,N,age_by_uid_dic=None):
+
+#     uids_in_school = {}
+#     uids_in_school_by_age = {}
+#     ages_in_school_count = dict.fromkeys(np.arange(101),0)
+
+#     rates = get_school_enrollment_rates(datadir,location,state_location,country_location,level)
+
+#     for a in np.arange(101):
+#         uids_in_school_by_age[a] = []
+
+#     if age_by_uid_dic is None:
+#         age_by_uid_dic = read_in_age_by_uid(datadir,location,state_location,country_location,N)
+
+#     for uid in age_by_uid_dic:
+
+#         a = age_by_uid_dic[uid]
+#         if a <= 50: # US census records for school enrollment
+#             b = np.random.binomial(1,rates[a]) # ask each person if they'll be a student - probably could be done in a faster, more aggregate way.
+#             if b:
+#                 uids_in_school[uid] = a
+#                 uids_in_school_by_age[a].append(uid)
+#                 ages_in_school_count[a] += 1
+
+#     return uids_in_school,uids_in_school_by_age,ages_in_school_count
+
+
+def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
 
     uids_in_school = {}
     uids_in_school_by_age = {}
-    ages_in_school_count = dict.fromkeys(np.arange(101),0)
-
-    rates = get_school_enrollment_rates(datadir,location,state_location,country_location,level)
+    ages_in_school_count = dict.fromkeys(np.arange(101), 0)
+    print(location)
+    rates = get_school_enrollment_rates(datadir,location=location, state_location=state_location, country_location=country_location,level='county')
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
-        age_by_uid_dic = read_in_age_by_uid(datadir,location,state_location,country_location,N)
+        age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
 
-    for uid in age_by_uid_dic:
+    if homes_by_uids is None:
+        try:
+            homes_by_uids = read_setting_groups(datadir, location, state_location, country_location, n, setting='households', with_ages=False)
+        except:
+            raise NotImplementedError('No households to bring in. Create people through those first.')
 
-        a = age_by_uid_dic[uid]
-        if a <= 50: # US census records for school enrollment
-            b = np.random.binomial(1,rates[a]) # ask each person if they'll be a student - probably could be done in a faster, more aggregate way.
-            if b:
-                uids_in_school[uid] = a
-                uids_in_school_by_age[a].append(uid)
-                ages_in_school_count[a] += 1
+    # # go through all people at random and make a list of uids going to school as students
+    # for uid in age_by_uid_dic:
+    #     a = age_by_uid_dic[uid]
+    #     if a <= 50:
+    #         b = np.random.binomial(1,rates[a])
+    #         if b:
+    #             uids_in_school[uid] = a
+    #             uids_in_school_by_age[a].append(uid)
+    #             ages_in_school_count[a] += 1
 
-    return uids_in_school,uids_in_school_by_age,ages_in_school_count
+    # go through homes and make a list of uids going to school as students, this should preserve ordering of students by homes and so create schools with siblings going to the same school
+    for home in homes_by_uids:
+        for uid in home:
+
+            a = age_by_uid_dic[uid]
+            if rates[a] > 0:
+                b = np.random.binomial(1, rates[a])  # ask each person if they'll be a student - probably could be done in a faster, more aggregate way.
+                if b:
+                    uids_in_school[uid] = a
+                    uids_in_school_by_age[a].append(uid)
+                    ages_in_school_count[a] += 1
+
+    return uids_in_school, uids_in_school_by_age, ages_in_school_count
 
 
 def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose=False):
@@ -567,7 +632,7 @@ def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_cou
             except:
                 c = 0
             workers_by_age_to_assign_count[a] = c
-            # print(a,c)
+            print(a,c)
 
     return workers_by_age_to_assign_count
 
@@ -847,7 +912,7 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     # Generate school sizes
     school_sizes_count = get_school_sizes_by_bracket(datadir,location,state_location,country_location)
     # figure out who's going to go to school as a student
-    uids_in_school,uids_in_school_by_age,ages_in_school_count = get_uids_in_school(datadir,location,state_location,country_location,level,n,age_by_uid_dic) # this will call in school enrollment rates
+    uids_in_school,uids_in_school_by_age,ages_in_school_count = get_uids_in_school(datadir,n,location,state_location,country_location,age_by_uid_dic) # this will call in school enrollment rates
 
     gen_school_sizes = generate_school_sizes(school_sizes_count,uids_in_school)
     gen_schools,gen_school_uids = send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose)

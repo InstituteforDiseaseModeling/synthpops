@@ -6,6 +6,8 @@ from .config import datadir
 import os
 import pandas as pd
 
+# np.random.seed(0)
+
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """ Create a dictionary of n people with age, sex and loc keys """ #
@@ -511,7 +513,9 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     """
     Return a popdict from synthetic household, school, and workplace files with uids.
     """
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
+    # file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_04072020')
+
 
     households_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     age_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_age_by_uid.dat')
@@ -538,37 +542,53 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     fh = open(households_by_uid_path,'r')
     for c,line in enumerate(fh):
         r = line.strip().split(' ')
- 
+
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
     fh.close()
 
     count = dict.fromkeys(popdict.keys(), 0)
-
+    size_counts = {}
     fs = open(schools_by_uid_path,'r')
     for c,line in enumerate(fs):
         r = line.strip().split(' ')
-        group = set(r)
+
+        size_counts.setdefault(len(r), 0)
+        size_counts[len(r)] += 1
 
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
             count[uid] += 1
     fs.close()
+    for s in sorted(size_counts.keys()):
+        print(s, size_counts[s])
 
     for uid in count:
         if count[uid] > 1:
             print(uid, count[uid])
+    print()
 
+    count = dict.fromkeys(popdict.keys(), 0)
+    size_counts = {}
     fw = open(workplaces_by_uid_path,'r')
     for c,line in enumerate(fw):
         r = line.strip().split(' ')
-        group = set(r)
+
+        size_counts.setdefault(len(r), 0)
+        size_counts[len(r)] += 1
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
+            count[uid] += 1 
     fw.close()
+    for s in sorted(size_counts.keys()):
+        print(s, size_counts[s])
+
+    for uid in count:
+        if count[uid] > 1:
+            print(uid, count[uid])
 
     return popdict
 

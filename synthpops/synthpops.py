@@ -7,6 +7,8 @@ from collections import Counter
 from copy import deepcopy
 from .config import datadir
 
+# np.random.seed(0)
+
 
 def norm_dic(dic):
     """

@@ -11,7 +11,7 @@ if not sp.config.full_data_available:
 
 def test_api():
 
-    n = 120000
+    n = 50000
     max_contacts = {'S':20, 'W':10}
 
     population = sp.make_population(n=n, max_contacts=max_contacts)
@@ -92,5 +92,5 @@ def test_plot_pop():
 
 if __name__ == '__main__':
     pop1 = test_api()
-    pop2 = test_plot_pop()
+    # pop2 = test_plot_pop()
     print('Done.')
