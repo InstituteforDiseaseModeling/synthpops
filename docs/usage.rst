@@ -6,6 +6,9 @@ The overall |SP| workflow is contained in
 :py:func:`~synthpops.contact_networks.generate_synthetic_population` and is described below.
 The population is generated through households, not a pool of people.
 
+You can provide required data to |SP| in a variety of formats including .csv, .txt, or Microsoft Excel
+(.xlsx.
+
 
 #.  Instantiate a collection of households with sizes drawn from census data. Populations
     cannot be created outside of the :term:`household contact layer`.

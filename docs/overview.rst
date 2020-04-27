@@ -20,12 +20,13 @@ captures both number of effective contacts for disease transmission and transmis
 
 The generated network is a multilayer network in the sense that it is possible for people to be
 connected by multiple edges each in different layers of the network. The layers are referred to as
-:term:`contact layers`. For example, the :term:`workplace contact layer` is a representation of all of the
-pairwise connections between people at work, and the :term:`household contact layer` represents the
-pairwise connections between household members. Typically these networks are clustered; in other
-words, everyone within a household interacts with each other, but not with other households.
-However, they may interact with members of other households via their school or workplace or as community
-contacts.
+:term:`contact layers`. For example, the :term:`workplace contact layer` is a representation of all
+of the pairwise connections between people at work, and the :term:`household contact layer`
+represents the pairwise connections between household members. Typically these networks are
+clustered; in other words, everyone within a household interacts with each other, but not with other
+households. However, they may interact with members of other households via their school or
+workplace. Some level of community contacts outside of these networks can be configured using |Cov_s|
+or other model being used with |SP|.
 
 |SP| functions in two stages:
 
