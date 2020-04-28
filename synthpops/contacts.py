@@ -487,7 +487,7 @@ def make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,sta
 
 def rehydrate(data):
     """
-    populate popdict with uids, ages and contacts from generated microstructure data 
+    populate popdict with uids, ages and contacts from generated microstructure data
     that was saved to data object
     """
     popdict = sc.dcp(data['popdict'])
@@ -538,7 +538,7 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
     fh = open(households_by_uid_path,'r')
     for c,line in enumerate(fh):
         r = line.strip().split(' ')
- 
+
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
@@ -574,7 +574,8 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
     is a list of contact IDs for each individual. If directed=False (default),
     if person A is a contact of person B, then person B is also a contact of person A.
 
-    Example output (input is the same, minus the "contacts" field):
+    Example output (input is the same, minus the "contacts" field)::
+
         popdict = {
             '8acf08f0': {
                 'age': 57.3,
@@ -651,7 +652,7 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
         popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
-    else: 
+    else:
         # for locations with sex by age data - likely only for the US
         if options_args['use_age_mixing'] and options_args['use_sex']:
             if options_args['use_social_layers']:
