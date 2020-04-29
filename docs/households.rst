@@ -3,7 +3,7 @@ Household contact layer
 =======================
 
 The :term:`household contact layer` represents the pairwise connections between household members.
-The population in generated within this layer, not as a separate pool of people.
+The population is generated within this contact layer, not as a separate pool of people.
 
 As locations, households are special in the following ways:
 
@@ -12,13 +12,11 @@ As locations, households are special in the following ways:
     comparison to a 5- or 6-person household) and some households only have 1 person.
 -   The reference person/head of the household can be well-defined by data.
 
-Instantiate households
-======================
 
-The first step in producing a synthetic population is to construct households with individuals of different ages living together. The core implementation is in
-:py:func:`~synthpops.contact_networks.generate_all_households`, which is called in
-:py:func:`~synthpops.contact_networks.generate_synthetic_population`.
-The inputs required for this step are:
+Data needed
+===========
+
+The following data sets are required for households:
 
 #.  **Age bracket distribution** specifying the distribution of people in age bins for the location.
     For example::
@@ -40,17 +38,6 @@ The inputs required for this step are:
         65_69       , 0.04487122889235999
         70_74       , 0.030964420778483555
         75_100       , 0.05110673396642193
-
-
-First, a single or 1-year age distribution is generated from the binned age distribution. This is
-done using :py:func:`~synthpops.synthpops.get_age_n` to create samples of ages from the binned
-distribution, and then normalizing to create a single-year distribution. This distribution can
-therefore be gathered using whatever age bins are present in any given dataset.
-
-Data needed
-===========
-
-Three data sets are required for households:
 
 #.  **Age distribution of the reference person for each household size**
 
@@ -96,18 +83,27 @@ Three data sets are required for households:
 Workflow
 ========
 
-Use these |SP| functions to implement household initialization as follows:
+Use these |SP| functions to instantiate households as follows:
 
-#.  :py:func:`~synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size` generates empty
-    households with known size based on the distribution of household sizes.
-#.  :py:func:`~synthpops.contact_networks.generate_all_households` takes in the remaining sources above,
-    and then does the following:
+#.  Call :py:func:`~synthpops.contact_networks.generate_synthetic_population` and provide the binned
+    age bracket distribution data described above. This wrapper function calls the following functions:
 
-    -   Calls :py:func:`~synthpops.contact_networks.generate_living_alone` to populate households with
-        1 person (either from data on those living alone or, if unavailable, from the adult age distribution).
-    -   Calls :py:func:`~synthpops.contact_networks.generate_larger_households` repeatedly with with
-        different household sizes to populate those households, first sampling the age of a reference
-        person and then their household contacts as outlined above.
+    #.  From the binned age distribution, :py:func:`~synthpops.synthpops.get_age_n` creates samples
+        of ages from the binned distribution, and then normalizes to create a single-year distribution.
+        This distribution can therefore be gathered using whatever age bins are present in any given dataset.
+
+    #.  :py:func:`~synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size` generates empty
+        households with known size based on the distribution of household sizes.
+
+    #.  :py:func:`~synthpops.contact_networks.generate_all_households` contains the core implementation
+        and constructs households with individuals of different ages living together. It takes in the
+        remaining data sources above, and then does the following:
+
+        -   Calls :py:func:`~synthpops.contact_networks.generate_living_alone` to populate households with
+            1 person (either from data on those living alone or, if unavailable, from the adult age distribution).
+        -   Calls :py:func:`~synthpops.contact_networks.generate_larger_households` repeatedly with with
+            different household sizes to populate those households, first sampling the age of a reference
+            person and then their household contacts as outlined above.
 
 .. _Mossong et al. 2008: https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0050074
 .. _Fumanelli et al. 2012: https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002673
