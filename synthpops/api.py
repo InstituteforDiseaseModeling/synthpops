@@ -13,11 +13,12 @@ popsize_choices = [5000,
 
 def make_population(n=None, max_contacts=None, as_objdict=False):
     '''
-    Make a full population network including both people (ages, sexes) and contacts.
+    Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
     Args:
-        n (int): number of people to create
-        max_contacts (dict): dictionary for maximum number of contacts per layer: keys must be 'S' (school) and/or 'W' (work)
+        n (int)             : number of people to create
+        max_contacts (dict) : dictionary for maximum number of contacts per layer: keys must be 'S' (school) and/or 'W' (work)
+        as_objdict (bool)   : If True, change popdict type to sc.objdict
 
     Returns:
         network (dict): a dictionary of the full population with ages and connections
@@ -25,7 +26,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
     '''
 
     default_n = 10000
-    default_max_contacts = {'S':20, 'W':10}
+    default_max_contacts = {'S':20, 'W':10} # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
     n = int(n)
@@ -39,7 +40,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
     country_location = 'usa'
     state_location = 'Washington'
     location = 'seattle_metro'
-
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}

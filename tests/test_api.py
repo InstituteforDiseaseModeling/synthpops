@@ -82,10 +82,10 @@ def test_plot_pop():
                     contact = population[contactkey]
                     tmp = pl.plot([person.loc.x, contact.loc.x], [person.loc.y, contact.loc.y], c=lcols[lkey], alpha=alpha)
                     lines.append(tmp)
-            pl.title(f'Index: {index}')
-            pl.pause(pause)
-            if doclear:
-                ax.lines = []
+            # pl.title(f'Index: {index}')
+            # pl.pause(pause)
+            # if doclear:
+                # ax.lines = []
 
     return fig
 
