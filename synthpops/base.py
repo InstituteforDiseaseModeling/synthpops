@@ -183,6 +183,7 @@ def combine_matrices(matrix_dic, weights_dic, num_agebrackets):
 
 def get_ids_by_age_dic(age_by_id_dic):
     """
+    Get lists of ids that map to each age.
     Args:
         age_by_id_dic (dict): a dictionary with the age of each individual by their id
 
@@ -200,6 +201,7 @@ def get_ids_by_age_dic(age_by_id_dic):
 
 def get_uids_by_age_dic(popdict):
     """
+    Get lists of uids that map to each age.
     Args:
         popdict (sc.dict): dictionary mapping individual's id to a dictionary with their age and other attributes.
     Returns:
