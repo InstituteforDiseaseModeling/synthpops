@@ -145,16 +145,19 @@ def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, s
     method, although location specific data may prove this to not be true.
 
     Args:
-        popdict (dict): dictionary of all individuals
-        n_contacts_dic (dict): number of contacts to draw on average by setting
+        popdict (dict)            : dictionary of all individuals
+        n_contacts_dic (dict)     : number of contacts to draw on average by setting
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality
+        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality, can also include powerlaw exponents,
+                                    block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures. Checkout
+                                    https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
+                                    Default 'network_type' is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
 
     Returns:
-        A dictionary of individuals with contacts drawn from given network distribution parameters and the ages of contacts drawn according to overall age mixing data.
+        A dictionary of individuals with attributes, including their age and the ids of their contacts drawn from given network distribution parameters and the ages of contacts drawn according to overall age mixing data.
         A single social setting or layer of contacts.
 
     """
@@ -204,17 +207,20 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     Essentially recreates an age-specific compartmental model's concept of contacts but for an agent based modeling framework.
 
     Args:
-        popdict (dict): dictionary of all individuals
-        n_contacts_dic (dict): number of contacts to draw on average by setting
+        popdict (dict)            : dictionary of all individuals
+        n_contacts_dic (dict)     : number of contacts to draw on average by setting
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        activity_args (dict)      : dictionary of age bounds for participating in different activities like going to school or working
-        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality
+        activity_args (dict)      : dictionary of age bounds for participating in different activities like going to school or working, also student-teacher ratio
+        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality, can also include powerlaw exponents,
+                                    block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures. Checkout
+                                    https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
+                                    Default 'network_type' is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
 
     Returns:
-        A dictionary of individuals with contacts drawn from given network distribution parameters and the ages of contacts drawn according to age mixing data.
+        A dictionary of individuals with contacts with attributes, including their age and the ids of their contacts drawn from given network distribution parameters and the ages of contacts drawn according to age mixing data.
         Multiple social settings or layers so contacts are listed for different layers.
 
     """
@@ -354,16 +360,19 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
     Individuals also have a sex, though this in general does not have an impact on their contact patterns.
 
     Args:
-        popdict (dict): dictionary of all individuals
-        n_contacts_dic (dict): number of contacts to draw on average by setting
+        popdict (dict)            : dictionary of all individuals
+        n_contacts_dic (dict)     : number of contacts to draw on average by setting
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality
+        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality, can also include powerlaw exponents,
+                                    block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures. Checkout
+                                    https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
+                                    Default 'network_type' is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
 
     Returns:
-        A dictionary of individuals with contacts drawn from given network distribution parameters and the ages of contacts drawn according to overall age mixing data.
+        A dictionary of individuals with attributes, including their age and the ids of their contacts drawn from given network distribution parameters and the ages of contacts drawn according to overall age mixing data.
         A single social setting or layer of contacts.
 
     """
@@ -417,17 +426,19 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     only students and we assume that any of their contacts in the work environment are likely to look like their contacts at school.
 
     Args:
-        popdict (dict): dictionary of all individuals
-        n_contacts_dic (dict): number of contacts to draw on average by setting
+        popdict (dict)            : dictionary of all individuals
+        n_contacts_dic (dict)     : number of contacts to draw on average by setting
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        activity_args (dict)      : dictionary of age bounds for participating in different activities like going to school or working
-        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality
-
+        activity_args (dict)      : dictionary of age bounds for participating in different activities like going to school or working, also student-teacher ratio
+        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality, can also include powerlaw exponents,
+                                    block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures. Checkout
+                                    https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
+                                    Default 'network_type' is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
     Returns:
-        A dictionary of individuals with contacts drawn from given network distribution parameters and the ages of contacts drawn according to age mixing data.
+        A dictionary of individuals with attributes, including their age and the ids of their contacts drawn from given network distribution parameters and the ages of contacts drawn according to age mixing data.
         Multiple social settings or layers so contacts are listed for different layers.
 
     """
@@ -593,44 +604,58 @@ def save_synthpop(datadir, contacts, location):
         datadir (string)  : file path to the data directory
         contacts (dict)   : dictionary of people with contacts
         location (string) : name of the location
+
+    Returns:
+        None
     """
 
     filename = os.path.join(datadir, location + '_synthpop_' + str(len(contacts)) + '.pop')
     sc.saveobj(filename=filename, obj=contacts)
 
 
-def make_contacts_from_microstructure(datadir,location,state_location,country_location,n):
+def make_contacts_from_microstructure(datadir, location, state_location, country_location, n):
     """
-    Return a popdict from synthetic household, school, and workplace files with uids.
+    Make a popdict from synthetic household, school, and workplace files with uids.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        n (int)                   : number of people in the population
+
+    Returns:
+        A popdict of people with attributes, including their age and the ids of their contacts in the households ('H'),
+        schools ('S'), and workplace ('W') layers where contacts are clustered and thus the network is composed of groups
+        of people interacting with each other. For example, all household members are contacts of each other, and everyone
+        at the same school is a contact of each other.
     """
-    # file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_04072020')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
 
+    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_age_by_uid.dat')
+    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
-    df = pd.read_csv(age_by_uid_path, delimiter = ' ',header = None)
-
-    age_by_uid_dic = dict(zip( df.iloc[:,0], df.iloc[:,1]))
+    age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
     uids = age_by_uid_dic.keys()
 
-    # you have ages but not sexes so we'll just populate that for you at random ...
+    # you have ages but not sexes so we'll just populate that for you at random
     popdict = {}
-    for i,uid in enumerate(uids):
+    for i, uid in enumerate(uids):
         popdict[uid] = {}
         popdict[uid]['age'] = int(age_by_uid_dic[uid])
-        popdict[uid]['sex'] = np.random.binomial(1,p=0.5)
+        popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
-        for k in ['H','S','W','C']:
+        for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
-    fh = open(households_by_uid_path,'r')
-    for c,line in enumerate(fh):
+    fh = open(households_by_uid_path, 'r')
+    for c, line in enumerate(fh):
         r = line.strip().split(' ')
 
         for uid in r:
@@ -638,52 +663,54 @@ def make_contacts_from_microstructure(datadir,location,state_location,country_lo
             popdict[uid]['contacts']['H'].remove(uid)
     fh.close()
 
-    count = dict.fromkeys(popdict.keys(), 0)
-    size_counts = {}
-    fs = open(schools_by_uid_path,'r')
-    for c,line in enumerate(fs):
+    ### to check if people show up in more than one school
+    # count = dict.fromkeys(popdict.keys(), 0)
+    # size_counts = {}
+    fs = open(schools_by_uid_path, 'r')
+    for c, line in enumerate(fs):
         r = line.strip().split(' ')
 
-        size_counts.setdefault(len(r), 0)
-        size_counts[len(r)] += 1
+        # size_counts.setdefault(len(r), 0)
+        # size_counts[len(r)] += 1
 
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
-            count[uid] += 1
+            # count[uid] += 1
     fs.close()
-    for s in sorted(size_counts.keys()):
-        print(s, size_counts[s])
+    # for s in sorted(size_counts.keys()):
+        # print(s, size_counts[s])
 
-    for uid in count:
-        if count[uid] > 1:
-            print(uid, count[uid])
-    print()
+    # for uid in count:
+        # if count[uid] > 1:
+            # print(uid, count[uid])
+    # print()
 
-    count = dict.fromkeys(popdict.keys(), 0)
-    size_counts = {}
-    fw = open(workplaces_by_uid_path,'r')
-    for c,line in enumerate(fw):
+    ### to check if people show up in more than one workplace
+    # count = dict.fromkeys(popdict.keys(), 0)
+    # size_counts = {}
+    fw = open(workplaces_by_uid_path, 'r')
+    for c, line in enumerate(fw):
         r = line.strip().split(' ')
 
-        size_counts.setdefault(len(r), 0)
-        size_counts[len(r)] += 1
+        # size_counts.setdefault(len(r), 0)
+        # size_counts[len(r)] += 1
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
-            count[uid] += 1 
+            # count[uid] += 1
     fw.close()
-    for s in sorted(size_counts.keys()):
-        print(s, size_counts[s])
+    # for s in sorted(size_counts.keys()):
+        # print(s, size_counts[s])
 
-    for uid in count:
-        if count[uid] > 1:
-            print(uid, count[uid])
+    # for uid in count:
+        # if count[uid] > 1:
+            # print(uid, count[uid])
 
     return popdict
 
 
-def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=None,country_location=None,sheet_name=None,options_args=None,activity_args=None,network_distr_args=None):
+def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_location=None, country_location=None, sheet_name=None, options_args=None, activity_args=None, network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -707,54 +734,47 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
                 },
         }
 
-    Parameters
-    ----------
-    popdict : dict
-        From make_pop - should already have age!
+    Args:
+        popdict (dict)            : dictionary, should have ages of individuals if not using cached microstructure data
+        n_contacts_dic (dict)     : average number of contacts by setting
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        sheet_name (string)       : name of the sheet in the excel file with contact patterns
+        options_args (dict)       : dictionary of flags to set different population and contact generating options
+        activity_args (dict)      : dictionary of age bounds for participating in different activities like going to school or working, also student-teacher ratio
+        network_distr_args (dict) : network distribution parameters dictionary for average_degree, network_type, and directionality, can also include powerlaw exponents,
+                                    block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures. Checkout
+                                    https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
+                                    Default 'network_type' is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
 
-    n_contacts_dic : dict
-        Number of average contacts by setting
+    Returns:
+        A dictionary of individuals with attributes, including their age and the ids of their contacts.
 
-    state_location : str
-        Name of state to call in state age mixing patterns
-
-    location : str
-        Name of location to call in age profile and in future household size, but also cruise ships!
-
-    options_args : dict
-        Dictionary of options flags
-
-    activity_args : dict
-        Dictionary of actitivity age bounds, student-teacher ratio
-
-    network_distr_args : dict
-        Dictionary of network distribution args - average degree, direction, network type,
-        can also include powerlaw exponents, block sizes (re: SBMs), clustering distribution, or other properties needed to generate network structures
-        checkout https://networkx.github.io/documentation/stable/reference/generators.html#module-networkx.generators for what's possible
-        network_type : default is 'poisson_degree' for Erdos-Renyi random graphs in large n limit.
     '''
-    # if datadir              is None : datadir = sp.datadir
-    if location             is None : location = 'seattle_metro'
-    if state_location       is None : state_location = 'Washington'
-    if country_location     is None : country_location = 'usa'
-    if sheet_name           is None : sheet_name = 'United States of America'
+    ### Defaults ###
+    if location             is None: location = 'seattle_metro'
+    if state_location       is None: state_location = 'Washington'
+    if country_location     is None: country_location = 'usa'
+    if sheet_name           is None: sheet_name = 'United States of America'
 
-    if n_contacts_dic       is None : n_contacts_dic = {'H': 3, 'S': 20, 'W': 20, 'C': 10}
+    if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    if network_distr_args   is None : network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'} # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
     if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
     if 'directed' not in network_distr_args: network_distr_args['directed'] = False
     if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
 
-    # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
-    # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
-    # worker_age_min: 23: to keep ages for different activities clean
-    # worker_age_max: 65: although employment records indicate people working beyond 75, K. Prem et al work contact matrix for US is very low for 65+ and results in microstructure generation method breaking - one thing to note is eventually we'll need to consider that not everyone in the population works (somewhat accounted for by the poisson draw of n_contacts at the moment, but this should be age structure as data shows there is a definitive pattern to this)
-    # activity_args might also include different n_contacts for college kids ....
+    ### Rationale behind default activity_args parameters
+        # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
+        # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
+        # worker_age_min: 23: to keep ages for different activities clean
+        # worker_age_max: 65: age at which people are able to retire in many places
+        # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age','use_sex','use_loc','use_social_layers','use_activity_rates','use_microstructure','use_age_mixing']
-    if options_args         is None: options_args = dict.fromkeys(options_keys,False)
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing']
+    if options_args         is None: options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -765,50 +785,60 @@ def make_contacts(popdict=None,n_contacts_dic=None,state_location=None,location=
     if options_args['use_microstructure']:
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir,location,state_location,country_location,network_distr_args['Npop'])
+        popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
-    else: 
+    else:
         # for locations with sex by age data - likely only for the US
         if options_args['use_age_mixing'] and options_args['use_sex']:
             if options_args['use_social_layers']:
-                popdict = make_contacts_with_social_layers_and_sex(popdict,n_contacts_dic,location,state_location,country_location,sheet_name,activity_args,network_distr_args)
+                popdict = make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, activity_args, network_distr_args)
             else:
-                popdict = make_contacts_without_social_layers_and_sex(popdict,n_contacts_dic,location,state_location,country_location,sheet_name,network_distr_args)
+                popdict = make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, network_distr_args)
 
         # for locations without sex by age data (basically anywhere outside of the US)
         elif options_args['use_age_mixing'] and not options_args['use_sex']:
             if options_args['use_social_layers']:
-                popdict = make_contacts_with_social_layers_152(popdict,n_contacts_dic,location,state_location,country_location,sheet_name,activity_args,network_distr_args)
+                popdict = make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, activity_args, network_distr_args)
             else:
-                popdict = make_contacts_without_social_layers_152(popdict,n_contacts_dic,location,state_location,country_location,sheet_name,network_distr_args)
+                popdict = make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, network_distr_args)
 
         else:
             # this makes the generic case with a default age and sex distribution : if you give the popdict with ages it'll connect people at random with different ages but not according to any age-mixing data.
-            popdict = make_contacts_generic(popdict,network_distr_args)
+            popdict = make_contacts_generic(popdict, network_distr_args)
 
     return popdict
 
 
 def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
-    """ Trim down contacts in school or work environments """
+    """
+    Trim down contacts in school or work environments from everyone.
+
+    Args:
+        contacts (dict)         : dictionary of individuals with attributes, including their age and the ids of their contacts
+        trimmed_size_dic (dict) : dictionary of threshold values for the number of contacts in school ('S') and work ('W') so that for individuals with more contacts than this, we select a smaller subset of contacts considerd close contacts
+        use_clusters (bool)     : If True, trimmed down contact networks will preserve clustering so that an individual's close contacts in school or at work are also contacts of each other
+        verbose (bool)          : If True, print average number of close contacts in school and at work
+
+    Returns:
+        A dictionary of individuals with attributes, including their age and the ids of their close contacts.
+    """
 
     trimmed_size_dic = sc.mergedicts({'S': 20, 'W': 10}, trimmed_size_dic)
 
     keys = trimmed_size_dic.keys()
 
     if use_clusters:
-        raise NotImplementedError
+        raise NotImplementedError("Clustered method not yet implemented.")
 
     else:
-        for n,uid in enumerate(contacts):
+        for n, uid in enumerate(contacts):
             for k in keys:
                 setting_contacts = contacts[uid]['contacts'][k]
                 if len(setting_contacts) > trimmed_size_dic[k]/2:
-                    close_contacts = np.random.choice( list(setting_contacts), size = int(trimmed_size_dic[k]/2) )
+                    close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
                     contacts[uid]['contacts'][k] = set(close_contacts)
-
 
         for n, uid in enumerate(contacts):
             for k in keys:
@@ -824,12 +854,22 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                     if len(contacts[uid]['contacts'][k]) > 0:
                         sizes.append(len(contacts[uid]['contacts'][k]))
                 if verbose:
-                    print(k,np.mean(sizes))
+                    print(k, np.mean(sizes))
 
     return contacts
 
 
-def show_layers(popdict,show_ages=False):
+def show_layers(popdict, show_ages=False):
+    """
+    Print out the contacts for individuals in the different possible social settings or layers.
+
+    Args:
+        popdict (dict)   : dictionary of individuals with attributes, including their age and the ids of their close contacts
+        show_ages (bool) : If True, show the ages of contacts, else show their ids
+
+    Returns:
+        None
+    """
 
     uids = popdict.keys()
     uids = [uid for uid in uids]
@@ -837,13 +877,13 @@ def show_layers(popdict,show_ages=False):
     layers = popdict[uids[0]]['contacts'].keys()
     if show_ages:
         for uid in uids:
-            print(uid,popdict[uid]['age'])
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
-                print(k,sorted(contact_ages))
+                print(k, sorted(contact_ages))
 
     else:
         for uid in uids:
             print(uid)
             for k in layers:
-                print(k,popdict[uid]['contacts'][k])
+                print(k, popdict[uid]['contacts'][k])
