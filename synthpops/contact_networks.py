@@ -281,7 +281,7 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        country_location (string) : name of the country the location is in
         homes_by_uids (list)      : list of lists, where each sublist represents a household and the ids of the household members
         age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
 
@@ -323,7 +323,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, N):
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        country_location (string) : name of the country the location is in
         N (int)                   : number of people in the population
     Returns:
         A dictionary mapping id to age for all individuals in the population.
@@ -343,7 +343,7 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        country_location (string) : name of the country the location is in
         n (int)                   : number of people in the population
         setting (string): name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
         with_ages (bool): If True, read in the ages of each individual in the group, else read in their ids
@@ -365,35 +365,6 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     return groups
 
 
-def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
-    """
-    Given a number of students in school, generate list of school sizes to place everyone in a school.
-
-    Args:
-        school_size_distr_by_bracket (dict) : distribution of binned school sizes
-        school_size_brackets (dict)         : dictionary of school size brackets
-        uids_in_school (dict)               : dictionary of students in school mapping id to age
-
-    Returns:
-        A list of school sizes whose sum is the length of uids_in_school.
-    """
-    ns = len(uids_in_school)
-    sorted_brackets = sorted(school_size_brackets.keys())
-    prob_by_sorted_brackets = [school_size_distr_by_bracket[b] for b in sorted_brackets]
-
-    school_sizes = []
-
-    while ns > 0:
-        size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
-        size = np.random.choice(school_size_brackets[size_bracket])
-        ns -= size
-        school_sizes.append(size)
-    if ns < 0:
-        school_sizes[-1] = school_sizes[-1] + ns
-    np.random.shuffle(school_sizes)
-    return school_sizes
-
-
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
     """
     Figure out who's going to school in the population based on enrollment rates by age.
@@ -403,7 +374,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         n (int)                   : number of people in the population
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        country_location (string) : name of the country the location is in
         age_by_uid_dic (dict)     : dictionary mapping id to age for all individuals in the population
         homes_by_uids (dict)      : list of lists where each sublist is a household and the ids of the household members
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
@@ -414,8 +385,8 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
     uids_in_school = {}
     uids_in_school_by_age = {}
     ages_in_school_count = dict.fromkeys(np.arange(101), 0)
-    print(location)
-    rates = get_school_enrollment_rates(datadir, location=location, state_location=state_location, country_location=country_location,level='county')
+
+    rates = spdata.get_school_enrollment_rates(datadir, location=location, state_location=state_location, country_location=country_location,level='county')
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
@@ -454,28 +425,69 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
     return uids_in_school, uids_in_school_by_age, ages_in_school_count
 
 
-def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose=False):
+def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
     """
-    A method to send 'students' to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.git 
-    """
+    Given a number of students in school, generate list of school sizes to place everyone in a school.
 
+    Args:
+        school_size_distr_by_bracket (dict) : distribution of binned school sizes
+        school_size_brackets (dict)         : dictionary of school size brackets
+        uids_in_school (dict)               : dictionary of students in school mapping id to age
+
+    Returns:
+        A list of school sizes whose sum is the length of uids_in_school.
+    """
+    ns = len(uids_in_school)
+    sorted_brackets = sorted(school_size_brackets.keys())
+    prob_by_sorted_brackets = [school_size_distr_by_bracket[b] for b in sorted_brackets]
+
+    school_sizes = []
+
+    while ns > 0:
+        size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
+        size = np.random.choice(school_size_brackets[size_bracket])
+        ns -= size
+        school_sizes.append(size)
+    if ns < 0:
+        school_sizes[-1] = school_sizes[-1] + ns
+    np.random.shuffle(school_sizes)
+    return school_sizes
+
+
+def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
+    """
+    A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
+
+    Args:
+        school_sizes (list): list of school sizes
+        uids_in_school (dict): dictionary of students in school mapping id to age
+        uids_in_school_by_age (dict): dictionary of students in school mapping age to the list of ids with that age
+        ages_in_school_count (dict): dictionary mapping age to the number of students with that age
+        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
+        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
+        verbose (bool): If True, print statements about the generated schools as they're being generated
+
+    Returns:
+        Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the ids of each student in place of their age.
+    """
     syn_schools = []
     syn_school_uids = []
-    age_range = np.arange(101)
+    # age_range = np.arange(101)
 
-    ages_in_school_distr = sp.norm_dic(ages_in_school_count)
-    total_school_count = len(uids_in_school)
-    left_in_bracket = sp.get_aggregate_ages(ages_in_school_count,age_by_brackets_dic)
+    ages_in_school_distr = norm_dic(ages_in_school_count)
+    # total_school_count = len(uids_in_school)
+    left_in_bracket = get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
 
-    for n,size in enumerate(school_sizes):
+    for n, size in enumerate(school_sizes):
 
-        if len(uids_in_school) == 0: # no more students left to send to school!
+        if len(uids_in_school) == 0:  # no more students left to send to school!
             break
 
-        ages_in_school_distr = sp.norm_dic(ages_in_school_count)
+        ages_in_school_distr = norm_dic(ages_in_school_count)
 
         new_school = []
-        new_school_ages_in_school_countuids = []
+        # new_school_ages_in_school_countuids = []
         new_school_uids = []
 
         achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
@@ -484,24 +496,24 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
         if bindex >= 4:
-            if np.random.binomial(1,p=0.8):
+            if np.random.binomial(1, p=0.7):
                 achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
                 aindex = np.where(achoice)[0][0]
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
-        uids_in_school.pop(uid,None)
+        uids_in_school.pop(uid, None)
         ages_in_school_count[aindex] -= 1
-        ages_in_school_distr = sp.norm_dic(ages_in_school_count)
+        ages_in_school_distr = norm_dic(ages_in_school_count)
 
         new_school.append(aindex)
         new_school_uids.append(uid)
 
         if verbose:
-            print('reference school age',aindex,'school size',size,'students left',len(uids_in_school),left_in_bracket)
+            print('reference school age', aindex, 'school size', size, 'students left', len(uids_in_school), left_in_bracket)
 
         bindex = age_by_brackets_dic[aindex]
-        b_prob = contact_matrix_dic['S'][bindex,:]
+        b_prob = contact_matrix_dic['S'][bindex, :]
 
         left_in_bracket[bindex] -= 1
 
@@ -516,74 +528,85 @@ def send_students_to_school(school_sizes,uids_in_school,uids_in_school_by_age,ag
                 left_in_bracket[age_by_brackets_dic[ai]] -= 1
             uids_in_school = {}
             if verbose:
-                print('last school','size from distribution',size,'size generated',len(new_school))
+                print('last school', 'size from distribution', size, 'size generated', len(new_school))
 
         else:
-            bi_min = max(0,bindex-1)
+            bi_min = max(0, bindex-1)
             bi_max = bindex + 1
 
-            for i in range(1,size):
+            for i in range(1, size):
                 if len(uids_in_school) == 0:
                     break
 
                 # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with 
-                if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min,bi_max+1)]) == 0:
+                if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
                     break
 
                 # a_in_school_prob_sum = np.sum([ages_in_school_distr[a] for bi in age_brackets for a in age_brackets[bi]])
                 # if a_in_school_prob_sum == 0:
                     # break
 
-                bi = sp.sample_single(b_prob)
-                a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
+                bi = spsamp.sample_single(b_prob)
+                # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
-                if bi >= 4:
-                    if np.random.binomial(1,p=0):
-                        bi = sp.sample_single(b_prob)
-                        a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
+                while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 2:
+                    bi = spsamp.sample_single(b_prob)
+                    # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
-                while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
-                # while left_in_bracket[bi] == 0:
-                    
-                    bi = sp.sample_single(b_prob)
-                    a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
-
-                ai = sp.sample_from_range(ages_in_school_distr,age_brackets[bi][0], age_brackets[bi][-1])
-                uid = uids_in_school_by_age[ai][0] # grab the next student in line
+                ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
+                uid = uids_in_school_by_age[ai][0]  # grab the next student in line
 
                 new_school.append(ai)
                 new_school_uids.append(uid)
 
                 uids_in_school_by_age[ai].remove(uid)
-                uids_in_school.pop(uid,None)
+                uids_in_school.pop(uid, None)
 
                 ages_in_school_count[ai] -= 1
-                ages_in_school_distr = sp.norm_dic(ages_in_school_count)
+                ages_in_school_distr = norm_dic(ages_in_school_count)
                 left_in_bracket[bi] -= 1
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
         new_school = np.array(new_school)
-        kids = new_school <=19
-        new_school_age_counter = Counter(new_school)
+        kids = new_school <= 19
+        # new_school_age_counter = Counter(new_school)
         if verbose:
-            print('new school ages',len(new_school),sorted(new_school),'nkids',kids.sum(),'n20+',len(new_school)-kids.sum(),'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()) )
+            print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
 
-    print('people in school', np.sum([ len(school) for school in syn_schools ]),'left to send',len(uids_in_school))
-    return syn_schools,syn_school_uids
+    print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+    return syn_schools, syn_school_uids
 
 
-def get_uids_potential_workers(uids_in_school,uids_in_school_by_age,age_by_uid_dic):
+def get_uids_potential_workers(uids_in_school, uids_in_school_by_age, age_by_uid_dic):
+    """
+    Get ids for everyone who could be a worker by removing those who are students and those who can't be employed officially.
+    
+    Args:
+        uids_in_school (dict): dictionary of students in schools mapping their id to their age
+        uids_in_school_by_age (dict): dictionary of students in schools mapping age to the list of ids with that age
+        age_by_uid_dic (dict): dictionary mapping id to age for individuals in the population
+
+    Returns:
+        Dictionary of potential workers mapping their id to their age, dictionary mapping age to the list of ids for potential
+        workers with that age, dictionary mapping age to the count of potential workers left to assign to a workplace for that age
+    """
     potential_worker_uids = deepcopy(age_by_uid_dic)
     potential_worker_uids_by_age = {}
-    potential_worker_ages_left_count = dict.fromkeys(np.arange(101),0)
+    potential_worker_ages_left_count = {}
+    # potential_worker_ages_left_count = dict.fromkeys(np.arange(101), 0)
 
     for a in range(101):
-        if a >= 15: # US Census employment records start at 16
+        if a >= 15:  # US Census employment records start at 16, perhaps should be made into a more generic method
             potential_worker_uids_by_age[a] = []
+            potential_worker_ages_left_count[a] = 0
 
     for uid in uids_in_school:
-        potential_worker_uids.pop(uid,None)
+        potential_worker_uids.pop(uid, None)
+
+    for uid in age_by_uid_dic:
+        if age_by_uid_dic[uid] < 16:
+            potential_worker_uids.pop(uid, None)
 
     for uid in potential_worker_uids:
         ai = potential_worker_uids[uid]
@@ -595,85 +618,133 @@ def get_uids_potential_workers(uids_in_school,uids_in_school_by_age,age_by_uid_d
     for ai in potential_worker_uids_by_age:
         np.random.shuffle(potential_worker_uids_by_age[ai])
 
-    return potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count
+    return potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count
 
 
-def get_employment_rates(datadir,location,state_location,country_location):
+def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_brackets, workers_by_age_to_assign_count):
+    """
+    Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'employment',location + '_employment_pct_by_age.csv')
-    df = pd.read_csv(file_path)
-    dic = dict(zip(df.Age,df.Percent))
-    # for a in range(75,81):
-        # dic[a] = dic[a]/2.
-    # Census records give the last group as 75+ but very unlikely over 80 are working so reduce this likelihood
-    # for a in range(81,101):
-        # dic[a] = dic[a]/10.
-    return dic
+    Args:
+        workplace_size_distr_by_bracket (dict) : distribution of binned workplace sizes
+        worplace_size_brackets (dict)          : dictionary of workplace size brackets
+        workers_by_age_to_assign_count (dict)  : dictionary mapping age to the count of employed individuals of that age
+
+    Returns:
+        A list of workplace sizes.
+    """
+    nworkers = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
+
+    # normalize workplace_size_distr_by_bracket because it's likely a count rather than distribution
+    workplace_size_distr_by_bracket = norm_dic(workplace_size_distr_by_bracket)
+
+    sorted_brackets = sorted(workplace_size_brackets.keys())
+    prob_by_sorted_brackets = [workplace_size_distr_by_bracket[b] for b in sorted_brackets]
+
+    workplace_sizes = []
+
+    while nworkers > 0:
+        size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
+        size = np.random.choice(workplace_size_brackets[size_bracket])
+        nworkers -= size
+        workplace_sizes.append(size)
+    if nworkers < 0:
+        workplace_sizes[-1] = workplace_sizes[-1] + nworkers
+    np.random.shuffle(workplace_sizes)
+    return workplace_sizes
 
 
-def get_workplace_size_brackets(datadir,country_location):
+def generate_usa_workplace_sizes(workplace_sizes_by_bracket, workplace_size_brackets, workers_by_age_to_assign_count):
+    """
+    Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.
+    Specific to data from the US.
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'work_size_brackets.dat')
-    return sp.get_age_brackets_from_df(file_path)
+    Args:
+        workplace_sizes_by_bracket (dict)     : distribution of binned workplace sizes
+        worplace_size_brackets (dict)         : dictionary of workplace size brackets
+        workers_by_age_to_assign_count (dict) : dictionary mapping age to the count of employed individuals of that age
 
-
-def get_workplace_sizes(datadir,country_location):
-
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,'work_size_count.dat')
-    df = pd.read_csv(file_path)
-    return dict(zip(df.work_size_bracket,df.size_count))
-
-
-def generate_workplace_sizes(workplace_sizes_by_bracket,workplace_size_brackets,workers_by_age_to_assign_count):
-
-    nw = np.sum([ workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count ])
+    Returns:
+        A list of workplace sizes.
+    """
+    nw = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
 
     size_distr = {}
     for b in workplace_size_brackets:
         size = int(np.mean(workplace_size_brackets[b]) + 0.5)
         size_distr[size] = workplace_sizes_by_bracket[b]
 
-    size_distr = sp.norm_dic(size_distr)
+    size_distr = norm_dic(size_distr)
     workplace_sizes = []
 
     s_range = sorted(size_distr.keys())
     p = [size_distr[s] for s in s_range]
 
     while nw > 0:
-        s = np.random.choice(s_range, p = p)
+        s = np.random.choice(s_range, p=p)
         nw -= s
         workplace_sizes.append(s)
 
     if nw < 0:
-        # print('work',nw, workplace_sizes[-1])
         workplace_sizes[-1] = workplace_sizes[-1] + nw
-        # print(workplace_sizes[-1])
-    # print('work sizes total',nw,np.sum(workplace_sizes))
+
     np.random.shuffle(workplace_sizes)
     return workplace_sizes
 
 
-def get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_count,uids_by_age_dic):
+def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic):
+    """
+    Get the number of people to assign to a workplace by age using those left who can potentially go to work and employment rates by age.
 
-    workers_by_age_to_assign_count = dict.fromkeys(np.arange(101),0)
+    Args:
+        employment_rates (dict)                 : dictionary of employment rates by age
+        potential_worker_ages_left_count (dict) : dictionary of the count of workers to assign by age
+        uids_by_age_dic (dict)                  : dictionary mapping age to the list of ids with that age
+
+    Returns:
+        Dictionary with a count of workers to assign to a workplace.
+    """
+
+    workers_by_age_to_assign_count = dict.fromkeys(np.arange(101), 0)
     for a in potential_worker_ages_left_count:
         if a in employment_rates:
             try:
                 c = int(employment_rates[a] * len(uids_by_age_dic[a]))
             except:
                 c = 0
-            workers_by_age_to_assign_count[a] = c
-            print(a,c)
+            number_of_people_who_can_be_assigned = min(c, potential_worker_ages_left_count[a])
+            # workers_by_age_to_assign_count[a] = c
+            # print('workers to assign',a,number_of_people_who_can_be_assigned)
+            workers_by_age_to_assign_count[a] = number_of_people_who_can_be_assigned
 
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,student_teacher_ratio=30,verbose=False):
-    # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
-    teacher_age_min = 26 # US teachers need at least undergrad to teach and typically some additional time to gain certification from a teaching program - it should take a few years after college
-    teacher_age_max = 75 # use max age from employment records.
+def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=30, teacher_age_min=25, teacher_age_max=75, verbose=False):
+    """
+    Assign teachers to each school according to the average student-teacher ratio.
 
-    all_teachers = dict.fromkeys(np.arange(101),0)
+    Args:
+        syn_schools (list): list of lists where each sublist is a school with the ages of the students within
+        syn_school_uids (list): list of lists where each sublist is a school with the ids of the students within
+        employment_rates (dict): employment rates by age
+        workers_by_age_to_assign_count (dict): dictionary of the count of workers left to assign by age
+        potential_worker_uids (dict): dictionary of potential workers mapping their id to their age
+        potential_worker_uids_by_age (dict): dictionary mapping age to the list of worker ids with that age
+        potential_worker_ages_left_count (dict): dictionary of the count of potential workers left that can be assigned by age
+        student_teacher_ratio (int): average student teacher ratio
+        teacher_age_min (int): minimum age for teachers - should be location specific
+        teacher_age_max (int): maximum age for teachers - should be location specific
+        verbose (bool): If True, print statements about the generated schools as teachers are being added to each school.
+
+    Returns:
+        List of lists of schools with the ages of individuals in each, lists of lists of schools with the ids of individuals in each,
+        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
+        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+    """
+    # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
+
+    all_teachers = dict.fromkeys(np.arange(101), 0)
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
@@ -681,15 +752,15 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
 
         size = len(school)
         nteachers = int(size/float(student_teacher_ratio))
-        nteachers = max(1,nteachers)
+        nteachers = max(1, nteachers)
         if verbose:
-            print('nteachers',nteachers,'student-teacher ratio',size/nteachers)
+            print('nteachers', nteachers, 'student-teacher ratio', size/nteachers)
         teachers = []
         teacher_uids = []
 
         for nt in range(nteachers):
 
-            a = sp.sample_from_range(workers_by_age_to_assign_count,teacher_age_min,teacher_age_max)
+            a = spsamp.sample_from_range(workers_by_age_to_assign_count, teacher_age_min, teacher_age_max)
             uid = potential_worker_uids_by_age[a][0]
             teachers.append(a)
             all_teachers[a] += 1
@@ -697,186 +768,240 @@ def assign_teachers_to_work(syn_schools,syn_school_uids,employment_rates,workers
             potential_worker_uids_by_age[a].remove(uid)
             workers_by_age_to_assign_count[a] -= 1
             potential_worker_ages_left_count[a] -= 1
-            potential_worker_uids.pop(uid,None)
+            potential_worker_uids.pop(uid, None)
 
             school.append(a)
             school_uids.append(uid)
+            teacher_uids.append(uid)
 
         syn_schools[n] = school
         syn_school_uids[n] = school_uids
         if verbose:
-            print('school with teachers',sorted(school))
-            print('nkids', (np.array(school)<=19).sum(),'n20+', (np.array(school) > 19).sum() )
-            print('kid-adult ratio' ,(np.array(school)<=19).sum()/ (np.array(school) > 19).sum() )
+            print('school with teachers', sorted(school))
+            print('nkids', (np.array(school) <= 19).sum(), 'n20+', (np.array(school) > 19).sum())
+            print('kid-adult ratio', (np.array(school) <= 19).sum() / (np.array(school) > 19).sum())
 
-    return syn_schools,syn_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count
+    return syn_schools, syn_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count,age_brackets,age_by_brackets_dic,contact_matrix_dic):
+def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
+    """
+    Assign the rest of the workers to non-school workplaces.
 
+    Args:
+        workplace_sizes (list)                : list of workplace sizes
+        potential_worker_uids (dict)          : dictionary of potential workers mapping their id to their age
+        potential_worker_uids_by_age (dict)   : dictionary mapping age to the list of worker ids with that age
+        workers_by_age_to_assign_count (dict) : dictionary of the count of workers left to assign by age
+        age_by_uid_dic (dict)                 : dictionary mapping id to age for all individuals in the population
+        age_brackets (dict)                   : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)            : dictionary mapping age to the age bracket range it falls in
+        contact_matrix_dic (dict)             : dictionary of age specific contact matrix for different physical contact settings
+        verbose (bool)                        : If True, print statements about the generated schools as teachers are being added to each school.
+
+    Returns:
+        List of lists where each sublist is a workplace with the ages of workers, list of lists where each sublist is a workplace with the ids of workers,
+        dictionary of potential workers left mapping id to age, dictionary mapping age to a list of potential workers left of that age, dictionary
+        mapping age to the count of workers left to assign.
+    """
     syn_workplaces = []
     syn_workplace_uids = []
-    age_range = np.arange(101)
+    worker_age_keys = workers_by_age_to_assign_count.keys()
+    sorted_worker_age_keys = sorted(worker_age_keys)
 
-    for n,size in enumerate(workplace_sizes):
+    # off turn likelihood to meet those unemployed in the workplace because the matrices are not an exact match for the population under study
+    for b in age_brackets:
+        workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[b]]
+        number_of_workers_left_in_bracket = np.sum(workers_left_in_bracket)
+        if number_of_workers_left_in_bracket == 0:
+            contact_matrix_dic['W'][:, b] = 0
 
-        workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
-
+    for n, size in enumerate(workplace_sizes):
+        workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
         if np.sum([workers_by_age_to_assign_distr[a] for a in workers_by_age_to_assign_distr]) == 0:
             break
+        if np.sum([len(potential_worker_uids_by_age[a]) for a in potential_worker_uids_by_age]) == 0:
+            break
+        new_work, new_work_uids = [], []
 
-        new_work = []
-        new_work_uids = []
+        a_prob = [workers_by_age_to_assign_count[a] for a in sorted_worker_age_keys]
+        a_prob = np.array(a_prob)
+        a_prob = a_prob/np.sum(a_prob)
 
-        achoice = np.random.multinomial(1, [workers_by_age_to_assign_distr[a] for a in age_range])
-        aindex = np.where(achoice)[0][0]
-
-        while len(potential_worker_uids_by_age[aindex]) == 0:
-            achoice = np.random.multinomial(1, [workers_by_age_to_assign_distr[a] for a in age_range])
-            aindex = np.where(achoice)[0][0]
-            # print(workers_by_age_to_assign_distr, aindex)
-
+        achoice = np.random.choice(a=sorted_worker_age_keys, p=a_prob)
+        aindex = achoice
 
         uid = potential_worker_uids_by_age[aindex][0]
         potential_worker_uids_by_age[aindex].remove(uid)
+        potential_worker_uids.pop(uid, None)
         workers_by_age_to_assign_count[aindex] -= 1
-
-        potential_worker_uids.pop(uid,None)
-
-        workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
-
+        workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
         new_work.append(aindex)
         new_work_uids.append(uid)
 
         bindex = age_by_brackets_dic[aindex]
-        b_prob = contact_matrix_dic['W'][bindex,:]
+        b_prob = contact_matrix_dic['W'][bindex, :]
+        if np.sum(b_prob) > 0:
+            b_prob = b_prob/np.sum(b_prob)
 
-        for i in range(1,size):
-            bi = sp.sample_single(b_prob)
-            
-            a_in_work_prob = np.sum([workers_by_age_to_assign_distr[a] for a in age_brackets[bi]])
-            # while bi <= 3 and bi >= 12: # census records say no one under 16 works so skip this bracket, matrix has low contact rates for ages above 65
-            while bi <= 3:
-                bi = sp.sample_single(b_prob)
+        if size > len(potential_worker_uids)-1:
+            size = len(potential_worker_uids)-1
+        workers_left_count = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
+        if size > workers_left_count:
+            size = workers_left_count+1
 
-            while a_in_work_prob == 0:
-                bi = sp.sample_single(b_prob)
-                a_in_work_prob = np.sum([workers_by_age_to_assign_distr[a] for a in age_brackets[bi]])
-            # if bi == 12:
-                # print(bi,age_brackets[bi])
-            ai = sp.sample_from_range(workers_by_age_to_assign_distr,age_brackets[bi][0],age_brackets[bi][-1])
-    
-            # while len(potential_worker_uids_by_age[ai]) == 0:
-                # ai = sp.sample_from_range(workers_by_age_to_assign_distr,age_brackets[bi][0],age_brackets[bi][-1])
-            # if len(potential_worker_uids_by_age[ai]) > 0:
-            if workers_by_age_to_assign_count[ai] > 0 and len(potential_worker_uids_by_age[ai]) > 0:
+        # not enough people left over to try to match age mixing patterns in the last workplace so grab everyone who will get placed in order
+        if len(potential_worker_uids) <= size or workers_left_count <= size:
+            for ai in workers_by_age_to_assign_count:
+                for i in range(workers_by_age_to_assign_count[ai]):  # do not change this during the loop but afterwards, and if 0 then no one will be placed
+                    uid = potential_worker_uids_by_age[ai][0]
+                    new_work.append(ai)
+                    new_work_uids.append(uid)
+                    potential_worker_uids_by_age[ai].remove(uid)
+                    potential_worker_uids.pop(uid, None)
+                workers_by_age_to_assign_count[ai] = 0  # set to zero now that everyone will be placed in this last workplace
+            workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
+        else:
+            for i in range(1, size):
+
+                bichoice = np.random.multinomial(1, b_prob)
+                bi = np.where(bichoice)[0][0]
+
+                workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
+                while np.sum(workers_left_in_bracket) == 0:
+                    bichoice = np.random.multinomial(1, b_prob)
+                    bi = np.where(bichoice)[0][0]
+                    workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
+                a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
+                a_prob = np.array(a_prob)
+                a_prob = a_prob/np.sum(a_prob)
+
+                ai = np.random.choice(a=age_brackets[bi], p=a_prob)
 
                 uid = potential_worker_uids_by_age[ai][0]
-
                 new_work.append(ai)
                 new_work_uids.append(uid)
-
                 potential_worker_uids_by_age[ai].remove(uid)
-                potential_worker_uids.pop(uid,None)
+                potential_worker_uids.pop(uid, None)
                 workers_by_age_to_assign_count[ai] -= 1
-                workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
+                workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
 
-            else:
-                # workers_left_in_bracket = [a for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                workers_left_in_bracket = [a for a in age_brackets[bi] if workers_by_age_to_assign_count[a] > 0 and len(potential_worker_uids_by_age[a]) > 0]
-                if len(workers_left_in_bracket) > 0:
-                    anew = np.random.choice(workers_left_in_bracket)
+                # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
+                workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
+                if np.sum(workers_left_in_bracket) == 0:
+                    contact_matrix_dic['W'][:, bi] = 0.
+                    # since the matrix was modified, calculate the bracket probabilities again
+                    b_prob = contact_matrix_dic['W'][bindex, :]
+                    if np.sum(b_prob) > 0:
+                        b_prob = b_prob/np.sum(b_prob)
 
-                    uid = potential_worker_uids_by_age[anew][0]
-
-                    new_work.append(anew)
-                    new_work_uids.append(uid)
-
-                    potential_worker_uids_by_age[anew].remove(uid)
-                    potential_worker_uids.pop(uid,None)
-                    workers_by_age_to_assign_count[anew] -= 1
-                    workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
-
-                else:
-                    workers_left_all = [a for a in workers_by_age_to_assign_count if workers_by_age_to_assign_count[a] > 0 and len(potential_worker_uids_by_age[a]) > 0]
-                    if len(workers_left_all) > 0:
-                        anew = np.random.choice(workers_left_all)
-
-                        uid = potential_worker_uids_by_age[anew][0]
-
-                        new_work.append(anew)
-                        new_work_uids.append(uid)
-
-                        potential_worker_uids_by_age[anew].remove(uid)
-                        potential_worker_uids.pop(uid,None)
-                        workers_by_age_to_assign_count[anew] -= 1
-                        workers_by_age_to_assign_distr = sp.norm_dic(workers_by_age_to_assign_count)
+        if verbose:
+            print(n, Counter(new_work))
 
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
-
-    # for a in workers_by_age_to_assign_count:
-        # print(a, workers_by_age_to_assign_count[a])
-
-    return syn_workplaces,syn_workplace_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count
+    return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def write_schools_by_age_and_uid(datadir,location,state_location,country_location,n,schools_by_uids,age_by_uid_dic):
-    
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    os.makedirs(file_path,exist_ok=True)
-    schools_by_age_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_ages.dat')
-    schools_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+def write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, schools_by_uids, age_by_uid_dic):
+    """
+    Write the schools to file with both id and their ages.
 
-    fh_age = open(schools_by_age_path,'w')
-    fh_uid = open(schools_by_uid_path,'w')
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        schools_by_uids (list)    : list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
 
-    for n,ids in enumerate(schools_by_uids):
+    Returns:
+        None
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    os.makedirs(file_path, exist_ok=True)
+    schools_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_ages.dat')
+    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+
+    fh_age = open(schools_by_age_path, 'w')
+    fh_uid = open(schools_by_uid_path, 'w')
+
+    for n, ids in enumerate(schools_by_uids):
 
         school = schools_by_uids[n]
-        for uid in schools_by_uids[n]:
+        for uid in school:
 
-            fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
-            fh_uid.write( uid + ' ')
+            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
+            fh_uid.write(uid + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
     fh_uid.close()
 
 
-def write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,n,workplaces_by_uids,age_by_uid_dic):
+def write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, workplaces_by_uids, age_by_uid_dic):
+    """
+    Write the workplaces to file with both id and their ages.
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    os.makedirs(file_path,exist_ok=True)
-    workplaces_by_age_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_ages.dat')
-    workplaces_by_uid_path = os.path.join(file_path,location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        workplaces_by_uids (list) : list of lists, where each sublist represents a workplace and the ids of the workers within it
+        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
 
-    fh_age = open(workplaces_by_age_path,'w')
-    fh_uid = open(workplaces_by_uid_path,'w')
+    Returns:
+        None
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    os.makedirs(file_path, exist_ok=True)
+    workplaces_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_ages.dat')
+    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
 
-    for n,ids in enumerate(workplaces_by_uids):
+    fh_age = open(workplaces_by_age_path, 'w')
+    fh_uid = open(workplaces_by_uid_path, 'w')
+
+    for n, ids in enumerate(workplaces_by_uids):
 
         work = workplaces_by_uids[n]
 
         for uid in work:
 
-            fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
-            fh_uid.write( uid + ' ')
+            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
+            fh_uid.write(uid + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
     fh_uid.close()
 
+def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, use_default=False):
+    """
+    Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
+    and then writes this population to appropriate files.
 
-def generate_synthetic_population(n,datadir,location='seattle_metro',state_location='Washington',country_location='usa',sheet_name='United States of America',level='county',verbose=False,plot=False):
+    Args:
+        n (int): number of people in the population
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        sheet_name (string)       : name of the sheet in the excel file with contact patterns
+        school_enrollment_counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
+        verbose (bool): If True, print statements as contacts are being generated
+        plot (bool): If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
 
-    age_brackets = sp.get_census_age_brackets(datadir,state_location,country_location)
-    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+    Returns:
+        None
+    """
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
+    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
 
     num_agebrackets = len(age_brackets)
-    contact_matrix_dic = sp.get_contact_matrix_dic(datadir,sheet_name)
+    contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
 
-    household_size_distr = sp.get_household_size_distr(datadir,location,state_location,country_location)
+    household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location)
 
     if n < 5000:
         raise NotImplementedError("Population is too small to currently be generated properly. Try a size larger than 5000.")
@@ -884,23 +1009,22 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
 
     # this could be unnecessary if we get the single year age distribution in a different way.
     n_to_sample_smoothly = int(1e6)
-    hh_sizes = generate_household_sizes(n_to_sample_smoothly,household_size_distr)
+    hh_sizes = generate_household_sizes(n_to_sample_smoothly, household_size_distr)
     totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
-    syn_ages,syn_sexes = sp.get_usa_age_sex_n(datadir,location,state_location,country_location,totalpop)
+    syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
     syn_age_count = Counter(syn_ages)
-    syn_age_distr = sp.norm_dic(Counter(syn_ages))
+    syn_age_distr = norm_dic(syn_age_count)
 
     # actual household sizes
-    hh_sizes = generate_household_sizes_from_fixed_pop_size(n,household_size_distr)
+    hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
     totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
-    hha_df = sp.get_household_head_age_by_size_df(datadir,state_location,country_location)
-    hha_brackets = sp.get_head_age_brackets(datadir,country_location=country_location)
-    hha_by_size = sp.get_head_age_by_size_distr(datadir,country_location=country_location)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location)
 
-    homes_dic,homes = generate_all_households(n,hh_sizes,hha_by_size,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,deepcopy(syn_age_distr))
+    homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = assign_uids_by_homes(homes)
     new_ages_count = Counter(age_by_uid_dic.values())
 
@@ -908,10 +1032,9 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
     if plot:
 
         cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
-        cmap2 = mplt.cm.get_cmap(cmocean.cm.curl_r)
         cmap3 = mplt.cm.get_cmap(cmocean.cm.matter)
 
-        fig = plt.figure(figsize = (7,5))
+        fig = plt.figure(figsize=(7, 5))
         ax = fig.add_subplot(111)
 
         x = np.arange(101)
@@ -923,27 +1046,28 @@ def generate_synthetic_population(n,datadir,location='seattle_metro',state_locat
             y_exp[a] = expected
             y_sim[a] = new_ages_count[a]
 
-        ax.plot(x,y_exp,color = cmap(0.2), label = 'Expected')
-        ax.plot(x,y_sim,color = cmap3(0.6), label = 'Simulated')
-        leg = ax.legend(fontsize = 18)
+        ax.plot(x, y_exp, color=cmap(0.2), label='Expected')
+        ax.plot(x, y_sim, color=cmap3(0.6), label='Simulated')
+        leg = ax.legend(fontsize=18)
         leg.draw_frame(False)
-        ax.set_xlim(left = 0, right = 100)
-        ax.set_xticks(np.arange(0,101,5))
+        ax.set_xlim(left=0, right=100)
+        ax.set_xticks(np.arange(0, 101, 5))
 
         plt.show()
         # fig.savefig('synthetic_age_comparison_' + str(n) + '.pdf',format = 'pdf')
 
     # save households and uids to file - always need to do this...
-    write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic)
+    write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
 
-    age_by_uid_dic = read_in_age_by_uid(datadir,location,state_location,country_location,n)
-    uids_by_age_dic = sp.get_ids_by_age_dic(age_by_uid_dic)
-
+    # age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
+    uids_by_age_dic = get_ids_by_age_dic(age_by_uid_dic)
 
     # Generate school sizes
-    school_sizes_count = get_school_sizes_by_bracket(datadir,location,state_location,country_location)
+    school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location, state_location, country_location, school_enrollment_counts_available)
+    # school_sizes_count_by_bracket = spdata.get_usa_school_sizes_by_bracket(datadir, location, state_location, country_location)
+    
     # figure out who's going to go to school as a student
-    uids_in_school,uids_in_school_by_age,ages_in_school_count = get_uids_in_school(datadir,n,location,state_location,country_location,age_by_uid_dic) # this will call in school enrollment rates
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
     gen_school_sizes = generate_school_sizes(school_sizes_count,uids_in_school)
     gen_schools,gen_school_uids = send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose)
