@@ -4,7 +4,10 @@ import networkx as nx
 import pandas as pd
 from collections import Counter
 import os
-from . import synthpops as sp
+from .base import *
+from . import data_distributions as spdata
+from . import sampling as spsamp
+from . import contacts as spct
 from .config import datadir
 
 from copy import deepcopy
@@ -16,36 +19,55 @@ import cmocean
 # np.random.seed(0)
 
 
-def generate_household_sizes(Nhomes,hh_size_distr):
+def generate_household_sizes(Nhomes, hh_size_distr):
+    """
+    Given a number of homes and a household size distribution, generate the number of homes of each size.
+
+    Args:
+        Nhomes (int)         : number of homes
+        hh_size_distr (dict) : distribution of household sizes
+
+    Returns:
+        Array with the count of households of size s at index s-1
+    """
     max_size = max(hh_size_distr.keys())
-    hh_sizes = np.random.multinomial(Nhomes,[hh_size_distr[s] for s in range(1,max_size+1)], size = 1)[0]
+    hh_sizes = np.random.multinomial(Nhomes, [hh_size_distr[s] for s in range(1, max_size+1)], size=1)[0]
     return hh_sizes
 
 
-def trim_households(N_extra,hh_size_distr):
+def trim_households(N_extra, hh_size_distr):
+    """
+    Generated a few too many households giving a total  population size larger than expected so this trims that down.
+
+    Args:
+        N_extra (int)        : number of extra people
+        hh_size_distr (dict) : distribution of household sizes
+
+    Returns:
+        Array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
+    """
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
-    f = N_extra / np.round(ss,16)
+    f = N_extra / np.round(ss, 16)
     hh_sizes_trim = np.zeros(len(hh_size_distr))
     for s in hh_size_distr:
         hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
 
     N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
-    s_range = np.arange(1,max(hh_size_distr) + 1)
+    s_range = np.arange(1, max(hh_size_distr) + 1)
     p = [hh_size_distr[s] for s in hh_size_distr]
 
     while (N_gen < N_extra):
-        ns = np.random.choice(s_range,p = p)
+        ns = np.random.choice(s_range, p=p)
         N_gen += ns
 
-        hh_sizes_trim[ns-1] +=1
-
+        hh_sizes_trim[ns-1] += 1
 
     last_house_size = int(N_gen - N_extra)
 
     if last_house_size > 0:
         hh_sizes_trim[last_house_size-1] -= 1
     elif last_house_size < 0:
-        hh_sizes_trim[-last_house_size-1] +=1
+        hh_sizes_trim[-last_house_size-1] += 1
     else:
         pass
     # print('trim',hh_sizes_trim,[hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))], np.sum([hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))]))
@@ -53,14 +75,25 @@ def trim_households(N_extra,hh_size_distr):
     return hh_sizes_trim
 
 
-def generate_household_sizes_from_fixed_pop_size(N,hh_size_distr):
+def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
+    """
+    Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
+
+    Args:
+        N      (int)         : number of people in the population
+        hh_size_distr (dict) : distribution of household sizes
+
+    Returns:
+        Array with the count of households of size s at index s-1.
+    """
+
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
-    f = N / np.round(ss,1)
+    f = N / np.round(ss, 1)
     hh_sizes = np.zeros(len(hh_size_distr))
 
     for s in hh_size_distr:
         hh_sizes[s-1] = int(hh_size_distr[s] * f)
-    N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype= int)
+    N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype=int)
 
     trim_hh = trim_households(N_gen - N, hh_size_distr)
     new_hh_sizes = hh_sizes - trim_hh
@@ -69,10 +102,20 @@ def generate_household_sizes_from_fixed_pop_size(N,hh_size_distr):
     return new_hh_sizes
 
 
-def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
+def generate_school_sizes(school_sizes_by_bracket, uids_in_school):
+    """
+    Given a number of students in school, generate list of school sizes to place everyone in a school.
+
+    Args:
+        school_sizes_by_bracket (dict) : distribution of binned school sizes
+        uids_in_school (dict)          : dictionary of students in school mapping id to age
+
+    Returns:
+        A list of school sizes whose sum is the length of uids_in_school.
+    """
     n = len(uids_in_school)
 
-    size_distr = sp.norm_dic(school_sizes_by_bracket)
+    size_distr = norm_dic(school_sizes_by_bracket)
     ss = np.sum([size_distr[s] * s for s in size_distr])
 
     f = n/ss
@@ -88,89 +131,164 @@ def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
 
 
 def get_totalpopsize_from_household_sizes(hh_sizes):
+    """
+    Sum household sizes from count array
+
+    Args:
+        hh_sizes (array): count of household size s at index s-1
+
+    Returns:
+        Sum (int) of the household sizes.
+    """
     return np.sum([hh_sizes[s] * (s+1) for s in range(len(hh_sizes))])
 
 
-def generate_household_head_age_by_size(hha_by_size_counts,hha_brackets,hh_size,single_year_age_distr):
+def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_size, single_year_age_distr):
+    """
+    Generate age of the head of the household, also known as the reference person of the household,
+    conditional on the size of the household.
 
-    distr = hha_by_size_counts[hh_size-1,:]
-    b = sp.sample_single(distr)
-    hha = sp.sample_from_range(single_year_age_distr,hha_brackets[b][0],hha_brackets[b][-1])
+    Args:
+        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
+        hha_brackets (dict)          : age brackets for the head of households
+        hh_size (int)                : household size
+        single_year_age_distr (dict) : age distribution
+
+    Returns:
+        Age of the head of the household or reference person
+    """
+    distr = hha_by_size_counts[hh_size-1, :]
+    b = spsamp.sample_single(distr)
+    hha = spsamp.sample_from_range(single_year_age_distr, hha_brackets[b][0], hha_brackets[b][-1])
 
     return hha
 
 
-def generate_living_alone(hh_sizes,hha_by_size_counts,hha_brackets,single_year_age_distr):
+def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr):
+    """
+    Generate ages of those living alone.
+
+    Args:
+        hh_sizes (array)             : count of household size s at index s-1
+        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
+        hha_brackets (dict)          : age brackets for the head of households
+        single_year_age_distr (dict) : age distribution
+
+    Returns:
+        Array of households of size 1 where each household is a row and the value in the row is the age of the household member.
+    """
+
     size = 1
-    print(hh_sizes)
-    homes = np.zeros((hh_sizes[size-1],1))
+    homes = np.zeros((hh_sizes[size-1], 1))
 
     for h in range(hh_sizes[size-1]):
-        hha = generate_household_head_age_by_size(hha_by_size_counts,hha_brackets,size,single_year_age_distr)
+        hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
         homes[h][0] = hha
 
     return homes
 
 
-def generate_larger_households(size,hh_sizes,hha_by_size_counts,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,single_year_age_distr):
+def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+    """
+    Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size,
+    while all other household members have their ages sampled conditional on the age of the reference person's age and the age mixing contact matrix
+    in households for the population under study.
 
-    ya_coin = 0.15 # produce far too few young adults without this
+    Args:
+        size (int)                   : household size
+        hh_sizes (array)             : count of household size s at index s-1
+        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
+        hha_brackets (dict)          : age brackets for the head of households
+        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
+        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
+        single_year_age_distr (dict) : age distribution
 
-    homes = np.zeros((hh_sizes[size-1],size))
+    Returns:
+        Array of households for size 'size' where each household is a row and the values in the row are the ages of the household members.
+        The first age in the row is the age of the reference individual.
+    """
+    ya_coin = 0.15  # produces far too few young adults without this for Seattle, Washington. This is a placeholder value. Users will need to change to fit whatever population they are working with.
+
+    homes = np.zeros((hh_sizes[size-1], size))
 
     for h in range(hh_sizes[size-1]):
 
-        hha = generate_household_head_age_by_size(hha_by_size_counts,hha_brackets,size,single_year_age_distr)
-    
+        hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
+
         homes[h][0] = hha
 
         b = age_by_brackets_dic[hha]
-        b_prob = contact_matrix_dic['H'][b,:]
+        b_prob = contact_matrix_dic['H'][b, :]
 
-        for n in range(1,size):
-            bi = sp.sample_single(b_prob)
-            ai = sp.sample_from_range(single_year_age_distr,age_brackets[bi][0],age_brackets[bi][-1])
+        for n in range(1, size):
+            bi = spsamp.sample_single(b_prob)
+            ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
 
-            if ai > 5 and ai <= 20:
-                if np.random.binomial(1,ya_coin):
-                    ai = sp.sample_from_range(single_year_age_distr,25,30)
+            if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population they are working with.
+                if np.random.binomial(1, ya_coin):
+                    ai = spsamp.sample_from_range(single_year_age_distr, 25, 30)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
-            # if size > 2:
-            ai = sp.resample_age(single_year_age_distr,ai)
+            ai = spsamp.resample_age(single_year_age_distr, ai)
 
             homes[h][n] = ai
 
     return homes
 
 
-def generate_all_households(N,hh_sizes,hha_by_size_counts,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,single_year_age_distr):
+def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+    """
+    Generate ages of those living in households together. First create households of people living alone, then larger households.
+    For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
+    members have their ages sampled conditional on the age of the reference person's age and the age mixing contact matrix in households
+    for the population under study.
 
+    Args:
+        N (int)                      : number of people in the population
+        hh_sizes (array)             : count of household size s at index s-1
+        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
+        hha_brackets (dict)          : age brackets for the head of households
+        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
+        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
+        single_year_age_distr (dict) : age distribution
+
+    Returns:
+        Array of all households where each household is a row and the values in the row are the ages of the household members.
+        The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
+    """
     homes_dic = {}
-    homes_dic[1] = generate_living_alone(hh_sizes,hha_by_size_counts,hha_brackets,single_year_age_distr)
+    homes_dic[1] = generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
 
-    for s in range(2,8):
-        homes_dic[s] = generate_larger_households(s,hh_sizes,hha_by_size_counts,hha_brackets,age_brackets,age_by_brackets_dic,contact_matrix_dic,single_year_age_distr)
+    for s in range(2, 8):
+        homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
     for s in homes_dic:
         homes += list(homes_dic[s])
 
-    nhomes = len(homes)
     np.random.shuffle(homes)
-    return homes_dic,homes
+    return homes_dic, homes
 
 
-def assign_uids_by_homes(homes,id_len=16):
+def assign_uids_by_homes(homes, id_len=16):
+    """
+    Assign ids to everyone in order by their households.
 
-    setting_codes = ['H','S','W','R']
+    Args:
+        homes (array): generated synthetic household ages
+        id_len (int) : length of the uid
 
+    Returns:
+        A copy of the generated households with ids in place of ages, and a dictionary mapping id to age.
+    """
     age_by_uid_dic = {}
     homes_by_uids = []
 
-    for h,home in enumerate(homes):
+    for h, home in enumerate(homes):
 
         home_ids = []
         for a in home:
@@ -180,11 +298,13 @@ def assign_uids_by_homes(homes,id_len=16):
 
         homes_by_uids.append(home_ids)
 
-    return homes_by_uids,age_by_uid_dic
+    return homes_by_uids, age_by_uid_dic
 
 
-def write_homes_by_age_and_uid(datadir,location,state_location,country_location,homes_by_uids,age_by_uid_dic):
+def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
+    """
     
+    """
     file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
     os.makedirs(file_path,exist_ok=True)
 
