@@ -102,34 +102,6 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     return new_hh_sizes
 
 
-def generate_school_sizes(school_sizes_by_bracket, uids_in_school):
-    """
-    Given a number of students in school, generate list of school sizes to place everyone in a school.
-
-    Args:
-        school_sizes_by_bracket (dict) : distribution of binned school sizes
-        uids_in_school (dict)          : dictionary of students in school mapping id to age
-
-    Returns:
-        A list of school sizes whose sum is the length of uids_in_school.
-    """
-    n = len(uids_in_school)
-
-    size_distr = norm_dic(school_sizes_by_bracket)
-    ss = np.sum([size_distr[s] * s for s in size_distr])
-
-    f = n/ss
-    sc = {}
-    for s in size_distr:
-        sc[s] = int(f * size_distr[s])
-
-    school_sizes = []
-    for s in sc:
-        school_sizes += [int(s)] * sc[s]
-    np.random.shuffle(school_sizes)
-    return school_sizes
-
-
 def get_totalpopsize_from_household_sizes(hh_sizes):
     """
     Sum household sizes from count array
@@ -303,28 +275,39 @@ def assign_uids_by_homes(homes, id_len=16):
 
 def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
     """
-    
+    Write the households to file with both id and their ages, while also writing the dictionary of id mapping to age for each individual in the population.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        homes_by_uids (list)      : list of lists, where each sublist represents a household and the ids of the household members
+        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
+
+    Returns:
+        None
     """
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    os.makedirs(file_path,exist_ok=True)
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    os.makedirs(file_path, exist_ok=True)
 
-    households_by_age_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
-    households_by_uid_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
+    households_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
+    households_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
+    age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
 
-    fh_age = open(households_by_age_path,'w')
-    fh_uid = open(households_by_uid_path,'w')
-    f_age_uid = open(age_by_uid_path,'w')
+    fh_age = open(households_by_age_path, 'w')
+    fh_uid = open(households_by_uid_path, 'w')
+    f_age_uid = open(age_by_uid_path, 'w')
 
-    for n,ids in enumerate(homes_by_uids):
+    for n, ids in enumerate(homes_by_uids):
 
         home = homes_by_uids[n]
 
         for uid in home:
 
-            fh_age.write( str(age_by_uid_dic[uid]) + ' ' )
-            fh_uid.write( uid + ' ')
-            f_age_uid.write( uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
+            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
+            fh_uid.write(uid + ' ')
+            f_age_uid.write(uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -332,131 +315,42 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
     f_age_uid.close()
 
 
-def read_in_age_by_uid(datadir,location,state_location,country_location,N):
+def read_in_age_by_uid(datadir, location, state_location, country_location, N):
+    """
+    Read dictionary of id mapping to ages for all individuals from file.
 
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    age_by_uid_path = os.path.join(file_path,location + '_' + str(N) + '_age_by_uid.dat')
-    df = pd.read_csv(age_by_uid_path,header = None, delimiter = ' ')
-    return dict( zip(df.iloc[:,0].values, df.iloc[:,1].values) )
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        N (int)                   : number of people in the population
+    Returns:
+        A dictionary mapping id to age for all individuals in the population.
 
-
-def get_school_enrollment_rates_df(datadir,location,state_location,country_location,level):
-    print(location)
-    print(state_location)
-    print(country_location)
-    print(level)
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools',level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
-    df = pd.read_csv(file_path)
-    if location == 'seattle_metro':
-        d = df[df['NAME'].isin(['King County, Washington','Geographic Area Name'])]
-    else:
-        d = df[df['NAME'] == location]
-    return d
-
-
-def get_school_enrollment_rates(datadir,location,state_location,country_location,level):
-    df = get_school_enrollment_rates_df(datadir,location,state_location,country_location,level)
-    skip_labels = ['Error','public','private','(X)']
-    include_labels = ['Percent']
-
-    labels = df.iloc[0,:]
-
-    age_brackets = {}
-    rates = {}
-    rates_by_age = dict.fromkeys(np.arange(101),0)
-
-    for n,label in enumerate(labels):
-
-        # if any(l in label for l in skip_labels):
-            # continue
-
-        # if any(l in label for l in include_labels):
-        if 'Percent' in label and 'enrolled in school' in label and 'Error' not in label and 'public' not in label and 'private' not in label and 'X' not in label and 'year olds' in label:
-
-            age_bracket = label.replace(' year olds enrolled in school','')
-            age_bracket = age_bracket.split('!!')
-            age_bracket = age_bracket[-1]
-            if 'to' in age_bracket:
-                age_bracket = age_bracket.split(' to ')
-            elif ' and ' in age_bracket:
-                age_bracket = age_bracket = age_bracket.split(' and ')
-            sa = int(age_bracket[0])
-            ea = int(age_bracket[1])
-
-            rates[len(age_brackets)] = float(df.iloc[1,n])/100.
-            age_brackets[len(age_brackets)] = np.arange(sa,ea+1)
-            for a in np.arange(sa,ea+1):
-                rates_by_age[a] = float(df.iloc[1,n])/100.
-
-        if label == 'Estimate!!Percent!!Population enrolled in college or graduate school!!Population 35 years and over!!35 years and over enrolled in school':
-
-            sa,ea = 35,50 # 50 is a guess because the label is 35 and over
-            rates[len(age_brackets)] = float(df.iloc[1,n])/100.
-            age_brackets[len(age_brackets)] = np.arange(sa,ea+1)
-            for a in np.arange(sa,ea+1):
-                rates_by_age[a] = float(df.iloc[1,n])/100.
-
-    return rates_by_age
-
-
-def get_school_sizes_df(datadir,location,state_location,country_location):
-
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools','Total_Enrollment_fiftypercentschools2017.dat')
-    df = pd.read_csv(file_path)
-    return df
-
-
-def get_school_size_brackets(datadir,location,state_location,country_location):
-
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,location,'schools','school_size_brackets.dat')
-    return sp.get_age_brackets_from_df(file_path)
-
-
-def get_school_sizes_by_bracket(datadir,location,state_location,country_location):
-    df = get_school_sizes_df(datadir,location,state_location,country_location)
-    sizes = df.iloc[:,0].values
-    size_count = Counter(sizes)
-
-    size_brackets = get_school_size_brackets(datadir,location,state_location,country_location)
-    size_by_bracket_dic = sp.get_age_by_brackets_dic(size_brackets) # not actually ages just a useful function for mapping ints back to their bracket or grouping key
-
-    bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
-
-    for s in size_count:
-        bracket_count[ size_by_bracket_dic[s] ] += size_count[s]
-
-    count_by_mean = {}
-
-    for b in bracket_count:
-        size = int(np.mean(size_brackets[b]))
-        count_by_mean[size] = bracket_count[b]
-
-    return count_by_mean
-
-
-def generate_school_sizes(school_sizes_by_bracket,uids_in_school):
-    n = len(uids_in_school)
-
-    size_distr = sp.norm_dic(school_sizes_by_bracket)
-    school_sizes = []
-
-    s_range = sorted(size_distr.keys())
-    p = [size_distr[s] for s in s_range]
-    
-    while n > 0:
-        s = np.random.choice(s_range, p = p)
-        n -= s
-        school_sizes.append(s)
-    if n < 0:
-        print(n, school_sizes[-1])
-        school_sizes[-1] = school_sizes[-1] + n
-
-    print('schools',school_sizes[-1])
-    np.random.shuffle(school_sizes)
-    return school_sizes
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    age_by_uid_path = os.path.join(file_path, location + '_' + str(N) + '_age_by_uid.dat')
+    df = pd.read_csv(age_by_uid_path, header=None, delimiter=' ')
+    return dict(zip(df.iloc[:, 0].values, df.iloc[:, 1].values))
 
 
 def read_setting_groups(datadir, location, state_location, country_location, n, setting, with_ages=False):
+    """
+    Read in groups of people interacting in different social settings from file.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        n (int)                   : number of people in the population
+        setting (string): name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        with_ages (bool): If True, read in the ages of each individual in the group, else read in their ids
+
+    Returns:
+        A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.
+    """
     if with_ages:
         file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks', location + '_' + str(n) + '_synthetic_' + setting + '_with_ages.dat')
     else:
@@ -471,40 +365,57 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     return groups
 
 
-# def get_uids_in_school(datadir,location,state_location,country_location,level,N,age_by_uid_dic=None):
+def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
+    """
+    Given a number of students in school, generate list of school sizes to place everyone in a school.
 
-#     uids_in_school = {}
-#     uids_in_school_by_age = {}
-#     ages_in_school_count = dict.fromkeys(np.arange(101),0)
+    Args:
+        school_size_distr_by_bracket (dict) : distribution of binned school sizes
+        school_size_brackets (dict)         : dictionary of school size brackets
+        uids_in_school (dict)               : dictionary of students in school mapping id to age
 
-#     rates = get_school_enrollment_rates(datadir,location,state_location,country_location,level)
+    Returns:
+        A list of school sizes whose sum is the length of uids_in_school.
+    """
+    ns = len(uids_in_school)
+    sorted_brackets = sorted(school_size_brackets.keys())
+    prob_by_sorted_brackets = [school_size_distr_by_bracket[b] for b in sorted_brackets]
 
-#     for a in np.arange(101):
-#         uids_in_school_by_age[a] = []
+    school_sizes = []
 
-#     if age_by_uid_dic is None:
-#         age_by_uid_dic = read_in_age_by_uid(datadir,location,state_location,country_location,N)
-
-#     for uid in age_by_uid_dic:
-
-#         a = age_by_uid_dic[uid]
-#         if a <= 50: # US census records for school enrollment
-#             b = np.random.binomial(1,rates[a]) # ask each person if they'll be a student - probably could be done in a faster, more aggregate way.
-#             if b:
-#                 uids_in_school[uid] = a
-#                 uids_in_school_by_age[a].append(uid)
-#                 ages_in_school_count[a] += 1
-
-#     return uids_in_school,uids_in_school_by_age,ages_in_school_count
+    while ns > 0:
+        size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
+        size = np.random.choice(school_size_brackets[size_bracket])
+        ns -= size
+        school_sizes.append(size)
+    if ns < 0:
+        school_sizes[-1] = school_sizes[-1] + ns
+    np.random.shuffle(school_sizes)
+    return school_sizes
 
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
+    """
+    Figure out who's going to school in the population based on enrollment rates by age.
 
+    Args:
+        datadir (string)          : file path to the data directory
+        n (int)                   : number of people in the population
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which here should always be 'usa'
+        age_by_uid_dic (dict)     : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (dict)      : list of lists where each sublist is a household and the ids of the household members
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+
+    Returns:
+        Dictionary of students in schools mapping their id to their age, dictionary of students in school mapping age to the list of ids with that age, dictionary mapping age to the number of students with that age.
+    """
     uids_in_school = {}
     uids_in_school_by_age = {}
     ages_in_school_count = dict.fromkeys(np.arange(101), 0)
     print(location)
-    rates = get_school_enrollment_rates(datadir,location=location, state_location=state_location, country_location=country_location,level='county')
+    rates = get_school_enrollment_rates(datadir, location=location, state_location=state_location, country_location=country_location,level='county')
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
