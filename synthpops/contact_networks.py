@@ -386,7 +386,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
     uids_in_school_by_age = {}
     ages_in_school_count = dict.fromkeys(np.arange(101), 0)
 
-    rates = spdata.get_school_enrollment_rates(datadir, location=location, state_location=state_location, country_location=country_location,level='county')
+    rates = spdata.get_school_enrollment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
@@ -582,7 +582,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 def get_uids_potential_workers(uids_in_school, uids_in_school_by_age, age_by_uid_dic):
     """
     Get ids for everyone who could be a worker by removing those who are students and those who can't be employed officially.
-    
+
     Args:
         uids_in_school (dict): dictionary of students in schools mapping their id to their age
         uids_in_school_by_age (dict): dictionary of students in schools mapping age to the list of ids with that age
@@ -976,6 +976,7 @@ def write_workplaces_by_age_and_uid(datadir, location, state_location, country_l
     fh_age.close()
     fh_uid.close()
 
+
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
@@ -996,13 +997,13 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     Returns:
         None
     """
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
 
     num_agebrackets = len(age_brackets)
-    contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
+    contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name, use_default=use_default)
 
-    household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location)
+    household_size_distr = spdata.get_household_size_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     if n < 5000:
         raise NotImplementedError("Population is too small to currently be generated properly. Try a size larger than 5000.")
@@ -1022,8 +1023,8 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
     totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
-    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
 
     homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = assign_uids_by_homes(homes)
@@ -1064,28 +1065,28 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     uids_by_age_dic = get_ids_by_age_dic(age_by_uid_dic)
 
     # Generate school sizes
-    school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location, state_location, country_location, school_enrollment_counts_available)
+    school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
     # school_sizes_count_by_bracket = spdata.get_usa_school_sizes_by_bracket(datadir, location, state_location, country_location)
-    
+    school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+
     # figure out who's going to go to school as a student
     uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
-    gen_school_sizes = generate_school_sizes(school_sizes_count,uids_in_school)
-    gen_schools,gen_school_uids = send_students_to_school(gen_school_sizes,uids_in_school,uids_in_school_by_age,ages_in_school_count,age_brackets,age_by_brackets_dic,contact_matrix_dic,verbose)
+    gen_school_sizes = generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+    gen_schools, gen_school_uids = send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose)
 
     # Figure out who's going to be working
-    employment_rates = get_employment_rates(datadir,location,state_location,country_location)
-    potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count = get_uids_potential_workers(uids_in_school,uids_in_school_by_age,age_by_uid_dic)
-    workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates,potential_worker_ages_left_count,uids_by_age_dic)
+    employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location)
+    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = get_uids_potential_workers(uids_in_school, uids_in_school_by_age, age_by_uid_dic)
+    workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
     # Assign teachers and update school lists
-    gen_schools,gen_school_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools,gen_school_uids,employment_rates,workers_by_age_to_assign_count,potential_worker_uids,potential_worker_uids_by_age,potential_worker_ages_left_count,verbose=verbose)
-
+    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Generate non-school workplace sizes needed to send everyone to work
-    workplace_size_brackets = get_workplace_size_brackets(datadir,country_location)
-    workplace_size_count = get_workplace_sizes(datadir,country_location)
-    workplace_sizes = generate_workplace_sizes(workplace_size_count,workplace_size_brackets,workers_by_age_to_assign_count)
+    workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, country_location=country_location)
+    workplace_size_count = spdata.get_workplace_sizes(datadir, country_location=country_location)
+    workplace_sizes = generate_workplace_sizes(workplace_size_count, workplace_size_brackets, workers_by_age_to_assign_count)
 
     verbose = False
     if verbose:
@@ -1093,9 +1094,9 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
             print(a, workers_by_age_to_assign_count[a]/len(uids_by_age_dic[a]), employment_rates[a])
 
     # Assign all workers who are not staff at schools to workplaces
-    gen_workplaces,gen_workplace_uids,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes,potential_worker_uids,potential_worker_uids_by_age,workers_by_age_to_assign_count,age_brackets,age_by_brackets_dic,contact_matrix_dic)
+    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_brackets, age_by_brackets_dic, contact_matrix_dic)
 
-    workers_placed_by_age_count = dict.fromkeys(np.arange(16,101),0)
+    workers_placed_by_age_count = dict.fromkeys(np.arange(0, 101), 0)
     for w in gen_workplaces:
         for a in w:
             workers_placed_by_age_count[a] += 1
@@ -1103,12 +1104,12 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # verbose = True
     if verbose:
         for a in workers_placed_by_age_count:
-            print(a,workers_placed_by_age_count[a],int(employment_rates[a] * len(uids_by_age_dic[a])),workers_placed_by_age_count[a]/len(uids_by_age_dic[a]),employment_rates[a], workers_placed_by_age_count[a]/len(uids_by_age_dic[a])/employment_rates[a])
-    print('workers left to place',np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
-    print('work sizes made',np.sum([len(w) for w in gen_workplaces]))
+            print(a, workers_placed_by_age_count[a], int(employment_rates[a] * len(uids_by_age_dic[a])), workers_placed_by_age_count[a]/len(uids_by_age_dic[a]), employment_rates[a], workers_placed_by_age_count[a]/len(uids_by_age_dic[a])/employment_rates[a])
+    print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
+    print('work sizes made', np.sum([len(w) for w in gen_workplaces]))
     print(np.sum(workplace_sizes))
-    print(workplace_sizes[-1],len(gen_workplaces[-1]))
+    print(workplace_sizes[-1], len(gen_workplaces[-1]))
 
     # save schools and workplace uids to file
-    write_schools_by_age_and_uid(datadir,location,state_location,country_location,n,gen_school_uids,age_by_uid_dic)
-    write_workplaces_by_age_and_uid(datadir,location,state_location,country_location,n,gen_workplace_uids,age_by_uid_dic)
+    write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
+    write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
