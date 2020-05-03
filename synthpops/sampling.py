@@ -583,4 +583,4 @@ def calc_death(person_age, mortality_rates):
         Bool representing the results of a binomial test; 1 for death, 0 for staying alive.
 
     """
-    return np.random.binomial(1,mortality_rates[person_age])
+    return np.random.binomial(1, mortality_rates[person_age])

@@ -26,7 +26,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
     '''
 
     default_n = 10000
-    default_max_contacts = {'S':20, 'W':10} # this can be anything but should be based on relevant average number of contacts for the population under study
+    default_max_contacts = {'S':20, 'W':10}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
     n = int(n)
@@ -45,7 +45,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
     network_distr_args = {'Npop': int(n)}
 
     # Heavy lift 1: make the contacts and their connections
-    population = sp.make_contacts(location=location,state_location = state_location,country_location=country_location, options_args = options_args, network_distr_args = network_distr_args)
+    population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)

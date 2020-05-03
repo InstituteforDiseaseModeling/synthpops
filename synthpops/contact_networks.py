@@ -1076,7 +1076,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     gen_schools, gen_school_uids = send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose)
 
     # Figure out who's going to be working
-    employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location)
+    employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = get_uids_potential_workers(uids_in_school, uids_in_school_by_age, age_by_uid_dic)
     workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
@@ -1084,9 +1084,9 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Generate non-school workplace sizes needed to send everyone to work
-    workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, country_location=country_location)
-    workplace_size_count = spdata.get_workplace_sizes(datadir, country_location=country_location)
-    workplace_sizes = generate_workplace_sizes(workplace_size_count, workplace_size_brackets, workers_by_age_to_assign_count)
+    workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+    workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+    workplace_sizes = generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
     verbose = False
     if verbose:
@@ -1094,7 +1094,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
             print(a, workers_by_age_to_assign_count[a]/len(uids_by_age_dic[a]), employment_rates[a])
 
     # Assign all workers who are not staff at schools to workplaces
-    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_brackets, age_by_brackets_dic, contact_matrix_dic)
+    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
 
     workers_placed_by_age_count = dict.fromkeys(np.arange(0, 101), 0)
     for w in gen_workplaces:

@@ -555,7 +555,7 @@ def write_school_enrollment_rates(datadir, locations, location, state_location, 
     Args:
         datadir (string)          : file path to the data directory
         locations (string or list): name of locations to filter for, either as a string or a list of multiple locations 
-        location (string)         : name of the location 
+        location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which here should always be 'usa'
         level (string)            : name of the level at which the data are aggregated, in general 'county' but could also be 'PUMA'
@@ -632,7 +632,7 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
 
 # Generalized function for any location that has enrollment sizes
 
-def get_school_size_brackets_path(datadir, location, state_location, country_location):
+def get_school_size_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
     Get file_path for school size brackets specific to the location under study.
 
@@ -656,7 +656,7 @@ def get_school_size_brackets_path(datadir, location, state_location, country_loc
     return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_brackets.dat')
 
 
-def get_school_size_brackets(datadir, location, state_location, country_location, file_path=None, use_default=False):
+def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get school size brackets: depends on the source/location of the data. If use_default, then we'll
     first try to look for location specific data and if that's not available we'll use default data from Seattle, WA.
