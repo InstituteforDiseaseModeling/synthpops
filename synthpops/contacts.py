@@ -663,48 +663,48 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fh.close()
 
     ### to check if people show up in more than one school
-    # count = dict.fromkeys(popdict.keys(), 0)
-    # size_counts = {}
+    count = dict.fromkeys(popdict.keys(), 0)
+    size_counts = {}
     fs = open(schools_by_uid_path, 'r')
     for c, line in enumerate(fs):
         r = line.strip().split(' ')
 
-        # size_counts.setdefault(len(r), 0)
-        # size_counts[len(r)] += 1
+        size_counts.setdefault(len(r), 0)
+        size_counts[len(r)] += 1
 
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
-            # count[uid] += 1
+            count[uid] += 1
     fs.close()
-    # for s in sorted(size_counts.keys()):
-        # print(s, size_counts[s])
+    for s in sorted(size_counts.keys()):
+        print(s, size_counts[s])
 
-    # for uid in count:
-        # if count[uid] > 1:
-            # print(uid, count[uid])
-    # print()
+    for uid in count:
+        if count[uid] > 1:
+            print(uid, count[uid], age_by_uid_dic[uid])
+    print()
 
     ### to check if people show up in more than one workplace
-    # count = dict.fromkeys(popdict.keys(), 0)
-    # size_counts = {}
+    count = dict.fromkeys(popdict.keys(), 0)
+    size_counts = {}
     fw = open(workplaces_by_uid_path, 'r')
     for c, line in enumerate(fw):
         r = line.strip().split(' ')
 
-        # size_counts.setdefault(len(r), 0)
-        # size_counts[len(r)] += 1
+        size_counts.setdefault(len(r), 0)
+        size_counts[len(r)] += 1
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
-            # count[uid] += 1
+            count[uid] += 1
     fw.close()
-    # for s in sorted(size_counts.keys()):
-        # print(s, size_counts[s])
+    for s in sorted(size_counts.keys()):
+        print(s, size_counts[s])
 
-    # for uid in count:
-        # if count[uid] > 1:
-            # print(uid, count[uid])
+    for uid in count:
+        if count[uid] > 1:
+            print(uid, count[uid])
 
     return popdict
 
