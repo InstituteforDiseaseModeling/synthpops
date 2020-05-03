@@ -8,8 +8,6 @@ from .config import datadir
 import os
 import pandas as pd
 
-# np.random.seed(0)
-
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
@@ -576,6 +574,7 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
 def rehydrate(data):
     """
+<<<<<<< HEAD
     Populate popdict with uids, ages and contacts from generated microstructure data
     that was saved to data object
 
@@ -587,7 +586,7 @@ def rehydrate(data):
     """
     popdict = sc.dcp(data['popdict'])
     mapping = {'H': 'households', 'S': 'schools', 'W': 'workplaces'}
-    for key,label in mapping.items():
+    for key, label in mapping.items():
         for r in data[label]:
             for uid in r:
                 popdict[uid]['contacts'][key] = set(r)
@@ -718,7 +717,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     is a list of contact IDs for each individual. If directed=False (default),
     if person A is a contact of person B, then person B is also a contact of person A.
 
-    Example output (input is the same, minus the "contacts" field):
+    Example output (input is the same, minus the "contacts" field)::
+
         popdict = {
             '8acf08f0': {
                 'age': 57.3,
