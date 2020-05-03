@@ -981,16 +981,16 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     and then writes this population to appropriate files.
 
     Args:
-        n (int): number of people in the population
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        school_enrollment_counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
-        verbose (bool): If True, print statements as contacts are being generated
-        plot (bool): If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        n (int)                                   : number of people in the population
+        datadir (string)                          : file path to the data directory
+        location (string)                         : name of the location
+        state_location (string)                   : name of the state the location is in
+        country_location (string)                 : name of the country the location is in
+        sheet_name (string)                       : name of the sheet in the excel file with contact patterns
+        school_enrollment_counts_available (bool) : if True, a list of school sizes is available and a count of the sizes can be constructed
+        verbose (bool)                            : If True, print statements as contacts are being generated
+        plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
+        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
 
     Returns:
         None
