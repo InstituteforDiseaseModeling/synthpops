@@ -445,7 +445,8 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
 
     while ns > 0:
         size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
-        size = np.random.choice(school_size_brackets[size_bracket])
+        # size = np.random.choice(school_size_brackets[size_bracket])  # creates some schools that are much smaller than expected so use average instead
+        size = int(np.mean(school_size_brackets[size_bracket]))  # use average school size to avoid schools with very small sizes
         ns -= size
         school_sizes.append(size)
     if ns < 0:
