@@ -1,7 +1,11 @@
 import sciris as sc
 import numpy as np
 import networkx as nx
-from . import synthpops as sp
+from .base import *
+from . import data_distributions as spdata
+from . import sampling as spsamp
+from . import contacts as spct
+from . import contact_networks as spcn
 from .config import datadir
 
 import copy
@@ -17,39 +21,60 @@ import functools
 import os
 
 
-def calculate_contact_matrix(contacts, density_or_frequency='density'):
+def calculate_contact_matrix(contacts, density_or_frequency='density', setting_code='H'):
+    """
+    Calculate the symmetric contact matrix.
+
+    Args:
+        contacts (dict)               : dictionary of individuals with attributes, including their age and the ids of their contacts
+        density_or_frequency (string) : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+    
+    Returns:
+        Symmetric age specific contact matrix.
+    """
     uids = contacts.keys()
     uids = [uid for uid in uids]
 
     num_ages = 101
 
-    F_dic = {}
-    for k in ['M', 'H', 'S', 'W', 'C']:
-        F_dic[k] = np.zeros((num_ages, num_ages))
+    M = np.zeros((num_ages, num_ages))
 
     for n, uid in enumerate(uids):
-        layers = contacts[uid]['contacts']
         age = contacts[uid]['age']
-        for k in layers:
-            contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][k]]
-            contact_ages = np.array([int(a) for a in contact_ages])
+        contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][setting_code]]
+        contact_ages = np.array([int(a) for a in contact_ages])
 
-            if len(contact_ages) > 0:
-                if density_or_frequency == 'density':
-                    for ca in contact_ages:
-                        F_dic[k][age, ca] += 1.0/len(contact_ages)
-                    # F_dic[k][age, contact_ages] += 1 / len(contact_ages)
-                elif density_or_frequency == 'frequency':
-                    for ca in contact_ages:
-                        F_dic[k][age, ca] += 1.0
-                    # F_dic[k][age, contact_ages] += 1
-
-    return F_dic
+        if len(contact_ages) > 0:
+            if density_or_frequency == 'density':
+                for ca in contact_ages:
+                    M[age, ca] += 1.0/len(contact_ages)
+            elif density_or_frequency == 'frequency':
+                for ca in contact_ages:
+                    M[age, ca] += 1.0
+    return M
 
 
-def plot_contact_frequency(freq_matrix_dic, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True):
+def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True):
+    """
+    Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
+    for the average individual in age group i with all of their contacts in age group j. Can either be density
+    or frequency definition, as well as a single year age contact matrix or a contact matrix for aggregated
+    age brackets.
 
-    print(setting_code)
+    Args:
+        matrix (matrix)               : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
+        age_count (dict)              : dictionary with the count of individuals in the population for each age
+        aggregate_age_count (dict)    : dictionary with the count of individuals in the population in each age bracket
+        age_brackets (dict)           : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)    : dictionary mapping age to the age bracket range it falls in
+        setting_code (string)         : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        density_or_frequency (string) : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        logcolors_flag (bool)         : If True, plot heatmap in logscale
+        aggregate_flag (book)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+
+    Returns:
+        A fig object.
+    """
     cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
     # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
 
@@ -64,11 +89,11 @@ def plot_contact_frequency(freq_matrix_dic, age_count, aggregate_age_count, age_
 
     if aggregate_flag:
         num_agebrackets = len(set(age_by_brackets_dic.values()))
-        aggregate_M = sp.get_aggregate_matrix(freq_matrix_dic[setting_code], age_by_brackets_dic)
-        asymmetric_M = sp.get_asymmetric_matrix(aggregate_M, aggregate_age_count)
+        aggregate_M = get_aggregate_matrix(freq_matrix_dic[setting_code], age_by_brackets_dic)
+        asymmetric_M = get_asymmetric_matrix(aggregate_M, aggregate_age_count)
     else:
         num_agebrackets = len(age_brackets)
-        asymmetric_M = sp.get_asymmetric_matrix(freq_matrix_dic[setting_code], age_count)
+        asymmetric_M = get_asymmetric_matrix(freq_matrix_dic[setting_code], age_count)
         # asymmetric_M = freq_matrix_dic[setting_code]
 
     for i in range(1):
