@@ -539,7 +539,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 if len(uids_in_school) == 0:
                     break
 
-                # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with 
+                # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with
                 if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
                     break
 
@@ -1005,8 +1005,9 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     household_size_distr = spdata.get_household_size_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-    if n < 5000:
-        raise NotImplementedError("Population is too small to currently be generated properly. Try a size larger than 5000.")
+    min_pop = 200
+    if n < min_pop:
+        raise NotImplementedError(f"Population is too small to currently be generated properly. Try a size larger than {min_pop}.")
     n = int(n)
 
     # this could be unnecessary if we get the single year age distribution in a different way.
