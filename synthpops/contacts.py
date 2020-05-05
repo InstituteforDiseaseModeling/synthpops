@@ -691,7 +691,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['age'] = age_by_uid_dic[uid]
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {'M': set(), 'H': set(), 'S': set(), 'W': set()}
+        popdict[uid]['contacts'] = {'H': set(), 'S': set(), 'W': set()}
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
         popdict[uid]['wpid'] = -1
