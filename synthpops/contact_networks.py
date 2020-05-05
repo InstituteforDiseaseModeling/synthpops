@@ -550,7 +550,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 bi = spsamp.sample_single(b_prob)
                 # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
-                while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 2:
+                while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
                     bi = spsamp.sample_single(b_prob)
                     # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
@@ -574,8 +574,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         # new_school_age_counter = Counter(new_school)
         if verbose:
             print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
-
-    print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+    if verbose:
+        print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
     return syn_schools, syn_school_uids
 
 
@@ -976,7 +976,7 @@ def write_workplaces_by_age_and_uid(datadir, location, state_location, country_l
     fh_uid.close()
 
 
-def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, use_default=False):
+def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
     and then writes this population to appropriate files.
@@ -991,6 +991,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         school_enrollment_counts_available (bool) : if True, a list of school sizes is available and a count of the sizes can be constructed
         verbose (bool)                            : If True, print statements as contacts are being generated
         plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
+        write (bool)                              : If True, write population to file
         use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
 
     Returns:
@@ -1103,10 +1104,15 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     if verbose:
         for a in workers_placed_by_age_count:
             print(a, workers_placed_by_age_count[a], int(employment_rates[a] * len(uids_by_age_dic[a])), workers_placed_by_age_count[a]/len(uids_by_age_dic[a]), employment_rates[a], workers_placed_by_age_count[a]/len(uids_by_age_dic[a])/employment_rates[a])
-    print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
-    print('work sizes made', np.sum([len(w) for w in gen_workplaces]))
+        print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
+        print('work sizes made', np.sum([len(w) for w in gen_workplaces]))
 
     # save schools and workplace uids to file
-    write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
-    write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
-    write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
+    if write:
+        write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
+        write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
+        write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
+
+    if return_popdict:
+        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids)
+        return popdict

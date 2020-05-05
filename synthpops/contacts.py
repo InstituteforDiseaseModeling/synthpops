@@ -662,49 +662,58 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['contacts']['H'].remove(uid)
     fh.close()
 
-    ### to check if people show up in more than one school
-    count = dict.fromkeys(popdict.keys(), 0)
-    size_counts = {}
     fs = open(schools_by_uid_path, 'r')
     for c, line in enumerate(fs):
         r = line.strip().split(' ')
 
-        size_counts.setdefault(len(r), 0)
-        size_counts[len(r)] += 1
-
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
-            count[uid] += 1
     fs.close()
-    for s in sorted(size_counts.keys()):
-        print(s, size_counts[s])
 
-    for uid in count:
-        if count[uid] > 1:
-            print(uid, count[uid], age_by_uid_dic[uid])
-    print()
-
-    ### to check if people show up in more than one workplace
-    count = dict.fromkeys(popdict.keys(), 0)
-    size_counts = {}
     fw = open(workplaces_by_uid_path, 'r')
     for c, line in enumerate(fw):
         r = line.strip().split(' ')
 
-        size_counts.setdefault(len(r), 0)
-        size_counts[len(r)] += 1
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
-            count[uid] += 1
     fw.close()
-    for s in sorted(size_counts.keys()):
-        print(s, size_counts[s])
 
-    for uid in count:
-        if count[uid] > 1:
-            print(uid, count[uid])
+    return popdict
+
+
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids):
+    popdict = {}
+
+    for uid in age_by_uid_dic:
+        popdict[uid] = {}
+        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {'M': set(), 'H': set(), 'S': set(), 'W': set()}
+        popdict[uid]['hhid'] = -1
+        popdict[uid]['scid'] = -1
+        popdict[uid]['wpid'] = -1
+
+    for nh, household in enumerate(homes_by_uids):
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+
+    for ns, school in enumerate(schools_by_uids):
+        for uid in school:
+            popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
+
+    for nw, workplace in enumerate(workplaces_by_uids):
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+
 
     return popdict
 
@@ -859,7 +868,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
     return contacts
 
 
-def show_layers(popdict, show_ages=False):
+def show_layers(popdict, show_ages=False, show_n=20):
     """
     Print out the contacts for individuals in the different possible social settings or layers.
 
@@ -876,14 +885,18 @@ def show_layers(popdict, show_ages=False):
 
     layers = popdict[uids[0]]['contacts'].keys()
     if show_ages:
-        for uid in uids:
+        for n, uid in enumerate(uids):
+            if n >= show_n:
+                break
             print(uid, popdict[uid]['age'])
             for k in layers:
                 contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
                 print(k, sorted(contact_ages))
 
     else:
-        for uid in uids:
+        for n, uid in enumerate(uids):
+            if n >= show_n:
+                break
             print(uid)
             for k in layers:
                 print(k, popdict[uid]['contacts'][k])
