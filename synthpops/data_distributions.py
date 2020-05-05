@@ -1027,7 +1027,7 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'work_size_count.dat')
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'workplaces', 'work_size_count.dat')
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
+    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_count.dat')
 
 
 def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
