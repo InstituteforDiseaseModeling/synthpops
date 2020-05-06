@@ -18,7 +18,7 @@ if __name__ == '__main__':
     
 
     pars = sc.objdict(
-        pop_size  = 17000,
+        pop_size  = 25000,
         n_days    = 1,
         # rand_seed = 1,
         # pop_type  = 'hybrid',
@@ -26,6 +26,12 @@ if __name__ == '__main__':
     )
 
     sim             = cv.Sim(pars=pars)
+
+    #### INTERVENTIONS GO HERE ####
+
+    # sim.update_pars()
+    # sim.init_interventions()
+
     sim.run(verbose = False)
     people          = sim.people
 
@@ -38,7 +44,7 @@ if __name__ == '__main__':
     age_range = np.arange(max_age+1)
 
     # layer = 'w'
-    layer  = 's'
+    # layer  = 's'
 
     plot_matrix     = True
     # plot_matrix     = False
@@ -56,13 +62,14 @@ if __name__ == '__main__':
 
         for p in range(len(sim.people)):
 
-            contacts = sim.people.contacts[layer]['p2'][sim.people.contacts[layer]['p1'] == p]
-            n_contacts = (sim.people.contacts[layer]['p1'] == p).sum()
-            contact_ages = ages[contacts]
+            for layer in ['h', 's', 'w']:
+                contacts = sim.people.contacts[layer]['p2'][sim.people.contacts[layer]['p1'] == p]
+                n_contacts = (sim.people.contacts[layer]['p1'] == p).sum()
+                contact_ages = ages[contacts]
 
-            for ca in contact_ages:
-                symmetric_matrix[ages[p]][ca] += 1
-            n_contacts_count[ages[p]] += n_contacts
+                for ca in contact_ages:
+                    symmetric_matrix[ages[p]][ca] += 1
+                n_contacts_count[ages[p]] += n_contacts
 
         age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
@@ -75,7 +82,8 @@ if __name__ == '__main__':
 
         fig = plt.figure(figsize=(8,8))
         ax = fig.add_subplot(111)
-        im = ax.imshow(asymmetric_matrix.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=1e-2, vmax=1e0))
+        im = ax.imshow(asymmetric_matrix.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=1e-1, vmax=1e1))
+        # im = ax.imshow(asymmetric_matrix.T, origin='lower', interpolation='nearest', cmap=cmap, )
 
         divider = make_axes_locatable(ax)
         cax = divider.new_horizontal(size="4%", pad=0.15)
@@ -90,38 +98,6 @@ if __name__ == '__main__':
         ax.set_yticklabels(tick_labels, fontsize=16)
 
         # fig.savefig('data/'+pars['pop_type'] + '_' + str(pars['pop_size']) + '_' + layer + '_contact_matrix.pdf', format='pdf')
+        fig.savefig('data/' + pars['pop_type'] + '_'+ str(pars['pop_size']) + '_total_contact_matrix_day_' + str(pars['n_days']) + '.pdf')
         plt.show()
 
-    elif plot_n_contacts:
-
-        n_contacts_count = []
-        for a in age_range:
-            n_contacts_count.append([])
-
-        for p in range(len(sim.people)):
-
-            contacts = sim.people.contacts[layer]['p2'][sim.people.contacts[layer]['p1'] == p]
-            n_contacts = (sim.people.contacts[layer]['p1'] == p).sum()
-            # if n_contacts > 0:
-            n_contacts_count[ages[p]].append(n_contacts)
-
-        age_count_array = np.zeros(max_age+1)
-        for a in age_range:
-            age_count_array[a] = age_count[a]
-        # print(n_contacts_count/age_count_array)
-        fig = plt.figure(figsize=(15, 5), tight_layout=True)
-        ax = fig.add_subplot(211)
-        # print(n_contacts_count[1])
-        ax.boxplot(n_contacts_count, positions = age_range)
-        # ax.plot(age_range, n_contacts_count/age_count_array, color = 'indigo', label='Household')
-        # ax.plot(age_range, np.mean(n_contacts_count/age_count_array) * np.ones(max_age+1), color='teal', ls = '-')
-        # ax.plot(age_range, (2.7-1) * np.ones(max_age+1), color = 'red', alpha =0.7)
-        ax.set_xlabel('Age')
-        ax.set_ylabel('# Contacts')
-        # ax.set_ylim(bottom=0, top=3)
-        ax.set_xticks(np.arange(0, max_age+1,5) )
-        ax.set_xticklabels(np.arange(0,max_age+1,5))
-        ax.set_xlim(-0.5,100)
-        plt.show()
-
-    print(sim.people)
