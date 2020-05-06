@@ -24,18 +24,26 @@ def sample_single(distr):
         A single sampled value from a distribution.
     """
     if type(distr) == dict:
-        # distr = sp.norm_dic(distr)
-        distr = norm_dic(distr)
+        # distr = norm_dic(distr)
         sorted_keys = sorted(distr.keys())
-        sorted_distr = np.array([distr[k] for k in sorted_keys])
-        norm_sorted_distr = np.maximum(0,sorted_distr) # Don't allow negatives
-        norm_sorted_distr /= norm_sorted_distr.sum() # Ensure it sums to 1
+        # sorted_distr = [distr[k] for k in sorted_keys]
+        # n = np.random.multinomial(1, sorted_distr, size=1)[0]
+        sorted_distr = np.array([distr[k] for k in sorted_keys], dtype=float)  # create an array of the values, not yet normalized
+        norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
+
+        if norm_sorted_distr.sum() > 0:
+            norm_sorted_distr = norm_sorted_distr/norm_sorted_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
         n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
         index = np.where(n)[0][0]
         return sorted_keys[index]
+
     elif type(distr) == np.ndarray:
-        distr = distr / np.sum(distr)
-        n = np.random.multinomial(1, distr, size=1)[0]
+        norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
+        if norm_distr.sum() > 0:
+            norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        # distr = distr / np.sum(distr)  # old, does not check for negative values
+        # n = np.random.multinomial(1, distr, size=1)[0]
+        n = np.random.multinomial(1, norm_distr, size=1)[0]
         index = np.where(n)[0][0]
         return index
 
@@ -66,11 +74,11 @@ def resample_age(single_year_age_distr, age):
         age_min = 98
         age_max = 100
 
-    age_distr = norm_age_group(single_year_age_distr, age_min, age_max)
-    norm_age_distr = np.array([age_distr[a] for a in range(age_min, age_max+1)])
-    norm_age_distr = np.maximum(0, norm_age_distr)
-    norm_age_distr /= norm_age_distr.sum()
-    n = np.random.multinomial(1, norm_age_distr, size=1)[0]
+    # age_distr = norm_age_group(single_year_age_distr, age_min, age_max)
+    # n = np.random.multinomial(1, [age_distr[a] for a in range(age_min, age_max+1)], size=1)[0]
+    age_distr = np.array([single_year_age_distr[a] for a in range(age_min, age_max+1)])
+    norm_age_distr = np.maximum(0, age_distr)
+    norm_age_distr
     age_range = np.arange(age_min, age_max+1)
     index = np.where(n)[0]
     return age_range[index][0]
@@ -165,7 +173,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
 def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic, weights_dic, single_year_age_distr=None):
     """
-    Sample the age of n_contacts contacts from age mixing patterns. Age of each contact is uniformly drawn from the age bracket sampled from the age
+    Sample the age of n_contacts contacts from age mixing patterns. Age of each contact is uniformly drawn from the age bracket sampled from the age 
     mixing matrix, unless single_year_age_distr is available. Combines setting specific weights to create an age mixing matrix
     from which contact ages are sampled.
 
@@ -192,7 +200,7 @@ def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, ag
 
 def sample_n_contact_ages_with_matrix(n_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix, single_year_age_distr=None):
     """
-    Sample the age of n_contacts contacts from age mixing matrix. Age of each contact is uniformly drawn from the age bracket sampled from the age
+    Sample the age of n_contacts contacts from age mixing matrix. Age of each contact is uniformly drawn from the age bracket sampled from the age 
     mixing matrix, unless single_year_age_distr is available.
 
     Args:
@@ -258,7 +266,7 @@ def pt(rate):
 def get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets, min_age=0, max_age=100, age_mean=40, age_std=20):
     '''
     Sample a person's age and sex based on gender and age census data defined for age brackets. Else, return random age and sex.
-
+    
     Args:
         gender_fraction_by_age (dict): dictionary of the fractions for two genders by age bracket
         age_bracket_distr (dict):    : distribution of ages by brackets
@@ -329,7 +337,7 @@ def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_peo
 def get_seattle_age_sex(datadir, location='seattle_metro', state_location='Washington', country_location='usa'):
     '''
     Sample a person's age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
@@ -351,7 +359,7 @@ def get_seattle_age_sex(datadir, location='seattle_metro', state_location='Washi
 def get_seattle_age_sex_n(datadir, location='seattle_metro', state_location='Washington', country_location='usa', n_people=1e4):
     '''
     Sample n_people peoples' age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
@@ -375,7 +383,7 @@ def get_seattle_age_sex_n(datadir, location='seattle_metro', state_location='Was
 def get_usa_age_sex(datadir, location='seattle_metro', state_location='Washington', country_location='usa'):
     '''
     Sample a person's age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
@@ -397,7 +405,7 @@ def get_usa_age_sex(datadir, location='seattle_metro', state_location='Washingto
 def get_usa_age_sex_n(datadir, location='seattle_metro', state_location='Washington', country_location='usa', n_people=1e4):
     """
     Sample n_people peoples' age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
@@ -421,7 +429,7 @@ def get_usa_age_sex_n(datadir, location='seattle_metro', state_location='Washing
 def get_usa_age_n(datadir, sexes, location='seattle_metro', state_location='Washington', country_location='usa'):
     """
     Sample n_people peoples' age based on list of sexes supplied and US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         sexes (list)              : list of sexes
@@ -456,7 +464,7 @@ def get_usa_age_n(datadir, sexes, location='seattle_metro', state_location='Wash
 def get_usa_sex_n(datadir, ages, location='seattle_metro', state_location='Washington', country_location='usa'):
     """
     Sample n_people peoples' sex based on list of ages supplied and US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)          : file path to the data directory
         ages (list)               : list of ages
@@ -497,7 +505,7 @@ def get_usa_sex_n(datadir, ages, location='seattle_metro', state_location='Washi
 def get_age_n(datadir, n, location='seattle_metro', state_location='Washington', country_location='usa', age_brackets_file=None, age_bracket_distr_file=None, age_brackets=None, age_bracket_distr=None):
     """
     Sample n_people peoples' age based on age census data defined for age brackets, with defaults set to Seattle, Washington.
-
+    
     Args:
         datadir (string)                : file path to the data directory
         n (float or int)                : number of people to draw age and sex for
