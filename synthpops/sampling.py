@@ -24,16 +24,26 @@ def sample_single(distr):
         A single sampled value from a distribution.
     """
     if type(distr) == dict:
-        # distr = sp.norm_dic(distr)
-        distr = norm_dic(distr)
+        # distr = norm_dic(distr)
         sorted_keys = sorted(distr.keys())
-        sorted_distr = [distr[k] for k in sorted_keys]
-        n = np.random.multinomial(1, sorted_distr, size=1)[0]
+        # sorted_distr = [distr[k] for k in sorted_keys]
+        # n = np.random.multinomial(1, sorted_distr, size=1)[0]
+        sorted_distr = np.array([distr[k] for k in sorted_keys], dtype=float)  # create an array of the values, not yet normalized
+        norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
+
+        if norm_sorted_distr.sum() > 0:
+            norm_sorted_distr = norm_sorted_distr/norm_sorted_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
         index = np.where(n)[0][0]
         return sorted_keys[index]
+
     elif type(distr) == np.ndarray:
-        distr = distr / np.sum(distr)
-        n = np.random.multinomial(1, distr, size=1)[0]
+        norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
+        if norm_distr.sum() > 0:
+            norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        # distr = distr / np.sum(distr)  # old, does not check for negative values
+        # n = np.random.multinomial(1, distr, size=1)[0]
+        n = np.random.multinomial(1, norm_distr, size=1)[0]
         index = np.where(n)[0][0]
         return index
 
@@ -64,8 +74,11 @@ def resample_age(single_year_age_distr, age):
         age_min = 98
         age_max = 100
 
-    age_distr = norm_age_group(single_year_age_distr, age_min, age_max)
-    n = np.random.multinomial(1, [age_distr[a] for a in range(age_min, age_max+1)], size=1)[0]
+    # age_distr = norm_age_group(single_year_age_distr, age_min, age_max)
+    # n = np.random.multinomial(1, [age_distr[a] for a in range(age_min, age_max+1)], size=1)[0]
+    age_distr = np.array([single_year_age_distr[a] for a in range(age_min, age_max+1)])
+    norm_age_distr = np.maximum(0, age_distr)
+    norm_age_distr
     age_range = np.arange(age_min, age_max+1)
     index = np.where(n)[0]
     return age_range[index][0]

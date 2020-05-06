@@ -30,3 +30,7 @@ if __name__ == '__main__':
 
     ### synthpops method ###
     print(sp.sample_single(dic))
+
+    a = [0, 4, 0]
+    a = np.array(a, dtype=float)
+    print(sp.sample_single(a))
