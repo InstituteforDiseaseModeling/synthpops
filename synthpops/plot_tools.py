@@ -54,7 +54,7 @@ def calculate_contact_matrix(contacts, density_or_frequency='density', setting_c
     return M
 
 
-def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True):
+def plot_contact_frequency(freq_matrix_dic, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density
@@ -62,7 +62,7 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
     age brackets.
 
     Args:
-        matrix (matrix)               : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
+        freq_matrix_dic (matrix)      : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
         age_count (dict)              : dictionary with the count of individuals in the population for each age
         aggregate_age_count (dict)    : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)           : dictionary mapping age bracket keys to age bracket range
@@ -88,13 +88,10 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
     titles = {'H': 'Household', 'S': 'School', 'W': 'Work'}
 
     if aggregate_flag:
-        num_agebrackets = len(set(age_by_brackets_dic.values()))
-        aggregate_M = get_aggregate_matrix(freq_matrix_dic[setting_code], age_by_brackets_dic)
+        aggregate_M = get_aggregate_matrix(freq_matrix_dic, age_by_brackets_dic)
         asymmetric_M = get_asymmetric_matrix(aggregate_M, aggregate_age_count)
     else:
-        num_agebrackets = len(age_brackets)
-        asymmetric_M = get_asymmetric_matrix(freq_matrix_dic[setting_code], age_count)
-        # asymmetric_M = freq_matrix_dic[setting_code]
+        asymmetric_M = get_asymmetric_matrix(freq_matrix_dic, age_count)
 
     for i in range(1):
         ax.append(fig.add_subplot(1, 1, i+1))
