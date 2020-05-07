@@ -10,19 +10,19 @@ version = runpy.run_path(versionpath)['__version__']
 CLASSIFIERS = [
     "Environment :: Console",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GPLv3",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Development Status :: 1",
+    "Development Status :: 1 - Planning",
     "Programming Language :: Python :: 3.7",
 ]
 
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry, Cliff Kerr",
-    author_email="dmistry@idmod.org",
+    author="Dina Mistry",
+    author_email="covid@idmod.org",
     description="Synthetic population generation",
     keywords=['synthetic population', 'census', 'demography'],
     platforms=["OS Independent"],
