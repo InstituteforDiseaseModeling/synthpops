@@ -38,5 +38,6 @@ setup(
         "numba",
         "networkx",
         "cmocean",
+        "graphviz",
     ],
 )

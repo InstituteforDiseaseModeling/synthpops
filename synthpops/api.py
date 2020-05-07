@@ -1,90 +1,79 @@
-import os
-import numpy as np
 import sciris as sc
 import synthpops as sp
 
-__all__ = ['popsize_choices', 'make_population', 'rehydrate']
-
 # Put this here so it's accessible as sp.api.choices
 popsize_choices = [5000,
-                   10000,
+                   10000,12000,
                    20000,
                    50000,
                    100000,
-                   122000,
+                   120000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=False):
     '''
-    Make a full population network including both people (ages, sexes) and contacts.
+    Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
     Args:
-        n (int): number of people to create
-        max_contacts (dict): dictionary for maximum number of contacts per layer: keys must be 'S' (school) and/or 'W' (work)
-        as_objdict (bool): whether to return as an object dictionary -- easier to work with, but slower
+        n (int)             : number of people to create
+        max_contacts (dict) : dictionary for maximum number of contacts per layer: keys must be 'S' (school) and/or 'W' (work)
+        as_objdict (bool)   : If True, change popdict type to sc.objdict
+        generate (bool)     : If True, first look for cached population files and if those are not available, generate new population
 
     Returns:
         network (dict): a dictionary of the full population with ages and connections
 
     '''
 
-    default_n = 20000
+    default_n = 10000
+    default_max_contacts = {'S':20, 'W':10}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
     n = int(n)
     if n not in popsize_choices:
-        choicestr = ', '.join([str(choice) for choice in popsize_choices])
-        errormsg = f'Number of people must be one of {choicestr}, not {n}'
-        raise ValueError(errormsg)
+        if not generate:
+            choicestr = ', '.join([str(choice) for choice in popsize_choices])
+            errormsg = f'Number of people must be one of {choicestr}, not {n}'
+
+            raise ValueError(errormsg)
+
+        # else:
+            # Let's start generating a new network shall we?
 
 
-    filename = f'synthpop_{n}.pop'
-    filepath = sc.makefilepath(folder=sp.localdatadir, filename=filename)
-    if not os.path.isfile(filepath):
-        errormsg = f'Path {filepath} not found!'
-        raise FileNotFoundError(errormsg)
+    max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
-    data = sc.loadobj(filepath)
+    country_location = 'usa'
+    state_location = 'Washington'
+    location = 'seattle_metro'
+    sheet_name = 'United States of America'
 
-    sc.tic()
-    population = rehydrate(data, max_contacts=max_contacts)
+    options_args = {'use_microstructure': True}
+    network_distr_args = {'Npop': int(n)}
+
+    # Heavy lift 1: make the contacts and their connections
+    try:
+        # try to read in from file
+        population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
+    except:
+        # make a new network on the fly
+        if generate:
+            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
+        else:
+            raise ValueError(errormsg)
+
+    # Semi-heavy-lift 2: trim them to the desired numbers
+    population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
 
     # Change types
     if as_objdict:
         population = sc.objdict(population)
     for key,person in population.items():
-        for layerkey in population[key]['contacts'].keys():
-            population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
         if as_objdict:
             population[key] = sc.objdict(population[key])
             population[key]['contacts'] = sc.objdict(population[key]['contacts'])
+        for layerkey in population[key]['contacts'].keys():
+            population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
     return population
-
-
-def rehydrate(data, max_contacts=None):
-    default_max_contacts = {'H':0, 'S':20, 'W':10}
-    max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
-
-    popdict = sc.dcp(data['popdict'])
-    mapping = {'H':'households', 'S':'schools', 'W':'workplaces'}
-    for key,label in mapping.items():
-        for r in data[label]: # House, school etc
-            for uid in r:
-                current_contacts = len(popdict[uid]['contacts'][key])
-                if max_contacts[key]:  # 0 for unlimited
-                    to_select = max_contacts[key] - current_contacts
-                    if to_select <= 0:  # already filled list from other actors
-                        continue
-                    contacts = np.random.choice(r, size=to_select)
-                else:
-                    contacts = r
-                for c in contacts:
-                    if c == uid:
-                        continue
-                    if c in popdict[uid]['contacts'][key]:
-                        continue
-                    popdict[uid]['contacts'][key].add(c)
-                    popdict[c]['contacts'][key].add(uid)
-    return popdict

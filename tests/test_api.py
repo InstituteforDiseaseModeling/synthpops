@@ -11,12 +11,10 @@ if not sp.config.full_data_available:
 
 def test_api():
 
-    n = 20000
+    n = 50000
     max_contacts = {'S':20, 'W':10}
 
-    sc.tic()
     population = sp.make_population(n=n, max_contacts=max_contacts)
-    sc.toc()
 
     with pytest.raises(ValueError):
         population = sp.make_population(n=298437) # Not a supported number
@@ -28,9 +26,10 @@ def test_api():
 def test_plot_pop():
 
     plotconnections = True
+
     doclear = False
     pause = 0.2
-    n = 5000
+    n = 20000
     alpha = 0.5
 
     # indices = pl.arange(1000)
@@ -63,7 +62,7 @@ def test_plot_pop():
 
     fig = pl.figure(figsize=(24,18))
     ax = pl.subplot(111)
-    sc.turbocolormap(apply=True)
+    # sc.turbocolormap(apply=True)
     minval = 0 # ages.min()
     maxval = 100 # ages.min()
     colors = sc.vectocolor(ages, minval=minval, maxval=maxval)
@@ -73,7 +72,7 @@ def test_plot_pop():
     pl.colorbar()
 
     if plotconnections:
-        lcols = dict(H=[0,0,0], S=[0,0.5,1], W=[0,0.7,0], R=[1,1,0])
+        lcols = dict(H=[0,0,0], S=[0,0.5,1], W=[0,0.7,0], C=[1,1,0])
         for index in indices:
             person = people[index]
             contacts = person.contacts
@@ -83,10 +82,10 @@ def test_plot_pop():
                     contact = population[contactkey]
                     tmp = pl.plot([person.loc.x, contact.loc.x], [person.loc.y, contact.loc.y], c=lcols[lkey], alpha=alpha)
                     lines.append(tmp)
-            pl.title(f'Index: {index}')
-            pl.pause(pause)
-            if doclear:
-                ax.lines = []
+            # pl.title(f'Index: {index}')
+            # pl.pause(pause)
+            # if doclear:
+                # ax.lines = []
 
     return fig
 
