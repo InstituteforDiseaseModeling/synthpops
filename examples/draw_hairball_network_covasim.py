@@ -8,6 +8,10 @@ import os
 import cmocean
 import covasim as cova
 
+"""
+Please note this examples takes a few minutes to run
+"""
+
 
 try:
     username = os.path.split(os.path.expanduser('~'))[-1]
@@ -15,7 +19,8 @@ try:
         'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
     }
     if username not in fontdirdict:
-        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
+        # add your path to GoogleFonts
+        fontdirdict[username] = os.path.join(os.path.expanduser('~'), 'Dropbox', 'COVASIM-19', 'GoogleFonts')
 
     font_path = fontdirdict[username]
 
@@ -34,7 +39,7 @@ def create_sim(TRACE_PROB=None,  TEST_PROB=None, TRACE_TIME=None, TEST_DELAY=Non
     sim = cova.Sim()
 
     # PARAMETERS
-    pars = {'pop_size': 10e3}  # start with a small pool << actual population e4 # DEBUG
+    pars = {'pop_size': 5e3}  # start with a small pool << actual population e4 # DEBUG
 
     # diagnosed individuals maintain same beta
     pars.update({
@@ -85,11 +90,11 @@ if __name__ == '__main__':
         print('Nodes:', G.number_of_nodes())
         print('Edges:', G.number_of_edges())
 
-    #     nx.draw(G, ax=ax, node_size=1, width=0.05)
-    #     ax.set_title(titles[layer], fontsize=24)
+        nx.draw(G, ax=ax, node_size=1, width=0.05)
+        ax.set_title(titles[layer], fontsize=24)
 
-    # datadir = sp.datadir
-    # fig_path = datadir.replace('data', 'figures')
-    # fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', 'usa', 'Washington', 'seattle_metro_' + str(sim.pars['pop_size']) + '_contact_networks.pdf')
-    # fig.savefig(fig_path, format='pdf')
-    # plt.show()
+    fig_path = os.path.join("..", "data", 'demographics', 'contact_matrices_152_countries', 'usa', 'Washington', "figures")
+    if not os.path.exists(fig_path):
+        os.makedirs(fig_path)
+    fig.savefig(f"{fig_path}_seattle_metro_{sim.pars['pop_size']}_contact_networks_covasim.png")
+    plt.show()

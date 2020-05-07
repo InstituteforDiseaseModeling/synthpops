@@ -4,11 +4,11 @@ import synthpops as sp
 import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
 import cmocean
+import os
 
 
 # def calculate_age_mixing_matrix
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     
 
     pars = sc.objdict(
-        pop_size  = 25000,
+        pop_size  = 10000,
         n_days    = 1,
         # rand_seed = 1,
         # pop_type  = 'hybrid',
@@ -98,6 +98,7 @@ if __name__ == '__main__':
         ax.set_yticklabels(tick_labels, fontsize=16)
 
         # fig.savefig('data/'+pars['pop_type'] + '_' + str(pars['pop_size']) + '_' + layer + '_contact_matrix.pdf', format='pdf')
-        fig.savefig('data/' + pars['pop_type'] + '_'+ str(pars['pop_size']) + '_total_contact_matrix_day_' + str(pars['n_days']) + '.pdf')
+        fig_name = os.path.join("..", "data", f"{pars['pop_type']}_{pars['pop_size']}_total_contact_matrix_day_{pars['n_days']}.png")
+        fig.savefig(fig_name)
         plt.show()
 
