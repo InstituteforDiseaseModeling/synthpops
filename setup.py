@@ -30,12 +30,14 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "sciris>=0.16.1",
+        "sciris>=0.16.5",
         "matplotlib",
         "numpy",
         "scipy",
         "pandas",
         "numba",
         "networkx",
+        "cmocean",
+        "graphviz",
     ],
 )
