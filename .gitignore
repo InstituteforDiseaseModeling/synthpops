@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ignore pdfs
+/tests/*.pdf
+*pdf
+/figures/*.pdf
+/figures/*.png
