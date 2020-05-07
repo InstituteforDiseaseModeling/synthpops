@@ -16,12 +16,12 @@ def make_population(n=None, max_contacts=None, as_objdict=False):
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
     Args:
-        n (int)             : number of people to create
-        max_contacts (dict) : dictionary for maximum number of contacts per layer: keys must be 'S' (school) and/or 'W' (work)
-        as_objdict (bool)   : If True, change popdict type to sc.objdict
+        n (int)             : The number of people to create.
+        max_contacts (dict) : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
+        as_objdict (bool)   : If True, change popdict type to ``sc.objdict``.
 
     Returns:
-        network (dict): a dictionary of the full population with ages and connections
+        network (dict): A dictionary of the full population with ages and connections.
 
     '''
 
