@@ -12,6 +12,14 @@ synthpops.api module
    :undoc-members:
    :show-inheritance:
 
+synthpops.base module
+---------------------
+
+.. automodule:: synthpops.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 synthpops.config module
 -----------------------
 
@@ -44,6 +52,14 @@ synthpops.contacts module
    :undoc-members:
    :show-inheritance:
 
+synthpops.data\_distributions module
+------------------------------------
+
+.. automodule:: synthpops.data_distributions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 synthpops.plot\_network module
 ------------------------------
 
@@ -56,6 +72,14 @@ synthpops.plot\_tools module
 ----------------------------
 
 .. automodule:: synthpops.plot_tools
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+synthpops.sampling module
+-------------------------
+
+.. automodule:: synthpops.sampling
    :members:
    :undoc-members:
    :show-inheritance:
