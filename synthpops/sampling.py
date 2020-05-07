@@ -74,12 +74,12 @@ def resample_age(single_year_age_distr, age):
         age_min = 98
         age_max = 100
 
-    # age_distr = norm_age_group(single_year_age_distr, age_min, age_max)
-    # n = np.random.multinomial(1, [age_distr[a] for a in range(age_min, age_max+1)], size=1)[0]
-    age_distr = np.array([single_year_age_distr[a] for a in range(age_min, age_max+1)])
-    norm_age_distr = np.maximum(0, age_distr)
-    norm_age_distr
+    age_distr = np.array([single_year_age_distr[a] for a in range(age_min, age_max+1)])  # create an array of the values, not yet normalized
+    norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
+    if norm_age_distr.sum() > 0:
+        norm_age_distr = norm_age_distr/norm_age_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     age_range = np.arange(age_min, age_max+1)
+    n = np.random.multinomial(1, norm_age_distr, size=1)[0]
     index = np.where(n)[0]
     return age_range[index][0]
 
