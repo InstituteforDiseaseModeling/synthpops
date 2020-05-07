@@ -164,14 +164,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em>) – number of people to create</p></li>
-<li><p><strong>max_contacts</strong> (<em>dict</em>) – dictionary for maximum number of contacts per layer: keys must be ‘S’ (school) and/or ‘W’ (work)</p></li>
-<li><p><strong>as_objdict</strong> (<em>bool</em>) – If True, change popdict type to sc.objdict</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people to create.</p></li>
+<li><p><strong>max_contacts</strong> (<em>dict</em>) – A dictionary for maximum number of contacts per layer: keys must be “S” (school) and/or “W” (work).</p></li>
+<li><p><strong>as_objdict</strong> (<em>bool</em>) – If True, change popdict type to <code class="docutils literal notranslate"><span class="pre">sc.objdict</span></code>.</p></li>
 <li><p><strong>generate</strong> (<em>bool</em>) – If True, first look for cached population files and if those are not available, generate new population</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a dictionary of the full population with ages and connections</p>
+<dd class="field-even"><p>A dictionary of the full population with ages and connections.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>network (dict)</p>
@@ -185,10 +185,10 @@
 <dl class="py function">
 <dt id="synthpops.base.norm_dic">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">norm_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.norm_dic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Normalize the dictionary dic.</p>
+<dd><p>Normalize the dictionary <code class="docutils literal notranslate"><span class="pre">dic</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dic</strong> (<em>dict</em>) – dictionary with numerical values</p>
+<dd class="field-odd"><p><strong>dic</strong> (<em>dict</em>) – A dictionary with numerical values.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A normalized dictionary.</p>
@@ -199,17 +199,17 @@
 <dl class="py function">
 <dt id="synthpops.base.norm_age_group">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">norm_age_group</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_dic</span></em>, <em class="sig-param"><span class="n">age_min</span></em>, <em class="sig-param"><span class="n">age_max</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.norm_age_group" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a normalized dictionary for the range age_min to age_max, inclusive.</p>
+<dd><p>Create a normalized dictionary for the range <code class="docutils literal notranslate"><span class="pre">age_min</span></code> to <code class="docutils literal notranslate"><span class="pre">age_max</span></code>, inclusive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>age_dic</strong> (<em>dict</em>) – dictionary with numerical values</p></li>
-<li><p><strong>age_min</strong> (<em>int</em>) – minimum value of the range for the dictionary</p></li>
-<li><p><strong>age_max</strong> (<em>int</em>) – maximum value of the range for the dictionary</p></li>
+<li><p><strong>age_dic</strong> (<em>dict</em>) – A dictionary with numerical values.</p></li>
+<li><p><strong>age_min</strong> (<em>int</em>) – The minimum value of the range for the dictionary.</p></li>
+<li><p><strong>age_max</strong> (<em>int</em>) – The maximum value of the range for the dictionary.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A normalized dictionary for keys in the range age_min to age_max, inclusive.</p>
+<dd class="field-even"><p>A normalized dictionary for keys in the range <code class="docutils literal notranslate"><span class="pre">age_min</span></code> to <code class="docutils literal notranslate"><span class="pre">age_max</span></code>, inclusive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -220,7 +220,7 @@
 <dd><p>Create a dictionary mapping age to the age bracket it falls in.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p>
+<dd class="field-odd"><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary of age bracket by age.</p>
@@ -235,8 +235,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ages</strong> (<em>dict</em>) – dictionary of age count by single year</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+<li><p><strong>ages</strong> (<em>dict</em>) – A dictionary of age count by single year.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -248,15 +248,15 @@
 <dl class="py function">
 <dt id="synthpops.base.get_aggregate_age_dict_conversion">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_aggregate_age_dict_conversion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">larger_aggregate_ages</span></em>, <em class="sig-param"><span class="n">larger_age_brackets</span></em>, <em class="sig-param"><span class="n">smaller_age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic_larger</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic_smaller</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_aggregate_age_dict_conversion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the aggregate age count in larger_aggregate_ages from a larger number of age brackets to a smaller number of age brackets</p>
+<dd><p>Convert the aggregate age count in <code class="docutils literal notranslate"><span class="pre">larger_aggregate_ages</span></code> from a larger number of age brackets to a smaller number of age brackets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>larger_aggregate_ages</strong> (<em>dict</em>) – dictionary of aggregated age count</p></li>
-<li><p><strong>larger_age_brackets</strong> (<em>dict</em>) – dictionary of age brackets</p></li>
-<li><p><strong>smaller_age_brackets</strong> (<em>dict</em>) – dictionary of fewer age brackets</p></li>
-<li><p><strong>age_by_brackets_dic_larger</strong> (<em>dict</em>) – dictionary mapping age to the larger number of age brackets</p></li>
-<li><p><strong>age_by_brackets_dic_smaller</strong> (<em>dict</em>) – dictionary mapping age to the smaller number of age brackets</p></li>
+<li><p><strong>larger_aggregate_ages</strong> (<em>dict</em>) – A dictionary of aggregated age count.</p></li>
+<li><p><strong>larger_age_brackets</strong> (<em>dict</em>) – A dictionary of age brackets.</p></li>
+<li><p><strong>smaller_age_brackets</strong> (<em>dict</em>) – A dictionary of fewer age brackets.</p></li>
+<li><p><strong>age_by_brackets_dic_larger</strong> (<em>dict</em>) – A dictionary mapping age to the larger number of age brackets.</p></li>
+<li><p><strong>age_by_brackets_dic_smaller</strong> (<em>dict</em>) – A dictionary mapping age to the smaller number of age brackets.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -272,12 +272,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>M</strong> (<em>np.ndarray</em>) – a symmetrix age contact matrix</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+<li><p><strong>M</strong> (<em>np.ndarray</em>) – A symmetric age contact matrix.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A symmetric contact matrix (np.ndarray) aggregated to age brackets.</p>
+<dd class="field-even"><p>A symmetric contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) aggregated to age brackets.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,12 +289,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>symmetric_matrix</strong> (<em>np.ndarray</em>) – a symmetric age contact matrix</p></li>
-<li><p><strong>aggregate_ages</strong> (<em>dict</em>) – a dictionary mapping single year ages to age brackets</p></li>
+<li><p><strong>symmetric_matrix</strong> (<em>np.ndarray</em>) – A symmetric age contact matrix.</p></li>
+<li><p><strong>aggregate_ages</strong> (<em>dict</em>) – A dictionary mapping single year ages to age brackets.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A contact matrix (np.ndarray) whose elements M_ij describes the contact frequency for the average individual in age bracket i with all possible contacts in age bracket j.</p>
+<dd class="field-even"><p>A contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) whose elements <code class="docutils literal notranslate"><span class="pre">M_ij</span></code> describe the contact frequency for the average individual in age bracket <code class="docutils literal notranslate"><span class="pre">i</span></code> with all possible contacts in age bracket <code class="docutils literal notranslate"><span class="pre">j</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,7 +305,7 @@
 <dd><p>Get a symmetric homogeneous matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ages</strong> (<em>dict</em>) – dictionary with the count of each single year age</p>
+<dd class="field-odd"><p><strong>ages</strong> (<em>dict</em>) – A dictionary with the count of each single year age.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A symmetric homogeneous matrix for age count in ages.</p>
@@ -320,13 +320,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>matrix_dic</strong> (<em>dict</em>) – dictionary of different contact matrices by setting</p></li>
-<li><p><strong>weights_dic</strong> (<em>dict</em>) – dictionary of weights for each setting</p></li>
-<li><p><strong>num_agebrackets</strong> (<em>int</em>) – number of age brackets for the different matrices</p></li>
+<li><p><strong>matrix_dic</strong> (<em>dict</em>) – A dictionary of different contact matrices by setting.</p></li>
+<li><p><strong>weights_dic</strong> (<em>dict</em>) – A dictionary of weights for each setting.</p></li>
+<li><p><strong>num_agebrackets</strong> (<em>int</em>) – The number of age brackets for the different matrices.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A contact matrix (np.ndarray) that is a linear combination of setting specific matrices given weights for each setting.</p>
+<dd class="field-even"><p>A contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) that is a linear combination of setting specific matrices given weights for each setting.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -334,12 +334,13 @@
 <dl class="py function">
 <dt id="synthpops.base.get_ids_by_age_dic">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_ids_by_age_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_id_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_ids_by_age_dic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get lists of ids that map to each age.
-:param age_by_id_dic: a dictionary with the age of each individual by their id
-:type age_by_id_dic: dict</p>
+<dd><p>Get lists of IDs that map to each age.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A dictionary listing out ids for each age from a dictionary that maps id to age.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>age_by_id_dic</strong> (<em>dict</em>) – A dictionary with the age of each individual by their ID.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary listing IDs for each age from a dictionary that maps ID to age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,12 +348,13 @@
 <dl class="py function">
 <dt id="synthpops.base.get_uids_by_age_dic">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_uids_by_age_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_uids_by_age_dic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get lists of uids that map to each age.
-:param popdict: dictionary mapping individual’s id to a dictionary with their age and other attributes.
-:type popdict: sc.dict</p>
+<dd><p>Get lists of UIDs that map to each age.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A dictionary listing out uids for each age.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>popdict</strong> (<em>sc.dict</em>) – A dictionary mapping an individual’s ID to a dictionary with their age and other attributes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary listing UIDs for each age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -360,17 +362,17 @@
 </div>
 <div class="section" id="module-synthpops.config">
 <span id="synthpops-config-module"></span><h2>synthpops.config module<a class="headerlink" href="#module-synthpops.config" title="Permalink to this headline">¶</a></h2>
-<p>The point of this file is to set the location of the data folder.</p>
+<p>This module sets the location of the data folder.</p>
 <dl class="py function">
 <dt id="synthpops.config.set_datadir">
 <code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">set_datadir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.set_datadir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the folder to something user-specific</p>
+<dd><p>Set the data folder to the user-specified location.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="synthpops.config.validate">
 <code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check that the data folder can be found</p>
+<dd><p>Check that the data folder can be found.</p>
 </dd></dl>
 
 </div>
@@ -383,12 +385,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Nhomes</strong> (<em>int</em>) – number of homes</p></li>
-<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – distribution of household sizes</p></li>
+<li><p><strong>Nhomes</strong> (<em>int</em>) – The number of homes.</p></li>
+<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – The distribution of household sizes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array with the count of households of size s at index s-1</p>
+<dd class="field-even"><p>An array with the count of households of size s at index s-1.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -396,16 +398,16 @@
 <dl class="py function">
 <dt id="synthpops.contact_networks.trim_households">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">trim_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N_extra</span></em>, <em class="sig-param"><span class="n">hh_size_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.trim_households" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generated a few too many households giving a total  population size larger than expected so this trims that down.</p>
+<dd><p>Trim the population if too many households are generated, giving a total population size larger than expected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N_extra</strong> (<em>int</em>) – number of extra people</p></li>
-<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – distribution of household sizes</p></li>
+<li><p><strong>N_extra</strong> (<em>int</em>) – The number of extra people.</p></li>
+<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – The distribution of household sizes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array with the count of excess households of size s at index s-1. This will be subtracted from another count array.</p>
+<dd class="field-even"><p>An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -417,12 +419,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – distribution of household sizes</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – The distribution of household sizes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array with the count of households of size s at index s-1.</p>
+<dd class="field-even"><p>An array with the count of households of size s at index s-1.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -430,10 +432,10 @@
 <dl class="py function">
 <dt id="synthpops.contact_networks.get_totalpopsize_from_household_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_totalpopsize_from_household_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hh_sizes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_totalpopsize_from_household_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sum household sizes from count array</p>
+<dd><p>Sum household sizes from count array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>hh_sizes</strong> (<em>array</em>) – count of household size s at index s-1</p>
+<dd class="field-odd"><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Sum (int) of the household sizes.</p>
@@ -444,19 +446,19 @@
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_household_head_age_by_size">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_household_head_age_by_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">hh_size</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_household_head_age_by_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate age of the head of the household, also known as the reference person of the household,
+<dd><p>Generate the age of the head of the household, also known as the reference person of the household,
 conditional on the size of the household.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – each row contains the age distribution of the reference person for household size s at index s-1</p></li>
-<li><p><strong>hha_brackets</strong> (<em>dict</em>) – age brackets for the head of households</p></li>
-<li><p><strong>hh_size</strong> (<em>int</em>) – household size</p></li>
-<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>hh_size</strong> (<em>int</em>) – The household size.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Age of the head of the household or reference person</p>
+<dd class="field-even"><p>Age of the head of the household or reference person.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -464,18 +466,18 @@ conditional on the size of the household.</p>
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_living_alone">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_living_alone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_living_alone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate ages of those living alone.</p>
+<dd><p>Generate the ages of those living alone.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hh_sizes</strong> (<em>array</em>) – count of household size s at index s-1</p></li>
-<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – each row contains the age distribution of the reference person for household size s at index s-1</p></li>
-<li><p><strong>hha_brackets</strong> (<em>dict</em>) – age brackets for the head of households</p></li>
-<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array of households of size 1 where each household is a row and the value in the row is the age of the household member.</p>
+<dd class="field-even"><p>An array of households of size 1 where each household is a row and the value in the row is the age of the household member.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -483,24 +485,24 @@ conditional on the size of the household.</p>
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_larger_households">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_larger_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_larger_households" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size,
-while all other household members have their ages sampled conditional on the age of the reference person’s age and the age mixing contact matrix
+<dd><p>Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
+All other household members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix
 in households for the population under study.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<em>int</em>) – household size</p></li>
-<li><p><strong>hh_sizes</strong> (<em>array</em>) – count of household size s at index s-1</p></li>
-<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – each row contains the age distribution of the reference person for household size s at index s-1</p></li>
-<li><p><strong>hha_brackets</strong> (<em>dict</em>) – age brackets for the head of households</p></li>
-<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
-<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – dictionary of age specific contact matrix for different physical contact settings</p></li>
-<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – The household size.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – A dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array of households for size ‘size’ where each household is a row and the values in the row are the ages of the household members.
+<dd class="field-even"><p>An array of households for size <code class="docutils literal notranslate"><span class="pre">size</span></code> where each household is a row and the values in the row are the ages of the household members.
 The first age in the row is the age of the reference individual.</p>
 </dd>
 </dl>
@@ -509,25 +511,25 @@ The first age in the row is the age of the reference individual.</p>
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_all_households">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_all_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_all_households" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate ages of those living in households together. First create households of people living alone, then larger households.
+<dd><p>Generate the ages of those living in households together. First create households of people living alone, then larger households.
 For households larger than 1, a reference individual’s age is sampled conditional on the household size, while all other household
-members have their ages sampled conditional on the age of the reference person’s age and the age mixing contact matrix in households
+members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix in households
 for the population under study.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>hh_sizes</strong> (<em>array</em>) – count of household size s at index s-1</p></li>
-<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – each row contains the age distribution of the reference person for household size s at index s-1</p></li>
-<li><p><strong>hha_brackets</strong> (<em>dict</em>) – age brackets for the head of households</p></li>
-<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
-<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – dictionary of age specific contact matrix for different physical contact settings</p></li>
-<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – The dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – The dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – The dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Array of all households where each household is a row and the values in the row are the ages of the household members.
+<dd class="field-even"><p>An array of all households where each household is a row and the values in the row are the ages of the household members.
 The first age in the row is the age of the reference individual. Households are randomly shuffled by size.</p>
 </dd>
 </dl>
@@ -536,16 +538,16 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.assign_uids_by_homes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_uids_by_homes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">homes</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_uids_by_homes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assign ids to everyone in order by their households.</p>
+<dd><p>Assign IDs to everyone in order by their households.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>homes</strong> (<em>array</em>) – generated synthetic household ages</p></li>
-<li><p><strong>id_len</strong> (<em>int</em>) – length of the uid</p></li>
+<li><p><strong>homes</strong> (<em>array</em>) – The generated synthetic ages of household members.</p></li>
+<li><p><strong>id_len</strong> (<em>int</em>) – The length of the UID.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A copy of the generated households with ids in place of ages, and a dictionary mapping id to age.</p>
+<dd class="field-even"><p>A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -553,16 +555,16 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.write_homes_by_age_and_uid">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">write_homes_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.write_homes_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the households to file with both id and their ages, while also writing the dictionary of id mapping to age for each individual in the population.</p>
+<dd><p>Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>homes_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a household and the ids of the household members</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for each individual in the population</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -574,19 +576,19 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.read_in_age_by_uid">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">read_in_age_by_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.read_in_age_by_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read dictionary of id mapping to ages for all individuals from file.</p>
+<dd><p>Read dictionary of iD mapping to ages for all individuals from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – number of people in the population</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary mapping id to age for all individuals in the population.</p>
+<dd class="field-even"><p>A dictionary mapping ID to age for all individuals in the population.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -598,13 +600,13 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>setting</strong> (<em>string</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other</p></li>
-<li><p><strong>with_ages</strong> (<em>bool</em>) – If True, read in the ages of each individual in the group, else read in their ids</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>setting</strong> (<em>string</em>) – The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.</p></li>
+<li><p><strong>with_ages</strong> (<em>bool</em>) – If True, read in the ages of each individual in the group; otherwise, read in their IDs.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -616,22 +618,22 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.get_uids_in_school">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_uids_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_uids_in_school" title="Permalink to this definition">¶</a></dt>
-<dd><p>Figure out who’s going to school in the population based on enrollment rates by age.</p>
+<dd><p>Identify who in the population is attending school based on enrollment rates by age.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for all individuals in the population</p></li>
-<li><p><strong>homes_by_uids</strong> (<em>dict</em>) – list of lists where each sublist is a household and the ids of the household members</p></li>
-<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for all individuals in the population.</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>dict</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary of students in schools mapping their id to their age, dictionary of students in school mapping age to the list of ids with that age, dictionary mapping age to the number of students with that age.</p>
+<dd class="field-even"><p>A dictionary of students in schools mapping their ID to their age, a dictionary of students in school mapping age to the list of IDs with that age, and a dictionary mapping age to the number of students with that age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -639,17 +641,17 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_school_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_school_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">school_size_distr_by_bracket</span></em>, <em class="sig-param"><span class="n">school_size_brackets</span></em>, <em class="sig-param"><span class="n">uids_in_school</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_school_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a number of students in school, generate list of school sizes to place everyone in a school.</p>
+<dd><p>Given a number of students in school, generate a list of school sizes to place everyone in a school.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>school_size_distr_by_bracket</strong> (<em>dict</em>) – distribution of binned school sizes</p></li>
-<li><p><strong>school_size_brackets</strong> (<em>dict</em>) – dictionary of school size brackets</p></li>
-<li><p><strong>uids_in_school</strong> (<em>dict</em>) – dictionary of students in school mapping id to age</p></li>
+<li><p><strong>school_size_distr_by_bracket</strong> (<em>dict</em>) – The distribution of binned school sizes.</p></li>
+<li><p><strong>school_size_brackets</strong> (<em>dict</em>) – A dictionary of school size brackets.</p></li>
+<li><p><strong>uids_in_school</strong> (<em>dict</em>) – A dictionary of students in school mapping ID to age.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of school sizes whose sum is the length of uids_in_school.</p>
+<dd class="field-even"><p>A list of school sizes whose sum is the length of <code class="docutils literal notranslate"><span class="pre">uids_in_school</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -661,18 +663,18 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>school_sizes</strong> (<em>list</em>) – list of school sizes</p></li>
-<li><p><strong>uids_in_school</strong> (<em>dict</em>) – dictionary of students in school mapping id to age</p></li>
-<li><p><strong>uids_in_school_by_age</strong> (<em>dict</em>) – dictionary of students in school mapping age to the list of ids with that age</p></li>
-<li><p><strong>ages_in_school_count</strong> (<em>dict</em>) – dictionary mapping age to the number of students with that age</p></li>
-<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
-<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – dictionary of age specific contact matrix for different physical contact settings</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements about the generated schools as they’re being generated</p></li>
+<li><p><strong>school_sizes</strong> (<em>list</em>) – A list of school sizes.</p></li>
+<li><p><strong>uids_in_school</strong> (<em>dict</em>) – A dictionary of students in school mapping ID to age.</p></li>
+<li><p><strong>uids_in_school_by_age</strong> (<em>dict</em>) – A dictionary of students in school mapping age to the list of IDs with that age.</p></li>
+<li><p><strong>ages_in_school_count</strong> (<em>dict</em>) – A dictionary mapping age to the number of students with that age.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – A dictionary of age specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements about the generated schools as they’re being generated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the ids of each student in place of their age.</p>
+<dd class="field-even"><p>Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -680,18 +682,18 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.get_uids_potential_workers">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_uids_potential_workers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">employment_rates</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_uids_potential_workers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get ids for everyone who could be a worker by removing those who are students and those who can’t be employed officially.</p>
+<dd><p>Get IDs for everyone who could be a worker by removing those who are students and those who can’t be employed officially.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of lists where each sublist represents a school with the ids of students in the school</p></li>
-<li><p><strong>employment_rates</strong> (<em>dict</em>) – employment rates by age</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for individuals in the population</p></li>
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – A list of lists where each sublist represents a school with the IDs of students in the school.</p></li>
+<li><p><strong>employment_rates</strong> (<em>dict</em>) – The employment rates by age.</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for individuals in the population.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary of potential workers mapping their id to their age, dictionary mapping age to the list of ids for potential
-workers with that age, dictionary mapping age to the count of potential workers left to assign to a workplace for that age</p>
+<dd class="field-even"><p>A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
+workers with that age, and a dictionary mapping age to the count of potential workers left to assign to a workplace for that age.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -699,13 +701,13 @@ workers with that age, dictionary mapping age to the count of potential workers 
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_workplace_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_workplace_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">workplace_size_distr_by_bracket</span></em>, <em class="sig-param"><span class="n">workplace_size_brackets</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_workplace_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.</p>
+<dd><p>Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>workplace_size_distr_by_bracket</strong> (<em>dict</em>) – distribution of binned workplace sizes</p></li>
-<li><p><strong>worplace_size_brackets</strong> (<em>dict</em>) – dictionary of workplace size brackets</p></li>
-<li><p><strong>workers_by_age_to_assign_count</strong> (<em>dict</em>) – dictionary mapping age to the count of employed individuals of that age</p></li>
+<li><p><strong>workplace_size_distr_by_bracket</strong> (<em>dict</em>) – The distribution of binned workplace sizes.</p></li>
+<li><p><strong>worplace_size_brackets</strong> (<em>dict</em>) – A dictionary of workplace size brackets.</p></li>
+<li><p><strong>workers_by_age_to_assign_count</strong> (<em>dict</em>) – A dictionary mapping age to the count of employed individuals of that age.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -717,14 +719,14 @@ workers with that age, dictionary mapping age to the count of potential workers 
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_usa_workplace_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_usa_workplace_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">workplace_sizes_by_bracket</span></em>, <em class="sig-param"><span class="n">workplace_size_brackets</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_usa_workplace_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.
+<dd><p>Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.
 Specific to data from the US.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>workplace_sizes_by_bracket</strong> (<em>dict</em>) – distribution of binned workplace sizes</p></li>
-<li><p><strong>worplace_size_brackets</strong> (<em>dict</em>) – dictionary of workplace size brackets</p></li>
-<li><p><strong>workers_by_age_to_assign_count</strong> (<em>dict</em>) – dictionary mapping age to the count of employed individuals of that age</p></li>
+<li><p><strong>workplace_sizes_by_bracket</strong> (<em>dict</em>) – The distribution of binned workplace sizes.</p></li>
+<li><p><strong>worplace_size_brackets</strong> (<em>dict</em>) – A dictionary of workplace size brackets.</p></li>
+<li><p><strong>workers_by_age_to_assign_count</strong> (<em>dict</em>) – A dictionary mapping age to the count of employed individuals of that age.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -740,13 +742,13 @@ Specific to data from the US.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>employment_rates</strong> (<em>dict</em>) – dictionary of employment rates by age</p></li>
-<li><p><strong>potential_worker_ages_left_count</strong> (<em>dict</em>) – dictionary of the count of workers to assign by age</p></li>
-<li><p><strong>uids_by_age_dic</strong> (<em>dict</em>) – dictionary mapping age to the list of ids with that age</p></li>
+<li><p><strong>employment_rates</strong> (<em>dict</em>) – A dictionary of employment rates by age.</p></li>
+<li><p><strong>potential_worker_ages_left_count</strong> (<em>dict</em>) – A dictionary of the count of workers to assign by age.</p></li>
+<li><p><strong>uids_by_age_dic</strong> (<em>dict</em>) – A dictionary mapping age to the list of ids with that age.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary with a count of workers to assign to a workplace.</p>
+<dd class="field-even"><p>A dictionary with a count of workers to assign to a workplace.</p>
 </dd>
 </dl>
 </dd></dl>
