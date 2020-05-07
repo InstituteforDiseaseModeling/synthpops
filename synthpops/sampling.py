@@ -216,6 +216,7 @@ def sample_n_contact_ages_with_matrix(n_contacts, age, age_brackets, age_by_brac
         List of ages of n_contacts contacts by age of individual sampled from an age mixing matrix.
 
     """
+    contact_ages = []
     for i in range(n_contacts):
         contact_ages.append(sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix, single_year_age_distr))
     return contact_ages
