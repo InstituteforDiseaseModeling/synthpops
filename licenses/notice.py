@@ -103,19 +103,6 @@ def get_pkg_name(path: Path):
 
 
 
-def get_licenses(lib=Path(sysconfig.get_path('platlib'))):
-    license_files = []
-    license_files.extend(list(lib.rglob('*.dist-info/LICEN[SC]E')))
-    license_files.extend(list(lib.rglob('*.dist-info/LICEN[CS]E.*')))
-
-    licenses = dict()
-
-    for lic in license_files:
-        pkg = get_pkg_name(lic.parent)
-        if pkg not in licenses and pkg not in excludes:
-            licenses[pkg] = lic.read_text(encoding=encoding)
-    return licenses
-
 def get_js_requirements(config:Config):
     js_reqs_json = subprocess.run(
             ['node', cwd.joinpath('notice.js')],
