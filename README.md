@@ -2,6 +2,7 @@
 
 SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network.
 
+
 The code was developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim).
 
 More extensive installation and usage instructions are in the [SynthPops documentation](https://institutefordiseasemodeling.github.io/synthpops/).
@@ -58,6 +59,7 @@ The `synthpops` folder contains:
 The `tests` folder contains tests of different functions available in SynthPops.
 
 ## Disclaimer
+
 
 The code in this repository was developed by IDM to support our research in disease transmission and managing epidemics. We’ve made it publicly available under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 License to provide others with a better understanding of our research and an opportunity to build upon it for their own work. We make no representations that the code works as intended or that we will provide support, address issues that are found, or accept pull requests. You are welcome to create your own fork and modify the code to suit your own modeling needs as contemplated under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 License.
 
