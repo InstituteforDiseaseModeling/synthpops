@@ -52,44 +52,73 @@ class SynthpopsTest(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def find_fresh_uid(self, uid_list,
+                       last_index_checked,
+                       checked_people):
+        my_uid = None
+        while not my_uid:
+            potential_uid = uid_list[last_index_checked]
+            if potential_uid not in checked_people:
+                my_uid = potential_uid
+                checked_people.append(my_uid)
+                pass
+            else:
+                last_index_checked += 1
+            pass
+        return my_uid, last_index_checked, checked_people
+
+    def make_person_json(self, popdict, target_uid):
+        """
+        creates a dictionary with root members 'uid', 'age', 'sex', 'loc', 'contacts'
+        contacts is itself a dictionary of layers, each key has a list of uids of people.
+        """
+        my_person = popdict[target_uid]
+
+        person_json = {'uid': target_uid}
+        for k in ['age', 'sex', 'loc']:
+            person_json[k] = my_person[k]
+            pass
+        contact_keys = my_person['contacts'].keys()
+
+        person_json['contacts'] = {}
+        for k in list(contact_keys):
+            these_contacts = my_person['contacts'][k]
+            uids = []
+            for uid in these_contacts:
+                uids.append(uid)
+                pass
+            person_json['contacts'][k] = uids
+            pass
+        return person_json
+
+    def check_bidirectionality_of_contacts(self, person_json, popdict):
+        my_uid = person_json['uid']
+        for k in person_json['contacts']:
+                expected_uids = person_json['contacts'][k]
+                for uid in expected_uids:
+                    friend = popdict[uid]
+                    friend_contact_group = list(friend['contacts'][k])
+                    self.assertIn(my_uid, friend_contact_group)
+                    pass
+        pass
+
     def test_contacts_are_bidirectional(self):
         num_people = 5
         checked_people = []
         last_index_checked = 0
-        self.is_debugging = True
+        self.is_debugging = False
         while len(checked_people) < num_people:
             popdict = deepcopy(self.contacts)
 
             uids = popdict.keys()
             uid_list = list(uids)
-            my_uid = None
-            while not my_uid:
-                potential_uid = uid_list[last_index_checked]
-                if potential_uid not in checked_people:
-                    my_uid = potential_uid
-                    checked_people.append(my_uid)
-                    pass
-                else:
-                    last_index_checked += 1
-                pass
+            my_uid, last_index_checked, checked_people = \
+                self.find_fresh_uid(uid_list=uid_list,
+                                    last_index_checked=last_index_checked,
+                                    checked_people=checked_people)
 
-            first_person = popdict[my_uid]
-
-            person_json = {'uid': my_uid}
-            for k in ['age', 'sex', 'loc']:
-                person_json[k] = first_person[k]
-                pass
-            contact_keys = first_person['contacts'].keys()
-
-            person_json['contacts'] = {}
-            for k in list(contact_keys):
-                these_contacts = first_person['contacts'][k]
-                uids = []
-                for uid in these_contacts:
-                    uids.append(uid)
-                    pass
-                person_json['contacts'][k] = uids
-                pass
+            person_json = self.make_person_json(popdict=popdict,
+                                                target_uid=my_uid)
 
             if self.is_debugging:
                 person_filename = f"DEBUG_popdict_person_{my_uid}.json"
@@ -103,13 +132,8 @@ class SynthpopsTest(unittest.TestCase):
                 pass
 
             # Now check that each person in each network has me in their network
-            for k in person_json['contacts']:
-                expected_uids = person_json['contacts'][k]
-                for uid in expected_uids:
-                    friend = popdict[uid]
-                    friend_contact_group = list(friend['contacts'][k])
-                    self.assertIn(my_uid, friend_contact_group)
-                    pass
+            self.check_bidirectionality_of_contacts(person_json=person_json,
+                                                    popdict=popdict)
 
     def test_contact_layers_are_same_for_all_members(self):
         # Get four persons, one each with a home, work, school, and community layer
@@ -117,7 +141,8 @@ class SynthpopsTest(unittest.TestCase):
         representative_people = {
             "H": None,
             "S": None,
-            "W": None
+            "W": None,
+            "C": None
         }
         # TODO: add "C": None to above dictionary if that is ever supported here.
         try_this_next = 0
@@ -164,7 +189,7 @@ class SynthpopsTest(unittest.TestCase):
         checked_people = []
         last_index_checked = 0
         close_contacts_numbers = {'S': 10, 'W': 10}
-        self.is_debugging = True
+        self.is_debugging = False
 
         my_contacts = sp.make_contacts(location=location, state_location=state_location,
                                       country_location=country_location, options_args=options_args,
@@ -176,35 +201,17 @@ class SynthpopsTest(unittest.TestCase):
         uids = popdict.keys()
         uid_list = list(uids)
 
+
         while len(checked_people) < num_people:
-            my_uid = None
-            while not my_uid:
-                potential_uid = uid_list[last_index_checked]
-                if potential_uid not in checked_people:
-                    my_uid = potential_uid
-                    checked_people.append(my_uid)
-                    pass
-                else:
-                    last_index_checked += 1
-                pass
+            my_uid, last_index_checked, checked_people = \
+                self.find_fresh_uid(uid_list=uid_list,
+                                    last_index_checked=last_index_checked,
+                                    checked_people=checked_people)
 
             first_person = popdict[my_uid]
 
-            person_json = {'uid': my_uid}
-            for k in ['age', 'sex', 'loc']:
-                person_json[k] = first_person[k]
-                pass
-            contact_keys = first_person['contacts'].keys()
-
-            person_json['contacts'] = {}
-            for k in list(contact_keys):
-                these_contacts = first_person['contacts'][k]
-                uids = []
-                for uid in these_contacts:
-                    uids.append(uid)
-                    pass
-                person_json['contacts'][k] = uids
-                pass
+            person_json = self.make_person_json(popdict=popdict,
+                                                target_uid=my_uid)
 
             if self.is_debugging:
                 person_filename = f"DEBUG_popdict_person_{my_uid}.json"
@@ -218,13 +225,8 @@ class SynthpopsTest(unittest.TestCase):
                 pass
 
             # Now check that each person in each network has me in their network
-            for k in person_json['contacts']:
-                expected_uids = person_json['contacts'][k]
-                for uid in expected_uids:
-                    friend = popdict[uid]
-                    friend_contact_group = list(friend['contacts'][k])
-                    self.assertIn(my_uid, friend_contact_group)
-                    pass
+            self.check_bidirectionality_of_contacts(person_json=person_json,
+                                                    popdict=popdict)
         pass
 
 
