@@ -11,12 +11,8 @@ datadir = sp.datadir  # point datadir where your data folder lives
 location = 'seattle_metro'
 state_location = 'Washington'
 country_location = 'usa'
-sheet_name = 'United States of America'
-level = 'county'
 
-n = 20000
-verbose = True
-plot = True
+n = 5000
 
 # load population into a dictionary of individuals who know who their contacts are
 options_args = {'use_microstructure': True}
