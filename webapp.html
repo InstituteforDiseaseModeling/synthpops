@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Run Covasim in the web UI &mdash; Covasim  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/tipuesearch/tipuesearch.js"></script>
+        <script src="_static/tipuesearch/tipuesearch_content.js"></script>
+        <script src="_static/tipuesearch/tipuesearch_set.js"></script>
+        <script src="_static/runsearch.js"></script>
+        <script src="_static/tablecollapse.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Covasim  documentation"
+          href="_static/opensearch.xml"/>
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tipuesearch/tipuesearch.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Build and test in Docker" href="docker.html" />
+    <link rel="prev" title="Installation and setup" href="installation.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Covasim
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          <div role="search">
+    <form action="search-local.html" class='wy-form' id='rtd-search-form' method="get">
+        <input autocomplete="off" id="tipue_search_input" name="q" placeholder="Search docs"
+               required type="text">
+    </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="installation.html">Installation and setup</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Run Covasim in the web UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Build and test in Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using Covasim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Run tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Package reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to Covasim</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Covasim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://www.idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">Covasim</a> &raquo;</li>
+        
+        <li><a href="installation.html">Installation and setup</a> &raquo;</li>
+        
+        <li>Run Covasim in the web UI</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+<!-- From _templates/page.html -->
+
+  <div class="section" id="run-covasim-in-the-web-ui">
+<h1>Run Covasim in the web UI<a class="headerlink" href="#run-covasim-in-the-web-ui" title="Permalink to this headline">¶</a></h1>
+<p>The web UI consists of</p>
+<ul class="simple">
+<li><p>Static files e.g. <code class="docutils literal notranslate"><span class="pre">index.html</span></code></p></li>
+<li><p>A Flask app in <code class="docutils literal notranslate"><span class="pre">covid_app.py</span></code> wrapped in a Sciris App</p></li>
+</ul>
+<p>It can be served in two ways: local testing or deployment.</p>
+<div class="section" id="quick-local-testing">
+<h2>Quick local testing<a class="headerlink" href="#quick-local-testing" title="Permalink to this headline">¶</a></h2>
+<p>To run the app locally via Twisted, simply run the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./launch_flask
+</pre></div>
+</div>
+</div>
+<div class="section" id="deployment">
+<h2>Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline">¶</a></h2>
+<p>Recommended deployment is using <code class="docutils literal notranslate"><span class="pre">nginx</span></code> to serve the static files, and <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code> to run the Flask app.</p>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>You must have nginx (<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">nginx</span></code>) and gunicorn (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">gunicorn</span></code>) installed.</p>
+</div>
+<div class="section" id="set-up-nginx">
+<h3>Set up nginx<a class="headerlink" href="#set-up-nginx" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Copy <code class="docutils literal notranslate"><span class="pre">example_nginx_config</span></code> to e.g. <code class="docutils literal notranslate"><span class="pre">/etc/nginx/sites-enabled/covasim</span></code> (can change filename if desired).</p></li>
+<li><p>Edit the copied file to specify:</p>
+<ul class="simple">
+<li><p>The hostname/URL for the site e.g. <code class="docutils literal notranslate"><span class="pre">covasim.mydomain.com</span></code>.</p></li>
+<li><p>The full path to the directory containing <em>index.html</em> on the system running <code class="docutils literal notranslate"><span class="pre">nginx</span></code>.</p></li>
+<li><p>Change the port in <code class="docutils literal notranslate"><span class="pre">proxy_pass</span></code> line if desired - it must match the port in <code class="docutils literal notranslate"><span class="pre">launch_gunicorn</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Reload or restart <code class="docutils literal notranslate"><span class="pre">nginx</span></code> e.g. <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">service</span> <span class="pre">nginx</span> <span class="pre">reload</span></code>.</p></li>
+</ol>
+<p>For example, this will start it running at localhost:8188:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span> <span class="p">{</span>
+    <span class="n">listen</span> <span class="mi">8188</span><span class="p">;</span>
+    <span class="n">server_name</span> <span class="n">localhost</span><span class="p">;</span>
+    <span class="n">location</span> <span class="o">/</span> <span class="p">{</span>
+        <span class="n">root</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">my_username</span><span class="o">/</span><span class="n">covasim</span><span class="o">/</span><span class="n">covasim</span><span class="o">/</span><span class="n">webapp</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">location</span> <span class="o">/</span><span class="n">api</span> <span class="p">{</span>
+        <span class="n">proxy_pass</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">8097</span><span class="o">/</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-gunicorn">
+<h3>Run gunicorn<a class="headerlink" href="#run-gunicorn" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">launch_gunicorn</span></code>, optionally setting a number of workers, e.g. <code class="docutils literal notranslate"><span class="pre">./launch_gunicorn</span> <span class="pre">--workers=32</span></code>. This will need to be kept running to support the site (so run via <code class="docutils literal notranslate"><span class="pre">nohup</span></code> or <code class="docutils literal notranslate"><span class="pre">screen</span></code> etc.).</p></li>
+</ol>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">covasim</span><span class="o">/</span><span class="n">covasim</span><span class="o">/</span><span class="n">webapp</span>
+<span class="n">screen</span> <span class="o">-</span><span class="n">S</span> <span class="n">cova_app</span>
+<span class="o">./</span><span class="n">launch_gunicorn</span>
+<span class="o">&lt;</span><span class="n">Ctrl</span><span class="o">+</span><span class="n">D</span><span class="o">&gt;</span>
+
+<span class="o">...</span>
+
+<span class="n">screen</span> <span class="o">-</span><span class="n">R</span> <span class="n">cova_app</span>
+</pre></div>
+</div>
+<p>Note that for local development, the <code class="docutils literal notranslate"><span class="pre">--reload</span></code> flag to the <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code> command automatically reloads the site. This can be helpful if using the <code class="docutils literal notranslate"><span class="pre">nginx+gunicorn</span></code> setup for local development.</p>
+</div>
+</div>
+<div class="section" id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="docker.html"><span class="doc">Build and test in Docker</span></a> or the README under the <em>docker</em> folder.</p>
+</div>
+</div>
+
+
+<div id="tipue_search_content"></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="docker.html" class="btn btn-neutral float-right" title="Build and test in Docker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation and setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Intellectual Ventures Management, LLC (IVM). All rights reserved
+
+    </p>
+  </div>
+<p>EMOD is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+<!-- Google analytics for IDM docs -->
+ 
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-87656833-3', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+
+
+</body>
+</html>
