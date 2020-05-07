@@ -24,11 +24,11 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     Given a number of homes and a household size distribution, generate the number of homes of each size.
 
     Args:
-        Nhomes (int)         : number of homes
-        hh_size_distr (dict) : distribution of household sizes
+        Nhomes (int)         : The number of homes.
+        hh_size_distr (dict) : The distribution of household sizes.
 
     Returns:
-        Array with the count of households of size s at index s-1
+        An array with the count of households of size s at index s-1.
     """
     max_size = max(hh_size_distr.keys())
     hh_sizes = np.random.multinomial(Nhomes, [hh_size_distr[s] for s in range(1, max_size+1)], size=1)[0]
@@ -37,14 +37,14 @@ def generate_household_sizes(Nhomes, hh_size_distr):
 
 def trim_households(N_extra, hh_size_distr):
     """
-    Generated a few too many households giving a total  population size larger than expected so this trims that down.
+    Trim the population if too many households are generated, giving a total population size larger than expected.
 
     Args:
-        N_extra (int)        : number of extra people
-        hh_size_distr (dict) : distribution of household sizes
+        N_extra (int)        : The number of extra people.
+        hh_size_distr (dict) : The distribution of household sizes.
 
     Returns:
-        Array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
+        An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
     """
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
     f = N_extra / np.round(ss, 16)
@@ -80,11 +80,11 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
 
     Args:
-        N      (int)         : number of people in the population
-        hh_size_distr (dict) : distribution of household sizes
+        N      (int)         : The number of people in the population.
+        hh_size_distr (dict) : The distribution of household sizes.
 
     Returns:
-        Array with the count of households of size s at index s-1.
+        An array with the count of households of size s at index s-1.
     """
 
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
@@ -104,10 +104,10 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
 
 def get_totalpopsize_from_household_sizes(hh_sizes):
     """
-    Sum household sizes from count array
+    Sum household sizes from count array.
 
     Args:
-        hh_sizes (array): count of household size s at index s-1
+        hh_sizes (array): The count of household size s at index s-1.
 
     Returns:
         Sum (int) of the household sizes.
@@ -117,17 +117,17 @@ def get_totalpopsize_from_household_sizes(hh_sizes):
 
 def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_size, single_year_age_distr):
     """
-    Generate age of the head of the household, also known as the reference person of the household,
+    Generate the age of the head of the household, also known as the reference person of the household,
     conditional on the size of the household.
 
     Args:
-        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
-        hha_brackets (dict)          : age brackets for the head of households
-        hh_size (int)                : household size
-        single_year_age_distr (dict) : age distribution
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        hh_size (int)                : The household size.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
-        Age of the head of the household or reference person
+        Age of the head of the household or reference person.
     """
     distr = hha_by_size_counts[hh_size-1, :]
     b = spsamp.sample_single(distr)
@@ -138,16 +138,16 @@ def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_siz
 
 def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr):
     """
-    Generate ages of those living alone.
+    Generate the ages of those living alone.
 
     Args:
-        hh_sizes (array)             : count of household size s at index s-1
-        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
-        hha_brackets (dict)          : age brackets for the head of households
-        single_year_age_distr (dict) : age distribution
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
-        Array of households of size 1 where each household is a row and the value in the row is the age of the household member.
+        An array of households of size 1 where each household is a row and the value in the row is the age of the household member.
     """
 
     size = 1
@@ -162,22 +162,22 @@ def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_yea
 
 def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
-    Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size,
-    while all other household members have their ages sampled conditional on the age of the reference person's age and the age mixing contact matrix
+    Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
+    All other household members have their ages sampled conditional on the reference person's age and the age mixing contact matrix
     in households for the population under study.
 
     Args:
-        size (int)                   : household size
-        hh_sizes (array)             : count of household size s at index s-1
-        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
-        hha_brackets (dict)          : age brackets for the head of households
-        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
-        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
-        single_year_age_distr (dict) : age distribution
+        size (int)                   : The household size.
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
+        age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
+        contact_matrix_dic (dict)    : A dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
-        Array of households for size 'size' where each household is a row and the values in the row are the ages of the household members.
+        An array of households for size ``size`` where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual.
     """
     ya_coin = 0.15  # produces far too few young adults without this for Seattle, Washington. This is a placeholder value. Users will need to change to fit whatever population they are working with.
@@ -210,23 +210,23 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
 def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
-    Generate ages of those living in households together. First create households of people living alone, then larger households.
+    Generate the ages of those living in households together. First create households of people living alone, then larger households.
     For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
-    members have their ages sampled conditional on the age of the reference person's age and the age mixing contact matrix in households
+    members have their ages sampled conditional on the reference person's age and the age mixing contact matrix in households
     for the population under study.
 
     Args:
-        N (int)                      : number of people in the population
-        hh_sizes (array)             : count of household size s at index s-1
-        hha_by_size_counts (matrix)  : each row contains the age distribution of the reference person for household size s at index s-1
-        hha_brackets (dict)          : age brackets for the head of households
-        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
-        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
-        single_year_age_distr (dict) : age distribution
+        N (int)                      : The number of people in the population.
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        age_brackets (dict)          : The dictionary mapping age bracket keys to age bracket range.
+        age_by_brackets_dic (dict)   : The dictionary mapping age to the age bracket range it falls within.
+        contact_matrix_dic (dict)    : The dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
-        Array of all households where each household is a row and the values in the row are the ages of the household members.
+        An array of all households where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
     """
     homes_dic = {}
@@ -248,14 +248,14 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
 
 def assign_uids_by_homes(homes, id_len=16):
     """
-    Assign ids to everyone in order by their households.
+    Assign IDs to everyone in order by their households.
 
     Args:
-        homes (array): generated synthetic household ages
-        id_len (int) : length of the uid
+        homes (array): The generated synthetic ages of household members.
+        id_len (int) : The length of the UID.
 
     Returns:
-        A copy of the generated households with ids in place of ages, and a dictionary mapping id to age.
+        A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
     age_by_uid_dic = {}
     homes_by_uids = []
@@ -275,15 +275,15 @@ def assign_uids_by_homes(homes, id_len=16):
 
 def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
     """
-    Write the households to file with both id and their ages, while also writing the dictionary of id mapping to age for each individual in the population.
+    Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        homes_by_uids (list)      : list of lists, where each sublist represents a household and the ids of the household members
-        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
+        datadir (string)          : The file path to the data directory.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
+        homes_by_uids (list)      : The list of lists, where each sublist represents a household and the IDs of the household members.
+        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
 
     Returns:
         None
@@ -317,16 +317,16 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
 
 def read_in_age_by_uid(datadir, location, state_location, country_location, N):
     """
-    Read dictionary of id mapping to ages for all individuals from file.
+    Read dictionary of iD mapping to ages for all individuals from file.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        N (int)                   : number of people in the population
+        datadir (string)          : The file path to the data directory.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
+        N (int)                   : The number of people in the population.
     Returns:
-        A dictionary mapping id to age for all individuals in the population.
+        A dictionary mapping ID to age for all individuals in the population.
 
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
@@ -340,13 +340,13 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     Read in groups of people interacting in different social settings from file.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        n (int)                   : number of people in the population
-        setting (string): name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
-        with_ages (bool): If True, read in the ages of each individual in the group, else read in their ids
+        datadir (string)          : The file path to the data directory.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
+        n (int)                   : The number of people in the population.
+        setting (string): The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.
+        with_ages (bool): If True, read in the ages of each individual in the group; otherwise, read in their IDs.
 
     Returns:
         A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.
@@ -367,20 +367,20 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
     """
-    Figure out who's going to school in the population based on enrollment rates by age.
+    Identify who in the population is attending school based on enrollment rates by age.
 
     Args:
-        datadir (string)          : file path to the data directory
-        n (int)                   : number of people in the population
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        age_by_uid_dic (dict)     : dictionary mapping id to age for all individuals in the population
-        homes_by_uids (dict)      : list of lists where each sublist is a household and the ids of the household members
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        datadir (string)          : The file path to the data directory.
+        n (int)                   : The number of people in the population.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
+        age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
+        homes_by_uids (dict)      : A list of lists where each sublist is a household and the IDs of the household members.
+        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
-        Dictionary of students in schools mapping their id to their age, dictionary of students in school mapping age to the list of ids with that age, dictionary mapping age to the number of students with that age.
+        A dictionary of students in schools mapping their ID to their age, a dictionary of students in school mapping age to the list of IDs with that age, and a dictionary mapping age to the number of students with that age.
     """
     uids_in_school = {}
     uids_in_school_by_age = {}
@@ -427,15 +427,15 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
 
 def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
     """
-    Given a number of students in school, generate list of school sizes to place everyone in a school.
+    Given a number of students in school, generate a list of school sizes to place everyone in a school.
 
     Args:
-        school_size_distr_by_bracket (dict) : distribution of binned school sizes
-        school_size_brackets (dict)         : dictionary of school size brackets
-        uids_in_school (dict)               : dictionary of students in school mapping id to age
+        school_size_distr_by_bracket (dict) : The distribution of binned school sizes.
+        school_size_brackets (dict)         : A dictionary of school size brackets.
+        uids_in_school (dict)               : A dictionary of students in school mapping ID to age.
 
     Returns:
-        A list of school sizes whose sum is the length of uids_in_school.
+        A list of school sizes whose sum is the length of ``uids_in_school``.
     """
     ns = len(uids_in_school)
     sorted_brackets = sorted(school_size_brackets.keys())
@@ -460,17 +460,17 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
 
     Args:
-        school_sizes (list): list of school sizes
-        uids_in_school (dict): dictionary of students in school mapping id to age
-        uids_in_school_by_age (dict): dictionary of students in school mapping age to the list of ids with that age
-        ages_in_school_count (dict): dictionary mapping age to the number of students with that age
-        age_brackets (dict)          : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)   : dictionary mapping age to the age bracket range it falls in
-        contact_matrix_dic (dict)    : dictionary of age specific contact matrix for different physical contact settings
-        verbose (bool): If True, print statements about the generated schools as they're being generated
+        school_sizes (list): A list of school sizes.
+        uids_in_school (dict): A dictionary of students in school mapping ID to age.
+        uids_in_school_by_age (dict): A dictionary of students in school mapping age to the list of IDs with that age.
+        ages_in_school_count (dict): A dictionary mapping age to the number of students with that age.
+        age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
+        age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
+        contact_matrix_dic (dict)    : A dictionary of age specific contact matrix for different physical contact settings.
+        verbose (bool): If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the ids of each student in place of their age.
+        Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.
     """
     syn_schools = []
     syn_school_uids = []
@@ -581,16 +581,16 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
     """
-    Get ids for everyone who could be a worker by removing those who are students and those who can't be employed officially.
+    Get IDs for everyone who could be a worker by removing those who are students and those who can't be employed officially.
 
     Args:
-        syn_school_uids (list)  : list of lists where each sublist represents a school with the ids of students in the school
-        employment_rates (dict) : employment rates by age
-        age_by_uid_dic (dict)   : dictionary mapping id to age for individuals in the population
+        syn_school_uids (list)  : A list of lists where each sublist represents a school with the IDs of students in the school.
+        employment_rates (dict) : The employment rates by age.
+        age_by_uid_dic (dict)   : A dictionary mapping ID to age for individuals in the population.
 
     Returns:
-        Dictionary of potential workers mapping their id to their age, dictionary mapping age to the list of ids for potential
-        workers with that age, dictionary mapping age to the count of potential workers left to assign to a workplace for that age
+        A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
+        workers with that age, and a dictionary mapping age to the count of potential workers left to assign to a workplace for that age.
     """
     potential_worker_uids = deepcopy(age_by_uid_dic)
     potential_worker_uids_by_age = {}
@@ -623,12 +623,12 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
 
 def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_brackets, workers_by_age_to_assign_count):
     """
-    Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.
+    Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.
 
     Args:
-        workplace_size_distr_by_bracket (dict) : distribution of binned workplace sizes
-        worplace_size_brackets (dict)          : dictionary of workplace size brackets
-        workers_by_age_to_assign_count (dict)  : dictionary mapping age to the count of employed individuals of that age
+        workplace_size_distr_by_bracket (dict) : The distribution of binned workplace sizes.
+        worplace_size_brackets (dict)          : A dictionary of workplace size brackets.
+        workers_by_age_to_assign_count (dict)  : A dictionary mapping age to the count of employed individuals of that age.
 
     Returns:
         A list of workplace sizes.
@@ -656,13 +656,13 @@ def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_bra
 
 def generate_usa_workplace_sizes(workplace_sizes_by_bracket, workplace_size_brackets, workers_by_age_to_assign_count):
     """
-    Given a number of individuals employed, generate list of workplace sizes to place everyone in a workplace.
+    Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.
     Specific to data from the US.
 
     Args:
-        workplace_sizes_by_bracket (dict)     : distribution of binned workplace sizes
-        worplace_size_brackets (dict)         : dictionary of workplace size brackets
-        workers_by_age_to_assign_count (dict) : dictionary mapping age to the count of employed individuals of that age
+        workplace_sizes_by_bracket (dict)     : The distribution of binned workplace sizes.
+        worplace_size_brackets (dict)         : A dictionary of workplace size brackets.
+        workers_by_age_to_assign_count (dict) : A dictionary mapping age to the count of employed individuals of that age.
 
     Returns:
         A list of workplace sizes.
@@ -697,12 +697,12 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     Get the number of people to assign to a workplace by age using those left who can potentially go to work and employment rates by age.
 
     Args:
-        employment_rates (dict)                 : dictionary of employment rates by age
-        potential_worker_ages_left_count (dict) : dictionary of the count of workers to assign by age
-        uids_by_age_dic (dict)                  : dictionary mapping age to the list of ids with that age
+        employment_rates (dict)                 : A dictionary of employment rates by age.
+        potential_worker_ages_left_count (dict) : A dictionary of the count of workers to assign by age.
+        uids_by_age_dic (dict)                  : A dictionary mapping age to the list of ids with that age.
 
     Returns:
-        Dictionary with a count of workers to assign to a workplace.
+        A dictionary with a count of workers to assign to a workplace.
     """
 
     workers_by_age_to_assign_count = dict.fromkeys(np.arange(101), 0)
