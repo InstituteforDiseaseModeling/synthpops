@@ -15,10 +15,12 @@ def test_get_gender_fraction_by_age_path():
         assert dat_file
 
 
-@pytest.mark.skip
-# TODO: Need dat file with male female gender
+# @pytest.mark.skip
+# TODO: Test currently fails
 def test_read_gender_fraction_by_age():
-        gender_data_file_path = os.path.join(datadir, 'demographics', 'generic_census_age_brackets.dat')
+        gender_data_file_path = os.path.join(datadir, 'demographics', 'contact_matrices_151_countries',
+                                             country_location, state_location, 'age_distributions',
+                                             'seattle_metro_gender_fraction_by_age_bracket.dat')
         dat_file = sp.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location,
                                                           country_location=country_location,
                                                           file_path=gender_data_file_path, use_default=False)
@@ -49,8 +51,8 @@ def test_get_household_head_age_by_size_path():
         assert dat_file
 
 
-@pytest.mark.skip
-# TODO: Need dat file with appropriate data
+# @pytest.mark.skip
+# # TODO: Need dat file with appropriate data
 def test_get_head_age_by_size_distr():
         household_file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
                                            state_location,
