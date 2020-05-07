@@ -1,15 +1,9 @@
 import synthpops as sp
 import unittest
-import random
 import json
 import os
 from copy import deepcopy
 
-"""
-An example of how to load synthetic populations with microstructure (households, schools, and workplaces)
-Populations have demographics (age, sex) from data.
-Not an exhaustive list of what synthpops can do - please take a look through the code base for the many possibilities.
-"""
 #region pre-test setup
 datadir = sp.datadir  # point datadir where your data folder lives
 
@@ -24,10 +18,6 @@ n = 20000
 verbose = True
 plot = True
 
-# loads population with microstructure and age demographics that approximate those of the location selected
-# files located in:
-#    datadir/demographics/contact_matrices_152_countries/state_location/
-
 # load population into a dictionary of individuals who know who their contacts are
 options_args = {'use_microstructure': True}
 network_distr_args = {'Npop': n}
@@ -35,8 +25,6 @@ contacts = sp.make_contacts(location=location, state_location=state_location,
                             country_location=country_location, options_args=options_args,
                             network_distr_args=network_distr_args)
 
-# not all school and workplace contacts are going to be close contacts so create 'closer' contacts for these settings
-# close_contacts_number = {'S': 20, 'W': 20}
 # close_contacts_number = {'S': 10, 'W': 10}
 # CONTACTS = sp.trim_contacts(contacts, trimmed_size_dic=close_contacts_number)
 CONTACTS = contacts
@@ -141,13 +129,13 @@ class SynthpopsTest(unittest.TestCase):
         representative_people = {
             "H": None,
             "S": None,
-            "W": None,
-            "C": None
+            "W": None
         }
         # TODO: add "C": None to above dictionary if that is ever supported here.
         try_this_next = 0
         indexes = list(popdict.keys())
         for k in representative_people.keys():
+            # Loop through, and find at least one person with each layer.
             while not representative_people[k]:
                 temp_person = popdict[indexes[try_this_next]]
                 if try_this_next % 1000 == 0:
@@ -167,9 +155,10 @@ class SynthpopsTest(unittest.TestCase):
 
         for k in representative_people:
             if representative_people[k]:
+                # No one is in their own contact list. So first get a friend's layer
                 layer_friends = list(popdict[representative_people[k]]['contacts'][k])
                 other_layer_person = popdict[layer_friends[0]]
-                layer_friends.remove(layer_friends[0]) # add that person's uid back
+                layer_friends.remove(layer_friends[0]) # then add that person's uid back
                 other_layer_friends = list(other_layer_person['contacts'][k])
                 other_layer_friends.remove(representative_people[k])
                 self.assertEqual(sorted(layer_friends), sorted(other_layer_friends),
@@ -177,11 +166,6 @@ class SynthpopsTest(unittest.TestCase):
             else:
                 print(f"This is totally embarassing, no one found with layer {k}\n")
 
-
-        # For each person, extract that layer into a list, and add that person's uid
-        # Loop through each person in the list and
-        #    Get the set of people in that same layer, append that person's uid
-        #        Sort the list and compare to the top-level list, should be the same
         pass
 
     def test_trimmed_contacts_are_bidirectional(self):
