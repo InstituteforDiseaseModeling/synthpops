@@ -110,40 +110,9 @@ def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Was
 def test_resample_age():
     sc.heading('Resample age')
 
-    single_year_age_distr = {3: 0.011913819924925495, 2: 0.01184275603726525, 4: 0.011789662328093801,
-                             1: 0.011888906722929662, 0: 0.011973039831309033, 7: 0.011999586685894757,
-                             9: 0.0121020983859104, 8: 0.012092296470371055, 6: 0.012001220338484648,
-                             5: 0.01201224749346641, 12: 0.010614249289667433, 11: 0.010641612970548102,
-                             14: 0.010787008051048376, 10: 0.010629768989271395, 13: 0.010642429796843048,
-                             17: 0.010853579394086422, 16: 0.010869507506837857, 15: 0.010974061272590863,
-                             19: 0.005552354154644016, 18: 0.005751659770610685, 21: 0.01045653977678589,
-                             20: 0.009449188340131387, 22: 0.010311144696285617, 23: 0.010091602086337735,
-                             24: 0.010719026988349208, 26: 0.016264746675619092, 25: 0.01617583505173166,
-                             29: 0.01623411568955864, 28: 0.015737852629016703, 27: 0.015959028891554476,
-                             32: 0.016121046468839516, 34: 0.01591573709792237, 33: 0.01563446288157531,
-                             31: 0.01580995809272695, 30: 0.016102667877203245, 35: 0.013665380655347916,
-                             39: 0.013636852956155635, 38: 0.013600218215144708, 37: 0.01348014474978774,
-                             36: 0.013655701182070185, 40: 0.010464176367499974, 43: 0.01223074771053801,
-                             42: 0.012244286565535415, 41: 0.01265192397307578, 44: 0.012184188611726125,
-                             48: 0.011139140723242524, 46: 0.01142735796309662, 45: 0.011928930394555701,
-                             49: 0.011764462338385826, 47: 0.011421987371048669, 50: 0.010852128588062669,
-                             54: 0.012155109922356584, 52: 0.01074197948050666, 51: 0.011045716419964718,
-                             53: 0.011533872438688008, 55: 0.01226284963739039, 57: 0.011377205318682745,
-                             58: 0.011131054633018334, 59: 0.011569384247749956, 56: 0.011400423646957881,
-                             62: 0.010593971209323587, 60: 0.010734812524070854, 63: 0.01045972572606669,
-                             64: 0.010823846590219899, 61: 0.010656458420886908, 69: 0.007510758051558897,
-                             66: 0.007786253262710538, 65: 0.007767119065910128, 67: 0.00798713131013629,
-                             68: 0.0077655466344510446, 71: 0.005847026282611278, 70: 0.005051927240380949,
-                             72: 0.004780924573851508, 73: 0.005525850020073504, 74: 0.005770367053148027,
-                             77: 0.0014567073895416008, 90: 0.0014832542441273252, 76: 0.0010554821500991828,
-                             92: 0.0014154576616468605, 88: 0.0016959150516989783, 91: 0.0015746775680303988,
-                             100: 0.0019530316712143472, 84: 0.0017799869389475437, 87: 0.001515110469630194,
-                             79: 0.0014881552018969973, 97: 0.0018273016429235683, 99: 0.0017493559528870928,
-                             78: 0.0018179081405316968, 89: 0.0013424129293800571, 75: 0.0016648756524910546,
-                             96: 0.0012648756524910544, 95: 0.0014897888544868879, 85: 0.001386113136159634,
-                             93: 0.001586929962454579, 81: 0.0012550737369517102, 94: 0.0015085758592706313,
-                             86: 0.0014595662815739096, 98: 0.001422400685153896, 83: 0.0016558905632466558,
-                             80: 0.0015926477465191967, 82: 0.0013167441222200844}
+    single_year_age_distr = {}
+    for n in range(101):
+        single_year_age_distr[n] = float(1.0 / 101.0)
     tolerance = 2  # the resampled age should be within two years
     for n in range(int(1e4)):
         random_age = int(randrange(100))
@@ -176,6 +145,59 @@ def test_get_school_enrollment_rates_path():
     path = sp.get_school_enrollment_rates_path(datadir=datadir, location='seattle_metro', state_location='Washington',
                                                country_location='usa')
     assert path is not None
+
+
+def test_get_uids_in_school(location='seattle_metro', state_location='Washington',
+                                  country_location='usa'):
+    Nhomes = 10000
+    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
+                                           state_location,
+                                           country_location,
+                                           use_default=True)
+    assert uids_in_school is not None
+
+
+def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
+                                    country_location='usa'):
+    Nhomes = 10000
+    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
+                                           state_location,
+                                           country_location,
+                                           use_default=True)
+    employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
+                                               country_location=country_location, use_default=True)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Nhomes)
+    potential_worker_ages_left_count = sp.get_uids_potential_workers(
+        uids_in_school, employment_rates, age_by_uid_dic)
+    assert potential_worker_ages_left_count is not None
+
+@pytest.mark.skip
+def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
+                                  country_location='usa'):
+    Nhomes = 10000
+    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
+                                           state_location,
+                                           country_location,
+                                           use_default=True)
+    employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
+                                               country_location=country_location, use_default=True)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Nhomes)
+    potential_worker_ages_left_count = sp.get_uids_potential_workers(
+        uids_in_school, employment_rates, age_by_uid_dic)
+
+    # TODO: potential_worker_ages_left_count unhashable type 'dict'
+    workers_by_age_to_assign_count = sp.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count,
+                                                                     age_by_uid_dic)
+
+    workplace_size_brackets = sp.get_workplace_size_brackets(datadir, country_location)
+
+    workplace_size_distr_by_brackets = sp.get_workplace_size_distr_by_brackets(datadir,
+                                                                               state_location=state_location,
+                                                                               country_location=country_location,
+                                                                               use_default=True)
+    workplace_sizes = sp.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets,
+                                                  workers_by_age_to_assign_count)
+    print(workplace_sizes)
 
 
 #%% Run as a script
