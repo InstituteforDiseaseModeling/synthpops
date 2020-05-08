@@ -612,7 +612,7 @@ def save_synthpop(datadir, contacts, location):
     sc.saveobj(filename=filename, obj=contacts)
 
 
-def make_contacts_from_microstructure(datadir, location, state_location, country_location, n):
+def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids.
 
@@ -634,7 +634,11 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    if with_industry_code:
+        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+    else:
+        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
@@ -650,34 +654,43 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
+        popdict[uid]['hhid'] = -1
+        popdict[uid]['scid'] = -1
+        popdict[uid]['wpid'] = -1
+        popdict[uid]['wnaics'] = -1
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
     fh = open(households_by_uid_path, 'r')
-    for c, line in enumerate(fh):
+    for nh, line in enumerate(fh):
         r = line.strip().split(' ')
-
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
     fh.close()
 
     fs = open(schools_by_uid_path, 'r')
-    for c, line in enumerate(fs):
+    for ns, line in enumerate(fs):
         r = line.strip().split(' ')
-
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
     fs.close()
 
     fw = open(workplaces_by_uid_path, 'r')
-    for c, line in enumerate(fw):
+    if with_industry_code:
+        fi = open(workplaces_by_industry_code_path, 'r')
+        workplaces_by_industry_codes = np.loadtxt(fi)
+    for nw, line in enumerate(fw):
         r = line.strip().split(' ')
-
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+            if with_industry_code:
+                popdict[uid]['wnaics'] = workplaces_by_industry_codes[nw]
     fw.close()
 
     return popdict
@@ -691,10 +704,13 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['age'] = age_by_uid_dic[uid]
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {'H': set(), 'S': set(), 'W': set()}
+        popdict[uid]['contacts'] = {}
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
         popdict[uid]['wpid'] = -1
+        popdict[uid]['wnaics'] = -1
+        for k in ['H', 'S', 'W', 'C']:
+            popdict[uid]['contacts'][k] = set()
 
     for nh, household in enumerate(homes_by_uids):
         for uid in household:
@@ -713,7 +729,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
-
 
     return popdict
 

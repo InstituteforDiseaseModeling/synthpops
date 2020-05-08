@@ -3,7 +3,7 @@ import synthpops as sp
 
 # Put this here so it's accessible as sp.api.choices
 popsize_choices = [5000,
-                   10000,12000,
+                   10000,
                    20000,
                    50000,
                    100000,
@@ -26,7 +26,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False)
 
     '''
 
-    default_n = 10000
+    default_n = 50000
     default_max_contacts = {'S':20, 'W':10}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
@@ -37,10 +37,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False)
             errormsg = f'Number of people must be one of {choicestr}, not {n}'
 
             raise ValueError(errormsg)
-
-        # else:
-            # Let's start generating a new network shall we?
-
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
