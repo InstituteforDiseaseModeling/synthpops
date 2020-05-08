@@ -159,30 +159,32 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
     age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Nhomes)
-    potential_worker_ages_left_count = sp.get_uids_potential_workers(
+    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
 
 
-@pytest.mark.skip
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
                                   country_location='usa'):
-    Nhomes = 10000
-    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
-                                           state_location,
-                                           country_location,
-                                           use_default=True)
+    Npeople = 10000
+    uids_in_school, uids_in_school_by_age, uids_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
+                                                                                        state_location,
+                                                                                        country_location,
+                                                                                        use_default=True)
+
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Nhomes)
-    potential_worker_ages_left_count = sp.get_uids_potential_workers(
+
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Npeople)
+
+    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
 
-    # TODO: potential_worker_ages_left_count unhashable type 'dict'
     workers_by_age_to_assign_count = sp.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count,
                                                                      age_by_uid_dic)
 
-    workplace_size_brackets = sp.get_workplace_size_brackets(datadir, country_location)
+    workplace_size_brackets = sp.get_workplace_size_brackets(datadir, location, state_location, country_location,
+                                                             use_default=True)
 
     workplace_size_distr_by_brackets = sp.get_workplace_size_distr_by_brackets(datadir,
                                                                                state_location=state_location,
@@ -191,6 +193,21 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     workplace_sizes = sp.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets,
                                                   workers_by_age_to_assign_count)
     print(workplace_sizes)
+
+
+def test_generate_school_sizes(location='seattle_metro', state_location='Washington',
+                               country_location='usa'):
+    Nhomes = 10000
+    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
+                                           state_location,
+                                           country_location,
+                                           use_default=True)
+
+    school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
+                                                                        country_location)
+    school_size_brackets = sp.get_school_size_brackets(datadir, location, state_location, country_location)
+    school_sizes = sp.generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school)
+    assert school_sizes is not None
 
 
 #%% Run as a script
