@@ -1,11 +1,6 @@
-import os
 import synthpops as sp
 import sciris as sc
 import pytest
-from copy import deepcopy
-from collections import Counter
-from synthpops import sampling as spsamp
-from synthpops import base
 from random import randrange
 
 if not sp.config.full_data_available:
@@ -123,8 +118,6 @@ def test_resample_age():
 def test_generate_household_sizes(location='seattle_metro', state_location='Washington', country_location='usa'):
     sc.heading('Generate household sizes')
 
-    datadir = sp.datadir
-
     Nhomes_to_sample_smooth = 100000
     household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
     hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth, household_size_distr)
@@ -133,7 +126,6 @@ def test_generate_household_sizes(location='seattle_metro', state_location='Wash
 
 def test_generate_household_sizes_from_fixed_pop_size(location='seattle_metro', state_location='Washington',
                                                       country_location='usa'):
-    datadir = sp.datadir
     household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
 
     Nhomes = 10000
@@ -170,6 +162,7 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
     potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
+
 
 @pytest.mark.skip
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
