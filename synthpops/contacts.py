@@ -574,7 +574,6 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
 def rehydrate(data):
     """
-<<<<<<< HEAD
     Populate popdict with uids, ages and contacts from generated microstructure data
     that was saved to data object
 
