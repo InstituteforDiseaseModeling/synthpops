@@ -2,6 +2,10 @@ import os
 import synthpops as sp
 import sciris as sc
 import pytest
+from copy import deepcopy
+from collections import Counter
+from synthpops import sampling as spsamp
+from synthpops import base
 
 if not sp.config.full_data_available:
     pytest.skip("Data not available, tests not possible", allow_module_level=True)
@@ -98,6 +102,58 @@ def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Was
     print(len(ages),len(sexes))
 
     return
+
+
+@pytest.mark.skip
+# TODO: Not sure how to do this
+def test_resample_age(state_location='Washington', country_location='usa'):
+    sc.heading('Resample age')
+
+    datadir = sp.datadir
+
+    age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location,
+                                              country_location=country_location)
+    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+    sheet_name = 'United States of America'
+    age_mixing_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+
+    n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
+    k = 'H'
+    nc = spsamp.pt(n_contacts_dic[k])
+
+    default_n = 10000
+    popdict = sp.make_popdict(n=default_n)
+    for uid in popdict:
+        age = popdict[uid]['age']
+
+    single_year_age_distr = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic,
+                                                                     age_mixing_matrix_dic[k])
+
+    hha_brackets = sp.get_head_age_brackets(datadir, country_location=country_location)
+    hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, country_location=country_location)
+    size = 1
+    hha = sp.generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
+    b = age_by_brackets_dic[hha]
+    contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+    b_prob = contact_matrix_dic['H'][b, :]
+    bi = spsamp.sample_single(b_prob)
+
+    ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
+
+    sp.resample_age(single_year_age_distr, ai)
+
+
+def test_generate_household_sizes(location='seattle_metro', state_location='Washington', country_location='usa'):
+    sc.heading('Generate household sizes')
+
+    datadir = sp.datadir
+
+    Nhomes_to_sample_smooth = 100000
+    household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
+    hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth, household_size_distr)
+    assert len(hh_sizes) == 7
+
 
 
 #%% Run as a script
