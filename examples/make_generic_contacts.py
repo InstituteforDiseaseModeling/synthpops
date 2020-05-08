@@ -1,13 +1,13 @@
+"""
+A few examples of how to make synthetic populations with random contact networks.
+Populations can have demographics (age, sex) from data or randomly generated demographics.
+"""
+
 import synthpops as sp
 import sciris as sc
 import numpy as np
 import os
 
-"""
-A few examples of how to make synthetic populations with random contact networks.
-Populations can have demographics (age, sex) from data or randomly generated demographics.
-Not an exhaustive list of what synthpops can do - please take a look through the code base for the many possibilities.
-"""
 
 def make_popdict_of_random_people(n=1e4):
     """
