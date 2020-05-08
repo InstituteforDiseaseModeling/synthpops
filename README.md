@@ -13,19 +13,9 @@ Python >=3.6 is required. Python 2 is not supported. Virtual environments are re
 
 `python setup.py develop`
 
-NOTE: This module needs to load in data in order to function. To set the data location, do
+## Usage
 
-```python
-import synthpops as sp
-sp.set_datadir('my-data-folder')
-```
-The data folder will need to have files in this kind of structure:
-
-```bash
-demographics/
-contact_matrices_152_countries/
-```
-You can find this data under the data folder.
+In addition to the [documentation](https://institutefordiseasemodeling.github.io/synthpops/usage.html), see the `examples` folder for usage examples.
 
 ## Structure
 
