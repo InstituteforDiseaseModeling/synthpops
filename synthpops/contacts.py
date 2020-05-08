@@ -689,7 +689,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
             if with_industry_code:
-                popdict[uid]['wnaics'] = workplaces_by_industry_codes[nw]
+                popdict[uid]['wnaics'] = int(workplaces_by_industry_codes[nw])
     fw.close()
 
     return popdict
@@ -796,7 +796,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing']
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code']
     if options_args         is None: options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
@@ -808,7 +808,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if options_args['use_microstructure']:
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'])
+        popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_industry_code'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else:

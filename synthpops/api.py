@@ -11,7 +11,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=False):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -45,7 +45,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False)
     location = 'seattle_metro'
     sheet_name = 'United States of America'
 
-    options_args = {'use_microstructure': True}
+    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code}
     network_distr_args = {'Npop': int(n)}
 
     # Heavy lift 1: make the contacts and their connections
@@ -58,6 +58,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False)
             population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
         else:
             raise ValueError(errormsg)
+        # raise NotImplementedError("Population not available")
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
