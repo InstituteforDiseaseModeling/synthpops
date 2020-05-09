@@ -7,11 +7,17 @@ The code was developed to explore the impact of contact tracing and testing in h
 
 More extensive installation and usage instructions are in the [SynthPops documentation](https://institutefordiseasemodeling.github.io/synthpops/).
 
+## Installation
+
+Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
+
+To install, first clone the GitHub repository, and then type:
+
+`python setup.py develop`
+
+Note: while `synthpops` can also be installed via pypi, this method does not currently include the data files, and thus is not recommended.
+
 ## Quick Start
-Install the package from PyPi:
-```bash
-pip install synthpops
-```
 
 The following code creates a synthetic population for Seattle, Washington::
 ```python
@@ -32,12 +38,6 @@ sp.generate_synthetic_population(npop,datadir,location=location,
                                  state_location=state_location,country_location=country_location,
                                  sheet_name=sheet_name,level=level)
 ```
-
-## Installation
-
-Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
-
-`python setup.py develop`
 
 ## Usage
 
