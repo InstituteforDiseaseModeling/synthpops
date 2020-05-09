@@ -992,7 +992,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         verbose (bool)                            : If True, print statements as contacts are being generated
         plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
         write (bool)                              : If True, write population to file
-        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         None

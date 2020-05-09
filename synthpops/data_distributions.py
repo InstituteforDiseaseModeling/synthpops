@@ -75,7 +75,7 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the fractions for two genders by age bracket.
@@ -136,7 +136,7 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the age distribution by age bracket. Keys map to a range of ages in that age bracket.
@@ -191,7 +191,7 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the household size distribution data. Keys map to the household size as an integer, values are the percent of households of that size.
@@ -243,7 +243,7 @@ def get_head_age_brackets(datadir, state_location=None, country_location=None, f
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the age brackets for head of household distribution data. Keys map to the age bracket as an integer, values are the percent of households which head of household in that age bracket.
@@ -295,7 +295,7 @@ def get_household_head_age_by_size_df(datadir, state_location=None, country_loca
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A file path to the head of household age by household size count or distribution data.
@@ -326,7 +326,7 @@ def get_head_age_by_size_distr(datadir, state_location=None, country_location=No
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
         household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
     
     Returns:
         An array where each row s represents the age distribution of the head of households for households of size s-1.
@@ -380,7 +380,7 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
         household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
     
     Returns:
         A dictionary of the range of ages that map to each age bracket.
@@ -611,7 +611,7 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
     
     Returns:
         A dictionary of school enrollment rates by age.
@@ -669,7 +669,7 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of school size brackets.
@@ -725,7 +725,7 @@ def get_school_sizes_df(datadir, location=None, state_location=None, country_loc
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A pandas dataframe with school sizes.
@@ -781,7 +781,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         country_location (string) : name of the country the location is in
         counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
         file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the distribution of school sizes by bracket.
@@ -837,7 +837,7 @@ def write_school_size_distr_by_brackets(datadir, location=None, state_location=N
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
         
     Returns:
         A dictionary of the distribution of school sizes by bracket.
@@ -873,7 +873,7 @@ def get_usa_school_sizes_by_bracket(datadir, location, state_location, country_l
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the distribution of school sizes by bracket.
@@ -935,7 +935,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of employment rates by age.
@@ -988,7 +988,7 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of workplace size brackets.
@@ -1040,7 +1040,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
