@@ -60,14 +60,6 @@ synthpops.data\_distributions module
    :undoc-members:
    :show-inheritance:
 
-synthpops.plot\_network module
-------------------------------
-
-.. automodule:: synthpops.plot_network
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 synthpops.plot\_tools module
 ----------------------------
 
@@ -80,14 +72,6 @@ synthpops.sampling module
 -------------------------
 
 .. automodule:: synthpops.sampling
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-synthpops.synthpops module
---------------------------
-
-.. automodule:: synthpops.synthpops
    :members:
    :undoc-members:
    :show-inheritance:
