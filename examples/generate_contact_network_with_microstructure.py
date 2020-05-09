@@ -40,8 +40,8 @@ if __name__ == '__main__':
     sheet_name = 'United States of America'
 
     n = 10000
-    verbose = True
-    plot = True
+    verbose = False
+    plot = False
 
     # this will generate a population with microstructure and age demographics that approximate those of the location selected
     # also saves to file in:

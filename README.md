@@ -7,25 +7,41 @@ The code was developed to explore the impact of contact tracing and testing in h
 
 More extensive installation and usage instructions are in the [SynthPops documentation](https://institutefordiseasemodeling.github.io/synthpops/).
 
+## Quick Start
+Install the package from PyPi:
+```bash
+pip install synthpops
+```
+
+The following code creates a synthetic population for Seattle, Washington::
+```python
+import synthpops as sp
+
+sp.validate()
+
+datadir = sp.datadir # this should be where your demographics data folder resides
+
+location = 'seattle_metro'
+state_location = 'Washington'
+country_location = 'usa'
+sheet_name = 'United States of America'
+level = 'county'
+
+npop = 10000 # how many people in your population
+sp.generate_synthetic_population(npop,datadir,location=location,
+                                 state_location=state_location,country_location=country_location,
+                                 sheet_name=sheet_name,level=level)
+```
+
 ## Installation
 
 Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
 
 `python setup.py develop`
 
-NOTE: This module needs to load in data in order to function. To set the data location, do
+## Usage
 
-```python
-import synthpops as sp
-sp.set_datadir('my-data-folder')
-```
-The data folder will need to have files in this kind of structure:
-
-```bash
-demographics/
-contact_matrices_152_countries/
-```
-You can find this data under the data folder.
+In addition to the [documentation](https://institutefordiseasemodeling.github.io/synthpops/usage.html), see the `examples` folder for usage examples.
 
 ## Structure
 
