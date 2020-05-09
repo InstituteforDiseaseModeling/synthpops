@@ -30,7 +30,7 @@ setup(
     description="Synthetic population generation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='http://covasim.org',
+    url='http://synthpops.org',
     keywords=['synthetic population', 'census', 'demography'],
     platforms=["OS Independent"],
     classifiers=CLASSIFIERS,
