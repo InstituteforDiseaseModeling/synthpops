@@ -1,4 +1,4 @@
-name: Covasim Docs workflow
+name: SynthPops Docs workflow
 on:
   push:
     branches:
