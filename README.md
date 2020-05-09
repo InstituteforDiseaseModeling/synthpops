@@ -15,7 +15,7 @@ To install, first clone the GitHub repository, and then type:
 
 `python setup.py develop`
 
-Note: while `synthpops` can also be installed via pypi, this method does not currently include the data files, and thus is not recommended.
+Note: while `synthpops` can also be installed via pypi, this method does not currently include the data files which are required to function, and thus is not recommended.
 
 ## Quick Start
 
