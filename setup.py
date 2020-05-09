@@ -7,6 +7,10 @@ cwd = os.path.abspath(os.path.dirname(__file__))
 versionpath = os.path.join(cwd, 'synthpops', 'version.py')
 version = runpy.run_path(versionpath)['__version__']
 
+# Get the documentation
+with open(os.path.join(cwd, 'README.md'), "r") as fh:
+    long_description = fh.read()
+
 CLASSIFIERS = [
     "Environment :: Console",
     "Intended Audience :: Science/Research",
@@ -14,7 +18,7 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.7",
 ]
 
@@ -24,6 +28,9 @@ setup(
     author="Dina Mistry",
     author_email="covid@idmod.org",
     description="Synthetic population generation",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='http://covasim.org',
     keywords=['synthetic population', 'census', 'demography'],
     platforms=["OS Independent"],
     classifiers=CLASSIFIERS,
