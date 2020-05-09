@@ -62,12 +62,13 @@ if __name__ == '__main__':
     # directory for storing results
     do_run = True
     verbose = True
+    do_save = True
 
     sim = create_sim()
     sim.initialize()
 
-    n = int(5e3)
-    population = sp.make_population(n)
+    n = int(200)
+    population = sp.make_population(n, generate=True)
 
     # Need to create contacts
 
@@ -111,8 +112,9 @@ if __name__ == '__main__':
         nx.draw(G, ax=ax, node_size=1, width=0.05)
         ax.set_title(titles[layer], fontsize=24)
 
-    fig_path = os.path.join("..", "data", 'demographics', 'contact_matrices_152_countries', 'usa', 'Washington', "figures")
-    if not os.path.exists(fig_path):
-        os.makedirs(fig_path)
-    fig.savefig(f"{fig_path}_seattle_metro_{sim.pars['pop_size']}_contact_networks.png")
+    if do_save:
+        fig_path = os.path.join("..", "data", 'demographics', 'contact_matrices_152_countries', 'usa', 'Washington', "figures")
+        if not os.path.exists(fig_path):
+            os.makedirs(fig_path)
+        fig.savefig(f"{fig_path}_seattle_metro_{sim.pars['pop_size']}_contact_networks.png")
     plt.show()

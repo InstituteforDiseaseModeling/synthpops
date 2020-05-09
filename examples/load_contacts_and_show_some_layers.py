@@ -1,13 +1,13 @@
+"""
+An example of how to load synthetic populations with microstructure (households, schools, and workplaces)
+Populations have demographics (age, sex) from data.
+Not an exhaustive list of what synthpops can do - please take a look through the code base for the many possibilities.
+"""
+
 import synthpops as sp
 import sciris as sc
 import numpy as np
 import os
-
-"""
-An of how to load synthetic populations with microstructure (households, schools, and workplaces)
-Populations have demographics (age, sex) from data.
-Not an exhaustive list of what synthpops can do - please take a look through the code base for the many possibilities.
-"""
 
 def show_layers(popdict,show_ages=False):
 
