@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Household contact layer &mdash; SynthPops  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/tipuesearch/tipuesearch.js"></script>
+        <script src="_static/tipuesearch/tipuesearch_content.js"></script>
+        <script src="_static/tipuesearch/tipuesearch_set.js"></script>
+        <script src="_static/runsearch.js"></script>
+        <script src="_static/tablecollapse.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tipuesearch/tipuesearch.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="School contact layer" href="schools.html" />
+    <link rel="prev" title="Using SynthPops" href="usage.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          <div role="search">
+    <form action="search-local.html" class='wy-form' id='rtd-search-form' method="get">
+        <input autocomplete="off" id="tipue_search_input" name="q" placeholder="Search docs"
+               required type="text">
+    </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="usage.html">Using SynthPops</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Household contact layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schools.html">School contact layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workplaces.html">Workplace contact layer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">synthpops package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="usage.html">Using SynthPops</a> &raquo;</li>
+        
+        <li>Household contact layer</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+<!-- From _templates/page.html -->
+
+  <div class="section" id="household-contact-layer">
+<h1>Household contact layer<a class="headerlink" href="#household-contact-layer" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="glossary.html#term-household-contact-layer"><span class="xref std std-term">household contact layer</span></a> represents the pairwise connections between household members.
+The population is generated within this contact layer, not as a separate pool of people.</p>
+<p>As locations, households are special in the following ways:</p>
+<ul class="simple">
+<li><p>Unlike schools and workplaces, everyone must be assigned to a household.</p></li>
+<li><p>The size of the household is important (for example, a 2-person household looks very different in
+comparison to a 5- or 6-person household) and some households only have 1 person.</p></li>
+<li><p>The reference person/head of the household can be well-defined by data.</p></li>
+</ul>
+<div class="section" id="data-needed">
+<h2>Data needed<a class="headerlink" href="#data-needed" title="Permalink to this headline">¶</a></h2>
+<p>The following data sets are required for households:</p>
+<ol class="arabic">
+<li><p><strong>Age bracket distribution</strong> specifying the distribution of people in age bins for the location.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_bracket</span> <span class="p">,</span> <span class="n">percent</span>
+<span class="mi">0_4</span>         <span class="p">,</span> <span class="mf">0.0594714358950416</span>
+<span class="mi">5_9</span>         <span class="p">,</span> <span class="mf">0.06031137308234759</span>
+<span class="mi">10_14</span>       <span class="p">,</span> <span class="mf">0.05338015778985113</span>
+<span class="mi">15_19</span>       <span class="p">,</span> <span class="mf">0.054500690394160285</span>
+<span class="mi">20_24</span>       <span class="p">,</span> <span class="mf">0.06161403846144956</span>
+<span class="mi">25_29</span>       <span class="p">,</span> <span class="mf">0.08899312471888453</span>
+<span class="mi">30_34</span>       <span class="p">,</span> <span class="mf">0.0883533486774803</span>
+<span class="mi">35_39</span>       <span class="p">,</span> <span class="mf">0.07780767611060545</span>
+<span class="mi">40_44</span>       <span class="p">,</span> <span class="mf">0.07099017823587304</span>
+<span class="mi">45_49</span>       <span class="p">,</span> <span class="mf">0.06996903280562596</span>
+<span class="mi">50_54</span>       <span class="p">,</span> <span class="mf">0.06655242534751997</span>
+<span class="mi">55_59</span>       <span class="p">,</span> <span class="mf">0.06350008343899961</span>
+<span class="mi">60_64</span>       <span class="p">,</span> <span class="mf">0.05761405140489549</span>
+<span class="mi">65_69</span>       <span class="p">,</span> <span class="mf">0.04487122889235999</span>
+<span class="mi">70_74</span>       <span class="p">,</span> <span class="mf">0.030964420778483555</span>
+<span class="mi">75_100</span>       <span class="p">,</span> <span class="mf">0.05110673396642193</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Age distribution of the reference person for each household size</strong></p>
+<p>The distribution is what matters, so it doesn’t matter if absolute counts are available or not,
+each <em>row</em> is normalized. If this is not available, default to sampling the age of the reference
+individual from the age distribution for adults:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">family_size</span> <span class="p">,</span> <span class="mi">18</span><span class="o">-</span><span class="mi">20</span> <span class="p">,</span> <span class="mi">20</span><span class="o">-</span><span class="mi">24</span> <span class="p">,</span> <span class="mi">25</span><span class="o">-</span><span class="mi">29</span> <span class="p">,</span> <span class="mi">30</span><span class="o">-</span><span class="mi">34</span> <span class="p">,</span> <span class="mi">35</span><span class="o">-</span><span class="mi">39</span> <span class="p">,</span> <span class="mi">40</span><span class="o">-</span><span class="mi">44</span> <span class="p">,</span> <span class="mi">45</span><span class="o">-</span><span class="mi">49</span> <span class="p">,</span> <span class="mi">50</span><span class="o">-</span><span class="mi">54</span> <span class="p">,</span> <span class="mi">55</span><span class="o">-</span><span class="mi">64</span> <span class="p">,</span> <span class="mi">65</span><span class="o">-</span><span class="mi">74</span> <span class="p">,</span> <span class="mi">75</span><span class="o">-</span><span class="mi">99</span>
+<span class="mi">2</span>           <span class="p">,</span> <span class="mi">163</span>   <span class="p">,</span> <span class="mi">999</span>   <span class="p">,</span> <span class="mi">2316</span>  <span class="p">,</span> <span class="mi">2230</span>  <span class="p">,</span> <span class="mi">1880</span>  <span class="p">,</span> <span class="mi">1856</span>  <span class="p">,</span> <span class="mi">2390</span>  <span class="p">,</span> <span class="mi">3118</span>  <span class="p">,</span> <span class="mi">9528</span>  <span class="p">,</span> <span class="mi">9345</span>  <span class="p">,</span> <span class="mi">5584</span>
+<span class="mi">3</span>           <span class="p">,</span> <span class="mi">115</span>   <span class="p">,</span> <span class="mi">757</span>   <span class="p">,</span> <span class="mi">1545</span>  <span class="p">,</span> <span class="mi">1907</span>  <span class="p">,</span> <span class="mi">2066</span>  <span class="p">,</span> <span class="mi">1811</span>  <span class="p">,</span> <span class="mi">2028</span>  <span class="p">,</span> <span class="mi">2175</span>  <span class="p">,</span> <span class="mi">3311</span>  <span class="p">,</span> <span class="mi">1587</span>  <span class="p">,</span> <span class="mi">588</span>
+<span class="mi">4</span>           <span class="p">,</span> <span class="mi">135</span>   <span class="p">,</span> <span class="mi">442</span>   <span class="p">,</span> <span class="mi">1029</span>  <span class="p">,</span> <span class="mi">1951</span>  <span class="p">,</span> <span class="mi">2670</span>  <span class="p">,</span> <span class="mi">2547</span>  <span class="p">,</span> <span class="mi">2368</span>  <span class="p">,</span> <span class="mi">1695</span>  <span class="p">,</span> <span class="mi">1763</span>  <span class="p">,</span> <span class="mi">520</span>   <span class="p">,</span> <span class="mi">221</span>
+<span class="mi">5</span>           <span class="p">,</span> <span class="mi">61</span>    <span class="p">,</span> <span class="mi">172</span>   <span class="p">,</span> <span class="mi">394</span>   <span class="p">,</span> <span class="mi">905</span>   <span class="p">,</span> <span class="mi">1429</span>  <span class="p">,</span> <span class="mi">1232</span>  <span class="p">,</span> <span class="mi">969</span>   <span class="p">,</span> <span class="mi">683</span>   <span class="p">,</span> <span class="mi">623</span>   <span class="p">,</span> <span class="mi">235</span>   <span class="p">,</span> <span class="mi">94</span>
+<span class="mi">6</span>           <span class="p">,</span> <span class="mi">25</span>    <span class="p">,</span> <span class="mi">81</span>    <span class="p">,</span> <span class="mi">153</span>   <span class="p">,</span> <span class="mi">352</span>   <span class="p">,</span> <span class="mi">511</span>   <span class="p">,</span> <span class="mi">459</span>   <span class="p">,</span> <span class="mi">372</span>   <span class="p">,</span> <span class="mi">280</span>   <span class="p">,</span> <span class="mi">280</span>   <span class="p">,</span> <span class="mi">113</span>   <span class="p">,</span> <span class="mi">49</span>
+<span class="mi">7</span>           <span class="p">,</span> <span class="mi">24</span>    <span class="p">,</span> <span class="mi">33</span>    <span class="p">,</span> <span class="mi">63</span>    <span class="p">,</span> <span class="mi">144</span>   <span class="p">,</span> <span class="mi">279</span>   <span class="p">,</span> <span class="mi">242</span>   <span class="p">,</span> <span class="mi">219</span>   <span class="p">,</span> <span class="mi">115</span>   <span class="p">,</span> <span class="mi">157</span>   <span class="p">,</span> <span class="mi">80</span>    <span class="p">,</span> <span class="mi">16</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Distribution of household sizes</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">household_size</span> <span class="p">,</span> <span class="n">percent</span>
+<span class="mi">1</span>              <span class="p">,</span> <span class="mf">0.2781590909877753</span>
+<span class="mi">2</span>              <span class="p">,</span> <span class="mf">0.3443313103056699</span>
+<span class="mi">3</span>              <span class="p">,</span> <span class="mf">0.15759535523004006</span>
+<span class="mi">4</span>              <span class="p">,</span> <span class="mf">0.13654311541644018</span>
+<span class="mi">5</span>              <span class="p">,</span> <span class="mf">0.050887858718118274</span>
+<span class="mi">6</span>              <span class="p">,</span> <span class="mf">0.019738368167953997</span>
+<span class="mi">7</span>              <span class="p">,</span> <span class="mf">0.012744901174002305</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Household contact matrix</strong> specifying the number/weight of contacts by age bin:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="mi">0</span><span class="o">-</span><span class="mi">10</span>        <span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">20</span>       <span class="p">,</span> <span class="mi">20</span><span class="o">-</span><span class="mi">30</span>
+<span class="mi">0</span><span class="o">-</span><span class="mi">10</span>    <span class="mf">0.659867911</span> <span class="p">,</span> <span class="mf">0.503965302</span> <span class="p">,</span> <span class="mf">0.214772978</span>
+<span class="mi">10</span><span class="o">-</span><span class="mi">20</span>   <span class="mf">0.314776879</span> <span class="p">,</span> <span class="mf">0.895460015</span> <span class="p">,</span> <span class="mf">0.412465791</span>
+<span class="mi">20</span><span class="o">-</span><span class="mi">30</span>   <span class="mf">0.132821425</span> <span class="p">,</span> <span class="mf">0.405073038</span> <span class="p">,</span> <span class="mf">1.433888594</span>
+</pre></div>
+</div>
+<p>By default, SynthPops uses matrices from a study (<a class="reference external" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005697">Prem et al. 2017</a>) that projected inferred age mixing
+patterns from the POLYMOD study (<a class="reference external" href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0050074">Mossong et al. 2008</a>) in Europe to other countries. SynthPops
+can take in user-specified contact matrices if other age mixing patterns are available for the
+household, school, and workplace settings (see the social contact data on <a class="reference external" href="https://zenodo.org/communities/social_contact_data/?page=1&amp;size=20">Zenodo</a> for other
+empirical contact matrices from survey studies).</p>
+<p>In theory, the household contact matrix varies with household size, but in general data at that resolution is unavailable.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
+<p>Use these SynthPops functions to instantiate households as follows:</p>
+<ol class="arabic simple">
+<li><p>Call <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_synthetic_population" title="synthpops.contact_networks.generate_synthetic_population"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code></a> and provide the binned
+age bracket distribution data described above. This wrapper function calls the following functions:</p>
+<ol class="arabic simple">
+<li><p>From the binned age distribution, <code class="xref py py-func docutils literal notranslate"><span class="pre">get_age_n()</span></code> creates samples
+of ages from the binned distribution, and then normalizes to create a single-year distribution.
+This distribution can therefore be gathered using whatever age bins are present in any given dataset.</p></li>
+<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size" title="synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_household_sizes_from_fixed_pop_size()</span></code></a> generates empty
+households with known size based on the distribution of household sizes.</p></li>
+<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.generate_all_households" title="synthpops.contact_networks.generate_all_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_all_households()</span></code></a> contains the core implementation
+and constructs households with individuals of different ages living together. It takes in the
+remaining data sources above, and then does the following:</p>
+<ul class="simple">
+<li><p>Calls <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_living_alone" title="synthpops.contact_networks.generate_living_alone"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_living_alone()</span></code></a> to populate households with
+1 person (either from data on those living alone or, if unavailable, from the adult age distribution).</p></li>
+<li><p>Calls <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_larger_households" title="synthpops.contact_networks.generate_larger_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_larger_households()</span></code></a> repeatedly with with
+different household sizes to populate those households, first sampling the age of a reference
+person and then their household contacts as outlined above.</p></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+
+<div id="tipue_search_content"></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="schools.html" class="btn btn-neutral float-right" title="School contact layer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral float-left" title="Using SynthPops" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Intellectual Ventures Management, LLC (IVM). All rights reserved
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+<!-- Google analytics for IDM docs -->
+ 
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-87656833-3', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+
+
+</body>
+</html>
