@@ -15,10 +15,12 @@ locations:
 * `Prem et al. 2017`_
 * `Mistry et al. 2020`_
 
-The general idea is to use age-specific contact matrices that describe age mixing patterns for a
-specific population. Here, we use the contact matrices from "Projecting social contact matrices in
-152 countries using contact surveys and demographic data" by `Prem et al. 2017`_; however, other
-age-specific contact matrices can be used with |SP|.
+The general idea is to use age-specific contact matrices that describe age mixing patterns for a specific 
+population. By default, |SP| uses Prem et al.’s (2017) matrices, which project inferred age mixing patterns
+from the POLYMOD study (Mossong et al. 2008) in Europe to other countries. However, user-specified contact 
+matrices can also be implemented for customizing age-mixing patterns for the household, school, and workplace 
+settings (see the social contact data on `Zenodo <https://zenodo.org/>`_ for other empirical contact matrices 
+from survey studies).
 
 The matrices represent the average number of contacts between people for different age bins (the
 default matrices use 5-year age bins). For example, a household of two individuals is relatively
