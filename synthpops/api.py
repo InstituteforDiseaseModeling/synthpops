@@ -20,14 +20,15 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
         max_contacts (dict) : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
         as_objdict (bool)   : If True, change popdict type to ``sc.objdict``.
         generate (bool)     : If True, first look for cached population files and if those are not available, generate new population
+        with_industry_code (bool): If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
 
     '''
 
-    default_n = 50000
-    default_max_contacts = {'S':20, 'W':10}  # this can be anything but should be based on relevant average number of contacts for the population under study
+    default_n = 10000
+    default_max_contacts = {'S': 20, 'W': 10}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
     n = int(n)

@@ -12,7 +12,7 @@ import pandas as pd
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
     Create a dictionary of n people with age, sex and loc keys
-    
+
     Args:
         n (int)                   : number of people
         uids (list)               : supplied uids of individuals
@@ -101,7 +101,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
 def make_contacts_generic(popdict, network_distr_args):
     """
     Create contact network regardless of age, according to network distribution properties. Can be used by webapp.
-    
+
     Args:
         popdict (dict)           : dictionary of all individuals
         network_distr_args (dict): network distribution parameters dictionary for average_degree, network_type, and directionality
@@ -825,11 +825,11 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
 
     ### Rationale behind default activity_args parameters
-        # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
-        # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
-        # worker_age_min: 23: to keep ages for different activities clean
-        # worker_age_max: 65: age at which people are able to retire in many places
-        # activity_args might also include different n_contacts for college kids ....
+    # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
+    # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
+    # worker_age_min: 23: to keep ages for different activities clean
+    # worker_age_max: 65: age at which people are able to retire in many places
+    # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code']
