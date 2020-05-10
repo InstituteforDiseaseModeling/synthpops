@@ -38,16 +38,15 @@ if __name__ == '__main__':
     state_location = 'Washington'
     country_location = 'usa'
     sheet_name = 'United States of America'
-    level = 'county'
 
-    n = 20000
+    n = 10000
     verbose = True
     plot = True
 
     # this will generate a population with microstructure and age demographics that approximate those of the location selected
     # also saves to file in:
     #    datadir/demographics/contact_matrices_152_countries/state_location/
-    sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,level=level,verbose=verbose,plot=plot)
+    sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,verbose=verbose,plot=plot)
 
     # load that population into a dictionary of individuals who know who their contacts are
     options_args = {'use_microstructure': True}

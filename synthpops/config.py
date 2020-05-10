@@ -1,5 +1,5 @@
 '''
-The point of this file is to set the location of the data folder.
+This module sets the location of the data folder.
 '''
 
 #%% Housekeeping
@@ -45,7 +45,7 @@ if datadir is None:
 #%% Functions
 
 def set_datadir(folder):
-    ''' Set the folder to something user-specific '''
+    ''' Set the data folder to the user-specified location.'''
     global datadir
     datadir = folder
     print(f'Done: data directory set to {folder}.')
@@ -53,7 +53,7 @@ def set_datadir(folder):
 
 
 def validate(verbose=True):
-    ''' Check that the data folder can be found '''
+    ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
         if verbose:
             print(f'The data folder {datadir} was found.')

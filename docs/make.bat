@@ -5,7 +5,7 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
-set SPHINXOPTS=
+set SPHINXOPTS=-W
 set INTERNALOPTS=-t internal
 set BUILDDIR=_build
 set INDEXBUILD=python %BUILDDIR%/../scripts/gti.py
