@@ -613,7 +613,9 @@ def save_synthpop(datadir, contacts, location):
 
 def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
     """
-    Make a popdict from synthetic household, school, and workplace files with uids.
+    Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+    will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+    codes are only available to assign to populations within the US.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -621,12 +623,19 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         n (int)                   : number of people in the population
+        with_industry_code (bool) : If True, assign workplace industry code read in from cached file
 
     Returns:
-        A popdict of people with attributes, including their age and the ids of their contacts in the households ('H'),
-        schools ('S'), and workplace ('W') layers where contacts are clustered and thus the network is composed of groups
-        of people interacting with each other. For example, all household members are contacts of each other, and everyone
-        at the same school is a contact of each other.
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() - see below).
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
 
@@ -656,7 +665,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
         popdict[uid]['wpid'] = -1
-        popdict[uid]['wnaics'] = -1
+        popdict[uid]['wpindcode'] = -1
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
@@ -689,13 +698,38 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
             if with_industry_code:
-                popdict[uid]['wnaics'] = int(workplaces_by_industry_codes[nw])
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
     fw.close()
 
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids):
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
+    """
+    From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+    Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+    school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
+
+    Args:
+        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        workplaces_by_uids (list)                         : list of lists, where each sublist represents a workplace and the ids of the workers within it
+        workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() - see below).
+    """
+
     popdict = {}
 
     for uid in age_by_uid_dic:
@@ -707,7 +741,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
         popdict[uid]['wpid'] = -1
-        popdict[uid]['wnaics'] = -1
+        popdict[uid]['wpindcode'] = -1
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
@@ -728,6 +762,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
+            if workplaces_by_industry_codes is not None:
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     return popdict
 
@@ -889,6 +925,7 @@ def show_layers(popdict, show_ages=False, show_n=20):
     Args:
         popdict (dict)   : dictionary of individuals with attributes, including their age and the ids of their close contacts
         show_ages (bool) : If True, show the ages of contacts, else show their ids
+        show_n (int): number of individuals to show contacts for
 
     Returns:
         None

@@ -376,7 +376,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         state_location (string)   : The name of the state the location is in.
         country_location (string) : The name of the country the location is in.
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
-        homes_by_uids (dict)      : A list of lists where each sublist is a household and the IDs of the household members.
+        homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
         use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
@@ -474,7 +474,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     """
     syn_schools = []
     syn_school_uids = []
-    # age_range = np.arange(101)
 
     ages_in_school_distr = norm_dic(ages_in_school_count)
     # total_school_count = len(uids_in_school)
@@ -543,16 +542,10 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
                     break
 
-                # a_in_school_prob_sum = np.sum([ages_in_school_distr[a] for bi in age_brackets for a in age_brackets[bi]])
-                # if a_in_school_prob_sum == 0:
-                    # break
-
                 bi = spsamp.sample_single(b_prob)
-                # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
                     bi = spsamp.sample_single(b_prob)
-                    # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
                 ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0]  # grab the next student in line
@@ -713,8 +706,6 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
             except:
                 c = 0
             number_of_people_who_can_be_assigned = min(c, potential_worker_ages_left_count[a])
-            # workers_by_age_to_assign_count[a] = c
-            # print('workers to assign',a,number_of_people_who_can_be_assigned)
             workers_by_age_to_assign_count[a] = number_of_people_who_can_be_assigned
 
     return workers_by_age_to_assign_count
@@ -992,10 +983,14 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         verbose (bool)                            : If True, print statements as contacts are being generated
         plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
         write (bool)                              : If True, write population to file
-        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data cdrawing from Seattle, Washington.
+        return_popdict (bool)                     : If True, returns a dictionary of individuals in the population
+        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
-        None
+        If return_popdict is True, returns popdict, a dictionary of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary for each individual with their
+        attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers
+        available are households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of groups of people interacting with each other. For example, all
+        household members are contacts of each other, and everyone in the same school is a contact of each other. Else, return None.
     """
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
