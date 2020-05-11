@@ -21,3 +21,4 @@
 .. |Cov_s| replace:: Covasim
 .. |Python_supp| replace:: Python 3.6 64-bit
 
+.. _GitHub repository: https://github.com/InstituteforDiseaseModeling/synthpops
