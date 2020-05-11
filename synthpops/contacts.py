@@ -768,6 +768,54 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     return popdict
 
 
+def make_graphs(popdict, layers):
+    """
+    Make a dictionary of Networkx by layer.
+
+    Args:
+        popdict (dict) : dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer
+        layers (list)  : list of contact layers
+
+    Retuns:
+        Dictionary of Networkx graphs, one for each layer of contacts.
+    """
+    G_dic = {}
+
+    for i, layer in enumerate(layers):
+        G = nx.Graph()
+        for uid in popdict:
+            contacts = popdict[uid]['contacts'][layer]
+            for j in contacts:
+                G.add_edge(uid, j)
+        G_dic[layer] = G
+    return G_dic
+
+
+def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=None, country_location=None):
+    """
+    Write edgelists for each layer of contacts.
+
+    Args:
+        popdict (dict)            : dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer
+        layers (list)             : list of contact layers
+        G_dic (dict)              : dictionary of Networkx graphs, one for each layer of contacts
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        None
+    """
+    n = len(popdict)
+    layer_names = {'H': 'households', 'S': 'schools', 'W': 'workplaces'}
+    if G_dic is None:
+        G_dic = make_graphs(popdict, layers)
+    for layer in G_dic:
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+        file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
+        nx.write_edgelist(G_dic[layer], file_path, data=False)
+
+
 def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_location=None, country_location=None, sheet_name=None, options_args=None, activity_args=None, network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
