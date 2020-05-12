@@ -498,7 +498,6 @@ def get_usa_school_enrollment_rates_df(datadir, locations, location, state_locat
 
         locations = ['King County, Washington', 'Pierce County, Washington'] for multiple counties
     """
-
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
     df = pd.read_csv(file_path, header=1)
     if type(locations) == list:
@@ -523,7 +522,6 @@ def process_usa_school_enrollment_rates(datadir, locations, location, state_loca
     Returns:
         A dictionary of enrollment rates by single year ages from 0 to 100.
     """
-
     df = get_usa_school_enrollment_rates_df(datadir, locations, location, state_location, country_location, level)
     skip_labels = ['Error', 'public', 'private', 'X', 'Total', 'Male', 'Female', '3 years and over', '18 to 24']
     columns = df.columns
@@ -569,7 +567,6 @@ def write_school_enrollment_rates(datadir, locations, location, state_location, 
 
     Returns:
         None
-
     """
     rates = process_usa_school_enrollment_rates(datadir, locations, location, state_location, country_location, level)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment')
@@ -594,7 +591,6 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
 
     Returns:
         A file path to the school enrollment rates.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -607,11 +603,6 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', state_location + '_school_enrollment_by_age.dat')
     else:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', location + '_school_enrollment_by_age.dat')
-    # elif location is None and state_location is not None:
-        # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', 'school_enrollment_by_age.dat')
-    # elif state_location is None:
-        # raise NotImplementedError("Missing state_location input string. Try again. ")
-    # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', location + '_school_enrollment_by_age.dat')
 
 
 def get_school_enrollment_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -630,7 +621,6 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
 
     Returns:
         A dictionary of school enrollment rates by age.
-
     """
     if file_path is None:
         file_path = get_school_enrollment_rates_path(datadir, location, state_location, country_location)
@@ -659,7 +649,6 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
 
     Returns:
         A file path to school size brackets.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -672,11 +661,6 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_brackets.dat')
     else:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_brackets.dat')
-    # elif location is None and state_location is not None:
-        # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_brackets.dat')
-    # elif state_location is None:
-        # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_size_brackets.dat')
-    # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_brackets.dat')
 
 
 def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -696,7 +680,6 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
 
     Returns:
         A dictionary of school size brackets.
-
     """
     if file_path is None:
         file_path = get_school_size_brackets_path(datadir, location, state_location, country_location)
@@ -723,7 +706,6 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
 
     Returns:
         A file path to school sizes.
-
     """
 
     levels = [location, state_location, country_location]
@@ -737,11 +719,6 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
     else:
         os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
-    # elif location is None:
-        # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
-    # elif state_location is None:
-        # raise NotImplementedError("Missing state_location input string. Try again.")
-    # return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
 
 
 def get_school_sizes_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -786,7 +763,6 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
 
     Returns:
         A file path to the distribution of school sizes by bracket.
-
     """
 
     levels = [location, state_location, country_location]
@@ -948,7 +924,6 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
 
     Returns:
         A file path to employment rates by age.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -1061,7 +1036,6 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
 
     Returns:
         A file path to the distribution of workplace sizes by bracket.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -1090,7 +1064,6 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
-
     """
     if file_path is None:
         file_path = get_workplace_size_distr_by_brackets_path(datadir, location, state_location, country_location)
