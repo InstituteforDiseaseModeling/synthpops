@@ -718,7 +718,7 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
     elif location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
     else:
-        os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
 
 
 def get_school_sizes_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1076,3 +1076,45 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
     return dict(zip(df.work_size_bracket, df.size_count))
+
+
+def get_state_postal_code(state_location):
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', 'postal_codes.csv')
+    df = pd.read_csv(file_path, delimiter=',')
+    dic = dict(zip(df.state, df.postal_code))
+    return dic[state_location]
+
+
+def get_usa_long_term_care_facility_path(datadir, state_location=None, part=None):
+    """
+    Get file_path for state level data on Long Term Care Facilities for the US from 2015-2016.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        state_location (string)   : name of the state
+        part (int): part 1 or 2 of the table
+
+    Returns:
+        A file path to data on Long Term Care Facilities from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
+        Part 1 or 2 are available.
+    """
+    if state_location is None:
+        raise NotImplementedError("Missing state_location string.")
+    if part != 1 and part != 2:
+        raise NotImplementedError("Part must be 1 or 2. Please try again.")
+    postal_code = get_state_postal_code(state_location)
+    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+
+
+def get_usa_long_term_care_facility_data(datadir, state_location=None, part=None, file_path=None, use_default=False):
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_path(datadir, state_location, part)
+    try:
+        df = pd.read_csv(file_path, header=2)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_path(datadir, state_location='Washington', part=part)
+            df = pd.read_csv(file_path, header=2)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return df

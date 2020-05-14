@@ -11,7 +11,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 

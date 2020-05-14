@@ -246,7 +246,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     return homes_dic, homes
 
 
-def assign_uids_by_homes(homes, id_len=16):
+def assign_uids_by_homes(homes, id_len=16, use_int=True):
     """
     Assign IDs to everyone in order by their households.
 
@@ -264,7 +264,10 @@ def assign_uids_by_homes(homes, id_len=16):
 
         home_ids = []
         for a in home:
-            uid = sc.uuid(length=id_len)
+            if use_int:
+                uid = len(age_by_uid_dic)
+            else:
+                uid = sc.uuid(length=id_len)
             age_by_uid_dic[uid] = a
             home_ids.append(uid)
 

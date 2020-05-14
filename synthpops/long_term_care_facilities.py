@@ -17,7 +17,7 @@ from collections import Counter
 do_save = True
 do_plot = False
 verbose = False
-write = False
+write = True
 return_popdict = True
 use_default = False
 
@@ -230,14 +230,14 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
         for uid in group:
 
             fg_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fg_uid.write(uid + ' ')
+            fg_uid.write(str(uid) + ' ')
         fg_age.write('\n')
         fg_uid.write('\n')
     fg_age.close()
     fg_uid.close()
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
 
     popdict = {}
     for uid in age_by_uid_dic:
@@ -284,7 +284,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
 
     return popdict
 
-def make_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default):
+def generate_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default):
 
     # Grab Long Term Care Facilities data
     ltcf_df = sp.get_usa_long_term_care_facility_data(datadir, state_location, part)
@@ -614,9 +614,11 @@ def make_microstructure_with_faciities(datadir, location, state_location, countr
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'households', homes_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'schools', gen_school_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'workplaces', gen_workplace_uids)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities', facilities_by_uids)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities_staff', facilities_staff_uids)
 
     if return_popdict:
-        popdict = make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids)
+        popdict = make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids)
         # return popdict
 
     if verbose:
@@ -631,5 +633,5 @@ def make_microstructure_with_faciities(datadir, location, state_location, countr
             print(person['snf_res'], person['snf_staff'])
 
 
-gen_pop_size = 5e3
-popdict = make_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default)
+gen_pop_size = 6e3
+popdict = generate_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default)
