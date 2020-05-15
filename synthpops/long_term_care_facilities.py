@@ -3,9 +3,15 @@ Modeling Seattle Metro Long Term Care Facilities
 
 """
 import sciris as sc
-import synthpops as sp
 import numpy as np
 import pandas as pd
+from .base import *
+from . import data_distributions as spdata
+from . import sampling as spsamp
+from . import contacts as spct
+from . import contact_networks as spcnx
+from .config import datadir
+
 import os
 import math
 from copy import deepcopy
@@ -14,23 +20,21 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 
-do_save = True
-do_plot = False
-verbose = False
-write = True
-return_popdict = True
-use_default = False
+# do_save = True
+# do_plot = False
+# verbose = False
+# write = True
+# return_popdict = True
+# use_default = False
 
-datadir = sp.datadir
-country_location = 'usa'
-state_location = 'Washington'
-location = 'seattle_metro'
-sheet_name = 'United States of America'
+# country_location = 'usa'
+# state_location = 'Washington'
+# location = 'seattle_metro'
+# sheet_name = 'United States of America'
 
 school_enrollment_counts_available = True
 
 part = 2
-
 
 # Customized age resampling method
 def resample_age_uk(exp_age_distr, a):
@@ -43,28 +47,28 @@ def resample_age_uk(exp_age_distr, a):
     Returns:
         Resampled age as an integer.
     """
-    a = sp.resample_age(exp_age_distr, a)
+    a = spsamp.resample_age(exp_age_distr, a)
     if a == 7:
         if np.random.binomial(1, p=0.25):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 6:
         if np.random.binomial(1, p=0.25):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 5:
         if np.random.binomial(1, p=0.2):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 0:
         if np.random.binomial(1, p=0.0):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 1:
         if np.random.binomial(1, p=0.0):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 2:
         if np.random.binomial(1, p=0.0):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     if a == 4:
         if np.random.binomial(1, p=0.0):
-            a = sp.resample_age(exp_age_distr, a)
+            a = spsamp.resample_age(exp_age_distr, a)
     return a
 
 
@@ -95,7 +99,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
     for h in range(hh_sizes[size-1]):
 
-        hha = sp.generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
+        hha = spcnx.generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
 
         homes[h][0] = hha
 
@@ -103,8 +107,8 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b_prob = contact_matrix_dic['H'][b, :]
 
         for n in range(1, size):
-            bi = sp.sample_single(b_prob)
-            ai = sp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
+            bi = spsamp.sample_single(b_prob)
+            ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
 
             """ The following is an example of how you may resample from an age range that is over produced and instead
                 sample ages from an age range that is under produced in your population. This kind of customization may
@@ -121,7 +125,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
             """
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population you are working with
                 if np.random.binomial(1, ya_coin):
-                    ai = sp.sample_from_range(single_year_age_distr, 25, 32)  # This is a placeholder range. Users will need to change to fit whatever populaton you are working with
+                    ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This is a placeholder range. Users will need to change to fit whatever populaton you are working with
 
             ai = resample_age_uk(single_year_age_distr, ai)
 
@@ -153,7 +157,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     """
 
     homes_dic = {}
-    homes_dic[1] = sp.generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
+    homes_dic[1] = spcnx.generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
@@ -194,7 +198,7 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, ag
 
     uids = sorted(age_by_uid_dic.keys())
     for uid in uids:
-        f_age_uid.write(uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
+        f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
     f_age_uid.close()
 
 
@@ -214,7 +218,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
         None
     """
 
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
     os.makedirs(file_path, exist_ok=True)
 
     groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
@@ -237,57 +241,182 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     fg_uid.close()
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
+# def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n):
+#     """
+#     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+#     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+#     codes are only available to assign to populations within the US.
 
-    popdict = {}
-    for uid in age_by_uid_dic:
-        popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
-        popdict[uid]['sex'] = np.random.randint(2)
-        popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {}
-        popdict[uid]['snf_res'] = None
-        popdict[uid]['snf_staff'] = None
-        for k in ['H', 'S', 'W', 'C', 'LTCF']:
-            popdict[uid]['contacts'][k] = set()
+#     Args:
+#         datadir (string)          : file path to the data directory
+#         location (string)         : name of the location
+#         state_location (string)   : name of the state the location is in
+#         country_location (string) : name of the country the location is in
+#         n (int)                   : number of people in the population
+#         with_industry_code (bool) : If True, assign workplace industry code read in from cached file
 
-    homes_by_uids = homes_by_uids[len(facilities_by_uids):]  # only regular homes
+#     Returns:
+#         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+#         for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+#         industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+#         households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+#         groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+#         same school is considered a contact of each other.
 
-    for nf, facility in enumerate(facilities_by_uids):
-        facility_staff = facilities_staff_uids[nf]
-        for uid in facility:
-            popdict[uid]['contacts']['LTCF'] = set(facility)
-            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-            popdict[uid]['contacts']['LTCF'].remove(uid)
-            popdict[uid]['snf_res'] = 1
+#     Notes:
+#         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+#         smaller work groups are available via sp.trim_contacts() - see below).
+#     """
+#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
 
-        for uid in facility_staff:
-            popdict[uid]['contacts']['W'] = set(facility)
-            popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
-            popdict[uid]['contacts']['W'].remove(uid)
-            popdict[uid]['snf_staff'] = 1
+#     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
-    for nh, household in enumerate(homes_by_uids):
-        for uid in household:
-            popdict[uid]['contacts']['H'] = set(household)
-            popdict[uid]['contacts']['H'].remove(uid)
+#     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+#     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+#     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+#     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+#     facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
-    for ns, school in enumerate(schools_by_uids):
-        for uid in school:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'].remove(uid)
+#     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
-    for nw, workplace in enumerate(workplaces_by_uids):
-        for uid in workplace:
-            popdict[uid]['contacts']['W'] = set(workplace)
-            popdict[uid]['contacts']['W'].remove(uid)
+#     age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
 
-    return popdict
+#     popdict = {}
+#     for uid in age_by_uid_dic:
+#         popdict[uid] = {}
+#         popdict[uid]['age'] = age_by_uid_dic[uid]
+#         popdict[uid]['sex'] = np.random.randint(2)
+#         popdict[uid]['loc'] = None
+#         popdict[uid]['contacts'] = {}
+#         popdict[uid]['snf_res'] = None
+#         popdict[uid]['snf_staff'] = None
+#         popdict[uid]['hhid'] = -1
+#         popdict[uid]['scid'] = -1
+#         popdict[uid]['wpid'] = -1
+#         popdict[uid]['snfid'] = None
+#         for k in ['H', 'S', 'W', 'C', 'LTCF']:
+#             popdict[uid]['contacts'][k] = set()
 
-def generate_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default):
+#     facilities_by_uids = open(facilities_by_uid_path, 'r')
+#     facilities_staff_uids = open(facilities_staff_by_uid_path, 'r')
+
+#     for nf, (line1, line2) in enumerate(zip(facilities_by_uids, facilities_staff_uids)):
+#         r1 = line1.strip().split(' ')
+#         r2 = line2.strip().split(' ')
+#         r1 = map(int, r1)
+#         r2 = map(int, r2)
+#         facility = [i for i in r1]
+#         facility_staff = [i for i in r2]
+
+#         for uid in facility:
+#             popdict[uid]['contacts']['LTCF'] = set(facility)
+#             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+#             popdict[uid]['contacts']['LTCF'].remove(uid)
+#             popdict[uid]['snf_res'] = 1
+#             popdict[uid]['snfid'] = nf
+
+#         for uid in facility_staff:
+#             popdict[uid]['contacts']['W'] = set(facility)
+#             popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
+#             popdict[uid]['contacts']['W'].remove(uid)
+#             popdict[uid]['snf_staff'] = 1
+#             popdict[uid]['snfid'] = nf
+
+#     homes_by_uids = open(households_by_uid_path, 'r')
+#     for nh, line in enumerate(homes_by_uids):
+#         r = line.strip().split(' ')
+#         r = map(int, r)
+#         household = [i for i in r]
+
+#         for uid in household:
+#             popdict[uid]['contacts']['H'] = set(household)
+#             popdict[uid]['contacts']['H'].remove(uid)
+#             popdict[uid]['hhid'] = nh
+
+#     schools_by_uids = open(schools_by_uid_path, 'r')
+#     for ns, line in enumerate(schools_by_uids):
+#         r = line.strip().split(' ')
+#         r = map(int, r)
+#         school = [i for i in r]
+#         for uid in school:
+#             popdict[uid]['contacts']['S'] = set(school)
+#             popdict[uid]['contacts']['S'].remove(uid)
+#             popdict[uid]['scid'] = ns
+
+#     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
+#     for nw, line in enumerate(workplaces_by_uids):
+#         r = line.strip().split(' ')
+#         r = map(int, r)
+#         workplace = [i for i in r]
+#         for uid in workplace:
+#             popdict[uid]['contacts']['W'] = set(workplace)
+#             popdict[uid]['contacts']['W'].remove(uid)
+#             popdict[uid]['wpid'] = nw
+
+#     return popdict
+
+
+# def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
+
+#     popdict = {}
+#     for uid in age_by_uid_dic:
+#         popdict[uid] = {}
+#         popdict[uid]['age'] = age_by_uid_dic[uid]
+#         popdict[uid]['sex'] = np.random.randint(2)
+#         popdict[uid]['loc'] = None
+#         popdict[uid]['contacts'] = {}
+#         popdict[uid]['snf_res'] = None
+#         popdict[uid]['snf_staff'] = None
+#         popdict[uid]['hhid'] = -1
+#         popdict[uid]['scid'] = -1
+#         popdict[uid]['wpid'] = -1
+#         popdict[uid]['snfid'] = None
+#         for k in ['H', 'S', 'W', 'C', 'LTCF']:
+#             popdict[uid]['contacts'][k] = set()
+
+#     # homes_by_uids = homes_by_uids[len(facilities_by_uids):]  # only regular homes
+
+#     for nf, facility in enumerate(facilities_by_uids):
+#         facility_staff = facilities_staff_uids[nf]
+#         for uid in facility:
+#             popdict[uid]['contacts']['LTCF'] = set(facility)
+#             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+#             popdict[uid]['contacts']['LTCF'].remove(uid)
+#             popdict[uid]['snf_res'] = 1
+#             popdict[uid]['snfid'] = nf
+
+#         for uid in facility_staff:
+#             popdict[uid]['contacts']['W'] = set(facility)
+#             popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
+#             popdict[uid]['contacts']['W'].remove(uid)
+#             popdict[uid]['snf_staff'] = 1
+#             popdict[uid]['snfid'] = nf
+
+#     for nh, household in enumerate(homes_by_uids):
+#         for uid in household:
+#             popdict[uid]['contacts']['H'] = set(household)
+#             popdict[uid]['contacts']['H'].remove(uid)
+#             popdict[uid]['hhid'] = nh
+
+#     for ns, school in enumerate(schools_by_uids):
+#         for uid in school:
+#             popdict[uid]['contacts']['S'] = set(school)
+#             popdict[uid]['contacts']['S'].remove(uid)
+#             popdict[uid]['scid'] = ns
+
+#     for nw, workplace in enumerate(workplaces_by_uids):
+#         for uid in workplace:
+#             popdict[uid]['contacts']['W'] = set(workplace)
+#             popdict[uid]['contacts']['W'].remove(uid)
+#             popdict[uid]['wpid'] = nw
+
+#     return popdict
+
+
+def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False):
 
     # Grab Long Term Care Facilities data
-    ltcf_df = sp.get_usa_long_term_care_facility_data(datadir, state_location, part)
+    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
 
     # ltcf_df keys
     ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']
@@ -338,9 +467,9 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
         print('users in 2018', expected_users_2018)
 
     # location age distribution
-    age_distr_16 = sp.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
-    age_brackets_16 = sp.get_census_age_brackets(datadir, state_location, country_location)
-    age_by_brackets_dic_16 = sp.get_age_by_brackets_dic(age_brackets_16)
+    age_distr_16 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
+    age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location, country_location)
+    age_by_brackets_dic_16 = get_age_by_brackets_dic(age_brackets_16)
 
     # current King County population size
     pop = 2.25e6
@@ -365,7 +494,7 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
     for fk in facillity_users:
         for ab in facillity_users[fk]:
             if ab != 'Total':
-                print(fk, ab, facillity_users[fk][ab], facillity_users[fk][ab] * facillity_users[fk]['Total'], facillity_users[fk][ab] * facillity_users[fk]['Total'] * pop/state_pop_2018)
+                # print(fk, ab, facillity_users[fk][ab], facillity_users[fk][ab] * facillity_users[fk]['Total'], facillity_users[fk][ab] * facillity_users[fk]['Total'] * pop/state_pop_2018)
                 if ab == 'Under 65':
                     b = '60-64'
                 elif ab == '65–74':
@@ -376,9 +505,10 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
                     b = '85-100'
                 est_seattle_users_2018[b] += facillity_users[fk][ab] * facillity_users[fk]['Total'] * pop/state_pop_2018
 
-    for ab in est_seattle_users_2018:
-        print(ab, est_seattle_users_2018[ab], est_seattle_users_2018[ab]/(state_age_distr_2018[ab] * pop))
-    print(np.sum([est_seattle_users_2018[b] for b in est_seattle_users_2018]))
+    if verbose:
+        for ab in est_seattle_users_2018:
+            print(ab, est_seattle_users_2018[ab], est_seattle_users_2018[ab]/(state_age_distr_2018[ab] * pop))
+        print(np.sum([est_seattle_users_2018[b] for b in est_seattle_users_2018]))
 
     # for pop of 2.25 million of Seattle
     est_ltcf_user_by_age_brackets_perc = {}
@@ -403,13 +533,11 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
     # est_ltcf_user_by_age_brackets_perc['85-100'] = 0.1779
 
     age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'seattle_metro_age_bracket_distr_18.dat')
-    age_distr_18 = sp.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
+    age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
     age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'census_age_brackets_18.dat')
-    age_brackets_18 = sp.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
-    age_by_brackets_dic_18 = sp.get_age_by_brackets_dic(age_brackets_18)
+    age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
+    age_by_brackets_dic_18 = get_age_by_brackets_dic(age_brackets_18)
 
-    # gen_pop_size = 2.25e5
-    # gen_pop_size = 20e3
     gen_pop_size = int(gen_pop_size)
 
     expected_users_by_age = {}
@@ -443,23 +571,23 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
             expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['85-100']
             expected_users_by_age[a] = int(math.ceil(expected_users_by_age[a]))
 
-    print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
+    if verbose:
+        print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
 
     # KC facilities reporting cases - should account for 70% of all facilities
     KC_snf_df = pd.read_csv(os.path.join('/home', 'dmistry', 'Dropbox (IDM)', 'dmistry_COVID-19', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
     d = KC_snf_df.groupby(['FACILITY_ID']).mean()
 
-    # print(sorted(d['RESIDENT_TOTAL_COUNT'].values), d['RESIDENT_TOTAL_COUNT'].values.mean(), np.median(d['RESIDENT_TOTAL_COUNT'].values))
     KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)
     KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
 
     # don't make staff numbers smaller here. instead cluster workers into smaller groups
     KC_resident_staff_ratios = [KC_ltcf_sizes[i]/(KC_staff_sizes[i]) for i in range(len(KC_ltcf_sizes))]
     KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
-    # KC_resident_staff_ratios = np.array([int(math.ceil(k)) for k in KC_resident_staff_ratios])
-    # KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 75] # remove outliers
-    print(KC_resident_staff_ratios)
-    print(np.mean(KC_resident_staff_ratios))
+
+    if verbose:
+        print(KC_resident_staff_ratios)
+        print(np.mean(KC_resident_staff_ratios))
 
     # Imagine Aegis Care are not included because they didn't have outbreaks
     # Aegis facility resident sizes
@@ -480,13 +608,13 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
 
     # place residents in facilities
     facilities = []
-    print(len(all_residents), len(all_residents)/np.mean(KC_ltcf_sizes))
+    if verbose:
+        print(len(all_residents), len(all_residents)/np.mean(KC_ltcf_sizes))
     while len(all_residents) > 0:
         size = int(np.random.choice(KC_ltcf_sizes))
         new_facility = all_residents[0:size]
         facilities.append(new_facility)
         all_residents = all_residents[size:]
-    print(len(facilities))
 
     max_age = 100
 
@@ -501,23 +629,22 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
     ltcf_adjusted_age_count = deepcopy(expected_age_count)
     for a in expected_users_by_age:
         ltcf_adjusted_age_count[a] -= expected_users_by_age[a]
-    ltcf_adjusted_age_distr = sp.norm_dic(ltcf_adjusted_age_count)
+    ltcf_adjusted_age_distr = norm_dic(ltcf_adjusted_age_count)
 
     # build rest of the population
     n = gen_pop_size - np.sum([len(f) for f in facilities])  # remove those placed in care homes
 
-    household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
-    hha_by_size = sp.get_head_age_by_size_distr(datadir, state_location, country_location, use_default=use_default)
-    hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
-    hha_brackets = sp.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
-    hha_by_size = sp.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
+    household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
+    hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
 
-    contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+    contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
     homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, deepcopy(expected_age_distr))
     homes = facilities + homes
 
-    homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
+    homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  #include facilities to assign ids
     new_ages_count = Counter(age_by_uid_dic.values())
 
     facilities_by_uids = homes_by_uids[0:len(facilities)]
@@ -542,30 +669,30 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
         plt.show()
 
     # Make a dictionary listing out uids of people by their age
-    uids_by_age_dic = sp.get_ids_by_age_dic(age_by_uid_dic)
+    uids_by_age_dic = get_ids_by_age_dic(age_by_uid_dic)
 
     # Generate school sizes
-    school_sizes_count_by_brackets = sp.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
-    school_size_brackets = sp.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
+    school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = spcnx.get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
     # Get school sizes
-    gen_school_sizes = sp.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+    gen_school_sizes = spcnx.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
 
     # Assign students to school
-    gen_schools, gen_school_uids = sp.send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
+    gen_schools, gen_school_uids = spcnx.send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
 
     # Get employment rates
-    employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # Find people who can be workers (removing everyone who is currently a student)
-    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(gen_school_uids, employment_rates, age_by_uid_dic)
-    workers_by_age_to_assign_count = sp.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
+    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spcnx.get_uids_potential_workers(gen_school_uids, employment_rates, age_by_uid_dic)
+    workers_by_age_to_assign_count = spcnx.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
     # Assign teachers and update school lists
-    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = sp.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Assign facilities care staff from 20 to 59
 
@@ -602,24 +729,27 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
             print(fc, facilities_staff[nf], len(fc)/len(facilities_staff[nf]))
 
     # Generate non-school workplace sizes needed to send everyone to work
-    workplace_size_brackets = sp.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-    workplace_size_distr_by_brackets = sp.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-    workplace_sizes = sp.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
+    workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+    workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+    workplace_sizes = spcnx.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
     # Assign all workers who are not staff at schools to workplaces
-    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = sp.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose=verbose)
+    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose=verbose)
 
+
+    # remove facilities from homes to write households as a separate file
+    homes_by_uids = homes_by_uids[len(facilities_by_uids):]
     # group uids to file
     if write:
+        write_age_by_uid_dic(datadir, location, state_location, country_location, age_by_uid_dic)
+
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'households', homes_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'schools', gen_school_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'workplaces', gen_workplace_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities', facilities_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities_staff', facilities_staff_uids)
 
-    if return_popdict:
-        popdict = make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids)
-        # return popdict
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids)
 
     if verbose:
         uids = popdict.keys()
@@ -632,6 +762,5 @@ def generate_microstructure_with_faciities(datadir, location, state_location, co
             print(uid, person['age'], person['contacts']['H'], person['contacts']['S'], person['contacts']['W'], person['contacts']['LTCF'])
             print(person['snf_res'], person['snf_staff'])
 
-
-gen_pop_size = 6e3
-popdict = generate_microstructure_with_faciities(datadir, location, state_location, country_location, gen_pop_size, sheet_name, school_enrollment_counts_available, do_save, do_plot, verbose, write, return_popdict, use_default)
+    if return_popdict:
+        return popdict

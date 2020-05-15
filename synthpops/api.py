@@ -3,6 +3,7 @@ import synthpops as sp
 
 # Put this here so it's accessible as sp.api.choices
 popsize_choices = [5000,
+                    6000,
                    10000,
                    20000,
                    50000,
@@ -11,7 +12,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities=False):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -46,8 +47,9 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     location = 'seattle_metro'
     sheet_name = 'United States of America'
 
-    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code}
+    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities}
     network_distr_args = {'Npop': int(n)}
+    print(options_args)
 
     # Heavy lift 1: make the contacts and their connections
     try:
@@ -56,7 +58,11 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     except:
         # make a new network on the fly
         if generate:
-            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
+            if with_facilities:
+                population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True)
+
+            else:
+                population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
         else:
             raise ValueError(errormsg)
         # raise NotImplementedError("Population not available")
