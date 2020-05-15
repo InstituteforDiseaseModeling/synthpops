@@ -575,7 +575,13 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
 
     # KC facilities reporting cases - should account for 70% of all facilities
-    KC_snf_df = pd.read_csv(os.path.join('/home', 'dmistry', 'Dropbox (IDM)', 'dmistry_COVID-19', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+    userpath = os.path.expanduser('~')
+    username = os.path.split(userpath)[-1]
+    if username == 'dmistry':
+        KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+    else:
+        KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+
     d = KC_snf_df.groupby(['FACILITY_ID']).mean()
 
     KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)

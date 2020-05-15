@@ -16,7 +16,7 @@ sheet_name = 'United States of America'
 school_enrollment_counts_available = True
 
 
-gen_pop_size = 225e3
+gen_pop_size = 5e3
 gen_pop_size = int(gen_pop_size)
 
 # # generate and write to file
