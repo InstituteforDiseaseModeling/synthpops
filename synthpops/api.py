@@ -49,7 +49,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
 
     options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities}
     network_distr_args = {'Npop': int(n)}
-    print(options_args)
 
     # Heavy lift 1: make the contacts and their connections
     try:
@@ -60,7 +59,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
         if generate:
             if with_facilities:
                 population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True)
-
             else:
                 population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
         else:

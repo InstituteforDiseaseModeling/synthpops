@@ -580,16 +580,18 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     if username == 'dmistry':
         KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
     else:
-        KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+        KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
 
     d = KC_snf_df.groupby(['FACILITY_ID']).mean()
 
     KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)
     KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
 
-    # don't make staff numbers smaller here. instead cluster workers into smaller groups
+    # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
     KC_resident_staff_ratios = [KC_ltcf_sizes[i]/(KC_staff_sizes[i]) for i in range(len(KC_ltcf_sizes))]
     KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
+
+
 
     if verbose:
         print(KC_resident_staff_ratios)
