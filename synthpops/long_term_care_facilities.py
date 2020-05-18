@@ -420,7 +420,11 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # ltcf_df keys
     ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']
-    facility_keys = ['Hospice', 'Nursing home', 'Residential care community']
+    facility_keys = [
+                    # 'Hospice',
+                    'Nursing home',
+                    'Residential care community'
+                    ]
 
     # state numbers
     facillity_users = {}
@@ -594,7 +598,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
     KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
     # KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
-    KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 15]
+    KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
 
     # print(KC_resident_staff_ratios)
 

@@ -672,6 +672,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fh = open(households_by_uid_path, 'r')
     for nh, line in enumerate(fh):
         r = line.strip().split(' ')
+        r = map(int, r)
+        r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
@@ -681,6 +683,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fs = open(schools_by_uid_path, 'r')
     for ns, line in enumerate(fs):
         r = line.strip().split(' ')
+        r = map(int, r)
+        r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
@@ -693,6 +697,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         workplaces_by_industry_codes = np.loadtxt(fi)
     for nw, line in enumerate(fw):
         r = line.strip().split(' ')
+        r = map(int, r)
+        r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)

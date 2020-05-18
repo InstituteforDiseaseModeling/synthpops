@@ -309,8 +309,8 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
         for uid in home:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
-            f_age_uid.write(uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
+            fh_uid.write(str(uid) + ' ')
+            f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -926,7 +926,7 @@ def write_schools_by_age_and_uid(datadir, location, state_location, country_loca
         for uid in school:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
+            fh_uid.write(str(uid) + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -963,7 +963,7 @@ def write_workplaces_by_age_and_uid(datadir, location, state_location, country_l
         for uid in work:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
+            fh_uid.write(str(uid) + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
