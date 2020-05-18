@@ -718,7 +718,7 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
     elif location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_sizes.dat')
 
 
 def get_school_sizes_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
