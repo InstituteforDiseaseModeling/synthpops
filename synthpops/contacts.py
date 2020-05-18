@@ -905,6 +905,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
 
     for nf, facility in enumerate(facilities_by_uids):
         facility_staff = facilities_staff_uids[nf]
+        print(len(facility), len(facility_staff))
         for uid in facility:
             popdict[uid]['contacts']['LTCF'] = set(facility)
             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))

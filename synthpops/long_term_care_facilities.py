@@ -523,6 +523,10 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
+
+    # for ab in est_ltcf_user_by_age_brackets_perc:
+        # print(ab, est_ltcf_user_by_age_brackets_perc[ab])
+
     # # If not using hospice, need to include 55-59 year olds
     # est_ltcf_user_by_age_brackets_perc['55-59'] = 0.0098
     # est_ltcf_user_by_age_brackets_perc['60-64'] = 0.0098
@@ -588,27 +592,16 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
 
     # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
-    KC_resident_staff_ratios = [KC_ltcf_sizes[i]/(KC_staff_sizes[i]) for i in range(len(KC_ltcf_sizes))]
-    KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
+    KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
+    # KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
+    KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 15]
 
-
+    # print(KC_resident_staff_ratios)
 
     if verbose:
         print(KC_resident_staff_ratios)
         print(np.mean(KC_resident_staff_ratios))
 
-    # Imagine Aegis Care are not included because they didn't have outbreaks
-    # Aegis facility resident sizes
-    # KC_ltcf_sizes += [
-    #                   35., 43., 45., 46.,
-    #                   46., 47., 47., 50.,
-    #                   50., 53., 55., 59.,
-    #                   59., 63., 66., 68.,
-    #                   69., 71., 72., 73.,
-    #                   73., 75., 76., 76.,
-    #                   78., 78., 79., 81.,
-    #                   87., 90., 111., 119.,
-    #                   ]
     all_residents = []
     for a in expected_users_by_age:
         all_residents += [a] * expected_users_by_age[a]
@@ -712,7 +705,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
 
         n_staff = int(math.ceil(n_residents/resident_staff_ratio))
-
+        print(resident_staff_ratio, n_residents, n_staff)
         new_staff, new_staff_uids = [], []
 
         for i in range(n_staff):
