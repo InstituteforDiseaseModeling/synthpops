@@ -709,7 +709,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
 
         n_staff = int(math.ceil(n_residents/resident_staff_ratio))
-        print(resident_staff_ratio, n_residents, n_staff)
         new_staff, new_staff_uids = [], []
 
         for i in range(n_staff):
