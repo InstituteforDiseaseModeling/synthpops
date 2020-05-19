@@ -775,7 +775,7 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     elif location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_distr.dat')
 
 
 def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):
@@ -866,7 +866,7 @@ def write_school_size_distr_by_brackets(datadir, location=None, state_location=N
     elif location is None:
         file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
     else:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_distr.dat')
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_distr.dat')
 
     f = open(file_path, 'w')
     f.write('size_bracket,percent\n')

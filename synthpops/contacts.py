@@ -844,7 +844,9 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         r2 = line2.strip().split(' ')
         # r1 = map(int, r1)
         # r2 = map(int, r2)
+
         try:
+            print('hi',nf)
             facility = [int(i) for i in r1]
             facility_staff = [int(i) for i in r2]
         except:
@@ -878,6 +880,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['contacts']['H'] = set(household)
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
+        print('h',nh)
 
     schools_by_uids = open(schools_by_uid_path, 'r')
     for ns, line in enumerate(schools_by_uids):
@@ -892,20 +895,26 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['contacts']['S'] = set(school)
             popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
+        print('s',ns)
 
     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
     for nw, line in enumerate(workplaces_by_uids):
         r = line.strip().split(' ')
+        print(r)
+        for i in r:
+            print(i, int(i))
         try:
             # r = map(int, r)
             workplace = [int(i) for i in r]
         except:
+            print('no')
             workplace = [i for i in r]
         workplace = [i for i in r]
         for uid in workplace:
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
+        print('w',nw)
 
     return popdict
 
@@ -1165,7 +1174,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                         sizes.append(len(contacts[uid]['contacts'][k]))
                 if verbose:
                     print(k, np.mean(sizes))
-
+                print(k, np.mean(sizes))
     return contacts
 
 

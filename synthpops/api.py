@@ -29,7 +29,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     '''
 
     default_n = 10000
-    default_max_contacts = {'S': 20, 'W': 10}  # this can be anything but should be based on relevant average number of contacts for the population under study
+    default_max_contacts = {'S': 20, 'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None: n = default_n
     n = int(n)
@@ -54,10 +54,12 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     try:
         # try to read in from file
         population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
+        print('here')
     except:
         # make a new network on the fly
         if generate:
             if with_facilities:
+                print('went here')
                 population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True)
             else:
                 population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
