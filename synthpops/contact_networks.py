@@ -1003,7 +1003,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     household_size_distr = spdata.get_household_size_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-    min_pop = 200
+    min_pop = 100
     if n < min_pop:
         raise NotImplementedError(f"Population is too small to currently be generated properly. Try a size larger than {min_pop}.")
     n = int(n)

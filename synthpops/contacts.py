@@ -941,9 +941,9 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['snfid'] = nf
 
         for uid in facility_staff:
-            popdict[uid]['contacts']['W'] = set(facility)
-            popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
-            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['contacts']['LTCF'] = set(facility)
+            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
+            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_staff'] = 1
             popdict[uid]['snfid'] = nf
 

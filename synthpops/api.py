@@ -77,5 +77,4 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
             population[key]['contacts'] = sc.objdict(population[key]['contacts'])
         for layerkey in population[key]['contacts'].keys():
             population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
-
     return population
