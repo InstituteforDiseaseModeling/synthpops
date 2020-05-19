@@ -672,8 +672,10 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fh = open(households_by_uid_path, 'r')
     for nh, line in enumerate(fh):
         r = line.strip().split(' ')
-        r = map(int, r)
-        r = [i for i in r]
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
@@ -683,8 +685,10 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fs = open(schools_by_uid_path, 'r')
     for ns, line in enumerate(fs):
         r = line.strip().split(' ')
-        r = map(int, r)
-        r = [i for i in r]
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
@@ -697,8 +701,10 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         workplaces_by_industry_codes = np.loadtxt(fi)
     for nw, line in enumerate(fw):
         r = line.strip().split(' ')
-        r = map(int, r)
-        r = [i for i in r]
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
@@ -836,10 +842,14 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     for nf, (line1, line2) in enumerate(zip(facilities_by_uids, facilities_staff_uids)):
         r1 = line1.strip().split(' ')
         r2 = line2.strip().split(' ')
-        r1 = map(int, r1)
-        r2 = map(int, r2)
-        facility = [i for i in r1]
-        facility_staff = [i for i in r2]
+        # r1 = map(int, r1)
+        # r2 = map(int, r2)
+        try:
+            facility = [int(i) for i in r1]
+            facility_staff = [int(i) for i in r2]
+        except:
+            facility = [i for i in r1]
+            facility_staff = [i for i in r2]
 
         for uid in facility:
             popdict[uid]['contacts']['LTCF'] = set(facility)
@@ -858,8 +868,11 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     homes_by_uids = open(households_by_uid_path, 'r')
     for nh, line in enumerate(homes_by_uids):
         r = line.strip().split(' ')
-        r = map(int, r)
-        household = [i for i in r]
+        try:
+            # r = map(int, r)
+            household = [int(i) for i in r]
+        except:
+            household = [i for i in r]
 
         for uid in household:
             popdict[uid]['contacts']['H'] = set(household)
@@ -869,8 +882,12 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     schools_by_uids = open(schools_by_uid_path, 'r')
     for ns, line in enumerate(schools_by_uids):
         r = line.strip().split(' ')
-        r = map(int, r)
-        school = [i for i in r]
+        try:
+            # r = map(int, r)
+            school = [int(i) for i in r]
+        except:
+            school = [i for i in r]
+
         for uid in school:
             popdict[uid]['contacts']['S'] = set(school)
             popdict[uid]['contacts']['S'].remove(uid)
@@ -879,7 +896,11 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
     for nw, line in enumerate(workplaces_by_uids):
         r = line.strip().split(' ')
-        r = map(int, r)
+        try:
+            # r = map(int, r)
+            workplace = [int(i) for i in r]
+        except:
+            workplace = [i for i in r]
         workplace = [i for i in r]
         for uid in workplace:
             popdict[uid]['contacts']['W'] = set(workplace)
@@ -911,7 +932,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
 
     for nf, facility in enumerate(facilities_by_uids):
         facility_staff = facilities_staff_uids[nf]
-        print(len(facility), len(facility_staff))
+        # print(len(facility), len(facility_staff))
         for uid in facility:
             popdict[uid]['contacts']['LTCF'] = set(facility)
             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
@@ -1178,6 +1199,6 @@ def show_layers(popdict, show_ages=False, show_n=20):
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print(uid)
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 print(k, popdict[uid]['contacts'][k])
