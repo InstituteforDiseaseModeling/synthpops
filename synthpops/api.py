@@ -58,7 +58,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
         # make a new network on the fly
         if generate:
             if with_facilities:
-                print('went here')
                 population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True)
             else:
                 population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
