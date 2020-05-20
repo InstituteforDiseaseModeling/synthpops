@@ -241,178 +241,6 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     fg_uid.close()
 
 
-# def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n):
-#     """
-#     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
-#     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
-#     codes are only available to assign to populations within the US.
-
-#     Args:
-#         datadir (string)          : file path to the data directory
-#         location (string)         : name of the location
-#         state_location (string)   : name of the state the location is in
-#         country_location (string) : name of the country the location is in
-#         n (int)                   : number of people in the population
-#         with_industry_code (bool) : If True, assign workplace industry code read in from cached file
-
-#     Returns:
-#         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
-#         for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
-#         industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
-#         households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
-#         groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
-#         same school is considered a contact of each other.
-
-#     Notes:
-#         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
-#         smaller work groups are available via sp.trim_contacts() - see below).
-#     """
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
-
-#     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
-
-#     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-#     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
-#     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-#     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
-#     facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
-
-#     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
-
-#     age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
-
-#     popdict = {}
-#     for uid in age_by_uid_dic:
-#         popdict[uid] = {}
-#         popdict[uid]['age'] = age_by_uid_dic[uid]
-#         popdict[uid]['sex'] = np.random.randint(2)
-#         popdict[uid]['loc'] = None
-#         popdict[uid]['contacts'] = {}
-#         popdict[uid]['snf_res'] = None
-#         popdict[uid]['snf_staff'] = None
-#         popdict[uid]['hhid'] = -1
-#         popdict[uid]['scid'] = -1
-#         popdict[uid]['wpid'] = -1
-#         popdict[uid]['snfid'] = None
-#         for k in ['H', 'S', 'W', 'C', 'LTCF']:
-#             popdict[uid]['contacts'][k] = set()
-
-#     facilities_by_uids = open(facilities_by_uid_path, 'r')
-#     facilities_staff_uids = open(facilities_staff_by_uid_path, 'r')
-
-#     for nf, (line1, line2) in enumerate(zip(facilities_by_uids, facilities_staff_uids)):
-#         r1 = line1.strip().split(' ')
-#         r2 = line2.strip().split(' ')
-#         r1 = map(int, r1)
-#         r2 = map(int, r2)
-#         facility = [i for i in r1]
-#         facility_staff = [i for i in r2]
-
-#         for uid in facility:
-#             popdict[uid]['contacts']['LTCF'] = set(facility)
-#             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-#             popdict[uid]['contacts']['LTCF'].remove(uid)
-#             popdict[uid]['snf_res'] = 1
-#             popdict[uid]['snfid'] = nf
-
-#         for uid in facility_staff:
-#             popdict[uid]['contacts']['W'] = set(facility)
-#             popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
-#             popdict[uid]['contacts']['W'].remove(uid)
-#             popdict[uid]['snf_staff'] = 1
-#             popdict[uid]['snfid'] = nf
-
-#     homes_by_uids = open(households_by_uid_path, 'r')
-#     for nh, line in enumerate(homes_by_uids):
-#         r = line.strip().split(' ')
-#         r = map(int, r)
-#         household = [i for i in r]
-
-#         for uid in household:
-#             popdict[uid]['contacts']['H'] = set(household)
-#             popdict[uid]['contacts']['H'].remove(uid)
-#             popdict[uid]['hhid'] = nh
-
-#     schools_by_uids = open(schools_by_uid_path, 'r')
-#     for ns, line in enumerate(schools_by_uids):
-#         r = line.strip().split(' ')
-#         r = map(int, r)
-#         school = [i for i in r]
-#         for uid in school:
-#             popdict[uid]['contacts']['S'] = set(school)
-#             popdict[uid]['contacts']['S'].remove(uid)
-#             popdict[uid]['scid'] = ns
-
-#     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
-#     for nw, line in enumerate(workplaces_by_uids):
-#         r = line.strip().split(' ')
-#         r = map(int, r)
-#         workplace = [i for i in r]
-#         for uid in workplace:
-#             popdict[uid]['contacts']['W'] = set(workplace)
-#             popdict[uid]['contacts']['W'].remove(uid)
-#             popdict[uid]['wpid'] = nw
-
-#     return popdict
-
-
-# def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
-
-#     popdict = {}
-#     for uid in age_by_uid_dic:
-#         popdict[uid] = {}
-#         popdict[uid]['age'] = age_by_uid_dic[uid]
-#         popdict[uid]['sex'] = np.random.randint(2)
-#         popdict[uid]['loc'] = None
-#         popdict[uid]['contacts'] = {}
-#         popdict[uid]['snf_res'] = None
-#         popdict[uid]['snf_staff'] = None
-#         popdict[uid]['hhid'] = -1
-#         popdict[uid]['scid'] = -1
-#         popdict[uid]['wpid'] = -1
-#         popdict[uid]['snfid'] = None
-#         for k in ['H', 'S', 'W', 'C', 'LTCF']:
-#             popdict[uid]['contacts'][k] = set()
-
-#     # homes_by_uids = homes_by_uids[len(facilities_by_uids):]  # only regular homes
-
-#     for nf, facility in enumerate(facilities_by_uids):
-#         facility_staff = facilities_staff_uids[nf]
-#         for uid in facility:
-#             popdict[uid]['contacts']['LTCF'] = set(facility)
-#             popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-#             popdict[uid]['contacts']['LTCF'].remove(uid)
-#             popdict[uid]['snf_res'] = 1
-#             popdict[uid]['snfid'] = nf
-
-#         for uid in facility_staff:
-#             popdict[uid]['contacts']['W'] = set(facility)
-#             popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
-#             popdict[uid]['contacts']['W'].remove(uid)
-#             popdict[uid]['snf_staff'] = 1
-#             popdict[uid]['snfid'] = nf
-
-#     for nh, household in enumerate(homes_by_uids):
-#         for uid in household:
-#             popdict[uid]['contacts']['H'] = set(household)
-#             popdict[uid]['contacts']['H'].remove(uid)
-#             popdict[uid]['hhid'] = nh
-
-#     for ns, school in enumerate(schools_by_uids):
-#         for uid in school:
-#             popdict[uid]['contacts']['S'] = set(school)
-#             popdict[uid]['contacts']['S'].remove(uid)
-#             popdict[uid]['scid'] = ns
-
-#     for nw, workplace in enumerate(workplaces_by_uids):
-#         for uid in workplace:
-#             popdict[uid]['contacts']['W'] = set(workplace)
-#             popdict[uid]['contacts']['W'].remove(uid)
-#             popdict[uid]['wpid'] = nw
-
-#     return popdict
-
-
 def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False):
 
     # Grab Long Term Care Facilities data
@@ -585,10 +413,13 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # KC facilities reporting cases - should account for 70% of all facilities
     userpath = os.path.expanduser('~')
     username = os.path.split(userpath)[-1]
-    if username == 'dmistry':
+    try:
         KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-    else:
-        KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+    except:
+        try:
+            KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+        except:
+            KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
 
     d = KC_snf_df.groupby(['FACILITY_ID']).mean()
 
