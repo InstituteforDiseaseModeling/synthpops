@@ -54,7 +54,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     try:
         # try to read in from file
         population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
-        print('here')
     except:
         # make a new network on the fly
         if generate:
