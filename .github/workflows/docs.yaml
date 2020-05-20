@@ -1,15 +1,5 @@
 name: SynthPops Docs workflow
 on:
-  # curl command from your cmd:
-  # curl -XPOST -u "username:githubPAT" -H "Accept: application/vnd.github.everest-preview+json" \
-  # -H "Content-Type: application/json" \
-  # --data "{\"event_type\": \"build_docs_master\"}" \
-  #  https://api.github.com/repos/InstituteforDiseaseModeling/synthpops/dispatches
-  #
-  # Note, this test will checkout 'master' branch
-  repository_dispatch:
-    # Manually trigger with above curl or Postman POST
-    types: [build_docs_master]
   push:
     branches:
       - master
