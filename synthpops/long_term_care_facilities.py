@@ -2,20 +2,17 @@
 Modeling Seattle Metro Long Term Care Facilities
 
 """
-import sciris as sc
-import numpy as np
-import pandas as pd
 from .base import *
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
 from . import contact_networks as spcnx
-from .config import datadir
+from synthpops.utils import get_kc_snf_df_location
+import pandas as pd
 
 import os
 import math
 from copy import deepcopy
-import matplotlib as mplt
 import matplotlib.pyplot as plt
 from collections import Counter
 
@@ -526,6 +523,16 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # Find people who can be workers (removing everyone who is currently a student)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spcnx.get_uids_potential_workers(gen_school_uids, employment_rates, age_by_uid_dic)
     workers_by_age_to_assign_count = spcnx.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
+    
+    # Removing facilities residents from potential workers
+    for nf, fc in enumerate(facilities_by_uids):
+        for uid in fc:
+            aindex = age_by_uid_dic[uid]
+            if uid in potential_worker_uids:
+                potential_worker_uids_by_age[aindex].remove(uid)
+                potential_worker_uids.pop(uid, None)
+                if workers_by_age_to_assign_count[aindex] > 0:
+                    workers_by_age_to_assign_count[aindex] -= 1
 
     # Assign teachers and update school lists
     gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
