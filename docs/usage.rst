@@ -7,7 +7,7 @@ The overall |SP| workflow is contained in
 The population is generated through households, not a pool of people.
 
 You can provide required data to |SP| in a variety of formats including .csv, .txt, or Microsoft Excel
-(.xlsx.
+(.xlsx).
 
 
 #.  Instantiate a collection of households with sizes drawn from census data. Populations
