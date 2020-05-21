@@ -746,7 +746,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
 
     for uid in age_by_uid_dic:
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
@@ -823,7 +823,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     popdict = {}
     for uid in age_by_uid_dic:
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
@@ -858,9 +858,9 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['snfid'] = nf
 
         for uid in facility_staff:
-            popdict[uid]['contacts']['W'] = set(facility)
-            popdict[uid]['contacts']['W'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
-            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['contacts']['LTCF'] = set(facility)
+            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['W'].union(set(facility_staff))
+            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_staff'] = 1
             popdict[uid]['snfid'] = nf
 
@@ -912,7 +912,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
     popdict = {}
     for uid in age_by_uid_dic:
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
