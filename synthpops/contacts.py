@@ -611,6 +611,87 @@ def save_synthpop(datadir, contacts, location):
     sc.saveobj(filename=filename, obj=contacts)
 
 
+def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):
+    """
+    Create contacts between members of group 1 and group 2, fixing the average degree, and the
+    probability of an edge between any two groups controlled by p_matrix if provided.
+    Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
+    This means not everyone in group 2 will have a contact with group 1.
+
+    Args:
+        group_1 (list)            : list of ids for group 1
+        group_2 (list)            : list of ids for group 2
+        average_degree (int)      : average degree across group 1 and 2
+        p_matrix (np.ndarray)     : probability matrix for edges between any two groups
+        force_cross_groups (bool) : If True, force each individual to have at least one contact with a member from the other group
+
+    Returns:
+        Popdict with edges added for nodes in the two groups.
+
+    Notes:
+        This method uses the Stochastic Block Model algorithm to generate contacts both between nodes in different groups
+    and for nodes within the same group. In the current version, fixing the average degree and p_matrix, the matrix of probabilities
+    for edges between any two groups is not supported. Future versions may add support for this.
+    """
+
+    if len(group_1) == 0 or len(group_2) == 0:
+        errormsg = f'This method requires that both groups are populated. If one of the two groups has size 0, then consider using the synthpops.trim_contacts() method, or checking that the groups provided to this method are correct.'
+        raise ValueError(errormsg)
+
+    if average_degree < 2:
+        errormsg = f'This method is likely to create disconnected graphs with average_degree < 2. In order to keep the group connected, use a higher average_degree for nodes across the two groups.'
+        raise ValueError(errormsg)
+
+    r1 = [int(i) for i in group_1]
+    r2 = [int(i) for i in group_2]
+
+    n1 = list(np.arange(len(r1)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
+
+    nlist = n1 + n2
+
+    group = r1 + r2
+    sizes = [len(r1), len(r2)]
+
+    share_k_matrix = np.ones((2, 2))
+    share_k_matrix *= average_degree/np.sum(sizes)
+
+    if p_matrix is None:
+        p_matrix = share_k_matrix.copy()
+
+    G = nx.stochastic_block_model(sizes, p_matrix)
+
+    for i in n1:
+        neighbors = [j for j in G.neighbors(i)]
+        group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+
+        # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
+        if len(group_2_neighbors) == 0:
+
+            random_group_2_j = np.random.choice(n2)
+            random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+            while len(random_group_2_neighbors) == 0:
+                random_group_2_j = np.random.choice(n2)
+                random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+
+            random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+
+            G.add_edge(i, random_group_2_j)
+            G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
+
+    E = G.edges()
+    for e in E:
+        i, j = e
+
+        id_i = group[i]
+        id_j = group[j]
+
+        popdict[id_i]['contacts'][setting].add(id_j)
+        popdict[id_j]['contacts'][setting].add(id_i)
+
+    return popdict
+
+
 def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
@@ -780,31 +861,34 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n):
+def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
     codes are only available to assign to populations within the US.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        n (int)                   : number of people in the population
-        with_industry_code (bool) : If True, assign workplace industry code read in from cached file
+        datadir (string)               : file path to the data directory
+        location (string)              : name of the location
+        state_location (string)        : name of the state the location is in
+        country_location (string)      : name of the country the location is in
+        n (int)                        : number of people in the population
+        with_industry_code (bool)      : If True, assign workplace industry code read in from cached file
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)      : default average degree in long term care facilities
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
         for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
         industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
-        households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+        households ('H'), schools ('S'), and workplaces ('W'), and long term care facilities ('LTCF'). Contacts in these layers are clustered and thus form a network composed of
         groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
-        same school is considered a contact of each other.
+        same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within 'LTCF' are reduced
+        from fully connected.
 
     Notes:
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
-        smaller work groups are available via sp.trim_contacts() - see below).
+        smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
 
@@ -851,18 +935,26 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             facility_staff = [i for i in r2]
 
         for uid in facility:
-            popdict[uid]['contacts']['LTCF'] = set(facility)
-            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_res'] = 1
             popdict[uid]['snfid'] = nf
 
         for uid in facility_staff:
-            popdict[uid]['contacts']['LTCF'] = set(facility)
-            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_staff'] = 1
             popdict[uid]['snfid'] = nf
+
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, r1, r2, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
 
     homes_by_uids = open(households_by_uid_path, 'r')
     for nh, line in enumerate(homes_by_uids):
@@ -894,7 +986,6 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     for nw, line in enumerate(workplaces_by_uids):
         r = line.strip().split(' ')
         try:
-            # r = map(int, r)
             workplace = [int(i) for i in r]
         except:
             workplace = [i for i in r]
@@ -907,7 +998,36 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None):
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
+    """
+    From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+    Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+    school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
+
+    Args:
+        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        workplaces_by_uids (list)                         : A list of lists, where each sublist represents a workplace and the ids of the workers within it
+        facilities_by_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it
+        facilities_staff_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it
+        workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)      : default average degree in long term care facilities
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'), and long term care facilities ('LTCF'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within 'LTCF' are reduced
+        from fully connected.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
+    """
 
     popdict = {}
     for uid in age_by_uid_dic:
@@ -925,23 +1045,30 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
             popdict[uid]['contacts'][k] = set()
 
-    # homes_by_uids = homes_by_uids[len(facilities_by_uids):]  # only regular homes
-
     for nf, facility in enumerate(facilities_by_uids):
         facility_staff = facilities_staff_uids[nf]
+
         for uid in facility:
-            popdict[uid]['contacts']['LTCF'] = set(facility)
-            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_res'] = 1
             popdict[uid]['snfid'] = nf
 
         for uid in facility_staff:
-            popdict[uid]['contacts']['LTCF'] = set(facility)
-            popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
-            popdict[uid]['contacts']['LTCF'].remove(uid)
             popdict[uid]['snf_staff'] = 1
             popdict[uid]['snfid'] = nf
+
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
 
     for nh, household in enumerate(homes_by_uids):
         for uid in household:
@@ -1076,7 +1203,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities']
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
+    if options_args['average_LTCF_degree'] is None: options_args['average_LTCF_degree'] = 20
     if options_args         is None: options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
@@ -1089,7 +1217,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
         if options_args['use_long_term_care_facilities']:
-            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'])
+            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], options_args['average_LTCF_degree'])
         else:
             popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_industry_code'])
 
@@ -1162,6 +1290,8 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                 if verbose:
                     print(k, np.mean(sizes))
     return contacts
+
+
 
 
 def show_layers(popdict, show_ages=False, show_n=20):

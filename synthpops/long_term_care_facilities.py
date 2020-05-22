@@ -238,7 +238,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     fg_uid.close()
 
 
-def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False):
+def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False, use_two_group_reduction=False, average_LTCF_degree=20):
 
     # Grab Long Term Care Facilities data
     ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
@@ -343,6 +343,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc = {}
     for b in est_seattle_users_2018:
         est_ltcf_user_by_age_brackets_perc[b] = est_seattle_users_2018[b]/state_age_distr_2018[b]/pop
+        # print(b,est_ltcf_user_by_age_brackets_perc[b])
 
     est_ltcf_user_by_age_brackets_perc['65-69'] = est_ltcf_user_by_age_brackets_perc['65-74']
     est_ltcf_user_by_age_brackets_perc['70-74'] = est_ltcf_user_by_age_brackets_perc['65-74']
@@ -351,19 +352,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
-
-
-    # for ab in est_ltcf_user_by_age_brackets_perc:
-        # print(ab, est_ltcf_user_by_age_brackets_perc[ab])
-
-    # # If not using hospice, need to include 55-59 year olds
-    # est_ltcf_user_by_age_brackets_perc['55-59'] = 0.0098
-    # est_ltcf_user_by_age_brackets_perc['60-64'] = 0.0098
-    # est_ltcf_user_by_age_brackets_perc['65-69'] = 0.0098
-    # est_ltcf_user_by_age_brackets_perc['70-74'] = 0.0098
-    # est_ltcf_user_by_age_brackets_perc['75-79'] = 0.0546
-    # est_ltcf_user_by_age_brackets_perc['80-84'] = 0.0546
-    # est_ltcf_user_by_age_brackets_perc['85-100'] = 0.1779
 
     age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'seattle_metro_age_bracket_distr_18.dat')
     age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
@@ -425,7 +413,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
     KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
-    # KC_resident_staff_ratios = [KC_resident_staff_ratios[k] for k in range(len(KC_resident_staff_ratios))]
     KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
 
     # print(KC_resident_staff_ratios)
@@ -578,7 +565,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # Assign all workers who are not staff at schools to workplaces
     gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose=verbose)
 
-
     # remove facilities from homes to write households as a separate file
     homes_by_uids = homes_by_uids[len(facilities_by_uids):]
     # group uids to file
@@ -591,7 +577,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities', facilities_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities_staff', facilities_staff_uids)
 
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids)
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
 
     if verbose:
         uids = popdict.keys()
@@ -606,3 +592,20 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     if return_popdict:
         return popdict
+
+
+def check_all_residents_are_connected_to_staff(popdict):
+
+    for i in popdict:
+        person = popdict[i]
+        if person['snf_res'] == 1:
+
+            contacts = person['contacts']['LTCF']
+            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+
+            if len(staff_contacts) == 0:
+
+                errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
+                raise ValueError(errormsg)
+
+

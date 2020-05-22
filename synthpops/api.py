@@ -12,16 +12,19 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities=False):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
     Args:
-        n (int)             : The number of people to create.
-        max_contacts (dict) : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
-        as_objdict (bool)   : If True, change popdict type to ``sc.objdict``.
-        generate (bool)     : If True, first look for cached population files and if those are not available, generate new population
-        with_industry_code (bool): If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US
+        n (int)                        : The number of people to create.
+        max_contacts (dict)            : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
+        as_objdict (bool)              : If True, change popdict type to ``sc.objdict``.
+        generate (bool)                : If True, first look for cached population files and if those are not available, generate new population
+        with_industry_code (bool)      : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US
+        with_facilities (bool)         : If True, create long term care facilities
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)      : default average degree in long term care facilities
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
@@ -47,7 +50,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     location = 'seattle_metro'
     sheet_name = 'United States of America'
 
-    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities}
+    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities, 'use_two_group_reduction': use_two_group_reduction, 'average_LTCF_degree': average_LTCF_degree}
     network_distr_args = {'Npop': int(n)}
 
     # Heavy lift 1: make the contacts and their connections
@@ -58,10 +61,12 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
         # make a new network on the fly
         if generate:
             if with_facilities:
-                population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True)
+                population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
             else:
                 population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
-        else:
+    else:
+        if with_facilities and with_industry_code:
+            errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
         # raise NotImplementedError("Population not available")
 

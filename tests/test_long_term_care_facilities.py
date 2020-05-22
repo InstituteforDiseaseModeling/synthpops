@@ -4,7 +4,7 @@ import synthpops as sp
 do_save = True
 do_plot = True
 verbose = False
-write = False
+write = True
 return_popdict = True
 use_default = False
 
@@ -16,7 +16,7 @@ sheet_name = 'United States of America'
 school_enrollment_counts_available = True
 
 
-gen_pop_size = 10e3
+gen_pop_size = 20e3
 gen_pop_size = int(gen_pop_size)
 
 # # generate and write to file
