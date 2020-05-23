@@ -9,7 +9,7 @@ people in schools, including both students and teachers. Schools are special in 
 -   Staff members such as teachers are chosen from individuals determined to be in the adult labor force.
 -   The current methods in |SP| treat student and worker status as mutually exclusive. Many young adults
     may be both students and workers, part time or full time in either status. The ability to select
-    individuals to participate in both activities will be introduced in a later develop of the model.
+    individuals to participate in both activities will be introduced in a later version of the model.
 
 .. TBD make sure this gets updated when the functionality is added
 
