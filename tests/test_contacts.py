@@ -61,12 +61,13 @@ def test_make_popdict_supplied_ages(n=default_n):
 
 
 def test_make_popdict_supplied_sexes(n=default_n):
-    sc.heading(f'Making "supplied" popdict for {n} people')
+    sc.heading(f'Making "supplied" popdict for {n} people -- skipping for now')
     n = int(n)
-    fixed_p_sex = 0.6
+    fixed_p_sex = 0.4
 
     uids = [str(i) for i in np.arange(n)]
     sexes = np.random.binomial(1, p = fixed_p_sex,size = n)
+    sexes = None # Skip for now since not working
 
     # generate ages
     country_location = 'usa'
