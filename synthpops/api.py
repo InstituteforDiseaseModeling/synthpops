@@ -41,9 +41,6 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
         n = default_n
     n = int(n)
 
-    if generate is None:
-        generate = False
-
     if n not in popsize_choices:
         if generate is False:
             choicestr = ', '.join([str(choice) for choice in popsize_choices])
@@ -51,6 +48,9 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
             raise ValueError(errormsg)
         else:
             generate = True # If not found, generate
+
+    if generate is None:
+        generate = False
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
