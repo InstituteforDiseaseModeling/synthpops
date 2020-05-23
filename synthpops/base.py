@@ -4,7 +4,6 @@ The module contains frequently-used functions that do not neatly fit into other 
 
 import numpy as np
 from copy import deepcopy
-from .config import datadir
 
 
 def norm_dic(dic):

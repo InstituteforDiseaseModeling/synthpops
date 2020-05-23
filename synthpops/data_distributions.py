@@ -46,21 +46,22 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-    
+
     Returns:
         A file path to the gender fraction by age bracket data.
 
     """
-    if location is None:
-        raise NotImplementedError
-    levels = [location, state_location]
+    levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location, state_location, and country_location strings.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_gender_fraction_by_age_bracket_16.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_gender_fraction_by_age_bracket_16.dat')
     else:
-        if state_location is None:  # use this is if you want to get national data
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', location + '_gender_fraction_by_age_bracket_16.dat')
-        else:
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_gender_fraction_by_age_bracket_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_gender_fraction_by_age_bracket_16.dat')
 
 
 def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -111,18 +112,17 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
         A file path to the age distribution by age bracket data.
 
     """
-    if location is None:
-        raise NotImplementedError
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_age_bracket_distr_16.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_age_bracket_distr_16.dat')
     else:
-        if state_location is None:  # use this for national data.
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', location + '_age_bracket_distr_16.dat')
-        # if country_location is None:
-            # return os.path.join(datadir,'demographics','contact_matrices_152_countries',state_location,'age distributions',location + '_age_bracket_distr_16.dat')
-        else:
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_age_bracket_distr_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_age_bracket_distr_16.dat')
 
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -172,11 +172,14 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
+    elif country_location is None:
+        raise NotImplementedError("Mssing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household size distributions', country_location + '_household_size_distr.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household size distributions', state_location + '_household_size_distr.dat')
     else:
-        if state_location is None:  # use for national data
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household size distributions', location + '_household_size_distr.dat')
-        else:
-            return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household size distributions', location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household size distributions', location + '_household_size_distr.dat')
 
 
 def get_household_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -226,6 +229,8 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     levels = [state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household living arrangements', 'head_age_brackets.dat')
     else:
@@ -273,11 +278,12 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
 
     Returns:
         A file path to the head of household age by household size count or distribution data.
-
     """
     levels = [state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household living arrangements', 'household_head_age_and_size_count.dat')
     else:
@@ -299,7 +305,6 @@ def get_household_head_age_by_size_df(datadir, state_location=None, country_loca
 
     Returns:
         A file path to the head of household age by household size count or distribution data.
-
     """
     if file_path is None:
         file_path = get_household_head_age_by_size_path(datadir, state_location, country_location)
@@ -319,7 +324,7 @@ def get_head_age_by_size_distr(datadir, state_location=None, country_location=No
     Create an array of head of household age bracket counts (col) given by size (row). If use_default, then we'll first try to look for location
     specific data and if that's not available we'll use default data from Seattle, WA. This may not be appropriate for the population under study
     so it's best to provide as much data as you can for the specific population.
-    
+
     Args:
         datadir (string)          : file path to the data directory
         state_location (string)   : name of the state
@@ -327,7 +332,7 @@ def get_head_age_by_size_distr(datadir, state_location=None, country_location=No
         file_path (string)        : file path to user specified gender by age bracket distribution data
         household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
-    
+
     Returns:
         An array where each row s represents the age distribution of the head of households for households of size s-1.
 
@@ -361,6 +366,8 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     levels = [state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'census_age_brackets.dat')
     else:
@@ -381,7 +388,7 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
         file_path (string)        : file path to user specified gender by age bracket distribution data
         household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
-    
+
     Returns:
         A dictionary of the range of ages that map to each age bracket.
 
@@ -481,7 +488,7 @@ def get_usa_school_enrollment_rates_df(datadir, locations, location, state_locat
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which here should always be 'usa'
         level (string)            : name of the level at which the data are aggregated, in general 'county' but could also be 'PUMA'
-    
+
     Returns:
         Pandas dataframe with school enrollment data in the US for at the scale of county of PUMA for specified locations within the same state.
 
@@ -491,7 +498,6 @@ def get_usa_school_enrollment_rates_df(datadir, locations, location, state_locat
 
         locations = ['King County, Washington', 'Pierce County, Washington'] for multiple counties
     """
-
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', level + '_school_enrollment_by_age','ACSST5Y2018.S1401_data_with_overlays_2020-03-06T233142.csv')
     df = pd.read_csv(file_path, header=1)
     if type(locations) == list:
@@ -516,7 +522,6 @@ def process_usa_school_enrollment_rates(datadir, locations, location, state_loca
     Returns:
         A dictionary of enrollment rates by single year ages from 0 to 100.
     """
-
     df = get_usa_school_enrollment_rates_df(datadir, locations, location, state_location, country_location, level)
     skip_labels = ['Error', 'public', 'private', 'X', 'Total', 'Male', 'Female', '3 years and over', '18 to 24']
     columns = df.columns
@@ -559,10 +564,9 @@ def write_school_enrollment_rates(datadir, locations, location, state_location, 
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which here should always be 'usa'
         level (string)            : name of the level at which the data are aggregated, in general 'county' but could also be 'PUMA'
-    
+
     Returns:
         None
-
     """
     rates = process_usa_school_enrollment_rates(datadir, locations, location, state_location, country_location, level)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment')
@@ -584,19 +588,21 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-    
+
     Returns:
         A file path to the school enrollment rates.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None and state_location is not None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', 'school_enrollment_by_age.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        raise NotImplementedError("Missing state_location input string. Try again. ")
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', location + '_school_enrollment_by_age.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'enrollment', country_location + '_school_enrollment_by_age.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', state_location + '_school_enrollment_by_age.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment', location + '_school_enrollment_by_age.dat')
 
 
 def get_school_enrollment_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -612,10 +618,9 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified gender by age bracket distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
-    
+
     Returns:
         A dictionary of school enrollment rates by age.
-
     """
     if file_path is None:
         file_path = get_school_enrollment_rates_path(datadir, location, state_location, country_location)
@@ -644,16 +649,18 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
 
     Returns:
         A file path to school size brackets.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None and state_location is not None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_brackets.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_size_brackets.dat')
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_brackets.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_brackets.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_brackets.dat')
 
 
 def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -673,7 +680,6 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
 
     Returns:
         A dictionary of school size brackets.
-
     """
     if file_path is None:
         file_path = get_school_size_brackets_path(datadir, location, state_location, country_location)
@@ -700,17 +706,19 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
 
     Returns:
         A file path to school sizes.
-
     """
 
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_sizes.dat')
     elif location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
-    elif state_location is None:
-        raise NotImplementedError("Missing state_location input string. Try again.")
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_sizes.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_sizes.dat')
 
 
 def get_school_sizes_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -755,17 +763,19 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
 
     Returns:
         A file path to the distribution of school sizes by bracket.
-
     """
 
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None and state_location is not None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        raise NotImplementedError("Missing state_location input string. Try again.")
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_size_distr.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_distr.dat')
 
 
 def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):
@@ -780,7 +790,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
@@ -838,7 +848,7 @@ def write_school_size_distr_by_brackets(datadir, location=None, state_location=N
         country_location (string) : name of the country the location is in
         counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
-        
+
     Returns:
         A dictionary of the distribution of school sizes by bracket.
     """
@@ -849,12 +859,15 @@ def write_school_size_distr_by_brackets(datadir, location=None, state_location=N
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    if location is None and state_location is not None:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
+    if country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_size_distr.dat')
+    elif location is None:
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_size_distr.dat')
     else:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, location, 'schools', location + '_school_size_distr.dat')
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_size_distr.dat')
+
     f = open(file_path, 'w')
     f.write('size_bracket,percent\n')
     for k in sorted_keys:
@@ -911,16 +924,18 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
 
     Returns:
         A file path to employment rates by age.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None and state_location is not None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment', 'employment_rates_by_age.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        raise NotImplementedError("Missing state_location input string. Try again.")
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'employment', 'employment_rates_by_age.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment', 'employment_rates_by_age.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
 
 
 def get_employment_rates(datadir, location, state_location, country_location, file_path=None, use_default=False):
@@ -969,11 +984,14 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None and state_location is not None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'work_size_brackets.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'workplaces', 'work_size_brackets.dat')
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'work_size_brackets.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
 
 
 def get_workplace_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1018,16 +1036,18 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
 
     Returns:
         A file path to the distribution of workplace sizes by bracket.
-
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
-    elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'work_size_count.dat')
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'workplaces', 'work_size_count.dat')
-    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_count.dat')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'work_size_count.dat')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', location + '_work_size_count.dat')
 
 
 def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1044,7 +1064,6 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
-
     """
     if file_path is None:
         file_path = get_workplace_size_distr_by_brackets_path(datadir, location, state_location, country_location)
@@ -1057,3 +1076,263 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
     return dict(zip(df.work_size_bracket, df.size_count))
+
+
+def get_state_postal_code(state_location):
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', 'postal_codes.csv')
+    df = pd.read_csv(file_path, delimiter=',')
+    dic = dict(zip(df.state, df.postal_code))
+    return dic[state_location]
+
+
+def get_usa_long_term_care_facility_path(datadir, state_location=None, part=None):
+    """
+    Get file_path for state level data on Long Term Care Facilities for the US from 2015-2016.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        state_location (string)   : name of the state
+        part (int): part 1 or 2 of the table
+
+    Returns:
+        A file path to data on Long Term Care Facilities from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
+        Part 1 or 2 are available.
+    """
+    if state_location is None:
+        raise NotImplementedError("Missing state_location string.")
+    if part != 1 and part != 2:
+        raise NotImplementedError("Part must be 1 or 2. Please try again.")
+    postal_code = get_state_postal_code(state_location)
+    return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+
+
+def get_usa_long_term_care_facility_data(datadir, state_location=None, part=None, file_path=None, use_default=False):
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_path(datadir, state_location, part)
+    try:
+        df = pd.read_csv(file_path, header=2)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_path(datadir, state_location='Washington', part=part)
+            df = pd.read_csv(file_path, header=2)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return df
+
+
+def get_usa_long_term_care_facility_residents_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the size distribution of residents per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to data on the size distribution of residents per facility for Long Term Care Facilities.
+    """
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'assisted_living', 'aggregated_residents_distr.csv')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', 'aggregated_residents_distr.csv')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', location + '_aggregated_residents_distr.csv')
+
+
+def get_usa_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get size distribution of residents per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        file_path (string)        : file path to user specified distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of the distribution of residents per facility for Long Term Care Facilities.
+    """
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
+    try:
+        df = pd.read_csv(file_path, header=0)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
+            df = pd.read_csv(file_path, header=0)
+        else:
+            raise ValueError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return dict(zip(df.bin, df.percent))
+
+
+def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the size bins for the distribution of residents per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to data on the size bins for the distribution of residents per facility for Long Term Care Facilities.
+    """
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'assisted_living', 'aggregated_residents_bins.csv')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
+
+
+def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get size bins for the distribution of residents per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which should be the 'usa'
+        size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of size brackets or bins for residents per facility.
+    """
+
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location, state_location, country_location)
+    try:
+        size_brackets = get_age_brackets_from_df(file_path)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            size_brackets = get_age_brackets_from_df(file_path)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return size_brackets
+
+
+def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to data on the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    """
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
+
+
+def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get size distribution of resident to staff ratios per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        file_path (string)        : file path to user specified distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of the distribution of residents per facility for Long Term Care Facilities.
+    """
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
+    try:
+        df = pd.read_csv(file_path, header=0)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
+            df = pd.read_csv(file_path, header=0)
+        else:
+            raise ValueError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return dict(zip(df.bin, df.percent))
+
+
+def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    """
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_bins.csv')
+    elif location is None:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_bins.csv')
+    else:
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_bins.csv')
+
+
+def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which should be the 'usa'
+        size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of size brackets or bins for resident to staff ratios per facility.
+    """
+
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location, state_location, country_location)
+    try:
+        size_brackets = get_age_brackets_from_df(file_path)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            size_brackets = get_age_brackets_from_df(file_path)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+    return size_brackets

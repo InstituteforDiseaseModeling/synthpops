@@ -39,46 +39,6 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     return hh_sizes
 
 
-def trim_households(N_extra, hh_size_distr):
-    """
-    Trim the population if too many households are generated, giving a total population size larger than expected.
-
-    Args:
-        N_extra (int)        : The number of extra people.
-        hh_size_distr (dict) : The distribution of household sizes.
-
-    Returns:
-        An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
-    """
-    ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
-    f = N_extra / np.round(ss, 16)
-    hh_sizes_trim = np.zeros(len(hh_size_distr))
-    for s in hh_size_distr:
-        hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
-
-    N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
-    s_range = np.arange(1, max(hh_size_distr) + 1)
-    p = [hh_size_distr[s] for s in hh_size_distr]
-
-    while (N_gen < N_extra):
-        ns = np.random.choice(s_range, p=p)
-        N_gen += ns
-
-        hh_sizes_trim[ns-1] += 1
-
-    last_house_size = int(N_gen - N_extra)
-
-    if last_house_size > 0:
-        hh_sizes_trim[last_house_size-1] -= 1
-    elif last_house_size < 0:
-        hh_sizes_trim[-last_house_size-1] += 1
-    else:
-        pass
-    # print('trim',hh_sizes_trim,[hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))], np.sum([hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))]))
-
-    return hh_sizes_trim
-
-
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
@@ -99,11 +59,37 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
         hh_sizes[s-1] = int(hh_size_distr[s] * f)
     N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype=int)
 
-    trim_hh = trim_households(N_gen - N, hh_size_distr)
-    new_hh_sizes = hh_sizes - trim_hh
-    new_hh_sizes = new_hh_sizes.astype(int)
+    people_to_add_or_remove = N_gen - N
 
-    return new_hh_sizes
+    # did not create household sizes to match or exceed the population size so add count for households needed
+    hh_size_keys = [k for k in hh_size_distr]
+    hh_size_distr_array = [hh_size_distr[k] for k in hh_size_keys]
+    if people_to_add_or_remove < 0:
+
+        people_to_add = -people_to_add_or_remove
+        while people_to_add > 0:
+            new_household_size = np.random.choice(hh_size_keys, p=hh_size_distr_array)
+
+            if new_household_size > people_to_add:
+                new_household_size = people_to_add
+            people_to_add -= new_household_size
+
+            hh_sizes[new_household_size-1] += 1
+
+    # created households that result in too many people
+    elif people_to_add_or_remove > 0:
+        people_to_remove = people_to_add_or_remove
+        while people_to_remove > 0:
+
+            new_household_size_to_remove = np.random.choice(hh_size_keys, p=hh_size_distr_array)
+            if new_household_size_to_remove > people_to_remove:
+                new_household_size_to_remove = people_to_remove
+
+            people_to_remove -= new_household_size_to_remove
+            hh_sizes[new_household_size_to_remove-1] -= 1
+
+    hh_sizes = hh_sizes.astype(int)
+    return hh_sizes
 
 
 def get_totalpopsize_from_household_sizes(hh_sizes):
@@ -250,7 +236,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     return homes_dic, homes
 
 
-def assign_uids_by_homes(homes, id_len=16):
+def assign_uids_by_homes(homes, id_len=16, use_int=True):
     """
     Assign IDs to everyone in order by their households.
 
@@ -268,7 +254,10 @@ def assign_uids_by_homes(homes, id_len=16):
 
         home_ids = []
         for a in home:
-            uid = sc.uuid(length=id_len)
+            if use_int:
+                uid = len(age_by_uid_dic)
+            else:
+                uid = sc.uuid(length=id_len)
             age_by_uid_dic[uid] = a
             home_ids.append(uid)
 
@@ -310,8 +299,8 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
         for uid in home:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
-            f_age_uid.write(uid + ' ' + str(age_by_uid_dic[uid]) + '\n')
+            fh_uid.write(str(uid) + ' ')
+            f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -380,7 +369,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         state_location (string)   : The name of the state the location is in.
         country_location (string) : The name of the country the location is in.
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
-        homes_by_uids (dict)      : A list of lists where each sublist is a household and the IDs of the household members.
+        homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
         use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
@@ -478,7 +467,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     """
     syn_schools = []
     syn_school_uids = []
-    # age_range = np.arange(101)
 
     ages_in_school_distr = norm_dic(ages_in_school_count)
     # total_school_count = len(uids_in_school)
@@ -547,16 +535,10 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
                     break
 
-                # a_in_school_prob_sum = np.sum([ages_in_school_distr[a] for bi in age_brackets for a in age_brackets[bi]])
-                # if a_in_school_prob_sum == 0:
-                    # break
-
                 bi = spsamp.sample_single(b_prob)
-                # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
                     bi = spsamp.sample_single(b_prob)
-                    # a_in_school_b_prob_sum = np.sum([ages_in_school_distr[a] for a in age_brackets[bi]])
 
                 ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0]  # grab the next student in line
@@ -717,8 +699,6 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
             except:
                 c = 0
             number_of_people_who_can_be_assigned = min(c, potential_worker_ages_left_count[a])
-            # workers_by_age_to_assign_count[a] = c
-            # print('workers to assign',a,number_of_people_who_can_be_assigned)
             workers_by_age_to_assign_count[a] = number_of_people_who_can_be_assigned
 
     return workers_by_age_to_assign_count
@@ -936,7 +916,7 @@ def write_schools_by_age_and_uid(datadir, location, state_location, country_loca
         for uid in school:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
+            fh_uid.write(str(uid) + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -973,7 +953,7 @@ def write_workplaces_by_age_and_uid(datadir, location, state_location, country_l
         for uid in work:
 
             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(uid + ' ')
+            fh_uid.write(str(uid) + ' ')
         fh_age.write('\n')
         fh_uid.write('\n')
     fh_age.close()
@@ -996,10 +976,14 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         verbose (bool)                            : If True, print statements as contacts are being generated.
         plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.
         write (bool)                              : If True, write population to file.
+        return_popdict (bool)                     : If True, returns a dictionary of individuals in the population
         use_default (bool)                        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
-        None
+        If return_popdict is True, returns popdict, a dictionary of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary for each individual with their
+        attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers
+        available are households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of groups of people interacting with each other. For example, all
+        household members are contacts of each other, and everyone in the same school is a contact of each other. Else, return None.
 
     Example
     =======
@@ -1034,7 +1018,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     household_size_distr = spdata.get_household_size_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-    min_pop = 200
+    min_pop = 100
     if n < min_pop:
         raise NotImplementedError(f"Population is too small to currently be generated properly. Try a size larger than {min_pop}.")
     n = int(n)
