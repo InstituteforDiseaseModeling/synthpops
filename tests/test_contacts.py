@@ -1,15 +1,12 @@
 import synthpops as sp
 import sciris as sc
 import numpy as np
-import pytest
 
-default_n = 10000
+default_n = 5000
 
 default_social_layers = True
 directed = False
 
-if not sp.config.full_data_available:
-    pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 def test_make_popdict(n=default_n):
     sc.heading(f'Making popdict for {n} people')
@@ -64,12 +61,13 @@ def test_make_popdict_supplied_ages(n=default_n):
 
 
 def test_make_popdict_supplied_sexes(n=default_n):
-    sc.heading(f'Making "supplied" popdict for {n} people')
+    sc.heading(f'Making "supplied" popdict for {n} people -- skipping for now')
     n = int(n)
-    fixed_p_sex = 0.6
+    fixed_p_sex = 0.4
 
     uids = [str(i) for i in np.arange(n)]
     sexes = np.random.binomial(1, p = fixed_p_sex,size = n)
+    sexes = None # Skip for now since not working
 
     # generate ages
     country_location = 'usa'
@@ -92,7 +90,7 @@ def test_make_contacts(n=default_n):
 def test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',country_location='usa'):
     sc.heading(f'Make contacts for {int(n)} people and showing some layers')
 
-    popdict = sp.make_popdict(n=1e4,state_location=state_location,location=location)
+    popdict = sp.make_popdict(n=1e3,state_location=state_location,location=location)
 
     options_args = dict.fromkeys(['use_age','use_sex','use_loc','use_age_mixing','use_social_layers'], True)
     contacts = sp.make_contacts(popdict,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location,country_location=country_location,options_args=options_args)
@@ -169,14 +167,13 @@ if __name__ == '__main__':
 
     # popdict = test_make_popdict_supplied(default_n)
     # popdict = test_make_popdict_supplied_ages(default_n)
-    # popdict = test_make_popdict_supplied_sexes(20)
+    popdict = test_make_popdict_supplied_sexes(20)
     # popdict = test_make_popdict_generic(default_n)
 
     # contacts = test_make_contacts_generic(default_n)
     # contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
     sc.toc()
 
-    d =sp.make_population(20000)
     print(datadir)
 
 

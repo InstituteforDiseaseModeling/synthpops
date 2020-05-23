@@ -5,7 +5,7 @@ import synthpops as sp
 def test_sizes():
     ''' Synthpops should support populations down to 200 people '''
 
-    nlist = [200, 201, 1001, 9848]
+    nlist = [100, 246]
 
     for n in nlist:
         print(f'Working on {n}')
@@ -13,7 +13,7 @@ def test_sizes():
         assert len(pop) == n
 
     with pytest.raises(NotImplementedError):
-        sp.make_population(n=199, generate=True) # Too small
+        sp.make_population(n=99, generate=True) # Too small
 
     return pop
 
