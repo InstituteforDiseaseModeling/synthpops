@@ -5,7 +5,7 @@ import synthpops as sp
 def test_sizes():
     ''' Synthpops should support populations down to 200 people '''
 
-    nlist = [200, 201, 1001]
+    nlist = [200, 346]
 
     for n in nlist:
         print(f'Working on {n}')
