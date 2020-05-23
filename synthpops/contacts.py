@@ -1205,8 +1205,9 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
-    if options_args['average_LTCF_degree'] is None: options_args['average_LTCF_degree'] = 20
-    if options_args         is None: options_args = dict.fromkeys(options_keys, False)
+    if options_args is None: options_args = dict.fromkeys(options_keys, False)
+    if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
+    
 
     # fill in the other keys as False!
     for key in options_keys:
