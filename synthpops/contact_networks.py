@@ -35,48 +35,6 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     return hh_sizes
 
 
-# def trim_households(N_extra, hh_size_distr):
-#     """
-#     Trim the population if too many households are generated, giving a total population size larger than expected.
-
-#     Args:
-#         N_extra (int)        : The number of extra people.
-#         hh_size_distr (dict) : The distribution of household sizes.
-
-#     Returns:
-#         An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
-#     """
-#     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
-#     f = N_extra / np.round(ss, 16)
-#     hh_sizes_trim = np.zeros(len(hh_size_distr))
-#     for s in hh_size_distr:
-#         hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
-
-#     N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
-#     s_range = np.arange(1, max(hh_size_distr) + 1)
-#     p = [hh_size_distr[s] for s in hh_size_distr]
-
-#     total_people_to_trim = N_extra
-
-#     while (N_gen < N_extra):
-#         ns = np.random.choice(s_range, p=p)
-#         N_gen += ns
-
-#         hh_sizes_trim[ns-1] += 1
-
-#     last_house_size = int(N_gen - N_extra)
-
-#     if last_house_size > 0:
-#         hh_sizes_trim[last_house_size-1] -= 1
-#     elif last_house_size < 0:
-#         hh_sizes_trim[-last_house_size-1] += 1
-#     else:
-#         pass
-#     # print('trim',hh_sizes_trim,[hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))], np.sum([hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))]))
-
-#     return hh_sizes_trim
-
-
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
@@ -110,6 +68,7 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
 
             if new_household_size > people_to_add:
                 new_household_size = people_to_add
+            people_to_add -= new_household_size
 
             hh_sizes[new_household_size-1] += 1
 
@@ -122,11 +81,11 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
             if new_household_size_to_remove > people_to_remove:
                 new_household_size_to_remove = people_to_remove
 
+            people_to_remove -= new_household_size_to_remove
             hh_sizes[new_household_size_to_remove-1] -= 1
 
-    new_hh_sizes = new_hh_sizes.astype(int)
-
-    return new_hh_sizes
+    hh_sizes = hh_sizes.astype(int)
+    return hh_sizes
 
 
 def get_totalpopsize_from_household_sizes(hh_sizes):
