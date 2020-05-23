@@ -1,3 +1,7 @@
+"""
+This module provides the layer for communicating with the agent-based model Covasim.
+"""
+
 import sciris as sc
 import synthpops as sp
 
