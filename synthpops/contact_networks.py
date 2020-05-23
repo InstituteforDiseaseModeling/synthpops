@@ -119,10 +119,10 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
         while people_to_remove > 0:
 
             new_household_size_to_remove = np.random.choice(hh_size_keys, p=hh_size_distr_array)
-            if new_household_size > people_to_remove:
-                new_household_size = people_to_remove
+            if new_household_size_to_remove > people_to_remove:
+                new_household_size_to_remove = people_to_remove
 
-            hh_sizes[new_household_size-1] -= 1
+            hh_sizes[new_household_size_to_remove-1] -= 1
 
     new_hh_sizes = new_hh_sizes.astype(int)
 
