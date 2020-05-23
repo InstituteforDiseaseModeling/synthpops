@@ -35,44 +35,46 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     return hh_sizes
 
 
-def trim_households(N_extra, hh_size_distr):
-    """
-    Trim the population if too many households are generated, giving a total population size larger than expected.
+# def trim_households(N_extra, hh_size_distr):
+#     """
+#     Trim the population if too many households are generated, giving a total population size larger than expected.
 
-    Args:
-        N_extra (int)        : The number of extra people.
-        hh_size_distr (dict) : The distribution of household sizes.
+#     Args:
+#         N_extra (int)        : The number of extra people.
+#         hh_size_distr (dict) : The distribution of household sizes.
 
-    Returns:
-        An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
-    """
-    ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
-    f = N_extra / np.round(ss, 16)
-    hh_sizes_trim = np.zeros(len(hh_size_distr))
-    for s in hh_size_distr:
-        hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
+#     Returns:
+#         An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.
+#     """
+#     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
+#     f = N_extra / np.round(ss, 16)
+#     hh_sizes_trim = np.zeros(len(hh_size_distr))
+#     for s in hh_size_distr:
+#         hh_sizes_trim[s-1] = int(hh_size_distr[s] * f)
 
-    N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
-    s_range = np.arange(1, max(hh_size_distr) + 1)
-    p = [hh_size_distr[s] for s in hh_size_distr]
+#     N_gen = np.sum([hh_sizes_trim[s-1] * s for s in hh_size_distr])
+#     s_range = np.arange(1, max(hh_size_distr) + 1)
+#     p = [hh_size_distr[s] for s in hh_size_distr]
 
-    while (N_gen < N_extra):
-        ns = np.random.choice(s_range, p=p)
-        N_gen += ns
+#     total_people_to_trim = N_extra
 
-        hh_sizes_trim[ns-1] += 1
+#     while (N_gen < N_extra):
+#         ns = np.random.choice(s_range, p=p)
+#         N_gen += ns
 
-    last_house_size = int(N_gen - N_extra)
+#         hh_sizes_trim[ns-1] += 1
 
-    if last_house_size > 0:
-        hh_sizes_trim[last_house_size-1] -= 1
-    elif last_house_size < 0:
-        hh_sizes_trim[-last_house_size-1] += 1
-    else:
-        pass
-    # print('trim',hh_sizes_trim,[hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))], np.sum([hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))]))
+#     last_house_size = int(N_gen - N_extra)
 
-    return hh_sizes_trim
+#     if last_house_size > 0:
+#         hh_sizes_trim[last_house_size-1] -= 1
+#     elif last_house_size < 0:
+#         hh_sizes_trim[-last_house_size-1] += 1
+#     else:
+#         pass
+#     # print('trim',hh_sizes_trim,[hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))], np.sum([hh_sizes_trim[s] * (s+1) for s in range(len(hh_sizes_trim))]))
+
+#     return hh_sizes_trim
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
@@ -95,8 +97,33 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
         hh_sizes[s-1] = int(hh_size_distr[s] * f)
     N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype=int)
 
-    trim_hh = trim_households(N_gen - N, hh_size_distr)
-    new_hh_sizes = hh_sizes - trim_hh
+    people_to_add_or_remove = N_gen - N
+
+    # did not create household sizes to match or exceed the population size so add count for households needed
+    hh_size_keys = [k for k in hh_size_distr]
+    hh_size_distr_array = [hh_size_distr[k] for k in hh_size_keys]
+    if people_to_add_or_remove < 0:
+
+        people_to_add = -people_to_add_or_remove
+        while people_to_add > 0:
+            new_household_size = np.random.choice(hh_size_keys, p=hh_size_distr_array)
+
+            if new_household_size > people_to_add:
+                new_household_size = people_to_add
+
+            hh_sizes[new_household_size-1] += 1
+
+    # created households that result in too many people
+    elif people_to_add_or_remove > 0:
+        people_to_remove = people_to_add_or_remove
+        while people_to_remove > 0:
+
+            new_household_size_to_remove = np.random.choice(hh_size_keys, p=hh_size_distr_array)
+            if new_household_size > people_to_remove:
+                new_household_size = people_to_remove
+
+            hh_sizes[new_household_size-1] -= 1
+
     new_hh_sizes = new_hh_sizes.astype(int)
 
     return new_hh_sizes
