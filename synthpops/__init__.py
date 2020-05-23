@@ -7,3 +7,4 @@ from .contact_networks import *
 from .contact_networks_industries import *
 from .plot_tools import *
 from .api import *
+from .long_term_care_facilities import *

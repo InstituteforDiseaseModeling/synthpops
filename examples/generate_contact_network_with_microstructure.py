@@ -9,24 +9,24 @@ Populations have demographics (age, sex) from data.
 Not an exhaustive list of what synthpops can do - please take a look through the code base for the many possibilities.
 """
 
-def show_layers(popdict,show_ages=False):
+# def show_layers(popdict,show_ages=False):
 
-    uids = popdict.keys()
-    uids = [uid for uid in uids]
+#     uids = popdict.keys()
+#     uids = [uid for uid in uids]
 
-    layers = popdict[uids[0]]['contacts'].keys()
-    if show_ages:
-        for uid in uids:
-            print(uid,popdict[uid]['age'])
-            for k in layers:
-                contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
-                print(k,sorted(contact_ages))
+#     layers = popdict[uids[0]]['contacts'].keys()
+#     if show_ages:
+#         for uid in uids:
+#             print(uid,popdict[uid]['age'])
+#             for k in layers:
+#                 contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
+#                 print(k,sorted(contact_ages))
 
-    else:
-        for uid in uids:
-            print(uid)
-            for k in layers:
-                print(k,contacts[uid]['contacts'][k])
+#     else:
+#         for uid in uids:
+#             print(uid)
+#             for k in layers:
+#                 print(k,contacts[uid]['contacts'][k])
 
 
 if __name__ == '__main__':
@@ -39,14 +39,15 @@ if __name__ == '__main__':
     country_location = 'usa'
     sheet_name = 'United States of America'
 
-    n = 10000
+    n = 11000
     verbose = False
-    plot = False
+    plot = True
+    write = True
 
     # this will generate a population with microstructure and age demographics that approximate those of the location selected
     # also saves to file in:
     #    datadir/demographics/contact_matrices_152_countries/state_location/
-    sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,verbose=verbose,plot=plot)
+    sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,verbose=verbose,plot=plot,write=write)
 
     # load that population into a dictionary of individuals who know who their contacts are
     options_args = {'use_microstructure': True}
@@ -56,4 +57,4 @@ if __name__ == '__main__':
     verbose = True
     # verbose = False
     if verbose:
-        show_layers(contacts,show_ages=True)
+        sp.show_layers(contacts,show_ages=True, show_n=2)
