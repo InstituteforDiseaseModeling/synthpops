@@ -26,28 +26,8 @@ Complete the following steps to install |SP|:
 
         python setup.py develop
 
-Load data
-=========
+Note: while `synthpops` can also be installed via pypi, this method does not currently include the data files which are required to function, and thus is not recommended.
 
-.. note::
-
-    This module needs to load in data in order to function.
-
-
-To set the data location, add the following to your scripts::
-
-    import synthpops as sp
-    sp.set_datadir('my-data-folder')
-
-
-The data folder will need to have files in this kind of structure::
-
-    demographics/
-    contact_matrices_152_countries/
-
-You can find provided data in this format under the *data* folder in the |SP| `GitHub repository`_.
-
-.. _GitHub repository: https://github.com/InstituteforDiseaseModeling/synthpops
 
 Quick start guide
 =================
