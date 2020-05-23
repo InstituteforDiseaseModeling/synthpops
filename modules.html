@@ -157,6 +157,7 @@
 </div>
 <div class="section" id="module-synthpops.api">
 <span id="synthpops-api-module"></span><h2>synthpops.api module<a class="headerlink" href="#module-synthpops.api" title="Permalink to this headline">¶</a></h2>
+<p>This module provides the layer for communicating with the agent-based model Covasim.</p>
 <dl class="py function">
 <dt id="synthpops.api.make_population">
 <code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_objdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
@@ -182,6 +183,7 @@
 </div>
 <div class="section" id="module-synthpops.base">
 <span id="synthpops-base-module"></span><h2>synthpops.base module<a class="headerlink" href="#module-synthpops.base" title="Permalink to this headline">¶</a></h2>
+<p>The module contains frequently-used functions that do not neatly fit into other areas of the code base.</p>
 <dl class="py function">
 <dt id="synthpops.base.norm_dic">
 <code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">norm_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.norm_dic" title="Permalink to this definition">¶</a></dt>
@@ -226,6 +228,11 @@
 <dd class="field-even"><p>A dictionary of age bracket by age.</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -243,6 +250,12 @@
 <dd class="field-even"><p>A dictionary of aggregated age count for specified age brackets.</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -280,6 +293,17 @@
 <dd class="field-even"><p>A symmetric contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) aggregated to age brackets.</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+
+<span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+
+<span class="n">asymmetric_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_asymmetric_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">aggregate_age_count</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -297,6 +321,17 @@
 <dd class="field-even"><p>A contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) whose elements <code class="docutils literal notranslate"><span class="pre">M_ij</span></code> describe the contact frequency for the average individual in age bracket <code class="docutils literal notranslate"><span class="pre">i</span></code> with all possible contacts in age bracket <code class="docutils literal notranslate"><span class="pre">j</span></code>.</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+
+<span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+
+<span class="n">asymmetric_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_asymmetric_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">aggregate_age_count</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -378,6 +413,7 @@
 </div>
 <div class="section" id="module-synthpops.contact_networks">
 <span id="synthpops-contact-networks-module"></span><h2>synthpops.contact_networks module<a class="headerlink" href="#module-synthpops.contact_networks" title="Permalink to this headline">¶</a></h2>
+<p>This module generates the household, school, and workplace contact networks.</p>
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_household_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_household_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Nhomes</span></em>, <em class="sig-param"><span class="n">hh_size_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_household_sizes" title="Permalink to this definition">¶</a></dt>
@@ -432,13 +468,13 @@
 <dl class="py function">
 <dt id="synthpops.contact_networks.get_totalpopsize_from_household_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_totalpopsize_from_household_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hh_sizes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_totalpopsize_from_household_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sum household sizes from count array.</p>
+<dd><p>Sum the population of a specific household size from the count array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Sum (int) of the household sizes.</p>
+<dd class="field-even"><p>An integer indicating the total number of people in household size s.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -576,7 +612,7 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.read_in_age_by_uid">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">read_in_age_by_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.read_in_age_by_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read dictionary of iD mapping to ages for all individuals from file.</p>
+<dd><p>Read dictionary of ID mapping to ages for all individuals from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -857,23 +893,45 @@ and then writes this population to appropriate files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>sheet_name</strong> (<em>string</em>) – name of the sheet in the excel file with contact patterns</p></li>
-<li><p><strong>school_enrollment_counts_available</strong> (<em>bool</em>) – if True, a list of school sizes is available and a count of the sizes can be constructed</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated</p></li>
-<li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled</p></li>
-<li><p><strong>write</strong> (<em>bool</em>) – If True, write population to file</p></li>
-<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>sheet_name</strong> (<em>string</em>) – The name of the sheet in the Excel file with contact patterns.</p></li>
+<li><p><strong>school_enrollment_counts_available</strong> (<em>bool</em>) – If True, a list of school sizes is available and a count of the sizes can be constructed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.</p></li>
+<li><p><strong>write</strong> (<em>bool</em>) – If True, write population to file.</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">datadir</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">datadir</span> <span class="c1"># point datadir where your data folder lives</span>
+
+<span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;seattle_metro&#39;</span>
+<span class="n">state_location</span> <span class="o">=</span> <span class="s1">&#39;Washington&#39;</span>
+<span class="n">country_location</span> <span class="o">=</span> <span class="s1">&#39;usa&#39;</span>
+<span class="n">sheet_name</span> <span class="o">=</span> <span class="s1">&#39;United States of America&#39;</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># this will generate a population with microstructure and age demographics that</span>
+<span class="c1"># approximate those of the location selected</span>
+<span class="c1"># also saves to file in:</span>
+<span class="c1">#    datadir/demographics/contact_matrices_152_countries/state_location/</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">generate_synthetic_population</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">datadir</span><span class="p">,</span><span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                                 <span class="n">state_location</span><span class="o">=</span><span class="n">state_location</span><span class="p">,</span>
+                                 <span class="n">country_location</span><span class="o">=</span><span class="n">country_location</span><span class="p">,</span>
+                                 <span class="n">sheet_name</span><span class="o">=</span><span class="n">sheet_name</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
