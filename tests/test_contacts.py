@@ -92,7 +92,7 @@ def test_make_contacts(n=default_n):
 def test_make_contacts_and_show_some_layers(n=default_n,n_contacts_dic=None,state_location='Washington',location='seattle_metro',country_location='usa'):
     sc.heading(f'Make contacts for {int(n)} people and showing some layers')
 
-    popdict = sp.make_popdict(n=1e4,state_location=state_location,location=location)
+    popdict = sp.make_popdict(n=1e3,state_location=state_location,location=location)
 
     options_args = dict.fromkeys(['use_age','use_sex','use_loc','use_age_mixing','use_social_layers'], True)
     contacts = sp.make_contacts(popdict,n_contacts_dic=n_contacts_dic,state_location=state_location,location=location,country_location=country_location,options_args=options_args)
@@ -176,7 +176,6 @@ if __name__ == '__main__':
     # contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
     sc.toc()
 
-    d =sp.make_population(20000)
     print(datadir)
 
 
