@@ -1,3 +1,7 @@
+"""
+This module generates the household, school, and workplace contact networks.
+"""
+
 import sciris as sc
 import numpy as np
 import networkx as nx
@@ -104,13 +108,13 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
 
 def get_totalpopsize_from_household_sizes(hh_sizes):
     """
-    Sum household sizes from count array.
+    Sum the population of a specific household size from the count array.
 
     Args:
         hh_sizes (array): The count of household size s at index s-1.
 
     Returns:
-        Sum (int) of the household sizes.
+        An integer indicating the total number of people in household size s.
     """
     return np.sum([hh_sizes[s] * (s+1) for s in range(len(hh_sizes))])
 
@@ -317,7 +321,7 @@ def write_homes_by_age_and_uid(datadir, location, state_location, country_locati
 
 def read_in_age_by_uid(datadir, location, state_location, country_location, N):
     """
-    Read dictionary of iD mapping to ages for all individuals from file.
+    Read dictionary of ID mapping to ages for all individuals from file.
 
     Args:
         datadir (string)          : The file path to the data directory.
@@ -982,20 +986,45 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     and then writes this population to appropriate files.
 
     Args:
-        n (int)                                   : number of people in the population
-        datadir (string)                          : file path to the data directory
-        location (string)                         : name of the location
-        state_location (string)                   : name of the state the location is in
-        country_location (string)                 : name of the country the location is in
-        sheet_name (string)                       : name of the sheet in the excel file with contact patterns
-        school_enrollment_counts_available (bool) : if True, a list of school sizes is available and a count of the sizes can be constructed
-        verbose (bool)                            : If True, print statements as contacts are being generated
-        plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs the expected age distribution of the population from census data being sampled
-        write (bool)                              : If True, write population to file
-        use_default (bool)                        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        n (int)                                   : The number of people in the population.
+        datadir (string)                          : The file path to the data directory.
+        location (string)                         : The name of the location.
+        state_location (string)                   : The name of the state the location is in.
+        country_location (string)                 : The name of the country the location is in.
+        sheet_name (string)                       : The name of the sheet in the Excel file with contact patterns.
+        school_enrollment_counts_available (bool) : If True, a list of school sizes is available and a count of the sizes can be constructed.
+        verbose (bool)                            : If True, print statements as contacts are being generated.
+        plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.
+        write (bool)                              : If True, write population to file.
+        use_default (bool)                        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
         None
+
+    Example
+    =======
+
+    ::
+
+        datadir = sp.datadir # point datadir where your data folder lives
+
+        location = 'seattle_metro'
+        state_location = 'Washington'
+        country_location = 'usa'
+        sheet_name = 'United States of America'
+
+        n = 10000
+        verbose = False
+        plot = False
+
+        # this will generate a population with microstructure and age demographics that
+        # approximate those of the location selected
+        # also saves to file in:
+        #    datadir/demographics/contact_matrices_152_countries/state_location/
+        sp.generate_synthetic_population(n,datadir,location=location,
+                                         state_location=state_location,
+                                         country_location=country_location,
+                                         sheet_name=sheet_name,verbose=verbose,plot=plot)
     """
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
