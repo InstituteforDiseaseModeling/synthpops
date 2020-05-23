@@ -1,4 +1,4 @@
-# Benchmark and profile Synthpops
+# Benchmark and profile SynthPops
 
 import sciris as sc
 import synthpops as sp
@@ -17,11 +17,11 @@ func_options = {
     }
 
 def make_pop():
-    n = [20000, 5001][1] # Use either a pre-generated population, or one that has to be made from scratch
+    n = [20000, 20001][1] # Use either a pre-generated population, or one that has to be made from scratch
     max_contacts = {'S': 20, 'W': 10}
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
 
+sc.tic()
 sc.profile(run=make_pop, follow=func_options[to_profile])
-
-
+sc.toc()
