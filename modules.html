@@ -160,7 +160,7 @@
 <p>This module provides the layer for communicating with the agent-based model Covasim.</p>
 <dl class="py function">
 <dt id="synthpops.api.make_population">
-<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_objdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_objdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -169,6 +169,10 @@
 <li><p><strong>max_contacts</strong> (<em>dict</em>) – A dictionary for maximum number of contacts per layer: keys must be “S” (school) and/or “W” (work).</p></li>
 <li><p><strong>as_objdict</strong> (<em>bool</em>) – If True, change popdict type to <code class="docutils literal notranslate"><span class="pre">sc.objdict</span></code>.</p></li>
 <li><p><strong>generate</strong> (<em>bool</em>) – If True, first look for cached population files and if those are not available, generate new population</p></li>
+<li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US</p></li>
+<li><p><strong>with_facilities</strong> (<em>bool</em>) – If True, create long term care facilities</p></li>
+<li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
+<li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -432,23 +436,6 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.contact_networks.trim_households">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">trim_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N_extra</span></em>, <em class="sig-param"><span class="n">hh_size_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.trim_households" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trim the population if too many households are generated, giving a total population size larger than expected.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>N_extra</strong> (<em>int</em>) – The number of extra people.</p></li>
-<li><p><strong>hh_size_distr</strong> (<em>dict</em>) – The distribution of household sizes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An array with the count of excess households of size s at index s-1. This will be subtracted from another count array.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_household_sizes_from_fixed_pop_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_size_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.</p>
@@ -573,7 +560,7 @@ The first age in the row is the age of the reference individual. Households are 
 
 <dl class="py function">
 <dt id="synthpops.contact_networks.assign_uids_by_homes">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_uids_by_homes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">homes</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_uids_by_homes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_uids_by_homes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">homes</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">16</span></em>, <em class="sig-param"><span class="n">use_int</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_uids_by_homes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign IDs to everyone in order by their households.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -664,7 +651,7 @@ The first age in the row is the age of the reference individual. Households are 
 <li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for all individuals in the population.</p></li>
-<li><p><strong>homes_by_uids</strong> (<em>dict</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
 <li><p><strong>use_default</strong> (<em>bool</em>) – If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
@@ -903,11 +890,15 @@ and then writes this population to appropriate files.</p>
 <li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated.</p></li>
 <li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.</p></li>
 <li><p><strong>write</strong> (<em>bool</em>) – If True, write population to file.</p></li>
+<li><p><strong>return_popdict</strong> (<em>bool</em>) – If True, returns a dictionary of individuals in the population</p></li>
 <li><p><strong>use_default</strong> (<em>bool</em>) – If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p>If return_popdict is True, returns popdict, a dictionary of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary for each individual with their
+attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers
+available are households (‘H’), schools (‘S’), and workplaces (‘W’). Contacts in these layers are clustered and thus form a network composed of groups of people interacting with each other. For example, all
+household members are contacts of each other, and everyone in the same school is a contact of each other. Else, return None.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1279,15 +1270,14 @@ Multiple social settings or layers so contacts are listed for different layers.<
 <dl class="py function">
 <dt id="synthpops.contacts.rehydrate">
 <code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">rehydrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.rehydrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl>
-<dt>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</dt><dd><p>Populate popdict with uids, ages and contacts from generated microstructure data
+<dd><p>Populate popdict with uids, ages and contacts from generated microstructure data
 that was saved to data object</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>data (pop object)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pop object</em>) – </p>
 </dd>
-<dt>Returns:</dt><dd><p>Popdict (sc.objdict)</p>
-</dd>
-</dl>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Popdict (sc.objdict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1311,9 +1301,38 @@ that was saved to data object</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="synthpops.contacts.create_reduced_contacts_with_group_types">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">create_reduced_contacts_with_group_types</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">group_1</span></em>, <em class="sig-param"><span class="n">group_2</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">average_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">p_matrix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">force_cross_edges</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.create_reduced_contacts_with_group_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create contacts between members of group 1 and group 2, fixing the average degree, and the
+probability of an edge between any two groups controlled by p_matrix if provided.
+Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
+This means not everyone in group 2 will have a contact with group 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_1</strong> (<em>list</em>) – list of ids for group 1</p></li>
+<li><p><strong>group_2</strong> (<em>list</em>) – list of ids for group 2</p></li>
+<li><p><strong>average_degree</strong> (<em>int</em>) – average degree across group 1 and 2</p></li>
+<li><p><strong>p_matrix</strong> (<em>np.ndarray</em>) – probability matrix for edges between any two groups</p></li>
+<li><p><strong>force_cross_groups</strong> (<em>bool</em>) – If True, force each individual to have at least one contact with a member from the other group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Popdict with edges added for nodes in the two groups.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method uses the Stochastic Block Model algorithm to generate contacts both between nodes in different groups</p>
+<p>and for nodes within the same group. In the current version, fixing the average degree and p_matrix, the matrix of probabilities
+for edges between any two groups is not supported. Future versions may add support for this.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="synthpops.contacts.make_contacts_from_microstructure">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a popdict from synthetic household, school, and workplace files with uids.</p>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+codes are only available to assign to populations within the US.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1322,21 +1341,160 @@ that was saved to data object</p>
 <li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
 <li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
+<li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign workplace industry code read in from cached file</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A popdict of people with attributes, including their age and the ids of their contacts in the households (‘H’),
-schools (‘S’), and workplace (‘W’) layers where contacts are clustered and thus the network is composed of groups
-of people interacting with each other. For example, all household members are contacts of each other, and everyone
-at the same school is a contact of each other.</p>
+<dd class="field-even"><p>A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+households (‘H’), schools (‘S’), and workplaces (‘W’). Contacts in these layers are clustered and thus form a network composed of
+groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+same school is considered a contact of each other.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+smaller work groups are available via sp.trim_contacts() - see below).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contacts.make_contacts_from_microstructure_objects">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for all individuals in the population</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>schools_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a school and the ids of the students and teachers within it</p></li>
+<li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
+<li><p><strong>workplaces_by_industry_codes</strong> (<em>np.ndarray</em><em> or </em><em>None</em>) – array with workplace industry code for each workplace</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+households (‘H’), schools (‘S’), and workplaces (‘W’). Contacts in these layers are clustered and thus form a network composed of
+groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+same school is considered a contact of each other.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+smaller work groups are available via sp.trim_contacts() - see below).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contacts.make_contacts_with_facilities_from_microstructure">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+codes are only available to assign to populations within the US.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
+<li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign workplace industry code read in from cached file</p></li>
+<li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
+<li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+households (‘H’), schools (‘S’), and workplaces (‘W’), and long term care facilities (‘LTCF’). Contacts in these layers are clustered and thus form a network composed of
+groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within ‘LTCF’ are reduced
+from fully connected.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_staff_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for all individuals in the population</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>schools_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a school and the ids of the students and teachers within it</p></li>
+<li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
+<li><p><strong>facilities_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it</p></li>
+<li><p><strong>facilities_staff_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it</p></li>
+<li><p><strong>workplaces_by_industry_codes</strong> (<em>np.ndarray</em><em> or </em><em>None</em>) – array with workplace industry code for each workplace</p></li>
+<li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
+<li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+households (‘H’), schools (‘S’), and workplaces (‘W’), and long term care facilities (‘LTCF’). Contacts in these layers are clustered and thus form a network composed of
+groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within ‘LTCF’ are reduced
+from fully connected.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contacts.make_graphs">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_graphs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">layers</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dictionary of Networkx by layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer</p></li>
+<li><p><strong>layers</strong> (<em>list</em>) – list of contact layers</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Retuns:</dt><dd><p>Dictionary of Networkx graphs, one for each layer of contacts.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.contacts.make_contacts_from_microstructure_objects">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="synthpops.contacts.write_edgelists">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">write_edgelists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">layers</span></em>, <em class="sig-param"><span class="n">G_dic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.write_edgelists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write edgelists for each layer of contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer</p></li>
+<li><p><strong>layers</strong> (<em>list</em>) – list of contact layers</p></li>
+<li><p><strong>G_dic</strong> (<em>dict</em>) – dictionary of Networkx graphs, one for each layer of contacts</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts">
@@ -1414,6 +1572,7 @@ Default ‘network_type’ is ‘poisson_degree’ for Erdos-Renyi random graphs
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>popdict</strong> (<em>dict</em>) – dictionary of individuals with attributes, including their age and the ids of their close contacts</p></li>
 <li><p><strong>show_ages</strong> (<em>bool</em>) – If True, show the ages of contacts, else show their ids</p></li>
+<li><p><strong>show_n</strong> (<em>int</em>) – number of individuals to show contacts for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1987,7 +2146,7 @@ be appropriate for the population under study so it’s best to provide as much 
 <li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
 <li><p><strong>counts_available</strong> (<em>bool</em>) – if True, a list of school sizes is available and a count of the sizes can be constructed</p></li>
-<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
 <li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
@@ -2162,6 +2321,323 @@ to provide as much data as you can for the specific population.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_state_postal_code">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_state_postal_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_state_postal_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">part</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for state level data on Long Term Care Facilities for the US from 2015-2016.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>part</strong> (<em>int</em>) – part 1 or 2 of the table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>National Study of Long-Term Care Providers, 2015-2016’.
+Part 1 or 2 are available.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A file path to data on Long Term Care Facilities from ‘Long-Term Care Providers and Services Users in the United States - State Estimates Supplement</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_data">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">part</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of size brackets or bins for residents per facility.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of size brackets or bins for resident to staff ratios per facility.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-synthpops.long_term_care_facilities">
+<span id="synthpops-long-term-care-facilities-module"></span><h2>synthpops.long_term_care_facilities module<a class="headerlink" href="#module-synthpops.long_term_care_facilities" title="Permalink to this headline">¶</a></h2>
+<p>Modeling Seattle Metro Long Term Care Facilities</p>
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.resample_age_uk">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">resample_age_uk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_age_distr</span></em>, <em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.resample_age_uk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resampling ages for UK data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>age</strong> (<em>int</em>) – age as an integer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resampled age as an integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.generate_larger_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_larger_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_larger_households" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
+All other household members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix
+in households for the population under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>) – The household size.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – A dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of households for size <code class="docutils literal notranslate"><span class="pre">size</span></code> where each household is a row and the values in the row are the ages of the household members.
+The first age in the row is the age of the reference individual.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.generate_all_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_all_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_all_households" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the ages of those living in households together. First create households of people living alone, then larger households.
+For households larger than 1, a reference individual’s age is sampled conditional on the household size, while all other household
+members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix in households
+for the population under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – The dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – The dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – The dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of all households where each household is a row and the values in the row are the ages of the household members.
+The first age in the row is the age of the reference individual. Households are randomly shuffled by size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.write_age_by_uid_dic">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">write_age_by_uid_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.write_age_by_uid_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the dictionary of ID mapping to age for each individual in the population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.write_groups_by_age_and_uid">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">write_groups_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">groups_by_uids</span></em>, <em class="sig-param"><span class="n">secondary_groups_by_uids</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.write_groups_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write groups to file with both ID and their ages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>groups_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.generate_microstructure_with_facilities">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">gen_pop_size</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">do_plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">check_all_residents_are_connected_to_staff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-synthpops.plot_tools">
@@ -2645,6 +3121,14 @@ first age bracket show up at the front of both lists and people from the last ag
 </dd>
 </dl>
 </dd></dl>
+
+</div>
+<div class="section" id="module-synthpops.utils">
+<span id="synthpops-utils-module"></span><h2>synthpops.utils module<a class="headerlink" href="#module-synthpops.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="synthpops.utils.get_kc_snf_df_location">
+<code class="sig-prename descclassname">synthpops.utils.</code><code class="sig-name descname">get_kc_snf_df_location</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.utils.get_kc_snf_df_location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-synthpops.version">
