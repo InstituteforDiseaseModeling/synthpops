@@ -1,20 +1,16 @@
+'''
+NOTE: this script requires pymnet, which is not included by default,
+along with several other optional packages.
+'''
+
 import synthpops as sp
 import numpy as np
-# from pymnet import *
 import pymnet
 import networkx as nx
-
-
 import cmocean
 import cmasher as cmr
 import seaborn as sns
-
-# import pygraphviz as pgv
-
 import covasim as cv
-# import networkx as nx
-# import pylab as pl
-# import numpy as np
 import sciris as sc
 
 pop_size = 200
