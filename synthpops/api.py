@@ -16,7 +16,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=False, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -41,11 +41,12 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=False,
     if n is None: n = default_n
     n = int(n)
     if n not in popsize_choices:
-        if not generate:
+        if generate is False:
             choicestr = ', '.join([str(choice) for choice in popsize_choices])
-            errormsg = f'Number of people must be one of {choicestr}, not {n}'
-
+            errormsg = f'If generate=False, number of people must be one of {choicestr}, not {n}'
             raise ValueError(errormsg)
+        else:
+            generate = True # If not found, generate
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
