@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     # popdict = test_make_popdict_supplied(default_n)
     # popdict = test_make_popdict_supplied_ages(default_n)
-    # popdict = test_make_popdict_supplied_sexes(20)
+    popdict = test_make_popdict_supplied_sexes(20)
     # popdict = test_make_popdict_generic(default_n)
 
     # contacts = test_make_contacts_generic(default_n)
