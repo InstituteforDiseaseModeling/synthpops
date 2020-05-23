@@ -1,15 +1,12 @@
 import synthpops as sp
 import sciris as sc
 import numpy as np
-import pytest
 
-default_n = 10000
+default_n = 5000
 
 default_social_layers = True
 directed = False
 
-if not sp.config.full_data_available:
-    pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 def test_make_popdict(n=default_n):
     sc.heading(f'Making popdict for {n} people')
@@ -169,7 +166,7 @@ if __name__ == '__main__':
 
     # popdict = test_make_popdict_supplied(default_n)
     # popdict = test_make_popdict_supplied_ages(default_n)
-    # popdict = test_make_popdict_supplied_sexes(20)
+    popdict = test_make_popdict_supplied_sexes(20)
     # popdict = test_make_popdict_generic(default_n)
 
     # contacts = test_make_contacts_generic(default_n)
