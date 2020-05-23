@@ -57,11 +57,11 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_gender_fraction_by_age_bracket.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_gender_fraction_by_age_bracket_16.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_gender_fraction_by_age_bracket.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_gender_fraction_by_age_bracket_16.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_gender_fraction_by_age_bracket.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_gender_fraction_by_age_bracket_16.dat')
 
 
 def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
