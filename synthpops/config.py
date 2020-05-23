@@ -45,7 +45,7 @@ if datadir is None:
 #%% Functions
 
 def set_datadir(folder):
-    ''' Set the data folder to the user-specified location.'''
+    '''Set the data folder to the user-specified location.'''
     global datadir
     datadir = folder
     print(f'Done: data directory set to {folder}.')
