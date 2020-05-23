@@ -398,22 +398,28 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # KC facilities reporting cases - should account for 70% of all facilities
     userpath = os.path.expanduser('~')
     username = os.path.split(userpath)[-1]
-    try:
-        KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-    except:
-        try:
-            KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-        except:
-            KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
 
-    d = KC_snf_df.groupby(['FACILITY_ID']).mean()
+    # KC_snf_df = get_kc_snf_df_location()
+    # try:
+    #     KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+    # except:
+    #     try:
+    #         KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
+    #     except:
+    #         KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
 
-    KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)
-    KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
+    # d = KC_snf_df.groupby(['FACILITY_ID']).mean()
+
+    # KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)
+    # KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
 
     # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
-    KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
-    KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
+    # KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
+    # KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
+
+    KC_resident_size_distr = spdata.get_usa_long_term_care_facility_residents_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    KC_resident_size_distr = norm_dic(KC_resident_size_distr)
+    KC_residents_size_brackets = spdata.get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # print(KC_resident_staff_ratios)
 
@@ -428,10 +434,19 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # place residents in facilities
     facilities = []
-    if verbose:
-        print(len(all_residents), len(all_residents)/np.mean(KC_ltcf_sizes))
+
+    size_bracket_keys = sorted([k for k in KC_resident_size_distr.keys()])
+    size_distr_array = [KC_resident_size_distr[k] for k in size_bracket_keys]
     while len(all_residents) > 0:
-        size = int(np.random.choice(KC_ltcf_sizes))
+
+        sb = np.random.choice(size_bracket_keys, p=size_distr_array)
+        sb_range = KC_residents_size_brackets[sb]
+        size = np.random.choice(sb_range)
+
+        # size = int(np.random.choice(KC_ltcf_sizes))
+        if size > len(all_residents):
+            size = len(all_residents)
+
         new_facility = all_residents[0:size]
         facilities.append(new_facility)
         all_residents = all_residents[size:]
@@ -526,12 +541,26 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # Assign facilities care staff from 20 to 59
 
+    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    KC_ratio_distr = norm_dic(KC_ratio_distr)
+    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+
     facilities_staff = []
     facilities_staff_uids = []
+
+    sorted_ratio_keys = sorted([k for k in KC_ratio_distr.keys()])
+    sorted_ratio_array = [KC_ratio_distr[k] for k in sorted_ratio_keys]
     staff_age_range = np.arange(20, 60)
     for nf, fc in enumerate(facilities):
         n_residents = len(fc)
-        resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
+
+        sb = np.random.choice(sorted_ratio_keys, p=sorted_ratio_array)
+        sb_range = KC_ratio_brackets[sb]
+        resident_staff_ratio = np.mean(sb_range)
+
+        # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
+        resident_staff_ratio = resident_staff_ratio/3.
+        # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
 
         n_staff = int(math.ceil(n_residents/resident_staff_ratio))
         new_staff, new_staff_uids = [], []

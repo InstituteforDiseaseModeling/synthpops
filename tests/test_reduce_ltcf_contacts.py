@@ -32,7 +32,7 @@ if __name__ == '__main__':
     options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities}
     network_distr_args = {'Npop': int(n)}
 
-    k = 12
+    k = 20
 
     # Create a population with LTCF
     population = sp.make_population(n, generate=generate, with_facilities=with_facilities, use_two_group_reduction=True, average_LTCF_degree=20)

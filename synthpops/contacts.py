@@ -688,6 +688,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
+    print('reduced contacts')
 
     return popdict
 
@@ -1290,8 +1291,6 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                 if verbose:
                     print(k, np.mean(sizes))
     return contacts
-
-
 
 
 def show_layers(popdict, show_ages=False, show_n=20):
