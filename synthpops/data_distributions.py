@@ -408,7 +408,7 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
 
 def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, delimiter=' ', header=None):
     """
-    Get setting specific contact matrix givn sheet name to use. If file_path is given, then delimiter and header should also be specified.
+    Get setting specific contact matrix given sheet name to use. If file_path is given, then delimiter and header should also be specified.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -425,12 +425,20 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
         if setting_code in setting_names:
             file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'MUestimates_' + setting_names[setting_code] + '_1.xlsx')
-            try:
-                df = pd.read_excel(file_path, sheet_name=sheet_name, header=0)
-            except:
-                file_path = file_path.replace('_1.xlsx', '_2.xlsx')
-                df = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
-            return np.array(df)
+            try: # Shortcut: use pre-processed data
+                obj_path = file_path.replace('_1.xlsx', '.obj').replace('_2.xlsx', '.obj')
+                data = sc.loadobj(obj_path)
+                arr = data[sheet_name]
+                return arr
+            except Exception as E:
+                errormsg = f'Warning: could not load pickled data ({str(E)}), defaulting to Excel...'
+                print(errormsg)
+                try:
+                    df = pd.read_excel(file_path, sheet_name=sheet_name, header=0)
+                except:
+                    file_path = file_path.replace('_1.xlsx', '_2.xlsx')
+                    df = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
+                return np.array(df)
         else:
             raise NotImplementedError("Invalid setting code. Try again.")
     else:
@@ -559,7 +567,7 @@ def write_school_enrollment_rates(datadir, locations, location, state_location, 
 
     Args:
         datadir (string)          : file path to the data directory
-        locations (string or list): name of locations to filter for, either as a string or a list of multiple locations 
+        locations (string or list): name of locations to filter for, either as a string or a list of multiple locations
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which here should always be 'usa'
