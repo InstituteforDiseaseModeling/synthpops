@@ -17,7 +17,7 @@ func_options = {
     }
 
 def make_pop():
-    n = [20000, 20001][1] # Use either a pre-generated population, or one that has to be made from scratch
+    n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
     max_contacts = {'S': 20, 'W': 10}
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
