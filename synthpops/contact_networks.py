@@ -2,25 +2,22 @@
 This module generates the household, school, and workplace contact networks.
 """
 
+import os
+from copy import deepcopy
+from collections import Counter
+
 import sciris as sc
 import numpy as np
-import networkx as nx
 import pandas as pd
-from collections import Counter
-import os
-from .base import *
+
+import matplotlib as mplt
+import matplotlib.pyplot as plt
+import cmocean
+
+from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
-from .config import datadir
-
-from copy import deepcopy
-import matplotlib as mplt
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as font_manager
-import cmocean
-
-# np.random.seed(0)
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -468,16 +465,16 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     syn_schools = []
     syn_school_uids = []
 
-    ages_in_school_distr = norm_dic(ages_in_school_count)
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
     # total_school_count = len(uids_in_school)
-    left_in_bracket = get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
+    left_in_bracket = spb.get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
 
     for n, size in enumerate(school_sizes):
 
         if len(uids_in_school) == 0:  # no more students left to send to school!
             break
 
-        ages_in_school_distr = norm_dic(ages_in_school_count)
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
 
         new_school = []
         # new_school_ages_in_school_countuids = []
@@ -497,7 +494,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         uids_in_school_by_age[aindex].remove(uid)
         uids_in_school.pop(uid, None)
         ages_in_school_count[aindex] -= 1
-        ages_in_school_distr = norm_dic(ages_in_school_count)
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
 
         new_school.append(aindex)
         new_school_uids.append(uid)
@@ -550,7 +547,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 uids_in_school.pop(uid, None)
 
                 ages_in_school_count[ai] -= 1
-                ages_in_school_distr = norm_dic(ages_in_school_count)
+                ages_in_school_distr = spb.norm_dic(ages_in_school_count)
                 left_in_bracket[bi] -= 1
 
         syn_schools.append(new_school)
@@ -622,7 +619,7 @@ def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_bra
     nworkers = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
 
     # normalize workplace_size_distr_by_bracket because it's likely a count rather than distribution
-    workplace_size_distr_by_bracket = norm_dic(workplace_size_distr_by_bracket)
+    workplace_size_distr_by_bracket = spb.norm_dic(workplace_size_distr_by_bracket)
 
     sorted_brackets = sorted(workplace_size_brackets.keys())
     prob_by_sorted_brackets = [workplace_size_distr_by_bracket[b] for b in sorted_brackets]
@@ -660,7 +657,7 @@ def generate_usa_workplace_sizes(workplace_sizes_by_bracket, workplace_size_brac
         size = int(np.mean(workplace_size_brackets[b]) + 0.5)
         size_distr[size] = workplace_sizes_by_bracket[b]
 
-    size_distr = norm_dic(size_distr)
+    size_distr = spb.norm_dic(size_distr)
     workplace_sizes = []
 
     s_range = sorted(size_distr.keys())
@@ -801,7 +798,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
             contact_matrix_dic['W'][:, b] = 0
 
     for n, size in enumerate(workplace_sizes):
-        workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
+        workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
         if np.sum([workers_by_age_to_assign_distr[a] for a in workers_by_age_to_assign_distr]) == 0:
             break
         if np.sum([len(potential_worker_uids_by_age[a]) for a in potential_worker_uids_by_age]) == 0:
@@ -819,7 +816,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         potential_worker_uids_by_age[aindex].remove(uid)
         potential_worker_uids.pop(uid, None)
         workers_by_age_to_assign_count[aindex] -= 1
-        workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
+        workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
         new_work.append(aindex)
         new_work_uids.append(uid)
 
@@ -844,7 +841,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     potential_worker_uids_by_age[ai].remove(uid)
                     potential_worker_uids.pop(uid, None)
                 workers_by_age_to_assign_count[ai] = 0  # set to zero now that everyone will be placed in this last workplace
-            workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
+            workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
         else:
             for i in range(1, size):
 
@@ -868,7 +865,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 potential_worker_uids_by_age[ai].remove(uid)
                 potential_worker_uids.pop(uid, None)
                 workers_by_age_to_assign_count[ai] -= 1
-                workers_by_age_to_assign_distr = norm_dic(workers_by_age_to_assign_count)
+                workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
@@ -1011,9 +1008,8 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                          sheet_name=sheet_name,verbose=verbose,plot=plot)
     """
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
-    num_agebrackets = len(age_brackets)
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name, use_default=use_default)
 
     household_size_distr = spdata.get_household_size_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -1031,7 +1027,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
     syn_age_count = Counter(syn_ages)
-    syn_age_distr = norm_dic(syn_age_count)
+    syn_age_distr = spb.norm_dic(syn_age_count)
 
     # actual household sizes
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
@@ -1072,7 +1068,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         plt.show()
 
     # Make a dictionary listing out uids of people by their age
-    uids_by_age_dic = get_ids_by_age_dic(age_by_uid_dic)
+    uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)
 
     # Generate school sizes
     school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
