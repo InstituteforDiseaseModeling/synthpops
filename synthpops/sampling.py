@@ -10,7 +10,6 @@ import numba as nb
 from collections import Counter
 from .base import *
 from . import data_distributions as spdata
-from .config import datadir
 
 
 def sample_single(distr):
@@ -24,6 +23,7 @@ def sample_single(distr):
         A single sampled value from a distribution.
     """
     if type(distr) == dict:
+        print('yes')
         sorted_keys = sorted(distr.keys())
         sorted_distr = np.array([distr[k] for k in sorted_keys], dtype=float)  # create an array of the values, not yet normalized
         norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
@@ -35,6 +35,7 @@ def sample_single(distr):
         return sorted_keys[index]
 
     elif type(distr) == np.ndarray:
+        print('no')
         norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
         if norm_distr.sum() > 0:
             norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
@@ -91,6 +92,7 @@ def sample_from_range(distr, min_val, max_val):
         A sampled number from the range min_val to max_val in the distribution distr.
     """
     new_distr = norm_age_group(distr, min_val, max_val)
+    print('sampling 95', new_distr)
     return sample_single(new_distr)
 
 
@@ -157,6 +159,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
     """
     b = age_by_brackets_dic[age]
     b_contact = sample_single(age_mixing_matrix[b, :])
+    print('sampling 161', age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
     else:
@@ -167,7 +170,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
 def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic, weights_dic, single_year_age_distr=None):
     """
-    Sample the age of n_contacts contacts from age mixing patterns. Age of each contact is uniformly drawn from the age bracket sampled from the age 
+    Sample the age of n_contacts contacts from age mixing patterns. Age of each contact is uniformly drawn from the age bracket sampled from the age
     mixing matrix, unless single_year_age_distr is available. Combines setting specific weights to create an age mixing matrix
     from which contact ages are sampled.
 
@@ -194,7 +197,7 @@ def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, ag
 
 def sample_n_contact_ages_with_matrix(n_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix, single_year_age_distr=None):
     """
-    Sample the age of n_contacts contacts from age mixing matrix. Age of each contact is uniformly drawn from the age bracket sampled from the age 
+    Sample the age of n_contacts contacts from age mixing matrix. Age of each contact is uniformly drawn from the age bracket sampled from the age
     mixing matrix, unless single_year_age_distr is available.
 
     Args:
