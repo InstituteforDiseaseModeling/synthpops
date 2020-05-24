@@ -8,11 +8,11 @@ import pandas as pd
 import sciris as sc
 import numba as nb
 from collections import Counter
-from .base import *
+from . import base as spb
 from . import data_distributions as spdata
 
-
-def sample_single(distr):
+@nb.njit((nb.int64[:], nb.float64[:]))
+def sample_single_dict(distr_keys, distr_vals):
     """
     Sample from a distribution.
 
@@ -22,26 +22,35 @@ def sample_single(distr):
     Returns:
         A single sampled value from a distribution.
     """
-    if type(distr) == dict:
-        print('yes')
-        sorted_keys = sorted(distr.keys())
-        sorted_distr = np.array([distr[k] for k in sorted_keys], dtype=float)  # create an array of the values, not yet normalized
-        norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
+    sort_inds = np.argsort(distr_keys)
+    sorted_keys = distr_keys[sort_inds]
+    sorted_distr =distr_vals[sort_inds]
+    norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
-        if norm_sorted_distr.sum() > 0:
-            norm_sorted_distr = norm_sorted_distr/norm_sorted_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-        n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
-        index = np.where(n)[0][0]
-        return sorted_keys[index]
+    if norm_sorted_distr.sum() > 0:
+        norm_sorted_distr = norm_sorted_distr/norm_sorted_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
+    index = np.where(n)[0][0]
+    return sorted_keys[index]
 
-    elif type(distr) == np.ndarray:
-        print('no')
-        norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
-        if norm_distr.sum() > 0:
-            norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-        n = np.random.multinomial(1, norm_distr, size=1)[0]
-        index = np.where(n)[0][0]
-        return index
+
+@nb.njit((nb.float64[:],))
+def sample_single_arr(distr):
+    """
+    Sample from a distribution.
+
+    Args:
+        distr (dict or np.ndarray): distribution
+
+    Returns:
+        A single sampled value from a distribution.
+    """
+    norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
+    if norm_distr.sum() > 0:
+        norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    n = np.random.multinomial(1, norm_distr, size=1)[0]
+    index = np.where(n)[0][0]
+    return index
 
 
 def resample_age(single_year_age_distr, age):
@@ -91,9 +100,11 @@ def sample_from_range(distr, min_val, max_val):
     Returns:
         A sampled number from the range min_val to max_val in the distribution distr.
     """
-    new_distr = norm_age_group(distr, min_val, max_val)
+    new_distr = spb.norm_age_group(distr, min_val, max_val)
     print('sampling 95', new_distr)
-    return sample_single(new_distr)
+    distr_keys = np.array(list(new_distr.keys()), dtype=np.int64)
+    distr_vals = np.array(list(new_distr.values()), dtype=np.float64)
+    return sample_single_dict(distr_keys, distr_vals)
 
 
 def sample_bracket(distr, brackets):
@@ -130,7 +141,7 @@ def sample_n(nk, distr):
         A dictionary with the count for n samples from a distribution
     """
     if type(distr) == dict:
-        distr = norm_dic(distr)
+        distr = spb.norm_dic(distr)
         sorted_keys = sorted(distr.keys())
         sorted_distr = [distr[k] for k in sorted_keys]
         n = np.random.multinomial(nk, sorted_distr, size=1)[0]
@@ -158,7 +169,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
     """
     b = age_by_brackets_dic[age]
-    b_contact = sample_single(age_mixing_matrix[b, :])
+    b_contact = sample_single_arr(age_mixing_matrix[b, :])
     print('sampling 161', age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
@@ -188,7 +199,7 @@ def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, ag
 
     """
     num_agebrackets = len(age_brackets)
-    age_mixing_matrix = combine_matrices(age_mixing_matrix_dic, weights_dic, num_agebrackets)
+    age_mixing_matrix = spb.combine_matrices(age_mixing_matrix_dic, weights_dic, num_agebrackets)
     contact_ages = []
     for i in range(n_contacts):
         contact_ages.append(sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix, single_year_age_distr))
@@ -482,7 +493,7 @@ def get_usa_sex_n(datadir, ages, location='seattle_metro', state_location='Washi
     age_by_brackets_dic = spdata.get_age_by_brackets_dic(age_brackets)
 
     age_count = Counter(ages)
-    bracket_count = get_aggregate_ages(age_count, age_by_brackets_dic)
+    bracket_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
 
     ages, sexes = [], []
 

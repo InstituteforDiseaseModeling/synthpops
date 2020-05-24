@@ -117,7 +117,7 @@ def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_siz
         Age of the head of the household or reference person.
     """
     distr = hha_by_size_counts[hh_size-1, :]
-    b = spsamp.sample_single(distr)
+    b = spsamp.sample_single_arr(distr)
     print('120', distr)
     hha = spsamp.sample_from_range(single_year_age_distr, hha_brackets[b][0], hha_brackets[b][-1])
 
@@ -182,7 +182,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b_prob = contact_matrix_dic['H'][b, :]
 
         for n in range(1, size):
-            bi = spsamp.sample_single(b_prob)
+            bi = spsamp.sample_single_arr(b_prob)
             print('185', b_prob)
             ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
 
@@ -534,7 +534,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
                     break
 
-                bi = spsamp.sample_single(b_prob)
+                bi = spsamp.sample_single_arr(b_prob)
                 print('537', b_prob)
 
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
