@@ -1251,20 +1251,6 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     return popdict
 
-# @nb.njit((nb.types.List, nb.types.List, nb.types.DictType))
-# def numba_trim(contacts, keys, trimmed_size_dic):
-#     for n, uid in enumerate(contacts):
-#             for k in keys:
-#                 setting_contacts = contacts[uid]['contacts'][k]
-#                 if len(setting_contacts) > trimmed_size_dic[k]/2:
-#                     close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
-#                     contacts[uid]['contacts'][k] = set(close_contacts)
-#     for n, uid in enumerate(contacts):
-#         for k in keys:
-#             for c in contacts[uid]['contacts'][k]:
-#                 contacts[c]['contacts'][k].add(uid)
-#     return contacts
-
 
 @nb.njit((nb.int64[:], nb.int64))
 def choose_contacts(a, size):
