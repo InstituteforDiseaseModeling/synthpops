@@ -1,12 +1,18 @@
-import sciris as sc
+'''
+Generate contacts between people in the population
+'''
+
+import os
 import numpy as np
+import pandas as pd
+import numba as nb
+import sciris as sc
 import networkx as nx
-from .base import *
 from . import data_distributions as spdata
 from . import sampling as spsamp
+from .base import *
 from .config import datadir
-import os
-import pandas as pd
+
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
@@ -1207,7 +1213,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
     if options_args is None: options_args = dict.fromkeys(options_keys, False)
     if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
-    
+
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -1245,12 +1251,33 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     return popdict
 
+# @nb.njit((nb.types.List, nb.types.List, nb.types.DictType))
+# def numba_trim(contacts, keys, trimmed_size_dic):
+#     for n, uid in enumerate(contacts):
+#             for k in keys:
+#                 setting_contacts = contacts[uid]['contacts'][k]
+#                 if len(setting_contacts) > trimmed_size_dic[k]/2:
+#                     close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
+#                     contacts[uid]['contacts'][k] = set(close_contacts)
+#     for n, uid in enumerate(contacts):
+#         for k in keys:
+#             for c in contacts[uid]['contacts'][k]:
+#                 contacts[c]['contacts'][k].add(uid)
+#     return contacts
+
+
+@nb.njit((nb.int64[:], nb.int64))
+def choose_contacts(a, size):
+    ''' Numbafy np.random.choice(); about twice as fast '''
+    close_contacts = np.random.choice(a, size=size, replace=False)
+    return close_contacts
+
 
 def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
     """
     Trim down contacts in school or work environments from everyone.
-
+im
     Args:
         contacts (dict)         : dictionary of individuals with attributes, including their age and the ids of their contacts
         trimmed_size_dic (dict) : dictionary of threshold values for the number of contacts in school ('S') and work ('W') so that for individuals with more contacts than this, we select a smaller subset of contacts considerd close contacts
@@ -1269,11 +1296,12 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
         raise NotImplementedError("Clustered method not yet implemented.")
 
     else:
+
         for n, uid in enumerate(contacts):
             for k in keys:
-                setting_contacts = contacts[uid]['contacts'][k]
+                setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
                 if len(setting_contacts) > trimmed_size_dic[k]/2:
-                    close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
+                    close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
                     contacts[uid]['contacts'][k] = set(close_contacts)
 
         for n, uid in enumerate(contacts):
@@ -1281,16 +1309,6 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
 
-        test_sizes = True
-        if test_sizes:
-
-            for k in keys:
-                sizes = []
-                for n, uid in enumerate(contacts):
-                    if len(contacts[uid]['contacts'][k]) > 0:
-                        sizes.append(len(contacts[uid]['contacts'][k]))
-                if verbose:
-                    print(k, np.mean(sizes))
     return contacts
 
 
