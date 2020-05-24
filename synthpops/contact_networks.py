@@ -118,7 +118,6 @@ def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_siz
     """
     distr = hha_by_size_counts[hh_size-1, :]
     b = spsamp.sample_single_arr(distr)
-    print('120', distr)
     hha = spsamp.sample_from_range(single_year_age_distr, hha_brackets[b][0], hha_brackets[b][-1])
 
     return hha
@@ -183,7 +182,6 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
-            print('185', b_prob)
             ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
 
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population they are working with.
@@ -535,11 +533,9 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                     break
 
                 bi = spsamp.sample_single_arr(b_prob)
-                print('537', b_prob)
 
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
-                    bi = spsamp.sample_single(b_prob)
-                    print('542', b_prob)
+                    bi = spsamp.sample_single_arr(b_prob)
 
                 ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0]  # grab the next student in line

@@ -7,8 +7,8 @@ from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
 from . import contact_networks as spcnx
-from synthpops.utils import get_kc_snf_df_location
-import pandas as pd
+# from synthpops.utils import get_kc_snf_df_location
+# import pandas as pd
 
 import os
 import math
@@ -104,7 +104,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b_prob = contact_matrix_dic['H'][b, :]
 
         for n in range(1, size):
-            bi = spsamp.sample_single(b_prob)
+            bi = spsamp.sample_single_arr(b_prob)
             ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
 
             """ The following is an example of how you may resample from an age range that is over produced and instead
@@ -525,7 +525,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # Find people who can be workers (removing everyone who is currently a student)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spcnx.get_uids_potential_workers(gen_school_uids, employment_rates, age_by_uid_dic)
     workers_by_age_to_assign_count = spcnx.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
-    
+
     # Removing facilities residents from potential workers
     for nf, fc in enumerate(facilities_by_uids):
         for uid in fc:
