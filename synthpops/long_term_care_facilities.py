@@ -17,34 +17,26 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import contact_networks as spcnx
 
-# do_save = True
-# do_plot = False
-# verbose = False
-# write = True
-# return_popdict = True
-# use_default = False
-
-# country_location = 'usa'
-# state_location = 'Washington'
-# location = 'seattle_metro'
-# sheet_name = 'United States of America'
-
-school_enrollment_counts_available = True
 
 part = 2
 
 # Customized age resampling method
-def resample_age_uk(exp_age_distr_dict, a):
+
+def custom_resample_age(exp_age_distr, a):
     """
-    Resampling ages for UK data
+    Resampling younger ages to better match data
 
     Args:
         single_year_age_distr (dict) : age distribution
         age (int)                    : age as an integer
     Returns:
         Resampled age as an integer.
+
+    Notes:
+        This is not always necessary, but is mostly used to smooth out sharp edges in the age distribution when spsamp.resample_age() produces too many of one year and under produces the surrounding ages. For example, new borns (0 years old) may
+        be over produced, and 1 year olds under produced, so this function can be customized to correct for that.
     """
-    exp_age_distr = np.array(list(exp_age_distr_dict.values()), dtype=np.float64)
+    # exp_age_distr = np.array(list(exp_age_distr_dict.values()), dtype=np.float64)
     a = spsamp.resample_age(exp_age_distr, a)
     if a == 7:
         if np.random.binomial(1, p=0.25):
@@ -59,19 +51,19 @@ def resample_age_uk(exp_age_distr_dict, a):
         if np.random.binomial(1, p=0.0):
             a = spsamp.resample_age(exp_age_distr, a)
     if a == 1:
-        if np.random.binomial(1, p=0.0):
+        if np.random.binomial(1, p=0.1):
             a = spsamp.resample_age(exp_age_distr, a)
     if a == 2:
         if np.random.binomial(1, p=0.0):
             a = spsamp.resample_age(exp_age_distr, a)
     if a == 4:
-        if np.random.binomial(1, p=0.0):
+        if np.random.binomial(1, p=0.1):
             a = spsamp.resample_age(exp_age_distr, a)
     return a
 
 
 # Customized household construction methods
-def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
     All other household members have their ages sampled conditional on the reference person's age and the age mixing contact matrix
@@ -93,7 +85,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
     """
     ya_coin = 0.15  # This is a placeholder value. Users will need to change to fit whatever population you are working with
 
-    homes = np.zeros((hh_sizes[size-1], size))
+    homes = np.zeros((hh_sizes[size-1], size), dtype=int)
 
     for h in range(hh_sizes[size-1]):
 
@@ -124,8 +116,10 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population you are working with
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This is a placeholder range. Users will need to change to fit whatever populaton you are working with
-
-            ai = resample_age_uk(single_year_age_distr, ai)
+                elif np.random.binomial(1, 0.04):
+                    ai = spsamp.sample_from_range(single_year_age_distr,0, 5)
+            # ai = spsamp.resample_age(single_year_age_distr, ai)
+            ai = custom_resample_age(single_year_age_distr, ai)
 
             homes[h][n] = ai
 
@@ -162,7 +156,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
 
     # generate larger households and the ages of people living in them
     for s in range(2, 8):
-        homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
+        homes_dic[s] = custom_generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
     for s in homes_dic:
@@ -344,7 +338,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc = {}
     for b in est_seattle_users_2018:
         est_ltcf_user_by_age_brackets_perc[b] = est_seattle_users_2018[b]/state_age_distr_2018[b]/pop
-        # print(b,est_ltcf_user_by_age_brackets_perc[b])
+        print(b,est_ltcf_user_by_age_brackets_perc[b])
 
     est_ltcf_user_by_age_brackets_perc['65-69'] = est_ltcf_user_by_age_brackets_perc['65-74']
     est_ltcf_user_by_age_brackets_perc['70-74'] = est_ltcf_user_by_age_brackets_perc['65-74']
@@ -396,37 +390,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     if verbose:
         print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
 
-    # KC facilities reporting cases - should account for 70% of all facilities
-    # userpath = os.path.expanduser('~')
-    # username = os.path.split(userpath)[-1]
-
-    # KC_snf_df = get_kc_snf_df_location()
-    # try:
-    #     KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19 (1)', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-    # except:
-    #     try:
-    #         KC_snf_df = pd.read_csv(os.path.join('/home', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-    #     except:
-    #         KC_snf_df = pd.read_csv(os.path.join('Users', username, 'Dropbox (IDM)', 'COVID-19', 'seattle_network', 'secure_King_County', 'IDM_CASE_FACILITY.csv'))
-
-    # d = KC_snf_df.groupby(['FACILITY_ID']).mean()
-
-    # KC_ltcf_sizes = list(d['RESIDENT_TOTAL_COUNT'].values)
-    # KC_staff_sizes = list(d['STAFF_TOTAL_COUNT'].values)
-
-    # don't make staff numbers smaller here. instead cluster workers into smaller groups through Covasim or any other program that will look at how these groups interact dynamically
-    # KC_resident_staff_ratios = np.array([KC_ltcf_sizes[i]/(KC_staff_sizes[i]/3) for i in range(len(KC_ltcf_sizes))])
-    # KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
-
     KC_resident_size_distr = spdata.get_usa_long_term_care_facility_residents_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
     KC_resident_size_distr = spb.norm_dic(KC_resident_size_distr)
     KC_residents_size_brackets = spdata.get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-
-    # print(KC_resident_staff_ratios)
-
-    # if verbose:
-    #     print(KC_resident_staff_ratios)
-    #     print(np.mean(KC_resident_staff_ratios))
 
     all_residents = []
     for a in expected_users_by_age:
@@ -465,7 +431,11 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     ltcf_adjusted_age_count = deepcopy(expected_age_count)
     for a in expected_users_by_age:
         ltcf_adjusted_age_count[a] -= expected_users_by_age[a]
-    # ltcf_adjusted_age_distr = spb.norm_dic(ltcf_adjusted_age_count)
+    ltcf_adjusted_age_distr_dict = spb.norm_dic(ltcf_adjusted_age_count)
+    ltcf_adjusted_age_distr = np.array([ltcf_adjusted_age_distr_dict[i] for i in range(max_age+1)])
+
+    exp_age_distr = np.array([expected_age_distr[i] for i in range(max_age+1)], dtype=np.float64)
+    # exp_age_distr = np.array(list(expected_age_distr.values()), dtype=np.float64)
 
     # build rest of the population
     n = gen_pop_size - np.sum([len(f) for f in facilities])  # remove those placed in care homes
@@ -477,7 +447,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
-    homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, deepcopy(expected_age_distr))
+    homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
     homes = facilities + homes
 
     homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  #include facilities to assign ids
