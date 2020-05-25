@@ -3,7 +3,7 @@
 import sciris as sc
 import synthpops as sp
 
-to_profile = 'make_population' # Must be one of the options listed below
+to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
 
 func_options = {
     'make_population': sp.make_population,
