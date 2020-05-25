@@ -53,12 +53,13 @@ def sample_single_arr(distr):
     return index
 
 
-def resample_age(single_year_age_distr, age):
+@nb.njit((nb.float64[:], nb.int64))
+def resample_age(age_dist_vals, age):
     """
     Resample age from single year age distribution.
 
     Args:
-        single_year_age_distr (dict) : age distribution
+        single_year_age_distr (arr) : age distribution, ordered by age
         age (int)                    : age as an integer
     Returns:
         Resampled age as an integer.
@@ -79,7 +80,7 @@ def resample_age(single_year_age_distr, age):
         age_min = 98
         age_max = 100
 
-    age_distr = np.array([single_year_age_distr[a] for a in range(age_min, age_max+1)])  # create an array of the values, not yet normalized
+    age_distr = age_dist_vals[age_min:age_max+1]  # create an array of the values, not yet normalized
     norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
     if norm_age_distr.sum() > 0:
         norm_age_distr = norm_age_distr/norm_age_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
@@ -101,7 +102,6 @@ def sample_from_range(distr, min_val, max_val):
         A sampled number from the range min_val to max_val in the distribution distr.
     """
     new_distr = spb.norm_age_group(distr, min_val, max_val)
-    print('sampling 95', new_distr)
     distr_keys = np.array(list(new_distr.keys()), dtype=np.int64)
     distr_vals = np.array(list(new_distr.values()), dtype=np.float64)
     return sample_single_dict(distr_keys, distr_vals)
@@ -170,7 +170,6 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
     """
     b = age_by_brackets_dic[age]
     b_contact = sample_single_arr(age_mixing_matrix[b, :])
-    print('sampling 161', age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
     else:

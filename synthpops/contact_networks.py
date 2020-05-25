@@ -180,6 +180,8 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b = age_by_brackets_dic[hha]
         b_prob = contact_matrix_dic['H'][b, :]
 
+        age_dist_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64) # Convert to an array for faster processing
+
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
             ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
@@ -188,7 +190,8 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 30)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
-            ai = spsamp.resample_age(single_year_age_distr, ai)
+
+            ai = spsamp.resample_age(age_dist_vals, ai)
 
             homes[h][n] = ai
 
@@ -1027,7 +1030,12 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
     syn_age_count = Counter(syn_ages)
-    syn_age_distr = spb.norm_dic(syn_age_count)
+    syn_age_distr_unordered = spb.norm_dic(syn_age_count) # Ensure it's ordered
+    syn_age_keys = list(syn_age_distr_unordered.keys())
+    sort_inds = np.argsort(syn_age_keys)
+    syn_age_distr = {}
+    for i in sort_inds:
+        syn_age_distr[syn_age_keys[i]] = syn_age_distr_unordered[syn_age_keys[i]]
 
     # actual household sizes
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
