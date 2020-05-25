@@ -537,19 +537,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 
                 bi = spsamp.sample_single_arr(b_prob)
 
-                orig_prob = 0.0
-
-                count = 0
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
-                    count += 1
-                    print('hiiiii')
-                    print(count)
-                    print(type(b_prob))
-                    print(b_prob.sum())
-                    print(b_prob == orig_prob)
-                    print(b_prob)
                     bi = spsamp.sample_single_arr(b_prob)
-                    orig_prob = b_prob
 
                 ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0]  # grab the next student in line
