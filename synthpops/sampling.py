@@ -11,7 +11,7 @@ from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
 
-# @nb.njit((nb.int64[:], nb.float64[:]))
+@nb.njit((nb.int64[:], nb.float64[:]))
 def sample_single_dict(distr_keys, distr_vals):
     """
     Sample from a distribution.
@@ -37,7 +37,7 @@ def sample_single_dict(distr_keys, distr_vals):
     return sorted_keys[index]
 
 
-# @nb.njit((nb.float64[:],), cache=True)
+@nb.njit((nb.float64[:],), cache=True)
 def sample_single_arr(distr):
     """
     Sample from a distribution.
