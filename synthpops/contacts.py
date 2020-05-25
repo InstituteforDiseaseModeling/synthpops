@@ -1262,7 +1262,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
 
     """
     Trim down contacts in school or work environments from everyone.
-im
+
     Args:
         contacts (dict)         : dictionary of individuals with attributes, including their age and the ids of their contacts
         trimmed_size_dic (dict) : dictionary of threshold values for the number of contacts in school ('S') and work ('W') so that for individuals with more contacts than this, we select a smaller subset of contacts considerd close contacts
