@@ -1,5 +1,5 @@
 '''
-Generate contacts between people in the population
+Generate contacts between people in the population, with many options possible
 '''
 
 import os
@@ -228,7 +228,6 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     """
 
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
@@ -236,7 +235,6 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
     age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
-    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -381,8 +379,8 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     # using a flat contact matrix
     uids_by_age_dic = spsamp.spb.get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    # if country_location is None:
+    #     raise NotImplementedError
 
     # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
@@ -447,18 +445,14 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    # if country_location is None:
+        # raise NotImplementedError
 
-    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
-    # num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
 
-    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -652,8 +646,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     n1 = list(np.arange(len(r1)).astype(int))
     n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
 
-    # nlist = n1 + n2
-
     group = r1 + r2
     sizes = [len(r1), len(r2)]
 
@@ -666,7 +658,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     G = nx.stochastic_block_model(sizes, p_matrix)
 
     for i in n1:
-        # neighbors = [j for j in G.neighbors(i)]
         group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
 
         # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
@@ -1211,7 +1202,6 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
     if options_args is None: options_args = dict.fromkeys(options_keys, False)
     if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
-
 
     # fill in the other keys as False!
     for key in options_keys:
