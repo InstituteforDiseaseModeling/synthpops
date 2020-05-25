@@ -124,8 +124,8 @@ def describe_population(popdict):
     males = 0
     locations = {}
     contact_types = {}
-    for peep in popdict:
-        person = popdict[peep]
+    for uid in popdict:
+        person = popdict[uid]
         ages.append(person['age'])
         if person['sex'] == 1:
             males += 1
@@ -140,15 +140,17 @@ def describe_population(popdict):
             pass
         contact_keys = list(person['contacts'].keys())
         for k in contact_keys:
-            if k in contact_types:
-                contact_types[k]['count'] += 1
-                contact_types[k]['degrees'].append(len(person['contacts'][k]))
-            else:
-                layer = {
-                    'count': 1,
-                    'degrees': [len(person['contacts'][k])]
-                }
-                contact_types[k] = layer
+            layer_length = len(person['contacts'][k])
+            if layer_length > 0:
+                if k in contact_types:
+                    contact_types[k]['count'] += 1
+                    contact_types[k]['degrees'].append(layer_length)
+                else:
+                    layer = {
+                        'count': 1,
+                        'degrees': [layer_length]
+                    }
+                    contact_types[k] = layer
         pass
     num_peeps = len(popdict)
     print(f"\tAges! mean: {sum(ages) / num_peeps} min: {min(ages)} max: {max(ages)}")

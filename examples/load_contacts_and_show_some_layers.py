@@ -5,38 +5,8 @@ Not an exhaustive list of what synthpops can do - please take a look through the
 """
 
 import synthpops as sp
-import sciris as sc
-import numpy as np
-import os
-
-
-def show_layers(popdict, show_ages=False):
-    """
-    Prints the layers for each individual to console
-
-    Args:
-        show_ages: Set to True to show the ages of contacts. Leave to False to show the uids.
-    """
-    uids = popdict.keys()
-    uids = [uid for uid in uids]
-
-    layers = popdict[uids[0]]['contacts'].keys()
-    if show_ages:
-        for uid in uids:
-            print(uid, popdict[uid]['age'])
-            for k in layers:
-                contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
-                print(k, sorted(contact_ages))
-
-    else:
-        for uid in uids:
-            print(uid)
-            for k in layers:
-                print(k, contacts[uid]['contacts'][k])
-
 
 if __name__ == '__main__':
-
     datadir = sp.datadir  # point datadir where your data folder lives
 
     # location information - currently we only support the Seattle Metro area in full, however other locations can be supported with this framework at a later date
@@ -64,4 +34,5 @@ if __name__ == '__main__':
     close_contacts_number = {'S': 20, 'W': 20}
     contacts = sp.trim_contacts(contacts, trimmed_size_dic=close_contacts_number)
 
-    show_layers(contacts, show_ages=False)
+    sp.show_layers(contacts, show_ages=False)
+    sp.show_layers(contacts, show_ages=True)
