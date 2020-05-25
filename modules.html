@@ -1104,6 +1104,7 @@ household members are contacts of each other, and everyone in the same school is
 </div>
 <div class="section" id="module-synthpops.contacts">
 <span id="synthpops-contacts-module"></span><h2>synthpops.contacts module<a class="headerlink" href="#module-synthpops.contacts" title="Permalink to this headline">¶</a></h2>
+<p>Generate contacts between people in the population, with many options possible</p>
 <dl class="py function">
 <dt id="synthpops.contacts.make_popdict">
 <code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_popdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ages</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sexes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_demography</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">6</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_popdict" title="Permalink to this definition">¶</a></dt>
@@ -1542,6 +1543,12 @@ Default ‘network_type’ is ‘poisson_degree’ for Erdos-Renyi random graphs
 <dd class="field-even"><p>A dictionary of individuals with attributes, including their age and the ids of their contacts.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contacts.choose_contacts">
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">choose_contacts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.choose_contacts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numbafy np.random.choice(); about twice as fast</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2519,9 +2526,9 @@ Part 1 or 2 are available.</p>
 <span id="synthpops-long-term-care-facilities-module"></span><h2>synthpops.long_term_care_facilities module<a class="headerlink" href="#module-synthpops.long_term_care_facilities" title="Permalink to this headline">¶</a></h2>
 <p>Modeling Seattle Metro Long Term Care Facilities</p>
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.resample_age_uk">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">resample_age_uk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_age_distr</span></em>, <em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.resample_age_uk" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resampling ages for UK data</p>
+<dt id="synthpops.long_term_care_facilities.custom_resample_age">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_resample_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_age_distr</span></em>, <em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_resample_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resampling younger ages to better match data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2533,11 +2540,14 @@ Part 1 or 2 are available.</p>
 <dd class="field-even"><p>Resampled age as an integer.</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>This is not always necessary, but is mostly used to smooth out sharp edges in the age distribution when spsamp.resample_age() produces too many of one year and under produces the surrounding ages. For example, new borns (0 years old) may
+be over produced, and 1 year olds under produced, so this function can be customized to correct for that.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.generate_larger_households">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_larger_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_larger_households" title="Permalink to this definition">¶</a></dt>
+<dt id="synthpops.long_term_care_facilities.custom_generate_larger_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_generate_larger_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_generate_larger_households" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
 All other household members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix
 in households for the population under study.</p>
@@ -2562,8 +2572,8 @@ The first age in the row is the age of the reference individual.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.generate_all_households">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_all_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_all_households" title="Permalink to this definition">¶</a></dt>
+<dt id="synthpops.long_term_care_facilities.custom_generate_all_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_generate_all_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_generate_all_households" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the ages of those living in households together. First create households of people living alone, then larger households.
 For households larger than 1, a reference individual’s age is sampled conditional on the household size, while all other household
 members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix in households
@@ -2691,8 +2701,22 @@ age brackets.</p>
 <span id="synthpops-sampling-module"></span><h2>synthpops.sampling module<a class="headerlink" href="#module-synthpops.sampling" title="Permalink to this headline">¶</a></h2>
 <p>Sample distributions, either from real world data or from uniform distributions</p>
 <dl class="py function">
-<dt id="synthpops.sampling.sample_single">
-<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single" title="Permalink to this definition">¶</a></dt>
+<dt id="synthpops.sampling.sample_single_dict">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr_keys</span></em>, <em class="sig-param"><span class="n">distr_vals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distr</strong> (<em>dict</em><em> or </em><em>np.ndarray</em>) – distribution</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single sampled value from a distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_single_arr">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single_arr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single_arr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2706,12 +2730,12 @@ age brackets.</p>
 
 <dl class="py function">
 <dt id="synthpops.sampling.resample_age">
-<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">resample_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">single_year_age_distr</span></em>, <em class="sig-param"><span class="n">age</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.resample_age" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">resample_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_dist_vals</span></em>, <em class="sig-param"><span class="n">age</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.resample_age" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resample age from single year age distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>arr</em>) – age distribution, ordered by age</p></li>
 <li><p><strong>age</strong> (<em>int</em>) – age as an integer</p></li>
 </ul>
 </dd>

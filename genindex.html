@@ -186,13 +186,21 @@
 </li>
       <li><a href="modules.html#synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff">check_all_residents_are_connected_to_staff() (in module synthpops.long_term_care_facilities)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules.html#synthpops.contacts.choose_contacts">choose_contacts() (in module synthpops.contacts)</a>
+</li>
       <li><a href="modules.html#synthpops.base.combine_matrices">combine_matrices() (in module synthpops.base)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="glossary.html#term-contact-layers"><strong>contact layers</strong></a>
 </li>
       <li><a href="modules.html#synthpops.contacts.create_reduced_contacts_with_group_types">create_reduced_contacts_with_group_types() (in module synthpops.contacts)</a>
+</li>
+      <li><a href="modules.html#synthpops.long_term_care_facilities.custom_generate_all_households">custom_generate_all_households() (in module synthpops.long_term_care_facilities)</a>
+</li>
+      <li><a href="modules.html#synthpops.long_term_care_facilities.custom_generate_larger_households">custom_generate_larger_households() (in module synthpops.long_term_care_facilities)</a>
+</li>
+      <li><a href="modules.html#synthpops.long_term_care_facilities.custom_resample_age">custom_resample_age() (in module synthpops.long_term_care_facilities)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -209,11 +217,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#synthpops.contact_networks.generate_all_households">generate_all_households() (in module synthpops.contact_networks)</a>
-
-      <ul>
-        <li><a href="modules.html#synthpops.long_term_care_facilities.generate_all_households">(in module synthpops.long_term_care_facilities)</a>
 </li>
-      </ul></li>
       <li><a href="modules.html#synthpops.contact_networks.generate_household_head_age_by_size">generate_household_head_age_by_size() (in module synthpops.contact_networks)</a>
 </li>
       <li><a href="modules.html#synthpops.contact_networks.generate_household_sizes">generate_household_sizes() (in module synthpops.contact_networks)</a>
@@ -221,11 +225,7 @@
       <li><a href="modules.html#synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size">generate_household_sizes_from_fixed_pop_size() (in module synthpops.contact_networks)</a>
 </li>
       <li><a href="modules.html#synthpops.contact_networks.generate_larger_households">generate_larger_households() (in module synthpops.contact_networks)</a>
-
-      <ul>
-        <li><a href="modules.html#synthpops.long_term_care_facilities.generate_larger_households">(in module synthpops.long_term_care_facilities)</a>
 </li>
-      </ul></li>
       <li><a href="modules.html#synthpops.contact_networks.generate_living_alone">generate_living_alone() (in module synthpops.contact_networks)</a>
 </li>
       <li><a href="modules.html#synthpops.long_term_care_facilities.generate_microstructure_with_facilities">generate_microstructure_with_facilities() (in module synthpops.long_term_care_facilities)</a>
@@ -302,10 +302,10 @@
 </li>
       <li><a href="modules.html#synthpops.utils.get_kc_snf_df_location">get_kc_snf_df_location() (in module synthpops.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#synthpops.contact_networks_industries.get_main_industry_code">get_main_industry_code() (in module synthpops.contact_networks_industries)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules.html#synthpops.contact_networks_industries.get_main_industry_title">get_main_industry_title() (in module synthpops.contact_networks_industries)</a>
 </li>
       <li><a href="modules.html#synthpops.sampling.get_mortality_rates_by_age">get_mortality_rates_by_age() (in module synthpops.sampling)</a>
@@ -517,8 +517,6 @@
 </li>
       <li><a href="modules.html#synthpops.sampling.resample_age">resample_age() (in module synthpops.sampling)</a>
 </li>
-      <li><a href="modules.html#synthpops.long_term_care_facilities.resample_age_uk">resample_age_uk() (in module synthpops.long_term_care_facilities)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -537,7 +535,9 @@
 </li>
       <li><a href="modules.html#synthpops.sampling.sample_n_contact_ages_with_matrix">sample_n_contact_ages_with_matrix() (in module synthpops.sampling)</a>
 </li>
-      <li><a href="modules.html#synthpops.sampling.sample_single">sample_single() (in module synthpops.sampling)</a>
+      <li><a href="modules.html#synthpops.sampling.sample_single_arr">sample_single_arr() (in module synthpops.sampling)</a>
+</li>
+      <li><a href="modules.html#synthpops.sampling.sample_single_dict">sample_single_dict() (in module synthpops.sampling)</a>
 </li>
       <li><a href="modules.html#synthpops.contacts.save_synthpop">save_synthpop() (in module synthpops.contacts)</a>
 </li>
@@ -570,6 +570,8 @@
         <li><a href="modules.html#module-synthpops.base">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     synthpops.config
 
@@ -577,8 +579,6 @@
         <li><a href="modules.html#module-synthpops.config">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     synthpops.contact_networks
 
