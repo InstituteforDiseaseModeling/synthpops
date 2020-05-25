@@ -1,4 +1,5 @@
 import synthpops as sp
+import numpy as np
 import sciris as sc
 import pytest
 from random import randrange
@@ -28,7 +29,7 @@ def test_all(location='seattle_metro',state_location='Washington',country_locati
     print(a,s)
 
     ### Test age mixing matrix ###
-    num_agebrackets = 18
+    # num_agebrackets = 18
 
     # flu-like weights. calibrated to empirical diary survey data.
     weights_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'C': 2.79}
@@ -109,9 +110,11 @@ def test_resample_age():
     for n in range(101):
         single_year_age_distr[n] = float(1.0 / 101.0)
     tolerance = 2  # the resampled age should be within two years
-    for n in range(int(1e4)):
+    age_dist_vals = np.array(list(single_year_age_distr.values()), dtype=np.float)
+    for n in range(int(1e3)):
         random_age = int(randrange(100))
-        resampled_age = sp.resample_age(single_year_age_distr, random_age)
+
+        resampled_age = sp.resample_age(age_dist_vals, random_age)
         assert abs(random_age - resampled_age) <= tolerance
 
 

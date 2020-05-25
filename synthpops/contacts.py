@@ -1277,17 +1277,31 @@ im
 
     keys = trimmed_size_dic.keys()
 
+    if isinstance(list(contacts.keys())[0], str):
+        string_uids = True
+    else:
+        string_uids = False
+
     if use_clusters:
         raise NotImplementedError("Clustered method not yet implemented.")
 
     else:
 
-        for n, uid in enumerate(contacts):
-            for k in keys:
-                setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
-                if len(setting_contacts) > trimmed_size_dic[k]/2:
-                    close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
-                    contacts[uid]['contacts'][k] = set(close_contacts)
+        if not string_uids:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
+        else:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = list(contacts[uid]['contacts'][k])
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
+
 
         for n, uid in enumerate(contacts):
             for k in keys:
