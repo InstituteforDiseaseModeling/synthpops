@@ -1294,7 +1294,6 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
             for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
-
     return contacts
 
 
@@ -1305,7 +1304,7 @@ def show_layers(popdict, show_ages=False, show_n=20):
     Args:
         popdict (dict)   : dictionary of individuals with attributes, including their age and the ids of their close contacts
         show_ages (bool) : If True, show the ages of contacts, else show their ids
-        show_n (int): number of individuals to show contacts for
+        show_n (int)     : number of individuals to show contacts for
 
     Returns:
         None

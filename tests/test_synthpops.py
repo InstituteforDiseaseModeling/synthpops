@@ -110,11 +110,11 @@ def test_resample_age():
     for n in range(101):
         single_year_age_distr[n] = float(1.0 / 101.0)
     tolerance = 2  # the resampled age should be within two years
-    age_dist_vals = np.array(list(single_year_age_distr.values()), dtype=np.float)
+    age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float)
     for n in range(int(1e3)):
         random_age = int(randrange(100))
 
-        resampled_age = sp.resample_age(age_dist_vals, random_age)
+        resampled_age = sp.resample_age(age_distr_vals, random_age)
         assert abs(random_age - resampled_age) <= tolerance
 
 
