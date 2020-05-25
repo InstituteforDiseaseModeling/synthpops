@@ -9,7 +9,7 @@ import os
 import pandas as pd
 
 
-def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
+def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
     """
     Create a dictionary of n people with age, sex and loc keys
 
@@ -28,19 +28,27 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         A dictionary where keys are the uid of each person and the values are another dictionary containing values for other attributes of the person
     """
 
-    min_people = 1000
+    min_people = 100
 
     if location             is None: location = 'seattle_metro'
     if state_location is None: state_location = 'Washington'
 
+
     # A list of UIDs was supplied as the first argument
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
+        # uid_mapping = {uids[i]: i for i in range(len(uids))}
+        uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
     else:  # Not supplied, generate
         n = int(n)
-        uids = []
-        for i in range(n):
-            uids.append(sc.uuid(length=id_len))
+        # default to using ints for ids from now on
+        uids = [i for i in range(n)] 
+        uid_mapping = {i: i for i in range(n)}
+
+        # using strings for uids
+        # uids = []
+        # for i in range(n):
+            # uids.append(sc.uuid(length=id_len))
 
     # Check that there are enough people
     if n < min_people:
@@ -89,6 +97,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i, uid in enumerate(uids):
+        uid = uid_mapping[uid]
         popdict[uid] = {}
         popdict[uid]['age'] = ages[i]
         popdict[uid]['sex'] = sexes[i]
@@ -117,6 +126,13 @@ def make_contacts_generic(popdict, network_distr_args):
     uids = popdict.keys()
     uids = [uid for uid in uids]
 
+    # if replacing uids that are strings with ints but 
+    # if isinstance(uids[0], str):
+        # uid_mapping = {uid: u for u, uid in enumerate(uids)}
+
+    # elif isinstance(uids[0], int):
+        # uid_mapping = {i: i for i in range(len(uids))}
+
     N = len(popdict)
 
     if network_type == 'poisson_degree':
@@ -127,9 +143,8 @@ def make_contacts_generic(popdict, network_distr_args):
     A = [a for a in G.adjacency()]
 
     for n, uid in enumerate(uids):
-        # source_uid = uids[n]
         targets = [t for t in A[n][1].keys()]
-        target_uids = [uids[target] for target in targets]
+        target_uids = [uid[target] for target in targets] # if using uids which may be strings or ints
         popdict[uid]['contacts']['M'] = set(target_uids)
 
     return popdict
@@ -375,7 +390,7 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     """
 
-    # using a flat contact matrix
+    # using a single contact matrix combined from the other settings available
     uids_by_age_dic = spsamp.get_uids_by_age_dic(popdict)
     if country_location is None:
         raise NotImplementedError
@@ -648,7 +663,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     n1 = list(np.arange(len(r1)).astype(int))
     n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
 
-    nlist = n1 + n2
+    # nlist = n1 + n2
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
@@ -662,7 +677,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     G = nx.stochastic_block_model(sizes, p_matrix)
 
     for i in n1:
-        neighbors = [j for j in G.neighbors(i)]
+        # neighbors = [j for j in G.neighbors(i)]
         group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
 
         # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
@@ -688,7 +703,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
-    print('reduced contacts')
+    # print('reduced contacts')
 
     return popdict
 

@@ -23,5 +23,14 @@ if __name__ == '__main__':
     contacts = sp.make_contacts(location=location,state_location=state_location,country_location=country_location,options_args=options_args,network_distr_args=network_distr_args)
 
     # save to file
-    file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
-    sp.save_synthpop(file_path,contacts,location)
+    # file_path = os.path.join(datadir,'demographics','contact_matrices_152_countries',country_location,state_location,'contact_networks')
+    # sp.save_synthpop(file_path,contacts,location)
+
+    pop = contacts
+    keys = pop.keys()
+    keys = [k for k in keys]
+    sc.tic()
+    pop = sp.make_popdict(n, uids=keys, location=location, state_location=state_location, country_location=country_location, use_demography=True)
+    sc.toc()
+    # print(pop)s
+    # print(keys)
