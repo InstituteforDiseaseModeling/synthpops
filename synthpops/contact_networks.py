@@ -140,7 +140,7 @@ def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_yea
     """
 
     size = 1
-    homes = np.zeros((hh_sizes[size-1], 1))
+    homes = np.zeros((hh_sizes[size-1], 1), dtype=int)
 
     for h in range(hh_sizes[size-1]):
         hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
@@ -171,7 +171,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
     """
     ya_coin = 0.15  # produces far too few young adults without this for Seattle, Washington. This is a placeholder value. Users will need to change to fit whatever population they are working with.
 
-    homes = np.zeros((hh_sizes[size-1], size))
+    homes = np.zeros((hh_sizes[size-1], size), dtype=int)
 
     for h in range(hh_sizes[size-1]):
 
@@ -190,7 +190,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population they are working with.
                 if np.random.binomial(1, ya_coin):
-                    ai = spsamp.sample_from_range(single_year_age_distr, 25, 30)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
+                    ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
             ai = spsamp.resample_age(age_distr_vals, ai)
 
