@@ -126,7 +126,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
     return homes
 
 
-def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
     For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
@@ -447,7 +447,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
-    homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
+    homes_dic, homes = custom_generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
     homes = facilities + homes
 
     homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  #include facilities to assign ids
