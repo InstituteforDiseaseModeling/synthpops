@@ -48,6 +48,7 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
         An array with the count of households of size s at index s-1.
     """
 
+    # Quickly produce number of expected households for a population of size N
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
     f = N / np.round(ss, 1)
     hh_sizes = np.zeros(len(hh_size_distr))
@@ -56,6 +57,7 @@ def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
         hh_sizes[s-1] = int(hh_size_distr[s] * f)
     N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype=int)
 
+    # Check what population size was created from the drawn count of household sizes
     people_to_add_or_remove = N_gen - N
 
     # did not create household sizes to match or exceed the population size so add count for households needed
@@ -180,7 +182,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b = age_by_brackets_dic[hha]
         b_prob = contact_matrix_dic['H'][b, :]
 
-        age_dist_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64) # Convert to an array for faster processing
+        age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64) # Convert to an array for faster processing
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
@@ -190,8 +192,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 30)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
-
-            ai = spsamp.resample_age(age_dist_vals, ai)
+            ai = spsamp.resample_age(age_distr_vals, ai)
 
             homes[h][n] = ai
 
@@ -469,7 +470,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     syn_school_uids = []
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-    # total_school_count = len(uids_in_school)
     left_in_bracket = spb.get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
 
     for n, size in enumerate(school_sizes):
@@ -480,7 +480,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         ages_in_school_distr = spb.norm_dic(ages_in_school_count)
 
         new_school = []
-        # new_school_ages_in_school_countuids = []
         new_school_uids = []
 
         achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
