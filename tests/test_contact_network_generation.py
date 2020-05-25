@@ -10,7 +10,7 @@ if __name__ == '__main__':
     country_location = 'usa'
     sheet_name = 'United States of America'
 
-    n = 12000
+    n = 2000
     verbose = True
     verbose = False
     plot = True
