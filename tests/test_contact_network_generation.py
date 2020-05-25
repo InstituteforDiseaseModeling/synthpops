@@ -1,15 +1,9 @@
 import synthpops as sp
-import sciris as sc
-import numpy as np
-import math
-import os, sys
-from copy import deepcopy
 
 
 if __name__ == '__main__':
     sp.validate()
-    # datadir = sp.datadir
-    datadir = sp.set_datadir(sp.config.localdatadir)  # set to local data directory
+    datadir = sp.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -19,8 +13,8 @@ if __name__ == '__main__':
     n = 12000
     verbose = True
     verbose = False
-    # plot = True
-    plot = False
+    plot = True
+    # plot = False
     school_enrollment_counts_available = False
     use_default = False
 
