@@ -14,7 +14,6 @@ from . import base as spb
 from .config import datadir
 
 
-
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
     Create a dictionary of n people with age, sex and loc keys
@@ -1301,7 +1300,6 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
                     if len(setting_contacts) > trimmed_size_dic[k]/2:
                         close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
                         contacts[uid]['contacts'][k] = set(close_contacts)
-
 
         for n, uid in enumerate(contacts):
             for k in keys:

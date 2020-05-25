@@ -64,7 +64,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
 
     # Heavy lift 1: make the contacts and their connections
     if not generate:
-        # try to read in from file
+        # must read in from file, will fail if the data has not yet been generated
         population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
     else:
         # make a new network on the fly
