@@ -29,6 +29,8 @@ def sample_single_dict(distr_keys, distr_vals):
 
     if norm_sorted_distr.sum() > 0:
         norm_sorted_distr = norm_sorted_distr/norm_sorted_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    else:
+        return 0
     n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
     index = np.where(n)[0][0]
     return sorted_keys[index]
@@ -48,6 +50,8 @@ def sample_single_arr(distr):
     norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
     if norm_distr.sum() > 0:
         norm_distr = norm_distr/norm_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    else:
+        return 0
     n = np.random.multinomial(1, norm_distr, size=1)[0]
     index = np.where(n)[0][0]
     return index
@@ -117,15 +121,10 @@ def sample_bracket(distr, brackets):
     Returns:
         A sampled bracket from a distribution.
     """
-    if type(distr) == dict:
-        sorted_keys = sorted(distr.keys())
-        sorted_distr = [distr[k] for k in sorted_keys]
-        n = np.random.multinomial(1, sorted_distr, size=1)[0]
-        index = np.where(n)[0][0]
-    # elif type(distr) == np.ndarray:
-        # distr = distr / np.sum(distr)
-        # n = np.random.multinomial(1,distr,size = 1)[0]
-        # index = np.where(n)[0][0]
+    sorted_keys = sorted(distr.keys())
+    sorted_distr = [distr[k] for k in sorted_keys]
+    n = np.random.multinomial(1, sorted_distr, size=1)[0]
+    index = np.where(n)[0][0]
     return index
 
 
