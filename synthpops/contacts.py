@@ -683,7 +683,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
-    print('reduced contacts')
 
     return popdict
 
