@@ -392,11 +392,11 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     # using a single contact matrix combined from the other settings available
     uids_by_age_dic = spsamp.get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    # if country_location is None:
+        # raise NotImplementedError # this will be caught by get_census_age_brackets
 
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
+    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
@@ -461,15 +461,15 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     if country_location is None:
         raise NotImplementedError
 
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
+    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
-    num_agebrackets = len(age_brackets)
+    # num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
 
-    n_contacts = network_distr_args['average_degree']
+    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
