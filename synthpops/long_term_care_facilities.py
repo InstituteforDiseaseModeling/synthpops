@@ -2,13 +2,8 @@
 Modeling Seattle Metro Long Term Care Facilities
 
 """
-from .base import *
-from . import data_distributions as spdata
-from . import sampling as spsamp
-from . import contacts as spct
-from . import contact_networks as spcnx
-# from synthpops.utils import get_kc_snf_df_location
-# import pandas as pd
+
+import numpy as np
 
 import os
 import math
@@ -16,6 +11,11 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 from collections import Counter
 
+from . import base as spb
+from . import data_distributions as spdata
+from . import sampling as spsamp
+from . import contacts as spct
+from . import contact_networks as spcnx
 
 # do_save = True
 # do_plot = False
@@ -34,7 +34,7 @@ school_enrollment_counts_available = True
 part = 2
 
 # Customized age resampling method
-def resample_age_uk(exp_age_distr, a):
+def resample_age_uk(exp_age_distr_dict, a):
     """
     Resampling ages for UK data
 
@@ -44,6 +44,7 @@ def resample_age_uk(exp_age_distr, a):
     Returns:
         Resampled age as an integer.
     """
+    exp_age_distr = np.array(list(exp_age_distr_dict.values()), dtype=np.float64)
     a = spsamp.resample_age(exp_age_distr, a)
     if a == 7:
         if np.random.binomial(1, p=0.25):
@@ -298,7 +299,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # location age distribution
     age_distr_16 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
     age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location, country_location)
-    age_by_brackets_dic_16 = get_age_by_brackets_dic(age_brackets_16)
+    age_by_brackets_dic_16 = spb.get_age_by_brackets_dic(age_brackets_16)
 
     # current King County population size
     pop = 2.25e6
@@ -311,12 +312,12 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     if verbose:
         print('number of local elderly', local_elderly_2018)
 
-    growth_since_2016 = num_state_elderly_2018/num_state_elderly_2016
-    local_perc_elderly_2018 = local_elderly_2018/num_state_elderly_2018
+    # growth_since_2016 = num_state_elderly_2018/num_state_elderly_2016
+    # local_perc_elderly_2018 = local_elderly_2018/num_state_elderly_2018
 
     if verbose:
         print('local users in 2018?', total_facility_users * local_elderly_2018/num_state_elderly_2018 * num_state_elderly_2018/num_state_elderly_2016)
-    seattle_users_est_from_state = total_facility_users * local_perc_elderly_2018 * growth_since_2016
+    # seattle_users_est_from_state = total_facility_users * local_perc_elderly_2018 * growth_since_2016
 
     est_seattle_users_2018 = dict.fromkeys(['60-64', '65-74', '75-84', '85-100'], 0)
 
@@ -357,7 +358,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
     age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'census_age_brackets_18.dat')
     age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
-    age_by_brackets_dic_18 = get_age_by_brackets_dic(age_brackets_18)
+    age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
     gen_pop_size = int(gen_pop_size)
 
@@ -396,8 +397,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
 
     # KC facilities reporting cases - should account for 70% of all facilities
-    userpath = os.path.expanduser('~')
-    username = os.path.split(userpath)[-1]
+    # userpath = os.path.expanduser('~')
+    # username = os.path.split(userpath)[-1]
 
     # KC_snf_df = get_kc_snf_df_location()
     # try:
@@ -418,14 +419,14 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # KC_resident_staff_ratios = KC_resident_staff_ratios[KC_resident_staff_ratios < 20]
 
     KC_resident_size_distr = spdata.get_usa_long_term_care_facility_residents_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-    KC_resident_size_distr = norm_dic(KC_resident_size_distr)
+    KC_resident_size_distr = spb.norm_dic(KC_resident_size_distr)
     KC_residents_size_brackets = spdata.get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # print(KC_resident_staff_ratios)
 
-    if verbose:
-        print(KC_resident_staff_ratios)
-        print(np.mean(KC_resident_staff_ratios))
+    # if verbose:
+    #     print(KC_resident_staff_ratios)
+    #     print(np.mean(KC_resident_staff_ratios))
 
     all_residents = []
     for a in expected_users_by_age:
@@ -464,7 +465,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     ltcf_adjusted_age_count = deepcopy(expected_age_count)
     for a in expected_users_by_age:
         ltcf_adjusted_age_count[a] -= expected_users_by_age[a]
-    ltcf_adjusted_age_distr = norm_dic(ltcf_adjusted_age_count)
+    # ltcf_adjusted_age_distr = spb.norm_dic(ltcf_adjusted_age_count)
 
     # build rest of the population
     n = gen_pop_size - np.sum([len(f) for f in facilities])  # remove those placed in care homes
@@ -504,7 +505,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         plt.show()
 
     # Make a dictionary listing out uids of people by their age
-    uids_by_age_dic = get_ids_by_age_dic(age_by_uid_dic)
+    uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)
 
     # Generate school sizes
     school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
@@ -542,7 +543,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # Assign facilities care staff from 20 to 59
 
     KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-    KC_ratio_distr = norm_dic(KC_ratio_distr)
+    KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
     KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     facilities_staff = []
