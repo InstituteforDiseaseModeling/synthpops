@@ -11,6 +11,7 @@ from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
 
+
 @nb.njit((nb.int64[:], nb.float64[:]))
 def sample_single_dict(distr_keys, distr_vals):
     """
@@ -24,10 +25,10 @@ def sample_single_dict(distr_keys, distr_vals):
     """
     sort_inds = np.argsort(distr_keys)
     sorted_keys = distr_keys[sort_inds]
-    sorted_distr =distr_vals[sort_inds]
+    sorted_distr = distr_vals[sort_inds]
     norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
-    eps = 1e-9 # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
+    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     if norm_sorted_distr.sum() > 0:
         norm_sorted_distr = norm_sorted_distr/(eps+norm_sorted_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
@@ -48,7 +49,7 @@ def sample_single_arr(distr):
     Returns:
         A single sampled value from a distribution.
     """
-    eps = 1e-9 # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
+    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
     if norm_distr.sum() > 0:
         norm_distr = norm_distr/(eps+norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
@@ -66,7 +67,7 @@ def resample_age(age_dist_vals, age):
 
     Args:
         single_year_age_distr (arr) : age distribution, ordered by age
-        age (int)                    : age as an integer
+        age (int)                   : age as an integer
     Returns:
         Resampled age as an integer.
     """
