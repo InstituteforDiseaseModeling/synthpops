@@ -825,6 +825,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         new_work_uids.append(uid)
 
         bindex = age_by_brackets_dic[aindex]
+        bindex = min(bindex, contact_matrix_dic['W'].shape[0]-1) # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['W'][bindex, :]
         if np.sum(b_prob) > 0:
             b_prob = b_prob/np.sum(b_prob)
