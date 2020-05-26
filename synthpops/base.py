@@ -2,6 +2,7 @@
 The module contains frequently-used functions that do not neatly fit into other areas of the code base.
 """
 
+import sciris as sc
 import numpy as np
 from copy import deepcopy
 

@@ -239,7 +239,7 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     """
 
     uids_by_age_dic = get_uids_by_age_dic(popdict)
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
@@ -247,7 +247,7 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
     age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
-    n_contacts = network_distr_args['average_degree']
+    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -748,67 +748,162 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
 
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
-    age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+    # age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+    age_by_uid_dic = sc.objdict(zip(df.iloc[:, 0], df.iloc[:, 1]))
     uids = age_by_uid_dic.keys()
+
+    # uid are strings or ints
+    if isinstance(uids[0], str):
+        uid_mapping = {uid: u for u, uid in enumerate(uids)}
+    elif isinstance(uids[0], int):
+        uid_mapping = {u: u for u in uids}
 
     # you have ages but not sexes so we'll just populate that for you at random
     popdict = {}
     for i, uid in enumerate(uids):
-        popdict[uid] = {}
-        popdict[uid]['age'] = int(age_by_uid_dic[uid])
-        popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
-        popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {}
-        popdict[uid]['hhid'] = -1
-        popdict[uid]['scid'] = -1
-        popdict[uid]['wpid'] = -1
-        popdict[uid]['wpindcode'] = -1
+        u = uid_mapping[uid]
+        popdict[u] = {}
+        popdict[u]['age'] = int(age_by_uid_dic[uid])
+        popdict[u]['sex'] = np.random.binomial(1, p=0.5)
+        popdict[u]['loc'] = None
+        popdict[u]['contacts'] = {}
+        popdict[u]['hhid'] = -1
+        popdict[u]['scid'] = -1
+        popdict[u]['wpid'] = -1
+        popdict[u]['wpindcode'] = -1
         for k in ['H', 'S', 'W', 'C']:
-            popdict[uid]['contacts'][k] = set()
+            popdict[u]['contacts'][k] = set()
+
+        # popdict[uid] = {}
+        # popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        # popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
+        # popdict[uid]['loc'] = None
+        # popdict[uid]['contacts'] = {}
+        # popdict[uid]['hhid'] = -1
+        # popdict[uid]['scid'] = -1
+        # popdict[uid]['wpid'] = -1
+        # popdict[uid]['wpindcode'] = -1
+        # for k in ['H', 'S', 'W', 'C']:
+        #     popdict[uid]['contacts'][k] = set()
 
     fh = open(households_by_uid_path, 'r')
-    for nh, line in enumerate(fh):
-        r = line.strip().split(' ')
-        try:
-            r = [int(i) for i in r]
-        except:
-            r = [i for i in r]
-        for uid in r:
-            popdict[uid]['contacts']['H'] = set(r)
-            popdict[uid]['contacts']['H'].remove(uid)
-            popdict[uid]['hhid'] = nh
-    fh.close()
-
     fs = open(schools_by_uid_path, 'r')
-    for ns, line in enumerate(fs):
-        r = line.strip().split(' ')
-        try:
-            r = [int(i) for i in r]
-        except:
-            r = [i for i in r]
-        for uid in r:
-            popdict[uid]['contacts']['S'] = set(r)
-            popdict[uid]['contacts']['S'].remove(uid)
-            popdict[uid]['scid'] = ns
-    fs.close()
-
     fw = open(workplaces_by_uid_path, 'r')
     if with_industry_code:
         fi = open(workplaces_by_industry_code_path, 'r')
         workplaces_by_industry_codes = np.loadtxt(fi)
-    for nw, line in enumerate(fw):
-        r = line.strip().split(' ')
-        try:
-            r = [int(i) for i in r]
-        except:
-            r = [i for i in r]
-        for uid in r:
-            popdict[uid]['contacts']['W'] = set(r)
-            popdict[uid]['contacts']['W'].remove(uid)
-            popdict[uid]['wpid'] = nw
-            if with_industry_code:
-                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+        fi.close()
+
+    # map uids to ints in the popdict created
+    if isinstance(uids[0], str):
+        for nh, line in enumerate(fh):
+            r = line.strip().split(' ')
+            r = [uid_mapping[uid] for uid in r]
+
+            for u in r:
+                popdict[u]['contacts']['H'] = set(r)
+                popdict[u]['contacts']['H'].remove(u)
+                popdict[u]['hhid'] = nh
+
+        for ns, line in enumerate(fs):
+            r = line.strip().split(' ')
+            r = [uid_mapping[uid] for uid in r]
+
+            for u in r:
+                popdict[u]['contacts']['S'] = set(r)
+                popdict[u]['contacts']['S'].remove(u)
+                popdict[u]['scid'] = ns
+
+        for nw, line in enumerate(fw):
+            r = line.strip().split(' ')
+            r = [uid_mapping[uid] for uid in r]
+
+            for u in r:
+                popdict[u]['contacts']['W'] = set(r)
+                popdict[u]['contacts']['W'].remove(u)
+                popdict[u]['wpid'] = nw
+                if with_industry_code:
+                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+
+    elif isinstance(uids[0], int):
+
+        for nh, line in enumerate(fh):
+            r = line.strip().split(' ')
+            r = [int(u) for u in r]
+
+            for u in r:
+                popdict[u]['contacts']['H'] = set(r)
+                popdict[u]['contacts']['H'].remove(u)
+                popdict[u]['hhid'] = nh
+
+        for ns, line in enumerate(fs):
+            r = line.strip()
+            r = [int(u) for u in r]
+
+            for u in r:
+                popdict[u]['contacts']['S'] = set(r)
+                popdict[u]['contacts']['S'].remove(u)
+                popdict[u]['scid'] = ns
+
+        for nw, line in enumerate(fw):
+            r = line.strip().split(' ')
+            r = [int(u) for u in r]
+
+            for u in r:
+                popdict[u]['contacts']['W'] = set(r)
+                popdict[u]['contacts']['W'].remove(u)
+                popdict[u]['wpid'] = nw
+                if with_industry_code:
+                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+
+    fh.close()
+    fs.close()
     fw.close()
+
+    # for nh, line in enumerate(fh):
+    #     r = line.strip().split(' ')
+    #     r = [uid_mapping[uid] for uid in r]
+    #     try:
+    #         r = [int(i) for i in r]
+    #     except:
+    #         r = [i for i in r]
+    #     for uid in r:
+    #         popdict[uid]['contacts']['H'] = set(r)
+    #         popdict[uid]['contacts']['H'].remove(uid)
+    #         popdict[uid]['hhid'] = nh
+    # fh.close()
+
+    # fs = open(schools_by_uid_path, 'r')
+    # for ns, line in enumerate(fs):
+    #     r = line.strip().split(' ')
+
+    #     try:
+    #         r = [int(i) for i in r]
+    #     except:
+    #         r = [i for i in r]
+    #     for uid in r:
+    #         popdict[uid]['contacts']['S'] = set(r)
+    #         popdict[uid]['contacts']['S'].remove(uid)
+    #         popdict[uid]['scid'] = ns
+    # fs.close()
+
+    # fw = open(workplaces_by_uid_path, 'r')
+    # if with_industry_code:
+    #     fi = open(workplaces_by_industry_code_path, 'r')
+    #     workplaces_by_industry_codes = np.loadtxt(fi)
+    # for nw, line in enumerate(fw):
+    #     r = line.strip().split(' ')
+    #     try:
+    #         r = [int(i) for i in r]
+    #     except:
+    #         r = [i for i in r]
+    #     for uid in r:
+    #         popdict[uid]['contacts']['W'] = set(r)
+    #         popdict[uid]['contacts']['W'].remove(uid)
+    #         popdict[uid]['wpid'] = nw
+    #         if with_industry_code:
+    #             popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+    # fw.close()
 
     return popdict
 
