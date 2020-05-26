@@ -348,9 +348,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
-    age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'seattle_metro_age_bracket_distr_18.dat')
+    age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'seattle_metro_age_bracket_distr_18.dat')
     age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
-    age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', 'census_age_brackets_18.dat')
+    age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'census_age_brackets_18.dat')
     age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
     age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
