@@ -25,7 +25,7 @@ if datadir is None:
 
 
 # Number of census age brackets to use
-nbrackets = 20
+nbrackets = [16, 20][0] # 20 is only partially supported
 
 
 #%% Functions
