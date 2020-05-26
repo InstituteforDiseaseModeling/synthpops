@@ -8,10 +8,7 @@ import pandas as pd
 import sciris as sc
 from collections import Counter
 from . import base as spb
-from .config import datadir
-
-# Number of census age brackets to use
-nbrackets = 20
+from .config import datadir, nbrackets
 
 
 def get_age_brackets_from_df(ab_file_path):

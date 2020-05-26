@@ -18,28 +18,14 @@ full_data_available = False # this is likely not necesary anymore
 thisdir = sc.thisdir(__file__)
 localdatadir = os.path.join(thisdir, os.pardir, 'data')
 
-# Set user-specific configurations
-userpath = os.path.expanduser('~')
-username = os.path.split(userpath)[-1]
-datadirdict = {
-    # 'dmistry':  os.path.join(userpath,'Dropbox (IDM)','synthpops'),
-    # 'cliffk':   os.path.join(userpath,'idm','Dropbox','synthpops'),
-    # 'lgeorge':  os.path.join(userpath,'Dropbox','synthpops'),
-    # 'ccollins': os.path.join(userpath,'Dropbox','synthpops')
-}
-
-# Try to find the folder on load
-if username in datadirdict.keys():
-    full_data_available = True
-    datadir = datadirdict[username]
-    if not os.path.isdir(datadir):
-        errormsg = f'Your username "{username}" was found, but the folder {datadir} does not exist. Please fix synthpops/config.py and try again.'
-        raise FileNotFoundError(errormsg)
-
 # Replace with local data dir if Dropbox folder is not found
 if datadir is None:
     full_data_available = True
     datadir = localdatadir
+
+
+# Number of census age brackets to use
+nbrackets = 20
 
 
 #%% Functions
