@@ -854,23 +854,24 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 bi = np.where(bichoice)[0][0]
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                while np.sum(workers_left_in_bracket) == 0:
-                    bichoice = np.random.multinomial(1, b_prob)
-                    bi = np.where(bichoice)[0][0]
-                    workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                a_prob = np.array(a_prob)
-                a_prob = a_prob/np.sum(a_prob)
+                if np.sum(b_prob):
+                    while np.sum(workers_left_in_bracket) == 0:
+                        bichoice = np.random.multinomial(1, b_prob)
+                        bi = np.where(bichoice)[0][0]
+                        workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
+                    a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
+                    a_prob = np.array(a_prob)
+                    a_prob = a_prob/np.sum(a_prob)
 
-                ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    ai = np.random.choice(a=age_brackets[bi], p=a_prob)
 
-                uid = potential_worker_uids_by_age[ai][0]
-                new_work.append(ai)
-                new_work_uids.append(uid)
-                potential_worker_uids_by_age[ai].remove(uid)
-                potential_worker_uids.pop(uid, None)
-                workers_by_age_to_assign_count[ai] -= 1
-                workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
+                    uid = potential_worker_uids_by_age[ai][0]
+                    new_work.append(ai)
+                    new_work_uids.append(uid)
+                    potential_worker_uids_by_age[ai].remove(uid)
+                    potential_worker_uids.pop(uid, None)
+                    workers_by_age_to_assign_count[ai] -= 1
+                    workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
