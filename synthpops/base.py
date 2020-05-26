@@ -224,7 +224,7 @@ def combine_matrices(matrix_dic, weights_dic, num_agebrackets):
     Returns:
         A contact matrix (``np.ndarray``) that is a linear combination of setting specific matrices given weights for each setting.
     """
-    M = np.zeros((num_agebrackets, num_agebrackets))
+    M = np.zeros((16, 16)) # Note -- these are hard-coded to 16 age brackets
     for setting_code in weights_dic:
         M += matrix_dic[setting_code] * weights_dic[setting_code]
     return M
