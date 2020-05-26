@@ -60,6 +60,14 @@ synthpops.data\_distributions module
    :undoc-members:
    :show-inheritance:
 
+synthpops.long\_term\_care\_facilities module
+---------------------------------------------
+
+.. automodule:: synthpops.long_term_care_facilities
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 synthpops.plot\_tools module
 ----------------------------
 
@@ -72,6 +80,14 @@ synthpops.sampling module
 -------------------------
 
 .. automodule:: synthpops.sampling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+synthpops.utils module
+----------------------
+
+.. automodule:: synthpops.utils
    :members:
    :undoc-members:
    :show-inheritance:

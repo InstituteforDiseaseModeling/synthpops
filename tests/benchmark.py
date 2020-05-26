@@ -1,32 +1,28 @@
-# Benchmark the simulation
+# Benchmark and profile SynthPops
 
 import sciris as sc
 import synthpops as sp
 
-to_profile = 'sample_n_contact_ages' # Must be one of the options listed below
+to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
 
-func_options = {'make_popdict': sp.make_popdict,
-                'make_contacts': sp.make_contacts,
-                'sample_n_contact_ages': sp.sample_n_contact_ages,
-                }
+func_options = {
+    'make_population': sp.make_population,
+    'trim_contacts': sp.trim_contacts, # This is where most of the time goes for loading a population
+    'generate_synthetic_population': sp.generate_synthetic_population, # This is where most of the time goes for generating a population
+    'generate_all_households': sp.contact_networks.generate_all_households,
+    'generate_larger_households': sp.contact_networks.generate_larger_households,
+    'assign_rest_of_workers': sp.contact_networks.assign_rest_of_workers,
+    'make_popdict': sp.make_popdict,
+    'make_contacts': sp.make_contacts,
+    'sample_n_contact_ages': sp.sample_n_contact_ages,
+    }
 
-def make_contacts():
+def make_pop():
+    n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
+    max_contacts = {'S': 20, 'W': 10}
+    population = sp.make_population(n=n, max_contacts=max_contacts)
+    return population
 
-    # Copied from test_contacts.py
-    weights_dic = {'H': 4.11, 'S': 11.41, 'W': 8.07, 'R': 2.79}
-    weights_dic['R'] = 7 # increase the general community weight because the calibrate weight 2.79 doesn't include contacts from the general community that you don't know but are near!
-    n = 10000
-
-    kwargs = dict(weights_dic=weights_dic,
-                  use_social_layers=True,
-                  directed=False,
-                  use_student_weights=True) # Crashes if False
-
-    popdict = sp.make_popdict(n=n)
-    contacts = sp.make_contacts(popdict, **kwargs)
-
-    return contacts
-
-sc.profile(run=make_contacts, follow=func_options[to_profile])
-
-
+sc.tic()
+sc.profile(run=make_pop, follow=func_options[to_profile])
+sc.toc()

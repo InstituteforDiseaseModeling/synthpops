@@ -1,18 +1,23 @@
-import sciris as sc
+'''
+Generate contacts between people in the population, with many options possible
+'''
+
+import os
 import numpy as np
+import pandas as pd
+import numba as nb
+import sciris as sc
 import networkx as nx
-from .base import *
 from . import data_distributions as spdata
 from . import sampling as spsamp
+from . import base as spb
 from .config import datadir
-import os
-import pandas as pd
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
     Create a dictionary of n people with age, sex and loc keys
-    
+
     Args:
         n (int)                   : number of people
         uids (list)               : supplied uids of individuals
@@ -101,7 +106,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
 def make_contacts_generic(popdict, network_distr_args):
     """
     Create contact network regardless of age, according to network distribution properties. Can be used by webapp.
-    
+
     Args:
         popdict (dict)           : dictionary of all individuals
         network_distr_args (dict): network distribution parameters dictionary for average_degree, network_type, and directionality
@@ -160,14 +165,13 @@ def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, s
 
     """
 
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -223,16 +227,14 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
 
     """
 
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
-    n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -376,18 +378,18 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
     """
 
     # using a flat contact matrix
-    uids_by_age_dic = spsamp.get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    uids_by_age_dic = spsamp.spb.get_uids_by_age_dic(popdict)
+    # if country_location is None:
+    #     raise NotImplementedError
 
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
+    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -442,19 +444,15 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     """
 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
+    # if country_location is None:
+        # raise NotImplementedError
 
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
-    num_agebrackets = len(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
 
-    n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -574,7 +572,6 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
 def rehydrate(data):
     """
-<<<<<<< HEAD
     Populate popdict with uids, ages and contacts from generated microstructure data
     that was saved to data object
 
@@ -612,9 +609,89 @@ def save_synthpop(datadir, contacts, location):
     sc.saveobj(filename=filename, obj=contacts)
 
 
-def make_contacts_from_microstructure(datadir, location, state_location, country_location, n):
+def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):
     """
-    Make a popdict from synthetic household, school, and workplace files with uids.
+    Create contacts between members of group 1 and group 2, fixing the average degree, and the
+    probability of an edge between any two groups controlled by p_matrix if provided.
+    Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
+    This means not everyone in group 2 will have a contact with group 1.
+
+    Args:
+        group_1 (list)            : list of ids for group 1
+        group_2 (list)            : list of ids for group 2
+        average_degree (int)      : average degree across group 1 and 2
+        p_matrix (np.ndarray)     : probability matrix for edges between any two groups
+        force_cross_groups (bool) : If True, force each individual to have at least one contact with a member from the other group
+
+    Returns:
+        Popdict with edges added for nodes in the two groups.
+
+    Notes:
+        This method uses the Stochastic Block Model algorithm to generate contacts both between nodes in different groups
+    and for nodes within the same group. In the current version, fixing the average degree and p_matrix, the matrix of probabilities
+    for edges between any two groups is not supported. Future versions may add support for this.
+    """
+
+    if len(group_1) == 0 or len(group_2) == 0:
+        errormsg = f'This method requires that both groups are populated. If one of the two groups has size 0, then consider using the synthpops.trim_contacts() method, or checking that the groups provided to this method are correct.'
+        raise ValueError(errormsg)
+
+    if average_degree < 2:
+        errormsg = f'This method is likely to create disconnected graphs with average_degree < 2. In order to keep the group connected, use a higher average_degree for nodes across the two groups.'
+        raise ValueError(errormsg)
+
+    r1 = [int(i) for i in group_1]
+    r2 = [int(i) for i in group_2]
+
+    n1 = list(np.arange(len(r1)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
+
+    group = r1 + r2
+    sizes = [len(r1), len(r2)]
+
+    share_k_matrix = np.ones((2, 2))
+    share_k_matrix *= average_degree/np.sum(sizes)
+
+    if p_matrix is None:
+        p_matrix = share_k_matrix.copy()
+
+    G = nx.stochastic_block_model(sizes, p_matrix)
+
+    for i in n1:
+        group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+
+        # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
+        if len(group_2_neighbors) == 0:
+
+            random_group_2_j = np.random.choice(n2)
+            random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+            while len(random_group_2_neighbors) == 0:
+                random_group_2_j = np.random.choice(n2)
+                random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+
+            random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+
+            G.add_edge(i, random_group_2_j)
+            G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
+
+    E = G.edges()
+    for e in E:
+        i, j = e
+
+        id_i = group[i]
+        id_j = group[j]
+
+        popdict[id_i]['contacts'][setting].add(id_j)
+        popdict[id_j]['contacts'][setting].add(id_i)
+
+    return popdict
+
+
+def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
+    """
+    Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+    will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+    codes are only available to assign to populations within the US.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -622,19 +699,30 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         n (int)                   : number of people in the population
+        with_industry_code (bool) : If True, assign workplace industry code read in from cached file
 
     Returns:
-        A popdict of people with attributes, including their age and the ids of their contacts in the households ('H'),
-        schools ('S'), and workplace ('W') layers where contacts are clustered and thus the network is composed of groups
-        of people interacting with each other. For example, all household members are contacts of each other, and everyone
-        at the same school is a contact of each other.
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() - see below).
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
-    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    if with_industry_code:
+        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+    else:
+        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
@@ -650,51 +738,332 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
+        popdict[uid]['hhid'] = -1
+        popdict[uid]['scid'] = -1
+        popdict[uid]['wpid'] = -1
+        popdict[uid]['wpindcode'] = -1
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
     fh = open(households_by_uid_path, 'r')
-    for c, line in enumerate(fh):
+    for nh, line in enumerate(fh):
         r = line.strip().split(' ')
-
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['H'] = set(r)
             popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
     fh.close()
 
     fs = open(schools_by_uid_path, 'r')
-    for c, line in enumerate(fs):
+    for ns, line in enumerate(fs):
         r = line.strip().split(' ')
-
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['S'] = set(r)
             popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
     fs.close()
 
     fw = open(workplaces_by_uid_path, 'r')
-    for c, line in enumerate(fw):
+    if with_industry_code:
+        fi = open(workplaces_by_industry_code_path, 'r')
+        workplaces_by_industry_codes = np.loadtxt(fi)
+    for nw, line in enumerate(fw):
         r = line.strip().split(' ')
-
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
         for uid in r:
             popdict[uid]['contacts']['W'] = set(r)
             popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+            if with_industry_code:
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
     fw.close()
 
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids):
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
+    """
+    From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+    Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+    school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
+
+    Args:
+        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        workplaces_by_uids (list)                         : list of lists, where each sublist represents a workplace and the ids of the workers within it
+        workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() - see below).
+    """
+
     popdict = {}
 
     for uid in age_by_uid_dic:
         popdict[uid] = {}
-        popdict[uid]['age'] = age_by_uid_dic[uid]
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {'H': set(), 'S': set(), 'W': set()}
+        popdict[uid]['contacts'] = {}
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
         popdict[uid]['wpid'] = -1
+        popdict[uid]['wpindcode'] = -1
+        for k in ['H', 'S', 'W', 'C']:
+            popdict[uid]['contacts'][k] = set()
+
+    for nh, household in enumerate(homes_by_uids):
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+
+    for ns, school in enumerate(schools_by_uids):
+        for uid in school:
+            popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
+
+    for nw, workplace in enumerate(workplaces_by_uids):
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+            if workplaces_by_industry_codes is not None:
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+
+    return popdict
+
+
+def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20):
+    """
+    Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
+    will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
+    codes are only available to assign to populations within the US.
+
+    Args:
+        datadir (string)               : file path to the data directory
+        location (string)              : name of the location
+        state_location (string)        : name of the state the location is in
+        country_location (string)      : name of the country the location is in
+        n (int)                        : number of people in the population
+        with_industry_code (bool)      : If True, assign workplace industry code read in from cached file
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)      : default average degree in long term care facilities
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'), and long term care facilities ('LTCF'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within 'LTCF' are reduced
+        from fully connected.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
+
+    age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+
+    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+    facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
+
+    df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
+
+    age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+
+    popdict = {}
+    for uid in age_by_uid_dic:
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['snf_res'] = None
+        popdict[uid]['snf_staff'] = None
+        popdict[uid]['hhid'] = -1
+        popdict[uid]['scid'] = -1
+        popdict[uid]['wpid'] = -1
+        popdict[uid]['snfid'] = None
+        for k in ['H', 'S', 'W', 'C', 'LTCF']:
+            popdict[uid]['contacts'][k] = set()
+
+    facilities_by_uids = open(facilities_by_uid_path, 'r')
+    facilities_staff_uids = open(facilities_staff_by_uid_path, 'r')
+
+    for nf, (line1, line2) in enumerate(zip(facilities_by_uids, facilities_staff_uids)):
+        r1 = line1.strip().split(' ')
+        r2 = line2.strip().split(' ')
+
+        try:
+            facility = [int(i) for i in r1]
+            facility_staff = [int(i) for i in r2]
+        except:
+            facility = [i for i in r1]
+            facility_staff = [i for i in r2]
+
+        for uid in facility:
+            popdict[uid]['snf_res'] = 1
+            popdict[uid]['snfid'] = nf
+
+        for uid in facility_staff:
+            popdict[uid]['snf_staff'] = 1
+            popdict[uid]['snfid'] = nf
+
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, r1, r2, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+    homes_by_uids = open(households_by_uid_path, 'r')
+    for nh, line in enumerate(homes_by_uids):
+        r = line.strip().split(' ')
+        try:
+            household = [int(i) for i in r]
+        except:
+            household = [i for i in r]
+
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+
+    schools_by_uids = open(schools_by_uid_path, 'r')
+    for ns, line in enumerate(schools_by_uids):
+        r = line.strip().split(' ')
+        try:
+            school = [int(i) for i in r]
+        except:
+            school = [i for i in r]
+
+        for uid in school:
+            popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
+
+    workplaces_by_uids = open(workplaces_by_uid_path, 'r')
+    for nw, line in enumerate(workplaces_by_uids):
+        r = line.strip().split(' ')
+        try:
+            workplace = [int(i) for i in r]
+        except:
+            workplace = [i for i in r]
+
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+
+    return popdict
+
+
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
+    """
+    From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+    Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+    school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
+
+    Args:
+        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        workplaces_by_uids (list)                         : A list of lists, where each sublist represents a workplace and the ids of the workers within it
+        facilities_by_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it
+        facilities_staff_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it
+        workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)      : default average degree in long term care facilities
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'), and long term care facilities ('LTCF'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within 'LTCF' are reduced
+        from fully connected.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
+    """
+
+    popdict = {}
+    for uid in age_by_uid_dic:
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['snf_res'] = None
+        popdict[uid]['snf_staff'] = None
+        popdict[uid]['hhid'] = -1
+        popdict[uid]['scid'] = -1
+        popdict[uid]['wpid'] = -1
+        popdict[uid]['snfid'] = None
+        for k in ['H', 'S', 'W', 'C', 'LTCF']:
+            popdict[uid]['contacts'][k] = set()
+
+    for nf, facility in enumerate(facilities_by_uids):
+        facility_staff = facilities_staff_uids[nf]
+
+        for uid in facility:
+            popdict[uid]['snf_res'] = 1
+            popdict[uid]['snfid'] = nf
+
+        for uid in facility_staff:
+            popdict[uid]['snf_staff'] = 1
+            popdict[uid]['snfid'] = nf
+
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
 
     for nh, household in enumerate(homes_by_uids):
         for uid in household:
@@ -714,8 +1083,55 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
 
-
     return popdict
+
+
+def make_graphs(popdict, layers):
+    """
+    Make a dictionary of Networkx by layer.
+
+    Args:
+        popdict (dict) : dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer
+        layers (list)  : list of contact layers
+
+    Retuns:
+        Dictionary of Networkx graphs, one for each layer of contacts.
+    """
+    G_dic = {}
+
+    for i, layer in enumerate(layers):
+        G = nx.Graph()
+        for uid in popdict:
+            contacts = popdict[uid]['contacts'][layer]
+            for j in contacts:
+                G.add_edge(uid, j)
+        G_dic[layer] = G
+    return G_dic
+
+
+def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=None, country_location=None):
+    """
+    Write edgelists for each layer of contacts.
+
+    Args:
+        popdict (dict)            : dictionary of individuals with attributes, including their age, household ID, school ID, workplace ID, and the ids of their contacts by layer
+        layers (list)             : list of contact layers
+        G_dic (dict)              : dictionary of Networkx graphs, one for each layer of contacts
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        None
+    """
+    n = len(popdict)
+    layer_names = {'H': 'households', 'S': 'schools', 'W': 'workplaces'}
+    if G_dic is None:
+        G_dic = make_graphs(popdict, layers)
+    for layer in G_dic:
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+        file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
+        nx.write_edgelist(G_dic[layer], file_path, data=False)
 
 
 def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_location=None, country_location=None, sheet_name=None, options_args=None, activity_args=None, network_distr_args=None):
@@ -775,15 +1191,16 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
 
     ### Rationale behind default activity_args parameters
-        # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
-        # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
-        # worker_age_min: 23: to keep ages for different activities clean
-        # worker_age_max: 65: age at which people are able to retire in many places
-        # activity_args might also include different n_contacts for college kids ....
+    # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
+    # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
+    # worker_age_min: 23: to keep ages for different activities clean
+    # worker_age_max: 65: age at which people are able to retire in many places
+    # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing']
-    if options_args         is None: options_args = dict.fromkeys(options_keys, False)
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
+    if options_args is None: options_args = dict.fromkeys(options_keys, False)
+    if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -794,7 +1211,10 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if options_args['use_microstructure']:
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
-        popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'])
+        if options_args['use_long_term_care_facilities']:
+            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], options_args['average_LTCF_degree'])
+        else:
+            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_industry_code'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else:
@@ -819,6 +1239,13 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     return popdict
 
 
+@nb.njit((nb.int64[:], nb.int64))
+def choose_contacts(a, size):
+    ''' Numbafy np.random.choice(); about twice as fast '''
+    close_contacts = np.random.choice(a, size=size, replace=False)
+    return close_contacts
+
+
 def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
     """
@@ -838,33 +1265,35 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
 
     keys = trimmed_size_dic.keys()
 
+    if isinstance(list(contacts.keys())[0], str):
+        string_uids = True
+    else:
+        string_uids = False
+
     if use_clusters:
         raise NotImplementedError("Clustered method not yet implemented.")
 
     else:
-        for n, uid in enumerate(contacts):
-            for k in keys:
-                setting_contacts = contacts[uid]['contacts'][k]
-                if len(setting_contacts) > trimmed_size_dic[k]/2:
-                    close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
-                    contacts[uid]['contacts'][k] = set(close_contacts)
+
+        if not string_uids:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
+        else:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = list(contacts[uid]['contacts'][k])
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
 
         for n, uid in enumerate(contacts):
             for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
-
-        test_sizes = True
-        if test_sizes:
-
-            for k in keys:
-                sizes = []
-                for n, uid in enumerate(contacts):
-                    if len(contacts[uid]['contacts'][k]) > 0:
-                        sizes.append(len(contacts[uid]['contacts'][k]))
-                if verbose:
-                    print(k, np.mean(sizes))
-
     return contacts
 
 
@@ -875,6 +1304,7 @@ def show_layers(popdict, show_ages=False, show_n=20):
     Args:
         popdict (dict)   : dictionary of individuals with attributes, including their age and the ids of their close contacts
         show_ages (bool) : If True, show the ages of contacts, else show their ids
+        show_n (int)     : number of individuals to show contacts for
 
     Returns:
         None
@@ -897,6 +1327,6 @@ def show_layers(popdict, show_ages=False, show_n=20):
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print(uid)
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 print(k, popdict[uid]['contacts'][k])

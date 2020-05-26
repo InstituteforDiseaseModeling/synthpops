@@ -1,7 +1,7 @@
 import synthpops as sp
+import sciris as sc
 import json
 import os
-from copy import deepcopy
 
 #region pre-test setup
 datadir = sp.datadir  # point datadir where your data folder lives
@@ -16,14 +16,9 @@ n = 5000
 # load population into a dictionary of individuals who know who their contacts are
 options_args = {'use_microstructure': True}
 network_distr_args = {'Npop': n}
-contacts = sp.make_contacts(location=location, state_location=state_location,
+popdict = sp.make_contacts(location=location, state_location=state_location,
                             country_location=country_location, options_args=options_args,
                             network_distr_args=network_distr_args)
-
-# close_contacts_number = {'S': 10, 'W': 10}
-# CONTACTS = sp.trim_contacts(contacts, trimmed_size_dic=close_contacts_number)
-CONTACTS = contacts
-#endregion
 
 
 
@@ -84,7 +79,6 @@ def test_contacts_are_bidirectional():
     last_index_checked = 0
     is_debugging = False
     while len(checked_people) < num_people:
-        popdict = deepcopy(CONTACTS)
 
         uids = popdict.keys()
         uid_list = list(uids)
@@ -114,7 +108,6 @@ def test_contacts_are_bidirectional():
 def test_contact_layers_are_same_for_all_members():
     # Get four persons, one each with a home, work, school, and community layer
     is_debugging = False
-    popdict = deepcopy(CONTACTS)
     representative_people = {
         "H": None,
         "S": None,
@@ -180,8 +173,6 @@ def test_trimmed_contacts_are_bidirectional():
                            last_index_checked=last_index_checked,
                            checked_people=checked_people)
 
-        first_person = popdict[my_uid]
-
         person_json = make_person_json(popdict=popdict,
                                        target_uid=my_uid)
 
@@ -203,6 +194,14 @@ def test_trimmed_contacts_are_bidirectional():
     pass
 
 
+if __name__ == '__main__':
 
+    sc.tic()
+
+    test_contacts_are_bidirectional()
+    test_contact_layers_are_same_for_all_members()
+    test_trimmed_contacts_are_bidirectional()
+
+    sc.toc()
 
 
