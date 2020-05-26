@@ -25,7 +25,8 @@ if datadir is None:
 
 
 # Number of census age brackets to use
-nbrackets = [16, 20][0] # 20 is only partially supported
+nbrackets = [16, 20][0] # Choose how many age bins to use -- 20 is only partially supported
+matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 
 
 #%% Functions
