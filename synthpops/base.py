@@ -4,6 +4,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 
 import numpy as np
 from copy import deepcopy
+from . import config as cfg
 
 
 def norm_dic(dic):
@@ -224,7 +225,7 @@ def combine_matrices(matrix_dic, weights_dic, num_agebrackets):
     Returns:
         A contact matrix (``np.ndarray``) that is a linear combination of setting specific matrices given weights for each setting.
     """
-    M = np.zeros((num_agebrackets, num_agebrackets))
+    M = np.zeros((cfg.matrix_size, cfg.matrix_size))
     for setting_code in weights_dic:
         M += matrix_dic[setting_code] * weights_dic[setting_code]
     return M

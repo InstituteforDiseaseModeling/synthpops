@@ -6,11 +6,9 @@ import os
 import numpy as np
 import pandas as pd
 import sciris as sc
-import numba as nb
 from collections import Counter
-from copy import deepcopy
-from .base import *
-from .config import datadir
+from . import base as spb
+from .config import datadir, nbrackets
 
 
 def get_age_brackets_from_df(ab_file_path):
@@ -57,11 +55,11 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_gender_fraction_by_age_bracket_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_gender_fraction_by_age_bracket_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_gender_fraction_by_age_bracket_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
 
 
 def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -118,11 +116,11 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age distributions', country_location + '_age_bracket_distr_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_age_bracket_distr_{nbrackets}.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', state_location + '_age_bracket_distr_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_age_bracket_distr_{nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age distributions', location + '_age_bracket_distr_16.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_age_bracket_distr_{nbrackets}.dat')
 
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -369,9 +367,9 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'census_age_brackets.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, f'census_age_brackets_{nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'census_age_brackets.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, f'census_age_brackets_{nbrackets}.dat')
 
 
 def get_census_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -817,7 +815,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         size_count = Counter(sizes)
 
         size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
-        size_by_bracket_dic = get_age_by_brackets_dic(size_brackets)
+        size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
 
         bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
 
@@ -826,7 +824,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
             b = size_by_bracket_dic[s]
             bracket_count[b] += size_count[s]
 
-        size_distr = norm_dic(bracket_count)
+        size_distr = spb.norm_dic(bracket_count)
     # read in size distribution from data file
     else:
         if file_path is None:
@@ -840,7 +838,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
             else:
                 raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
         size_distr = dict(zip(df.size_bracket, df.percent))
-        size_distr = norm_dic(size_distr)
+        size_distr = spb.norm_dic(size_distr)
 
     return size_distr
 
@@ -904,7 +902,7 @@ def get_usa_school_sizes_by_bracket(datadir, location, state_location, country_l
     size_count = Counter(sizes)
 
     size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)
-    size_by_bracket_dic = get_age_by_brackets_dic(size_brackets)
+    size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
 
     bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
 

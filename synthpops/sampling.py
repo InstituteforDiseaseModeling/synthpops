@@ -12,7 +12,7 @@ from . import base as spb
 from . import data_distributions as spdata
 
 
-@nb.njit((nb.int64[:], nb.float64[:]))
+# @nb.njit((nb.int64[:], nb.float64[:]))
 def sample_single_dict(distr_keys, distr_vals):
     """
     Sample from a distribution.
@@ -38,7 +38,7 @@ def sample_single_dict(distr_keys, distr_vals):
     return sorted_keys[index]
 
 
-@nb.njit((nb.float64[:],), cache=True)
+# @nb.njit((nb.float64[:],), cache=True)
 def sample_single_arr(distr):
     """
     Sample from a distribution.
@@ -60,7 +60,7 @@ def sample_single_arr(distr):
     return index
 
 
-@nb.njit((nb.float64[:], nb.int64), cache=True)
+# @nb.njit((nb.float64[:], nb.int64), cache=True)
 def resample_age(age_dist_vals, age):
     """
     Resample age from single year age distribution.
@@ -171,6 +171,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
     """
     b = age_by_brackets_dic[age]
+    b = min(b, age_mixing_matrix.shape[0]-1) # Ensure it doesn't go past the end of the array
     b_contact = sample_single_arr(age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
