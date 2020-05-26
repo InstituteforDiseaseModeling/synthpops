@@ -11,7 +11,7 @@ from . import base as spb
 from .config import datadir
 
 # Number of census age brackets to use
-nbrackets = 16
+nbrackets = 20
 
 
 def get_age_brackets_from_df(ab_file_path):

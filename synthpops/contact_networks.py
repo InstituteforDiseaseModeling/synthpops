@@ -180,6 +180,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         homes[h][0] = hha
 
         b = age_by_brackets_dic[hha]
+        b = min(b, contact_matrix_dic['H'].shape[0]-1) # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
         age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64) # Convert to an array for faster processing
@@ -797,6 +798,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[b]]
         number_of_workers_left_in_bracket = np.sum(workers_left_in_bracket)
         if number_of_workers_left_in_bracket == 0:
+            b = min(b, contact_matrix_dic['W'].shape[1]-1) # Ensure it doesn't go past the end of the array
             contact_matrix_dic['W'][:, b] = 0
 
     for n, size in enumerate(workplace_sizes):

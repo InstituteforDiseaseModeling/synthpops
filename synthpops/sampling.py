@@ -171,6 +171,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
     """
     b = age_by_brackets_dic[age]
+    b = min(b, age_mixing_matrix.shape[0]-1) # Ensure it doesn't go past the end of the array
     b_contact = sample_single_arr(age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
