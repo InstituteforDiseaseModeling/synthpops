@@ -1,5 +1,5 @@
 """
-This module uses workplace data by industry from `North American Industry Classification System`_ (NAICS) codes to modify the workplace network to include contact patterns by industry.
+This module uses workplace data by industry from `North American Industry Classification System`_ (NAICS) codes  to model workplaces as specific industries and the contact patterns for workers within each workplace.
 
 .. _North American Industry Classification System: https://www.census.gov/eos/www/naics/
 """
@@ -25,11 +25,11 @@ import cmocean
 
 def get_establishments_by_industries_df(datadir, locations, state_location, country_location, level):
     """
-    Filter a pandas DataFrame on establishment sizes by industry for the locations of interest.
+    Filter a pandas DataFrame on establishment sizes by industry for the locations of interest at the county level.
 
     Args:
         datadir (string)            : The file path to the data directory.
-        locations (list of string)  : A list with the names of the locations.
+        locations (list of string)  : A list with the names of the locations at the county level.
         state_location (string)     : The name of the state the location is in.
         country_location (string)   : The name of the country the location is in.
         level (string)              : The scale of region at which data is available.
@@ -81,8 +81,8 @@ def get_industry_code(industry_type_df, industry_title):
     Get the 2017 NAICS Code based on industry title.
 
     Args:
-        industry_type_df (dataframe): The pandas DataFrame.
-        industry_title (string): The 2017 NAICS US Title.
+        industry_type_df (dataframe)    : The pandas DataFrame.
+        industry_title (string)         : The 2017 NAICS US Title.
 
     Returns:
         The 2017 NAICS US Code as an integer.
@@ -95,8 +95,8 @@ def get_main_industry_code(industry_type_df, industry_title):
     Get the 2-digit 2017 NAICS US Code based on industry title.
 
     Args:
-        industry_type_df (DataFrame): The pandas DataFrame.
-        industry_title (string): The 2017 NAICS US Title.
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_title (string)         : The 2017 NAICS US Title.
 
     Returns:
         The 2-digit 2017 NAICS US Code as an integer.
@@ -112,8 +112,8 @@ def get_industry_title(industry_type_df, industry_code):
     Get the 2017 NAICS US Title based on full industry code.
 
     Args:
-        industry_type_df (DataFrame): The pandas DataFrame.
-        industry_code (int): The 2017 NAICS US Code.
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_code (int)             : The 2017 NAICS US Code.
 
     Returns:
         The 2017 NAICS US Title.
@@ -126,8 +126,8 @@ def get_main_industry_title(industry_type_df, industry_code):
     Get the main 2017 NAICS US Title based on 2-digit industry code.
 
     Args:
-        industry_type_df (DataFrame): The pandas DataFrame.
-        industry_code (int): The 2-digit 2017 NAICS US Code.
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_code (int)             : The 2-digit 2017 NAICS US Code.
 
     Returns:
         The 2017 NAICS US Title.
@@ -144,8 +144,8 @@ def get_simplified_industry_title(simplified_industry_type_df, industry_code):
     Get the simplified 2017 NAICS US Title from the 2-digit 2017 NAICS Code.
 
     Args:
-        simplified_industry_type_df (DataFrame): The pandas DataFrame
-        industry_code (int): The 2-digit 2017 NAICS US Code.
+        simplified_industry_type_df (DataFrame) : The pandas DataFrame
+        industry_code (int)                     : The 2-digit 2017 NAICS US Code.
 
     Returns:
         The 2017 NAICS US Title for the 2-digit code.
@@ -158,8 +158,8 @@ def get_simplified_industry_code(simplified_industry_type_df, industry_title):
     Get the simplified 2017 NAICS US Code from the full title.
 
     Args:
-        simplified_industry_type_df (DataFrame): The pandas DataFrame.
-        industry_title (string): The full 2017 NAICS US Title.
+        simplified_industry_type_df (DataFrame) : The pandas DataFrame.
+        industry_title (string)                 : The full 2017 NAICS US Title.
 
     Returns:
         The 2-digit 2017 NAICS US Code.
@@ -172,11 +172,11 @@ def get_establishment_size_brackets_df(datadir, locations, state_location='Washi
     Get size brackets DataFrame from Bureau of Labor Statistics (BLS) 2017 Data.
 
     Args:
-        datadir (string): The file path to the data directory.
-        locations (list): A list with the names of the locations.
-        state_location (string): The name of the state the location is in.
-        country_location (string): The name of the country the location is in.
-        level (string): The scale of region at which data is available.
+        datadir (string)            : The file path to the data directory.
+        locations (list)            : A list with the names of the locations at the county level.
+        state_location (string)     : The name of the state the location is in.
+        country_location (string)   : The name of the country the location is in.
+        level (string)              : The scale of region at which data is available.
 
     Returns:
         A Dataframe of size brackets for establishments in the United States.
