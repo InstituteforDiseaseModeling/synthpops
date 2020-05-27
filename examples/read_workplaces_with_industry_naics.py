@@ -11,8 +11,10 @@ if __name__ == '__main__':
     # default values for hhid, scid, wpid, wnaics = -1
     # everyone has a home so no one should have hhid = -1
     # not everyone will be in a school or workplace so some of these will be -1
+    print(population[uids[0]].keys())
     for i in range(100):
         person = population[uids[i]]
-        print(person.keys())
-        print('age', person['age'], 'household id', person['hhid'], 'school id', person['scid'], 'workplace id',
-              person['wpid'], 'workplace 2017 code', person['wpindcode'])
+        print(f"\tage:{person['age']}\thousehold id:{person['hhid']}\tschool id:{person['scid']}"
+              f"\tworkplace id:{person['wpid']}\tworkplace 2017 code:{person['wpindcode']}")
+    #  Once more at the end of the big print
+    print(population[uids[0]].keys())
