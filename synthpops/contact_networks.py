@@ -247,7 +247,8 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
-    age_by_uid_dic = {}
+    # age_by_uid_dic = dict()
+    age_by_uid_dic = sc.objdict()
     homes_by_uids = []
 
     for h, home in enumerate(homes):
