@@ -1,0 +1,262 @@
+Typically my style of tests go like this:
+Set some kind of input data that I should be able to make a prediction about
+Run the software
+Load up the outputs, and compare them to the prediction
+11:41
+OK, then I'll focus on the IDM repo.
+
+Dina Mistry  11:41 AM
+I see
+11:41
+okay
+
+Chris Wiswell  11:42 AM
+Mary added some a few weeks ago that were of the "I ran the stuff, nothing crashed, and a variable got populated,"  which is helpful, but a little bit different.
+
+Dina Mistry  11:43 AM
+yep, but it gives me an idea of how testing is thought of. It's a bit different than I what I would do normally.
+11:44
+ok I'm looking through the tests folder now to see what is already done but you could probably improve on
+
+Chris Wiswell  11:45 AM
+Thanks for your help!
+11:45
+We can also talk about "Is this impractical."
+
+Dina Mistry  11:45 AM
+yep
+
+Chris Wiswell  11:46 AM
+I can make up some examples:
+If I had a population with no one under 18, would I have populated school layers?
+If over half the people were under 18, would there be more, or more densely populated school groups?
+11:47
+I was reasonably happy with "If I am a contact of a person in some layer, then they are a contact of me," but while I thought it was cool, maybe it didn't add much, it is hard to tell.
+
+Dina Mistry  11:47 AM
+okay - so the method for sure would not work in that case because households are first created with a reference person, and that reference person data is specifically only including 18+
+11:47
+so no 18+ year olds, then no households, and then no schools
+
+Chris Wiswell  11:48 AM
+Totally cool, I remember reading that! So we have some requirements. :slightly_smiling_face:
+11:49
+The reference person thing sounds like a place I can add tests.
+
+Dina Mistry  11:49 AM
+yes
+
+Chris Wiswell  11:49 AM
+Docs are here: https://institutefordiseasemodeling.github.io/synthpops/usage.html
+
+Dina Mistry  11:49 AM
+yes
+
+Chris Wiswell  11:50 AM
+I had a big mail with Charles / Mary about this, let me look it up
+
+Dina Mistry  11:50 AM
+?
+
+Chris Wiswell  11:52 AM
+Oh! He was asking about the test coverage, and that was the first time I saw the docs.
+11:54
+So I read most of them and had some feedback:
+Some persons can be contacts in more than one layer (my kids share a household and a school): sounds like something to test!
+Numbers of contacts should be relative to age mixing matrices (you define the matrix, the households should be built proportional to that)
+11:55
+So if I define a weird matrix, I should get households that are predictably weird.
+
+Dina Mistry  11:55 AM
+Ah okay. so I would say that if you are looking to test the reference person, in the code base right now that is referred to as the head of the household (a more specific term for the US). The method for that is within contact_networks.py
+
+Chris Wiswell  11:55 AM
+This helps prove that if I use "normal" matrices, that the resulting "normal" households are probably right.
+
+Dina Mistry  11:55 AM
+okay, sounds good.
+11:56
+Any matrices that you work with then, should be row normalized.
+
+Chris Wiswell  11:57 AM
+Cool, can we look at this? https://institutefordiseasemodeling.github.io/synthpops/households.html
+
+Dina Mistry  11:57 AM
+So for example, most of the matrices that we currently use from the Prem et al paper, represent for each matrix element m_ij some sense of average number of contacts of age j for the average person of age i
+11:57
+Okay, what about that page? (edited) 
+
+Chris Wiswell  11:58 AM
+Second graphic is a graph with age buckets as columns, and family sizes as rows.
+
+Dina Mistry  11:58 AM
+yep
+
+Chris Wiswell  11:58 AM
+I gather that each cell tells me about the probability of the reference person for a given household being in an age bucked.
+11:59
+So: If my family size is 3, the odds of the reference person being 20-24 years old are 757 / sum(this row)
+
+Dina Mistry  11:59 AM
+yes
+
+Chris Wiswell  11:59 AM
+Great! Do I get to configure this table myself, or is it hardcoded somewhere?
+
+Dina Mistry  12:03 PM
+in data_distributions.py, you can look at get_head_age_by_size_distr and either use the data available, which is only available for the US at the moment, or you can use file_path parameter to point at your own file that matches the format on the docs page
+
+Chris Wiswell  12:04 PM
+Can you help me find that format? I can't see it anywhere.
+
+Dina Mistry  12:04 PM
+sure, here you go: https://www.dropbox.com/s/ueb6pycsmxmn69i/household_head_age_and_size_count.dat?dl=0
+12:05
+it's agnostic at the moment to the names for all columns but the family_size column
+
+Chris Wiswell  12:06 PM
+Ah, cool.
+family_size,household_head_age_18_20,household_head_age_20_24,household_head_age_25_29,household_head_age_30_34,household_head_age_35_39,household_head_age_40_44,household_head_age_45_49,household_head_age_50_54,household_head_age_55_64,household_head_age_65_74,household_head_age_75_99
+2,163,999,2316,2230,1880,1856,2390,3118,9528,9345,5584
+3,115,757,1545,1907,2066,1811,2028,2175,3311,1587,588
+4,135,442,1029,1951,2670,2547,2368,1695,1763,520,221
+5,61,172,394,905,1429,1232,969,683,623,235,94
+6,25,81,153,352,511,459,372,280,280,113,49
+7,24,33,63,144,279,242,219,115,157,80,16
+
+Dina Mistry  12:06 PM
+yep
+
+Chris Wiswell  12:06 PM
+I see ".dat" file and was worried I'd need to load it through a database tool or whatever.
+
+Dina Mistry  12:07 PM
+Nah. I've for whatever reason adopted .dat as my go to extension. Probably could switch to csv or txt but old habits die hard  and all that.
+
+Chris Wiswell  12:08 PM
+Understood! Resaving as csv and opening in Excel worked nicely here.
+12:08
+So a super fast test I could build would be to load the data from a .txt file, a .csv, and an .xls and make sure "it loaded."
+
+Dina Mistry  12:09 PM
+If you wanted to use a different file, with more or less age brackets or groups for the head of the household, you'll need to specify those age groups when you work with contact_networks.generate_household_head_age_by_size
+:+1:
+1
+
+
+Chris Wiswell  12:09 PM
+I'd probably follow that with "And the size 2 family has a relative probability for 18-20 of 163, and the size 7 family has a relative probability for 75-79 of 16"
+12:10
+I can probably search the repo, but if you can point me to a place where you already call that method in the expected way, that would help.
+
+Dina Mistry  12:11 PM
+data_distributions.get_head_age_by_size_distr
+:+1:
+1
+
+
+Chris Wiswell  12:11 PM
+It also helps that this .dat file is pretty small, so if I need to save a copy during testing it won't hurt anybody (maybe not the case with big .dtk files)
+
+Dina Mistry  12:12 PM
+it takes in matrices that may have counts of households and converts them into a normalized distribution for each family size possible
+12:14
+for reference, this is what a file with those age brackets might look like: https://www.dropbox.com/s/gwuvc462fs1eojj/head_age_brackets.dat?dl=0
+
+Chris Wiswell  12:22 PM
+Cool. Well, I'm going to set myself up for writing some tests and then I'm going to take a walk or something and eat lunch. Have a good day!
+
+Dina Mistry  12:22 PM
+that sounds great. thanks! enjoy the rest of your day!
+
+Chris Wiswell  4:59 PM
+Hey Dina, got a moment?
+
+Dina Mistry  4:59 PM
+yes
+
+Chris Wiswell  4:59 PM
+I'm running the synthpops examples, and I just ran load_contacts_and_show_some_layers.
+4:59
+This is one of the few samples that doesn't require covasim.
+
+Dina Mistry  5:00 PM
+ok
+
+Chris Wiswell  5:00 PM
+So I look at the output, and I see a lot of this:
+5:00
+f3577f7e-a127-4b 28
+H [12, 40, 44]
+S []
+W [28, 41, 41, 41, 43, 47, 51, 51, 55, 57, 57]
+C []
+5:00
+So, is this showing me that there are a lot of duplicate contacts in this person's work layer?
+
+Dina Mistry  5:01 PM
+if you look at line 64 it says parameter show_ages is set to True, so you're seeing the ages of that person's contacts not the contact ids
+
+Chris Wiswell  5:01 PM
+Oh!
+5:02
+OK OK, so it is showing the ages instead of the individuals. In that context that makes sense.  Thanks!
+
+Dina Mistry  5:03 PM
+yep. if there's more text that can be added to make this clearer, feel free to add that
+:+1:
+1
+
+5:03
+this was probably done in some haste so could be fleshed out for sure.
+
+Chris Wiswell  5:03 PM
+K. First PR will probably be a couple of example changes. Is it okay if I change the text spacing?
+
+Dina Mistry  5:04 PM
+What were you thinking?
+
+Chris Wiswell  5:04 PM
+Let me give you an example!
+5:06
+Case 1:
+def show_layers(popdict,show_ages=False):
+Becomes:
+def show_layers(popdict, show_ages=False):
+Case 2:
+contacts = sp.make_contacts(location=location,state_location=state_location,country_location=country_location,options_args=options_args,network_distr_args=network_distr_args)
+Becomes:
+contacts = sp.make_contacts(location=location, state_location=state_location, country_location=country_location,
+                                options_args=options_args, network_distr_args=network_distr_args)
+PyCharm does all of this automatically
+
+Dina Mistry  5:06 PM
+sure
+
+Chris Wiswell  5:06 PM
+Thanks!
+
+Chris Wiswell  5:13 PM
+I'm going to be opening a couple of tickets but don't pay much attention, these are tickets that I'll be making a pull request to fix myself.
+
+Dina Mistry  5:13 PM
+sure
+5:14
+I've got a few issues like that myself
+5:14
+on the amath repo
+
+Chris Wiswell  5:15 PM
+Ooh! I should put the tickets there so they are not public facing.
+
+Dina Mistry  5:16 PM
+that could be done. you can put me as a reviewer before they are merged
+:+1:
+1
+
+
+Chris Wiswell  5:23 PM
+Has anyone written down which sex is 1 and which is 0? I don't know if there is a standard for this.
+
+Dina Mistry  5:26 PM
+it's in sampling.py, first appears in line 283, 0 for female, 1 for male
