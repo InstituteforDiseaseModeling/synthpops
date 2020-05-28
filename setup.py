@@ -42,7 +42,7 @@ setup(
         "numpy",
         "scipy",
         "pandas",
-        "numba",
+        "numba==0.48.0",
         "networkx",
         "cmocean",
         "graphviz",
