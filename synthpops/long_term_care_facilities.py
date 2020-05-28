@@ -117,8 +117,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population you are working with
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This is a placeholder range. Users will need to change to fit whatever populaton you are working with
-                # elif np.random.binomial(1, 0.04):
-                    # ai = spsamp.sample_from_range(single_year_age_distr,0, 5)
+
             # ai = spsamp.resample_age(single_year_age_distr, ai)
             ai = custom_resample_age(single_year_age_distr, ai)
 
