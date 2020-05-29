@@ -95,7 +95,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     popdict = {}
     for i, uid in enumerate(uids):
         popdict[uid] = {}
-        popdict[uid]['age'] = ages[i]
+        popdict[uid]['age'] = int(ages[i])
         popdict[uid]['sex'] = sexes[i]
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {'M': set()}
@@ -616,6 +616,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
     This means not everyone in group 2 will have a contact with group 1.
 
+    The members of group 1 and group 2 should be distinct and non-overlapping.
+
     Args:
         group_1 (list)            : list of ids for group 1
         group_2 (list)            : list of ids for group 2
@@ -648,6 +650,9 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
+
+    for i in group:
+        popdict[i]['contacts'].setdefault(setting, set())
 
     # group is less than the average degree, so return a fully connected graph instead
     if len(group) <= average_degree:
