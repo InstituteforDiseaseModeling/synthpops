@@ -610,4 +610,3 @@ def check_all_residents_are_connected_to_staff(popdict):
 
     if flag:
         print('All LTCF residents have at least one contact with a staff member.')
-
