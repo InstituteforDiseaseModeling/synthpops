@@ -82,28 +82,12 @@ class HouseholdsTest(unittest.TestCase):
                          msg=f"Each person should be in one household. Total household pop: {sum(sizes)}, "
                              f"Population size: {len(my_seapop_500)}.")
 
-    def test_seattle_age_brackets(self):
-        self.is_debugging = True
-        age_brackets = sp.get_census_age_brackets(
-            datadir=sp.datadir,
-            state_location="Washington",
-            country_location="usa",
-            use_default=False
-        )
-        age_brackets_json = {}
-        for k in age_brackets:
-            age_brackets_json[k] = age_brackets[k].tolist()
+    def verify_age_bracket_dictionary_correct(self, age_by_brackets_dic):
         if self.is_debugging:
-            with open(f"DEBUG_{self._testMethodName}_age_brackets.json","w") as outfile:
-                json.dump(age_brackets_json, outfile, indent=4)
-        age_by_brackets_dic = sp.get_age_by_brackets_dic(
-            age_brackets=age_brackets
-        )
-        if self.is_debugging:
-            with open("DEBUG_age_by_brackets_dic.json","w") as outfile:
-                age_bb_json = {}
-                for k in age_by_brackets_dic:
-                    age_bb_json[str(k)] = age_by_brackets_dic[k]
+            age_bb_json = {}
+            for k in age_by_brackets_dic:
+                age_bb_json[int(k)] = age_by_brackets_dic[k]
+            with open(f"DEBUG_{self._testMethodName}_age_dict.json","w") as outfile:
                 json.dump(age_bb_json, outfile, indent=4, sort_keys=True)
 
         max_year = 100
@@ -131,7 +115,57 @@ class HouseholdsTest(unittest.TestCase):
             previous_age = age
         self.assertLess(expected_bucket, max_year, msg=f"There should be less buckets than ages. Got "
                                                    f"{expected_bucket} for {max_year} ages.")
-
-    def test_custom_age_backets(self):
         pass
+
+    def test_seattle_age_brackets(self):
+        self.is_debugging = False
+        age_brackets = sp.get_census_age_brackets(
+            datadir=sp.datadir,
+            state_location="Washington",
+            country_location="usa",
+            use_default=False
+        )
+        age_brackets_json = {}
+        for k in age_brackets:
+            age_brackets_json[k] = age_brackets[k].tolist()
+        if self.is_debugging:
+            with open(f"DEBUG_{self._testMethodName}_age_brackets.json","w") as outfile:
+                json.dump(age_brackets_json, outfile, indent=4)
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+            age_brackets=age_brackets
+        )
+        self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
+
+    def test_custom_age_brackets(self):
+        self.is_debugging = True
+        college_years = list(range(19, 23))
+        early_career = list(range(23, 30))
+        mid_career = list(range(30, 50))
+        late_career = list(range(50, 65))
+        retirement = list(range(65, 80))
+        managed_care = list(range(80, 100))
+        my_age_brackets = {
+            0: [0, 1],
+            1: [2, 3, 4],
+            2: [5, 6, 7, 8, 9, 10, 11],
+            3: [12, 13, 14],
+            4: [15, 16, 17, 18],
+            5: college_years,
+            6: early_career,
+            7: mid_career,
+            8: late_career,
+            9: retirement,
+            10: managed_care
+        }
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+            age_brackets=my_age_brackets
+        )
+
+        self.verify_age_bracket_dictionary_correct(
+            age_by_brackets_dic=age_by_brackets_dic
+        )
+        pass
+
+    def test_seattle_age_distro_honored(self):
+
 
