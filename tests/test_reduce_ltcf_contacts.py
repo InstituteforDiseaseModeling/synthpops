@@ -80,10 +80,10 @@ if __name__ == '__main__':
 
     k = 20
 
-    # # Create a population with LTCF
-    # population = sp.make_population(n, generate=generate, with_facilities=with_facilities, use_two_group_reduction=True, average_LTCF_degree=20)
-    #
-    # # Check to see if all residents are in contact with at least one staff member
-    # sp.check_all_residents_are_connected_to_staff(population)
+    # Create a population with LTCF
+    population = sp.make_population(n, generate=generate, with_facilities=with_facilities, use_two_group_reduction=True, average_LTCF_degree=20)
+
+    # Check to see if all residents are in contact with at least one staff member
+    sp.check_all_residents_are_connected_to_staff(population)
 
     create_reduced_contacts_with_group_types = test_create_reduced_contacts_with_group_types()
