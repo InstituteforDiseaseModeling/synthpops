@@ -2,6 +2,7 @@ import unittest
 from copy import deepcopy
 import synthpops as sp
 
+
 seapop_500 = sp.generate_synthetic_population(
     n=500,
     datadir=sp.datadir,
@@ -23,6 +24,11 @@ import json
 class HouseholdsTest(unittest.TestCase):
     def setUp(self) -> None:
         self.is_debugging = False
+        self.d_datadir = sp.datadir
+        self.d_location = "seattle_metro"
+        self.d_state_location = "Washington"
+        self.d_country_location = "usa"
+        self.d_sheet_name="United States of America"
         pass
 
     def tearDown(self) -> None:
@@ -166,6 +172,171 @@ class HouseholdsTest(unittest.TestCase):
         )
         pass
 
-    def test_seattle_age_distro_honored(self):
+    def test_contact_matrix_has_all_layers(self):
+        contact_matrix = sp.get_contact_matrix_dic(
+            datadir=sp.datadir,
+            sheet_name="United States of America"
+        )
+        for layer in ['H','S','W','C']:
+            self.assertIn(layer, contact_matrix)
+        pass
 
+    def get_seattle_household_size_distro(self):
+        hh_distro = sp.get_household_size_distr(
+            datadir=self.d_datadir,
+            location=self.d_location,
+            state_location=self.d_state_location,
+            country_location=self.d_country_location
+        )
+        return hh_distro
 
+    def verify_portion_honored(self, probability_buckets, count_buckets, portion=0.5):
+        if self.is_debugging:
+            print(f"prob buckets: {probability_buckets}")
+            print(f"count buckets: {count_buckets}")
+        num_portions = 1.0 / portion
+        curr_portion = 1
+        excess_probability = 0
+        excess_count = 0
+        sum_count = sum(count_buckets)
+        count_portion = int(sum_count * portion)
+
+        prob_indexes = []
+        count_indexes = []
+
+        bucket_index = 0
+        count_index = 0
+        while curr_portion < num_portions + 1:
+            total_probability = excess_probability
+            # for loop test first until portion * num_portions == 1.0
+            while total_probability < portion and bucket_index < len(probability_buckets): # Get bucket index where total prob > portion
+                total_probability += probability_buckets[bucket_index]
+                bucket_index += 1
+            prob_indexes.append(bucket_index)
+            excess_probability = total_probability - portion
+
+            total_counts = excess_count
+            while total_counts < count_portion and count_index < len(count_buckets):
+                total_counts += count_buckets[count_index]
+                count_index += 1
+            count_indexes.append(count_index)
+            excess_count = total_counts - count_portion
+            curr_portion += 1
+            if self.is_debugging:
+                print(f"prob_indexes: {prob_indexes}")
+                print(f"count_indexes: {count_indexes}")
+
+        if self.is_debugging:
+            print(f"prob_indexes: {prob_indexes}")
+            print(f"count_indexes: {count_indexes}")
+        for x in range (len(prob_indexes)):
+            index_diff = abs(prob_indexes[x] - count_indexes[x])
+            self.assertLessEqual(index_diff, 1,
+                                 msg="indexes shouldn't be off by more than one. "
+                                     f"probability_indexes: {prob_indexes} "
+                                     f"count_indexes: {count_indexes}")
+
+    def test_seattle_household_size_distro_honored(self):
+        self.is_debugging = False
+        hh_distro = self.get_seattle_household_size_distro()
+        hh_sizes = sp.generate_household_sizes(500, hh_distro)
+
+        hh_size_list = list(hh_sizes)  # Comes as np.ndarray
+        fewest_houses = min(hh_size_list)
+        fewest_index = hh_size_list.index(fewest_houses)
+
+        most_houses = max(hh_size_list)
+        most_index = hh_size_list.index(most_houses)
+
+        highest_probability = max(hh_distro.values())
+        lowest_probability = min(hh_distro.values())
+
+        most_houses_probability = hh_distro[most_index + 1] # hh_distro is 1 indexed
+        fewest_houses_probability = hh_distro[fewest_index + 1]
+
+        self.assertEqual(highest_probability, most_houses_probability,
+                         msg="The most common household size should be the size with the highest probability")
+
+        prob_bucket_list = list(hh_distro.values())
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.25
+        )
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.2
+        )
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.1
+        )
+
+    def test_custom_household_size_distro_honored(self):
+        self.is_debugging = False
+        custom_distro = {
+            1: 0.25,
+            2: 0.075,
+            3: 0.10,
+            4: 0.30,
+            5: 0.05,
+            6: 0.05,
+            7: 0.175
+        }
+        hh_sizes = sp.generate_household_sizes(500, custom_distro)
+
+        hh_size_list = list(hh_sizes)  # Comes as np.ndarray
+        fewest_houses = min(hh_size_list)
+        fewest_index = hh_size_list.index(fewest_houses)
+
+        most_houses = max(hh_size_list)
+        most_index = hh_size_list.index(most_houses)
+
+        highest_probability = max(custom_distro.values())
+        lowest_probability = min(custom_distro.values())
+
+        most_houses_probability = custom_distro[most_index + 1] # hh_distro is 1 indexed
+        fewest_houses_probability = custom_distro[fewest_index + 1]
+
+        self.assertEqual(highest_probability, most_houses_probability,
+                         msg="The most common household size should be the size with the highest probability")
+
+        prob_bucket_list = list(custom_distro.values())
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.25
+        )
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.2
+        )
+        self.verify_portion_honored(
+            probability_buckets=prob_bucket_list,
+            count_buckets=hh_size_list,
+            portion=0.1
+        )
+
+    def test_household_size_distribution_adds_up(self):
+        hh_distro = self.get_seattle_household_size_distro()
+
+        total_sizes = sum(hh_distro.values())
+        self.assertNotIn(0, hh_distro,
+                         msg="Each key is a household size, 0 shouldn't be here")
+        for x in range(1, 8):
+            self.assertIn(x, hh_distro,
+                          msg=f"Households come in 1 to 7. Size {x} should be in here.")
+        self.assertEqual(total_sizes, 1,
+                         msg=f"This is a probability distribution that should add up to 1. Got "
+                             f"{total_sizes} from this: {hh_distro}")
+        if self.is_debugging:
+            print(total_sizes)
+            print(hh_distro)
+
+if __name__ == "__main__":
+    test = HouseholdsTest()
+    test.setUp()
+    test.test_seattle_age_distro_honored()
