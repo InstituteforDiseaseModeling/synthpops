@@ -649,17 +649,13 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     group = r1 + r2
     sizes = [len(r1), len(r2)]
 
-    print('hi i am a trial number!', np.random.random())
-
     # group is less than the average degree, so return a fully connected graph instead
     if len(group) <= average_degree:
         G = nx.complete_graph(len(group))
-        print('hi i am a trial number 2!', np.random.random())
 
     # group 2 is less than 2 people so everyone in group 1 must be connected to that lone group 2 individual, create a fully connected graph then remove some edges at random to preserve the degree distribution
     elif len(group_2) < 2:
         G = nx.complete_graph(len(group))
-        print('hi i am a trial number 3!', np.random.random())
         for i in n1:
             group_1_neighbors = [j for j in G.neighbors(i) if j in n1]
 
@@ -671,6 +667,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
                     G.remove_edge(i, j)
+                    group_1_neighbors.remove(j)
 
     else:
         share_k_matrix = np.ones((2, 2))
