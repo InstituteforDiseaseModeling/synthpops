@@ -42,8 +42,10 @@ def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
     global nbrackets
     nbrackets = n
+    if nbrackets not in [16, 20]:
+        print(f'Note: current supported bracket choices are 16 or 20, use {nbrackets} at your own risk.')
     print(f'Done: number of brackets is set to {n}.')
-    return datadir
+    return nbrackets
 
 
 def validate(verbose=True):
