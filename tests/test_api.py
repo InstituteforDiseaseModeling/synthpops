@@ -33,7 +33,7 @@ def test_plot_pop(do_show=False, pause=0.2):
     indices = pl.randint(0, n, 20)
 
     max_contacts = {'S': 20, 'W': 10}
-    population = sp.make_population(n=n, max_contacts=max_contacts)
+    population = sp.make_population(n=n, max_contacts=max_contacts, as_objdict=True)
 
     nside = np.ceil(np.sqrt(n))
     x, y = np.meshgrid(np.arange(nside), np.arange(nside))
