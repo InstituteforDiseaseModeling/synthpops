@@ -1,6 +1,5 @@
 from .config import *
 from .base import *
-from .utils import *
 from .data_distributions import *
 from .sampling import *
 from .contacts import *
