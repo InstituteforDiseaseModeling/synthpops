@@ -15,7 +15,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20):
+def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -34,6 +34,9 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
 
     '''
 
+    if rand_seed is not None:
+        sp.set_seed(rand_seed)
+
     default_n = 10000
     default_max_contacts = {'S': 20, 'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
@@ -49,8 +52,12 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
         else:
             generate = True # If not found, generate
 
+    # Default to False, unless LTCF are requested
     if generate is None:
-        generate = False
+        if with_facilities:
+            generate = True
+        else:
+            generate = False
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 

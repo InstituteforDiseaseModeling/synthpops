@@ -667,6 +667,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
                     G.remove_edge(i, j)
+                    group_1_neighbors.remove(j)
 
     else:
         share_k_matrix = np.ones((2, 2))
