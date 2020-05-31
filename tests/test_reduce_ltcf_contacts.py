@@ -20,7 +20,7 @@ country_location = 'usa'
 
 
 def test_create_reduced_contacts_with_group_types():
-    n = 10000
+    n = 1000
     average_LTCF_degree = 20
 
     # First create contact_networks_facilities
@@ -39,8 +39,6 @@ def test_create_reduced_contacts_with_group_types():
     for n, uid in enumerate(uids):
         layers = contacts_group_1[uid]['contacts']['LTCF']
         contacts_group_1_list.append(layers)
-    print(*contacts_group_1_list)
-    print(len(contacts_group_1_list))
 
     # Home contacts
     network_distr_args = {'average_degree': average_LTCF_degree, 'network_type': 'poisson_degree', 'directed': True}
@@ -48,20 +46,29 @@ def test_create_reduced_contacts_with_group_types():
     contacts_group_2_list = []
     for n, uid in contacts_group_2.items():
         contacts_group_2_list.append(uid)
-    print(*contacts_group_2_list)
-    print(len(contacts_group_2_list))
 
     # Now reduce contacts
     reduced_contacts = sp.create_reduced_contacts_with_group_types(popdict, contacts_group_1, contacts_group_2, 'LTCF',
                                                                    average_degree=average_LTCF_degree,
                                                                    force_cross_edges=True)
-    print(len(reduced_contacts))
+
+    assert len(reduced_contacts)*2 == len(contacts_group_1_list) + len(contacts_group_2_list)
+
+    for i in popdict:
+        person = reduced_contacts[i]
+        if person['snf_res'] == 1:
+
+            contacts = person['contacts']['LTCF']
+            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+
+            if len(staff_contacts) == 0:
+                errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
+                raise ValueError(errormsg)
 
     return reduced_contacts
 
 
 if __name__ == '__main__':
-
     datadir = sp.datadir
     country_location = 'usa'
     state_location = 'Washington'
@@ -72,18 +79,21 @@ if __name__ == '__main__':
     with_industry_code = False
     generate = True
 
-    n = 2.5e3
+    n = 1000
     n = int(n)
 
-    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities}
+    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code,
+                    'use_long_term_care_facilities': with_facilities}
     network_distr_args = {'Npop': int(n)}
 
     k = 20
 
     # Create a population with LTCF
-    population = sp.make_population(n, generate=generate, with_facilities=with_facilities, use_two_group_reduction=True, average_LTCF_degree=20)
+    population = sp.make_population(n, generate=generate, with_facilities=with_facilities, use_two_group_reduction=True,
+                                    average_LTCF_degree=20)
 
     # Check to see if all residents are in contact with at least one staff member
     sp.check_all_residents_are_connected_to_staff(population)
 
+    # Create reduced contacts from 2 groups of contacts
     create_reduced_contacts_with_group_types = test_create_reduced_contacts_with_group_types()
