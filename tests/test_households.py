@@ -1,7 +1,7 @@
 import unittest
 from copy import deepcopy
 import synthpops as sp
-
+import numpy as np
 
 seapop_500 = sp.generate_synthetic_population(
     n=500,
@@ -13,7 +13,7 @@ seapop_500 = sp.generate_synthetic_population(
     school_enrollment_counts_available=False,
     verbose=False,
     plot=False,
-    write=True,
+    write=False,
     return_popdict=True,
     use_default=False
 )
@@ -23,12 +23,13 @@ import json
 
 class HouseholdsTest(unittest.TestCase):
     def setUp(self) -> None:
+        np.random.seed(0)
         self.is_debugging = False
         self.d_datadir = sp.datadir
         self.d_location = "seattle_metro"
         self.d_state_location = "Washington"
         self.d_country_location = "usa"
-        self.d_sheet_name="United States of America"
+        self.d_sheet_name = "United States of America"
         pass
 
     def tearDown(self) -> None:
@@ -42,7 +43,9 @@ class HouseholdsTest(unittest.TestCase):
         return trim_person
 
     def test_seapop_500_every_human_one_household(self):
-        my_seapop_500 = deepcopy(seapop_500)
+        self.is_debugging = False
+        # my_seapop_500 = deepcopy(seapop_500)
+        my_seapop_500 = seapop_500
         households = {}
         hh_index = 0
         current_household_list = None
@@ -58,6 +61,9 @@ class HouseholdsTest(unittest.TestCase):
                 households[hh_index] = []
                 households[hh_index].append(self.remove_sets_from_contacts(current_human))
                 current_person_index += 1
+                if len(current_household_list) == 0:
+                    hh_index += 1
+                    current_household_list = None
             else:
                 for p in current_household_list:
                     current_human = my_seapop_500[current_household_list[current_household_list_index]]
@@ -67,7 +73,7 @@ class HouseholdsTest(unittest.TestCase):
                 current_household_list = None
                 hh_index += 1
         if self.is_debugging:
-            with open ("DEBUG_sea500_household.json","w") as outfile:
+            with open("DEBUG_sea500_household.json", "w") as outfile:
                 json.dump(households, outfile, indent=4, sort_keys=True)
 
         total_households = len(households)
@@ -93,7 +99,7 @@ class HouseholdsTest(unittest.TestCase):
             age_bb_json = {}
             for k in age_by_brackets_dic:
                 age_bb_json[int(k)] = age_by_brackets_dic[k]
-            with open(f"DEBUG_{self._testMethodName}_age_dict.json","w") as outfile:
+            with open(f"DEBUG_{self._testMethodName}_age_dict.json", "w") as outfile:
                 json.dump(age_bb_json, outfile, indent=4, sort_keys=True)
 
         max_year = 100
@@ -120,7 +126,7 @@ class HouseholdsTest(unittest.TestCase):
                                      f"got bucket: {expected_bucket}. At {age} got {bucket}.")
             previous_age = age
         self.assertLess(expected_bucket, max_year, msg=f"There should be less buckets than ages. Got "
-                                                   f"{expected_bucket} for {max_year} ages.")
+                                                       f"{expected_bucket} for {max_year} ages.")
         pass
 
     def test_seattle_age_brackets(self):
@@ -135,7 +141,7 @@ class HouseholdsTest(unittest.TestCase):
         for k in age_brackets:
             age_brackets_json[k] = age_brackets[k].tolist()
         if self.is_debugging:
-            with open(f"DEBUG_{self._testMethodName}_age_brackets.json","w") as outfile:
+            with open(f"DEBUG_{self._testMethodName}_age_brackets.json", "w") as outfile:
                 json.dump(age_brackets_json, outfile, indent=4)
         age_by_brackets_dic = sp.get_age_by_brackets_dic(
             age_brackets=age_brackets
@@ -177,7 +183,7 @@ class HouseholdsTest(unittest.TestCase):
             datadir=sp.datadir,
             sheet_name="United States of America"
         )
-        for layer in ['H','S','W','C']:
+        for layer in ['H', 'S', 'W', 'C']:
             self.assertIn(layer, contact_matrix)
         pass
 
@@ -191,15 +197,17 @@ class HouseholdsTest(unittest.TestCase):
         return hh_distro
 
     def verify_portion_honored(self, probability_buckets, count_buckets, portion=0.5):
-        if self.is_debugging:
-            print(f"prob buckets: {probability_buckets}")
-            print(f"count buckets: {count_buckets}")
         num_portions = 1.0 / portion
         curr_portion = 1
         excess_probability = 0
         excess_count = 0
         sum_count = sum(count_buckets)
         count_portion = int(sum_count * portion)
+        if self.is_debugging:
+            print(f"prob buckets: {probability_buckets}")
+            print(f"count buckets: {count_buckets}")
+            print(f"sum counts: {sum_count}")
+            print(f"count_portion: {count_portion}")
 
         prob_indexes = []
         count_indexes = []
@@ -209,7 +217,8 @@ class HouseholdsTest(unittest.TestCase):
         while curr_portion < num_portions + 1:
             total_probability = excess_probability
             # for loop test first until portion * num_portions == 1.0
-            while total_probability < portion and bucket_index < len(probability_buckets): # Get bucket index where total prob > portion
+            while total_probability < portion and bucket_index < len(
+                    probability_buckets):  # Get bucket index where total prob > portion
                 total_probability += probability_buckets[bucket_index]
                 bucket_index += 1
             prob_indexes.append(bucket_index)
@@ -229,12 +238,24 @@ class HouseholdsTest(unittest.TestCase):
         if self.is_debugging:
             print(f"prob_indexes: {prob_indexes}")
             print(f"count_indexes: {count_indexes}")
-        for x in range (len(prob_indexes)):
-            index_diff = abs(prob_indexes[x] - count_indexes[x])
-            self.assertLessEqual(index_diff, 1,
-                                 msg="indexes shouldn't be off by more than one. "
+        max_diff = num_portions / 5
+        if max_diff < 1:
+            max_diff = 1
+        total_diff = 0
+        for x in range(len(prob_indexes)):
+            local_diff = prob_indexes[x] - count_indexes[x]
+            total_diff += local_diff
+            index_diff = abs(local_diff)
+            self.assertLessEqual(index_diff, max_diff,
+                                 msg=f"indexes shouldn't be off by more than {max_diff}. "
                                      f"probability_indexes: {prob_indexes} "
                                      f"count_indexes: {count_indexes}")
+        self.assertLessEqual(
+            abs(total_diff), max_diff,
+            msg=f"Total bucket diff should be less than {max_diff}, but got {total_diff}."
+        )
+        self.assertEqual(count_indexes[-1], prob_indexes[-1],
+                         "Both bucket counts should have the same final index.")
 
     def test_seattle_household_size_distro_honored(self):
         self.is_debugging = False
@@ -251,7 +272,7 @@ class HouseholdsTest(unittest.TestCase):
         highest_probability = max(hh_distro.values())
         lowest_probability = min(hh_distro.values())
 
-        most_houses_probability = hh_distro[most_index + 1] # hh_distro is 1 indexed
+        most_houses_probability = hh_distro[most_index + 1]  # hh_distro is 1 indexed
         fewest_houses_probability = hh_distro[fewest_index + 1]
 
         self.assertEqual(highest_probability, most_houses_probability,
@@ -297,7 +318,7 @@ class HouseholdsTest(unittest.TestCase):
         highest_probability = max(custom_distro.values())
         lowest_probability = min(custom_distro.values())
 
-        most_houses_probability = custom_distro[most_index + 1] # hh_distro is 1 indexed
+        most_houses_probability = custom_distro[most_index + 1]  # hh_distro is 1 indexed
         fewest_houses_probability = custom_distro[fewest_index + 1]
 
         self.assertEqual(highest_probability, most_houses_probability,
@@ -335,6 +356,182 @@ class HouseholdsTest(unittest.TestCase):
         if self.is_debugging:
             print(total_sizes)
             print(hh_distro)
+
+    def get_seattle_gender_by_age(self):
+        sea_sex_age_brackets = sp.read_gender_fraction_by_age_bracket(
+            datadir=sp.datadir,
+            state_location=self.d_state_location,
+            location=self.d_location,
+            country_location=self.d_country_location
+        )
+        return sea_sex_age_brackets
+        pass
+
+    def get_seattle_age_brackets(self):
+        sea_age_brackets = sp.read_age_bracket_distr(
+            sp.datadir,
+            location=self.d_location,
+            state_location=self.d_state_location,
+            country_location=self.d_country_location
+        )
+        return sea_age_brackets
+        pass
+
+    def get_census_age_brackets(self):
+        census_age_brackets = sp.get_census_age_brackets(
+            sp.datadir,
+            state_location=self.d_state_location,
+            country_location=self.d_country_location
+        )
+        int_age_brackets = {}
+        for k in census_age_brackets:
+            int_age_brackets[k] = list(census_age_brackets[k])
+        return int_age_brackets
+
+    def bucket_population_counts(self, age_bracket_dict,
+                                 ages_array):
+        age_bucket_counts = []
+        for bucket in age_bracket_dict:
+            # Create a list in age_bucket_counts that is empty
+            tmp_bucket_count = 0
+            # copy age_bracket_dict[thisn] to target_ages
+            target_ages = age_bracket_dict[bucket]
+            # Loop through every age in array
+            for x in ages_array:
+                # If ages_array[current] in target_ages
+                if x in target_ages:
+                    tmp_bucket_count += 1
+            age_bucket_counts.append(tmp_bucket_count)
+            if self.is_debugging:
+                print(f"Bucket: {bucket} Target ages: {target_ages}")
+                print(f"total found: {tmp_bucket_count}")
+        return age_bucket_counts
+
+    def test_seattle_age_sex_n(self):
+        self.is_debugging = False
+        sea_age_bracket_distro = self.get_seattle_age_brackets()
+        sea_sex_age_brackets = self.get_seattle_gender_by_age()
+        census_age_brackets = self.get_census_age_brackets()
+
+        age_array, sex_array = sp.get_age_sex_n(
+            gender_fraction_by_age=sea_sex_age_brackets,
+            age_bracket_distr=sea_age_bracket_distro,
+            age_brackets=census_age_brackets,
+            n_people=500
+        )
+        if self.is_debugging:
+            print(f"ages: {age_array}")
+            print(f"age array length: {len(age_array)}")
+        age_count_buckets = self.bucket_population_counts(
+            age_bracket_dict=census_age_brackets,
+            ages_array=age_array
+        )
+        self.verify_portion_honored(
+            probability_buckets=sea_age_bracket_distro,
+            count_buckets=age_count_buckets,
+            portion=0.2
+        )
+
+    def test_get_age_sex_n_honors_ages(self):
+        self.is_debugging = False
+        age_probabilities = {
+            0:  0.05,
+            1:  0.10,
+            2:  0.15,
+            3:  0.20,
+            4:  0.00,
+            5:  0.05,
+            6:  0.00,
+            7:  0.09,
+            8:  0.08,
+            9:  0.07,
+            10: 0.06,
+            11: 0.05,
+            12: 0.04,
+            13: 0.03,
+            14: 0.02,
+            15: 0.01
+        }
+        sex_by_age_buckets = {}
+        sex_by_age_buckets['male'] = {}
+        sex_by_age_buckets['female'] = {}
+        for x in range(0,16):
+            sex_by_age_buckets['male'][x] = 0.5
+            sex_by_age_buckets['female'][x] = 0.5
+        age_brackets = self.get_census_age_brackets()
+        age_array, sex_array = sp.get_age_sex_n(
+            gender_fraction_by_age=sex_by_age_buckets,
+            age_bracket_distr=age_probabilities,
+            age_brackets=age_brackets,
+            n_people=10000
+        )
+        age_count_buckets = self.bucket_population_counts(
+            age_bracket_dict=age_brackets,
+            ages_array=age_array
+        )
+        self.verify_portion_honored(
+            probability_buckets=age_probabilities,
+            count_buckets=age_count_buckets,
+            portion=0.2
+        )
+        self.verify_portion_honored(
+            probability_buckets=age_probabilities,
+            count_buckets=age_count_buckets,
+            portion=0.1
+        )
+        pass
+
+    def test_get_age_sex_n_honors_sexes(self):
+        self.is_debugging = False
+        age_buckets = {}
+        for x in range(0,10):
+            age_buckets[x] = 0.0625  # 1/16 fun fact, works with floating point
+        male_age_buckets = {
+            0: 1.0,
+            1: 0.7,
+            2: 0.0,
+            3: 0.4
+        }
+        for x in range(4,7):
+            male_age_buckets[x] = 1.0
+        for x in range(7,10):
+            male_age_buckets[x] = 0.0
+        female_age_buckets = {}
+        for x in range(0,10):
+            female_age_buckets[x] = 1.0 - male_age_buckets[x]
+        age_sex_buckets = {}
+        age_sex_buckets['male'] = male_age_buckets
+        age_sex_buckets['female'] = female_age_buckets
+        age_brackets = {}
+        for x in range(0,10):
+            age_brackets[x] = [i + (10 * x) for i in range(0,10)]
+        age_array, sex_array = sp.get_age_sex_n(
+            gender_fraction_by_age=age_sex_buckets,
+            age_bracket_distr=age_buckets,
+            age_brackets=age_brackets,
+            n_people=10000
+        )
+        weighted_probability_buckets = {}
+        total_weight = sum(male_age_buckets.values())
+        for i in male_age_buckets:
+            weighted_probability_buckets[i] = \
+                male_age_buckets[i] / total_weight
+        male_age_counts = {}
+        for x in range(0,10):
+            male_age_counts[x] = 0
+        for x in range(0, len(sex_array)):
+            if sex_array[x] == 1:
+                bucket_index = (age_array[x] // 10)
+                male_age_counts[bucket_index] += 1
+        self.verify_portion_honored(
+            probability_buckets=weighted_probability_buckets,
+            count_buckets=list(male_age_counts.values()),
+            portion=0.2
+        )
+
+
+
+
 
 if __name__ == "__main__":
     test = HouseholdsTest()
