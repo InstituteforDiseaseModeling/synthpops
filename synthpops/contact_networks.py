@@ -1209,6 +1209,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         # write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
         # write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
         # write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
+        write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks', age_by_uid_dic)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'households', homes_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'schools', gen_school_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'teachers', gen_teacher_uids)
