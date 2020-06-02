@@ -15,14 +15,13 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None):
+def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
     Args:
         n (int)                        : The number of people to create.
         max_contacts (dict)            : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
-        as_objdict (bool)              : If True, change popdict type to ``sc.objdict``.
         generate (bool)                : If True, first look for cached population files and if those are not available, generate new population
         with_industry_code (bool)      : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US
         with_facilities (bool)         : If True, create long term care facilities
@@ -87,12 +86,7 @@ def make_population(n=None, max_contacts=None, as_objdict=False, generate=None, 
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
 
     # Change types
-    if as_objdict:
-        population = sc.objdict(population)
     for key,person in population.items():
-        if as_objdict:
-            population[key] = sc.objdict(population[key])
-            population[key]['contacts'] = sc.objdict(population[key]['contacts'])
         for layerkey in population[key]['contacts'].keys():
             population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
     return population
