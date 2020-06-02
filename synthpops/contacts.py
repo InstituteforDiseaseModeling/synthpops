@@ -991,6 +991,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_With_uids.dat')
     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
     facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
@@ -1009,6 +1010,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         popdict[uid]['snf_staff'] = None
         popdict[uid]['hhid'] = -1
         popdict[uid]['scid'] = -1
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
         popdict[uid]['wpid'] = -1
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1064,17 +1067,44 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['hhid'] = nh
 
     schools_by_uids = open(schools_by_uid_path, 'r')
-    for ns, line in enumerate(schools_by_uids):
-        r = line.strip().split(' ')
+    teachers_by_uids = open(teachers_by_uid_path, 'r')
+    for ns, (line1, line2) in enumerate(zip(schools_by_uids, teachers_by_uids)):
+        r1 = line1.strip().split(' ')
+        r2 = line2.strip().split(' ')
+
         try:
-            school = [int(i) for i in r]
+            school = [int(i) for i in r1]
+            teachers = [int(i) for i in r2]
+
         except:
-            school = [i for i in r]
+            school = [i for i in r1]
+            teachers = [i for i in r2]
 
         for uid in school:
             popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
             popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+
+        for uid in teachers:
+            popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+
+    # for ns, line in enumerate(schools_by_uids):
+    #     r = line.strip().split(' ')
+    #     try:
+    #         school = [int(i) for i in r]
+    #     except:
+    #         school = [i for i in r]
+
+    #     for uid in school:
+    #         popdict[uid]['contacts']['S'] = set(school)
+    #         popdict[uid]['contacts']['S'].remove(uid)
+    #         popdict[uid]['scid'] = ns
 
     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
     for nw, line in enumerate(workplaces_by_uids):
@@ -1092,7 +1122,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
@@ -1171,10 +1201,26 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['hhid'] = nh
 
     for ns, school in enumerate(schools_by_uids):
+        teachers = teachers_by_uids[ns]
         for uid in school:
             popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
             popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+
+        for uid in teachers:
+            popdict[uid]['contacts']['S'] = set(school)
+            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            popdict[uid]['contacts']['S'].remove(uid)
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+
+    # for ns, school in enumerate(schools_by_uids):
+    #     for uid in school:
+    #         popdict[uid]['contacts']['S'] = set(school)
+    #         popdict[uid]['contacts']['S'].remove(uid)
+    #         popdict[uid]['scid'] = ns
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:

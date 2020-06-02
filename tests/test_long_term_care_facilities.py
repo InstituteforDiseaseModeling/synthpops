@@ -16,7 +16,7 @@ location = 'seattle_metro'
 sheet_name = 'United States of America'
 school_enrollment_counts_available = True
 
-gen_pop_size = 60e3
+gen_pop_size = 6e3
 gen_pop_size = int(gen_pop_size)
 
 # # generate and write to file

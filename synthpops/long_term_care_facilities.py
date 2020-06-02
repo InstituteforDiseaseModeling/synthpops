@@ -21,7 +21,6 @@ from . import contact_networks as spcnx
 part = 2
 
 # Customized age resampling method
-
 def custom_resample_age(exp_age_distr, a):
     """
     Resampling younger ages to better match data
@@ -508,7 +507,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                     workers_by_age_to_assign_count[aindex] -= 1
 
     # Assign teachers and update school lists
-    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Assign facilities care staff from 20 to 59
 
@@ -573,11 +573,12 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'households', homes_by_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'schools', gen_school_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'teachers', gen_teacher_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'workplaces', gen_workplace_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities', facilities_by_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities_staff', facilities_staff_uids)
 
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
 
     if verbose:
         uids = popdict.keys()
@@ -610,4 +611,3 @@ def check_all_residents_are_connected_to_staff(popdict):
 
     if flag:
         print('All LTCF residents have at least one contact with a staff member.')
-
