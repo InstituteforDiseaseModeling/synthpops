@@ -781,7 +781,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     else:
         workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_With_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
