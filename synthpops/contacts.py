@@ -1057,6 +1057,9 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
                 popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
                 popdict[uid]['contacts']['LTCF'].remove(uid)
 
+    facilities_by_uids.close()
+    facilities_staff_uids.close()
+
     homes_by_uids = open(households_by_uid_path, 'r')
     for nh, line in enumerate(homes_by_uids):
         r = line.strip().split(' ')
@@ -1069,6 +1072,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['contacts']['H'] = set(household)
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
+
+    homes_by_uids.close()
 
     schools_by_uids = open(schools_by_uid_path, 'r')
     teachers_by_uids = open(teachers_by_uid_path, 'r')
@@ -1110,6 +1115,9 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     #         popdict[uid]['contacts']['S'].remove(uid)
     #         popdict[uid]['scid'] = ns
 
+    schools_by_uids.close()
+    teachers_by_uids.close()
+
     workplaces_by_uids = open(workplaces_by_uid_path, 'r')
     for nw, line in enumerate(workplaces_by_uids):
         r = line.strip().split(' ')
@@ -1122,6 +1130,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
+
+    workplaces_by_uids.close()
 
     return popdict
 
