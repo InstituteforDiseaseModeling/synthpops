@@ -7,7 +7,7 @@ This module sets the location of the data folder.
 import os
 import sciris as sc
 
-__all__ = ['datadir', 'localdatadir', 'set_datadir', 'validate']
+__all__ = ['datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -32,11 +32,20 @@ matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is
 #%% Functions
 
 def set_datadir(folder):
-    '''Set the data folder to the user-specified location.'''
+    '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
     global datadir
     datadir = folder
     print(f'Done: data directory set to {folder}.')
     return datadir
+
+def set_nbrackets(n):
+    '''Set the number of census brackets -- usually 16 or 20.'''
+    global nbrackets
+    nbrackets = n
+    if nbrackets not in [16, 20]:
+        print(f'Note: current supported bracket choices are 16 or 20, use {nbrackets} at your own risk.')
+    print(f'Done: number of brackets is set to {n}.')
+    return nbrackets
 
 
 def validate(verbose=True):

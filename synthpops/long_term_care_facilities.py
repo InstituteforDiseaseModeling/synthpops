@@ -117,8 +117,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
             if ai > 5 and ai <= 20:  # This a placeholder range. Users will need to change to fit whatever population you are working with
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This is a placeholder range. Users will need to change to fit whatever populaton you are working with
-                elif np.random.binomial(1, 0.04):
-                    ai = spsamp.sample_from_range(single_year_age_distr,0, 5)
+
             # ai = spsamp.resample_age(single_year_age_distr, ai)
             ai = custom_resample_age(single_year_age_distr, ai)
 
@@ -339,7 +338,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc = {}
     for b in est_seattle_users_2018:
         est_ltcf_user_by_age_brackets_perc[b] = est_seattle_users_2018[b]/state_age_distr_2018[b]/pop
-        print(b,est_ltcf_user_by_age_brackets_perc[b])
+        # print(b,est_ltcf_user_by_age_brackets_perc[b])
 
     est_ltcf_user_by_age_brackets_perc['65-69'] = est_ltcf_user_by_age_brackets_perc['65-74']
     est_ltcf_user_by_age_brackets_perc['70-74'] = est_ltcf_user_by_age_brackets_perc['65-74']

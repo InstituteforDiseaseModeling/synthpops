@@ -649,32 +649,85 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     group = r1 + r2
     sizes = [len(r1), len(r2)]
 
-    share_k_matrix = np.ones((2, 2))
-    share_k_matrix *= average_degree/np.sum(sizes)
+    # group is less than the average degree, so return a fully connected graph instead
+    if len(group) <= average_degree:
+        G = nx.complete_graph(len(group))
 
-    if p_matrix is None:
-        p_matrix = share_k_matrix.copy()
+    # group 2 is less than 2 people so everyone in group 1 must be connected to that lone group 2 individual, create a fully connected graph then remove some edges at random to preserve the degree distribution
+    elif len(group_2) < 2:
+        G = nx.complete_graph(len(group))
+        for i in n1:
+            group_1_neighbors = [j for j in G.neighbors(i) if j in n1]
 
-    G = nx.stochastic_block_model(sizes, p_matrix)
+            # if the person's degree is too high, cut out some contacts
+            if len(group_1_neighbors) > average_degree:
+                ncut = len(group_1_neighbors) - average_degree # rough number to cut
+                # ncut = spsamp.pt(ncut) # sample from poisson that number
+                # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
+                for k in range(ncut):
+                    j = np.random.choice(group_1_neighbors)
+                    G.remove_edge(i, j)
+                    group_1_neighbors.remove(j)
 
-    for i in n1:
-        group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+    else:
+        share_k_matrix = np.ones((2, 2))
+        share_k_matrix *= average_degree/np.sum(sizes)
 
-        # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
-        if len(group_2_neighbors) == 0:
+        if p_matrix is None:
+            p_matrix = share_k_matrix.copy()
 
-            random_group_2_j = np.random.choice(n2)
-            random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
-            while len(random_group_2_neighbors) == 0:
-                random_group_2_j = np.random.choice(n2)
-                random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+        # create a graph with edges within each groups and between members of different groups using the probability matrix
+        G = nx.stochastic_block_model(sizes, p_matrix)
 
-            random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+        # how many people in group 2 have connections they could cut to preserve the degree distribution
+        group_2_to_group_2_connections = []
+        for i in n2:
+            group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+            if len(group_2_neighbors) > 0:
+                group_2_to_group_2_connections.append(i)
 
-            G.add_edge(i, random_group_2_j)
-            G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
+        # there are no people in group 2 who can remove edges to other group 2 people, so instead, just add edges
+        if len(group_2_to_group_2_connections) == 0:
+            for i in n1:
+                group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+
+                # need to add a contact in group 2
+                if len(group_2_neighbors) == 0:
+
+                    random_group_2_j = np.random.choice(n2)
+                    G.add_edge(i, random_group_2_j)
+
+        # some in group 2 have contacts to remove to preserve the degree distribution
+        else:
+            for i in n1:
+                group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+
+                # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
+                if len(group_2_neighbors) == 0:
+
+                    random_group_2_j = np.random.choice(n2)
+                    random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+
+                    # add an edge to random_group_2_j
+                    G.add_edge(i, random_group_2_j)
+
+                    # if the group 2 person has an edge they can cut to their own group, remove it
+                    if len(random_group_2_neighbors) > 0:
+                        random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+                        G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
+
+                    # while len(random_group_2_neighbors) == 0: # while loop getting stuck because it's already removed edges and has no more to try and remove
+                    #     print('here')
+                    #     random_group_2_j = np.random.choice(n2)
+                    #     random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+
+                    # random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+
+                    # G.add_edge(i, random_group_2_j)
+                    # G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
 
     E = G.edges()
+    # group_2_edges = []
     for e in E:
         i, j = e
 
@@ -683,6 +736,10 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
+        # if id_i in r2 and id_j in r2:
+            # group_2_edges.append(e)
+
+    # print('group 2 only edges', len(group_1), len(group_2),len(group_2_edges))
 
     return popdict
 
