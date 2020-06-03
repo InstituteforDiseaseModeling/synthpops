@@ -130,10 +130,10 @@ def test_make_contacts_generic(n=default_n):
     return contacts
 
 
-def test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=50000):
+def test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',n=default_n):
 
     options_args = dict.fromkeys(['use_microstructure'],True)
-    network_distr_args = {'Npop': Npop}
+    network_distr_args = {'n': n}
     contacts = sp.make_contacts(state_location=state_location,location=location,options_args=options_args,network_distr_args=network_distr_args)
     uids = contacts.keys()
     uids = [uid for uid in uids]
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     # popdict = test_make_popdict_generic(default_n)
 
     # contacts = test_make_contacts_generic(default_n)
-    # contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',Npop=20000)
+    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington')
     sc.toc()
 
     print(datadir)
