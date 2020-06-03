@@ -2,6 +2,9 @@ import synthpops as sp
 import sciris as sc
 import json
 import os
+import pytest
+
+pytest.skip("Tests require refactoring", allow_module_level=True)
 
 #region pre-test setup
 datadir = sp.datadir  # point datadir where your data folder lives
