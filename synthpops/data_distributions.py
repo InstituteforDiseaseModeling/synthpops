@@ -8,7 +8,7 @@ import pandas as pd
 import sciris as sc
 from collections import Counter
 from . import base as spb
-from .config import datadir, nbrackets
+from . import config as cfg
 
 
 def get_age_brackets_from_df(ab_file_path):
@@ -55,11 +55,11 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_gender_fraction_by_age_bracket_{cfg.nbrackets}.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_gender_fraction_by_age_bracket_{cfg.nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_gender_fraction_by_age_bracket_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_gender_fraction_by_age_bracket_{cfg.nbrackets}.dat')
 
 
 def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -116,11 +116,11 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_age_bracket_distr_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'age_distributions', country_location + f'_age_bracket_distr_{cfg.nbrackets}.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_age_bracket_distr_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', state_location + f'_age_bracket_distr_{cfg.nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_age_bracket_distr_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + f'_age_bracket_distr_{cfg.nbrackets}.dat')
 
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -367,9 +367,9 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, f'census_age_brackets_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, f'census_age_brackets_{cfg.nbrackets}.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, f'census_age_brackets_{nbrackets}.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, f'census_age_brackets_{cfg.nbrackets}.dat')
 
 
 def get_census_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1085,7 +1085,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 
 
 def get_state_postal_code(state_location):
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', 'postal_codes.csv')
+    file_path = os.path.join(cfg.datadir, 'demographics', 'contact_matrices_152_countries', 'usa', 'postal_codes.csv')
     df = pd.read_csv(file_path, delimiter=',')
     dic = dict(zip(df.state, df.postal_code))
     return dic[state_location]

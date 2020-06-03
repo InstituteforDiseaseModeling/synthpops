@@ -1,3 +1,4 @@
+from .version import *
 from .config import *
 from .base import *
 from .data_distributions import *
