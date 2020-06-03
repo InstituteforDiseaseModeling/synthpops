@@ -354,6 +354,10 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):
         group = line.strip().split(' ')
+        try:
+            group = [int(i) for i in group]
+        except:
+            group = [i for i in group]
         if with_ages:
             group = [int(a) for a in group]
         groups.append(group)
@@ -587,6 +591,7 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
             potential_worker_uids_by_age[a] = []
             potential_worker_ages_left_count[a] = 0
 
+    # remove students from any potential workers
     for school in syn_school_uids:
         for uid in school:
             potential_worker_uids.pop(uid, None)
