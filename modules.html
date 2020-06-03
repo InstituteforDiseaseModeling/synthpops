@@ -160,14 +160,13 @@
 <p>This module provides the layer for communicating with the agent-based model Covasim.</p>
 <dl class="py function">
 <dt id="synthpops.api.make_population">
-<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_objdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">rand_seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n</strong> (<em>int</em>) – The number of people to create.</p></li>
 <li><p><strong>max_contacts</strong> (<em>dict</em>) – A dictionary for maximum number of contacts per layer: keys must be “S” (school) and/or “W” (work).</p></li>
-<li><p><strong>as_objdict</strong> (<em>bool</em>) – If True, change popdict type to <code class="docutils literal notranslate"><span class="pre">sc.objdict</span></code>.</p></li>
 <li><p><strong>generate</strong> (<em>bool</em>) – If True, first look for cached population files and if those are not available, generate new population</p></li>
 <li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US</p></li>
 <li><p><strong>with_facilities</strong> (<em>bool</em>) – If True, create long term care facilities</p></li>
@@ -405,7 +404,13 @@
 <dl class="py function">
 <dt id="synthpops.config.set_datadir">
 <code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">set_datadir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.set_datadir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the data folder to the user-specified location.</p>
+<dd><p>Set the data folder to the user-specified location – note, mostly deprecated.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.config.set_nbrackets">
+<code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">set_nbrackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.set_nbrackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of census brackets – usually 16 or 20.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2701,6 +2706,12 @@ age brackets.</p>
 <span id="synthpops-sampling-module"></span><h2>synthpops.sampling module<a class="headerlink" href="#module-synthpops.sampling" title="Permalink to this headline">¶</a></h2>
 <p>Sample distributions, either from real world data or from uniform distributions</p>
 <dl class="py function">
+<dt id="synthpops.sampling.set_seed">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.set_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the random seed – complicated because of Numba</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="synthpops.sampling.sample_single_dict">
 <code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr_keys</span></em>, <em class="sig-param"><span class="n">distr_vals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a distribution.</p>
@@ -3145,14 +3156,6 @@ first age bracket show up at the front of both lists and people from the last ag
 </dd>
 </dl>
 </dd></dl>
-
-</div>
-<div class="section" id="module-synthpops.utils">
-<span id="synthpops-utils-module"></span><h2>synthpops.utils module<a class="headerlink" href="#module-synthpops.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="synthpops.utils.get_kc_snf_df_location">
-<code class="sig-prename descclassname">synthpops.utils.</code><code class="sig-name descname">get_kc_snf_df_location</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.utils.get_kc_snf_df_location" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 <div class="section" id="module-synthpops.version">
