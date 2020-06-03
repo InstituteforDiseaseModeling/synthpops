@@ -37,7 +37,7 @@ def check_reduced_contacts_with_group_types(popdict, layer, group_1, group_2):
 
 
 def test_create_reduced_contacts_with_group_types():
-    n = 5000
+    n = 50000
     average_LTCF_degree = 3
 
     # First create contact_networks_facilities
@@ -86,5 +86,6 @@ def test_create_reduced_contacts_with_group_types():
 
 
 if __name__ == '__main__':
-
+    sc.tic()
     test_create_reduced_contacts_with_group_types()
+    sc.toc()
