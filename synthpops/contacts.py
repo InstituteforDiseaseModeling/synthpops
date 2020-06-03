@@ -49,7 +49,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
 
     # Check that there are enough people
     if n < min_people:
-        print('Warning: with {n}<{min_people} people, contact matrices will be approximate')
+        print(f'Warning: with {n}<{min_people} people, contact matrices will be approximate')
 
     # Optionally take in either ages or sexes, too
     if ages is None and sexes is None:
