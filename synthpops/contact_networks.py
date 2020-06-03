@@ -591,7 +591,7 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
             potential_worker_uids_by_age[a] = []
             potential_worker_ages_left_count[a] = 0
 
-    # remove students from any potential workers
+    # remove students from any potential workers since the model assumes student and worker status are exclusive
     for school in syn_school_uids:
         for uid in school:
             potential_worker_uids.pop(uid, None)
