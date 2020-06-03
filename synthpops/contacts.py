@@ -651,7 +651,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     group = r1 + r2
     sizes = [len(r1), len(r2)]
 
-    for i in group:
+    for i in popdict:
+    # for i in group:
         popdict[i]['contacts'].setdefault(setting, set())
 
     # group is less than the average degree, so return a fully connected graph instead
@@ -672,6 +673,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
                     G.remove_edge(i, j)
+                    group_1_neighbors.remove(j)
 
     else:
         share_k_matrix = np.ones((2, 2))
