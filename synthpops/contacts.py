@@ -1,12 +1,17 @@
-import sciris as sc
+"""
+Generate contacts between people in the population, with many options possible
+"""
+
+import os
 import numpy as np
+import pandas as pd
+import numba as nb
+import sciris as sc
 import networkx as nx
-from .base import *
 from . import data_distributions as spdata
 from . import sampling as spsamp
+from . import base as spb
 from .config import datadir
-import os
-import pandas as pd
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
@@ -175,14 +180,13 @@ def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, s
 
     """
 
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -238,16 +242,14 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
 
     """
 
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
-    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -398,11 +400,11 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
     # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
-    age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
-    age_mixing_matrix_dic['M'] = combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -457,19 +459,16 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     """
 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
-    uids_by_age_dic = get_uids_by_age_dic(popdict)
-    if country_location is None:
-        raise NotImplementedError
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
+    # if country_location is None:
+        # raise NotImplementedError
 
-    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = get_age_by_brackets_dic(age_brackets)
     # num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
 
-    # n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
 
@@ -663,38 +662,53 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     n1 = list(np.arange(len(r1)).astype(int))
     n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
 
-    # nlist = n1 + n2
-
     group = r1 + r2
     sizes = [len(r1), len(r2)]
 
-    share_k_matrix = np.ones((2, 2))
-    share_k_matrix *= average_degree/np.sum(sizes)
+    # group is less than the average degree, so return a fully connected graph instead
+    if len(group) <= average_degree:
+        G = nx.complete_graph(len(group))
 
-    if p_matrix is None:
-        p_matrix = share_k_matrix.copy()
+    # group 2 is less than 2 people so everyone in group 1 must be connected to that lone group 2 individual, create a fully connected graph then remove some edges at random to preserve the degree distribution
+    elif len(group_2) < 2:
+        G = nx.complete_graph(len(group))
+        for i in n1:
+            group_1_neighbors = [j for j in G.neighbors(i) if j in n1]
 
-    G = nx.stochastic_block_model(sizes, p_matrix)
+            # if the person's degree is too high, cut out some contacts
+            if len(group_1_neighbors) > average_degree:
+                ncut = len(group_1_neighbors) - average_degree # rough number to cut
+                # ncut = spsamp.pt(ncut) # sample from poisson that number
+                # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
+                for k in range(ncut):
+                    j = np.random.choice(group_1_neighbors)
+                    G.remove_edge(i, j)
+                    group_1_neighbors.remove(j)
 
-    for i in n1:
-        # neighbors = [j for j in G.neighbors(i)]
-        group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+    else:
+        share_k_matrix = np.ones((2, 2))
+        share_k_matrix *= average_degree/np.sum(sizes)
 
-        # increase the degree of the node in group 1, while decreasing the degree of a member of group 2 at random
-        if len(group_2_neighbors) == 0:
+        if p_matrix is None:
+            p_matrix = share_k_matrix.copy()
 
-            random_group_2_j = np.random.choice(n2)
-            random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
-            while len(random_group_2_neighbors) == 0:
-                random_group_2_j = np.random.choice(n2)
-                random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
+        # create a graph with edges within each groups and between members of different groups using the probability matrix
+        G = nx.stochastic_block_model(sizes, p_matrix)
 
-            random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
+        # how many people in group 2 have connections they could cut to preserve the degree distribution
+        group_2_to_group_2_connections = []
+        for i in n2:
+            group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
+            if len(group_2_neighbors) > 0:
+                group_2_to_group_2_connections.append(i)
 
-            G.add_edge(i, random_group_2_j)
-            G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
+        # there are no people in group 2 who can remove edges to other group 2 people, so instead, just add edges
+        if len(group_2_to_group_2_connections) == 0:
+            for i in n1:
+                group_2_neighbors = [j for j in G.neighbors(i) if j in n2]
 
     E = G.edges()
+    # group_2_edges = []
     for e in E:
         i, j = e
 
@@ -703,7 +717,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
-    # print('reduced contacts')
 
     return popdict
 
@@ -1317,7 +1330,6 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
     if options_args is None: options_args = dict.fromkeys(options_keys, False)
     if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
-    
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -1356,6 +1368,13 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     return popdict
 
 
+@nb.njit((nb.int64[:], nb.int64))
+def choose_contacts(a, size):
+    ''' Numbafy np.random.choice(); about twice as fast '''
+    close_contacts = np.random.choice(a, size=size, replace=False)
+    return close_contacts
+
+
 def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
 
     """
@@ -1375,32 +1394,35 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
 
     keys = trimmed_size_dic.keys()
 
+    if isinstance(list(contacts.keys())[0], str):
+        string_uids = True
+    else:
+        string_uids = False
+
     if use_clusters:
         raise NotImplementedError("Clustered method not yet implemented.")
 
     else:
-        for n, uid in enumerate(contacts):
-            for k in keys:
-                setting_contacts = contacts[uid]['contacts'][k]
-                if len(setting_contacts) > trimmed_size_dic[k]/2:
-                    close_contacts = np.random.choice(list(setting_contacts), size=int(trimmed_size_dic[k]/2))
-                    contacts[uid]['contacts'][k] = set(close_contacts)
+
+        if not string_uids:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
+        else:
+            for n, uid in enumerate(contacts):
+                for k in keys:
+                    setting_contacts = list(contacts[uid]['contacts'][k])
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                        contacts[uid]['contacts'][k] = set(close_contacts)
 
         for n, uid in enumerate(contacts):
             for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
-
-        test_sizes = True
-        if test_sizes:
-
-            for k in keys:
-                sizes = []
-                for n, uid in enumerate(contacts):
-                    if len(contacts[uid]['contacts'][k]) > 0:
-                        sizes.append(len(contacts[uid]['contacts'][k]))
-                if verbose:
-                    print(k, np.mean(sizes))
     return contacts
 
 
@@ -1411,7 +1433,7 @@ def show_layers(popdict, show_ages=False, show_n=20):
     Args:
         popdict (dict)   : dictionary of individuals with attributes, including their age and the ids of their close contacts
         show_ages (bool) : If True, show the ages of contacts, else show their ids
-        show_n (int): number of individuals to show contacts for
+        show_n (int)     : number of individuals to show contacts for
 
     Returns:
         None
