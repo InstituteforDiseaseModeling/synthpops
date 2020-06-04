@@ -785,12 +785,12 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
-        popdict[uid]['hhid'] = -1
-        popdict[uid]['scid'] = -1
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
-        popdict[uid]['wpid'] = -1
-        popdict[uid]['wpindcode'] = -1
+        popdict[uid]['wpid'] = None
+        popdict[uid]['wpindcode'] = None
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
@@ -895,12 +895,12 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['sex'] = np.random.randint(2)
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
-        popdict[uid]['hhid'] = -1
-        popdict[uid]['scid'] = -1
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
-        popdict[uid]['wpid'] = -1
-        popdict[uid]['wpindcode'] = -1
+        popdict[uid]['wpid'] = None
+        popdict[uid]['wpindcode'] = None
 
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
@@ -991,11 +991,11 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         popdict[uid]['contacts'] = {}
         popdict[uid]['snf_res'] = None
         popdict[uid]['snf_staff'] = None
-        popdict[uid]['hhid'] = -1
-        popdict[uid]['scid'] = -1
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
-        popdict[uid]['wpid'] = -1
+        popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
             popdict[uid]['contacts'][k] = set()
@@ -1143,9 +1143,9 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         popdict[uid]['contacts'] = {}
         popdict[uid]['snf_res'] = None
         popdict[uid]['snf_staff'] = None
-        popdict[uid]['hhid'] = -1
-        popdict[uid]['scid'] = -1
-        popdict[uid]['wpid'] = -1
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
             popdict[uid]['contacts'][k] = set()
