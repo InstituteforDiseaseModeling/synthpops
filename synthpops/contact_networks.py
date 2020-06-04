@@ -970,79 +970,6 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     f_age_uid.close()
 
 
-# def write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, schools_by_uids, age_by_uid_dic):
-#     """
-#     Write the schools to file with both id and their ages.
-
-#     Args:
-#         datadir (string)          : file path to the data directory
-#         location (string)         : name of the location
-#         state_location (string)   : name of the state the location is in
-#         country_location (string) : name of the country the location is in
-#         schools_by_uids (list)    : list of lists, where each sublist represents a school and the ids of the students and teachers within it
-#         age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
-
-#     Returns:
-#         None
-#     """
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
-#     os.makedirs(file_path, exist_ok=True)
-#     schools_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_ages.dat')
-#     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-
-#     fh_age = open(schools_by_age_path, 'w')
-#     fh_uid = open(schools_by_uid_path, 'w')
-
-#     for n, ids in enumerate(schools_by_uids):
-
-#         school = schools_by_uids[n]
-#         for uid in school:
-
-#             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-#             fh_uid.write(str(uid) + ' ')
-#         fh_age.write('\n')
-#         fh_uid.write('\n')
-#     fh_age.close()
-#     fh_uid.close()
-
-
-# def write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, workplaces_by_uids, age_by_uid_dic):
-#     """
-#     Write the workplaces to file with both id and their ages.
-
-#     Args:
-#         datadir (string)          : file path to the data directory
-#         location (string)         : name of the location
-#         state_location (string)   : name of the state the location is in
-#         country_location (string) : name of the country the location is in
-#         workplaces_by_uids (list) : list of lists, where each sublist represents a workplace and the ids of the workers within it
-#         age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
-
-#     Returns:
-#         None
-#     """
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
-#     os.makedirs(file_path, exist_ok=True)
-#     workplaces_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_ages.dat')
-#     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
-
-#     fh_age = open(workplaces_by_age_path, 'w')
-#     fh_uid = open(workplaces_by_uid_path, 'w')
-
-#     for n, ids in enumerate(workplaces_by_uids):
-
-#         work = workplaces_by_uids[n]
-
-#         for uid in work:
-
-#             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-#             fh_uid.write(str(uid) + ' ')
-#         fh_age.write('\n')
-#         fh_uid.write('\n')
-#     fh_age.close()
-#     fh_uid.close()
-
-
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
@@ -1211,9 +1138,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # save schools and workplace uids to file
     if write:
-        # write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
-        # write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
-        # write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
+
         write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks', age_by_uid_dic)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'households', homes_by_uids)
         write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'schools', gen_school_uids)

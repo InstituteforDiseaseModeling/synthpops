@@ -720,18 +720,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
                         random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
                         G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
 
-                    # while len(random_group_2_neighbors) == 0: # while loop getting stuck because it's already removed edges and has no more to try and remove
-                    #     print('here')
-                    #     random_group_2_j = np.random.choice(n2)
-                    #     random_group_2_neighbors = [ii for ii in G.neighbors(random_group_2_j) if ii in n2]
-
-                    # random_group_2_neighbor_cut = np.random.choice(random_group_2_neighbors)
-
-                    # G.add_edge(i, random_group_2_j)
-                    # G.remove_edge(random_group_2_j, random_group_2_neighbor_cut)
-
     E = G.edges()
-    # group_2_edges = []
     for e in E:
         i, j = e
 
@@ -740,10 +729,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
         popdict[id_i]['contacts'][setting].add(id_j)
         popdict[id_j]['contacts'][setting].add(id_i)
-        # if id_i in r2 and id_j in r2:
-            # group_2_edges.append(e)
-
-    # print('group 2 only edges', len(group_1), len(group_2),len(group_2_edges))
 
     return popdict
 
@@ -825,8 +810,6 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fs = open(schools_by_uid_path, 'r')
     ft = open(teachers_by_uid_path, 'r')
 
-    # for ns, line in enumerate(fs):
-        # r = line.strip().split(' ')
     for ns, (line1, line2) in enumerate(zip(fs, ft)):
         r1 = line1.strip().split(' ')
         r2 = line2.strip().split(' ')
@@ -853,10 +836,6 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
 
-        # for uid in r:
-            # popdict[uid]['contacts']['S'] = set(r)
-            # popdict[uid]['contacts']['S'].remove(uid)
-            # popdict[uid]['scid'] = ns
     fs.close()
     ft.close()
 
@@ -1102,18 +1081,6 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
-
-    # for ns, line in enumerate(schools_by_uids):
-    #     r = line.strip().split(' ')
-    #     try:
-    #         school = [int(i) for i in r]
-    #     except:
-    #         school = [i for i in r]
-
-    #     for uid in school:
-    #         popdict[uid]['contacts']['S'] = set(school)
-    #         popdict[uid]['contacts']['S'].remove(uid)
-    #         popdict[uid]['scid'] = ns
 
     schools_by_uids.close()
     teachers_by_uids.close()
