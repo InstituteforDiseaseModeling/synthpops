@@ -709,7 +709,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=30, teacher_age_min=25, teacher_age_max=75, verbose=False):
+def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.
 
