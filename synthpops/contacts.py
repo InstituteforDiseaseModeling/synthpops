@@ -44,7 +44,10 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
         # uid_mapping = {uids[i]: i for i in range(len(uids))}
-        uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
+        try:
+            uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
+        except:
+            uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
     else:  # Not supplied, generate
         n = int(n)
         # default to using ints for ids from now on
@@ -149,7 +152,7 @@ def make_contacts_generic(popdict, network_distr_args):
 
     for n, uid in enumerate(uids):
         targets = [t for t in A[n][1].keys()]
-        target_uids = [uid[target] for target in targets]  # if using uids which may be strings or ints
+        target_uids = [uids[target] for target in targets]  # if using uids which may be strings or ints
         popdict[uid]['contacts']['M'] = set(target_uids)
 
     return popdict

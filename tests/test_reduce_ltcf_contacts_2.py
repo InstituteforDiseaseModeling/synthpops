@@ -37,13 +37,13 @@ def check_reduced_contacts_with_group_types(popdict, layer, group_1, group_2):
 
 
 def test_create_reduced_contacts_with_group_types():
-    n = 5000
+    n = 200
     average_LTCF_degree = 3
 
     # First create contact_networks_facilities
     popdict = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
                                                          n, school_enrollment_counts_available=False,
-                                                         write=False, do_plot=False, return_popdict=True)
+                                                         write=False, plot=False, return_popdict=True)
 
     # Make 2 groups of contacts
     uids = popdict.keys()
@@ -62,7 +62,7 @@ def test_create_reduced_contacts_with_group_types():
 
     # Second group from another popdict
     network_distr_args = {'average_degree': average_LTCF_degree, 'network_type': 'poisson_degree', 'directed': True}
-    
+
     # size
     n2 = 50
 
@@ -71,12 +71,13 @@ def test_create_reduced_contacts_with_group_types():
 
     # initialize the second population to have ages and uids
     popdict_2 = sp.make_popdict(n=n2, uids=uids_2, country_location=country_location, use_demography=False)
-    
+
     # create a network for the second population with defined network properties
     popdict_2 = sp.make_contacts_generic(popdict_2, network_distr_args=network_distr_args)
 
     popdict = sc.mergedicts(popdict_2, popdict)
     # print(popdict[uids[n2-1]])
+    print(popdict_2)
     new_layer = 'new_layer'
     reduced_contacts = sp.create_reduced_contacts_with_group_types(popdict, ltcf_residents, uids_2, new_layer,
                                                                    average_degree=average_LTCF_degree,

@@ -32,7 +32,7 @@ def test_make_popdict_supplied(n=default_n):
     fixed_age = 40
     fixed_sex = 1
 
-    uids = [str(i) for i in np.arange(n)]
+    uids = [i for i in np.arange(n)]
     ages = fixed_age*np.ones(n)
     sexes = fixed_sex*np.ones(n)
 
