@@ -75,7 +75,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     else:
         # make a new network on the fly
         if with_facilities:
-            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
         elif with_facilities and with_industry_code:
             errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
