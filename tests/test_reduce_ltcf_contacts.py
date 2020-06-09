@@ -32,23 +32,21 @@ def test_create_reduced_contacts_with_group_types():
     # Facility contacts
     contacts_group_1 = sp.make_contacts_with_facilities_from_microstructure(datadir, location, state_location,
                                                                             country_location,
-                                                                            n)
-    contacts_group_1_list = []
-    uids = contacts_group_1.keys()
-    uids = [uid for uid in uids]
-    for n, uid in enumerate(uids):
-        layers = contacts_group_1[uid]['contacts']['LTCF']
-        contacts_group_1_list.append(layers)
+                                                                            n, use_two_group_reduction=True,
+                                                                            average_LTCF_degree=average_LTCF_degree)
+
+    # List of ids for group_1 facility contacts
+    contacts_group_1_list = list(contacts_group_1.keys())
 
     # Home contacts
     network_distr_args = {'average_degree': average_LTCF_degree, 'network_type': 'poisson_degree', 'directed': True}
     contacts_group_2 = sp.make_contacts_generic(popdict, network_distr_args=network_distr_args)
-    contacts_group_2_list = []
-    for n, uid in contacts_group_2.items():
-        contacts_group_2_list.append(uid)
+    # List of ids for group_2 home contacts
+    contacts_group_2_list = list(contacts_group_2.keys())
 
     # Now reduce contacts
-    reduced_contacts = sp.create_reduced_contacts_with_group_types(popdict, contacts_group_1, contacts_group_2, 'LTCF',
+    reduced_contacts = sp.create_reduced_contacts_with_group_types(popdict, contacts_group_1_list,
+                                                                   contacts_group_2_list, 'LTCF',
                                                                    average_degree=average_LTCF_degree,
                                                                    force_cross_edges=True)
 
