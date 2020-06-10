@@ -18,6 +18,8 @@ from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
+from . import school_modules as spsm
+from . import config as cfg
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -266,48 +268,6 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
         homes_by_uids.append(home_ids)
 
     return homes_by_uids, age_by_uid_dic
-
-
-# def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
-#     """
-#     Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.
-
-#     Args:
-#         datadir (string)          : The file path to the data directory.
-#         location (string)         : The name of the location.
-#         state_location (string)   : The name of the state the location is in.
-#         country_location (string) : The name of the country the location is in.
-#         homes_by_uids (list)      : The list of lists, where each sublist represents a household and the IDs of the household members.
-#         age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
-
-#     Returns:
-#         None
-#     """
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
-#     os.makedirs(file_path, exist_ok=True)
-
-#     households_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
-#     households_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
-#     age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
-
-#     fh_age = open(households_by_age_path, 'w')
-#     fh_uid = open(households_by_uid_path, 'w')
-#     f_age_uid = open(age_by_uid_path, 'w')
-
-#     for n, ids in enumerate(homes_by_uids):
-
-#         home = homes_by_uids[n]
-
-#         for uid in home:
-
-#             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-#             fh_uid.write(str(uid) + ' ')
-#             f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
-#         fh_age.write('\n')
-#         fh_uid.write('\n')
-#     fh_age.close()
-#     fh_uid.close()
-#     f_age_uid.close()
 
 
 def read_in_age_by_uid(datadir, location, state_location, country_location, N):
@@ -566,6 +526,96 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
             print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
     if verbose:
         print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+    return syn_schools, syn_school_uids
+
+
+def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
+
+    """
+    A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
+
+    Args:
+        school_sizes (list): A list of school sizes.
+        uids_in_school (dict): A dictionary of students in school mapping ID to age.
+        uids_in_school_by_age (dict): A dictionary of students in school mapping age to the list of IDs with that age.
+        ages_in_school_count (dict): A dictionary mapping age to the number of students with that age.
+        age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
+        age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
+        contact_matrix_dic (dict)    : A dictionary of age specific contact matrix for different physical contact settings.
+        verbose (bool): If True, print statements about the generated schools as they're being generated.
+
+    Returns:
+        Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.
+    """
+
+    syn_schools = []
+    syn_school_uids = []
+    syn_school_types = []
+
+    sorted_size_brackets = sorted(school_size_brackets.keys())
+
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+    age_keys = sorted(ages_in_school_count.keys())
+
+    while len(uids_in_school):
+
+        new_school = []
+        new_school_uids = []
+
+        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
+        # aindex = np.where(achoice)[0][0]
+        aindex = age_keys[np.where(achoice)[0][0]]
+        print('aindex', aindex)
+
+        uid = uids_in_school_by_age[aindex][0]
+        uids_in_school_by_age[aindex].remove(uid)
+        uids_in_school.pop(uid, None)
+        ages_in_school_count[aindex] -= 1
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        new_school.append(aindex)
+        new_school_uids.append(uid)
+
+        school_types = sorted(school_types_by_age[aindex].keys())
+        prob = [school_types_by_age[aindex][s] for s in school_types]
+        school_type = np.random.choice(school_types, p=prob, size=1)[0]
+        print('school types', school_type)
+        print(school_type_age_ranges)
+        school_type_age_range = school_type_age_ranges[school_type]
+
+        school_size_distr = school_size_distr_by_type[school_type]
+
+        # sorted_brackets = sorted(school_size_brackets.keys())
+        prob_by_sorted_size_brackets = [school_size_distr[b] for b in sorted_size_brackets]
+        size_bracket = np.random.choice(sorted_size_brackets, p=prob_by_sorted_size_brackets)
+        size = np.random.choice(school_size_brackets[size_bracket])
+        size -= 1
+
+        # assume ages are uniformly distributed - all grades are roughy the same size
+        school_age_count = np.random.multinomial(size, [1./len(school_type_age_range)] * len(school_type_age_range), size=1)[0]
+
+        for n, a in enumerate(school_type_age_range):
+            count = school_age_count[n]
+            if count > ages_in_school_count[a]:
+                count = ages_in_school_count[a]
+                count = max(0, count)
+
+            school_uids_in_age = uids_in_school_by_age[a][:count]
+            print('count', count, len(uids_in_school_by_age[a]))
+            uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
+            new_school += [a for i in range(count)]
+            new_school_uids += school_uids_in_age
+            ages_in_school_count[a] -= count
+
+        for uid in new_school_uids:
+            uids_in_school.pop(uid, None)
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        syn_schools.append(new_school)
+        syn_school_uids.append(new_school_uids)
+        print(sorted(new_school_uids))
+
+
     return syn_schools, syn_school_uids
 
 
@@ -970,7 +1020,7 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     f_age_uid.close()
 
 
-def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, school_types=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
     and then writes this population to appropriate files.
@@ -1094,6 +1144,13 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
     uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
+
+
+    if school_types:
+        school_size_distr_by_type = spsm.get_default_school_size_distr_by_type()
+        school_size_brackets = spsm.get_default_school_size_distr_brackets()
+
+
 
     # Get school sizes
     gen_school_sizes = generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
