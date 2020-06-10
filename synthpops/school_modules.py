@@ -196,8 +196,8 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
     # calculate school age mixing
     # verbose = True
-    print(syn_school_uids, 'ids')
-    print(syn_school_ages, 'ages')
+    # print(syn_school_uids, 'ids')
+    # print(syn_school_ages, 'ages')
     if verbose:
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():

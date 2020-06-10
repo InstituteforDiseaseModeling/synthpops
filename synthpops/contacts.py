@@ -969,7 +969,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20):
+def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=20, school_mixing_type='random', verbose=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
@@ -1001,6 +1001,11 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
 
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
@@ -1092,24 +1097,34 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         r2 = line2.strip().split(' ')
 
         try:
-            school = [int(i) for i in r1]
+            students = [int(i) for i in r1]
             teachers = [int(i) for i in r2]
 
         except:
-            school = [i for i in r1]
+            students = [i for i in r1]
             teachers = [i for i in r2]
 
-        for uid in school:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, school_mixing_type, verbose)
+
+        else:
+            school = students
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
 
         for uid in teachers:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
 
@@ -1134,7 +1149,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', verbose=False):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
@@ -1164,6 +1179,10 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
 
     popdict = {}
     for uid in age_by_uid_dic:
@@ -1212,27 +1231,32 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
 
-    for ns, school in enumerate(schools_by_uids):
+    for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
-        for uid in school:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, school_mixing_type, verbose)
+
+        else:
+            school = students
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
 
         for uid in teachers:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
-
-    # for ns, school in enumerate(schools_by_uids):
-    #     for uid in school:
-    #         popdict[uid]['contacts']['S'] = set(school)
-    #         popdict[uid]['contacts']['S'].remove(uid)
-    #         popdict[uid]['scid'] = ns
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
@@ -1342,10 +1366,23 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
-    if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
-    if 'directed' not in network_distr_args: network_distr_args['directed'] = False
-    if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
+
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'school_mixing_type': 'random', 'average_LTCF_degree': 20}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    if network_distr_args is None: network_distr_args = default_network_distr_args
+    network_distr_args = sc.mergedicts(default_network_distr_args, network_distr_args)
+
+    default_options_args = dict.fromkeys(['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types'])
+    if options_args is None: options_args = default_options_args
+    options_args = sc.mergedicts(default_options_args, options_args)
+
+    # if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    # if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
+    # if 'directed' not in network_distr_args: network_distr_args['directed'] = False
+    # if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
+    # if 'average_class_size' not in network_distr_args: network_distr_args['average_class_size'] = 20
+    # if 'average_student_teacher_ratio' not in network_distr_args: network_distr_args['average_student_teacher_ratio'] = 20
+    # if 'average_teacher_teacher_degree' not in network_distr_args: network_distr_args['average_teacher_teacher_degree'] = 3
+
 
     ### Rationale behind default activity_args parameters
     # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
@@ -1355,9 +1392,11 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     # activity_args might also include different n_contacts for college kids ....
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
-    if options_args is None: options_args = dict.fromkeys(options_keys, False)
-    if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types']
+    if options_args is None: 
+        options_args = dict.fromkeys(options_keys, False)
+    # if options_args.get('average_LTCF_degree') is None: 
+        # options_args['average_LTCF_degree'] = 20
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -1369,9 +1408,11 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
         if options_args['use_long_term_care_facilities']:
-            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], options_args['average_LTCF_degree'])
+                                                                # def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=20, school_mixing_type='random', verbose=False):
+
+            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], network_distr_args['average_LTCF_degree'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'])
         else:
-            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_industry_code'])
+            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'], options_args['use_industry_code'], verbose=False)
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else:
@@ -1418,7 +1459,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
         A dictionary of individuals with attributes, including their age and the ids of their close contacts.
     """
 
-    trimmed_size_dic = sc.mergedicts({'S': 20, 'W': 10}, trimmed_size_dic)
+    trimmed_size_dic = sc.mergedicts({'W': 20}, trimmed_size_dic)
 
     keys = trimmed_size_dic.keys()
 

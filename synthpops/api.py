@@ -7,6 +7,7 @@ import synthpops as sp
 
 # Put this here so it's accessible as sp.api.popsize_choices
 popsize_choices = [5000,
+3000,
                    10000,
                    20000,
                    50000,
@@ -15,7 +16,7 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None):
+def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', rand_seed=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -37,7 +38,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         sp.set_seed(rand_seed)
 
     default_n = 10000
-    default_max_contacts = {'S': 20, 'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
+    default_max_contacts = {'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
     if n is None:
         n = default_n
@@ -65,8 +66,23 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     location = 'seattle_metro'
     sheet_name = 'United States of America'
 
-    options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities, 'use_two_group_reduction': use_two_group_reduction, 'average_LTCF_degree': average_LTCF_degree}
-    network_distr_args = {'Npop': int(n)}
+    options_args = {}
+    options_args['use_microstructure'] = True,
+    options_args['use_industry_code'] = with_industry_code
+    options_args['use_long_term_care_facilities'] = with_facilities
+    options_args['use_two_group_reduction'] = use_two_group_reduction
+    options_args['average_LTCF_degree'] = average_LTCF_degree
+    options_args['with_school_types'] = with_school_types
+
+
+    network_distr_args = {}
+    network_distr_args['Npop'] = int(n)
+    network_distr_args['average_class_size'] = average_class_size
+    network_distr_args['average_student_teacher_ratio'] = average_student_teacher_ratio
+    network_distr_args['average_teacher_teacher_degree'] = average_teacher_teacher_degree
+    network_distr_args['inter_grade_mixing'] = inter_grade_mixing
+    network_distr_args['school_mixing_type'] = school_mixing_type
+    network_distr_args['average_LTCF_degree'] = average_LTCF_degree
 
     # Heavy lift 1: make the contacts and their connections
     if not generate:
@@ -75,12 +91,14 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     else:
         # make a new network on the fly
         if with_facilities:
-            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, sheet_name='United States of America', return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, with_school_types=with_school_types, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing, average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, school_mixing_type=school_mixing_type)
+
         elif with_facilities and with_industry_code:
+
             errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
         else:
-            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
+            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True, with_school_types=with_school_types, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing, average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, school_mixing_type=school_mixing_type)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)

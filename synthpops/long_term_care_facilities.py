@@ -16,7 +16,7 @@ from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
 from . import contact_networks as spcnx
-
+from . import school_modules as spsm
 
 part = 2
 
@@ -165,7 +165,7 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
     return homes_dic, homes
 
 
-def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False, use_two_group_reduction=False, average_LTCF_degree=20):
+def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False, use_two_group_reduction=False, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random'):
 
     # Grab Long Term Care Facilities data
     ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
@@ -416,11 +416,28 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
     uids_in_school, uids_in_school_by_age, ages_in_school_count = spcnx.get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
-    # Get school sizes
-    gen_school_sizes = spcnx.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+    if with_school_types:
 
-    # Assign students to school
-    gen_schools, gen_school_uids = spcnx.send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
+        school_size_distr_by_type = spsm.get_default_school_size_distr_by_type()
+        school_size_brackets = spsm.get_default_school_size_distr_brackets()
+
+        school_types_by_age = spsm.get_default_school_types_by_age()
+        school_type_age_ranges = spsm.get_default_school_type_age_ranges()
+
+        gen_schools, gen_school_uids, gen_school_types = spcnx.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
+                                                                                                         ages_in_school_count,
+                                                                                                         school_types_by_age,
+                                                                                                         school_type_age_ranges,
+                                                                                                         verbose=False)
+
+    else:
+        # use contact matrices to send students to school
+
+        # Get school sizes
+        gen_school_sizes = spcnx.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+
+        # Assign students to school
+        gen_schools, gen_school_uids, gen_school_types = spcnx.send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
 
     # Get employment rates
     employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -511,7 +528,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities', facilities_by_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities_staff', facilities_staff_uids)
 
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, with_school_types=with_school_types, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing, average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, school_mixing_type=school_mixing_type)
 
     if verbose:
         uids = popdict.keys()
