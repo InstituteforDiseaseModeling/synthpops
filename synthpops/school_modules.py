@@ -33,7 +33,7 @@ from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
-from . import config as cfg
+from .config import datadir
 
 
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
@@ -95,6 +95,19 @@ def add_contacts_from_groups(popdict, groups, setting):
         add_contacts_from_group(popdict, group, setting)
 
     return popdict
+
+
+def generate_random_contacts_across_school(all_school_uids, average_class_size, verbose=False):
+    edges = []
+    p = average_class_size/len(all_school_uids)
+    G = nx.erdos_renyi_graph(len(all_school_uids), p)
+    for e in G.edges():
+        i, j = e
+        node_i = all_school_uids[i]
+        node_j = all_school_uids[j]
+        e = (node_i, node_j)
+        edges.append(e)
+    return edges
 
 
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
@@ -182,6 +195,9 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.add_edges_from([new_ei, new_ej])
 
     # calculate school age mixing
+    # verbose = True
+    print(syn_school_uids, 'ids')
+    print(syn_school_ages, 'ages')
     if verbose:
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
@@ -258,6 +274,10 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
 
     np.random.shuffle(nodes_left)
 
+    if len(groups) == 0:
+        groups.append(nodes_left)
+        nodes_left = []
+
     while len(nodes_left) > 0:
         cluster_size = np.random.poisson(average_class_size)
 
@@ -269,7 +289,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
         nodes_left = nodes_left[cluster_size:]
 
     for i in nodes_left:
-        ng = np.random.choice(len(groups))
+        ng = np.random.choice(a=np.arange(len(groups)))  # choose one of the other classes to add to
         groups[ng].append(i)
 
     if return_edges:
@@ -445,6 +465,7 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
     teacher_groups = []
 
     available_teachers = deepcopy(teachers)
+    # print('available_teachers', len(available_teachers))
 
     for ng, group in enumerate(groups):
         n_teachers_needed = int(np.round(len(group)/average_student_teacher_ratio, 1))
@@ -567,7 +588,7 @@ def get_default_school_types_by_age():
 
 
 def get_default_school_size_distr_brackets():
-    return spdata.get_school_size_brackets(cfg.datadir, country_location='default', use_default=True)
+    return spdata.get_school_size_brackets(datadir, country_location='default', use_default=True)
 
 
 def get_default_school_size_distr_by_type():
@@ -576,7 +597,7 @@ def get_default_school_size_distr_by_type():
     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
 
     for k in school_types:
-        school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(cfg.datadir, country_location='default', use_default=True)
+        school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='default', use_default=True)
 
     return school_size_distr_by_type
 

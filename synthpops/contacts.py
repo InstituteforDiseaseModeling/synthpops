@@ -11,6 +11,7 @@ import networkx as nx
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import base as spb
+from . import school_modules as spsm
 from .config import datadir
 
 
@@ -733,7 +734,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     return popdict
 
 
-def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
+def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', with_industry_code=False, verbose=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
@@ -810,29 +811,44 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     fs = open(schools_by_uid_path, 'r')
     ft = open(teachers_by_uid_path, 'r')
 
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
+
     for ns, (line1, line2) in enumerate(zip(fs, ft)):
         r1 = line1.strip().split(' ')
         r2 = line2.strip().split(' ')
 
         try:
-            school = [int(i) for i in r1]
+            students = [int(i) for i in r1]
             teachers = [int(i) for i in r2]
 
         except:
-            school = [i for i in r1]
+            students = [i for i in r1]
             teachers = [i for i in r2]
 
-        for uid in school:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, school_mixing_type, verbose)
+
+        else:
+            school = students
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
 
         for uid in teachers:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
 
@@ -860,7 +876,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', workplaces_by_industry_codes=None, verbose=False):
 # def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
@@ -886,8 +902,12 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
     """
-
     popdict = {}
+
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
 
     for uid in age_by_uid_dic:
         popdict[uid] = {}
@@ -911,19 +931,30 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
 
-    for ns, school in enumerate(schools_by_uids):
+    for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
-        for uid in school:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, school_mixing_type, verbose)
+
+        else:
+            school = students
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
 
         for uid in teachers:
-            popdict[uid]['contacts']['S'] = set(school)
-            popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            popdict[uid]['contacts']['S'].remove(uid)
+            # popdict[uid]['contacts']['S'] = set(students)
+            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
+            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
 
@@ -1420,6 +1451,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
             for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
+
     return contacts
 
 

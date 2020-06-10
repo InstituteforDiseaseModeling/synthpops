@@ -466,23 +466,23 @@ add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid
 
 
 ages_in_school_count = Counter(syn_school_ages)
-school_types_by_age = {}
+# school_types_by_age = {}
 
-school_type_age_ranges = {}
-school_type_age_ranges['pk'] = np.arange(3, 6)
-school_type_age_ranges['es'] = np.arange(6, 11)
-school_type_age_ranges['ms'] = np.arange(11, 14)
-school_type_age_ranges['hs'] = np.arange(14, 18)
-school_type_age_ranges['uv'] = np.arange(18, 100)
+# school_type_age_ranges = {}
+# school_type_age_ranges['pk'] = np.arange(3, 6)
+# school_type_age_ranges['es'] = np.arange(6, 11)
+# school_type_age_ranges['ms'] = np.arange(11, 14)
+# school_type_age_ranges['hs'] = np.arange(14, 18)
+# school_type_age_ranges['uv'] = np.arange(18, 100)
 
-for a in range(100):
-    school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0)
+# for a in range(100):
+#     school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0)
 
-for k in school_type_age_ranges.keys():
-    for a in school_type_age_ranges[k]:
-        school_types_by_age[a][k] = 1.
+# for k in school_type_age_ranges.keys():
+#     for a in school_type_age_ranges[k]:
+#         school_types_by_age[a][k] = 1.
 
-
+school_types_by_age = sp.get_default_school_types_by_age()
 
 school_type_age_ranges = sp.get_default_school_type_age_ranges()
 
