@@ -43,15 +43,19 @@ popdict = sp.generate_microstructure_with_facilities(datadir,
                                                      average_student_teacher_ratio=average_student_teacher_ratio,
                                                      average_teacher_teacher_degree=average_teacher_teacher_degree)
 
-# # read in from file
-popdict = sp.make_contacts_with_facilities_from_microstructure(datadir,
-                                                               location=location,
-                                                               state_location=state_location,
-                                                               country_location=country_location,
-                                                               n=n)
+# # # read in from file
+# popdict = sp.make_contacts_with_facilities_from_microstructure(datadir,
+#                                                                location=location,
+#                                                                state_location=state_location,
+#                                                                country_location=country_location,
+#                                                                n=n)
 
 # # generate on the fly
-popdict = sp.make_population(n=n, generate=False, with_facilities=True, with_school_types=with_school_types, school_mixing_type='clustered')
+popdict = sp.make_population(n=n,
+                             generate=True,
+                             with_facilities=True,
+                             with_school_types=with_school_types,
+                             school_mixing_type='clustered')
 
 
 sp.check_all_residents_are_connected_to_staff(popdict)
