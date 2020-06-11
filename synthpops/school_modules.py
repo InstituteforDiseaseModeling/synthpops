@@ -479,7 +479,7 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
     # have exactly as many teachers as needed
     if len(groups) == len(available_teachers):
         for ng, t in enumerate(available_teachers):
-            teacher_groups.append(list(t))
+            teacher_groups.append([t])
         teachers_assigned = teachers
         available_teachers = []
 
@@ -497,15 +497,16 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
             groups = groups[:-1]
 
         for ng, t in enumerate(available_teachers):
-            teacher_groups.append(list(t))
+            # print(available_teachers, t)
+            teacher_groups.append([t])
         teachers_assigned = teachers
         available_teachers = []
 
     elif len(groups) < len(available_teachers):
         for ng, group in enumerate(groups):
 
-            # class size already determines that each class gets at least one teacher - maybe we can add other teachers some other way
-            teacher_groups.append(list(available_teachers[ng]))
+            # class size already determines that each class gets at least one teacher and make that a list - maybe we can add other teachers some other way
+            teacher_groups.append([available_teachers[ng]])
         available_teachers = available_teachers[len(groups):]
 
         # spread extra teachers among the classes
