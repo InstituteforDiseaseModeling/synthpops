@@ -396,6 +396,7 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
         n_teachers_needed = int(np.round(len(uids_in_school_by_age[a])/average_student_teacher_ratio, 1))
         n_teachers_needed = max(1, n_teachers_needed)  # at least one teacher
 
+        # if n_teachers_needed > len(available_teachers)
         if n_teachers_needed > len(available_teachers):
             selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
         else:
@@ -464,38 +465,91 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
     teachers_assigned = []
     teacher_groups = []
 
+    np.random.shuffle(groups)  # shuffle the clustered groups of students / classes so that the classes aren't ordered from youngest to oldest
+
     available_teachers = deepcopy(teachers)
-    # print('available_teachers', len(available_teachers))
 
-    for ng, group in enumerate(groups):
-        n_teachers_needed = int(np.round(len(group)/average_student_teacher_ratio, 1))
-        n_teachers_needed = max(1, n_teachers_needed)
+    # have exactly as many teachers as needed
+    if len(groups) == len(available_teachers):
+        for ng, t in enumerate(available_teachers):
+            teacher_groups.append(list(t))
+        teachers_assigned = teachers
+        available_teachers = []
 
-        if n_teachers_needed > len(available_teachers):
-            selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
-        else:
-            selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
-            for t in selected_teachers:
-                available_teachers.remove(t)
-                teachers_assigned.append(t)
+    # you don't have enough teachers to cover the classes so break the extra groups up
+    elif len(groups) > len(available_teachers):
+        n_groups_to_break = len(groups) - len(available_teachers)
 
-        teacher_groups.append(list(selected_teachers))
+        # grab the last cluster and split it up and spread the students to the other groups
+        for ngb in range(n_groups_to_break):
+            group_to_break = groups[-1]
 
-        for student in group:
-            teacher = np.random.choice(selected_teachers)
-            e = (student, teacher)
-            edges.append(e)
+            for student in group_to_break:
+                ng = np.random.randint(len(groups) - 1)  # find another class to join
+                groups[ng].append(student)
+            groups = groups[:-1]
+
+        for ng, t in enumerate(available_teachers):
+            teacher_groups.append(list(t))
+        teachers_assigned = teachers
+        available_teachers = []
+
+    elif len(groups) < len(available_teachers):
+        for ng, group in enumerate(groups):
+
+            # class size already determines that each class gets at least one teacher - maybe we can add other teachers some other way
+            teacher_groups.append(list(available_teachers[ng]))
+        available_teachers = available_teachers[len(groups):]
+
+        # spread extra teachers among the classes
+        for t in available_teachers:
+            ng = np.random.randint(len(groups))
+            teacher_groups[ng].append(t)
+        teachers_assigned = teachers
+        available_teachers = []
+
+    # print('available_teachers', len(available_teachers), [len(g) for g in groups])
+
+    # for ng, group in enumerate(groups):
+    #     n_teachers_needed = int(np.round(len(group)/average_student_teacher_ratio, 1))
+    #     n_teachers_needed = max(1, n_teachers_needed)
+    #     # print('nt', n_teachers_needed, len(available_teachers), len(teachers_assigned))
+
+    #     if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
+    #         n_teachers_needed = len(available_teachers) + len(teachers_assigned)
+
+    #         selected_teachers = available_teachers + teachers_assigned
+
+    #     elif n_teachers_needed > len(available_teachers):
+    #         selected_teachers = available_teachers
+    #         n_teachers_needed = n_teachers_needed - len(available_teachers)
+    #         selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
+
+    #     else:
+    #         selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
+    #         for t in selected_teachers:
+    #             available_teachers.remove(t)
+    #             teachers_assigned.append(t)
+
+    #     teacher_groups.append(list(selected_teachers))
+
+    #     for student in group:
+    #         teacher = np.random.choice(selected_teachers)
+    #         e = (student, teacher)
+    #         edges.append(e)
 
     # contacts are clustered so find a class to add to
-    for teacher in available_teachers:
-        ng = np.random.choice(np.arange(len(groups)))
-        group = groups[ng]
+    # for teacher in available_teachers:
+        # ng = np.random.choice(np.arange(len(groups)))
+        # group = groups[ng]
 
+    for ng, group in enumerate(groups):
         for student in group:
-            e = (student, teacher)
-            edges.append(e)
+            for teacher in teacher_groups[ng]:
+                e = (student, teacher)
+                edges.append(e)
 
-        teacher_groups[ng].append(teacher)
+        # teacher_groups[ng].append(teacher)
 
     if return_edges:
         teacher_teacher_edges = []
