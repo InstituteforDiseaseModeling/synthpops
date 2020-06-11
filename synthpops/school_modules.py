@@ -396,9 +396,16 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
         n_teachers_needed = int(np.round(len(uids_in_school_by_age[a])/average_student_teacher_ratio, 1))
         n_teachers_needed = max(1, n_teachers_needed)  # at least one teacher
 
-        # if n_teachers_needed > len(available_teachers)
-        if n_teachers_needed > len(available_teachers):
-            selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
+        if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
+            n_teachers_needed = len(available_teachers) + len(teachers_assigned)
+            selected_teachers = available_teachers + teachers_assigned
+
+        elif n_teachers_needed > len(available_teachers):
+            selected_teachers = available_teachers
+            n_teachers_needed = n_teachers_needed - len(available_teachers)
+            selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
+
+            # selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
         else:
             selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
             for t in selected_teachers:
