@@ -591,8 +591,9 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         size_bracket = np.random.choice(sorted_size_brackets, p=prob_by_sorted_size_brackets)
         size = np.random.choice(school_size_brackets[size_bracket])
         size -= 1
-
         # assume ages are uniformly distributed - all grades are roughy the same size - so calculate how many are in each grade or age
+
+        # assume ages are uniformly distributed - all grades are roughy the same size
         school_age_count = np.random.multinomial(size, [1./len(school_type_age_range)] * len(school_type_age_range), size=1)[0]
 
         for n, a in enumerate(school_type_age_range):
