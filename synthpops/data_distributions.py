@@ -813,6 +813,9 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
                 raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
         sizes = df.iloc[:, 0].values
         size_count = Counter(sizes)
+        # drop school sizes under 2
+        for s in range(2):
+            size_count.pop(s, None)
 
         size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
         size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
