@@ -622,6 +622,30 @@ def get_default_school_types_by_age():
     return school_types_by_age
 
 
+def get_default_school_types_by_age_single():
+    """
+    Define and return default school type by age by assigning the school type with the highest probability.
+
+    Return:
+        A dictionary of default school type by age.
+
+    """
+    school_types_by_age = get_default_school_types_by_age()
+    # school_types_by_age_single = deepcopy(school_types_by_age)
+    school_types_by_age_single = {}
+    # keys = deepcopy(list(school_types_by_age[0].keys()))
+    for a in range(100):
+        values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
+        max_v = max(values_to_keys_dic.keys())
+        max_k = values_to_keys_dic[max_v]
+        school_types_by_age_single[a] = max_k
+        # for k in keys:
+        #     if k != max_k:
+        #         school_types_by_age_single[a].pop(k, None)
+
+    return school_types_by_age_single
+
+
 def get_default_school_size_distr_brackets():
     """
     Define and return default school size distribution brackets.
