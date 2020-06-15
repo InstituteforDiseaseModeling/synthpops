@@ -1160,7 +1160,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                                                                                    school_types_by_age,
                                                                                                    school_type_age_ranges,
                                                                                                    verbose=False)
-        print(school_mixing_type)
+
     else:
         # use contact matrices to send students to school
 

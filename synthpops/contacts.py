@@ -844,7 +844,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         else:
             school = students
             school += teachers
-            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
@@ -885,7 +885,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', school_type_age_ranges=None, workplaces_by_industry_codes=None, verbose=False):
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random', school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
 # def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
@@ -963,7 +963,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         else:
             school = students
             school += teachers
-            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
@@ -1146,7 +1146,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         else:
             school = students
             school += teachers
-            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
@@ -1289,7 +1289,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         else:
             school = students
             school += teachers
-            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size, verbose)
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
@@ -1414,9 +1414,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-
-    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'average_LTCF_degree': 20}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
-    default_network_distr_args['school_mixing_type': 'random']
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'average_LTCF_degree': 20, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    default_network_distr_args['school_type_by_age'] = spsm.get_default_school_types_by_age_single()
 
     if network_distr_args is None: network_distr_args = default_network_distr_args
     network_distr_args = sc.mergedicts(default_network_distr_args, network_distr_args)
@@ -1432,7 +1431,6 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     # if 'average_class_size' not in network_distr_args: network_distr_args['average_class_size'] = 20
     # if 'average_student_teacher_ratio' not in network_distr_args: network_distr_args['average_student_teacher_ratio'] = 20
     # if 'average_teacher_teacher_degree' not in network_distr_args: network_distr_args['average_teacher_teacher_degree'] = 3
-
 
     ### Rationale behind default activity_args parameters
     # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
@@ -1458,9 +1456,9 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
         country_location = 'usa'
         if options_args['use_long_term_care_facilities']:
-            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], network_distr_args['average_LTCF_degree'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'])
+            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], network_distr_args['average_LTCF_degree'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'], network_distr_args['school_type_by_age'])
         else:
-            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'], options_args['use_industry_code'], verbose=False)
+            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['with_school_types'], network_distr_args['average_class_size'], network_distr_args['inter_grade_mixing'], network_distr_args['average_student_teacher_ratio'], network_distr_args['average_teacher_teacher_degree'], network_distr_args['school_mixing_type'], network_distr_args['school_type_by_age'], options_args['use_industry_code'], verbose=False)
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else:
