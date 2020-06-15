@@ -13,33 +13,28 @@ grade. Clustering contacts across different grades is not supported because
 there is no data to suggest that this happens commonly.
 
 """
-
-import os
+# import os
 from copy import deepcopy
 from collections import Counter
 from itertools import combinations
 
-import sciris as sc
+# import sciris as sc
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import networkx as nx
-import math
+# import math
 
-import matplotlib as mplt
-import matplotlib.pyplot as plt
-import cmocean
-
-from . import base as spb
+# from . import base as spb
 from . import data_distributions as spdata
-from . import sampling as spsamp
-from . import contacts as spct
+# from . import sampling as spsamp
+# from . import contacts as spct
 from .config import datadir
 
 
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
 def add_contacts_from_edgelist(popdict, edgelist, setting):
     """
-    Adds contacts to popdict from edges in an edgelist.
+    Add contacts to popdict from edges in an edgelist.
 
     Args:
         popdict (dict)  : dict of people
@@ -48,8 +43,8 @@ def add_contacts_from_edgelist(popdict, edgelist, setting):
 
     Returns:
         Updated popdict.
-    """
 
+    """
     for e in edgelist:
         i, j = e
 
@@ -61,7 +56,7 @@ def add_contacts_from_edgelist(popdict, edgelist, setting):
 
 def add_contacts_from_group(popdict, group, setting):
     """
-    Adds contacts to popdict from fully connected group.
+    Add contacts to popdict from fully connected group.
 
     Args:
         popdict (dict) : dict of people
@@ -70,8 +65,8 @@ def add_contacts_from_group(popdict, group, setting):
 
     Returns:
         Updated popdict.
-    """
 
+    """
     for i in group:
         popdict[i]['contacts'][setting] = popdict[i]['contacts'][setting].union(group)
         popdict[i]['contacts'][setting].remove(i)
@@ -81,7 +76,7 @@ def add_contacts_from_group(popdict, group, setting):
 
 def add_contacts_from_groups(popdict, groups, setting):
     """
-    Adds contacts to popdict from fully connected groups.
+    Add contacts to popdict from fully connected groups.
 
     Args:
         popdict (dict) : dict of people
@@ -90,6 +85,7 @@ def add_contacts_from_groups(popdict, groups, setting):
 
     Returns:
         Updated popdict.
+
     """
     for group in groups:
         add_contacts_from_group(popdict, group, setting)
@@ -97,11 +93,23 @@ def add_contacts_from_groups(popdict, groups, setting):
     return popdict
 
 
-def generate_random_contacts_across_school(all_school_uids, average_class_size, verbose=False):
+def generate_random_contacts_across_school(all_school_uids, average_class_size):
+    """
+    Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
+
+    Args:
+        all_school_uids (list)   : list of uids of individuals in the school
+        average_class_size (int) : average class size or number of contacts in school
+        verbose (bool)           : If True, print some edges
+
+    Returns:
+        List of edges between individuals in school.
+
+    """
     edges = []
-    p = average_class_size/len(all_school_uids)
+    p = average_class_size / len(all_school_uids)
     G = nx.erdos_renyi_graph(len(all_school_uids), p)
-    for e in G.edges():
+    for n, e in enumerate(G.edges()):
         i, j = e
         node_i = all_school_uids[i]
         node_j = all_school_uids[j]
@@ -112,8 +120,7 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size, 
 
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
     """
-    Generates edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade.
-    Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -129,7 +136,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         List of edges between students in school.
 
     """
-
     # what are the ages in the school
     age_counter = Counter(syn_school_ages)
     age_keys = sorted(age_counter.keys())
@@ -149,7 +155,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
     for a in uids_in_school_by_age:
 
-        p = float(average_class_size)/len(uids_in_school_by_age[a])  # density of contacts within each grade
+        p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
         Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
         for e in Ga.edges():
             i, j = e
@@ -164,7 +170,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
     E = list(G.edges())
     np.random.shuffle(E)
 
-    nE = int(len(E)/2.)  # we'll loop over edges in pairs so only need to loop over half the length
+    nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
 
     for n in range(nE):
         if np.random.binomial(1, p=inter_grade_mixing):
@@ -195,7 +201,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.add_edges_from([new_ei, new_ej])
 
     # calculate school age mixing
-    # verbose = True
     # print(syn_school_uids, 'ids')
     # print(syn_school_ages, 'ages')
     if verbose:
@@ -219,8 +224,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
 def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, return_edges=False, verbose=False):
     """
-    Generates edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade.
-    Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -237,7 +241,6 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
         List of edges between students in school or groups of contacts.
 
     """
-
     # what are the ages in the school
     age_counter = Counter(syn_school_ages)
     age_keys = sorted(age_counter.keys())
@@ -269,7 +272,8 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
                 break
 
             group = nodes[:cluster_size]
-            groups.append(group)
+            if cluster_size > 0:
+                groups.append(group)
             nodes = nodes[cluster_size:]
 
     np.random.shuffle(nodes_left)
@@ -285,7 +289,8 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
             break
 
         group = nodes_left[:cluster_size]
-        groups.append(group)
+        if cluster_size > 0:
+            groups.append(group)
         nodes_left = nodes_left[cluster_size:]
 
     for i in nodes_left:
@@ -345,7 +350,7 @@ def generate_edges_between_teachers(teachers, average_teacher_teacher_degree):
         edges = [e for e in eiter]
 
     else:
-        p = average_teacher_teacher_degree/len(teachers)
+        p = average_teacher_teacher_degree / len(teachers)
         G = nx.erdos_renyi_graph(len(teachers), p)
         for e in G.edges():
             i, j = e
@@ -358,8 +363,7 @@ def generate_edges_between_teachers(teachers, average_teacher_teacher_degree):
 
 def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school.
-    Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
+    Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
 
     Args:
         syn_school_uids (list)               : list of uids of students in the school
@@ -393,7 +397,7 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
     available_teachers = deepcopy(teachers)
     for a in uids_in_school_by_age:
 
-        n_teachers_needed = int(np.round(len(uids_in_school_by_age[a])/average_student_teacher_ratio, 1))
+        n_teachers_needed = int(np.round(len(uids_in_school_by_age[a]) / average_student_teacher_ratio, 1))
         n_teachers_needed = max(1, n_teachers_needed)  # at least one teacher
 
         if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
@@ -421,7 +425,7 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
     # some teachers left so add them as contacts to other students
     for teacher in available_teachers:
 
-        n_students = np.random.poisson(average_student_teacher_ratio)
+        n_students = max(1, np.random.poisson(average_student_teacher_ratio))
 
         if n_students > len(syn_school_uids):
             n_students = len(syn_school_uids)
@@ -453,8 +457,7 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
 
 def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school.
-    Students and teachers are clustered into disjoint classes.
+    Generate edges for teachers, including to both students and other teachers at the same school. Students and teachers are clustered into disjoint classes.
 
     Args:
         groups (list)                        : list of lists of students, clustered into groups mostly by grade
@@ -497,7 +500,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
             groups = groups[:-1]
 
         for ng, t in enumerate(available_teachers):
-            # print(available_teachers, t)
             teacher_groups.append([t])
         teachers_assigned = teachers
         available_teachers = []
@@ -516,48 +518,12 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
         teachers_assigned = teachers
         available_teachers = []
 
-    # print('available_teachers', len(available_teachers), [len(g) for g in groups])
-
-    # for ng, group in enumerate(groups):
-    #     n_teachers_needed = int(np.round(len(group)/average_student_teacher_ratio, 1))
-    #     n_teachers_needed = max(1, n_teachers_needed)
-    #     # print('nt', n_teachers_needed, len(available_teachers), len(teachers_assigned))
-
-    #     if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
-    #         n_teachers_needed = len(available_teachers) + len(teachers_assigned)
-
-    #         selected_teachers = available_teachers + teachers_assigned
-
-    #     elif n_teachers_needed > len(available_teachers):
-    #         selected_teachers = available_teachers
-    #         n_teachers_needed = n_teachers_needed - len(available_teachers)
-    #         selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
-
-    #     else:
-    #         selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
-    #         for t in selected_teachers:
-    #             available_teachers.remove(t)
-    #             teachers_assigned.append(t)
-
-    #     teacher_groups.append(list(selected_teachers))
-
-    #     for student in group:
-    #         teacher = np.random.choice(selected_teachers)
-    #         e = (student, teacher)
-    #         edges.append(e)
-
-    # contacts are clustered so find a class to add to
-    # for teacher in available_teachers:
-        # ng = np.random.choice(np.arange(len(groups)))
-        # group = groups[ng]
-
+    # create edges between students and teachers
     for ng, group in enumerate(groups):
         for student in group:
             for teacher in teacher_groups[ng]:
                 e = (student, teacher)
                 edges.append(e)
-
-        # teacher_groups[ng].append(teacher)
 
     if return_edges:
         teacher_teacher_edges = []
@@ -592,7 +558,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
         Updated popdict.
 
     """
-
     if school_mixing_type == 'random':
         edges = generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose)
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree, verbose)
@@ -615,15 +580,17 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
         # teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree-1)
         # add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
-    # for i in teachers:
-    #     con = popdict[i]['contacts']['S']
-    #     print(i, len([c for c in con if c in teachers]))
-
     return popdict
 
 
 def get_default_school_type_age_ranges():
+    """
+    Define and return default school types and the age range for each.
 
+    Return:
+        A dictionary of default school types and the age range for each.
+
+    """
     school_type_age_ranges = {}
     school_type_age_ranges['pk'] = np.arange(3, 6)
     school_type_age_ranges['es'] = np.arange(6, 11)
@@ -635,7 +602,13 @@ def get_default_school_type_age_ranges():
 
 
 def get_default_school_types_by_age():
+    """
+    Define and return default probabilities of school type for each age.
 
+    Return:
+        A dictionary of default probabilities for the school type likely for each age.
+
+    """
     school_type_age_ranges = get_default_school_type_age_ranges()
 
     school_types_by_age = {}
@@ -650,10 +623,24 @@ def get_default_school_types_by_age():
 
 
 def get_default_school_size_distr_brackets():
+    """
+    Define and return default school size distribution brackets.
+
+    Return:
+        A dictionary of school size brackets.
+
+    """
     return spdata.get_school_size_brackets(datadir, country_location='default', use_default=True)
 
 
 def get_default_school_size_distr_by_type():
+    """
+    Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
+
+    Return:
+        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+
+    """
     school_size_distr_by_type = {}
 
     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
@@ -662,4 +649,3 @@ def get_default_school_size_distr_by_type():
         school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='default', use_default=True)
 
     return school_size_distr_by_type
-

@@ -64,7 +64,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         else:
             # if location is None:
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
-                # raise NotImplementedError('Currently, only locations in the US are supported. Next version!')
 
     # you only have ages...
     elif ages is not None and sexes is None:
@@ -380,8 +379,6 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     # using a flat contact matrix
     uids_by_age_dic = spsamp.spb.get_uids_by_age_dic(popdict)
-    # if country_location is None:
-    #     raise NotImplementedError
 
     # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
@@ -446,8 +443,6 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    # if country_location is None:
-        # raise NotImplementedError
 
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
@@ -651,7 +646,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     sizes = [len(r1), len(r2)]
 
     for i in popdict:
-    # for i in group:
         popdict[i]['contacts'].setdefault(setting, set())
 
     # group is less than the average degree, so return a fully connected graph instead
@@ -1367,7 +1361,9 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
 
-    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'school_mixing_type': 'random', 'average_LTCF_degree': 20}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'average_LTCF_degree': 20}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    default_network_distr_args['school_mixing_type': 'random']
+
     if network_distr_args is None: network_distr_args = default_network_distr_args
     network_distr_args = sc.mergedicts(default_network_distr_args, network_distr_args)
 
