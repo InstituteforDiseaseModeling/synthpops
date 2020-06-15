@@ -26,8 +26,8 @@ if __name__ == '__main__':
     average_student_teacher_ratio = 20
     average_teacher_teacher_degree = 3
     # school_mixing_type = 'random'
-    school_mixing_type = 'clustered'
-
+    # school_mixing_type = 'clustered'
+    school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
 
     population = sp.generate_synthetic_population(n, datadir, location=location,
                                                   state_location=state_location,
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     population = sp.make_population(n,
                                     generate=True,
                                     with_school_types=True,
-                                    school_mixing_type='clustered')
+                                    school_mixing_type=school_mixing_type)
 
 #     for i in range(50):
 #         person = population[i]
@@ -57,5 +57,3 @@ if __name__ == '__main__':
 #           sa = [population[c]['age'] for c in person['contacts']['S']]
 #           # print(i, person['age'], 'S', sa, person['contacts']['S'])
 #           print(i, person['age'], person['scid'], 'S', sa)
-# # 
-    
