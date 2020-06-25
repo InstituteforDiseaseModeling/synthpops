@@ -34,7 +34,7 @@ from .config import datadir
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
 def add_contacts_from_edgelist(popdict, edgelist, setting):
     """
-    Add contacts to popdict from edges in an edgelist.
+    Add contacts to popdict from edges in an edgelist. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
 
     Args:
         popdict (dict)  : dict of people
@@ -56,7 +56,7 @@ def add_contacts_from_edgelist(popdict, edgelist, setting):
 
 def add_contacts_from_group(popdict, group, setting):
     """
-    Add contacts to popdict from fully connected group.
+    Add contacts to popdict from fully connected group. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
 
     Args:
         popdict (dict) : dict of people
@@ -576,9 +576,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
             group += teacher_group
             add_contacts_from_group(popdict, group, 'S')
 
-        # # additional edges between teachers in different classes - makes distint clusters connected
-        # teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree-1)
-        # add_contacts_from_edgelist(popdict, teacher_edges, 'S')
+        # # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
+        teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree - 1)
+        add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
     return popdict
 
