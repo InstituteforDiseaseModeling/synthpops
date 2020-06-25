@@ -577,7 +577,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
             add_contacts_from_group(popdict, group, 'S')
 
         # # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
-        teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree - 1)
+        teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
     return popdict
