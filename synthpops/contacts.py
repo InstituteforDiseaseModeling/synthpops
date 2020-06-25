@@ -794,6 +794,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
         popdict[uid]['sc_type'] = None
@@ -824,6 +825,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     for ns, (line1, line2) in enumerate(zip(fs, ft)):
         r1 = line1.strip().split(' ')
         r2 = line2.strip().split(' ')
+        this_school_type = None
 
         try:
             students = [int(i) for i in r1]
@@ -853,6 +855,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
         for uid in teachers:
             # popdict[uid]['contacts']['S'] = set(students)
@@ -860,6 +863,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
     fs.close()
     ft.close()
@@ -937,6 +941,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
 
@@ -951,6 +957,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
 
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
+        this_school_type = None
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
@@ -972,6 +979,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
         for uid in teachers:
             # popdict[uid]['contacts']['S'] = set(students)
@@ -979,6 +987,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
@@ -1062,6 +1071,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1126,6 +1136,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     for ns, (line1, line2) in enumerate(zip(schools_by_uids, teachers_by_uids)):
         r1 = line1.strip().split(' ')
         r2 = line2.strip().split(' ')
+        this_school_type = None
 
         try:
             students = [int(i) for i in r1]
@@ -1155,6 +1166,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
         for uid in teachers:
             # popdict[uid]['contacts']['S'] = set(students)
@@ -1162,6 +1174,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
     schools_by_uids.close()
     teachers_by_uids.close()
@@ -1239,6 +1252,9 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         popdict[uid]['snf_staff'] = None
         popdict[uid]['hhid'] = None
         popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1277,6 +1293,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
 
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
+        this_school_type = None
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
@@ -1293,18 +1310,14 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
-            # popdict[uid]['contacts']['S'] = set(students)
-            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
         for uid in teachers:
-            # popdict[uid]['contacts']['S'] = set(students)
-            # popdict[uid]['contacts']['S'] = popdict[uid]['contacts']['S'].union(set(teachers))
-            # popdict[uid]['contacts']['S'].remove(uid)
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
