@@ -93,6 +93,62 @@ def add_contacts_from_groups(popdict, groups, setting):
     return popdict
 
 
+def add_random_contacts_from_graph(G, expected_average_degree):
+    """
+    Add additional edges at random to achieve the expected or desired average degree.
+
+    Args:
+        G (networkx Graph)            : networkx Graph object
+        expected_average_degree (int) : expected or desired average degree
+
+    Returns:
+        Updated networkx Graph object with additional edges added at random.
+
+    """
+    nodes = G.nodes()
+
+    # print('before',len(G.edges()))
+
+    ordered_node_ids = {node: node_id for node_id, node in enumerate(nodes)}
+    ids_to_ordered_nodes = {node_id: node for node_id, node in enumerate(nodes)}
+
+    if len(nodes) == 0:
+        return G
+
+    p = expected_average_degree/len(nodes)
+
+    G2 = nx.erdos_renyi_graph(len(nodes), p) # will return a graph with nodes relabeled from 0 through len(nodes)-1
+
+    for node in nodes:
+        ordered_node_id = ordered_node_ids[node]
+
+        extra_neighbors = list(G2.neighbors(ordered_node_id))
+        extra_edges_needed = len(extra_neighbors) - G.degree(node)
+
+        if extra_edges_needed > 0:
+            extra_neighbors_to_add = np.random.choice(extra_neighbors, extra_edges_needed)
+            for j in extra_neighbors_to_add:
+                neighbor = ids_to_ordered_nodes[j]
+                G.add_edge(node, neighbor)
+
+    # in case you've added too many edges, let's remove a few - likely to not be hit
+    for node in nodes:
+        ordered_node_id = ordered_node_ids[node]
+        neighbors = list(G.neighbors(node))
+        extra_edges_to_remove = G.degree(node) - G2.degree(ordered_node_id)
+        extra_edges_to_remove = int(extra_edges_to_remove/2.)
+
+        if extra_edges_to_remove > 0:
+            extra_neighbors_to_remove = np.random.choice(extra_neighbors, extra_edges_to_remove)
+            for j in extra_neighbors_to_remove:
+                neighbor = ids_to_ordered_nodes[j]
+                if G.has_edge(node, neighbor):
+                    G.remove_edge(node, neighbor)
+
+    # print('after',len(G.edges()))
+    return G
+
+
 def generate_random_contacts_across_school(all_school_uids, average_class_size):
     """
     Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
@@ -115,6 +171,7 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
         node_j = all_school_uids[j]
         e = (node_i, node_j)
         edges.append(e)
+    # print('e',len(edges))
     return edges
 
 
@@ -150,18 +207,32 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         a = age_by_uid_dic[uid]
         uids_in_school_by_age[a].append(uid)
 
+    age_groups_smaller_than_degree = False
+    for a in uids_in_school_by_age:
+        if average_class_size > len(uids_in_school_by_age[a]):
+            age_groups_smaller_than_degree = True
+
     # create a graph of contacts in the school
     G = nx.Graph()
 
     for a in uids_in_school_by_age:
 
+        # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
         p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
+        # print('a',a, len(uids_in_school_by_age[a]), p)
+
         Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
         for e in Ga.edges():
             i, j = e
 
             # add each edge to the overall school graph
             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
+    # print('e0', len(G.edges()))
+    # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
+    if age_groups_smaller_than_degree:
+        # print('grades too small')
+        # add some extra edges
+        G = add_random_contacts_from_graph(G, average_class_size)
 
     if verbose:
         print('clustering within the school', nx.transitivity(G))
@@ -169,7 +240,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
     np.random.shuffle(E)
-
+    # print('e',len(E))
     nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
 
     for n in range(nE):
@@ -558,26 +629,46 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
         Updated popdict.
 
     """
+    # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     if school_mixing_type == 'random':
+        # print('random', len(syn_school_uids), len(teachers))
+        school = deepcopy(syn_school_uids)
+        school += teachers
+        edges = generate_random_contacts_across_school(school, average_class_size)
+        add_contacts_from_edgelist(popdict, edges, 'S')
+
+    # random contacts across a grade in the school, most edges will across the same age group, much like mmiddle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
+    elif school_mixing_type == 'age_clustered':
         edges = generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose)
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree, verbose)
         edges += teacher_edges
+        # print('rne', len(syn_school_uids), len(teachers), len(edges))
         add_contacts_from_edgelist(popdict, edges, 'S')
 
-    elif school_mixing_type == 'clustered':
+    # completely clustered into classes by age, one teacher per class at least
+    elif school_mixing_type == 'age_and_class_clustered':
 
         student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose=verbose)
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
 
+        n_expected_edges = 0
+        n_expected_edges_list = []
         for ng in range(len(student_groups)):
             student_group = student_groups[ng]
             teacher_group = teacher_groups[ng]
             group = student_group
             group += teacher_group
+            n_expected_edges += len(group) * (len(group) - 1)/2
+            n_expected_edges_list.append(len(group) * (len(group)- 1 ) / 2)
             add_contacts_from_group(popdict, group, 'S')
 
+        # print('cne', len(syn_school_uids), len(teachers), n_expected_edges)
         # # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
+        n_expected_edges += len(teacher_edges)
+        # print('cne', len(syn_school_uids), len(teachers), n_expected_edges)
+        # print(n_expected_edges_list)
+
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
     return popdict

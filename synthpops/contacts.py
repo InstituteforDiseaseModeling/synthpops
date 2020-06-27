@@ -1294,12 +1294,14 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
         this_school_type = None
+        # print('scid', ns)
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
             min_age = min(student_ages)
             # max_ages = max(student_ages)
             this_school_type = school_type_by_age[min_age]
+            # print('scid', ns, this_school_type)
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
             spsm.add_school_edges(popdict, students, student_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, this_school_mixing_type, verbose)
 
