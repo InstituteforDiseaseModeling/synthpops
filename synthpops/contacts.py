@@ -650,7 +650,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     sizes = [len(r1), len(r2)]
 
     for i in popdict:
-    # for i in group:
         popdict[i]['contacts'].setdefault(setting, set())
 
     # group is less than the average degree, so return a fully connected graph instead

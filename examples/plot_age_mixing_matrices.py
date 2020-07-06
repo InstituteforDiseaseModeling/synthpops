@@ -102,7 +102,7 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
 def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
                                                density_or_frequency='density', with_facilities=False, cmap='cmr.freeze_r', fontsize=16, rotation=50):
     """
-    Plot the age mixing matrix for a specific setting where the edges are trimmed.
+    Plot the age mixing matrix for a specific setting where the .
 
     Args:
         setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
