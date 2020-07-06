@@ -55,7 +55,7 @@ fontsize = 34
 ### Draw networks ###
 
 # Sample networks
-pop_size = 250
+pop_size = 180
 pop_type = 'synthpops'
 location = 'seattle_metro'
 state_location = 'Washington'
@@ -63,7 +63,7 @@ country_location = 'usa'
 undirected = True
 n_days = 1
 rand_seed = None
-with_facilities = True
+# with_facilities = True
 with_facilities = False
 
 
@@ -79,6 +79,7 @@ popdict = cv.make_people(sim, generate=True, with_facilities=with_facilities, la
 sim = cv.Sim(pars, popfile=popdict, load_pop=True)
 
 keys_to_plot = ['h', 'l', 's', 'w']
+# keys_to_plot = ['h', 's', 'w']
 keys = ['l', 'w', 's', 'h']
 
 if with_facilities is False:
@@ -151,9 +152,9 @@ for age in age_cutoffs:
     nearest_age = sc.findnearest(sim.people.age, age)
     col = colors[nearest_age]
     if age != 100:
-        ax_leg.plot(np.nan, np.nan, 'o', markersize=12, c=col, label=f'Age {age}-{age+9}')
+        ax_leg.plot(np.nan, np.nan, 'o', markersize=15, c=col, label=f'Age {age}-{age+9}')
     else:
-        ax_leg.plot(np.nan, np.nan, 'o', markersize=12, c=col, label=f'Age {age}+')
+        ax_leg.plot(np.nan, np.nan, 'o', markersize=15, c=col, label=f'Age {age}+')
 ax_leg.legend(fontsize=fontsize + 4)
 
 
@@ -182,10 +183,22 @@ for ind in idict['w']:
         trimmed_h.remove(ind)
 
 # marker styles for people in different layers
-ndict = dict(h=80, s=100, w=100, l=100)
+ndict = dict(h=60, s=160, w=160, l=160)
 kdict = dict(h=0.7, s=1.0, w=2.0, l=1.5)
 mdict = dict(h='^', s='o', w='s', l='D')
 width = 0.2
+
+mdict_2 = {i: mdict['h'] for i in idict['h']}
+for i in idict['s']:
+    mdict_2[i] = mdict['s']
+for i in idict['w']:
+    mdict_2[i] = mdict['w']
+
+ndict_2 = {i: ndict['h'] for i in idict['h']}
+for i in idict['s']:
+    ndict_2[i] += 40
+for i in idict['w']:
+    ndict_2[i] += 40
 
 # Set up 6 ax panel
 ax = []
@@ -215,8 +228,10 @@ for l, layer in enumerate(keys_to_plot):
         pos = nx.nx_pydot.graphviz_layout(G)
     else:
         pos = nx.spring_layout(G, k=kdict[layer], iterations=200)
-
-    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer], node_shape=mdict[layer], width=width, arrows=False, node_color=color)
+    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer], 
+            node_shape=mdict[layer], 
+            # node_shape=mdict_2,
+            width=width, arrows=False, node_color=color)
 
     if layer == 'h':
         for sublayer in 'hsw':
@@ -230,8 +245,11 @@ for l, layer in enumerate(keys_to_plot):
             subpos = {i: pos[i] for i in sli}
             # sublayer_index = layer_indices[sublayer]
             sublayer_index = layer_indices['h']
-            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=50, node_shape=mdict[sublayer], width=width, arrows=False, node_color=colors[sli])
-    ax[2*l + 1].set_title(mapping[layer], fontsize=fontsize + 8)
+            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=120, 
+                    node_shape=mdict[sublayer], 
+                    # node_shape=mdict_2,
+                    width=width, arrows=False, node_color=colors[sli])
+    ax[2*l + 1].set_title(mapping[layer], fontsize=fontsize + 10)
 
 
 ### Age mixing matrice ###
@@ -294,7 +312,7 @@ elif density_or_frequency == 'density':
 im = []
 cax = []
 cbar = []
-rotation = 60
+rotation = 66
 
 for l, layer in enumerate(keys_to_plot):
     setting_code = layer.title()
@@ -323,7 +341,7 @@ for l, layer in enumerate(keys_to_plot):
     ax[2*l].tick_params(labelsize=fontsize + 2)
     ax[2*l].set_xlabel('Age', fontsize=fontsize + 2)
     ax[2*l].set_ylabel('Age of Contacts', fontsize=fontsize + 2)
-    ax[2*l].set_title(mapping[layer], fontsize=fontsize + 8)
+    ax[2*l].set_title(mapping[layer], fontsize=fontsize + 10)
 
     if aggregate_flag:
         tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
