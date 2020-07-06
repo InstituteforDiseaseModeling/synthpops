@@ -102,13 +102,16 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
 
     Returns:
         A fig object.
+
+    Note:
+        For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that setting
     """
 
     cmap = mplt.cm.get_cmap(cmap)
     # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
     # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
 
-    fig = plt.figure(figsize=(9, 9), tight_layout=True)
+    fig = plt.figure(figsize=(10, 10), tight_layout=True)
     ax = []
     cax = []
     cbar = []
@@ -134,19 +137,19 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e-0}
                 vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
                 vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
+                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-1}
             else:
                 vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
                 vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
                 vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
+                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-0}
 
         elif density_or_frequency == 'density':
             if aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
                 vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e1}
                 vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e1}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
+                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-0}
 
             else:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}

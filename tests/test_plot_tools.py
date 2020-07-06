@@ -20,42 +20,13 @@ if not sp.config.full_data_available:
     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 # Pretty fonts
-username = os.path.expanduser('~')
-
-fontdirdic = {
-    'dmistry': os.path.join(username, 'Dropbox (IDM)', 'GoogleFonts'),
-    'cliffk': os.path.join(username, 'idm', 'covid-19', 'GoogleFonts'),
-}
-if username not in fontdirdic:
-    fontdirdic[username] = os.path.join(username, 'Dropbox', 'COVID-19', 'GoogleFonts')
 
 try:
-    fontpath = fontdirdic[username]
     fontstyle = 'Roboto_Condensed'
-    fontstyle_path = os.path.join(fontpath, fontstyle, fontstyle.replace('_', '') + '-Light.ttf')
     mplt.rcParams['font.family'] = fontstyle.replace('_', ' ')
 except:
     mplt.rcParams['font.family'] = 'Roboto'
 mplt.rcParams['font.size'] = 16
-
-# try:
-#     username = os.path.split(os.path.expanduser('~'))[-1]
-#     fontdirdict = {
-#         'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
-#         'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
-#     }
-#     if username not in fontdirdict:
-#         fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
-
-#     font_path = fontdirdict[username]
-
-#     fontpath = fontdirdict[username]
-#     font_style = 'Roboto_Condensed'
-#     fontstyle_path = os.path.join(fontpath, font_style, font_style.replace('_', '') + '-Light.ttf')
-#     prop = font_manager.FontProperties(fname=fontstyle_path)
-#     mplt.rcParams['font.family'] = prop.get_name()
-# except:
-#     mplt.rcParams['font.family'] = 'Roboto'
 
 
 def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
@@ -79,16 +50,35 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     ages = []
+    # if setting_code == 'LTCF':
+    #     ltcf_ages = []
+
     for uid in population:
         ages.append(population[uid]['age'])
+        # if setting_code == 'LTCF':
+        #     if population[uid]['snf_res'] or population[uid]['snf_staff']:
+        #         ltcf_ages.append(population[uid]['age'])
 
     age_count = Counter(ages)
     aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
 
+    # if setting_code == 'LTCF':
+    #     ltcf_age_count = Counter(ltcf_ages)
+    #     aggregate_ltcf_age_count = sp.get_aggregate_ages(ltcf_age_count, age_by_brackets_dic)
+
     matrix = sp.calculate_contact_matrix(population, density_or_frequency, setting_code)
+
+    # if setting_code == 'LTCF':
+    #     fig = sp.plot_contact_frequency(matrix, ltcf_age_count, aggregate_ltcf_age_count, age_brackets, age_by_brackets_dic,
+    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+    # else:
+    #     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+
+
 
     return fig
 
@@ -133,7 +123,7 @@ if __name__ == '__main__':
 
     datadir = sp.datadir
 
-    n = int(200000)
+    n = int(22500)
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -150,7 +140,7 @@ if __name__ == '__main__':
     # logcolors_flag = False
 
     density_or_frequency = 'density'
-    # density_or_frequency = 'frequency'
+    density_or_frequency = 'frequency'
 
     with_facilities = True
     # with_facilities = False
