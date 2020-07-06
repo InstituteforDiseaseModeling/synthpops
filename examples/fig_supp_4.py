@@ -314,7 +314,7 @@ for l, layer in enumerate(keys_to_plot):
     im.append(ax[2*l].imshow(asymmetric_matrix.T, origin='lower', interpolation='nearest', cmap=matrix_cmap, norm=LogNorm(vmin=vbounds[setting_code]['vmin'], vmax=vbounds[setting_code]['vmax'])))
 
     divider = make_axes_locatable(ax[2*l])
-    cax.append(divider.new_horizontal(size="3%", pad=0.15))
+    cax.append(divider.new_horizontal(size="5%", pad=0.15))
 
     fig.add_axes(cax[l])
     cbar.append(fig.colorbar(im[l], cax=cax[l]))
@@ -340,3 +340,4 @@ fig_path = os.path.join(dir_path, '..', 'figures')
 fig_name = os.path.join(fig_path, 'si_fig_4.pdf')
 fig.savefig(fig_name, format='pdf')
 fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
+fig.savefig(fig_name.replace('pdf', 'png'), format='png')
