@@ -31,6 +31,24 @@ mplt.rcParams['font.size'] = 16
 
 def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
                                        density_or_frequency='density', with_facilities=False, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+    """
+    Plot the age mixing matrix for a specific setting.
+
+    Args:
+        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        n (int)                          : number of people in the population
+        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        logcolors_flag (bool)            : If True, plot heatmap in logscale
+        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        with_facilities (bool)           : If True, create long term care facilities
+        cmap(str or matplotlib colormap) : colormap
+        fontsize (int)                   : base font size
+        rotation (int)                   : rotation for x axis labels
+
+    Returns:
+        A fig object.
+
+    """
     datadir = sp.datadir
 
     state_location = 'Washington'
@@ -78,13 +96,29 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
-
-
     return fig
 
 
 def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
                                                density_or_frequency='density', with_facilities=False, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+    """
+    Plot the age mixing matrix for a specific setting where the edges are trimmed.
+
+    Args:
+        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        n (int)                          : number of people in the population
+        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        logcolors_flag (bool)            : If True, plot heatmap in logscale
+        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        with_facilities (bool)           : If True, create long term care facilities
+        cmap(str or matplotlib colormap) : colormap
+        fontsize (int)                   : base font size
+        rotation (int)                   : rotation for x axis labels
+
+    Returns:
+        A fig object.
+
+    """
     datadir = sp.datadir
 
     state_location = 'Washington'
@@ -196,3 +230,4 @@ if __name__ == '__main__':
         fig.savefig(fig_path, format='pdf')
         fig.savefig(fig_path.replace('pdf', 'png'), format='png')
         fig.savefig(fig_path.replace('pdf', 'svg'), format='svg')
+    plt.show()

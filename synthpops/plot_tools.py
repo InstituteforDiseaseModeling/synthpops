@@ -90,23 +90,26 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
     age brackets.
 
     Args:
-        matrix (np.array)      : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
-        age_count (dict)              : dictionary with the count of individuals in the population for each age
-        aggregate_age_count (dict)    : dictionary with the count of individuals in the population in each age bracket
-        age_brackets (dict)           : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)    : dictionary mapping age to the age bracket range it falls in
-        setting_code (str)         : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
-        density_or_frequency (str) : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
-        logcolors_flag (bool)         : If True, plot heatmap in logscale
-        aggregate_flag (book)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        matrix (np.array)                : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
+        age_count (dict)                 : dictionary with the count of individuals in the population for each age
+        aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
+        age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
+        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        logcolors_flag (bool)            : If True, plot heatmap in logscale
+        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        cmap(str or matplotlib colormap) : colormap
+        fontsize (int)                   : base font size
+        rotation (int)                   : rotation for x axis labels
 
     Returns:
         A fig object.
 
     Note:
         For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that setting
-    """
 
+    """
     cmap = mplt.cm.get_cmap(cmap)
     # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
     # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
