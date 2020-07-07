@@ -3,7 +3,6 @@ Plot the generated age-specific contact matrix.
 """
 
 import synthpops as sp
-# import sciris as sc
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
