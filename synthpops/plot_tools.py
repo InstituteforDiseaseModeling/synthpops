@@ -91,7 +91,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
     return M
 
 
-def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density

@@ -20,6 +20,7 @@ import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+
 # Pretty fonts
 username = os.path.expanduser('~')
 
