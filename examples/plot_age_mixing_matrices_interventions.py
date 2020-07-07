@@ -2,364 +2,187 @@
 Plot the generated age-specific contact matrix after interventions remove edges.
 """
 
-import synthpops as sp
-import sciris as sc
+import covasim as cv
 import numpy as np
-import math
-import copy
+import sciris as sc
+import synthpops as sp
+
 import matplotlib as mplt
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm, LinearSegmentedColormap
-from matplotlib.ticker import LogLocator, LogFormatter
-import matplotlib.font_manager as font_manager
+from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-import functools
-import os
-from collections import Counter
-import pytest
-
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import cmocean
 import cmasher as cmr
 import seaborn as sns
 
+import os
+from collections import Counter
+import pytest
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+
+# Pretty fonts
 try:
-    username = os.path.split(os.path.expanduser('~'))[-1]
-    fontdirdict = {
-        'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
-        'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
-    }
-    if username not in fontdirdict:
-        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
-
-    font_path = fontdirdict[username]
-
-    fontpath = fontdirdict[username]
-    font_style = 'Roboto_Condensed'
-    fontstyle_path = os.path.join(fontpath, font_style, font_style.replace('_', '') + '-Light.ttf')
-    prop = font_manager.FontProperties(fname=fontstyle_path)
-    mplt.rcParams['font.family'] = prop.get_name()
+    fontstyle = 'Roboto_Condensed'
+    mplt.rcParams['font.family'] = fontstyle.replace('_', ' ')
 except:
     mplt.rcParams['font.family'] = 'Roboto'
+mplt.rcParams['font.size'] = 16
 
 
-def calculate_contact_matrix(contacts, density_or_frequency='density', setting_code='H'):
-    uids = contacts.keys()
-    uids = [uid for uid in uids]
+def calculate_contact_matrix(sim, density_or_frequency='density', setting_code='H'):
 
-    num_ages = 101
+    setting_code = setting_code.lower()
+    ages = sim.people.age
+    ages = np.round(ages, 1)
+    ages = ages.astype(int)
 
-    # F_dic = {}
-    M = np.zeros((num_ages, num_ages))
-    # for k in ['M', 'H', 'S', 'W', 'C']:
-        # F_dic[k] = np.zeros((num_ages, num_ages))
+    max_age = max(ages)
+    age_count = Counter(ages)
+    age_range = np.arange(max_age+1)
 
-    for n, uid in enumerate(uids):
-        # layers = contacts[uid]['contacts']
-        age = contacts[uid]['age']
-        # for k in layers:
-        contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][setting_code]]
-        contact_ages = np.array([int(a) for a in contact_ages])
+    matrix = np.zeros((max_age+1, max_age+1))
 
-        if len(contact_ages) > 0:
-            if density_or_frequency == 'density':
-                for ca in contact_ages:
+    # loop over everyone
+    for p in range(len(sim.people)):
+        a = ages[p]
+        contacts = sim.people.contacts[setting_code]['p2'][sim.people.contacts[setting_code]['p1'] == p]
+        contact_ages = ages[contacts]
 
-                    M[age, ca] += 1.0/len(contact_ages)
-                # F_dic[k][age, contact_ages] += 1 / len(contact_ages)
-            elif density_or_frequency == 'frequency':
-                for ca in contact_ages:
+        if density_or_frequency == 'frequency':
+            for ca in contact_ages:
+                matrix[a][ca] += 1. / len(contact_ages)
+        elif density_or_frequency == 'density':
+            for ca in contact_ages:
+                matrix[a][ca] += 1
 
-                    M[age, ca] += 1.0
-                # F_dic[k][age, contact_ages] += 1
-
-    return M
-
-def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True):
-
-    # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
-    # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
-    cmap = plt.get_cmap('cmr.freeze_r')
-
-    fig = plt.figure(figsize=(9, 9), tight_layout=True)
-    ax = fig.add_subplot(111)
-
-    titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facility\n'}
-
-    if aggregate_flag:
-        num_agebrackets = len(age_brackets)
-        aggregate_M = sp.get_aggregate_matrix(matrix, age_by_brackets_dic)
-        asymmetric_M = sp.get_asymmetric_matrix(aggregate_M, aggregate_age_count)
-    else:
-        num_agebrackets = len(age_brackets)
-        asymmetric_M = sp.get_asymmetric_matrix(matrix, age_count)
-
-    if logcolors_flag:
-
-        vbounds = {}
-        if density_or_frequency == 'density':
-            if aggregate_flag:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e-0}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
-
-            else:
-                vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
-
-        elif density_or_frequency == 'frequency':
-            if aggregate_flag:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e1}
-                vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e0}
-
-            else:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
-
-        im = ax.imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=vbounds[setting_code]['vmin'], vmax=vbounds[setting_code]['vmax']))
-    else:
-        im = ax.imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap)
-    implot = im
-
-    divider = make_axes_locatable(ax)
-    cax = divider.new_horizontal(size="3%", pad=0.10)
-
-    fig.add_axes(cax)
-    cbar = fig.colorbar(implot, cax=cax)
-    cbar.ax.tick_params(axis='y', labelsize=26)
-    if density_or_frequency == 'frequency':
-        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=28)
-    else:
-        cbar.ax.set_ylabel('Density of Contacts', fontsize=26)
-    ax.tick_params(labelsize=28)
-    ax.set_xlabel('Age', fontsize=32)
-    ax.set_ylabel('Age of Contacts', fontsize=32)
-    ax.set_title(titles[setting_code] + ' Age Mixing', fontsize=40)
-
-    if aggregate_flag:
-        tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
-        ax.set_xticks(np.arange(len(tick_labels)))
-        ax.set_xticklabels(tick_labels, fontsize=26)
-        ax.set_xticklabels(tick_labels, fontsize=26, rotation=90)
-        ax.set_yticks(np.arange(len(tick_labels)))
-        ax.set_yticklabels(tick_labels, fontsize=26)
-
-    return fig
+    return matrix
 
 
-def plot_generated_contact_matrix(datadir, n, location='seattle_metro', state_location='Washington', country_location='usa', setting_code='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density', with_facilities=False):
+def plot_contact_matrix_after_intervention(n, n_days, interventions, intervention_name, location='seattle_metro', state_location='Washington', country_location='usa', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density', setting_code='H', cmap='cmr.freeze_r', fontsize=16, rotation=50):
+    """
+    Args:
+        intervention (cv.intervention): a single intervention
+    """
+    pars = sc.objdict(
+        pop_size=n,
+        n_days=n_days,
+        pop_type='synthpops'
+        )
 
-    popdict = {}
+    # sim = sc.objdict()
+    sim = cv.Sim(pars=pars, interventions=interventions)
+    sim.run()
 
-    options_args = {'use_microstructure': True, 'use_long_term_care_facilities': with_facilities}
-    network_distr_args = {'Npop': int(n)}
-    contacts = sp.make_contacts(popdict, country_location=country_location, state_location=state_location, location=location, options_args=options_args, network_distr_args=network_distr_args)
-
-
-    age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    age_brackets = sp.get_census_age_brackets(sp.datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
-    ages = []
-    for uid in contacts:
-        ages.append(contacts[uid]['age'])
-
-    num_agebrackets = len(age_brackets)
-
+    ages = sim.people.age
+    ages = np.round(ages, 1)
+    ages = ages.astype(int)
+    max_age = max(ages)
     age_count = Counter(ages)
+    age_count = dict(age_count)
+    for i in range(max_age+1):
+        if i not in age_count:
+            age_count[i] = 0
+
     aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
 
-    symmetric_matrix = calculate_contact_matrix(contacts, density_or_frequency, setting_code)
+    matrix = calculate_contact_matrix(sim, density_or_frequency, setting_code)
 
-    fig = plot_contact_matrix(symmetric_matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code=setting_code, density_or_frequency=density_or_frequency, logcolors_flag=logcolors_flag, aggregate_flag=aggregate_flag)
-    return fig
-
-def plot_generated_trimmed_contact_matrix(datadir, n, location='seattle_metro', state_location='Washington', country_location='usa', setting_code='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density', trimmed_size_dic=None, with_facilities=False):
-
-    popdict = {}
-
-    options_args = {'use_microstructure': True, 'use_long_term_care_facilities': with_facilities}
-    network_distr_args = {'Npop': int(n)}
-    contacts = sp.make_contacts(popdict, country_location=country_location, state_location=state_location, location=location, options_args=options_args, network_distr_args=network_distr_args)
-    for i in contacts:
-        if len(contacts[i]['contacts']['W']) > 0 and len(contacts[i]['contacts']['LTCF']) > 0:
-            print(i, contacts[i])
-
-    contacts = sp.trim_contacts(contacts, trimmed_size_dic=trimmed_size_dic, use_clusters=False)
-
-    age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
-    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
-
-    ages = []
-    for uid in contacts:
-        ages.append(contacts[uid]['age'])
-
-    num_agebrackets = len(age_brackets)
-
-    age_count = Counter(ages)
-    aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
-
-    symmetric_matrix = calculate_contact_matrix(contacts, density_or_frequency, setting_code)
-
-    fig = plot_contact_matrix(symmetric_matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code=setting_code, density_or_frequency=density_or_frequency, logcolors_flag=logcolors_flag, aggregate_flag=aggregate_flag)
-    return fig
-
-
-def plot_data_contact_matrix(datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', setting_code='H', logcolors_flag=True):
-
-    asymmetric_M = sp.get_contact_matrix(datadir, setting_code, sheet_name=sheet_name)
-
-    age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
-    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
-
-    # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
-    cmap = plt.get_cmap('cmr.freeze_r')
-
-    fig = plt.figure(figsize=(9, 9))
-    ax = fig.add_subplot(111)
-
-    titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facilities\n'}
-
-    if logcolors_flag:
-
-        vbounds = {}
-        if density_or_frequency == 'density':
-            if aggregate_flag:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e-0}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
-                vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
-            else:
-                vbounds['H'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-1}
-                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-1}
-
-        elif density_or_frequency == 'frequency':
-            if aggregate_flag:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e1}
-                vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-1}
-
-            else:
-                vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
-                vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-1}
-
-        im = ax.imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=vbounds[setting_code]['vmin'], vmax=vbounds[setting_code]['vmax']))
-    else:
-        im = ax.imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap)
-    implot = im
-
-    divider = make_axes_locatable(ax)
-    cax = divider.new_horizontal(size="4%", pad=0.15)
-
-    fig.add_axes(cax)
-    cbar = fig.colorbar(implot, cax=cax)
-    cbar.ax.tick_params(axis='y', labelsize=20)
-    if density_or_frequency == 'frequency':
-        cbar.ax.set_ylabel('Frequency of Contacts', fontsize=18)
-    else:
-        cbar.ax.set_ylabel('Density of Contacts', fontsize=18)
-    ax.tick_params(labelsize=18)
-    ax.set_xlabel('Age', fontsize=22)
-    ax.set_ylabel('Age of Contacts', fontsize=22)
-    ax.set_title(titles[setting_code] + ' Contact Patterns', fontsize=26)
-
-    if aggregate_flag:
-        tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
-        ax.set_xticks(np.arange(len(tick_labels)))
-        ax.set_xticklabels(tick_labels, fontsize=16)
-        ax.set_xticklabels(tick_labels, fontsize=16, rotation=50)
-        ax.set_yticks(np.arange(len(tick_labels)))
-        ax.set_yticklabels(tick_labels, fontsize=16)
+    fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     return fig
 
 
 if __name__ == '__main__':
-    
-    datadir = sp.datadir
 
-    # n = 100e3
-    n = 225e3
+    n = int(5e3)
 
     location = 'seattle_metro'
     state_location = 'Washington'
     country_location = 'usa'
+    n_days = 60
 
-    sheet_name = 'United States of America'
-
-    # setting_code = 'H'
-    setting_code = 'S'
-    # setting_code = 'W'
-    # setting_code = 'LTCF'
-
+    setting_code = 'H'
 
     aggregate_flag = True
     # aggregate_flag = False
-
     logcolors_flag = True
     # logcolors_flag = False
 
-    # density_or_frequency = 'density'
-    density_or_frequency = 'frequency'
+    density_or_frequency = 'density'
+    # density_or_frequency = 'frequency'
 
-    with_facilities = True
-    # with_facilities = False
-    if with_facilities: with_facilities_str = '_with_LTCF'
-    else: with_facilities_str = '_without_LTCF'
+    cmap = 'cmr.freeze_r'
+    fontsize = 16
+    rotation = 50
 
-    do_save = True
-    # do_save = False
+    # do_save = True
+    do_save = False
+    do_show = True
+    # do_show = False
 
-    # do_trimmed = True
-    do_trimmed = False
+    ### Define some example interventions ###
 
-    trimmed_size_dic = {'S': 20, 'W': 20}
+    # 1. Dynamic pars
+    i00 = cv.test_prob(start_day=5, symp_prob=0.3)
+    i01 = cv.dynamic_pars({'beta': {'days': [40, 50], 'vals': [0.005, 0.015]}, 'diag_factor': {'days': 30, 'vals': 0.0}})
 
-    if setting_code in ['S', 'W']:
-        if do_trimmed:
-            fig = plot_generated_trimmed_contact_matrix(datadir, n, location, state_location, country_location, setting_code, aggregate_flag, logcolors_flag, density_or_frequency, trimmed_size_dic, with_facilities)
-        else:
-            fig = plot_generated_contact_matrix(datadir, n, location, state_location, country_location, setting_code, aggregate_flag, logcolors_flag, density_or_frequency, with_facilities)
+    # 2. Sequence
+    i02 = cv.sequence(days=[20, 40, 60], interventions=[
+                        cv.test_num(daily_tests=[20]*n_days),
+                        cv.test_prob(symp_prob=0.0),
+                        cv.test_prob(symp_prob=0.2),
+                    ])
 
-    elif setting_code in ['H', 'LTCF']:
-        fig = plot_generated_contact_matrix(datadir, n, location, state_location, country_location, setting_code, aggregate_flag, logcolors_flag, density_or_frequency, with_facilities)
+    # 3. Change beta
+    i03 = cv.change_beta([30, 50], [0.0, 1], layers='h')
+    i04 = cv.change_beta([30, 40, 60], [0.0, 1.0, 0.5])
+
+    # 4. Clip edges -- should match the change_beta scenarios
+    i05 = cv.clip_edges(days=[30, 50], changes={'h':0.0})
+    i06 = cv.clip_edges(days=[30, 40], changes=0.0)
+    i07 = cv.clip_edges(days=[60, None], changes=0.5)
+
+    # 5. Test number
+    i08 = cv.test_num(daily_tests=[100, 100, 100, 0, 0, 0]*(n_days//6))
+
+    # 6. Test probability
+    i09 = cv.test_prob(symp_prob=0.1)
+
+    # 7. Contact tracing
+    i10 = cv.test_prob(start_day=20, symp_prob=0.01, asymp_prob=0.0, symp_quar_prob=1.0, asymp_quar_prob=1.0, test_delay=0)
+    i11 = cv.contact_tracing(start_day=20, trace_probs=dict(h=0.9, s=0.7, w=0.7, c=0.3), trace_time=dict(h=0, s=1, w=1, c=3))
+
+    i12 = cv.clip_edges(days=[18], changes=[0.], layers=['s'])  # Close schools
+    i13 = cv.clip_edges(days=[20, 32], changes=[0.7, 0.7], layers=['w', 'c'])  # Reduce work and community
+    i14 = cv.clip_edges(days=[32], changes=[0.3], layers=['w'])  # Reduce work and community more
+    i15 = cv.clip_edges(days=[45, None], changes=[0.9, 0.9], layers=['w', 'c'])  # Reopen work and community more
+
+    i16 = cv.test_prob(start_day=38, symp_prob=0.01, asymp_prob=0.0, symp_quar_prob=1.0, asymp_quar_prob=1.0, test_delay=2) # Start testing for TTQ
+    i17 = cv.contact_tracing(start_day=40, trace_probs=dict(h=0.9, s=0.7, w=0.7, c=0.3), trace_time=dict(h=0, s=1, w=1, c=3)) # Start tracing for TTQ
+
+    interventions = [i12, i14]
+
+    intervention_name = 'intervention'
+
+    fig = plot_contact_matrix_after_intervention(n, n_days, interventions, intervention_name, 
+                                                 location=location, state_location=state_location, country_location=country_location, 
+                                                 aggregate_flag=aggregate_flag, logcolors_flag=logcolors_flag, 
+                                                 density_or_frequency=density_or_frequency, setting_code=setting_code, 
+                                                 cmap='cmr.freeze_r', fontsize=16, rotation=50)
 
     if do_save:
-        fig_path = datadir.replace('data', 'figures')
-        os.makedirs(fig_path, exist_ok=True)
+        fig_path = sp.datadir.replace('data', 'figures')
+        fig_name = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, 
+                                location + '_npop_' + str(n) + '_' + density_or_frequency + '_' + intervention_name + '.pdf')
+        fig.savefig(fig_name, format='pdf')
+        fig.savefig(fig_name.replace('pdf', 'png'), format='png')
+        fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
 
-        if setting_code in ['S', 'W']:
-            if do_trimmed:
-                if aggregate_flag:
-                    fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets' + with_facilities_str + '.pdf')
-                else:
-                    fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_close_contact_matrix_setting_' + setting_code + with_facilities_str + '.pdf')
-            else:
-                if aggregate_flag:
-                    fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets' + with_facilities_str + '.pdf')
-                else:
-                    fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + with_facilities_str + '.pdf')
-
-        elif setting_code in ['H', 'LTCF']:
-            if aggregate_flag:
-                fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + '_aggregate_age_brackets' + with_facilities_str + '.pdf')
-            else:
-                fig_path = os.path.join(fig_path, 'contact_matrices_152_countries', country_location, state_location, location + '_npop_' + str(n) + '_' + density_or_frequency + '_contact_matrix_setting_' + setting_code + with_facilities_str + '.pdf')
-        fig.savefig(fig_path, format='pdf')
-        fig.savefig(fig_path.replace('pdf', 'png'), format='png')
-    # plt.show()
-
-# fig = plot_data_contact_matrix(datadir, location, state_location, country_location, sheet_name, setting_code, logcolors_flag)
-# plt.show()
+    if do_show:
+        plt.show()
