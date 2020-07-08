@@ -63,7 +63,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         else:
             # if location is None:
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
-                # raise NotImplementedError('Currently, only locations in the US are supported. Next version!')
 
     # you only have ages...
     elif ages is not None and sexes is None:
@@ -73,7 +72,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         else:
             gen_ages = ages
             gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
-            # raise NotImplementedError('Currently, only locations in the US are supported.')
 
     # you only have sexes...
     elif ages is None and sexes is not None:

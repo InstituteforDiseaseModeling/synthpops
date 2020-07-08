@@ -326,7 +326,7 @@ def get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets, min_age
         return age, sex
 
 
-def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_people=1, min_age=0, max_age=100, age_mean=40, age_std=20):
+def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_people=1, min_age=0, max_age=100):
     """
     Sample n_people peoples' age and sex from gender and age census data defined for age brackets. Else, return random ages and sex.
     Two lists ordered by age bracket so that people from the first age bracket show up at the front of both lists and people from the last age bracket show up at the end.
@@ -351,8 +351,6 @@ def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_peo
     if age_bracket_distr is None:
         sexes = np.random.binomial(1, p=0.5, size=n_people)
         ages = np.random.randint(min_age, max_age+1, size=n_people)  # should return a flat distribution if we don't know the age distribution, not a normal distribution...
-        # ages = np.random.normal(age_mean,age_std,size = n_people)
-        # ages = [a for a in ages if a >= 0]
         ages = [np.median([min_age, int(a), max_age]) for a in ages]
 
     else:
