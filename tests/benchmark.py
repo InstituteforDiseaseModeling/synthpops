@@ -2,6 +2,8 @@
 
 import sciris as sc
 import synthpops as sp
+import argparse
+import sys
 
 to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
 
@@ -17,12 +19,23 @@ func_options = {
     'sample_n_contact_ages': sp.sample_n_contact_ages,
     }
 
-def make_pop():
-    n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
+def make_pop(n):
+    #n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
     max_contacts = {'S': 20, 'W': 10}
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
 
-sc.tic()
-sc.profile(run=make_pop, follow=func_options[to_profile])
-sc.toc()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('n', nargs='*', default=[10001], help='population')
+    args = parser.parse_args()
+    for n in args.n:
+        saved_stdout = sys.stdout
+        with open(f'test_{n}.txt', 'w') as f:
+            sys.stdout = f
+            sc.tic()
+            sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
+            sc.toc()
+        sys.stdout.close()
+        sys.stdout = saved_stdout
+        print(f'result n={n} : test_{n}.txt')
