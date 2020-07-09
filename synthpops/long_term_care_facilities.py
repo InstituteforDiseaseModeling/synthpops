@@ -21,7 +21,6 @@ from . import contact_networks as spcnx
 part = 2
 
 # Customized age resampling method
-
 def custom_resample_age(exp_age_distr, a):
     """
     Resampling younger ages to better match data
@@ -164,73 +163,6 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
 
     np.random.shuffle(homes)
     return homes_dic, homes
-
-
-def write_age_by_uid_dic(datadir, location, state_location, country_location, age_by_uid_dic):
-    """
-    Write the dictionary of ID mapping to age for each individual in the population.
-
-    Args:
-        datadir (string)          : The file path to the data directory.
-        location (string)         : The name of the location.
-        state_location (string)   : The name of the state the location is in.
-        country_location (string) : The name of the country the location is in.
-        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
-
-    Returns:
-        None
-    """
-
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
-    os.makedirs(file_path, exist_ok=True)
-
-    age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
-
-    f_age_uid = open(age_by_uid_path, 'w')
-
-    uids = sorted(age_by_uid_dic.keys())
-    for uid in uids:
-        f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
-    f_age_uid.close()
-
-
-def write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, group_type, groups_by_uids, secondary_groups_by_uids=None):
-    """
-    Write groups to file with both ID and their ages.
-
-    Args:
-        datadir (string)          : The file path to the data directory.
-        location (string)         : The name of the location.
-        state_location (string)   : The name of the state the location is in.
-        country_location (string) : The name of the country the location is in.
-        groups_by_uids (list)      : The list of lists, where each sublist represents a household and the IDs of the household members.
-        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
-
-    Returns:
-        None
-    """
-
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
-    os.makedirs(file_path, exist_ok=True)
-
-    groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
-    groups_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_uids.dat')
-
-    fg_age = open(groups_by_age_path, 'w')
-    fg_uid = open(groups_by_uid_path, 'w')
-
-    for n, ids in enumerate(groups_by_uids):
-
-        group = groups_by_uids[n]
-
-        for uid in group:
-
-            fg_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fg_uid.write(str(uid) + ' ')
-        fg_age.write('\n')
-        fg_uid.write('\n')
-    fg_age.close()
-    fg_uid.close()
 
 
 def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False, use_two_group_reduction=False, average_LTCF_degree=20):
@@ -508,7 +440,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                     workers_by_age_to_assign_count[aindex] -= 1
 
     # Assign teachers and update school lists
-    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Assign facilities care staff from 20 to 59
 
@@ -569,15 +502,16 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     homes_by_uids = homes_by_uids[len(facilities_by_uids):]
     # group uids to file
     if write:
-        write_age_by_uid_dic(datadir, location, state_location, country_location, age_by_uid_dic)
+        spcnx.write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks_facilities', age_by_uid_dic)
 
-        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'households', homes_by_uids)
-        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'schools', gen_school_uids)
-        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'workplaces', gen_workplace_uids)
-        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities', facilities_by_uids)
-        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'facilities_staff', facilities_staff_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'households', homes_by_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'schools', gen_school_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'teachers', gen_teacher_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'workplaces', gen_workplace_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities', facilities_by_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities_staff', facilities_staff_uids)
 
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
 
     if verbose:
         uids = popdict.keys()

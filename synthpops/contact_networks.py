@@ -268,46 +268,46 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     return homes_by_uids, age_by_uid_dic
 
 
-def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
-    """
-    Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.
+# def write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic):
+#     """
+#     Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.
 
-    Args:
-        datadir (string)          : The file path to the data directory.
-        location (string)         : The name of the location.
-        state_location (string)   : The name of the state the location is in.
-        country_location (string) : The name of the country the location is in.
-        homes_by_uids (list)      : The list of lists, where each sublist represents a household and the IDs of the household members.
-        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
+#     Args:
+#         datadir (string)          : The file path to the data directory.
+#         location (string)         : The name of the location.
+#         state_location (string)   : The name of the state the location is in.
+#         country_location (string) : The name of the country the location is in.
+#         homes_by_uids (list)      : The list of lists, where each sublist represents a household and the IDs of the household members.
+#         age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
 
-    Returns:
-        None
-    """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
-    os.makedirs(file_path, exist_ok=True)
+#     Returns:
+#         None
+#     """
+#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+#     os.makedirs(file_path, exist_ok=True)
 
-    households_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
-    households_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
+#     households_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_ages.dat')
+#     households_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_households_with_uids.dat')
+#     age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
 
-    fh_age = open(households_by_age_path, 'w')
-    fh_uid = open(households_by_uid_path, 'w')
-    f_age_uid = open(age_by_uid_path, 'w')
+#     fh_age = open(households_by_age_path, 'w')
+#     fh_uid = open(households_by_uid_path, 'w')
+#     f_age_uid = open(age_by_uid_path, 'w')
 
-    for n, ids in enumerate(homes_by_uids):
+#     for n, ids in enumerate(homes_by_uids):
 
-        home = homes_by_uids[n]
+#         home = homes_by_uids[n]
 
-        for uid in home:
+#         for uid in home:
 
-            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(str(uid) + ' ')
-            f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
-        fh_age.write('\n')
-        fh_uid.write('\n')
-    fh_age.close()
-    fh_uid.close()
-    f_age_uid.close()
+#             fh_age.write(str(age_by_uid_dic[uid]) + ' ')
+#             fh_uid.write(str(uid) + ' ')
+#             f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
+#         fh_age.write('\n')
+#         fh_uid.write('\n')
+#     fh_age.close()
+#     fh_uid.close()
+#     f_age_uid.close()
 
 
 def read_in_age_by_uid(datadir, location, state_location, country_location, N):
@@ -354,6 +354,10 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):
         group = line.strip().split(' ')
+        try:
+            group = [int(i) for i in group]
+        except:
+            group = [i for i in group]
         if with_ages:
             group = [int(a) for a in group]
         groups.append(group)
@@ -587,6 +591,7 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
             potential_worker_uids_by_age[a] = []
             potential_worker_ages_left_count[a] = 0
 
+    # remove students from any potential workers since the model assumes student and worker status are exclusive
     for school in syn_school_uids:
         for uid in school:
             potential_worker_uids.pop(uid, None)
@@ -704,7 +709,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=30, teacher_age_min=25, teacher_age_max=75, verbose=False):
+def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.
 
@@ -730,15 +735,18 @@ def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, work
 
     all_teachers = dict.fromkeys(np.arange(101), 0)
 
+    syn_teachers = []
+    syn_teacher_ids = []
+
     for n in range(len(syn_schools)):
         school = syn_schools[n]
         school_uids = syn_school_uids[n]
 
         size = len(school)
-        nteachers = int(size/float(student_teacher_ratio))
+        nteachers = int(size / float(student_teacher_ratio))
         nteachers = max(1, nteachers)
         if verbose:
-            print('nteachers', nteachers, 'student-teacher ratio', size/nteachers)
+            print('nteachers', nteachers, 'student-teacher ratio', size / nteachers)
         teachers = []
         teacher_uids = []
 
@@ -754,18 +762,22 @@ def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, work
             potential_worker_ages_left_count[a] -= 1
             potential_worker_uids.pop(uid, None)
 
-            school.append(a)
-            school_uids.append(uid)
+            # school.append(a)
+            # school_uids.append(uid)
+            teachers.append(a)
             teacher_uids.append(uid)
 
-        syn_schools[n] = school
-        syn_school_uids[n] = school_uids
+        syn_teachers.append(teachers)
+        syn_teacher_ids.append(teacher_uids)
+        # syn_schools[n] = school
+        # syn_school_uids[n] = school_uids
         if verbose:
             print('school with teachers', sorted(school))
             print('nkids', (np.array(school) <= 19).sum(), 'n20+', (np.array(school) > 19).sum())
             print('kid-adult ratio', (np.array(school) <= 19).sum() / (np.array(school) > 19).sum())
 
-    return syn_schools, syn_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+    # return syn_schools, syn_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+    return syn_teachers, syn_teacher_ids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
 def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
@@ -798,7 +810,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[b]]
         number_of_workers_left_in_bracket = np.sum(workers_left_in_bracket)
         if number_of_workers_left_in_bracket == 0:
-            b = min(b, contact_matrix_dic['W'].shape[1]-1) # Ensure it doesn't go past the end of the array
+            b = min(b, contact_matrix_dic['W'].shape[1] - 1)  # Ensure it doesn't go past the end of the array
             contact_matrix_dic['W'][:, b] = 0
 
     for n, size in enumerate(workplace_sizes):
@@ -811,7 +823,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
         a_prob = [workers_by_age_to_assign_count[a] for a in sorted_worker_age_keys]
         a_prob = np.array(a_prob)
-        a_prob = a_prob/np.sum(a_prob)
+        a_prob = a_prob / np.sum(a_prob)
 
         achoice = np.random.choice(a=sorted_worker_age_keys, p=a_prob)
         aindex = achoice
@@ -825,16 +837,16 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         new_work_uids.append(uid)
 
         bindex = age_by_brackets_dic[aindex]
-        bindex = min(bindex, contact_matrix_dic['W'].shape[0]-1) # Ensure it doesn't go past the end of the array
+        bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['W'][bindex, :]
         if np.sum(b_prob) > 0:
-            b_prob = b_prob/np.sum(b_prob)
+            b_prob = b_prob / np.sum(b_prob)
 
-        if size > len(potential_worker_uids)-1:
-            size = len(potential_worker_uids)-1
+        if size > len(potential_worker_uids) - 1:
+            size = len(potential_worker_uids) - 1
         workers_left_count = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
         if size > workers_left_count:
-            size = workers_left_count+1
+            size = workers_left_count + 1
 
         # not enough people left over to try to match age mixing patterns in the last workplace so grab everyone who will get placed in order
         if len(potential_worker_uids) <= size or workers_left_count <= size:
@@ -880,7 +892,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = contact_matrix_dic['W'][bindex, :]
                     if np.sum(b_prob) > 0:
-                        b_prob = b_prob/np.sum(b_prob)
+                        b_prob = b_prob / np.sum(b_prob)
 
         if verbose:
             print(n, Counter(new_work))
@@ -890,77 +902,72 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, schools_by_uids, age_by_uid_dic):
+def write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, group_type, groups_by_uids):
     """
-    Write the schools to file with both id and their ages.
+    Write groups to file with both ID and their ages.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        schools_by_uids (list)    : list of lists, where each sublist represents a school and the ids of the students and teachers within it
-        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
+        datadir (string)                : The file path to the data directory.
+        location (string)               : The name of the location.
+        state_location (string)         : The name of the state of the location is in.
+        country_location (string)       : The name of the country the location is in.
+        age_by_uid_dic (dict)           : A dictionary mapping ID to age for each individual in the population.
+        groups_by_uids (list)           : The list of lists, where each sublist represents a household and the IDs of the household members.
+        group_type (string)             : The name of the group type.
 
     Returns:
         None
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
-    schools_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_ages.dat')
-    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
 
-    fh_age = open(schools_by_age_path, 'w')
-    fh_uid = open(schools_by_uid_path, 'w')
+    groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
+    groups_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_uids.dat')
 
-    for n, ids in enumerate(schools_by_uids):
+    fg_age = open(groups_by_age_path, 'w')
+    fg_uid = open(groups_by_uid_path, 'w')
 
-        school = schools_by_uids[n]
-        for uid in school:
+    for n, ids in enumerate(groups_by_uids):
 
-            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(str(uid) + ' ')
-        fh_age.write('\n')
-        fh_uid.write('\n')
-    fh_age.close()
-    fh_uid.close()
+        group = groups_by_uids[n]
+
+        for uid in group:
+
+            fg_age.write(str(age_by_uid_dic[uid]) + ' ')
+            fg_uid.write(str(uid) + ' ')
+        fg_age.write('\n')
+        fg_uid.write('\n')
+    fg_age.close()
+    fg_uid.close()
 
 
-def write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, workplaces_by_uids, age_by_uid_dic):
+def write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic):
     """
-    Write the workplaces to file with both id and their ages.
+    Write the dictionary of ID mapping to age for each individual in the population.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        workplaces_by_uids (list) : list of lists, where each sublist represents a workplace and the ids of the workers within it
-        age_by_uid_dic (dict)     : dictionary mapping id to age for each individual in the population
+        datadir (string)          : The file path to the data directory.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
+        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
 
     Returns:
         None
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
-    workplaces_by_age_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_ages.dat')
-    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
 
-    fh_age = open(workplaces_by_age_path, 'w')
-    fh_uid = open(workplaces_by_uid_path, 'w')
+    age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
 
-    for n, ids in enumerate(workplaces_by_uids):
+    f_age_uid = open(age_by_uid_path, 'w')
 
-        work = workplaces_by_uids[n]
-
-        for uid in work:
-
-            fh_age.write(str(age_by_uid_dic[uid]) + ' ')
-            fh_uid.write(str(uid) + ' ')
-        fh_age.write('\n')
-        fh_uid.write('\n')
-    fh_age.close()
-    fh_uid.close()
+    uids = sorted(age_by_uid_dic.keys())
+    for uid in uids:
+        f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
+    f_age_uid.close()
 
 
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
@@ -1102,7 +1109,8 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
     # Assign teachers and update school lists
-    gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
 
     # Generate non-school workplace sizes needed to send everyone to work
     workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -1130,10 +1138,13 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # save schools and workplace uids to file
     if write:
-        write_homes_by_age_and_uid(datadir, location, state_location, country_location, homes_by_uids, age_by_uid_dic)
-        write_schools_by_age_and_uid(datadir, location, state_location, country_location, n, gen_school_uids, age_by_uid_dic)
-        write_workplaces_by_age_and_uid(datadir, location, state_location, country_location, n, gen_workplace_uids, age_by_uid_dic)
+
+        write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks', age_by_uid_dic)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'households', homes_by_uids)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'schools', gen_school_uids)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'teachers', gen_teacher_uids)
+        write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'workplaces', gen_workplace_uids)
 
     if return_popdict:
-        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_workplace_uids)
+        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids)
         return popdict
