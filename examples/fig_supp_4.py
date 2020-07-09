@@ -24,6 +24,17 @@ import cmocean
 import cmasher as cmr
 import seaborn as sns
 
+use_graphviz = True
+
+# Try to import graphviz - may not be possible
+try:
+    import graphviz
+except ImportError as E:
+    errormsg = f'Graphviz import failed ({str(E)}), please install this first (conda install graphviz). If using Windows, ' \
+               f'graphviz will fail on dependency neato. In this case you may want to set use_graphviz (line 27) to False to continue. '\
+               f'The figure will be produced using the spring layout algorithm and look quite than the example si_fig_4.png in the figures folder.'
+    raise ImportError(errormsg)
+
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -205,7 +216,6 @@ ax = []
 for i in range(len(keys_to_plot) * 2):
     ax.append(fig.add_subplot(len(keys_to_plot), 2, i+1))
 
-use_graphviz = True
 
 layer_indices = {layer: l for l, layer in enumerate(keys_to_plot)}
 
@@ -222,7 +232,7 @@ for l, layer in enumerate(keys_to_plot):
     G.add_edges_from(zip(p1, p2))
     if undirected:
         G.add_edges_from(zip(p2, p1))
-    print(f'Layer: {layer}, nodes: {G.number_of_nodes()}, edges: {G.number_of_edges()}')
+    print(f'Drawing sample network layer: {layer}, with {G.number_of_nodes()} nodes, {G.number_of_edges()} edges')
 
     if use_graphviz:
         pos = nx.nx_pydot.graphviz_layout(G)
@@ -318,9 +328,8 @@ for l, layer in enumerate(keys_to_plot):
     setting_code = layer.title()
     if setting_code == 'L':
         setting_code = 'LTCF'
+    print(f'Plotting average age mixing contact matrix in layer: {layer}')
     matrix_dic[layer] = sp.calculate_contact_matrix(population, density_or_frequency, setting_code)
-
-    print('setting_code', setting_code)
 
     if aggregate_flag:
         aggregate_matrix = sp.get_aggregate_matrix(matrix_dic[layer], age_by_brackets_dic)
@@ -355,7 +364,7 @@ for l, layer in enumerate(keys_to_plot):
 
 
 fig_path = os.path.join(dir_path, '..', 'figures')
-fig_name = os.path.join(fig_path, 'si_fig_4.pdf')
+fig_name = os.path.join(fig_path, 'si_fig_4b.pdf')
 fig.savefig(fig_name, format='pdf')
 fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
 fig.savefig(fig_name.replace('pdf', 'png'), format='png')
