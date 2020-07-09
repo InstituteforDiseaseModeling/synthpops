@@ -15,7 +15,6 @@ import os
 
 
 if __name__ == '__main__':
-    
 
     pars = sc.objdict(
         pop_size  = 10000,

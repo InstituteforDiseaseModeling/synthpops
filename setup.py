@@ -45,6 +45,9 @@ setup(
         "numba==0.48.0",
         "networkx",
         "cmocean",
+        "cmasher",
+        "seaborn",
         "graphviz",
+        "pydot",
     ],
 )

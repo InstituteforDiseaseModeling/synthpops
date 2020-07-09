@@ -75,7 +75,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         else:
             # if location is None:
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
-                # raise NotImplementedError('Currently, only locations in the US are supported. Next version!')
 
     # you only have ages...
     elif ages is not None and sexes is None:
@@ -85,7 +84,6 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         else:
             gen_ages = ages
             gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
-            # raise NotImplementedError('Currently, only locations in the US are supported.')
 
     # you only have sexes...
     elif ages is None and sexes is not None:
@@ -626,6 +624,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     probability of an edge between any two groups controlled by p_matrix if provided.
     Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
     This means not everyone in group 2 will have a contact with group 1.
+
+    The members of group 1 and group 2 should be distinct and non-overlapping.
 
     Args:
         group_1 (list)            : list of ids for group 1

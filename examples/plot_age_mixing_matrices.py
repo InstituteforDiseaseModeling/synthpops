@@ -3,6 +3,7 @@ Plot the generated age-specific contact matrix.
 """
 
 import synthpops as sp
+# import sciris as sc
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -93,7 +94,7 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                 setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     return fig
 
@@ -101,7 +102,7 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
 def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
                                                density_or_frequency='density', with_facilities=False, cmap='cmr.freeze_r', fontsize=16, rotation=50):
     """
-    Plot the age mixing matrix for a specific setting where the edges are trimmed.
+    Plot the age mixing matrix for a specific setting where the .
 
     Args:
         setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
@@ -147,7 +148,7 @@ def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggrega
     matrix = sp.calculate_contact_matrix(population, density_or_frequency, setting_code)
 
     fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                 setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     return fig
 
