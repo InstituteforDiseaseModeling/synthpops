@@ -19,10 +19,31 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import os
 from collections import Counter
 import pytest
+import subprocess
 
 import cmocean
 import cmasher as cmr
 import seaborn as sns
+
+use_graphviz = True
+
+graphviz_errormsg = f'Graphviz import failed, please install this first (conda install graphviz). If using Windows, ' \
+           f'graphviz will fail on dependency neato. In this case you may want to set use_graphviz (line 27) to False to continue. ' \
+           f'The figure will be produced using the spring layout algorithm and look quite than the example si_fig_4.png in the figures folder.'
+
+# Try to import graphviz - may not be possible
+try:
+    import graphviz
+except ImportError as E:
+    errormsg = graphviz_errormsg
+    raise ImportError(errormsg)
+
+try:
+    G = nx.DiGraph()
+    pos = nx.nx_pydot.graphviz_layout(G)
+except AssertionError as E:
+    errormsg = graphviz_errormsg
+    raise OSError(errormsg)
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -55,7 +76,7 @@ fontsize = 34
 ### Draw networks ###
 
 # Sample networks
-pop_size = 250
+pop_size = 180
 pop_type = 'synthpops'
 location = 'seattle_metro'
 state_location = 'Washington'
@@ -63,7 +84,7 @@ country_location = 'usa'
 undirected = True
 n_days = 1
 rand_seed = None
-with_facilities = True
+# with_facilities = True
 with_facilities = False
 
 
@@ -79,6 +100,7 @@ popdict = cv.make_people(sim, generate=True, with_facilities=with_facilities, la
 sim = cv.Sim(pars, popfile=popdict, load_pop=True)
 
 keys_to_plot = ['h', 'l', 's', 'w']
+# keys_to_plot = ['h', 's', 'w']
 keys = ['l', 'w', 's', 'h']
 
 if with_facilities is False:
@@ -151,9 +173,9 @@ for age in age_cutoffs:
     nearest_age = sc.findnearest(sim.people.age, age)
     col = colors[nearest_age]
     if age != 100:
-        ax_leg.plot(np.nan, np.nan, 'o', markersize=12, c=col, label=f'Age {age}-{age+9}')
+        ax_leg.plot(np.nan, np.nan, 'o', markersize=15, c=col, label=f'Age {age}-{age+9}')
     else:
-        ax_leg.plot(np.nan, np.nan, 'o', markersize=12, c=col, label=f'Age {age}+')
+        ax_leg.plot(np.nan, np.nan, 'o', markersize=15, c=col, label=f'Age {age}+')
 ax_leg.legend(fontsize=fontsize + 4)
 
 
@@ -182,17 +204,28 @@ for ind in idict['w']:
         trimmed_h.remove(ind)
 
 # marker styles for people in different layers
-ndict = dict(h=80, s=100, w=100, l=100)
+ndict = dict(h=60, s=160, w=160, l=160)
 kdict = dict(h=0.7, s=1.0, w=2.0, l=1.5)
 mdict = dict(h='^', s='o', w='s', l='D')
 width = 0.2
+
+mdict_2 = {i: mdict['h'] for i in idict['h']}
+for i in idict['s']:
+    mdict_2[i] = mdict['s']
+for i in idict['w']:
+    mdict_2[i] = mdict['w']
+
+ndict_2 = {i: ndict['h'] for i in idict['h']}
+for i in idict['s']:
+    ndict_2[i] += 40
+for i in idict['w']:
+    ndict_2[i] += 40
 
 # Set up 6 ax panel
 ax = []
 for i in range(len(keys_to_plot) * 2):
     ax.append(fig.add_subplot(len(keys_to_plot), 2, i+1))
 
-use_graphviz = True
 
 layer_indices = {layer: l for l, layer in enumerate(keys_to_plot)}
 
@@ -209,14 +242,16 @@ for l, layer in enumerate(keys_to_plot):
     G.add_edges_from(zip(p1, p2))
     if undirected:
         G.add_edges_from(zip(p2, p1))
-    print(f'Layer: {layer}, nodes: {G.number_of_nodes()}, edges: {G.number_of_edges()}')
+    print(f'Drawing sample network layer: {layer}, with {G.number_of_nodes()} nodes, {G.number_of_edges()} edges')
 
     if use_graphviz:
         pos = nx.nx_pydot.graphviz_layout(G)
     else:
         pos = nx.spring_layout(G, k=kdict[layer], iterations=200)
-
-    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer], node_shape=mdict[layer], width=width, arrows=False, node_color=color)
+    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer], 
+            node_shape=mdict[layer], 
+            # node_shape=mdict_2,
+            width=width, arrows=False, node_color=color)
 
     if layer == 'h':
         for sublayer in 'hsw':
@@ -230,8 +265,11 @@ for l, layer in enumerate(keys_to_plot):
             subpos = {i: pos[i] for i in sli}
             # sublayer_index = layer_indices[sublayer]
             sublayer_index = layer_indices['h']
-            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=50, node_shape=mdict[sublayer], width=width, arrows=False, node_color=colors[sli])
-    ax[2*l + 1].set_title(mapping[layer], fontsize=fontsize + 8)
+            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=120, 
+                    node_shape=mdict[sublayer], 
+                    # node_shape=mdict_2,
+                    width=width, arrows=False, node_color=colors[sli])
+    ax[2*l + 1].set_title(mapping[layer], fontsize=fontsize + 10)
 
 
 ### Age mixing matrice ###
@@ -294,15 +332,14 @@ elif density_or_frequency == 'density':
 im = []
 cax = []
 cbar = []
-rotation = 60
+rotation = 66
 
 for l, layer in enumerate(keys_to_plot):
     setting_code = layer.title()
     if setting_code == 'L':
         setting_code = 'LTCF'
+    print(f'Plotting average age mixing contact matrix in layer: {layer}')
     matrix_dic[layer] = sp.calculate_contact_matrix(population, density_or_frequency, setting_code)
-
-    print('setting_code', setting_code)
 
     if aggregate_flag:
         aggregate_matrix = sp.get_aggregate_matrix(matrix_dic[layer], age_by_brackets_dic)
@@ -323,7 +360,7 @@ for l, layer in enumerate(keys_to_plot):
     ax[2*l].tick_params(labelsize=fontsize + 2)
     ax[2*l].set_xlabel('Age', fontsize=fontsize + 2)
     ax[2*l].set_ylabel('Age of Contacts', fontsize=fontsize + 2)
-    ax[2*l].set_title(mapping[layer], fontsize=fontsize + 8)
+    ax[2*l].set_title(mapping[layer], fontsize=fontsize + 10)
 
     if aggregate_flag:
         tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
@@ -337,7 +374,7 @@ for l, layer in enumerate(keys_to_plot):
 
 
 fig_path = os.path.join(dir_path, '..', 'figures')
-fig_name = os.path.join(fig_path, 'si_fig_4.pdf')
+fig_name = os.path.join(fig_path, 'si_fig_4b.pdf')
 fig.savefig(fig_name, format='pdf')
 fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
 fig.savefig(fig_name.replace('pdf', 'png'), format='png')

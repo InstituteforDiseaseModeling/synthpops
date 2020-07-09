@@ -26,6 +26,15 @@ from . import contact_networks as spcn
 from .config import datadir
 
 
+# Pretty fonts
+try:
+    fontstyle = 'Roboto_Condensed'
+    mplt.rcParams['font.family'] = fontstyle.replace('_', ' ')
+except:
+    mplt.rcParams['font.family'] = 'Roboto'
+mplt.rcParams['font.size'] = 16
+
+
 def calculate_contact_matrix(population, density_or_frequency='density', setting_code='H'):
     """
     Calculate the symmetric age-specific contact matrix from the connections
@@ -82,7 +91,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
     return M
 
 
-def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density
@@ -111,8 +120,6 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
 
     """
     cmap = mplt.cm.get_cmap(cmap)
-    # cmap = mplt.cm.get_cmap(cmocean.cm.deep_r)
-    # cmap = mplt.cm.get_cmap(cmocean.cm.matter_r)
 
     fig = plt.figure(figsize=(10, 10), tight_layout=True)
     ax = []
@@ -200,3 +207,5 @@ def plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets,
             ax[i].set_yticks(np.arange(0, len(age_count) + 1, 10))
 
     return fig
+
+

@@ -193,7 +193,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
-            ai = spsamp.resample_age(age_distr_vals, ai)
+            # ai = spsamp.resample_age(age_distr_vals, ai)
 
             homes[h][n] = ai
 

@@ -48,5 +48,6 @@ setup(
         "cmasher",
         "seaborn",
         "graphviz",
+        "pydot",
     ],
 )

@@ -3,7 +3,6 @@ Plot the generated age-specific contact matrix.
 """
 
 import synthpops as sp
-# import sciris as sc
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -93,8 +92,8 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     #     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
     #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
-    fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+    fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+                                 setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     return fig
 
@@ -147,8 +146,8 @@ def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggrega
 
     matrix = sp.calculate_contact_matrix(population, density_or_frequency, setting_code)
 
-    fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+    fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+                                 setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     return fig
 
