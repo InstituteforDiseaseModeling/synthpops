@@ -19,6 +19,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import os
 from collections import Counter
 import pytest
+import subprocess
 
 import cmocean
 import cmasher as cmr
@@ -26,14 +27,23 @@ import seaborn as sns
 
 use_graphviz = True
 
+graphviz_errormsg = f'Graphviz import failed, please install this first (conda install graphviz). If using Windows, ' \
+           f'graphviz will fail on dependency neato. In this case you may want to set use_graphviz (line 27) to False to continue. ' \
+           f'The figure will be produced using the spring layout algorithm and look quite than the example si_fig_4.png in the figures folder.'
+
 # Try to import graphviz - may not be possible
 try:
     import graphviz
 except ImportError as E:
-    errormsg = f'Graphviz import failed ({str(E)}), please install this first (conda install graphviz). If using Windows, ' \
-               f'graphviz will fail on dependency neato. In this case you may want to set use_graphviz (line 27) to False to continue. '\
-               f'The figure will be produced using the spring layout algorithm and look quite than the example si_fig_4.png in the figures folder.'
+    errormsg = graphviz_errormsg
     raise ImportError(errormsg)
+
+try:
+    G = nx.DiGraph()
+    pos = nx.nx_pydot.graphviz_layout(G)
+except AssertionError as E:
+    errormsg = graphviz_errormsg
+    raise OSError(errormsg)
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
