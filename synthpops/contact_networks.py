@@ -193,7 +193,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
                 if np.random.binomial(1, ya_coin):
                     ai = spsamp.sample_from_range(single_year_age_distr, 25, 32)  # This a placeholder range. Users will need to change to fit whatever population they are working with.
 
-            ai = spsamp.resample_age(age_distr_vals, ai)
+            # ai = spsamp.resample_age(age_distr_vals, ai)
 
             homes[h][n] = ai
 
@@ -709,7 +709,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=30, teacher_age_min=25, teacher_age_max=75, verbose=False):
+def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.
 
