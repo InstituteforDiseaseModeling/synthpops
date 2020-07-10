@@ -33,7 +33,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         A dictionary where keys are the uid of each person and the values are another dictionary containing values for other attributes of the person
     """
 
-    min_people = 1000
+    min_people = 100
 
     if location             is None: location = 'seattle_metro'
     if state_location is None: state_location = 'Washington'
