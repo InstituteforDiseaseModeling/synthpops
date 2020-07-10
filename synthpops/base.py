@@ -2,6 +2,10 @@
 The module contains frequently-used functions that do not neatly fit into other areas of the code base.
 """
 
+"""
+Not only do list and dictionary comprehensions make code more concise and easier to read, they are also faster than traditional for-loops. The key to success, however, is not to let them get so complex that they negate the benefits of using them in the first place. - Netguru
+"""
+
 import numpy as np
 from copy import deepcopy
 from . import config as cfg
@@ -17,13 +21,10 @@ def norm_dic(dic):
     Returns:
         A normalized dictionary.
     """
-    total = np.sum([dic[i] for i in dic], dtype=float)
+    total = sum(dic.values(), 0.0)
     if total == 0.0:
         return dic
-    new_dic = {}
-    for i in dic:
-        new_dic[i] = float(dic[i])/total
-    return new_dic
+    return {k:v/total for k,v in dic.items()}
 
 
 def norm_age_group(age_dic, age_min, age_max):
@@ -37,10 +38,11 @@ def norm_age_group(age_dic, age_min, age_max):
 
     Returns:
         A normalized dictionary for keys in the range ``age_min`` to ``age_max``, inclusive.
+
     """
     dic = {}
     for a in range(age_min, age_max+1):
-        dic[a] = age_dic[a]
+        dic = {a:age_dic[a] for a in range(age_min, age_max+1)}
     return norm_dic(dic)
 
 
@@ -65,6 +67,7 @@ def get_age_by_brackets_dic(age_brackets):
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     """
     age_by_brackets_dic = {}
+
     for b in age_brackets:
         for a in age_brackets[b]:
             age_by_brackets_dic[a] = b
