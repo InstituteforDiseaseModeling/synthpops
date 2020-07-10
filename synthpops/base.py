@@ -40,9 +40,9 @@ def norm_age_group(age_dic, age_min, age_max):
         A normalized dictionary for keys in the range ``age_min`` to ``age_max``, inclusive.
 
     """
-    dic = {}
-    for a in range(age_min, age_max+1):
-        dic = {a:age_dic[a] for a in range(age_min, age_max+1)}
+    #dic = {}
+    #for a in range(age_min, age_max+1):
+    dic = {a:age_dic[a] for a in range(age_min, age_max+1)}
     return norm_dic(dic)
 
 
