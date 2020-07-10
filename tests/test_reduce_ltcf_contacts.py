@@ -27,12 +27,12 @@ def test_create_reduced_contacts_with_group_types():
     # set write to False and instead use return_popdict = True to get a population dict
     popdict = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
                                                          n, school_enrollment_counts_available=True,
-                                                         write=False, do_plot=False, return_popdict=True)
+                                                         write=False, plot=False, return_popdict=True)
 
     # Make 2 groups of contacts
     # Facility contacts - use generating function so that data can be generated as needed to run this test
     contacts_group_1 = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location, 
-                                                                  n, do_plot=False, verbose=False, 
+                                                                  n, plot=False, verbose=False, 
                                                                   write=False, return_popdict=True, 
                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
 

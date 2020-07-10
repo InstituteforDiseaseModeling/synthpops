@@ -383,9 +383,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     homes = facilities + homes
 
     homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  #include facilities to assign ids
-    print(homes_by_uids)
-    print()
-    print(age_by_uid_dic)
+    print('homes by uids', homes_by_uids)
+    print('facilities', facilities)
+    print('age_by_uid_dic', age_by_uid_dic)
     new_ages_count = Counter(age_by_uid_dic.values())
 
     facilities_by_uids = homes_by_uids[0:len(facilities)]

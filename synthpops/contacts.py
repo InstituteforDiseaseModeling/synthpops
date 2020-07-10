@@ -788,7 +788,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     # uid are strings or ints
     if isinstance(uids[0], str):
         uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         uid_mapping = {u: u for u in uids}
     else:
         errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
@@ -871,7 +871,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
 
     # uids are ints so no need to do any mapping
     # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         # read in home contacts
         for nh, line in enumerate(fh):
             r = line.strip().split(' ')
@@ -955,7 +955,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     # uid are strings or ints
     if isinstance(uids[0], str):
         uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         uid_mapping = {u: u for u in uids}
     else:
         errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
@@ -1020,7 +1020,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
                     popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         # read in home contacts
         for nh, household in enumerate(homes_by_uids):
 
@@ -1109,7 +1109,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     # uid are strings or ints
     if isinstance(uids[0], str):
         uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         uid_mapping = {u: u for u in uids}
     else:
         errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
@@ -1216,7 +1216,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
                 popdict[u]['wpid'] = nw
 
     # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         # read in facility residents and staff
         for nf, (line1, line2) in enumerate(zip(ffres, ffstaff)):
             r1 = line1.strip().split(' ')
@@ -1336,9 +1336,10 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
     # uid are strings or ints
     if isinstance(uids[0], str):
         uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         uid_mapping = {u: u for u in uids}
     else:
+        print(uids[0], type(uids[0]))
         errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
         raise ValueError(errormsg)
 
@@ -1429,7 +1430,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
                     popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer):
+    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
         # read in facility residents and staff
         for nf, facility in enumerate(facilities_by_uids):
             facility_staff = facilities_staff_uids[nf]
