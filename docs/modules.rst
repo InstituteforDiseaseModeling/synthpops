@@ -84,14 +84,6 @@ synthpops.sampling module
    :undoc-members:
    :show-inheritance:
 
-synthpops.utils module
-----------------------
-
-.. automodule:: synthpops.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 synthpops.version module
 ------------------------
 
