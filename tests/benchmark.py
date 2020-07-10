@@ -11,11 +11,14 @@ Example:
 """
 import sciris as sc
 import synthpops as sp
+
 import argparse
 import sys
+import os
+from pathlib import Path
 
-to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
-
+#to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
+to_profile_dict = {0:'make_population',1:'trim_contacts',2:'generate_synthetic_population',3:'generate_all_households', 4:'generate_larger_households', 5:'assign_rest_of_workers', 6:'make_popdict', 7:'make_contacts', 8:'simple_n_contact_ages', 9:'generate_living_alone', 10:'generate_household_head_age_by_size' , 11:'sample_from_range'}
 func_options = {
     'make_population': sp.make_population,
     'trim_contacts': sp.trim_contacts, # This is where most of the time goes for loading a population
@@ -26,6 +29,9 @@ func_options = {
     'make_popdict': sp.make_popdict,
     'make_contacts': sp.make_contacts,
     'sample_n_contact_ages': sp.sample_n_contact_ages,
+    'generate_living_alone': sp.contact_networks.generate_living_alone,
+    'generate_household_head_age_by_size':sp.contact_networks.generate_household_head_age_by_size,
+    'sample_from_range':sp.sampling.sample_from_range,
     }
 
 def make_pop(n):
@@ -37,23 +43,36 @@ def make_pop(n):
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
 
-def run_benchmark(list_of_n):
+def run_benchmark(list_of_n, test_index_list, out_dir):
     """
     loop over list of n and output perf profile for each n to test_n.txt
     """
     for n in list_of_n:
-        saved_stdout = sys.stdout
-        with open(f'test_{n}.txt', 'w') as f:
-            sys.stdout = f
-            sc.tic()
-            sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
-            sc.toc()
-        sys.stdout.close()
-        sys.stdout = saved_stdout
-        print(f'result n={n} : test_{n}.txt')
+        for indx in test_index_list:
+            to_profile = to_profile_dict[indx]
+            file_name = f'test_{to_profile}_{n}.txt'
+            file_path = os.path.join(out_dir, file_name)
+            saved_stdout = sys.stdout
+            with open(file_path, 'w') as f:
+                sys.stdout = f
+                sc.tic()
+                sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
+                sc.toc()
+            sys.stdout.close()
+            sys.stdout = saved_stdout
+            print(f'result n={n} : {file_name}')
 
 if __name__ == '__main__':
+    default_outdir = os.path.join(os.getcwd(), 'perf_files')
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('n', nargs='*', default=[10001], help='population')
+    parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
+    parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')
+    parser.add_argument('n', nargs='*', default=[10001], type=int, help='population')
     args = parser.parse_args()
-    run_benchmark(args.n)
+    test_list = args.test_index_list
+    if len(test_list) == 0:
+        test_list = [5]
+    # nake sure the output directory exists
+    Path(args.outdir).mkdir(parents=True, exist_ok=True)
+    run_benchmark(args.n, test_list, args.outdir)
