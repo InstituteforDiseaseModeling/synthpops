@@ -130,7 +130,7 @@ def test_make_contacts_generic(n=default_n):
     return contacts
 
 
-def test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington',n=default_n):
+def test_make_contacts_use_microstructure(location='seattle_metro',state_location='Washington',n=default_n):
 
     options_args = dict.fromkeys(['use_microstructure'],True)
     network_distr_args = {'n': n}
@@ -148,6 +148,27 @@ def test_make_contacts_from_microstructure(location='seattle_metro',state_locati
         print()
 
     return contacts
+
+
+def test_make_contacts_from_microstructure(datadir=sp.datadir, location='seattle_metro', country_location='usa',
+                                           state_location='Washington'):
+    contacts = sp.make_contacts_from_microstructure(datadir=datadir, location=location,
+                                                    country_location=country_location, state_location=state_location,
+                                                    n=default_n)
+    uids = contacts.keys()
+    uids = [uid for uid in uids]
+    for n,uid in enumerate(uids):
+        if n > 20:
+            break
+        layers = contacts[uid]['contacts']
+        print('uid',uid,'age',contacts[uid]['age'],'total contacts', np.sum([len(contacts[uid]['contacts'][k]) for k in layers]))
+        for k in layers:
+            contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][k]]
+            print(k,len(contact_ages),'contact ages',contact_ages)
+        print()
+
+    return contacts
+
 
 
 #%% Run as a script
@@ -171,7 +192,8 @@ if __name__ == '__main__':
     # popdict = test_make_popdict_generic(default_n)
 
     # contacts = test_make_contacts_generic(default_n)
-    contacts = test_make_contacts_from_microstructure(location='seattle_metro',state_location='Washington')
+    contacts = test_make_contacts_use_microstructure(location='seattle_metro',state_location='Washington')
+    contacts = test_make_contacts_from_microstructure()
     sc.toc()
 
     print(datadir)
