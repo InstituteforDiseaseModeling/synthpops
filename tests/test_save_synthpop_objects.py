@@ -10,7 +10,7 @@ Save synthpop_n.pop objects for different population sizes created n.
 """
 
 if __name__ == '__main__':
-    
+
     datadir = sp.datadir
 
     location = 'seattle_metro'
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     sc.tic()
     pop = sp.make_popdict(n, uids=keys, location=location, state_location=state_location, country_location=country_location, use_demography=True)
     sc.toc()
-    # print(pop)s
+    # print(pop)
     # print(keys)
 
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
@@ -43,12 +43,12 @@ if __name__ == '__main__':
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
-
     # age_by_uid_dic = sc.objdict(zip(df.iloc[:,0], df.iloc[:,1]))
-    age_by_uid_dic = sc.objdict(dict(zip(df.iloc[:, 0], df.iloc[:, 1].astype(int))))
-    # age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+    # age_by_uid_dic = sc.objdict(dict(zip(df.iloc[:, 0], df.iloc[:, 1].astype(int))))
+    age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
 
     uids = age_by_uid_dic.keys()
+    uids = [uid for uid in uids]
 
     # print(uids[0])
     print(age_by_uid_dic)
@@ -57,4 +57,4 @@ if __name__ == '__main__':
     # sc.tic()
     # popdict = sp.make_contacts_from_microstructure(datadir, location, state_location, country_location, n)
     # sc.toc()
-    # sp.show_layers(popdict)
+    # sp.show_layers(popdict) 
