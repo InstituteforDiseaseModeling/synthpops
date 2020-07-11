@@ -1,7 +1,6 @@
 import synthpops as sp
-import synthpops.contact_networks as spcnx
 import sciris as sc
-from synthpops.base import *
+import numpy as np
 
 default_n = 1000
 

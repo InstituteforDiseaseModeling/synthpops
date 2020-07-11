@@ -1,7 +1,7 @@
 import synthpops as sp
 import pytest
 
-do_plot = False
+plot = False
 verbose = False
 write = True
 return_popdict = True
