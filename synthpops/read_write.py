@@ -39,15 +39,16 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     f_age_uid.close()
 
 
-def read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n):
+def read_in_age_by_uid(datadir, location, country_location, state_location, folder_name, n):
     """
     Read dictionary of ID mapping to ages for all individuals from file.
 
     Args:
         datadir (string)          : The file path to the data directory.
         location (string)         : The name of the location.
-        state_location (string)   : The name of the state the location is in.
         country_location (string) : The name of the country the location is in.
+        state_location (string)   : The name of the state the location is in.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         n (int)                   : The number of people in the population.
     Returns:
         A dictionary mapping ID to age for all individuals in the population.

@@ -4,7 +4,7 @@ import sciris as sc
 import pytest
 from random import randrange
 
-pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
+# pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
 
 if not sp.config.full_data_available:
     pytest.skip("Data not available, tests not possible", allow_module_level=True)
@@ -172,6 +172,30 @@ def test_get_totalpopsizes_from_household_sizes(location='seattle_metro', state_
     assert sum_hh_sizes is not None
 
 
+def test_generate_larger_households():
+    Nhomes_to_sample_smooth = 1000
+    household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
+    hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth, household_size_distr)
+
+    hha_brackets = sp.get_head_age_brackets(datadir, country_location=country_location)
+    hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, country_location=country_location)
+
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
+    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+    contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name='United States of America')
+
+    single_year_age_distr = {}
+    for n in range(101):
+        single_year_age_distr[n] = float(1.0 / 101.0)
+
+    larger_households = sp.generate_larger_households(Nhomes_to_sample_smooth, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic,
+                                    contact_matrix_dic, single_year_age_distr)
+    assert larger_households is not None
+    print(larger_households)
+
+
 def test_assign_uids_by_homes(state_location='Washington', country_location='usa'):
     homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
                                           household_size_1_included=False, use_default=True)
@@ -187,24 +211,35 @@ def test_get_school_enrollment_rates_path():
     assert path is not None
 
 
-def test_get_uids_in_school(location='seattle_metro', state_location='Washington',
-                            country_location='usa'):
+def test_get_uids_in_school(location='seattle_metro', state_location='Washington', country_location='usa'):
     NPeople = 10000
+    homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
+                                          household_size_1_included=False, use_default=True)
+    homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, 'seattle_metro', 'usa', 'Washington', 'contact_networks',
+                                           NPeople)
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, NPeople, location,
                                                                                         state_location,
                                                                                         country_location,
-                                                                                        use_default=True)
+                                                                                        age_by_uid_dic,
+                                                                                        homes_by_uids,
+                                                                                        use_default=False)
+
     assert uids_in_school is not None
 
 
-def test_send_students_to_school(location='seattle_metro', state_location='Washington',
+def test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
                                  country_location='usa'):
-    NPeople = 10000
+    homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
+                                          household_size_1_included=False, use_default=True)
+    homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes, id_len=16)
 
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, NPeople, location,
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
                                                                                         state_location,
                                                                                         country_location,
-                                                                                        use_default=True)
+                                                                                        age_by_uid_dic,
+                                                                                        homes_by_uids,
+                                                                                        use_default=False)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
                                                                         country_location)
@@ -289,6 +324,7 @@ if __name__ == '__main__':
     sc.tic()
 
     datadir = sp.datadir
+    n = 1000
     location = 'seattle_metro'  # for census distributions
     state_location = 'Washington'  # for state wide age mixing patterns
     # location = 'portland_metro'
@@ -298,6 +334,20 @@ if __name__ == '__main__':
     test_all(location, state_location, country_location)
     test_n_single_ages(1e4, location, state_location, country_location)
     test_multiple_ages(1e4, location, state_location, country_location)
+    test_resample_age()
+    test_generate_household_sizes()
+    test_generate_household_sizes_from_fixed_pop_size()
+    test_generate_all_households()
+    test_get_totalpopsizes_from_household_sizes()
+    test_assign_uids_by_homes()
+    test_get_school_enrollment_rates_path()
+    test_get_uids_in_school()
+    test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
+                                 country_location='usa')
+    test_get_uids_potential_workers()
+    test_generate_workplace_sizes()
+    test_generate_school_sizes()
+
 
     ages, sexes = sp.get_usa_age_sex_n(datadir, location, state_location, country_location, 1e2)
     print(ages, sexes)

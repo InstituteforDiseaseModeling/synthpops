@@ -781,7 +781,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
     teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, 'contact_networks', n)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, country_location, state_location, 'contact_networks', n)
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
@@ -1102,7 +1102,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
 
     # df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
     # age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, 'contact_networks_facilities', n)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, country_location, state_location, 'contact_networks_facilities', n)
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
