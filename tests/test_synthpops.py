@@ -257,6 +257,8 @@ def test_send_students_to_school(n=1000, location='seattle_metro', state_locatio
                                                               contact_matrix_dic, verbose=False)
     assert syn_schools, syn_school_uids is not None
 
+    return syn_schools, syn_school_uids
+
 
 def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
                                     country_location='usa'):
@@ -272,14 +274,32 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
 
+    return potential_worker_uids, potential_worker_uids_by_age, employment_rates, age_by_uid_dic
+
 
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
                                   country_location='usa'):
     Npeople = 10000
-    uids_in_school, uids_in_school_by_age, uids_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
                                                                                         state_location,
                                                                                         country_location,
                                                                                         use_default=True)
+
+    school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
+                                                                        country_location)
+    school_size_brackets = sp.get_school_size_brackets(datadir, location, state_location, country_location)
+    school_sizes = sp.generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school)
+
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
+    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+    contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name='United States of America')
+
+    # Need to instead get syn_schools now
+    syn_schools, syn_school_uids = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
+                                                              ages_in_school_count, age_brackets, age_by_brackets_dic,
+                                                              contact_matrix_dic)
 
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
@@ -287,7 +307,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Npeople)
 
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
-        uids_in_school, employment_rates, age_by_uid_dic)
+        syn_school_uids, employment_rates, age_by_uid_dic)
 
     workers_by_age_to_assign_count = sp.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count,
                                                                      age_by_uid_dic)
@@ -301,7 +321,49 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
                                                                                use_default=True)
     workplace_sizes = sp.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets,
                                                   workers_by_age_to_assign_count)
-    print(workplace_sizes)
+
+    return workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, workplace_sizes
+
+
+@pytest.mark.skip
+def test_assign_rest_of_workers(state_location='Washington', country_location='usa'):
+    workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, \
+    workplace_sizes = test_generate_workplace_sizes()
+
+    potential_worker_uids, potential_worker_uids_by_age, employment_rates, \
+    age_by_uid_dic = test_get_uids_potential_workers()
+
+    contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name='United States of America')
+
+    age_brackets_16 = sp.get_census_age_brackets(datadir, state_location, country_location)
+    age_by_brackets_dic_16 = sp.get_age_by_brackets_dic(age_brackets_16)
+
+    syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, \
+    workers_by_age_to_assign_count = sp.assign_rest_of_workers(workplace_sizes, potential_worker_uids,
+                                                               potential_worker_uids_by_age,
+                                                               workers_by_age_to_assign_count,
+                                                               age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16,
+                                                               contact_matrix_dic)
+
+    # syn_workplaces should return a list of lists where each sublist is a workplace with the ages of workers, not empty
+    for workplace in syn_workplaces:
+        assert workplace is not None
+    assert syn_workplaces != []
+
+    # syn_worplace_uids should be a list of workers ids, not empty
+    assert syn_workplace_uids != []
+
+    # potential_worker_uids should return a list of potential worker ids
+    for worker_id in potential_worker_uids:
+        assert worker_id is not None
+
+    # potential_worker_uids_by_age should return a list of potential worker ids mapped by age
+    for worker_by_age in potential_worker_uids_by_age:
+        assert int(worker_by_age)
+
+    # workers_by_age_to_assign_count should be a dictionary mapping age to the count of workers left to assign
+    for worker in workers_by_age_to_assign_count.items():
+        assert tuple(worker)
 
 
 def test_generate_school_sizes(location='seattle_metro', state_location='Washington',
@@ -319,7 +381,47 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
     assert school_sizes is not None
 
 
-# %% Run as a script
+@pytest.mark.skip
+def test_assign_teachers_to_work(location='seattle_metro', state_location='Washington',
+                                 country_location='usa', n=10000):
+    # Assign students to school
+    gen_schools, gen_school_uids = test_send_students_to_school()
+
+    employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
+                                               country_location=country_location, use_default=True)
+
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, n)
+
+    uids_in_school = sp.get_uids_in_school(datadir, n, location, state_location, country_location, use_default=True)
+
+    potential_worker_uids, potential_worker_uids_by_age, \
+    potential_worker_ages_left_count = sp.get_uids_potential_workers(uids_in_school, employment_rates, age_by_uid_dic)
+
+    workers_by_age_to_assign_count = sp.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count,
+                                                                     age_by_uid_dic)
+
+    # Assign teachers and update school lists
+    syn_schools, syn_school_uids, potential_worker_uids, potential_worker_uids_by_age, \
+    workers_by_age_to_assign_count = sp.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates,
+                                                                workers_by_age_to_assign_count,
+                                                                potential_worker_uids, potential_worker_uids_by_age,
+                                                                potential_worker_ages_left_count,
+                                                                student_teacher_ratio=30, teacher_age_min=25,
+                                                                teacher_age_max=75, verbose=False)
+
+    for n in range(len(syn_schools)):
+        print(syn_schools[n])
+        assert syn_schools[n] is not None
+        assert syn_school_uids[n] is not None
+
+    assert syn_schools == gen_schools
+    assert syn_school_uids == gen_school_uids
+    assert potential_worker_uids == potential_worker_uids
+    assert potential_worker_uids_by_age == potential_worker_uids_by_age
+    assert workers_by_age_to_assign_count == workers_by_age_to_assign_count
+
+
+#%% Run as a script
 if __name__ == '__main__':
     sc.tic()
 
@@ -341,7 +443,7 @@ if __name__ == '__main__':
     test_get_totalpopsizes_from_household_sizes()
     test_assign_uids_by_homes()
     test_get_school_enrollment_rates_path()
-    test_get_uids_in_school()
+    test_get_uids_in_school(location, state_location, country_location)
     test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
     test_get_uids_potential_workers()
@@ -357,7 +459,5 @@ if __name__ == '__main__':
     # age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     # print(age_brackets)
     sc.toc()
-
-    test_get_uids_in_school(location, state_location, country_location)
 
 print('Done.')
