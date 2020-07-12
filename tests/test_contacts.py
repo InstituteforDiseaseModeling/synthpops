@@ -179,26 +179,6 @@ def test_make_contacts_generic_from_network_distr_args(Npop=5000):
     return contacts
 
 
-def test_make_contacts_from_microstructure(datadir=sp.datadir, location='seattle_metro', country_location='usa',
-                                           state_location='Washington'):
-    contacts = sp.make_contacts_from_microstructure(datadir=datadir, location=location,
-                                                    country_location=country_location, state_location=state_location,
-                                                    n=default_n)
-    uids = contacts.keys()
-    uids = [uid for uid in uids]
-    for n,uid in enumerate(uids):
-        if n > 20:
-            break
-        layers = contacts[uid]['contacts']
-        print('uid',uid,'age',contacts[uid]['age'],'total contacts', np.sum([len(contacts[uid]['contacts'][k]) for k in layers]))
-        for k in layers:
-            contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][k]]
-            print(k,len(contact_ages),'contact ages',contact_ages)
-        print()
-
-    return contacts
-
-
 def test_make_contacts_with_facilities_from_microstructure(location='seattle_metro', state_location='Washington',
                                                            country_location='usa', Npop=1000):
     # First generate microstructure with facilities
