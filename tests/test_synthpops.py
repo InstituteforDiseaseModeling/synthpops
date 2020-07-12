@@ -25,10 +25,10 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     # ## Test selecting an age and sex for an individual ###
-    a, s = sp.get_age_sex(gender_fraction_by_age, age_bracket_distr,age_brackets)
+    a, s = sp.get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets)
     print(a, s)
 
-    ### Test age mixing matrix ###
+    # ## Test age mixing matrix ###
     # num_agebrackets = 18
 
     # flu-like weights. calibrated to empirical diary survey data.
@@ -36,17 +36,16 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
 
     age_mixing_matrix_dic = sp.get_contact_matrix_dic(dropbox_path, sheet_name)
 
-    ### Test sampling contacts based on age ###
+    # ## Test sampling contacts based on age ###
     age, sex = sp.get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets)  # sample an age (and sex) from the seattle metro distribution
 
     n_contacts = 30
     contact_ages = sp.sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic, weights_dic)
     print(contact_ages)
 
-
     # shut down schools
     no_schools_weights = sc.dcp(weights_dic)
-    no_schools_weights['S'] = 0.1 # research shows that even with school closure, kids still have some contact with their friends from school.
+    no_schools_weights['S'] = 0.1  # research shows that even with school closure, kids still have some contact with their friends from school.
 
     f_reduced_contacts_students = 0.5
     f_reduced_contacts_nonstudents = 0.2
@@ -56,49 +55,49 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
     else:
         n_reduced_contacts = int(n_contacts * (1 - f_reduced_contacts_nonstudents))
 
-    contact_ages = sp.sample_n_contact_ages(n_reduced_contacts,age,age_brackets,age_by_brackets_dic,age_mixing_matrix_dic,no_schools_weights)
+    contact_ages = sp.sample_n_contact_ages(n_reduced_contacts, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic, no_schools_weights)
     print(contact_ages)
 
     return
 
 
-def test_n_single_ages(n_people=1e4,location='seattle_metro',state_location='Washington',country_location='usa'):
+def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='Washington', country_location='usa'):
 
     sc.heading('Running single ages')
     sp.validate()
     datadir = sp.datadir
 
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location,country_location)
-    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location,state_location,country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir,state_location,country_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir, location, state_location, country_location)
+    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
-    ### Test selecting an age and sex for an individual ###
-    a,s = sp.get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
-    print(a,s)
+    # ## Test selecting an age and sex for an individual ###
+    a, s = sp.get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets)
+    print(a, s)
 
     n_people = int(n_people)
     ages, sexes = [], []
     for p in range(n_people):
-        a,s = sp.get_age_sex(gender_fraction_by_age,age_bracket_distr,age_brackets)
+        a, s = sp.get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets)
         ages.append(a)
         sexes.append(s)
 
     return
 
 
-def test_multiple_ages(n_people=1e4,location='seattle_metro',state_location='Washington',country_location='usa'):
+def test_multiple_ages(n_people=1e4, location='seattle_metro', state_location='Washington', country_location='usa'):
     sc.heading('Running multiple ages')
 
     datadir = sp.datadir
 
-    age_bracket_distr = sp.read_age_bracket_distr(datadir,location,state_location,country_location)
-    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir,location,state_location,country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir,state_location,country_location)
+    age_bracket_distr = sp.read_age_bracket_distr(datadir, location, state_location, country_location)
+    gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
+    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
-    ages, sexes = sp.get_age_sex_n(gender_fraction_by_age,age_bracket_distr,age_brackets,n_people)
-    print(len(ages),len(sexes))
+    ages, sexes = sp.get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_people)
+    print(len(ages), len(sexes))
 
     return
 
@@ -161,7 +160,7 @@ def test_generate_all_households(location='seattle_metro', state_location='Washi
 
 
 def test_get_totalpopsizes_from_household_sizes(location='seattle_metro', state_location='Washington',
-                                                      country_location='usa'):
+                                                country_location='usa'):
     household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
 
     Nhomes_to_sample_smooth = 1000
@@ -186,22 +185,23 @@ def test_get_school_enrollment_rates_path():
 
 
 def test_get_uids_in_school(location='seattle_metro', state_location='Washington',
-                            country_location='usa'):
+                            country_location='usa', folder_name='contact_networks'):
     NPeople = 10000
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, NPeople, location,
                                                                                         state_location,
                                                                                         country_location,
+                                                                                        folder_name=folder_name,
                                                                                         use_default=True)
     assert uids_in_school is not None
 
 
 def test_send_students_to_school(location='seattle_metro', state_location='Washington',
-                                 country_location='usa'):
+                                 country_location='usa', folder_name='contact_networks'):
     NPeople = 10000
-
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, NPeople, location,
                                                                                         state_location,
                                                                                         country_location,
+                                                                                        folder_name=folder_name,
                                                                                         use_default=True)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
@@ -224,15 +224,16 @@ def test_send_students_to_school(location='seattle_metro', state_location='Washi
 
 
 def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
-                                    country_location='usa'):
+                                    country_location='usa', folder_name='contact_networks'):
     Nhomes = 10000
     uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
                                            state_location,
                                            country_location,
+                                           folder_name=folder_name,
                                            use_default=True)
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Nhomes)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Nhomes)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
@@ -241,11 +242,12 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
 
 
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
-                                  country_location='usa'):
+                                  country_location='usa', folder_name='contact_networks'):
     Npeople = 10000
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
                                                                                         state_location,
                                                                                         country_location,
+                                                                                        folder_name=folder_name,
                                                                                         use_default=True)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
@@ -267,7 +269,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
 
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, Npeople)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Npeople)
 
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         syn_school_uids, employment_rates, age_by_uid_dic)
@@ -330,11 +332,12 @@ def test_assign_rest_of_workers(state_location='Washington', country_location='u
 
 
 def test_generate_school_sizes(location='seattle_metro', state_location='Washington',
-                               country_location='usa'):
+                               country_location='usa', folder_name='contact_networks'):
     Nhomes = 10000
     uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
                                            state_location,
                                            country_location,
+                                           folder_name=folder_name,
                                            use_default=True)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
@@ -346,16 +349,16 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
 
 @pytest.mark.skip
 def test_assign_teachers_to_work(location='seattle_metro', state_location='Washington',
-                                 country_location='usa', n=10000):
+                                 country_location='usa', folder_name='contact_networks', n=10000):
     # Assign students to school
     gen_schools, gen_school_uids = test_send_students_to_school()
 
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
 
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, n)
+    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
-    uids_in_school = sp.get_uids_in_school(datadir, n, location, state_location, country_location, use_default=True)
+    uids_in_school = sp.get_uids_in_school(datadir, n, location, state_location, country_location, folder_name=folder_name, use_default=True)
 
     potential_worker_uids, potential_worker_uids_by_age, \
     potential_worker_ages_left_count = sp.get_uids_potential_workers(uids_in_school, employment_rates, age_by_uid_dic)
@@ -384,7 +387,7 @@ def test_assign_teachers_to_work(location='seattle_metro', state_location='Washi
     assert workers_by_age_to_assign_count == workers_by_age_to_assign_count
 
 
-#%% Run as a script
+# %% Run as a script
 if __name__ == '__main__':
     sc.tic()
 
@@ -394,6 +397,7 @@ if __name__ == '__main__':
     # location = 'portland_metro'
     # state_location = 'Oregon'
     country_location = 'usa'
+    folder_name = 'contact_networks'
 
     test_all(location, state_location, country_location)
     test_n_single_ages(1e4, location, state_location, country_location)
@@ -408,6 +412,6 @@ if __name__ == '__main__':
     # print(age_brackets)
     sc.toc()
 
-    test_get_uids_in_school(location, state_location, country_location)
+    test_get_uids_in_school(location, state_location, country_location, folder_name)
 
 print('Done.')

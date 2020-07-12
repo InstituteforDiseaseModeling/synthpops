@@ -20,7 +20,7 @@ country_location = 'usa'
 
 
 def test_create_reduced_contacts_with_group_types():
-    n = 1000
+    n = 1001
     average_LTCF_degree = 20
 
     # First create contact_networks_facilities
