@@ -220,7 +220,7 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
 
     Npeople = 10000
 
-    homes = sp.read_setting_groups(datadir, location, state_location, country_location, Npeople, 'households', folder_name, with_ages=True)
+    homes = sp.read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, Npeople, with_ages=True)
 
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
 
@@ -235,12 +235,10 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
 
 def test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
                                  country_location='usa', folder_name='contact_networks'):
-    # NPeople = 10000
-    homes = sp.read_setting_groups(datadir, location, state_location, country_location, n, 'households', folder_name, with_ages=True)
-    # print(homes)
+
+    homes = sp.read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, n, with_ages=True)
+
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
-    # age_by_uid_dic = sp.read_in_age_by_uid(datadir, 'seattle_metro', 'usa', 'Washington', folder_name,
-    #                                        NPeople)
 
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
                                                                                         state_location,

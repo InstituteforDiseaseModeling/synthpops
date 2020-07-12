@@ -16,6 +16,7 @@ full_data_available = False # this is likely not necesary anymore
 
 # Set the local data folder
 thisdir = sc.thisdir(__file__)
+print(thisdir)
 localdatadir = os.path.join(thisdir, os.pardir, 'data')
 
 # Replace with local data dir if Dropbox folder is not found
@@ -25,7 +26,7 @@ if datadir is None:
 
 
 # Number of census age brackets to use
-nbrackets = [16, 18, 20][1] # Choose how many age bins to use -- 20 is only partially supported
+nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partially supported
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 
 
@@ -42,8 +43,8 @@ def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
     global nbrackets
     nbrackets = n
-    if nbrackets not in [16, 18, 20]:
-        print(f'Note: current supported bracket choices are 16, 18, or 20, use {nbrackets} at your own risk.')
+    if nbrackets not in [16, 20]:
+        print(f'Note: current supported bracket choices are 16 or 20, use {nbrackets} at your own risk.')
     print(f'Done: number of brackets is set to {n}.')
     return nbrackets
 

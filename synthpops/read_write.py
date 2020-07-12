@@ -39,15 +39,15 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     f_age_uid.close()
 
 
-def read_in_age_by_uid(datadir, location, country_location, state_location, folder_name, n):
+def read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n):
     """
     Read dictionary of ID mapping to ages for all individuals from file.
 
     Args:
         datadir (string)          : The file path to the data directory.
         location (string)         : The name of the location.
-        country_location (string) : The name of the country the location is in.
         state_location (string)   : The name of the state the location is in.
+        country_location (string) : The name of the country the location is in.
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         n (int)                   : The number of people in the population.
     Returns:
@@ -96,7 +96,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
 
         for uid in group:
 
-            fg_age.write(str(age_by_uid_dic[uid]) + ' ')
+            fg_age.write(str(int(age_by_uid_dic[uid])) + ' ')
             fg_uid.write(str(uid) + ' ')
         fg_age.write('\n')
         fg_uid.write('\n')
@@ -104,7 +104,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     fg_uid.close()
 
 
-def read_setting_groups(datadir, location, state_location, country_location, n, setting, folder_name, with_ages=False):
+def read_setting_groups(datadir, location, state_location, country_location, setting, folder_name, n, with_ages=False):
     """
     Read in groups of people interacting in different social settings from file.
 
@@ -128,11 +128,11 @@ def read_setting_groups(datadir, location, state_location, country_location, n, 
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):
         group = line.strip().split(' ')
+
         try:
-            group = [int(i) for i in group]
+            group = [int(float(i)) for i in group]
         except:
             group = [i for i in group]
-        # if with_ages:
-            # group = [int(a) for a in group]
+
         groups.append(group)
     return groups
