@@ -233,7 +233,7 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
     assert uids_in_school is not None
 
 
-def test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
+def test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa', folder_name='contact_networks'):
 
     homes = sp.read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, n, with_ages=True)
@@ -470,7 +470,7 @@ if __name__ == '__main__':
     test_assign_uids_by_homes()
     test_get_school_enrollment_rates_path()
     test_get_uids_in_school(location, state_location, country_location)
-    test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
+    test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
     test_get_uids_potential_workers()
     test_generate_workplace_sizes()
