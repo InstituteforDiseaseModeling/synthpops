@@ -145,7 +145,7 @@ def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_yea
 
     for h in range(hh_sizes[size-1]):
         hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
-        homes[h][0] = hha
+        homes[h][0] = int(hha)
 
     return homes
 
@@ -178,7 +178,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
         hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
 
-        homes[h][0] = hha
+        homes[h][0] = int(hha)
 
         b = age_by_brackets_dic[hha]
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
@@ -196,7 +196,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
 
             # ai = spsamp.resample_age(age_distr_vals, ai)
 
-            homes[h][n] = ai
+            homes[h][n] = int(ai)
 
     return homes
 

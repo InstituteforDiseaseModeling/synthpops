@@ -134,10 +134,10 @@ def make_contacts_generic(popdict, network_distr_args):
     uids = [uid for uid in uids]
 
     # if isinstance(uids[0], str):
-        # uid_mapping = {uid: u for u, uid in enumerate(uids)}
+    #     uid_mapping = {uid: u for u, uid in enumerate(uids)}
 
     # elif isinstance(uids[0], int):
-        # uid_mapping = {i: i for i in range(len(uids))}
+    #     uid_mapping = {i: i for i in range(len(uids))}
 
     N = len(popdict)
 
@@ -782,7 +782,11 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
     teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
+# <<<<<<< HEAD
     age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
+# =======
+    # age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, country_location, state_location, 'contact_networks', n)
+# >>>>>>> origin/mf/update-saved-pop-fixes
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
@@ -1102,9 +1106,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
     facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
-    # df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
-    # age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
     age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
+
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 

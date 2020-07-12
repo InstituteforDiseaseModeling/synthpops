@@ -1,7 +1,6 @@
 import synthpops as sp
-import synthpops.contact_networks as spcnx
 import sciris as sc
-from synthpops.base import *
+import numpy as np
 
 default_n = 1000
 
@@ -140,19 +139,19 @@ def test_make_contacts_generic(n=default_n):
     return contacts
 
 
-def test_make_contacts_use_microstructure(location='seattle_metro', state_location='Washington', Npop=5000):
+def test_make_contacts_use_microstructure(location='seattle_metro', state_location='Washington', n=default_n):
+
     options_args = dict.fromkeys(['use_microstructure'], True)
-    network_distr_args = {'Npop': Npop}
-    contacts = sp.make_contacts(state_location=state_location, location=location, options_args=options_args,
-                                network_distr_args=network_distr_args)
+    network_distr_args = {'n': n}
+    contacts = sp.make_contacts(state_location=state_location, location=location, options_args=options_args, network_distr_args=network_distr_args)
+
     uids = contacts.keys()
     uids = [uid for uid in uids]
     for n, uid in enumerate(uids):
         if n > 20:
             break
         layers = contacts[uid]['contacts']
-        print('uid', uid, 'age', contacts[uid]['age'], 'total contacts',
-              np.sum([len(contacts[uid]['contacts'][k]) for k in layers]))
+        print('uid', uid, 'age',contacts[uid]['age'], 'total contacts', np.sum([len(contacts[uid]['contacts'][k]) for k in layers]))
         for k in layers:
             contact_ages = [contacts[c]['age'] for c in contacts[uid]['contacts'][k]]
             print(k, len(contact_ages), 'contact ages', contact_ages)
@@ -228,11 +227,12 @@ def test_make_contacts_from_microstructure(location='seattle_metro', state_locat
             if school_teacher is None:
                 assert school_teacher is None
             else:
-                assert school_teacher is 1
+                assert school_teacher == 1
             if school_student is None:
                 assert school_student is None
             else:
-                assert school_student is 1
+
+                assert school_student == 1
 
     return contacts
 
@@ -256,6 +256,10 @@ if __name__ == '__main__':
     popdict = test_make_popdict_supplied(default_n)
     popdict = test_make_popdict_supplied_ages(default_n)
     popdict = test_make_popdict_supplied_sexes(20)
+
+    contacts = test_make_contacts_use_microstructure(location='seattle_metro',state_location='Washington')
+    contacts = test_make_contacts_from_microstructure()
+
     popdict = test_make_popdict_generic(default_n)
 
     contacts = test_make_contacts(default_n)
@@ -264,7 +268,7 @@ if __name__ == '__main__':
     contacts = test_make_contacts_with_facilities_from_microstructure(location='seattle_metro',
                                                                       state_location='Washington',
                                                                       country_location='usa', Npop=1000)
-    contacts = test_make_contacts_use_microstructure(location='seattle_metro', state_location='Washington', Npop=5000)
+    contacts = test_make_contacts_use_microstructure(location='seattle_metro', state_location='Washington', n=default_n)
     contacts = test_make_contacts_from_microstructure(location='seattle_metro', state_location='Washington', Npop=10000)
 
     sc.toc()
