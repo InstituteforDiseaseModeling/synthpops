@@ -38,7 +38,7 @@ def test_make_popdict_supplied(n=default_n):
     fixed_age = 40
     fixed_sex = 1
 
-    uids = [str(i) for i in np.arange(n)]
+    uids = [i for i in np.arange(n)]
     ages = fixed_age * np.ones(n)
     sexes = fixed_sex * np.ones(n)
 
@@ -186,7 +186,7 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
     # First generate microstructure with facilities
     sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
                                                Npop, school_enrollment_counts_available=True,
-                                               write=True, do_plot=False, return_popdict=True)
+                                               write=True, plot=False, return_popdict=True)
 
     # Then make contacts
     popdict = sp.make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location,

@@ -270,7 +270,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     return homes_by_uids, age_by_uid_dic
 
 
-def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
+def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
     Identify who in the population is attending school based on enrollment rates by age.
 
@@ -297,16 +297,21 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
+        if folder_name is None:
+            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the dictionary age_by_uid_dic.'
+            raise ValueError(errormsg)
         # age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
-        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, n)
+        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
     if homes_by_uids is None:
+        if folder_name is None:
+            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the list of lists homes_by_uids'
+            raise ValueError(errormsg)
         try:
-            # homes_by_uids = read_setting_groups(datadir, location, state_location, country_location, n, setting='households', with_ages=False)
-            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, n, setting='households', with_ages=False)
-
+            # homes_by_uids = read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, n)
+            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, setting='households', folder_name=folder_name, n=n)
         except:
-            raise NotImplementedError('No households to bring in. Create people through those first.')
+            raise ValueError('No households to bring in. Create people through those first.')
 
     # # go through all people at random and make a list of uids going to school as students
     # for uid in age_by_uid_dic:
@@ -861,6 +866,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                          country_location=country_location,
                                          sheet_name=sheet_name,verbose=verbose,plot=plot)
     """
+    folder_name = 'contact_networks'
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
@@ -890,7 +896,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # actual household sizes
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
-    totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
+    # totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
     hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
     hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
@@ -934,7 +940,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=age_by_uid_dic, homes_by_uids=homes_by_uids, use_default=use_default)  # use_default will call in school enrollment rates from the location if available or use the defaults
 
     # Get school sizes
     gen_school_sizes = generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
@@ -980,11 +986,11 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # save schools and workplace uids to file
     if write:
 
-        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks', age_by_uid_dic)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'schools', gen_school_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'teachers', gen_teacher_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks', 'workplaces', gen_workplace_uids)
+        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'households', homes_by_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'schools', gen_school_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'teachers', gen_teacher_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'workplaces', gen_workplace_uids)
 
     if return_popdict:
         popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids)

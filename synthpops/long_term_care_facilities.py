@@ -18,6 +18,7 @@ from . import contacts as spct
 from . import contact_networks as spcnx
 from . import read_write as sprw
 
+
 # Customized age resampling method
 def custom_resample_age(exp_age_distr, a):
     """
@@ -286,6 +287,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
     age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
+    # subfolder where the population files will be saved
+    folder_name = 'contact_networks_facilities'
+
     n = int(n)
 
     expected_users_by_age = {}
@@ -505,14 +509,14 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     homes_by_uids = homes_by_uids[len(facilities_by_uids):]
     # group uids to file
     if write:
-        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, 'contact_networks_facilities', age_by_uid_dic)
+        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
 
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'schools', gen_school_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'teachers', gen_teacher_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'workplaces', gen_workplace_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities', facilities_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities_staff', facilities_staff_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'households', homes_by_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'schools', gen_school_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'teachers', gen_teacher_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'workplaces', gen_workplace_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'facilities', facilities_by_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'facilities_staff', facilities_staff_uids)
 
     popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
 
@@ -521,7 +525,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         uids = [uid for uid in uids]
         np.random.shuffle(uids)
 
-        for i in range(50):
+        for i in range(20):
             uid = uids[i]
             person = popdict[uid]
             print(uid, person['age'], person['contacts']['H'], person['contacts']['S'], person['contacts']['W'], person['contacts']['LTCF'])

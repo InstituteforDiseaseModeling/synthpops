@@ -104,12 +104,12 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i, uid in enumerate(uids):
-        uid = uid_mapping[uid]
-        popdict[uid] = {}
-        popdict[uid]['age'] = int(ages[i])
-        popdict[uid]['sex'] = sexes[i]
-        popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {'M': set()}
+        u = uid_mapping[uid]
+        popdict[u] = {}
+        popdict[u]['age'] = int(ages[i])
+        popdict[u]['sex'] = sexes[i]
+        popdict[u]['loc'] = None
+        popdict[u]['contacts'] = {'M': set()}
 
     return popdict
 
@@ -769,7 +769,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+    folder_name = 'contact_networks'
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
 
@@ -781,7 +782,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
     teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, 'contact_networks', n)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
@@ -1089,7 +1090,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
+    folder_name = 'contact_networks_facilities'
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
 
     # age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
@@ -1102,7 +1104,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
 
     # df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
     # age_by_uid_dic = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, 'contact_networks_facilities', n)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
