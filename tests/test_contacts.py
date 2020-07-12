@@ -256,7 +256,6 @@ if __name__ == '__main__':
     popdict = test_make_popdict_supplied_ages(default_n)
     popdict = test_make_popdict_supplied_sexes(20)
     contacts = test_make_contacts_use_microstructure(location='seattle_metro',state_location='Washington')
-    contacts = test_make_contacts_from_microstructure()
 
     popdict = test_make_popdict_generic(default_n)
 
