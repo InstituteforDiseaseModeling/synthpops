@@ -149,6 +149,21 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     return G
 
 
+def generate_random_contacts_for_additional_school_members(school_ids, additional_school_member_ids, n_additional_school_member, average_additional_school_member_degree):
+
+    edges = []
+    all_school_uids = school_ids.copy() + additional_school_member_ids.copy()
+    for uid in add_school_member_ids:
+        k = np.random.poisson(average_additional_school_member_degree)
+        possible_neighbors = all_school_uids.copy()
+        possible_neighbors.remove(uid)
+        new_neighbours = np.random.choice(possible_neighbors, k)
+        for j in new_neighbours:
+            e = (uid, j)
+            edges.append(e)
+    return edges
+
+
 def generate_random_contacts_across_school(all_school_uids, average_class_size):
     """
     Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
@@ -607,6 +622,7 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
         return groups, teacher_groups
 
 
+def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, additional_staff, )
 def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, school_mixing_type='random', verbose=False):
     """
     Generate edges for teachers, including to both students and other teachers at the same school.
@@ -658,8 +674,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
             teacher_group = teacher_groups[ng]
             group = student_group
             group += teacher_group
-            n_expected_edges += len(group) * (len(group) - 1)/2
-            n_expected_edges_list.append(len(group) * (len(group)- 1 ) / 2)
+            n_expected_edges += len(group) * (len(group) - 1) / 2
+            n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
             add_contacts_from_group(popdict, group, 'S')
 
         # print('cne', len(syn_school_uids), len(teachers), n_expected_edges)
