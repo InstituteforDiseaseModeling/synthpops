@@ -30,7 +30,7 @@ teacher_age_max = 75
 
 with_non_teaching_staff = True
 # if with_non_teaching_staff is False, but generate is True, then average_all_staff_ratio should be average_student_teacher_ratio or 0
-average_student_all_staff_ratio = 15
+average_student_all_staff_ratio = 11
 average_additional_staff_degree = 20
 staff_age_min = 20
 staff_age_max = 75
