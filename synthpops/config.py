@@ -16,6 +16,7 @@ full_data_available = False # this is likely not necesary anymore
 
 # Set the local data folder
 thisdir = sc.thisdir(__file__)
+print(thisdir)
 localdatadir = os.path.join(thisdir, os.pardir, 'data')
 
 # Replace with local data dir if Dropbox folder is not found
@@ -25,7 +26,7 @@ if datadir is None:
 
 
 # Number of census age brackets to use
-nbrackets = [16, 20][0] # Choose how many age bins to use -- 20 is only partially supported
+nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partially supported
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 
 

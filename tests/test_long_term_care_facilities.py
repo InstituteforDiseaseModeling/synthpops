@@ -1,7 +1,7 @@
 import synthpops as sp
 import pytest
 
-do_plot = False
+plot = False
 verbose = False
 write = True
 return_popdict = True
@@ -21,7 +21,7 @@ n = int(n)
 # generate and write to file
 def test_generate_microstructures_with_facilities():
     popdict = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location, n,
-                                                         write=write, do_plot=do_plot, return_popdict=return_popdict)
+                                                         write=write, plot=False, return_popdict=return_popdict)
     assert (len(popdict) is not None)
     return popdict
 
