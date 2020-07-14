@@ -149,12 +149,12 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     return G
 
 
-def generate_random_contacts_for_additional_school_members(school_ids, additional_school_member_ids, n_additional_school_member, average_additional_school_member_degree):
+def generate_random_contacts_for_additional_school_members(school_uids, additional_school_member_uids, average_additional_school_members_degree=20):
 
     edges = []
-    all_school_uids = school_ids.copy() + additional_school_member_ids.copy()
-    for uid in add_school_member_ids:
-        k = np.random.poisson(average_additional_school_member_degree)
+    all_school_uids = school_uids.copy() + additional_school_member_uids.copy()
+    for uid in additional_school_member_uids:
+        k = np.random.poisson(average_additional_school_members_degree)
         possible_neighbors = all_school_uids.copy()
         possible_neighbors.remove(uid)
         new_neighbours = np.random.choice(possible_neighbors, k)
@@ -622,8 +622,8 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
         return groups, teacher_groups
 
 
-def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, additional_staff, )
-def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, school_mixing_type='random', verbose=False):
+# def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, school_mixing_type='random', verbose=False):
+def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
     """
     Generate edges for teachers, including to both students and other teachers at the same school.
 
@@ -687,6 +687,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
+    all_school_uids = syn_school_uids.copy() + teachers.copy()
+    additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
+    add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
     return popdict
 
 

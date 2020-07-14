@@ -165,7 +165,12 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
     return homes_dic, homes
 
 
-def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', school_enrollment_counts_available=True, do_plot=False, verbose=False, write=False, return_popdict=False, use_default=False, use_two_group_reduction=False, average_LTCF_degree=20, with_school_types=False, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, school_mixing_type='random'):
+def generate_microstructure_with_facilities(datadir, location, state_location, country_location, gen_pop_size, sheet_name='United States of America', 
+                                            use_two_group_reduction=False, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
+                                            school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
+                                            average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75, 
+                                            average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75, 
+                                            verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
 
     # Grab Long Term Care Facilities data
     ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
@@ -387,7 +392,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     facilities_by_uids = homes_by_uids[0:len(facilities)]
 
-    if do_plot:
+    if plot:
 
         fig = plt.figure(figsize=(7, 5))
         ax = fig.add_subplot(111)
@@ -428,7 +433,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                                                                                                          ages_in_school_count,
                                                                                                          school_types_by_age,
                                                                                                          school_type_age_ranges,
-                                                                                                         verbose=False)
+                                                                                                         verbose=verbose)
 
     else:
         # use contact matrices to send students to school
@@ -457,8 +462,12 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                     workers_by_age_to_assign_count[aindex] -= 1
 
     # Assign teachers and update school lists
-    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
-    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_schools(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_teachers_to_schools(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
+                                                                                                                                                           average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
+
+    gen_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spcnx.assign_additional_staff_to_schools(gen_school_uids, gen_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
+                                                                                                                                                                average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
 
     # Assign facilities care staff from 20 to 59
 
@@ -471,7 +480,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     sorted_ratio_keys = sorted([k for k in KC_ratio_distr.keys()])
     sorted_ratio_array = [KC_ratio_distr[k] for k in sorted_ratio_keys]
-    staff_age_range = np.arange(20, 60)
+
+    staff_age_range = np.arange(ltcf_staff_age_min, ltcf_staff_age_max + 1)
     for nf, fc in enumerate(facilities):
         n_residents = len(fc)
 
@@ -524,11 +534,29 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'households', homes_by_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'schools', gen_school_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'teachers', gen_teacher_uids)
+        spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'non_teaching_staff', gen_non_teaching_staff_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'workplaces', gen_workplace_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities', facilities_by_uids)
         spcnx.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, 'contact_networks_facilities', 'facilities_staff', facilities_staff_uids)
 
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids, facilities_by_uids, facilities_staff_uids, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, with_school_types=with_school_types, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing, average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, school_mixing_type=school_mixing_type)
+    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic,
+                                                                             homes_by_uids,
+                                                                             gen_school_uids,
+                                                                             gen_teacher_uids,
+                                                                             gen_workplace_uids,
+                                                                             facilities_by_uids,
+                                                                             facilities_staff_uids,
+                                                                             gen_non_teaching_staff_uids,
+                                                                             use_two_group_reduction=use_two_group_reduction,
+                                                                             average_LTCF_degree=average_LTCF_degree,
+                                                                             with_school_types=with_school_types,
+                                                                             school_mixing_type=school_mixing_type,
+                                                                             average_class_size=average_class_size,
+                                                                             inter_grade_mixing=inter_grade_mixing,
+                                                                             average_student_teacher_ratio=average_student_teacher_ratio,
+                                                                             average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                                             average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                                             average_additional_staff_degree=average_additional_staff_degree)
 
     if verbose:
         uids = popdict.keys()
