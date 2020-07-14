@@ -485,9 +485,4 @@ if __name__ == '__main__':
     # print(age_brackets)
     sc.toc()
 
-# <<<<<<< HEAD
-#     test_get_uids_in_school(location, state_location, country_location, folder_name)
-
-# =======
-# >>>>>>> origin/mf/update-saved-pop-fixes
 print('Done.')
