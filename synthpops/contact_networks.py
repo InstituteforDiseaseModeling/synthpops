@@ -806,16 +806,14 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
     if min_n_non_teaching_staff <= 0:
         errormsg = f'At least one school expects no additional non teaching staff. Either check the student to teacher ratio and the student to all staff ratio if you do not expect this to be the case, or some of the generated schools may be too small. '
         print(errormsg)
-        print(n_students_list)
 
         if verbose:
             print(n_students_list)
             print(n_teachers_list)
             print(n_all_staff_list)
             print(n_non_teaching_staff_list)
-        n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
-        # n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
-        print(n_non_teaching_staff_list)
+        # n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
+        n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
 
     non_teaching_staff_uids = []
 
