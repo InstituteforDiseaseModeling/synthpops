@@ -1089,7 +1089,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     Notes:
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
-<<<<<<< HEAD
 
     """
     popdict = {}
