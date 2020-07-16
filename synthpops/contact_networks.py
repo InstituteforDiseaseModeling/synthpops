@@ -875,6 +875,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
             workers_by_age_to_assign_count[a] -= 1
             potential_worker_ages_left_count[a] -= 1
             potential_worker_uids.pop(uid, None)
+            potential_worker_uids_by_age[a].remove(uid)
 
             non_teaching_staff_uids_in_this_school.append(uid)
 
