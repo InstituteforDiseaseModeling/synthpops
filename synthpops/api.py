@@ -27,11 +27,27 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     Args:
         n (int)                        : The number of people to create.
         max_contacts (dict)            : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
-        generate (bool)                : If True, first look for cached population files and if those are not available, generate new population
-        with_industry_code (bool)      : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US
-        with_facilities (bool)         : If True, create long term care facilities
-        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
-        average_LTCF_degree (int)      : default average degree in long term care facilities
+        generate (bool)                : If True, first look for cached population files and if those are not available, generate new population.
+        with_industry_code (bool)      : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
+        with_facilities (bool)         : If True, create long term care facilities.
+        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups.
+        average_LTCF_degree (int)      : default average degree in long term care facilities.
+        ltcf_staff_age_min (int)       : Long term care facility staff minimum age.
+        ltcf_staff_age_max (int)       : Long term care facility staff maximum age.
+        with_school_types (bool)       : If True, creates explicit school types.
+        school_mixing_type (str)       : The mixing type for schools, 'clustered' or 'random'.
+        average_class_size (int)       : The average classroom size.
+        inter_grade_mixing (float)     : The average fraction of mixing between grades in the same school for cohorted school mixing types.
+        average_student_teacher_ratio (float) : The average number of students per teacher.
+        average_teacher_teacher_degree (int) : The average number of contacts per teacher with other teachers.
+        teacher_age_min (int)          : The minimum age for teachers.
+        teacher_age_max (int)          : The maximum age for teachers.
+        with_non_teaching_staff (bool) : If True, includes non teaching staff.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
+        staff_age_min (int)            : The minimum age for non teaching staff.
+        staff_age_max (int)            : The maximum age for non teaching staff.
+        rand_seed (int)                : Start point random sequence is generated from.
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
     '''
@@ -92,22 +108,59 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     # Heavy lift 1: make the contacts and their connections
     if not generate:
         # must read in from file, will fail if the data has not yet been generated
-        population = sp.make_contacts(location=location, state_location=state_location, country_location=country_location, options_args=options_args, network_distr_args=network_distr_args)
+        population = sp.make_contacts(location=location, state_location=state_location,
+                                      country_location=country_location, options_args=options_args,
+                                      network_distr_args=network_distr_args)
     else:
         # make a new network on the fly
         if with_facilities and with_industry_code:
             errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
         elif with_facilities:
-            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, return_popdict=True, use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree)
+            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location,
+                                                                    state_location=state_location,
+                                                                    country_location=country_location, gen_pop_size=n,
+                                                                    sheet_name=sheet_name,
+                                                                    use_two_group_reduction=use_two_group_reduction,
+                                                                    average_LTCF_degree=average_LTCF_degree,
+                                                                    ltcf_staff_age_min=ltcf_staff_age_min,
+                                                                    ltcf_staff_age_max=ltcf_staff_age_max,
+                                                                    with_school_types=with_school_types,
+                                                                    school_mixing_type=school_mixing_type,
+                                                                    average_class_size=average_class_size,
+                                                                    inter_grade_mixing=inter_grade_mixing,
+                                                                    average_student_teacher_ratio=average_student_teacher_ratio,
+                                                                    average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                                    teacher_age_min=teacher_age_min,
+                                                                    teacher_age_max=teacher_age_max,
+                                                                    average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                                    average_additional_staff_degree=average_additional_staff_degree,
+                                                                    staff_age_min=staff_age_min,
+                                                                    staff_age_max=staff_age_max,
+                                                                    return_popdict=True)
         else:
-            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name, plot=False, return_popdict=True)
+            population = sp.generate_synthetic_population(n, sp.datadir, location=location,
+                                                          state_location=state_location,
+                                                          country_location=country_location, sheet_name=sheet_name,
+                                                          with_school_types=with_school_types,
+                                                          school_mixing_type=school_mixing_type,
+                                                          average_class_size=average_class_size,
+                                                          inter_grade_mixing=inter_grade_mixing,
+                                                          average_student_teacher_ratio=average_student_teacher_ratio,
+                                                          average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                          teacher_age_min=teacher_age_min,
+                                                          teacher_age_max=teacher_age_max,
+                                                          average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                          average_additional_staff_degree=average_additional_staff_degree,
+                                                          staff_age_min=staff_age_min, staff_age_max=staff_age_max,
+                                                          return_popdict=True,
+                                                          )
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
 
     # Change types
-    for key,person in population.items():
+    for key, person in population.items():
         for layerkey in population[key]['contacts'].keys():
             population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
     return population
