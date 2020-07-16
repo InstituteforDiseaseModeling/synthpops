@@ -43,7 +43,7 @@ school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs'
 rand_seed = 1
 
 
-n = 3.95e3
+n = 1000
 n = int(n)
 
 # # generate and write to file

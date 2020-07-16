@@ -14,11 +14,7 @@ if __name__ == '__main__':
     country_location = 'usa'
     sheet_name = 'United States of America'
 
-<<<<<<< HEAD
-    n = 3.95e3
-=======
-    n = 0.2e3
->>>>>>> f79b0bd453d00eeb977d3ddc5b982235f5a73107
+    n = 10000
     n = int(n)
     verbose = False
     plot = False
@@ -35,15 +31,10 @@ if __name__ == '__main__':
     # school_mixing_type = 'clustered'
     school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
 
-<<<<<<< HEAD
-=======
-    # # generate and write to file with write = True
->>>>>>> f79b0bd453d00eeb977d3ddc5b982235f5a73107
     # population = sp.generate_synthetic_population(n, datadir, location=location,
     #                                               state_location=state_location,
     #                                               country_location=country_location,
     #                                               sheet_name=sheet_name,
-<<<<<<< HEAD
     #                                               with_school_types=with_school_types,
     #                                               school_mixing_type=school_mixing_type,
     #                                               average_class_size=average_class_size,
@@ -96,23 +87,3 @@ if __name__ == '__main__':
 #           sa = [population[c]['age'] for c in person['contacts']['S']]
 #           # print(i, person['age'], 'S', sa, person['contacts']['S'])
 #           print(i, person['age'], person['scid'], 'S', sa)
-=======
-    #                                               verbose=verbose, plot=plot,
-    #                                               write=write, return_popdict=return_popdict)
-
-    # # read in from file
-    # population = sp.make_contacts_from_microstructure(datadir, location, state_location,
-                                                      # country_location, n,)
-
-    # # use api.py's make_population to generate on the fly
-    # population = sp.make_population(n=n, generate=True)
-
-    # use api.py's make_population to read in the population
-    population = sp.make_population(n=n)
-
-    for i in range(10):
-        person = population[i]
-        print(i, person)
-    # sp.show_layers(population)
-    # sp.show_layers(population, show_ages=True)
->>>>>>> f79b0bd453d00eeb977d3ddc5b982235f5a73107
