@@ -531,7 +531,7 @@ achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_sch
 aindex = np.where(achoice)[0][0]
 
 
-syn_schools, syn_school_uids = sp.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
+syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                             ages_in_school_count,
                                                                             school_types_by_age,
                                                                             school_type_age_ranges,
