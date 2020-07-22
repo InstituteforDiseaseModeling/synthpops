@@ -10,12 +10,13 @@ Example:
     $ python benchmark.py 10001 20001 30001
 """
 import sciris as sc
-import synthpops as sp
-
+import time
 import argparse
 import sys
 import os
 from pathlib import Path
+import synthpops as sp
+from datetime import datetime
 
 #to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
 to_profile_dict = {0:'make_population',1:'trim_contacts',2:'generate_synthetic_population',3:'generate_all_households', 4:'generate_larger_households', 5:'assign_rest_of_workers', 6:'make_popdict', 7:'make_contacts', 8:'simple_n_contact_ages', 9:'generate_living_alone', 10:'generate_household_head_age_by_size' , 11:'sample_from_range'}
@@ -43,28 +44,38 @@ def make_pop(n):
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
 
-def run_benchmark(list_of_n, test_index_list, out_dir):
+def run_benchmark(n, test_index_list, out_dir, nruns = 1):
     """
     loop over list of n and output perf profile for each n to test_n.txt
     """
-    for n in list_of_n:
+    test_dict = {}
+    for j in range(nruns):
         for indx in test_index_list:
             to_profile = to_profile_dict[indx]
             file_name = f'test_{to_profile}_{n}.txt'
             file_path = os.path.join(out_dir, file_name)
             saved_stdout = sys.stdout
+            start = 0.0
+            stop = 0.0
             with open(file_path, 'w') as f:
+                start = time.perf_counter()
                 sys.stdout = f
                 sc.tic()
                 sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
                 sc.toc()
+                stop = time.perf_counter()
             sys.stdout.close()
             sys.stdout = saved_stdout
-            print(f'result n={n} : {file_name}')
+            if j == 0:
+                test_dict[indx] = stop - start
+            else:
+                test_dict[indx] = test_dict[indx] + (stop - start)
+    return test_dict
 
 if __name__ == '__main__':
+    nruns = 3
     default_outdir = os.path.join(os.getcwd(), 'perf_files')
-
+    default_outdir = "D:/Repos/synthpops/perfiles/new3"
     parser = argparse.ArgumentParser()
     parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
     parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')
@@ -73,6 +84,21 @@ if __name__ == '__main__':
     test_list = args.test_index_list
     if len(test_list) == 0:
         test_list = [5]
-    # nake sure the output directory exists
-    Path(args.outdir).mkdir(parents=True, exist_ok=True)
-    run_benchmark(args.n, test_list, args.outdir)
+
+    runs = {}
+    for n in args.n:
+        print("start processing {0} , time = {1}".format(n,datetime.now().strftime("%H:%M:%S")))
+        outdir = os.path.join(args.outdir, "pop_" + str(n))
+        Path(outdir).mkdir(parents=True, exist_ok=True)
+        runs[n] = run_benchmark(n, test_list, outdir, nruns=nruns)
+
+    print("end  processing time = {0}".format(datetime.now().strftime("%H:%M:%S")))
+
+    print("population  test                              time")
+    for pop,test in runs.items():
+        for t_indx, t_time in test.items():
+            print("{:10d}  {:30} {:.2f}".format(pop, to_profile_dict[t_indx], t_time))
+
+
+
+

@@ -53,6 +53,7 @@ def sample_single_dict(distr_keys, distr_vals):
     norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
     eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
+    #sum_norm_sorted_distr = norm_sorted_distr.sum() + eps
     if norm_sorted_distr.sum() > 0:
         norm_sorted_distr = norm_sorted_distr/(eps+norm_sorted_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
@@ -75,8 +76,9 @@ def sample_single_arr(distr):
     """
     eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
-    if norm_distr.sum() > 0:
-        norm_distr = norm_distr/(eps+norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    sum_norm_distr = norm_distr.sum() + eps
+    if sum_norm_distr > 0:     #if norm_distr.sum() > 0:
+        norm_distr = norm_distr/sum_norm_distr  #(eps + norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
         return 0
     n = np.random.multinomial(1, norm_distr, size=1)[0]
@@ -113,8 +115,9 @@ def resample_age(age_dist_vals, age):
 
     age_distr = age_dist_vals[age_min:age_max+1]  # create an array of the values, not yet normalized
     norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
+    #sum_norm_age_distr = norm_age_distr.sum()
     if norm_age_distr.sum() > 0:
-        norm_age_distr = norm_age_distr/norm_age_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        norm_age_distr = norm_age_distr/norm_age_distr.sum() # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     age_range = np.arange(age_min, age_max+1)
     n = np.random.multinomial(1, norm_age_distr, size=1)[0]
     index = np.where(n)[0]
@@ -148,9 +151,12 @@ def sample_bracket(distr, brackets):
     Returns:
         A sampled bracket from a distribution.
     """
-    sorted_keys = sorted(distr.keys())
-    sorted_distr = [distr[k] for k in sorted_keys]
-    n = np.random.multinomial(1, sorted_distr, size=1)[0]
+    print("len(distr) = ",len(distr))
+    #sorted_keys = sorted(distr.keys())
+    #sorted_distr = [distr[k] for k in sorted_keys]
+    # we can sort the dictionary using sorted on the items(), saving the 'for loop'
+    sorted_distr = dict(sorted(distr.items()))
+    n = np.random.multinomial(1, list(sorted_distr.values()), size=1)[0]
     index = np.where(n)[0][0]
     return index
 
@@ -167,11 +173,16 @@ def sample_n(nk, distr):
         A dictionary with the count for n samples from a distribution
     """
     if type(distr) == dict:
+        print(" type(distr) = dict, len(distr) = ",len(distr))
         distr = spb.norm_dic(distr)
-        sorted_keys = sorted(distr.keys())
-        sorted_distr = [distr[k] for k in sorted_keys]
-        n = np.random.multinomial(nk, sorted_distr, size=1)[0]
-        dic = dict(zip(sorted_keys, n))
+        #sorted_keys = sorted(distr.keys())
+        #sorted_distr = [distr[k] for k in sorted_keys]
+        # we can sort the dictionary using sorted on the items(), saving the 'for loop'
+        sorted_distr = dict(sorted(distr.items()))
+
+        n = np.random.multinomial(nk, list(sorted_distr.values()), size=1)[0]
+        #dic = dict(zip(sorted_keys, n))
+        dic = dict(zip(list(sorted_distr.keys()), n))
         return dic
     elif type(distr) == np.ndarray:
         distr = distr / np.sum(distr)
