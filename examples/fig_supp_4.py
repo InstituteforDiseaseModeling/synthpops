@@ -252,9 +252,14 @@ for l, layer in enumerate(keys_to_plot):
             node_shape=mdict[layer], 
             # node_shape=mdict_2,
             width=width, arrows=False, node_color=color)
+    # still need to find a way to plot only the staff from LTCF layer in the households layer with the diamond marker
+    if with_facilities:
+        sublayers = 'hsw'
+    else:
+        sublayers = 'hsw'
 
     if layer == 'h':
-        for sublayer in 'hsw':
+        for sublayer in sublayers:
             sli = idict[sublayer]
             if sublayer == 's':
                 sli = trimmed_s

@@ -1,0 +1,32 @@
+In order to use SynthPops and create synthetic contact networks for the population of interest, some data are required which may not be available with the package by default. Instead, we suggest that you supply some pieces of data and set them up in the appropriate data folders. All functions that find file paths and read data are contained in the script data_distributions.py. Details for function are included there. Here, we'll go over the different data files necessary, their format, and where they should be placed in order for easy use of SynthPops modules.
+
+Let's consider the population of the city of Dakar, Senegal.
+
+The main data folder within SynthPops is './data'. Demographic data is contained in './data/demographics/contact_matrices_152_countries'. The suffix '152_countries' refers to the default 152 contact matrices at the country scale come preloaded with SynthPops to generate age specific contact networks in different social settings. Within this folder the subfolders are structured by 'country/state/location'. In the case of the city of Dakar, Senegal, this means you will find folders setup in './data/demographics/contact_matrices_152_countries/Senegal/Dakar/Dakar' which contain data specific to this location. Note that Dakar is both the name of the city and the department and region in which the city is located. In contrast, for metro census area of Seattle, Washington, USA, the location specific data is found in './data/demographics/contact_matrices_152_countries/USA/Washington/Seattle_metro'.
+
+
+Data files needed:
+
+./data/.../Senegal/Dakar/Dakar/age_distributions/Dakar_age_bracket_distr_{nbrackets}.dat
+./data/.../Senegal/Dakar/census_age_brackets_{nbrackets}.dat
+./data/.../Senegal/Dakar/Dakar/household size distributions/Dakar_household_size_distr.dat
+./data/.../Senegal/Dakar/Dakar/household_living_arrangements/household_head_age_and_size_count.dat
+./data/.../Senegal/Dakar/Dakar/household_living_arrangements/head_age_brackets.dat
+./data/.../Senegal/Dakar/Dakar/schools/Dakar_school_sizes.dat
+./data/.../Senegal/Dakar/Dakar/schools/Dakar_school_size_brackets.dat
+./data/.../Senegal/Dakar/Dakar/schools/Dakar_student_teacher_ratio.dat
+./data/.../Senegal/Dakar/Dakar/enrollment/Dakar/Dakar_school_emrollment_by_age.dat
+./data/.../Senegal/Dakar/Dakar/employment/Dakar_employment_rates_by_age.dat
+./data/.../Senegal/Dakar/workplaces/Dakar_work_size_brackets.dat
+./data/.../Senegal/Dakar/workplaces/Dakar_work_size_count.dat
+
+
+Optional data files:
+
+./data/demographics/contact_matrices_152_countries/MUestimates_{setting_name}.obj
+
+
+
+
+
+
