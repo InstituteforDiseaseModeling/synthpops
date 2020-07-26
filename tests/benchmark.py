@@ -55,15 +55,11 @@ def run_benchmark(n, test_index_list, out_dir, nruns = 1):
             file_name = f'test_{to_profile}_{n}.txt'
             file_path = os.path.join(out_dir, file_name)
             saved_stdout = sys.stdout
-            start = 0.0
-            stop = 0.0
             with open(file_path, 'w') as f:
-                start = time.perf_counter()
                 sys.stdout = f
                 sc.tic()
                 sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
                 sc.toc()
-                stop = time.perf_counter()
             sys.stdout.close()
             sys.stdout = saved_stdout
             if j == 0:
@@ -75,7 +71,7 @@ def run_benchmark(n, test_index_list, out_dir, nruns = 1):
 if __name__ == '__main__':
     nruns = 3
     default_outdir = os.path.join(os.getcwd(), 'perf_files')
-    default_outdir = "D:/Repos/synthpops/perfiles/new3"
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
     parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')

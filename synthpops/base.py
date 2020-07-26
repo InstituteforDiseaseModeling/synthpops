@@ -2,10 +2,6 @@
 The module contains frequently-used functions that do not neatly fit into other areas of the code base.
 """
 
-"""
-Not only do list and dictionary comprehensions make code more concise and easier to read, they are also faster than traditional for-loops. The key to success, however, is not to let them get so complex that they negate the benefits of using them in the first place. - Netguru
-"""
-
 import numpy as np
 from copy import deepcopy
 from . import config as cfg

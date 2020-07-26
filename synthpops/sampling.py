@@ -53,9 +53,9 @@ def sample_single_dict(distr_keys, distr_vals):
     norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
     eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
-    #sum_norm_sorted_distr = norm_sorted_distr.sum() + eps
-    if norm_sorted_distr.sum() > 0:
-        norm_sorted_distr = norm_sorted_distr/(eps+norm_sorted_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    sum_norm_sorted_distr = norm_sorted_distr.sum()
+    if sum_norm_sorted_distr > 0:
+        norm_sorted_distr = norm_sorted_distr/(sum_norm_sorted_distr + eps) # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
         return 0
     n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
@@ -76,9 +76,9 @@ def sample_single_arr(distr):
     """
     eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
-    sum_norm_distr = norm_distr.sum() + eps
+    sum_norm_distr = norm_distr.sum()
     if sum_norm_distr > 0:     #if norm_distr.sum() > 0:
-        norm_distr = norm_distr/sum_norm_distr  #(eps + norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        norm_distr = norm_distr/(sum_norm_distr + eps) #(eps + norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
         return 0
     n = np.random.multinomial(1, norm_distr, size=1)[0]
@@ -173,7 +173,6 @@ def sample_n(nk, distr):
         A dictionary with the count for n samples from a distribution
     """
     if type(distr) == dict:
-        print(" type(distr) = dict, len(distr) = ",len(distr))
         distr = spb.norm_dic(distr)
         #sorted_keys = sorted(distr.keys())
         #sorted_distr = [distr[k] for k in sorted_keys]
