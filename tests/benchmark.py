@@ -49,23 +49,28 @@ def run_benchmark(n, test_index_list, out_dir, nruns = 1):
     loop over list of n and output perf profile for each n to test_n.txt
     """
     test_dict = {}
+
     for j in range(nruns):
         for indx in test_index_list:
             to_profile = to_profile_dict[indx]
             file_name = f'test_{to_profile}_{n}.txt'
             file_path = os.path.join(out_dir, file_name)
             saved_stdout = sys.stdout
+            # stop is used to compute the 'average time' of execution. sc.toc() returns
+            # a string of the time
+            stop = 0.0
             with open(file_path, 'w') as f:
                 sys.stdout = f
-                sc.tic()
+                start = sc.tic()
                 sc.profile(run=make_pop, follow=func_options[to_profile], n=int(n))
                 sc.toc()
+                stop = time.time() - start
             sys.stdout.close()
             sys.stdout = saved_stdout
             if j == 0:
-                test_dict[indx] = stop - start
+                test_dict[indx] =stop
             else:
-                test_dict[indx] = test_dict[indx] + (stop - start)
+                test_dict[indx] = test_dict[indx] + (stop )
     return test_dict
 
 if __name__ == '__main__':
