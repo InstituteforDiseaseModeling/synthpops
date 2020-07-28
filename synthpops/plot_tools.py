@@ -91,7 +91,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
     return M
 
 
-def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density
@@ -111,6 +111,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         cmap(str or matplotlib colormap) : colormap
         fontsize (int)                   : base font size
         rotation (int)                   : rotation for x axis labels
+        title_prefix(str)                : optional title prefix for the figure
 
     Returns:
         A fig object.
@@ -193,7 +194,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         ax[i].set_xlabel('Age', fontsize=fontsize + 6)
         ax[i].set_ylabel('Age of Contacts', fontsize=fontsize + 6)
         # ax[i].set_title(titles[setting_code] + ' Contact Patterns', fontsize=fontsize + 10)
-        ax[i].set_title(titles[setting_code] + ' Age Mixing', fontsize=fontsize + 10)
+        ax[i].set_title(
+            (title_prefix if title_prefix is not None else '') + titles[setting_code] + ' Age Mixing', fontsize=fontsize + 10)
 
         if aggregate_flag:
             tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
