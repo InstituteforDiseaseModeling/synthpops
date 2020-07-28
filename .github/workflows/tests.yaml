@@ -31,3 +31,9 @@ jobs:
         with:
           name: test_results
           path: tests/test-results.xml
+
+      - name: Upload report
+        uses: actions/upload-artifact@v2
+        with:
+          name: report
+          path: tests/report/
