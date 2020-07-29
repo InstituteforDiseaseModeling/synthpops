@@ -39,7 +39,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         average_class_size (int)       : The average classroom size.
         inter_grade_mixing (float)     : The average fraction of mixing between grades in the same school for cohorted school mixing types.
         average_student_teacher_ratio (float) : The average number of students per teacher.
-        average_teacher_teacher_degree (int) : The average number of contacts per teacher with other teachers.
+        average_teacher_teacher_degree (float) : The average number of contacts per teacher with other teachers.
         teacher_age_min (int)          : The minimum age for teachers.
         teacher_age_max (int)          : The maximum age for teachers.
         with_non_teaching_staff (bool) : If True, includes non teaching staff.

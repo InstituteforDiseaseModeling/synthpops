@@ -25,16 +25,12 @@ graphviz_errormsg = f'Graphviz import failed, please install this first (conda i
 # Try to import graphviz - may not be possible
 try:
     import graphviz
-except ImportError as E:
-    errormsg = graphviz_errormsg
-    raise ImportError(errormsg)
-
-try:
     G = nx.DiGraph()
     pos = nx.nx_pydot.graphviz_layout(G)
-except AssertionError as E:
+# except ImportError as E:
+except:
     errormsg = graphviz_errormsg
-    raise OSError(errormsg)
+    print(errormsg)
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))

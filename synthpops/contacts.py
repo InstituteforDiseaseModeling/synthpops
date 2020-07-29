@@ -43,21 +43,12 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # A list of UIDs was supplied as the first argument
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
-        # uid_mapping = {uids[i]: i for i in range(len(uids))}
-        try:
-            uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
-        except:
-            uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
     else:  # Not supplied, generate
         n = int(n)
-        # default to using ints for ids from now on
-        uids = [i for i in range(n)] 
-        uid_mapping = {i: i for i in range(n)}
-
         # using strings for uids
-        # uids = []
-        # for i in range(n):
-            # uids.append(sc.uuid(length=id_len))
+        uids = []
+        for i in range(n):
+            uids.append(sc.uuid(length=id_len))
 
     # Check that there are enough people
     if n < min_people:
@@ -109,12 +100,11 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i, uid in enumerate(uids):
-        u = uid_mapping[uid]
-        popdict[u] = {}
-        popdict[u]['age'] = int(ages[i])
-        popdict[u]['sex'] = sexes[i]
-        popdict[u]['loc'] = None
-        popdict[u]['contacts'] = {'M': set()}
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(ages[i])
+        popdict[uid]['sex'] = sexes[i]
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {'M': set()}
 
     return popdict
 
