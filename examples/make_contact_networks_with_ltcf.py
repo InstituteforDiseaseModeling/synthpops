@@ -43,52 +43,52 @@ school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs'
 rand_seed = 1
 
 
-n = 3.95e3
+n = 225e3
 n = int(n)
 
-# # generate and write to file
-population = sp.generate_microstructure_with_facilities(datadir,
-                                                        location=location,
-                                                        state_location=state_location,
-                                                        country_location=country_location,
-                                                        gen_pop_size=n,
-                                                        use_two_group_reduction=use_two_group_reduction,
-                                                        average_LTCF_degree=average_LTCF_degree,
-                                                        ltcf_staff_age_min=ltcf_staff_age_min,
-                                                        ltcf_staff_age_max=ltcf_staff_age_max,
-                                                        with_school_types=with_school_types,
-                                                        school_mixing_type=school_mixing_type,
-                                                        average_class_size=average_class_size,
-                                                        inter_grade_mixing=inter_grade_mixing,
-                                                        average_student_teacher_ratio=average_student_teacher_ratio,
-                                                        average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                        teacher_age_min=teacher_age_min,
-                                                        teacher_age_max=teacher_age_max,
-                                                        average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                        average_additional_staff_degree=average_additional_staff_degree,
-                                                        staff_age_min=staff_age_min,
-                                                        staff_age_max=staff_age_max,
-                                                        write=write,
-                                                        plot=plot,
-                                                        return_popdict=return_popdict,
-                                                        use_default=use_default)
+# # # generate and write to file
+# population = sp.generate_microstructure_with_facilities(datadir,
+#                                                         location=location,
+#                                                         state_location=state_location,
+#                                                         country_location=country_location,
+#                                                         gen_pop_size=n,
+#                                                         use_two_group_reduction=use_two_group_reduction,
+#                                                         average_LTCF_degree=average_LTCF_degree,
+#                                                         ltcf_staff_age_min=ltcf_staff_age_min,
+#                                                         ltcf_staff_age_max=ltcf_staff_age_max,
+#                                                         with_school_types=with_school_types,
+#                                                         school_mixing_type=school_mixing_type,
+#                                                         average_class_size=average_class_size,
+#                                                         inter_grade_mixing=inter_grade_mixing,
+#                                                         average_student_teacher_ratio=average_student_teacher_ratio,
+#                                                         average_teacher_teacher_degree=average_teacher_teacher_degree,
+#                                                         teacher_age_min=teacher_age_min,
+#                                                         teacher_age_max=teacher_age_max,
+#                                                         average_student_all_staff_ratio=average_student_all_staff_ratio,
+#                                                         average_additional_staff_degree=average_additional_staff_degree,
+#                                                         staff_age_min=staff_age_min,
+#                                                         staff_age_max=staff_age_max,
+#                                                         write=write,
+#                                                         plot=plot,
+#                                                         return_popdict=return_popdict,
+#                                                         use_default=use_default)
 
-# # # read in from file
-population = sp.make_contacts_with_facilities_from_microstructure(datadir,
-                                                                  location=location,
-                                                                  state_location=state_location,
-                                                                  country_location=country_location,
-                                                                  n=n,
-                                                                  use_two_group_reduction=use_two_group_reduction,
-                                                                  average_LTCF_degree=average_LTCF_degree,
-                                                                  with_school_types=with_school_types,
-                                                                  school_mixing_type=school_mixing_type,
-                                                                  average_class_size=average_class_size,
-                                                                  inter_grade_mixing=inter_grade_mixing,
-                                                                  average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                  average_additional_staff_degree=average_additional_staff_degree)
+# # # # read in from file
+# population = sp.make_contacts_with_facilities_from_microstructure(datadir,
+#                                                                   location=location,
+#                                                                   state_location=state_location,
+#                                                                   country_location=country_location,
+#                                                                   n=n,
+#                                                                   use_two_group_reduction=use_two_group_reduction,
+#                                                                   average_LTCF_degree=average_LTCF_degree,
+#                                                                   with_school_types=with_school_types,
+#                                                                   school_mixing_type=school_mixing_type,
+#                                                                   average_class_size=average_class_size,
+#                                                                   inter_grade_mixing=inter_grade_mixing,
+#                                                                   average_student_teacher_ratio=average_student_teacher_ratio,
+#                                                                   average_teacher_teacher_degree=average_teacher_teacher_degree,
+#                                                                   average_student_all_staff_ratio=average_student_all_staff_ratio,
+#                                                                   average_additional_staff_degree=average_additional_staff_degree)
 
 
 # # generate on the fly
@@ -117,3 +117,32 @@ population = sp.make_population(n=n,
 sc.toc()
 
 sp.check_all_residents_are_connected_to_staff(population)
+
+# check students in ES, MS, HS
+# check teachers and staff in ES, MS, HS
+
+
+schools = {'es': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
+           'ms': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
+           'hs': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0}}
+
+
+print('counting schools')
+for i in population:
+  person = population[i]
+  # print(person, i)
+  # if i > 100:
+    # break
+
+  if person['scid'] is not None:
+    if person['sc_type'] in ['es', 'ms', 'hs']:
+      if person['sc_student']:
+        schools[person['sc_type']]['students'] += 1
+      elif person['sc_teacher']:
+        schools[person['sc_type']]['teachers'] += 1
+      elif person['sc_staff']:
+        schools[person['sc_type']]['staff'] += 1
+
+    # print(i, person['scid'], person['sc_student'], person['sc_teacher'], person['sc_staff'])
+
+print(schools)
