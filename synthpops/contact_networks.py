@@ -229,7 +229,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
 
-    for s in range(2, 8):
+    for s in range(2, len(hh_sizes)):
         homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
@@ -875,6 +875,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
             workers_by_age_to_assign_count[a] -= 1
             potential_worker_ages_left_count[a] -= 1
             potential_worker_uids.pop(uid, None)
+            potential_worker_uids_by_age[a].remove(uid)
 
             non_teaching_staff_uids_in_this_school.append(uid)
 
