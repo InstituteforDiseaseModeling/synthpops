@@ -229,7 +229,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
 
-    for s in range(2, len(hh_sizes)):
+    for s in range(2, len(hh_sizes) + 1):
         homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
