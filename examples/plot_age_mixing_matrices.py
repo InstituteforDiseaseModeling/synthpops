@@ -29,8 +29,17 @@ except:
 mplt.rcParams['font.size'] = 16
 
 
-def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=True, logcolors_flag=True,
-                                       density_or_frequency='density', with_facilities=False, cmap='cmr.freeze_r', fontsize=16, rotation=50):
+def test_plot_generated_contact_matrix(setting_code='H',
+                                       n=5000,
+                                       aggregate_flag=True,
+                                       logcolors_flag=True,
+                                       density_or_frequency='density',
+                                       with_facilities=False,
+                                       cmap='cmr.freeze_r',
+                                       fontsize=16,
+                                       rotation=50,
+                                       population=None,
+                                       title_prefix =None):
     """
     Plot the age mixing matrix for a specific setting.
 
@@ -44,6 +53,8 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
         cmap(str or matplotlib colormap) : colormap
         fontsize (int)                   : base font size
         rotation (int)                   : rotation for x axis labels
+        population(dict)                 : population to be plotted, if None, code will generate it
+        title_prefix(str)                : optional title prefix for the figure
 
     Returns:
         A fig object.
@@ -58,8 +69,8 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     # popdict = {}
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
-
-    population = sp.make_population(n, generate=True, with_facilities=with_facilities)
+    if population is None:
+        population = sp.make_population(n, generate=True, with_facilities=with_facilities)
 
     # contacts = sp.make_contacts(popdict, state_location=state_location, location=location, options_args=options_args,
     #                             network_distr_args=network_distr_args)
@@ -94,7 +105,7 @@ def test_plot_generated_contact_matrix(setting_code='H', n=5000, aggregate_flag=
     #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix)
 
     return fig
 
