@@ -74,18 +74,19 @@ def run_benchmark(n, test_index_list, out_dir, nruns = 1):
     return test_dict
 
 if __name__ == '__main__':
-    nruns = 3
+
     default_outdir = os.path.join(os.getcwd(), 'perf_files')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
+    parser.add_argument('--runs', dest='num_runs', type=int, default=1, help='number of runs to average')
     parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')
     parser.add_argument('n', nargs='*', default=[10001], type=int, help='population')
     args = parser.parse_args()
     test_list = args.test_index_list
     if len(test_list) == 0:
         test_list = [5]
-
+    nruns = args.num_runs
     runs = {}
     for n in args.n:
         print("start processing {0} , time = {1}".format(n,datetime.now().strftime("%H:%M:%S")))
