@@ -187,6 +187,7 @@ html_favicon = "images/favicon.ico"
 html_static_path = ['_static']
 
 html_context = {
+    'rtd_url': 'https://institutefordiseasemodeling.github.io/synthpops/',
     'css_files': [
         '_static/theme_overrides.css'
         ]
