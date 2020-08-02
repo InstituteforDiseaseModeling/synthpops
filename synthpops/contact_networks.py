@@ -1065,7 +1065,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         school_enrollment_counts_available (bool) : If True, a list of school sizes is available and a count of the sizes can be constructed.
         with_school_types (bool)                  : If True, create explicit school types
         average_class_size (float)                : The average classroom size
-        inter_grade_mixing (float)                : The average fraction of mixing between grades in the same school for cohorted school mixing types.
+        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
         average_student_teacher_ratio (float)     : The average number of students per teacher.
         average_teacher_teacher_degree (float)    : The average number of contacts per teacher with other teachers.
         teacher_age_min (int)                     : The minimum age for teachers.

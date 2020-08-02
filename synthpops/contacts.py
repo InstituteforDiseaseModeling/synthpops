@@ -453,7 +453,7 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
     """
 
     # using a flat contact matrix
-    uids_by_age_dic = spsamp.spb.get_uids_by_age_dic(popdict)
+    uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
                                                   country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
@@ -853,8 +853,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
 def make_contacts_from_microstructure(datadir, location, state_location, country_location, n,
                                       with_non_teaching_staff=True,
-                                      with_school_types=False, school_mixing_type='random', average_class_size=20,
-                                      inter_grade_mixing=0.1,
+                                      with_school_types=False, school_mixing_type='random',
+                                      average_class_size=20, inter_grade_mixing=0.1,
                                       average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
                                       average_student_all_staff_ratio=15, average_additional_staff_degree=20,
                                       school_type_by_age=None, with_industry_code=False, verbose=False):
@@ -871,8 +871,16 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         n (int)                   : number of people in the population
         with_non_teaching_staff (bool)          : If True, includes non teaching staff.
         with_school_types (bool)                : If True, creates explicit school types.
-        school_mixing_type (str or dict)                : The mixing type for schools, 'clustered' or 'random' if string
+        school_mixing_type (str or dict)                : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
+        average_class_size (float)              : The average classroom size.
+        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)     : The average number of students per teacher.
+        average_teacher_teacher_degree (float)    : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
 
+        teacher_age_min (int)                     : The minimum age for teachers.
+        teacher_age_max (int)                     : The maximum age for teachers.
         with_industry_code (bool) : If True, assign workplace industry code read in from cached file
 
     Returns:
