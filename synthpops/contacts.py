@@ -12,6 +12,7 @@ from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import base as spb
 from . import school_modules as spsm
+from . import read_write as sprw
 from .config import datadir
 from copy import deepcopy
 
@@ -43,12 +44,17 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # A list of UIDs was supplied as the first argument
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
-    else:  # Not supplied, generate
+        # if uids are ints
+        try:
+            uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
+        # if uids are strings then map them to an int
+        except:
+            uid_mapping = {uid: u for u, uid in enumerate(uids)}
+
+    else:  # Not supplied, generate ints as uids
         n = int(n)
-        # using strings for uids
-        uids = []
-        for i in range(n):
-            uids.append(sc.uuid(length=id_len))
+        uids = list(range(n))
+        uid_mapping = {u: u for u in uids}
 
     # Check that there are enough people
     if n < min_people:
@@ -58,22 +64,23 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     if ages is None and sexes is None:
         if use_demography:
             if country_location != 'usa':
+                # no sex data for places outside of the US
                 gen_ages = spsamp.get_age_n(datadir, n=n, location=location, state_location=state_location,
                                             country_location=country_location)
-                gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
+                gen_sexes = list(np.random.binomial(1, p=0.5, size=n))  # randomly assign sex
             else:
-                if location is None: location, state_location = 'seattle_metro', 'Washington'
+                if location is None: location, state_location = 'seattle_metro', 'Washington'  # currently defaults to Seattle based data
                 gen_ages, gen_sexes = spsamp.get_usa_age_sex_n(datadir, location=location,
                                                                state_location=state_location,
                                                                country_location=country_location, n_people=n)
         else:
-            # if location is None:
+            # not using any demography data so simply creating uniformly distributed ages and sex for n people
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
 
     # you only have ages...
     elif ages is not None and sexes is None:
         if country_location == 'usa':
-            if location is None: location, state_location = 'seattle_metro', 'Washington'
+            if location is None: location, state_location = 'seattle_metro', 'Washington'  # currently defaults to Seattle based data
             gen_ages, gen_sexes = spsamp.get_usa_sex_n(datadir, ages, location=location, state_location=state_location,
                                                        country_location=country_location)
         else:
@@ -100,11 +107,12 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i, uid in enumerate(uids):
-        popdict[uid] = {}
-        popdict[uid]['age'] = int(ages[i])
-        popdict[uid]['sex'] = sexes[i]
-        popdict[uid]['loc'] = None
-        popdict[uid]['contacts'] = {'M': set()}
+        u = uid_mapping[uid]
+        popdict[u] = {}
+        popdict[u]['age'] = int(ages[i])
+        popdict[u]['sex'] = sexes[i]
+        popdict[u]['loc'] = None
+        popdict[u]['contacts'] = {'M': set()}
 
     return popdict
 
@@ -135,6 +143,9 @@ def make_contacts_generic(popdict, network_distr_args):
     #     uid_mapping = {i: i for i in range(len(uids))}
 
     N = len(popdict)
+    if n_contacts > N:
+        print(f'Average degree cannot be larger than the size of the population. Creating a completely connected graph now instead.')
+        n_contacts = N
 
     if network_type == 'poisson_degree':
         p = float(n_contacts) / N
@@ -443,9 +454,6 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     # using a flat contact matrix
     uids_by_age_dic = spsamp.spb.get_uids_by_age_dic(popdict)
-
-    # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
-    # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
                                                   country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
@@ -514,7 +522,6 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
                                                   country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
@@ -862,6 +869,10 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         n (int)                   : number of people in the population
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
+        with_school_types (bool)                : If True, creates explicit school types.
+        school_mixing_type (str or dict)                : The mixing type for schools, 'clustered' or 'random' if string
+
         with_industry_code (bool) : If True, assign workplace industry code read in from cached file
 
     Returns:
@@ -1768,16 +1779,12 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         if options_args['use_long_term_care_facilities']:
             popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location,
                                                                         country_location, network_distr_args['Npop'],
-                                                                        use_two_group_reduction=options_args[
-                                                                            'use_two_group_reduction'],
-                                                                        average_LTCF_degree=network_distr_args[
-                                                                            'average_LTCF_degree'],
-                                                                        with_non_teaching_staff=options_args[
-                                                                            'with_non_teaching_staff'],
-                                                                        with_school_types=options_args[
-                                                                            'with_school_types'],
+                                                                        use_two_group_reduction=options_args['use_two_group_reduction'],
+                                                                        average_LTCF_degree=network_distr_args['average_LTCF_degree'],
+                                                                        with_non_teaching_staff=options_args['with_non_teaching_staff'],
+                                                                        with_school_types=options_args['with_school_types'],
                                                                         school_mixing_type=network_distr_args[
-                                                                            'school_mixing_type'],
+                'school_mixing_type'],
                                                                         average_class_size=network_distr_args[
                                                                             'average_class_size'],
                                                                         inter_grade_mixing=network_distr_args[
