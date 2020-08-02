@@ -1431,6 +1431,20 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
+    if verbose:
+        print('n_staff', np.sum(n_non_teaching_staff))
+        print('n_teachers', np.sum(n_teaching_staff))
+        n_staff_again = 0
+        n_teachers_again = 0
+        for uid in popdict:
+            person = popdict[uid]
+            if person['sc_type'] in ['es', 'ms', 'hs']:
+                if person['sc_staff'] == 1:
+                    n_staff_again += 1
+                elif person['sc_teacher'] == 1:
+                    n_teachers_again += 1
+        print('n_staff_again', n_staff_again)
+        print('n_teachers_again', n_teachers_again)
 
     if verbose:
         print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))
