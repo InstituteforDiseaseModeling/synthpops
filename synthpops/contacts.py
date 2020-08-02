@@ -1399,6 +1399,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             # max_ages = max(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            # print(this_school_mixing_type)
             spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
             if verbose:
                 if this_school_type in ['es', 'ms', 'hs']:
@@ -1430,11 +1431,14 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
+
+    verbose = True
     if verbose:
-        print('n_staff', np.sum(n_non_teaching_staff))
-        print('n_teachers', np.sum(n_teaching_staff))
+        print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))
+        print('n_teachers in es, ms, hs', np.sum(n_teaching_staff))
         n_staff_again = 0
         n_teachers_again = 0
+        n_school_edges = 0
         for uid in popdict:
             person = popdict[uid]
             if person['sc_type'] in ['es', 'ms', 'hs']:
@@ -1442,8 +1446,12 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
                     n_staff_again += 1
                 elif person['sc_teacher'] == 1:
                     n_teachers_again += 1
-        print('n_staff_again', n_staff_again)
-        print('n_teachers_again', n_teachers_again)
+            if person['scid'] is not None:
+                n_school_edges += len(person['contacts']['S'])
+
+        print('n_staff_again in es, ms, hs', n_staff_again)
+        print('n_teachers_again in es, ms, hs', n_teachers_again)
+        print('number of edges in school', n_school_edges/2, n_school_edges)
 
     return popdict
 
