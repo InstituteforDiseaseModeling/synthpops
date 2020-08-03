@@ -37,7 +37,7 @@ class TestSchoolStaff(unittest.TestCase):
                                                 "*Oregon*")
         shutil.copytree(cls.sourcedir, os.path.join(cls.resultdir, cls.subdir_level), ignore=ignorepatterns)
 
-    def testStaffGenerate(self):
+    def test_staff_generate(self):
 
         """
         generate 10001 population and check if teacher/staff ratio match
@@ -71,7 +71,10 @@ class TestSchoolStaff(unittest.TestCase):
         pop = testutilities.runpop(resultdir=self.resultdir, testprefix="staff_generate", actual_vals=vals, method=sp.generate_synthetic_population)
         result = testutilities.check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_student_all_staff_ratio)
 
-    def testWithlTCF(self):
+    def test_with_ltcf(self):
+        """
+        test with long term care facilities options
+        """
         seed = 1
         sp.set_seed(seed)
         # set param

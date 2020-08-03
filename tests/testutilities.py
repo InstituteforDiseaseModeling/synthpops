@@ -74,9 +74,11 @@ def check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_studen
 
     # check for 0 staff/teacher case to see if it is dues to school size being too small
     zero_teacher_case = result.query('teacher == 0 & student > @average_student_teacher_ratio')
-    assert(len(zero_teacher_case) == 0), "some school has enough students but no teacher"
+    assert(len(zero_teacher_case) == 0), \
+        f"All schools with more students than the student teacher ratio should have at least one teacher. {len(zero_teacher_case)} did not."
     zero_staff_case = result.query('staff == 0 & student > @average_student_all_staff_ratio')
-    assert(len(zero_staff_case) == 0), "some school has enough students but no staff"
+    assert(len(zero_staff_case) == 0), \
+        f"All schools with more students than the student staff ratio: {average_student_all_staff_ratio} should have at least 1 staff. {len(zero_staff_case)} did not."
 
     # exclude 0 teacher if size is too small
     result = result[result.teacher > 0][result.staff > 0]
