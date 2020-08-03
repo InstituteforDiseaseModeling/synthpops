@@ -50,7 +50,7 @@ def copy_input(sourcedir, resultdir, subdir_level):
     shutil.copytree(sourcedir, os.path.join(resultdir, subdir_level), ignore=ignorepatterns)
 
 
-def check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_student_all_staff_ratio):
+def check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=0):
 
     """
     check if generated population matches
@@ -70,10 +70,12 @@ def check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_studen
     df_school = pd.DataFrame.from_dict(school).transpose()
     result = df_school.groupby('scid', as_index=False)[['student', 'teacher', 'staff']].agg(lambda x: sum(x))
 
+    print(result.head(20))
+
     # check for 0 staff/teacher case to see if it is dues to school size being too small
-    zero_teacher_case = result[(result.teacher == 0)][(result.student > average_student_teacher_ratio)]
+    zero_teacher_case = result.query('teacher == 0 & student > @average_student_teacher_ratio')
     assert(len(zero_teacher_case) == 0), "some school has enough students but no teacher"
-    zero_staff_case = result[(result.staff == 0)][(result.student > average_student_all_staff_ratio)]
+    zero_staff_case = result.query('staff == 0 & student > @average_student_all_staff_ratio')
     assert(len(zero_staff_case) == 0), "some school has enough students but no staff"
 
     # exclude 0 teacher if size is too small
@@ -83,9 +85,9 @@ def check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_studen
 
     # average across school must match input
     actual_teacher_ratio = np.round(result["teacher_ratio"].mean())
-    assert (actual_teacher_ratio == int(average_student_teacher_ratio)), \
+    assert (int(average_student_teacher_ratio + err_margin) >= actual_teacher_ratio >= int(average_student_teacher_ratio - err_margin)), \
         f"teacher ratio: expected: {average_student_teacher_ratio} actual: {actual_teacher_ratio}"
     actual_staff_ratio = np.round(result["allstaff_ratio"].mean())
-    assert (actual_staff_ratio == int(average_student_all_staff_ratio)), \
+    assert (int(average_student_all_staff_ratio + err_margin) >= actual_staff_ratio >= int(average_student_all_staff_ratio - err_margin)), \
         f"all staff ratio expected: {average_student_all_staff_ratio} actual: {actual_staff_ratio}"
     return result

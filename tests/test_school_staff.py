@@ -37,7 +37,7 @@ class TestSchoolStaff(unittest.TestCase):
                                                 "*Oregon*")
         shutil.copytree(cls.sourcedir, os.path.join(cls.resultdir, cls.subdir_level), ignore=ignorepatterns)
 
-    def testStaffApi(self):
+    def testStaffGenerate(self):
 
         """
         generate 10001 population and check if teacher/staff ratio match
@@ -68,6 +68,41 @@ class TestSchoolStaff(unittest.TestCase):
 
         test_prefix = sys._getframe().f_code.co_name
         vals = locals()
-        pop = testutilities.runpop(resultdir=self.resultdir, testprefix="staff_api", actual_vals=vals, method=sp.generate_synthetic_population)
+        pop = testutilities.runpop(resultdir=self.resultdir, testprefix="staff_generate", actual_vals=vals, method=sp.generate_synthetic_population)
         result = testutilities.check_teacher_staff_ratio(pop, average_student_teacher_ratio, average_student_all_staff_ratio)
-        print(result.head(20))
+
+    def testWithlTCF(self):
+        seed = 1
+        sp.set_seed(seed)
+        # set param
+        gen_pop_size = 10001
+        datadir = self.dataDir
+        location = 'seattle_metro'
+        state_location = 'Washington'
+        country_location = 'usa'
+        sheet_name = 'United States of America'
+        use_two_group_reduction = True
+        average_LTCF_degree = 20
+        ltcf_staff_age_min = 20
+        ltcf_staff_age_max = 65
+        with_school_types = True
+        average_class_size = 20
+        inter_grade_mixing = 0.1
+        average_student_teacher_ratio = 20
+        average_teacher_teacher_degree = 3
+        teacher_age_min = 25
+        teacher_age_max = 70
+
+        with_non_teaching_staff = True
+        average_student_all_staff_ratio = 11
+        average_additional_staff_degree = 20
+        staff_age_min = 20
+        staff_age_max = 75
+        school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
+        return_popdict = True
+
+        vals = locals()
+        pop = testutilities.runpop(resultdir=self.resultdir, testprefix="staff_ltcf", actual_vals=vals,
+                                   method=sp.generate_microstructure_with_facilities)
+        result = testutilities.check_teacher_staff_ratio(pop, average_student_teacher_ratio,
+                                                         average_student_all_staff_ratio, err_margin=1)
