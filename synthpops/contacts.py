@@ -814,9 +814,9 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
-        popdict[uid]['sc_type'] = None
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
@@ -862,6 +862,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             non_teaching_staff = []
 
         this_school_type = None
+        this_school_mixing_type = None
+        # this_school_mixing_type = 'random'
 
         try:
             students = [int(i) for i in r1]
@@ -888,16 +890,19 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     fs.close()
     ft.close()
@@ -979,9 +984,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
-        popdict[uid]['sc_type'] = None
-        popdict[uid]['sc_type'] = None
         popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
 
@@ -1004,6 +1009,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             non_teaching_staff = non_teaching_staff_uids[ns]
 
         this_school_type = None
+        this_school_mixing_type = None
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
@@ -1023,16 +1029,19 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
@@ -1132,6 +1141,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1221,6 +1231,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             non_teaching_staff = []
 
         this_school_type = None
+        this_school_mixing_type = None
 
         try:
             students = [int(i) for i in r1]
@@ -1247,16 +1258,19 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     schools_by_uids.close()
     teachers_by_uids.close()
@@ -1343,6 +1357,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1415,36 +1430,25 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
-    if verbose:
-        print('n_staff', np.sum(n_non_teaching_staff))
-        print('n_teachers', np.sum(n_teaching_staff))
-        n_staff_again = 0
-        n_teachers_again = 0
-        for uid in popdict:
-            person = popdict[uid]
-            if person['sc_type'] in ['es', 'ms', 'hs']:
-                if person['sc_staff'] == 1:
-                    n_staff_again += 1
-                elif person['sc_teacher'] == 1:
-                    n_teachers_again += 1
-        print('n_staff_again', n_staff_again)
-        print('n_teachers_again', n_teachers_again)
 
     if verbose:
         print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))

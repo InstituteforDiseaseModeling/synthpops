@@ -7,7 +7,6 @@ import synthpops as sp
 
 # Put this here so it's accessible as sp.api.popsize_choices
 popsize_choices = [5000,
-3000,
                    10000,
                    20000,
                    50000,

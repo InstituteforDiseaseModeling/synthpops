@@ -650,9 +650,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     # print(school_mixing_type)
-
-    if school_mixing_type not in ['random', 'age_clustered', 'age_and_class_clustered']:
-        print('school mixing type', school_mixing_type, 'does not exist. Please check this again.')
+    available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
+    if school_mixing_type not in available_school_mixing_types:
+        print('school mixing type', school_mixing_type, 'does not exist. Please change this to one of', available_school_mixing_types)
 
     if school_mixing_type == 'random':
         # print('random', len(syn_school_uids), len(teachers))
