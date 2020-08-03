@@ -42,11 +42,13 @@ school_mixing_type = 'age_and_class_clustered'  # age_and_class_clustered means 
 school_mixing_type = {'pk': 'age_and_class_clustered', 'es': 'random', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'}
 school_mixing_type = {'pk': 'age_clustered', 'es': 'random', 'ms': 'age_clustered', 'hs': 'random', 'uv': 'random'}
 school_mixing_type = {'pk': 'random', 'es': 'random', 'ms': 'random', 'hs': 'random', 'uv': 'random'}
+# school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
+
 
 rand_seed = 1
 
 
-n = 225e3
+n = 10e3
 n = int(n)
 
 # # # generate and write to file
@@ -76,22 +78,22 @@ population = sp.generate_microstructure_with_facilities(datadir,
                                                         return_popdict=return_popdict,
                                                         use_default=use_default)
 
-# # # read in from file
-population = sp.make_contacts_with_facilities_from_microstructure(datadir,
-                                                                  location=location,
-                                                                  state_location=state_location,
-                                                                  country_location=country_location,
-                                                                  n=n,
-                                                                  use_two_group_reduction=use_two_group_reduction,
-                                                                  average_LTCF_degree=average_LTCF_degree,
-                                                                  with_school_types=with_school_types,
-                                                                  school_mixing_type=school_mixing_type,
-                                                                  average_class_size=average_class_size,
-                                                                  inter_grade_mixing=inter_grade_mixing,
-                                                                  average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                  average_additional_staff_degree=average_additional_staff_degree)
+# # # # read in from file
+# population = sp.make_contacts_with_facilities_from_microstructure(datadir,
+#                                                                   location=location,
+#                                                                   state_location=state_location,
+#                                                                   country_location=country_location,
+#                                                                   n=n,
+#                                                                   use_two_group_reduction=use_two_group_reduction,
+#                                                                   average_LTCF_degree=average_LTCF_degree,
+#                                                                   with_school_types=with_school_types,
+#                                                                   school_mixing_type=school_mixing_type,
+#                                                                   average_class_size=average_class_size,
+#                                                                   inter_grade_mixing=inter_grade_mixing,
+#                                                                   average_student_teacher_ratio=average_student_teacher_ratio,
+#                                                                   average_teacher_teacher_degree=average_teacher_teacher_degree,
+#                                                                   average_student_all_staff_ratio=average_student_all_staff_ratio,
+#                                                                   average_additional_staff_degree=average_additional_staff_degree)
 
 
 # # generate on the fly
@@ -132,23 +134,28 @@ schools = {'es': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
            'uv': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0}
            }
 
+check_schools = True
+check_schools = False
 
-print('counting schools')
+if check_schools:
+    print('counting schools')
 
-n_school_edges = 0
-for i in population:
-    person = population[i]
+    n_school_edges = 0
+    for i in population:
+        person = population[i]
 
-    if person['scid'] is not None:
-        if person['sc_type'] in ['es', 'ms', 'hs', 'pk', 'uv']:
-            if person['sc_student']:
-                schools[person['sc_type']]['students'] += 1
-            elif person['sc_teacher']:
-                schools[person['sc_type']]['teachers'] += 1
-            elif person['sc_staff']:
-                schools[person['sc_type']]['staff'] += 1
-        n_school_edges += len(person['contacts']['S'])
+        if person['scid'] is not None:
+            if person['sc_type'] in ['es', 'ms', 'hs', 'pk', 'uv']:
+                if person['sc_student']:
+                    schools[person['sc_type']]['students'] += 1
+                elif person['sc_teacher']:
+                    schools[person['sc_type']]['teachers'] += 1
+                elif person['sc_staff']:
+                    schools[person['sc_type']]['staff'] += 1
+            n_school_edges += len(person['contacts']['S'])
 
-    # print(i, person['scid'], person['sc_student'], person['sc_teacher'], person['sc_staff'])
-print(n_school_edges)
-print(schools)
+            # if i < 1000:
+            #   print(i, person['sc_mixing_type'])
+
+    print(n_school_edges)
+    print(schools)
