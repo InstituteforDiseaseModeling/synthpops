@@ -101,7 +101,7 @@ class TestSchoolStaff(unittest.TestCase):
         average_additional_staff_degree = 20
         staff_age_min = 20
         staff_age_max = 75
-        school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
+        school_mixing_type = {'pk': 'age_and_class_clustered', 'es': 'random', 'ms': 'age_clustered', 'hs': 'random', 'uv': 'random'}
         return_popdict = True
 
         vals = locals()
