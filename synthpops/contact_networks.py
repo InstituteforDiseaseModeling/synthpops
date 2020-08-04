@@ -230,7 +230,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
 
-    for s in range(2, 8):
+    for s in range(2, len(hh_sizes) + 1):
         homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
@@ -271,7 +271,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     return homes_by_uids, age_by_uid_dic
 
 
-def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
+def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, use_default=False):
     """
     Identify who in the population is attending school based on enrollment rates by age.
 
@@ -298,20 +298,13 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the dictionary age_by_uid_dic.'
-            raise ValueError(errormsg)
-        # age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
-        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
+        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, n)
 
     if homes_by_uids is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the list of lists homes_by_uids'
-            raise ValueError(errormsg)
         try:
-            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, setting='households', folder_name=folder_name, n=n)
+            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, n, setting='households', with_ages=False)
         except:
-            raise ValueError('No households to bring in. Create people through those first.')
+            raise NotImplementedError('No households to bring in. Create people through those first.')
 
     # # go through all people at random and make a list of uids going to school as students
     # for uid in age_by_uid_dic:
@@ -806,6 +799,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
     if min_n_non_teaching_staff <= 0:
         errormsg = f'At least one school expects no additional non teaching staff. Either check the student to teacher ratio and the student to all staff ratio if you do not expect this to be the case, or some of the generated schools may be too small. '
         print(errormsg)
+        # print(n_students_list)
 
         if verbose:
             print(n_students_list)
@@ -814,6 +808,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
             print(n_non_teaching_staff_list)
         # n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
         n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
+        # n_non_teaching_staff_list = n_teachers_list.copy()
 
     non_teaching_staff_uids = []
 
