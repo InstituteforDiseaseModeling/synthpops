@@ -91,7 +91,7 @@ class TestSchoolStaff(unittest.TestCase):
         with_school_types = True
         average_class_size = 20
         inter_grade_mixing = 0.1
-        average_student_teacher_ratio = 20
+        average_student_teacher_ratio = 20.0
         average_teacher_teacher_degree = 3
         teacher_age_min = 25
         teacher_age_max = 70
@@ -108,4 +108,4 @@ class TestSchoolStaff(unittest.TestCase):
         pop = testutilities.runpop(resultdir=self.resultdir, testprefix="staff_ltcf", actual_vals=vals,
                                    method=sp.generate_microstructure_with_facilities)
         result = testutilities.check_teacher_staff_ratio(pop, average_student_teacher_ratio,
-                                                         average_student_all_staff_ratio, err_margin=1)
+                                                         average_student_all_staff_ratio, err_margin=2)

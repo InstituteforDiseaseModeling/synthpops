@@ -298,11 +298,11 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
-        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, n)
+        age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, 'contact_networks', n)
 
     if homes_by_uids is None:
         try:
-            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, n, setting='households', with_ages=False)
+            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, 'households', 'contact_networks', n, with_ages=False)
         except:
             raise NotImplementedError('No households to bring in. Create people through those first.')
 

@@ -267,17 +267,19 @@ def test_send_students_to_school(n=10000, location='seattle_metro', state_locati
     return syn_schools, syn_school_uids
 
 
+@pytest.mark.skip
 def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
-                                    country_location='usa', folder_name='contact_networks'):
-    Nhomes = 10000
-    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
-                                           state_location,
-                                           country_location,
-                                           folder_name=folder_name,
-                                           use_default=True)
+                                    country_location='usa'):
+    n = 10000
+    homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
+                                          household_size_1_included=False, use_default=True)
+    homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes, id_len=16)
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
+                                                                                        state_location,
+                                                                                        country_location,
+                                                                                        use_default=False)
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Nhomes)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
@@ -287,11 +289,10 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
 
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
                                   country_location='usa', folder_name='contact_networks'):
-    Npeople = 10000
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
+    n = 10000
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
                                                                                         state_location,
                                                                                         country_location,
-                                                                                        folder_name=folder_name,
                                                                                         use_default=True)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
@@ -313,7 +314,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
 
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Npeople)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         syn_school_uids, employment_rates, age_by_uid_dic)
@@ -381,7 +382,6 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
     uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
                                            state_location,
                                            country_location,
-                                           folder_name=folder_name,
                                            use_default=True)
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
@@ -457,7 +457,7 @@ if __name__ == '__main__':
     test_get_uids_in_school(location, state_location, country_location)
     test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
-    test_get_uids_potential_workers()
+    # test_get_uids_potential_workers()
     test_generate_workplace_sizes()
     test_generate_school_sizes()
 
