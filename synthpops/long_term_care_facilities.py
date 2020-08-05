@@ -169,7 +169,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     part = 2
 
     # Grab Long Term Care Facilities data
-    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
+    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part)
 
     # ltcf_df keys
     ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']
