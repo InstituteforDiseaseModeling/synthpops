@@ -7,10 +7,34 @@ import numpy as np
 import pandas as pd
 import sciris as sc
 import numba as nb
+import random
 from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
 
+
+
+def set_seed(seed=None):
+    ''' Reset the random seed -- complicated because of Numba '''
+
+    @nb.njit((nb.int64,), cache=True)
+    def set_seed_numba(seed):
+        return np.random.seed(seed)
+
+    def set_seed_regular(seed):
+        return np.random.seed(seed)
+
+    # Dies if a float is given
+    if seed is not None:
+        seed = int(seed)
+
+    set_seed_regular(seed) # If None, reinitializes it
+    if seed is None: # Numba can't accept a None seed, so use our just-reinitialized Numpy stream to generate one
+        seed = np.random.randint(1e9)
+    set_seed_numba(seed)
+    random.seed(seed) # Finally, reset Python's built-in random number generator
+
+    return
 
 # @nb.njit((nb.int64[:], nb.float64[:]))
 def sample_single_dict(distr_keys, distr_vals):
