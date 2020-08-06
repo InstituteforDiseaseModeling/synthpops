@@ -33,19 +33,19 @@ def test_plot_pop(do_show=False, pause=0.2):
     indices = pl.randint(0, n, 20)
 
     max_contacts = {'S': 20, 'W': 10}
-    population = sp.make_population(n=n, max_contacts=max_contacts, as_objdict=True)
+    population = sp.make_population(n=n, max_contacts=max_contacts)
 
     nside = np.ceil(np.sqrt(n))
     x, y = np.meshgrid(np.arange(nside), np.arange(nside))
     x = x.flatten()[:n]
     y = y.flatten()[:n]
 
-    people = population.values()
+    people = list(population.values())
     for p, person in enumerate(people):
-        person.loc = sc.objdict(dict(x=x[p], y=y[p]))
-    ages = np.array([person.age for person in people])
-    f_inds = [ind for ind, person in enumerate(people) if not person.sex]
-    m_inds = [ind for ind, person in enumerate(people) if person.sex]
+        person['loc'] = dict(x=x[p], y=y[p])
+    ages = np.array([person['age'] for person in people])
+    f_inds = [ind for ind, person in enumerate(people) if not person['sex']]
+    m_inds = [ind for ind, person in enumerate(people) if person['sex']]
 
     if do_show:
 
@@ -74,12 +74,12 @@ def test_plot_pop(do_show=False, pause=0.2):
             lcols = dict(H=[0, 0, 0], S=[0, 0.5, 1], W=[0, 0.7, 0], C=[1, 1, 0])
             for index in indices:
                 person = people[index]
-                contacts = person.contacts
+                contacts = person['contacts']
                 lines = []
                 for lkey in lcols.keys():
                     for contactkey in contacts[lkey]:
                         contact = population[contactkey]
-                        tmp = pl.plot([person.loc.x, contact.loc.x], [person.loc.y, contact.loc.y], c=lcols[lkey], alpha=alpha)
+                        tmp = pl.plot([person['loc']['x'], contact['loc']['x']], [person['loc']['y'], contact['loc']['y']], c=lcols[lkey], alpha=alpha)
                         lines.append(tmp)
                 if pause:
                     pl.pause(pause)

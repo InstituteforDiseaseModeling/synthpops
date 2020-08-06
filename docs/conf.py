@@ -69,7 +69,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SynthPops'
-copyright = u'2020, Intellectual Ventures Management, LLC (IVM). All rights reserved'
+copyright = u'2020, Bill & Melinda Gates Foundation. All rights reserved.'
 author = u'Institute for Disease Modeling'
 
 # The version info for the project you're documenting, acts as replacement for
