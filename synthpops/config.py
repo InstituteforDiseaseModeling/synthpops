@@ -240,12 +240,12 @@ class FilePaths():
             self.alt_country = None
             self.alt_province = None
             self.alt_location = None
-            print(f"Warning: No alternate location specified")
+            #print(f"Warning: No alternate location specified")
         elif country is None:
             self.alt_country = None
             self.alt_province = None
             self.alt_location = None
-            print(f"Warning: No alternate country specified, alternate country is required")
+            #print(f"Warning: No alternate country specified, alternate country is required")
         else:
             # build alternate dirs
             altdirs = self._add_dirs(self.alt_root_dir, location, province,country)
@@ -322,7 +322,7 @@ class FilePaths():
         Search the base directories and return the first file found that matches the criteria
         """
 
-        file = self._search_dirs(filedata_type, prefix, suffix, filter_list)
+        file = self._search_dirs(None, prefix, suffix, filter_list)
         return file
 
     def _search_dirs(self,filedata_type, prefix, sufix, filter_list):
@@ -342,7 +342,10 @@ class FilePaths():
             files = None
             target_dir = target[1]
             target_location = target[0]
-            filedata_dir = os.path.join(target_dir, filedata_type)
+            filedata_dir = target_dir
+            if filedata_type is not None:
+                filedata_dir = os.path.join(target_dir, filedata_type)
+
             # check if there is a directory
             if os.path.isdir(filedata_dir):
                 if len(os.listdir(filedata_dir)) > 0:
