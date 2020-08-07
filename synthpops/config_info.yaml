@@ -1,0 +1,30 @@
+# config_info.yml
+# provides configuration information synthpops
+# defaults are set for specific files. This structure allows us to move
+# the default files to new location without having to rewrite the code
+# defaults are set on startup.
+# additionally the user can set defaults per country. This can be done by
+# calling the set_default_country routine. If the country is not found in the list
+# the defaults are used.
+#test examples uncomment to use
+#test_1:
+#  - null
+#  - null
+#  - test1
+#test_2:
+#  - null
+#  - state1
+#  - test2
+Senegal:
+  - Dakar
+  - Dakar
+  - Senegal
+defaults:
+  - seattle_metro
+  - Washington
+  - usa
+usa:
+  - seattle_metro
+  - Washington
+  - usa
+
