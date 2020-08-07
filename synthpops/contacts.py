@@ -51,7 +51,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     else:  # Not supplied, generate
         n = int(n)
         # default to using ints for ids from now on
-        uids = [i for i in range(n)] 
+        uids = [i for i in range(n)]
         uid_mapping = {i: i for i in range(n)}
 
         # using strings for uids
@@ -770,7 +770,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         smaller work groups are available via sp.trim_contacts() - see below).
     """
     folder_name = 'contact_networks'
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
+    file_path = os.path.join(datadir,  country_location, state_location, folder_name)
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
 
@@ -1095,7 +1095,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
     folder_name = 'contact_networks_facilities'
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
+    file_path = os.path.join(datadir,  country_location, state_location, folder_name)
 
     # age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
@@ -1541,7 +1541,7 @@ def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=N
     if G_dic is None:
         G_dic = make_graphs(popdict, layers)
     for layer in G_dic:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+        file_path = os.path.join(datadir,  country_location, state_location, 'contact_networks')
         file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
         nx.write_edgelist(G_dic[layer], file_path, data=False)
 

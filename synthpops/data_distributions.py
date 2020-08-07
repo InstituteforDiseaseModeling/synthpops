@@ -65,8 +65,11 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"gender_fraction_by_age_bracket_{cfg.nbrackets}"
     prefix = "{location}_" + base
+    #review after re-org of data
     if location is not None and country_location != 'Senegal':   # ---remove
         prefix = prefix.format(location=location)
+    elif location is none and country_location != 'Senegal':
+        prefix = base
 
     file= paths.get_demographic_file('age_distributions', prefix=prefix,suffix='.dat', filter_list=None)
     return file
@@ -892,18 +895,22 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     # create size distribution from enrollment counts
     if counts_available:
         try:
-            df = get_school_sizes_df(datadir, location, state_location, country_location)
+            df = fget_school_sizes_d(datadir, location, state_location, country_location)
         except:
             if use_default:
-                df = get_school_sizes_df(datadir, use_default=use_default)
+                # Note requires country, even with use defaults
+                df = get_school_sizes_df(datadir, country_location= country_location,use_default=use_default)
             else:
                 raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
         sizes = df.iloc[:, 0].values
         size_count = Counter(sizes)
-
-        size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
-        # question: do we need to locations to default values befor call
+        # question: do we need to locations to default values before call
+        # if use_default is set, and and we use it to get df, shouldest we use
+        # defaults to get_get_school_brackets()?. If yes, we could assign values in
+        # if use_defailts.
         # review for multi countries
+        size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
+
         size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
 
         bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
@@ -1180,7 +1187,7 @@ def get_state_postal_code( state_location, country_location):
     return dic[state_location]
 
 
-def get_usa_long_term_care_facility_path(datadir, state_location=None, country_locaton=None, part=None):
+def get_usa_long_term_care_facility_path(datadir, state_location=None, country_location=None, part=None):
     """
     Get file_path for state level data on Long Term Care Facilities for the US from 2015-2016.
 
@@ -1200,17 +1207,17 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
     if part != 1 and part != 2:
         raise NotImplementedError("Part must be 1 or 2. Please try again.")
     postal_code = get_state_postal_code(state_location, country_location)
-    return os.path.join(datadir,  country_locaton, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+    return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
 
 
-def get_usa_long_term_care_facility_data(datadir, state_location=None,  part=None, file_path=None, use_default=False):
+def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
     if file_path is None:
         file_path = get_usa_long_term_care_facility_path(datadir, state_location, country_location, part)
     try:
         df = pd.read_csv(file_path, header=2)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_path(datadir, state_location=cfg.default_state, country_location =cfg.default_country, part=part)
+            file_path = get_usa_long_term_care_facility_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country, part=part)
             df = pd.read_csv(file_path, header=2)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")

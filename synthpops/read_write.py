@@ -26,7 +26,7 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
         None
     """
 
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
+    file_path = os.path.join(datadir, country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
     age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
@@ -54,7 +54,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
         A dictionary mapping ID to age for all individuals in the population.
 
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
+    file_path = os.path.join(datadir, country_location, state_location, folder_name)
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
     df = pd.read_csv(age_by_uid_path, header=None, delimiter=' ')
     try:
@@ -81,7 +81,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
         None
     """
 
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
+    file_path = os.path.join(datadir,  country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
     groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
@@ -121,9 +121,9 @@ def read_setting_groups(datadir, location, state_location, country_location, set
         A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.
     """
     if with_ages:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_ages.dat')
+        file_path = os.path.join(datadir,  country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_ages.dat')
     else:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_uids.dat')
+        file_path = os.path.join(datadir, country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_uids.dat')
     groups = []
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):
