@@ -90,13 +90,14 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
         A dictionary of the fractions for two genders by age bracket.
 
     """
+
     if file_path is None:
         file_path = get_gender_fraction_by_age_path(datadir, location, state_location, country_location)
     try:
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_gender_fraction_by_age_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_gender_fraction_by_age_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_coutry)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -166,7 +167,7 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_age_bracket_distr_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_age_bracket_distr_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -236,7 +237,7 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_household_size_distr_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_household_size_distr_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -298,7 +299,7 @@ def get_head_age_brackets(datadir, state_location=None, country_location=None, f
         age_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_head_age_brackets_path(datadir, state_location='Washington', country_location='usa')
+            file_path = get_head_age_brackets_path(datadir, state_location=cfg.default_state,country_location=cfg.default_country)
             age_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -358,7 +359,7 @@ def get_household_head_age_by_size_df(datadir, state_location=None, country_loca
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_household_head_age_by_size_path(datadir, state_location='Washington', country_location='usa')
+            file_path = get_household_head_age_by_size_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -451,7 +452,7 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
         age_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_census_age_brackets_path(datadir, state_location='Washington', country_location='usa')
+            file_path = get_census_age_brackets_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
             age_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -502,6 +503,7 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
 
 
 def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
+    # need review for additional countries
     """
     Create a dict of setting specific age mixing matrices. If use_default, then we'll first try to look for location specific
     data and if that's not available we'll use default data from Seattle, WA. This may not be appropriate for the population
@@ -695,7 +697,7 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_school_enrollment_rates_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_school_enrollment_rates_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -762,7 +764,7 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
         school_size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_school_size_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_school_size_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             school_size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -826,7 +828,7 @@ def get_school_sizes_df(datadir, location=None, state_location=None, country_loc
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_school_sizes_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_school_sizes_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -900,6 +902,8 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         size_count = Counter(sizes)
 
         size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
+        # question: do we need to locations to default values befor call
+        # review for multi countries
         size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
 
         bracket_count = dict.fromkeys(np.arange(len(size_brackets)), 0)
@@ -918,7 +922,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
             df = pd.read_csv(file_path)
         except:
             if use_default:
-                file_path = get_school_size_distr_by_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+                file_path = get_school_size_distr_by_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
                 df = pd.read_csv(file_path)
             else:
                 raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1052,7 +1056,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_employment_rates_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_employment_rates_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1108,7 +1112,7 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
         workplace_size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_workplace_size_brackets_path(datadir, state_location='Washington', country_location='usa')
+            file_path = get_workplace_size_brackets_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
             workplace_size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1162,7 +1166,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_workplace_size_distr_by_brackets_path(datadir, state_location='Washington', country_location='usa')
+            file_path = get_workplace_size_distr_by_brackets_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1206,7 +1210,7 @@ def get_usa_long_term_care_facility_data(datadir, state_location=None,  part=Non
         df = pd.read_csv(file_path, header=2)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_path(datadir, state_location='Washington', country_location = 'usa', part=part)
+            file_path = get_usa_long_term_care_facility_path(datadir, state_location=cfg.default_state, country_location =cfg.default_country, part=part)
             df = pd.read_csv(file_path, header=2)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1260,7 +1264,7 @@ def get_usa_long_term_care_facility_residents_distr(datadir, location=None, stat
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
+            file_path = get_usa_long_term_care_facility_residents_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=country_location)
             df = pd.read_csv(file_path, header=0)
         else:
             raise ValueError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1315,7 +1319,7 @@ def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=N
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa',)
+            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country,)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1369,7 +1373,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, loca
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
+            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=cfg.default_location, state_location=cfg.default, country_location=cfg.default_country)
             df = pd.read_csv(file_path, header=0)
         else:
             raise ValueError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -1424,7 +1428,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")

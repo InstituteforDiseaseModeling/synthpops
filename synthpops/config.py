@@ -8,8 +8,10 @@ import os
 import datetime
 import sciris as sc
 import re
+import yaml
 
-__all__ = ['datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
+
+__all__ = ['datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir', 'set_location_defaults','default_country', 'default_state', 'default_location']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -21,6 +23,7 @@ full_data_available = False # this is likely not necesary anymore
 #thisdir = sc.thisdir(__file__)
 thisdir = os.path.dirname(os.path.abspath(__file__))
 print(thisdir)
+config_file = os.path.join(thisdir, 'config_info.yaml')
 #localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 #recomended change
 localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data', 'demographics', 'contact_matrices_152_countries'))
@@ -35,8 +38,34 @@ if datadir is None:
 # added 18 to support Senegal
 nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partially supported
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
+default_country = None
+default_state = None
+default_location = None
 
 #%% Functions
+def set_location_defaults(country=None):
+    global config_file
+    global default_country
+    global default_state
+    global default_location
+
+    # read the yaml file
+    country_location = country if country is not None else 'defaults'
+    with open(config_file) as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+        if country_location in data.keys():
+            loc = data[country_location]
+            default_location = loc[0]
+            default_state = loc[1]
+            default_country =loc[2]
+        else:
+            print(f"warning: country not in config file, using defaults")
+            loc = data['defaults']
+            default_location = loc[0]
+            default_state = loc[1]
+            default_country =loc[2]
+
+set_location_defaults()
 
 def set_datadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
