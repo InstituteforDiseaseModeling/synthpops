@@ -1200,7 +1200,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 def get_state_postal_code( state_location, country_location):
     base_dir = get_relitive_path(cfg.datadir)
     file_path = os.path.join(base_dir,  country_location, 'postal_codes.csv')
-    print("==========file=", file)
+    #print("==========file=", file_path)
     df = pd.read_csv(file_path, delimiter=',')
     dic = dict(zip(df.state, df.postal_code))
     return dic[state_location]
