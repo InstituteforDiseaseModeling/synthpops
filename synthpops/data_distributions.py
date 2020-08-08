@@ -1258,16 +1258,18 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
         A file path to data on the size distribution of residents per facility for Long Term Care Facilities.
     """
     levels = [location, state_location, country_location]
+    base_dir = get_relitive_path(cfg.datadir)
+    #print("========base_dir=",base_dir)
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'assisted_living', 'aggregated_residents_distr.csv')
+        return os.path.join(base_dir,  country_location, 'assisted_living', 'aggregated_residents_distr.csv')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'aggregated_residents_distr.csv')
+        return os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'aggregated_residents_distr.csv')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', location + '_aggregated_residents_distr.csv')
+        return os.path.join(base_dir,  country_location, state_location, 'assisted_living', location + '_aggregated_residents_distr.csv')
 
 
 def get_usa_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
