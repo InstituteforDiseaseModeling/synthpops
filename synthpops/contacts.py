@@ -771,7 +771,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     """
     folder_name = 'contact_networks'
     file_path = None
-    if len(cdf.rel_path) > 0:
+    if len(cfg.rel_path) > 0:
         file_path = os.path.join(datadir,  *cfg.rel_path, country_location, state_location, folder_name)
     else:
         file_path = os.path.join(datadir,  country_location, state_location, folder_name)
