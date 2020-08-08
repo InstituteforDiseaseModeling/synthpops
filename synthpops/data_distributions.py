@@ -68,7 +68,7 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     #review after re-org of data
     if location is not None and country_location != 'Senegal':   # ---remove
         prefix = prefix.format(location=location)
-    elif location is none and country_location != 'Senegal':
+    elif location is None and country_location != 'Senegal':
         prefix = base
 
     file= paths.get_demographic_file('age_distributions', prefix=prefix,suffix='.dat', filter_list=None)
