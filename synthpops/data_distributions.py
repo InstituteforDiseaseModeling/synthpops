@@ -1198,7 +1198,9 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 
 
 def get_state_postal_code( state_location, country_location):
-    file_path = os.path.join(cfg.datadir,  country_location, 'postal_codes.csv')
+    base_dir = get_relative_path(cfg.datadir)
+    file_path = os.path.join(base_dir,  country_location, 'postal_codes.csv')
+    print("==========file=", file)
     df = pd.read_csv(file_path, delimiter=',')
     dic = dict(zip(df.state, df.postal_code))
     return dic[state_location]
@@ -1217,6 +1219,7 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
         A file path to data on Long Term Care Facilities from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
         Part 1 or 2 are available.
     """
+    base_dir=get_relitive_path(datadir)
     if country_location is None:
         raise NotImplementedError("Missing country_location string.")
     if state_location is None:
@@ -1224,7 +1227,7 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
     if part != 1 and part != 2:
         raise NotImplementedError("Part must be 1 or 2. Please try again.")
     postal_code = get_state_postal_code(state_location, country_location)
-    return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+    return os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
 
 
 def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
