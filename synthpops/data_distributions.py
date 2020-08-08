@@ -479,8 +479,13 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
     """
     if file_path is None:
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
+        base_dir = cfg.datadir
+
+        if len(cfg.rel_path) > 0:
+            base_dir = os.path.join( cfg.datadir, *cfg.rel_path)
+
         if setting_code in setting_names:
-            file_path = os.path.join(datadir,  'MUestimates_' + setting_names[setting_code] + '_1.xlsx')
+            file_path = os.path.join(base_dir, 'MUestimates_' + setting_names[setting_code] + '_1.xlsx')
             try: # Shortcut: use pre-processed data
                 obj_path = file_path.replace('_1.xlsx', '.obj').replace('_2.xlsx', '.obj')
                 data = sc.loadobj(obj_path)
@@ -1028,16 +1033,20 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
         A file path to employment rates by age.
     """
     levels = [location, state_location, country_location]
+    base_dir = datadir
+    if len(cfg.rel_path) > 0:
+        base_dir = os.path.join(datadir, *cfg.rel_path)
+
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'employment', 'employment_rates_by_age.dat')
+        return os.path.join(base_dir,  country_location, 'employment', 'employment_rates_by_age.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'employment', 'employment_rates_by_age.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'employment', 'employment_rates_by_age.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
 
 
 def get_employment_rates(datadir, location, state_location, country_location, file_path=None, use_default=False):
@@ -1059,6 +1068,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
     """
     if file_path is None:
         file_path = get_employment_rates_path(datadir, location, state_location, country_location)
+
     try:
         df = pd.read_csv(file_path)
     except:
@@ -1083,17 +1093,21 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
     Returns:
         A file path to workplace size brackets.
     """
+    base_dir = datadir
+    if len(cfg.rel_path) > 0:
+        base_dir = os.path.join(datadir, *cfg.rel_path)
+
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'workplaces', 'work_size_brackets.dat')
+        return os.path.join(base_dir,  country_location, 'workplaces', 'work_size_brackets.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'workplaces', 'work_size_brackets.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'workplaces', 'work_size_brackets.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
 
 
 def get_workplace_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1113,6 +1127,7 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
     Returns:
         A dictionary of workplace size brackets.
     """
+
     if file_path is None:
         file_path = get_workplace_size_brackets_path(datadir, location, state_location, country_location)
     try:
@@ -1140,16 +1155,20 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
         A file path to the distribution of workplace sizes by bracket.
     """
     levels = [location, state_location, country_location]
+    base_dir = datadir
+    if len(cfg.rel_path) > 0:
+        base_dir = os.path.join(datadir, *cfg.rel_path)
+
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'workplaces', 'work_size_count.dat')
+        return os.path.join(base_dir,  country_location, 'workplaces', 'work_size_count.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'workplaces', 'work_size_count.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'workplaces', 'work_size_count.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'workplaces', location + '_work_size_count.dat')
+        return os.path.join(base_dir,  country_location, state_location, 'workplaces', location + '_work_size_count.dat')
 
 
 def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1169,6 +1188,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
     """
     if file_path is None:
         file_path = get_workplace_size_distr_by_brackets_path(datadir, location, state_location, country_location)
+
     try:
         df = pd.read_csv(file_path)
     except:

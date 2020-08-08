@@ -11,12 +11,13 @@ import re
 import yaml
 
 
-__all__ = ['datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir', 'set_location_defaults','default_country', 'default_state', 'default_location']
+__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir', 'set_location_defaults','default_country', 'default_state', 'default_location']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
 alt_datadir = None
 localdatadir = None
+rel_path = ['demographics', 'contact_matrices_152_countries']
 full_data_available = False # this is likely not necesary anymore
 
 # Set the local data folder
@@ -26,7 +27,8 @@ print(thisdir)
 config_file = os.path.join(thisdir, 'config_info.yaml')
 #localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 #recomended change
-localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data', 'demographics', 'contact_matrices_152_countries'))
+localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
+
 
 # Replace with local data dir if Dropbox folder is not found
 if datadir is None:
@@ -69,8 +71,11 @@ set_location_defaults()
 
 def set_datadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
+    ''' user specifies complete path'''
     global datadir
+    global rel_path
     datadir = folder
+    rel_path = []
     print(f'Done: data directory set to {folder}.')
     return datadir
 
@@ -229,8 +234,12 @@ class FilePaths():
     # note-change: add 'demographics', 'contact_matrices_152_countries' to root
 
     def __init__(self,  location=None, province=None, country=None,  alt_location= None, alt_province=None, alt_country=None, root_dir=None, alt_rootdir=None,  use_defaults=False):
-        global datadir, alt_datadir
-        self.root_dir = datadir if root_dir is None else root_dir
+        global datadir, alt_datadir, rel_path
+        base_path = datadir
+        if len(rel_path) > 0:
+            base_dir= os.path.join(datadir, *rel_path)
+        self.root_dir = base_dir if root_dir is None else root_dir
+        print(root_dir)
         self.alt_root_dir = alt_datadir if alt_rootdir is None else alt_rootdir
         self.country = None
         self.province = None
