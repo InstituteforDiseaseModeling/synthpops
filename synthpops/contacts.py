@@ -771,10 +771,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     """
     folder_name = 'contact_networks'
     file_path = None
-    if len(cfg.rel_path) > 0:
-        file_path = os.path.join(datadir,  *cfg.rel_path, country_location, state_location, folder_name)
-    else:
-        file_path = os.path.join(datadir,  country_location, state_location, folder_name)
+    base_dir = spdata.get_relitive_path(datadir)
+    file_path = os.path.join(base_dir, country_location, state_location, folder_name)
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
 

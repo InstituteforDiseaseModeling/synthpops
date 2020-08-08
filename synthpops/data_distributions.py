@@ -10,6 +10,11 @@ from collections import Counter
 from . import base as spb
 from . import config as cfg
 
+def get_relitive_path(datadir):
+    base_dir = datadir
+    if len(cfg.rel_path) > 1:
+        base_dir = os.path.join(datadir, *cfg.rel_path)
+    return base_dir
 
 def get_age_brackets_from_df(ab_file_path):
     """
@@ -479,10 +484,8 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
     """
     if file_path is None:
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
-        base_dir = cfg.datadir
+        base_dir = get_relitive_path(datadir)
 
-        if len(cfg.rel_path) > 0:
-            base_dir = os.path.join( cfg.datadir, *cfg.rel_path)
 
         if setting_code in setting_names:
             file_path = os.path.join(base_dir, 'MUestimates_' + setting_names[setting_code] + '_1.xlsx')
@@ -1033,9 +1036,7 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
         A file path to employment rates by age.
     """
     levels = [location, state_location, country_location]
-    base_dir = datadir
-    if len(cfg.rel_path) > 0:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    base_dir = get_relitive_path(datadir)
 
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -1093,9 +1094,7 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
     Returns:
         A file path to workplace size brackets.
     """
-    base_dir = datadir
-    if len(cfg.rel_path) > 0:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    base_dir = get_relitive_path(datadir)
 
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -1155,9 +1154,7 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
         A file path to the distribution of workplace sizes by bracket.
     """
     levels = [location, state_location, country_location]
-    base_dir = datadir
-    if len(cfg.rel_path) > 0:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    base_dir = get_relitive_path(datadir)
 
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
