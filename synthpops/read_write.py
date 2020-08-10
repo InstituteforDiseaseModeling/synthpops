@@ -56,6 +56,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+
     df = pd.read_csv(age_by_uid_path, header=None, delimiter=' ')
     try:
         return dict(zip(df.iloc[:, 0].values.astype(int), df.iloc[:, 1].values.astype(int)))

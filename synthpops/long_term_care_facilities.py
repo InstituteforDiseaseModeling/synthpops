@@ -3,6 +3,7 @@ Modeling Seattle Metro Long Term Care Facilities
 
 """
 
+
 import numpy as np
 
 import os

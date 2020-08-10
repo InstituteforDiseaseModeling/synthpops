@@ -1200,7 +1200,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 def get_state_postal_code( state_location, country_location):
     base_dir = get_relitive_path(cfg.datadir)
     file_path = os.path.join(base_dir,  country_location, 'postal_codes.csv')
-    #print("==========file=", file_path)
+
     df = pd.read_csv(file_path, delimiter=',')
     dic = dict(zip(df.state, df.postal_code))
     return dic[state_location]
@@ -1227,7 +1227,8 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
     if part != 1 and part != 2:
         raise NotImplementedError("Part must be 1 or 2. Please try again.")
     postal_code = get_state_postal_code(state_location, country_location)
-    return os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+    target = os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+    return target
 
 
 def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
@@ -1259,7 +1260,7 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
     """
     levels = [location, state_location, country_location]
     base_dir = get_relitive_path(cfg.datadir)
-    #print("========base_dir=",base_dir)
+
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
@@ -1319,11 +1320,11 @@ def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, locat
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'assisted_living', 'aggregated_residents_bins.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, 'assisted_living', 'aggregated_residents_bins.csv')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
 
 
 def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):

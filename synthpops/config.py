@@ -239,7 +239,7 @@ class FilePaths():
         if len(rel_path) > 0:
             base_dir= os.path.join(datadir, *rel_path)
         self.root_dir = base_dir if root_dir is None else root_dir
-        print(root_dir)
+
         self.alt_root_dir = alt_datadir if alt_rootdir is None else alt_rootdir
         self.country = None
         self.province = None

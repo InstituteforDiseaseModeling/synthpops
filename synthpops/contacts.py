@@ -614,7 +614,7 @@ def save_synthpop(datadir, contacts, location):
         None
     """
 
-    filename = os.path.join(datadir, location + '_synthpop_' + str(len(contacts)) + '.pop')
+    filename = os.path.join(spdata.get_relitive_path(datadir), location + '_synthpop_' + str(len(contacts)) + '.pop')
     sc.saveobj(filename=filename, obj=contacts)
 
 
@@ -1097,7 +1097,8 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
     folder_name = 'contact_networks_facilities'
-    file_path = os.path.join(datadir,  country_location, state_location, folder_name)
+    base_dir = spdata.get_relitive_path(datadir)
+    file_path = os.path.join(base_dir,  country_location, state_location, folder_name)
 
     # age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
@@ -1543,7 +1544,7 @@ def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=N
     if G_dic is None:
         G_dic = make_graphs(popdict, layers)
     for layer in G_dic:
-        file_path = os.path.join(datadir,  country_location, state_location, 'contact_networks')
+        file_path = os.path.join(spdata.get_relitive_path(datadir),  country_location, state_location, 'contact_networks')
         file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
         nx.write_edgelist(G_dic[layer], file_path, data=False)
 
