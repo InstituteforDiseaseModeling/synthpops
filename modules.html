@@ -584,71 +584,8 @@ The first age in the row is the age of the reference individual. Households are 
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.contact_networks.write_homes_by_age_and_uid">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">write_homes_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.write_homes_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the households to file with both ID and their ages, while also writing the dictionary of ID mapping to age for each individual in the population.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
-<li><p><strong>homes_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.contact_networks.read_in_age_by_uid">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">read_in_age_by_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.read_in_age_by_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read dictionary of ID mapping to ages for all individuals from file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary mapping ID to age for all individuals in the population.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.contact_networks.read_setting_groups">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">read_setting_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">with_ages</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.read_setting_groups" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in groups of people interacting in different social settings from file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
-<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
-<li><p><strong>setting</strong> (<em>string</em>) – The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.</p></li>
-<li><p><strong>with_ages</strong> (<em>bool</em>) – If True, read in the ages of each individual in the group; otherwise, read in their IDs.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="synthpops.contact_networks.get_uids_in_school">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_uids_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_uids_in_school" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">get_uids_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.get_uids_in_school" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify who in the population is attending school based on enrollment rates by age.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -786,7 +723,7 @@ Specific to data from the US.</p>
 
 <dl class="py function">
 <dt id="synthpops.contact_networks.assign_teachers_to_work">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_teachers_to_work</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_schools</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">employment_rates</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em>, <em class="sig-param"><span class="n">potential_worker_uids</span></em>, <em class="sig-param"><span class="n">potential_worker_uids_by_age</span></em>, <em class="sig-param"><span class="n">potential_worker_ages_left_count</span></em>, <em class="sig-param"><span class="n">student_teacher_ratio</span><span class="o">=</span><span class="default_value">30</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_teachers_to_work" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_teachers_to_work</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_schools</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">employment_rates</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em>, <em class="sig-param"><span class="n">potential_worker_uids</span></em>, <em class="sig-param"><span class="n">potential_worker_uids_by_age</span></em>, <em class="sig-param"><span class="n">potential_worker_ages_left_count</span></em>, <em class="sig-param"><span class="n">student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_teachers_to_work" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign teachers to each school according to the average student-teacher ratio.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -834,48 +771,6 @@ dictionary with the count of workers left to assign for each age after teachers 
 <dd class="field-even"><p>List of lists where each sublist is a workplace with the ages of workers, list of lists where each sublist is a workplace with the ids of workers,
 dictionary of potential workers left mapping id to age, dictionary mapping age to a list of potential workers left of that age, dictionary
 mapping age to the count of workers left to assign.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.contact_networks.write_schools_by_age_and_uid">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">write_schools_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.write_schools_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the schools to file with both id and their ages.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>schools_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a school and the ids of the students and teachers within it</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for each individual in the population</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.contact_networks.write_workplaces_by_age_and_uid">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">write_workplaces_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.write_workplaces_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the workplaces to file with both id and their ages.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for each individual in the population</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1115,7 +1010,7 @@ household members are contacts of each other, and everyone in the same school is
 <p>Generate contacts between people in the population, with many options possible</p>
 <dl class="py function">
 <dt id="synthpops.contacts.make_popdict">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_popdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ages</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sexes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_demography</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">6</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_popdict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_popdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ages</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sexes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_demography</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_popdict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a dictionary of n people with age, sex and loc keys</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1316,6 +1211,7 @@ that was saved to data object</p>
 probability of an edge between any two groups controlled by p_matrix if provided.
 Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
 This means not everyone in group 2 will have a contact with group 1.</p>
+<p>The members of group 1 and group 2 should be distinct and non-overlapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1369,7 +1265,7 @@ smaller work groups are available via sp.trim_contacts() - see below).</p>
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_from_microstructure_objects">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
 <dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
 Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
 school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
@@ -1433,7 +1329,7 @@ smaller work groups are available via sp.trim_contacts() or sp.create_reduced_co
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_staff_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_staff_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
 <dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
 Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
 school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
@@ -2607,8 +2503,98 @@ The first age in the row is the age of the reference individual. Households are 
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.write_age_by_uid_dic">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">write_age_by_uid_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.write_age_by_uid_dic" title="Permalink to this definition">¶</a></dt>
+<dt id="synthpops.long_term_care_facilities.generate_microstructure_with_facilities">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">check_all_residents_are_connected_to_staff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-synthpops.plot_tools">
+<span id="synthpops-plot-tools-module"></span><h2>synthpops.plot_tools module<a class="headerlink" href="#module-synthpops.plot_tools" title="Permalink to this headline">¶</a></h2>
+<p>This module plots the age-specific contact matrix in different settings.</p>
+<dl class="py function">
+<dt id="synthpops.plot_tools.calculate_contact_matrix">
+<code class="sig-prename descclassname">synthpops.plot_tools.</code><code class="sig-name descname">calculate_contact_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">population</span></em>, <em class="sig-param"><span class="n">density_or_frequency</span><span class="o">=</span><span class="default_value">'density'</span></em>, <em class="sig-param"><span class="n">setting_code</span><span class="o">=</span><span class="default_value">'H'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.plot_tools.calculate_contact_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the symmetric age-specific contact matrix from the connections
+for all people in the population. density_or_frequency sets the type of
+contact matrix calculated.</p>
+<p>When density_or_frequency is set to ‘frequency’ each person is assumed to
+have a fixed amount of contact with others they are connected to in a
+setting so each person will split their contact amount equally among their
+connections. This means that if a person has links to 4 other individuals
+then 1/4 will be added to the matrix element matrix[age_i][age_j] for each
+link, where age_i is the age of the individual and age_j is the age of the
+contact. This follows the mass action principle such that increased density
+or number of people a person is in contact with leads to decreased per-link
+or connection contact rate.</p>
+<p>When density_or_frequency is set to ‘density’ the amount of contact each
+person has with others scales with the number of people they are connected
+to. This means that a person with connections to 4 individuals has a higher
+total contact rate than a person with connection to 3 individuals. For this
+definition if a person has links to 4 other individuals then 1 will be
+added to the matrix element matrix[age_i][age_j] for each contact. This
+follows the ‘pseudo’mass action principle such that the per-link or
+connection contact rate is constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>population</strong> (<em>dict</em>) – A dictionary of a population with attributes.</p></li>
+<li><p><strong>density_or_frequency</strong> (<em>str</em>) – option for the type of contact matrix calculated.</p></li>
+<li><p><strong>setting_code</strong> (<em>str</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other, and ‘lTCF’ for long term care facilities</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Symmetric age specific contact matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.plot_tools.plot_contact_matrix">
+<code class="sig-prename descclassname">synthpops.plot_tools.</code><code class="sig-name descname">plot_contact_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">age_count</span></em>, <em class="sig-param"><span class="n">aggregate_age_count</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">setting_code</span><span class="o">=</span><span class="default_value">'H'</span></em>, <em class="sig-param"><span class="n">density_or_frequency</span><span class="o">=</span><span class="default_value">'density'</span></em>, <em class="sig-param"><span class="n">logcolors_flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">aggregate_flag</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">cmap</span><span class="o">=</span><span class="default_value">'cmr.freeze_r'</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">16</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">title_prefix</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.plot_tools.plot_contact_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
+for the average individual in age group i with all of their contacts in age group j. Can either be density
+or frequency definition, as well as a single year age contact matrix or a contact matrix for aggregated
+age brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<em>np.array</em>) – symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j</p></li>
+<li><p><strong>age_count</strong> (<em>dict</em>) – dictionary with the count of individuals in the population for each age</p></li>
+<li><p><strong>aggregate_age_count</strong> (<em>dict</em>) – dictionary with the count of individuals in the population in each age bracket</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+<li><p><strong>setting_code</strong> (<em>str</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other</p></li>
+<li><p><strong>density_or_frequency</strong> (<em>str</em>) – If ‘density’, then each contact counts for 1/(group size -1) of a person’s contact in a group, elif ‘frequency’ then count each contact. This means that more people in a group leads to higher rates of contact/exposure.</p></li>
+<li><p><strong>logcolors_flag</strong> (<em>bool</em>) – If True, plot heatmap in logscale</p></li>
+<li><p><strong>aggregate_flag</strong> (<em>book</em>) – If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em> or </em><em>matplotlib colormap</em>) – colormap</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – base font size</p></li>
+<li><p><strong>rotation</strong> (<em>int</em>) – rotation for x axis labels</p></li>
+<li><p><strong>title_prefix</strong> (<em>str</em>) – optional title prefix for the figure</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A fig object.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that setting</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-synthpops.read_write">
+<span id="synthpops-read-write-module"></span><h2>synthpops.read_write module<a class="headerlink" href="#module-synthpops.read_write" title="Permalink to this headline">¶</a></h2>
+<p>This module contains reading and writing functions for contact networks and populations</p>
+<dl class="py function">
+<dt id="synthpops.read_write.write_age_by_uid_dic">
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">write_age_by_uid_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.write_age_by_uid_dic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the dictionary of ID mapping to age for each individual in the population.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2627,9 +2613,9 @@ The first age in the row is the age of the reference individual. Households are 
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.write_groups_by_age_and_uid">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">write_groups_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">groups_by_uids</span></em>, <em class="sig-param"><span class="n">secondary_groups_by_uids</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.write_groups_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write groups to file with both ID and their ages.</p>
+<dt id="synthpops.read_write.read_in_age_by_uid">
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">read_in_age_by_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.read_in_age_by_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read dictionary of ID mapping to ages for all individuals from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2637,8 +2623,30 @@ The first age in the row is the age of the reference individual. Households are 
 <li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
 <li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
-<li><p><strong>groups_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
+<li><p><strong>folder_name</strong> (<em>string</em>) – The name of the folder the location is in, e.g. ‘contact_networks’</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary mapping ID to age for all individuals in the population.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.read_write.write_groups_by_age_and_uid">
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">write_groups_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">groups_by_uids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.write_groups_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write groups to file with both ID and their ages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state of the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
+<li><p><strong>groups_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
+<li><p><strong>group_type</strong> (<em>string</em>) – The name of the group type.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2648,58 +2656,23 @@ The first age in the row is the age of the reference individual. Households are 
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.long_term_care_facilities.generate_microstructure_with_facilities">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">gen_pop_size</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">do_plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">check_all_residents_are_connected_to_staff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-synthpops.plot_tools">
-<span id="synthpops-plot-tools-module"></span><h2>synthpops.plot_tools module<a class="headerlink" href="#module-synthpops.plot_tools" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="synthpops.plot_tools.calculate_contact_matrix">
-<code class="sig-prename descclassname">synthpops.plot_tools.</code><code class="sig-name descname">calculate_contact_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contacts</span></em>, <em class="sig-param"><span class="n">density_or_frequency</span><span class="o">=</span><span class="default_value">'density'</span></em>, <em class="sig-param"><span class="n">setting_code</span><span class="o">=</span><span class="default_value">'H'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.plot_tools.calculate_contact_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the symmetric contact matrix.</p>
+<dt id="synthpops.read_write.read_setting_groups">
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">read_setting_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_ages</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.read_setting_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in groups of people interacting in different social settings from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>contacts</strong> (<em>dict</em>) – dictionary of individuals with attributes, including their age and the ids of their contacts</p></li>
-<li><p><strong>density_or_frequency</strong> (<em>string</em>) – If ‘density’, then each contact counts for 1/(group size -1) of a person’s contact in a group, elif ‘frequency’ then count each contact. This means that more people in a group leads to higher rates of contact/exposure.</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>setting</strong> (<em>string</em>) – The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.</p></li>
+<li><p><strong>with_ages</strong> (<em>bool</em>) – If True, read in the ages of each individual in the group; otherwise, read in their IDs.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Symmetric age specific contact matrix.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="synthpops.plot_tools.plot_contact_frequency">
-<code class="sig-prename descclassname">synthpops.plot_tools.</code><code class="sig-name descname">plot_contact_frequency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">freq_matrix_dic</span></em>, <em class="sig-param"><span class="n">age_count</span></em>, <em class="sig-param"><span class="n">aggregate_age_count</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">setting_code</span><span class="o">=</span><span class="default_value">'H'</span></em>, <em class="sig-param"><span class="n">density_or_frequency</span><span class="o">=</span><span class="default_value">'density'</span></em>, <em class="sig-param"><span class="n">logcolors_flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">aggregate_flag</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.plot_tools.plot_contact_frequency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
-for the average individual in age group i with all of their contacts in age group j. Can either be density
-or frequency definition, as well as a single year age contact matrix or a contact matrix for aggregated
-age brackets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>freq_matrix_dic</strong> (<em>matrix</em>) – symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j</p></li>
-<li><p><strong>age_count</strong> (<em>dict</em>) – dictionary with the count of individuals in the population for each age</p></li>
-<li><p><strong>aggregate_age_count</strong> (<em>dict</em>) – dictionary with the count of individuals in the population in each age bracket</p></li>
-<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
-<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
-<li><p><strong>setting_code</strong> (<em>string</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other</p></li>
-<li><p><strong>density_or_frequency</strong> (<em>string</em>) – If ‘density’, then each contact counts for 1/(group size -1) of a person’s contact in a group, elif ‘frequency’ then count each contact. This means that more people in a group leads to higher rates of contact/exposure.</p></li>
-<li><p><strong>logcolors_flag</strong> (<em>bool</em>) – If True, plot heatmap in logscale</p></li>
-<li><p><strong>aggregate_flag</strong> (<em>book</em>) – If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A fig object.</p>
+<dd class="field-even"><p>A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2927,7 +2900,7 @@ mixing matrix, unless single_year_age_distr is available.</p>
 
 <dl class="py function">
 <dt id="synthpops.sampling.get_age_sex_n">
-<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_age_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gender_fraction_by_age</span></em>, <em class="sig-param"><span class="n">age_bracket_distr</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">n_people</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">min_age</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">max_age</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">age_mean</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">age_std</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_age_sex_n" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_age_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gender_fraction_by_age</span></em>, <em class="sig-param"><span class="n">age_bracket_distr</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">n_people</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">min_age</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">max_age</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_age_sex_n" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample n_people peoples’ age and sex from gender and age census data defined for age brackets. Else, return random ages and sex.
 Two lists ordered by age bracket so that people from the first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
 <dl class="field-list simple">

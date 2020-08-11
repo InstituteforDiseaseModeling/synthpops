@@ -76,6 +76,14 @@ synthpops.plot\_tools module
    :undoc-members:
    :show-inheritance:
 
+synthpops.read\_write module
+----------------------------
+
+.. automodule:: synthpops.read_write
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 synthpops.sampling module
 -------------------------
 
@@ -91,7 +99,6 @@ synthpops.version module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
