@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-  <link rel="stylesheet" href="_static/tipuesearch/tipuesearch.css" type="text/css" />
   <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
 
   
@@ -32,11 +31,9 @@
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/tipuesearch/tipuesearch.js"></script>
-        <script src="_static/tipuesearch/tipuesearch_content.js"></script>
-        <script src="_static/tipuesearch/tipuesearch_set.js"></script>
-        <script src="_static/runsearch.js"></script>
-        <script src="_static/tablecollapse.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -78,11 +75,13 @@
             
           
 
-          <div role="search">
-    <form action="search-local.html" class='wy-form' id='rtd-search-form' method="get">
-        <input autocomplete="off" id="tipue_search_input" name="q" placeholder="Search docs"
-               required type="text">
-    </form>
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
           
@@ -150,8 +149,6 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-<!-- From _templates/page.html -->
-
   <div class="section" id="welcome-to-sp">
 <h1>Welcome to SynthPops<a class="headerlink" href="#welcome-to-sp" title="Permalink to this headline">¶</a></h1>
 <p>SynthPops is used construct synthetic networks of people that satisfy statistical properties of
@@ -177,8 +174,6 @@ For more information on Covasim see <a class="reference external" href="https://
 </div>
 </div>
 
-
-<div id="tipue_search_content"></div>
 
            </div>
            
@@ -229,28 +224,7 @@ For more information on Covasim see <a class="reference external" href="https://
   
   
     
-  
-<!-- Google analytics for IDM docs -->
- 
-<script>
-    (function (i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r;
-        i[r] = i[r] || function () {
-            (i[r].q = i[r].q || []).push(arguments)
-        }, i[r].l = 1 * new Date();
-        a = s.createElement(o),
-            m = s.getElementsByTagName(o)[0];
-        a.async = 1;
-        a.src = g;
-        m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
-    ga('create', 'UA-87656833-3', 'auto');
-    ga('send', 'pageview');
-
-</script>
-
-
+   
 
 </body>
 </html>
