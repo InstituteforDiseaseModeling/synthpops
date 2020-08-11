@@ -182,17 +182,8 @@ html_static_path = ['_static']
 
 html_context = {
     'css_files': [
-        '_static/theme_overrides.css',
-        '_static/tipuesearch/tipuesearch.css'
-    ],
-    'script_files': [
-        '_static/jquery.js',
-        '_static/tipuesearch/tipuesearch.js',
-        '_static/tipuesearch/tipuesearch_content.js',
-        '_static/tipuesearch/tipuesearch_set.js',
-        '_static/runsearch.js',
-        '_static/tablecollapse.js'
-    ]
+        '_static/theme_overrides.css'
+        ]
 }
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
