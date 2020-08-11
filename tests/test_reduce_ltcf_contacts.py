@@ -68,7 +68,7 @@ def test_create_reduced_contacts_with_group_types():
 
 
 if __name__ == '__main__':
-    datadir = sp.datadir
+    # datadir = sp.datadir
     country_location = 'usa'
     state_location = 'Washington'
     location = 'seattle_metro'

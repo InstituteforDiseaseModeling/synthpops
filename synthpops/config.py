@@ -339,7 +339,7 @@ class FilePaths():
         location_info.append(self.alt_country)
         return location_info
 
-    def get_demographic_file(self,filedata_type=None, prefix=None, suffix = None, filter_list=None):
+    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix = None, filter_list=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
@@ -352,7 +352,7 @@ class FilePaths():
             raise NotImplementedError(f"Invalid filedata_type string {filedata_type}. filedata_type must be one of the following {filedata_types}")
             return None
 
-        file = self._search_dirs(filedata_type, prefix, suffix,filter_list)
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
         return file
 
     def get_data_file(self, prefix=None, suffix = None, filter_list=None):
@@ -363,9 +363,11 @@ class FilePaths():
         file = self._search_dirs(None, prefix, suffix, filter_list)
         return file
 
-    def _search_dirs(self,filedata_type, prefix, sufix, filter_list):
+    def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list):
         """
         Search the directories in self.basedirs for a file matches the conditions
+        Location is the state_location, province, or city level if applicable
+            (e.g. for usa, Washington state).
         Prefix is the start of the file name. Examples of prefix patterns are:
             '{location}_age_bracket_distr' or 'head_age_brackets'. If {location}
             appears in the prefix pattern, the country, province or location information
@@ -380,6 +382,8 @@ class FilePaths():
             files = None
             target_dir = target[1]
             target_location = target[0]
+            if target_location == location:
+                target_location = target[0]
             filedata_dir = target_dir
             if filedata_type is not None:
                 filedata_dir = os.path.join(target_dir, filedata_type)
@@ -387,7 +391,7 @@ class FilePaths():
             # check if there is a directory
             if os.path.isdir(filedata_dir):
                 if len(os.listdir(filedata_dir)) > 0:
-                    files = self._list_files(target_location,filedata_dir,prefix, sufix, filter_list)
+                    files = self._list_files(target_location, filedata_dir, prefix, suffix, filter_list)
 
                     if len(files) > 0:
                         results = os.path.join(filedata_dir, files[0])

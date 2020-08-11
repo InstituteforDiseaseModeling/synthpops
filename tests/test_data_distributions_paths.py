@@ -13,8 +13,9 @@ def test_get_gender_fraction_by_age_path_all_variables():
     """
     Test getting the file path with all input variables
     """
-    dat_file = sp.get_gender_fraction_by_age_path(datadir, location=location, state_location=state_location,
+    dat_file = sp.get_gender_fraction_by_age_path(state_location=state_location,
                                                   country_location=country_location)
+    print(dat_file)
     assert dat_file is not None
 
 
@@ -22,7 +23,8 @@ def test_get_gender_fraction_by_age_path_country_variable_only():
     """
     Test getting the file path with only country_location variable
     """
-    dat_file = sp.get_gender_fraction_by_age_path(datadir, country_location=country_location)
+    dat_file = sp.get_gender_fraction_by_age_path(country_location=country_location)
+    print(dat_file)
     assert dat_file is not None
 
 
@@ -30,7 +32,7 @@ def test_get_gender_fraction_by_age_path_country_state_variables():
     """
     Test getting the file path with both state_location and country_location variables
     """
-    dat_file = sp.get_gender_fraction_by_age_path(datadir, state_location=state_location,
+    dat_file = sp.get_gender_fraction_by_age_path(state_location=state_location,
                                                   country_location=country_location)
     assert dat_file is not None
 

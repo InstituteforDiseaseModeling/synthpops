@@ -40,12 +40,11 @@ def get_age_brackets_from_df(ab_file_path):
     return age_brackets
 
 
-def get_gender_fraction_by_age_path(datadir, location=None, state_location=None, country_location=None):
+def get_gender_fraction_by_age_path(location=None, state_location=None, country_location=None):
     """
     Get file_path for gender fractions by age bracket. This should only be used if the data is available.
 
     Args:
-        datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
@@ -70,13 +69,18 @@ def get_gender_fraction_by_age_path(datadir, location=None, state_location=None,
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"gender_fraction_by_age_bracket_{cfg.nbrackets}"
     prefix = "{location}_" + base
-    #review after re-org of data
-    if location is not None and country_location != 'Senegal':   # ---remove
+    # review after re-org of data
+    if location is not None and country_location != 'Senegal':  # ---remove
         prefix = prefix.format(location=location)
+    elif location is None and state_location == 'Washington':
+        location = state_location
+        prefix = 'seattle_metro' + base
     elif location is None and country_location != 'Senegal':
         prefix = base
 
-    file= paths.get_demographic_file('age_distributions', prefix=prefix,suffix='.dat', filter_list=None)
+    print("prefix" + str(prefix))
+    file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', filter_list=None)
+    print(file)
     return file
 
 
@@ -903,7 +907,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     # create size distribution from enrollment counts
     if counts_available:
         try:
-            df = fget_school_sizes_d(datadir, location, state_location, country_location)
+            df = get_school_sizes_df(datadir, location, state_location, country_location)
         except:
             if use_default:
                 # Note requires country, even with use defaults
@@ -1403,7 +1407,8 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, loca
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=cfg.default_location, state_location=cfg.default, country_location=cfg.default_country)
+            datadir = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries')
+            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path, header=0)
         else:
             raise ValueError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
