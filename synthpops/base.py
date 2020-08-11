@@ -2,6 +2,7 @@
 The module contains frequently-used functions that do not neatly fit into other areas of the code base.
 """
 
+# import sciris as sc
 import numpy as np
 from copy import deepcopy
 from . import config as cfg
@@ -22,7 +23,7 @@ def norm_dic(dic):
         return dic
     new_dic = {}
     for i in dic:
-        new_dic[i] = float(dic[i])/total
+        new_dic[i] = float(dic[i]) / total
     return new_dic
 
 
@@ -39,7 +40,7 @@ def norm_age_group(age_dic, age_min, age_max):
         A normalized dictionary for keys in the range ``age_min`` to ``age_max``, inclusive.
     """
     dic = {}
-    for a in range(age_min, age_max+1):
+    for a in range(age_min, age_max + 1):
         dic[a] = age_dic[a]
     return norm_dic(dic)
 
@@ -114,7 +115,8 @@ def get_aggregate_age_dict_conversion(larger_aggregate_ages, larger_age_brackets
         A dictionary of the aggregated age count for the smaller number of age brackets.
 
     """
-    if len(larger_age_brackets) < len(smaller_age_brackets): raise NotImplementedError('Cannot reduce aggregate ages any further.')
+    if len(larger_age_brackets) < len(smaller_age_brackets):
+        raise NotImplementedError('Cannot reduce aggregate ages any further.')
     smaller_aggregate_ages = dict.fromkeys(smaller_age_brackets.keys(), 0)
     for lb in larger_age_brackets:
         a = larger_age_brackets[lb][0]
@@ -149,6 +151,7 @@ def get_aggregate_matrix(M, age_by_brackets_dic):
         aggregate_matrix = sp.get_aggregate_matrix(aggregate_matrix, age_by_brackets_dic)
 
         asymmetric_matrix = sp.get_asymmetric_matrix(aggregate_matrix, aggregate_age_count)
+
    """
     N = len(M)
     num_agebrackets = len(set(age_by_brackets_dic.values()))
@@ -188,7 +191,7 @@ def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
     """
     M = deepcopy(symmetric_matrix)
     for a in aggregate_ages:
-        M[a, :] = M[a, :]/float(aggregate_ages[a])
+        M[a, :] = M[a, :] / float(aggregate_ages[a])
 
     return M
 
@@ -209,7 +212,7 @@ def get_symmetric_community_matrix(ages):
         M[:, a] = M[:, a] * ages[a]
     for a in range(N):
         M[a, a] -= ages[a]
-    M = M/(np.sum([ages[a] for a in ages], dtype=float) - 1)
+    M = M / (np.sum([ages[a] for a in ages], dtype=float) - 1)
     return M
 
 
@@ -242,7 +245,7 @@ def get_ids_by_age_dic(age_by_id_dic):
         A dictionary listing IDs for each age from a dictionary that maps ID to age.
     """
     max_val = max([v for v in age_by_id_dic.values()])
-    ids_by_age_dic = dict.fromkeys(np.arange(max_val+1))
+    ids_by_age_dic = dict.fromkeys(np.arange(max_val + 1))
     for i in ids_by_age_dic:
         ids_by_age_dic[i] = []
     for i in age_by_id_dic:
