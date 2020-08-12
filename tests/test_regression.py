@@ -52,17 +52,17 @@ class TestRegression(unittest.TestCase):
         # pop = dict(sorted(pop.items(), key=lambda x: x[0]))
 
         sc.savejson(filename, pop, indent=2)
-        self.check_result(actual_file=filename, prefix=test_prefix)
-        self.generate_reports()
+        unchanged = self.check_result(actual_file=filename, prefix=test_prefix)
+        if not unchanged:
+            self.generate_reports()
 
-    def runpop(self, filename, actual_vals, testprefix = "test"):
+    def runpop(self, filename, actual_vals, testprefix = "test", method=sp.make_population):
         # if default sort order is not concerned:
         # pop = dict(sorted(pop.items(), key=lambda x: x[0]))
         params = {}
-        args = inspect.getfullargspec(sp.make_population).args
-        defaults = inspect.getfullargspec(sp.make_population).defaults
+        args = inspect.getfullargspec(method).args
         for i in range(0, len(args)):
-            params[args[i]] = defaults[i]
+            params[args[i]] = inspect.signature(method).parameters[args[i]].default
         for name in actual_vals:
             if name in params.keys():
                 params[name] = actual_vals[name]
@@ -70,7 +70,7 @@ class TestRegression(unittest.TestCase):
             for key, value in params.items():
                 cf.writelines(str(key) + ':' + str(value) + "\n")
 
-        pop = sp.make_population(**params)
+        pop = method(**params)
         return pop
 
     def check_result(self, actual_file, expected_file = None, prefix="test"):
@@ -83,7 +83,10 @@ class TestRegression(unittest.TestCase):
         expected = self.cast_uid_toINT(sc.loadjson(expected_file))
         actual = self.cast_uid_toINT(sc.loadjson(actual_file))
         #self.check_similarity(actual, expected)
-
+        if expected == actual:
+            #if data are not changed, no report will be generated
+            print("nothing changed, skip reporting...")
+            return True
         # generate the figures for comparison
         for code in ['H', 'W', 'S']:
             for type in ['density', 'frequency']:
@@ -99,6 +102,7 @@ class TestRegression(unittest.TestCase):
                                                                                   density_or_frequency=type)
                 #fig.show()
                 fig.savefig(os.path.join(self.figDir,f"{prefix}_{code}_{type}_actual.png"))
+        return False
 
     def generate_reports(self):
         #search for config files
