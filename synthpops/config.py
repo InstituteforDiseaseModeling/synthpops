@@ -400,8 +400,6 @@ class FilePaths():
                         break
                 else:
                     print(f'no data in directory {filedata_dir}, skipping')
-            # elif len(os.listdir(filedata_dir)) <= 0:
-            #     print(f'{filedata_dir} does not exist at this level, skipping')
         return results
 
     def _list_files(self,level, target_dir,  prefix, suffix, filter_list):

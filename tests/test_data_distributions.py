@@ -10,7 +10,7 @@ country_location = 'usa'
 
 
 def test_get_gender_fraction_by_age_path():
-    dat_file = sp.get_gender_fraction_by_age_path(datadir=datadir, location=location, state_location=state_location,
+    dat_file = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,
                                                   country_location=country_location)
     assert dat_file is not None
 
@@ -19,14 +19,14 @@ def test_read_gender_fraction_by_age():
     gender_data_file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries',
                                          country_location, state_location, 'age_distributions',
                                          'seattle_metro_gender_fraction_by_age_bracket.dat')
-    dict = sp.read_gender_fraction_by_age_bracket(datadir, state_location=state_location,
+    dict = sp.read_gender_fraction_by_age_bracket(state_location=state_location,
                                                   country_location=country_location,
                                                   file_path=gender_data_file_path, use_default=True)
     assert dict is not None
 
 
 def test_get_age_bracket_distr_path():
-    dat_file = sp.get_age_bracket_distr_path(datadir=datadir, location=location, state_location=state_location,
+    dat_file = sp.get_age_bracket_distr_path(location=location, state_location=state_location,
                                              country_location=country_location)
     assert dat_file is not None
 
