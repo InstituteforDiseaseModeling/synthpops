@@ -74,7 +74,7 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
         prefix = prefix.format(location=location)
     elif location is None and state_location == 'Washington':
         location = state_location
-        prefix = 'seattle_metro' + base
+        prefix = "seattle_metro_" + base
     elif location is None and country_location != 'Senegal':
         prefix = base
 
@@ -104,12 +104,12 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
     """
 
     if file_path is None:
-        file_path = get_gender_fraction_by_age_path(datadir, location, state_location, country_location)
+        file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
     try:
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_gender_fraction_by_age_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_coutry)
+            file_path = get_gender_fraction_by_age_path(location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -151,7 +151,8 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     prefix = "{location}_" + base
     if location is not None and country_location != 'Senegal':  # remove after restructure
         prefix = prefix.format(location=location)
-    file= paths.get_demographic_file('age_distributions', prefix=prefix,suffix='.dat', filter_list=None)
+    file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat',
+                                      filter_list=None)
     return file
 
 
@@ -216,12 +217,12 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     paths = cfg.FilePaths(location, state_location, country_location)
     prefix = '{location}_household_size_distr'
     # if statement below should be remove when refactored ---remove
-    if location is  None and country_locaton != 'Senegal':
+    if location is  None and country_location != 'Senegal':
         prefix = "household_size_distr"
     elif location is not None and country_location != 'Senegal':
         prefix = "{location}_household_size_distr".format(location=location)
 
-    file= paths.get_demographic_file('household size distributions', prefix=prefix,suffix='.dat')
+    file = paths.get_demographic_file(location=location, filedata_type='household size distributions', prefix=prefix, suffix='.dat')
     return file
 
 
@@ -284,7 +285,8 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     prefix = '{location}_head_age_bracket'
     if country_location != 'Senegal':
         prefix = "head_age_brackets"
-    file= paths.get_demographic_file('household living arrangements', prefix=prefix,suffix='.dat')
+    file = paths.get_demographic_file(location=None, filedata_type='household living arrangements', prefix=prefix,
+                                      suffix='.dat')
     return file
 
 
@@ -345,7 +347,8 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
     prefix = "{location}_household_head_age_and_size_count"
     if country_location != 'Senegal':      #-----remove
         prefix = "household_head_age_and_size_count"
-    file= paths.get_demographic_file('household living arrangements', prefix=prefix,suffix='.dat')
+    file = paths.get_demographic_file(location=None, filedata_type='household living arrangements', prefix=prefix,
+                                      suffix='.dat')
     return file
 
 
@@ -435,7 +438,7 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     """
     paths = cfg.FilePaths(None, state_location, country_location)
     prefix = f"census_age_brackets_{cfg.nbrackets}"
-    file= paths.get_data_file( prefix=prefix,suffix='.dat')
+    file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat')
     return file
 
 
@@ -686,7 +689,7 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
     prefix = "{location}_school_enrollment_by_age"
     if country_location != 'Senegal':      # usa --remove after refactor
         prefix = "{location}_school_enrollment_by_age" if location is None else f"{location}_school_enrollment_by_age"
-    file= paths.get_demographic_file('enrollment', prefix=prefix,suffix='.dat')
+    file = paths.get_demographic_file(location, filedata_type='enrollment', prefix=prefix, suffix='.dat')
     return file
 
 def get_school_enrollment_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -751,7 +754,7 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
     prefix = "{location}_school_size_brackets" if location is None else f"{location}_school_size_brackets"
     if country_location != 'Senegal':    # usa -- remove
         prefix = "{location}_school_size_brackets" if location is None else f"{location}_school_size_brackets"
-    file= paths.get_demographic_file('schools', prefix=prefix,suffix='.dat')
+    file= paths.get_demographic_file(location, filedata_type='schools', prefix=prefix,suffix='.dat')
     return file
 
 
@@ -816,7 +819,7 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
     prefix = "{location}_school_sizes"
     if location is not None and country_location != 'Senegal':
         prefix = f"{location}_school_sizes"
-    file= paths.get_demographic_file('schools', prefix=prefix,suffix='.dat')
+    file= paths.get_demographic_file(location, filedata_type='schools', prefix=prefix,suffix='.dat')
     return file
 
 
@@ -883,7 +886,7 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
             prefix = f"{location}_school_size_distr"
         else:
             prefix = 'school_size_distr'
-    file= paths.get_demographic_file('schools', prefix=prefix,suffix='.dat')
+    file = paths.get_demographic_file(location, filedata_type='schools', prefix=prefix, suffix='.dat')
     return file
 
 def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):

@@ -339,7 +339,7 @@ class FilePaths():
         location_info.append(self.alt_country)
         return location_info
 
-    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix = None, filter_list=None):
+    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
@@ -355,12 +355,12 @@ class FilePaths():
         file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
         return file
 
-    def get_data_file(self, prefix=None, suffix = None, filter_list=None):
+    def get_data_file(self, location=None, prefix=None, suffix=None, filter_list=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
-
-        file = self._search_dirs(None, prefix, suffix, filter_list)
+        filedata_type = None
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
         return file
 
     def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list):
@@ -382,7 +382,9 @@ class FilePaths():
             files = None
             target_dir = target[1]
             target_location = target[0]
-            if target_location == location:
+            if target_location == "seattle_metro":
+                target_location = "Washington"
+            elif target_location == location:
                 target_location = target[0]
             filedata_dir = target_dir
             if filedata_type is not None:
@@ -398,8 +400,8 @@ class FilePaths():
                         break
                 else:
                     print(f'no data in directory {filedata_dir}, skipping')
-            else:
-                print(f'{filedata_dir} does not exist at this level, skipping')
+            # elif len(os.listdir(filedata_dir)) <= 0:
+            #     print(f'{filedata_dir} does not exist at this level, skipping')
         return results
 
     def _list_files(self,level, target_dir,  prefix, suffix, filter_list):

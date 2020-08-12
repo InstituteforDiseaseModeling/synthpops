@@ -7,7 +7,7 @@ write = True
 return_popdict = True
 use_default = False
 
-datadir = config.
+datadir = sp.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
