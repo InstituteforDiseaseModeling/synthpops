@@ -1,5 +1,4 @@
 sphinx-rtd-theme
 sphinxcontrib-napoleon
-beautifulsoup4
 sphinx
 plantweb
