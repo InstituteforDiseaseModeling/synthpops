@@ -13,10 +13,10 @@ def test_get_gender_fraction_by_age_path_all_variables():
     """
     Test getting the file path with all input variables
     """
-    dat_file = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,
+    dat_file, file_path = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,
                                                   country_location=country_location)
-    print(dat_file)
-    assert dat_file is not None
+    print(file_path)
+    assert file_path is not None
 
 
 # def test_get_gender_fraction_by_age_path_country_variable_only():

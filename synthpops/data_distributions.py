@@ -78,13 +78,16 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     elif location is None and country_location != 'Senegal':
         prefix = base
 
-    print("prefix" + str(prefix))
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', filter_list=None)
-    print(file)
-    return file
+    suffix = '.dat'
+    import synthpops as sp
+    datadir = sp.datadir
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', prefix + suffix)
+    print(file_path)
+    return file, file_path
 
 
-def read_gender_fraction_by_age_bracket(location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     A dict of gender fractions by age bracket, either by location, state_location, country_location strings, or by the file_path if that's given.
     If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This
@@ -104,12 +107,16 @@ def read_gender_fraction_by_age_bracket(location=None, state_location=None, coun
     """
 
     if file_path is None:
-        file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
+        file, file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
     try:
+        file, file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
+        check_exists = os.path.exists(file_path)
+        if check_exists is True:
+            print(file_path)
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_gender_fraction_by_age_path(location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            file, file_path = get_gender_fraction_by_age_path(location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
@@ -174,13 +181,13 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
 
     """
     if file_path is None:
-        file_path = get_age_bracket_distr_path(datadir, location, state_location, country_location)
+        file_path = get_age_bracket_distr_path(location, state_location, country_location)
 
     try:
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_age_bracket_distr_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            file_path = get_age_bracket_distr_path(location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
