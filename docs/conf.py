@@ -69,7 +69,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SynthPops'
-copyright = u'2020, Intellectual Ventures Management, LLC (IVM). All rights reserved'
+copyright = u'2020, Bill & Melinda Gates Foundation. All rights reserved.'
 author = u'Institute for Disease Modeling'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -182,17 +182,8 @@ html_static_path = ['_static']
 
 html_context = {
     'css_files': [
-        '_static/theme_overrides.css',
-        '_static/tipuesearch/tipuesearch.css'
-    ],
-    'script_files': [
-        '_static/jquery.js',
-        '_static/tipuesearch/tipuesearch.js',
-        '_static/tipuesearch/tipuesearch_content.js',
-        '_static/tipuesearch/tipuesearch_set.js',
-        '_static/runsearch.js',
-        '_static/tablecollapse.js'
-    ]
+        '_static/theme_overrides.css'
+        ]
 }
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
