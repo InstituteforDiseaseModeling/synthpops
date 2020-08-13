@@ -828,22 +828,23 @@ household members are contacts of each other, and everyone in the same school is
 </div>
 <div class="section" id="module-synthpops.contact_networks_industries">
 <span id="synthpops-contact-networks-industries-module"></span><h2>synthpops.contact_networks_industries module<a class="headerlink" href="#module-synthpops.contact_networks_industries" title="Permalink to this headline">¶</a></h2>
+<p>This module uses workplace data by industry from <a class="reference external" href="https://www.census.gov/eos/www/naics/">North American Industry Classification System</a> (NAICS) codes  to model workplaces as specific industries and the contact patterns for workers within each workplace.</p>
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_establishments_by_industries_df">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_establishments_by_industries_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_establishments_by_industries_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter pandas dataframe on establishment sizes by industry for the locations of interest.</p>
+<dd><p>Filter a pandas DataFrame on establishment sizes by industry for the locations of interest at the county level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>level</strong> (<em>string</em>) – scale of region at which data is available</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>locations</strong> (<em>list of string</em>) – A list with the names of the locations at the county level.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A pandas dataframe with necessary columns to calculate establishment sizes by industry for the specified locations of interest.</p>
+<dd class="field-even"><p>A pandas DataFrame with necessary columns to calculate establishment sizes by industry for the specified locations of interest.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -851,16 +852,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_industry_type_df">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_type_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">country_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_type_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get 2017 NAICS US Codes and Titles</p>
+<dd><p>Get the 2017 NAICS US Codes and Titles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A pandas dataframe with 2017 NAICS US Code and Title.</p>
+<dd class="field-even"><p>A pandas DataFrame with 2017 NAICS US Code and Title.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -868,16 +869,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_simplified_industry_type_df">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_type_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">country_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_type_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get simplified 2017 NAICS US Codes.</p>
+<dd><p>Get the simplified 2017 NAICS US Codes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A pandas dataframe with 2 digit 2017 NAICS US Codes mapping to main industry types</p>
+<dd class="field-even"><p>A pandas DataFrame with 2 digit 2017 NAICS US Codes mapping to main industry types.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -885,16 +886,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_industry_code">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_code" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get 2017 NAICS Code based on industry title.</p>
+<dd><p>Get the 2017 NAICS Code based on industry title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_title</strong> (<em>string</em>) – 2017 NAICS US Title</p></li>
+<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The 2017 NAICS US Title.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2017 NAICS US Code as an integer</p>
+<dd class="field-even"><p>The 2017 NAICS US Code as an integer.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -902,16 +903,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_main_industry_code">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_main_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_main_industry_code" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get 2 digit 2017 NAICS US Code based on industry title.</p>
+<dd><p>Get the 2-digit 2017 NAICS US Code based on industry title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_title</strong> (<em>string</em>) – 2017 NAICS US Title</p></li>
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The 2017 NAICS US Title.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2 digit 2017 NAICS US Code as an integer.</p>
+<dd class="field-even"><p>The 2-digit 2017 NAICS US Code as an integer.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -919,16 +920,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_industry_title">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get 2017 NAICS US Title based on full industry code.</p>
+<dd><p>Get the 2017 NAICS US Title based on full industry code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_code</strong> (<em>int</em>) – 2017 NAICS US Code</p></li>
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2017 NAICS US Code.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2017 NAICS US Title</p>
+<dd class="field-even"><p>The 2017 NAICS US Title.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -936,16 +937,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_main_industry_title">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_main_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_main_industry_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get main 2017 NAICS US Title based on 2 digit industry code.</p>
+<dd><p>Get the main 2017 NAICS US Title based on 2-digit industry code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_code</strong> (<em>int</em>) – 2 digit 2017 NAICS US Code</p></li>
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2-digit 2017 NAICS US Code.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2017 NAICS US Title</p>
+<dd class="field-even"><p>The 2017 NAICS US Title.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -953,16 +954,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_simplified_industry_title">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simplified_industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get simplified 2017 NAICS US Title from 2 digit 2017 NAICS Code</p>
+<dd><p>Get the simplified 2017 NAICS US Title from the 2-digit 2017 NAICS Code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>simplified_industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_code</strong> (<em>int</em>) – 2 digit 2017 NAICS US Code</p></li>
+<li><p><strong>simplified_industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2-digit 2017 NAICS US Code.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2017 NAICS US Title for 2 digit code</p>
+<dd class="field-even"><p>The 2017 NAICS US Title for the 2-digit code.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -970,16 +971,16 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_simplified_industry_code">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simplified_industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_code" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get simplified 2017 NAICS US Code from full title</p>
+<dd><p>Get the simplified 2017 NAICS US Code from the full title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>simplified_industry_type_df</strong> (<em>dataframe</em>) – pandas dataframe</p></li>
-<li><p><strong>industry_title</strong> (<em>string</em>) – full 2017 NAICS US Title</p></li>
+<li><p><strong>simplified_industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The full 2017 NAICS US Title.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2 digit 2017 NAICS US Code</p>
+<dd class="field-even"><p>The 2-digit 2017 NAICS US Code.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -987,11 +988,19 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.get_establishment_size_brackets_df">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_establishment_size_brackets_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">'county'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_establishment_size_brackets_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get size brackets dataframe from BLS 2017 Data.</p>
-<p>Args:</p>
+<dd><p>Get size brackets DataFrame from Bureau of Labor Statistics (BLS) 2017 Data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dataframe of size brackets for establishments in the United States.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>locations</strong> (<em>list</em>) – A list with the names of the locations at the county level.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Dataframe of size brackets for establishments in the United States.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -999,7 +1008,26 @@ household members are contacts of each other, and everyone in the same school is
 <dl class="py function">
 <dt id="synthpops.contact_networks_industries.generate_synthetic_population_with_workplace_industries">
 <code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">generate_synthetic_population_with_workplace_industries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">'county'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.generate_synthetic_population_with_workplace_industries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Modify the workplace network as generated by <code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code> to include  contact patterns according to each industry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>sheet_name</strong> (<em>string</em>) – The name of the sheet in the Excel file with contact patterns.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated workplace sizes vs. the expected sizes based on NAICS data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 <div class="section" id="module-synthpops.contacts">
