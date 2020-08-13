@@ -141,4 +141,6 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     for key, person in population.items():
         for layerkey in population[key]['contacts'].keys():
             population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
+
+    log.debug('make_population(): done.')
     return population

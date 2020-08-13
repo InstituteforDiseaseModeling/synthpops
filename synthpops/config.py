@@ -61,8 +61,8 @@ if not logger.hasHandlers():
 
     # Set formatting and log level
     formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d {%(filename)s:%(lineno)d} - %(message)s', datefmt='%H:%M:%S')
+    debug_handler.setFormatter(formatter)
     for handler in [debug_handler, info_handler, warning_handler]:
-        handler.setFormatter(formatter)
         logger.addHandler(handler)
     logger.setLevel(default_log_level)  # Set the overall log level
 
@@ -87,7 +87,7 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 
 #%% Functions
 
-logger.debug(f'SynthPops location: {thisdir}')
+logger.info(f'Loading SynthPops: {thisdir}')
 logger.debug(f'Data folder: {datadir}')
 
 def set_datadir(folder):
