@@ -1,3 +1,9 @@
+"""
+This module uses workplace data by industry from `North American Industry Classification System`_ (NAICS) codes  to model workplaces as specific industries and the contact patterns for workers within each workplace.
+
+.. _North American Industry Classification System: https://www.census.gov/eos/www/naics/
+"""
+
 import sciris as sc
 import numpy as np
 import networkx as nx
@@ -19,17 +25,17 @@ import cmocean
 
 def get_establishments_by_industries_df(datadir, locations, state_location, country_location, level):
     """
-    Filter pandas dataframe on establishment sizes by industry for the locations of interest.
+    Filter a pandas DataFrame on establishment sizes by industry for the locations of interest at the county level.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        level (string)            : scale of region at which data is available
+        datadir (string)            : The file path to the data directory.
+        locations (list of string)  : A list with the names of the locations at the county level.
+        state_location (string)     : The name of the state the location is in.
+        country_location (string)   : The name of the country the location is in.
+        level (string)              : The scale of region at which data is available.
 
     Returns:
-        A pandas dataframe with necessary columns to calculate establishment sizes by industry for the specified locations of interest.
+        A pandas DataFrame with necessary columns to calculate establishment sizes by industry for the specified locations of interest.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'workplaces', 'workplaces_by_' + level + '_2015.csv')
     df = pd.read_csv(file_path)
@@ -41,14 +47,14 @@ def get_establishments_by_industries_df(datadir, locations, state_location, coun
 
 def get_industry_type_df(datadir, country_location):
     """
-    Get 2017 NAICS US Codes and Titles
+    Get the 2017 NAICS US Codes and Titles.
 
     Args:
-        datadir (string)          : file path to the data directory
-        country_location (string) : name of the country
+        datadir (string)          : The file path to the data directory.
+        country_location (string) : The name of the country.
 
     Returns:
-        A pandas dataframe with 2017 NAICS US Code and Title.
+        A pandas DataFrame with 2017 NAICS US Code and Title.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', '2-6 digit_2017_Codes.xlsx')
     df = pd.read_excel(file_path, skiprows=0)
@@ -57,14 +63,14 @@ def get_industry_type_df(datadir, country_location):
 
 def get_simplified_industry_type_df(datadir, country_location):
     """
-    Get simplified 2017 NAICS US Codes.
+    Get the simplified 2017 NAICS US Codes.
 
     Args:
-        datadir (string)          : file path to the data directory
-        country_location (string) : name of the country
+        datadir (string)          : The file path to the data directory.
+        country_location (string) : The name of the country.
 
     Returns:
-        A pandas dataframe with 2 digit 2017 NAICS US Codes mapping to main industry types
+        A pandas DataFrame with 2 digit 2017 NAICS US Codes mapping to main industry types.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', 'usa', '2-6 digit_2017_Codes_simplified.dat')
     return pd.read_csv(file_path, delimiter=';')
@@ -72,28 +78,28 @@ def get_simplified_industry_type_df(datadir, country_location):
 
 def get_industry_code(industry_type_df, industry_title):
     """
-    Get 2017 NAICS Code based on industry title.
+    Get the 2017 NAICS Code based on industry title.
 
     Args:
-        industry_type_df (dataframe): pandas dataframe
-        industry_title (string): 2017 NAICS US Title
+        industry_type_df (dataframe)    : The pandas DataFrame.
+        industry_title (string)         : The 2017 NAICS US Title.
 
     Returns:
-        2017 NAICS US Code as an integer
+        The 2017 NAICS US Code as an integer.
     """
     return industry_type_df[industry_type_df['2017 NAICS US Title'] == industry_title]['2017 NAICS US   Code'].values[0].astype(int)
 
 
 def get_main_industry_code(industry_type_df, industry_title):
     """
-    Get 2 digit 2017 NAICS US Code based on industry title.
+    Get the 2-digit 2017 NAICS US Code based on industry title.
 
     Args:
-        industry_type_df (dataframe): pandas dataframe
-        industry_title (string): 2017 NAICS US Title
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_title (string)         : The 2017 NAICS US Title.
 
     Returns:
-        2 digit 2017 NAICS US Code as an integer.
+        The 2-digit 2017 NAICS US Code as an integer.
     """
     code = str(get_industry_code(industry_type_df, industry_title))
     code = code[0:2]
@@ -103,28 +109,28 @@ def get_main_industry_code(industry_type_df, industry_title):
 
 def get_industry_title(industry_type_df, industry_code):
     """
-    Get 2017 NAICS US Title based on full industry code.
+    Get the 2017 NAICS US Title based on full industry code.
 
     Args:
-        industry_type_df (dataframe): pandas dataframe
-        industry_code (int): 2017 NAICS US Code
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_code (int)             : The 2017 NAICS US Code.
 
     Returns:
-        2017 NAICS US Title
+        The 2017 NAICS US Title.
     """
     return industry_type_df[industry_type_df['2017 NAICS US   Code'] == industry_code]['2017 NAICS US Title'].values[0]
 
 
 def get_main_industry_title(industry_type_df, industry_code):
     """
-    Get main 2017 NAICS US Title based on 2 digit industry code.
+    Get the main 2017 NAICS US Title based on 2-digit industry code.
 
     Args:
-        industry_type_df (dataframe): pandas dataframe
-        industry_code (int): 2 digit 2017 NAICS US Code
+        industry_type_df (DataFrame)    : The pandas DataFrame.
+        industry_code (int)             : The 2-digit 2017 NAICS US Code.
 
     Returns:
-        2017 NAICS US Title
+        The 2017 NAICS US Title.
     """
     industry_code = str(industry_code)
     industry_code = industry_code[0:2]
@@ -135,40 +141,45 @@ def get_main_industry_title(industry_type_df, industry_code):
 
 def get_simplified_industry_title(simplified_industry_type_df, industry_code):
     """
-    Get simplified 2017 NAICS US Title from 2 digit 2017 NAICS Code
+    Get the simplified 2017 NAICS US Title from the 2-digit 2017 NAICS Code.
 
     Args:
-        simplified_industry_type_df (dataframe): pandas dataframe
-        industry_code (int): 2 digit 2017 NAICS US Code
+        simplified_industry_type_df (DataFrame) : The pandas DataFrame
+        industry_code (int)                     : The 2-digit 2017 NAICS US Code.
 
     Returns:
-        2017 NAICS US Title for 2 digit code
+        The 2017 NAICS US Title for the 2-digit code.
     """
     return simplified_industry_type_df[simplified_industry_type_df['2017 NAICS US Code'] == industry_code]['2017 NAICS US Title'].values[0]
 
 
 def get_simplified_industry_code(simplified_industry_type_df, industry_title):
     """
-    Get simplified 2017 NAICS US Code from full title
+    Get the simplified 2017 NAICS US Code from the full title.
 
     Args:
-        simplified_industry_type_df (dataframe): pandas dataframe
-        industry_title (string): full 2017 NAICS US Title
+        simplified_industry_type_df (DataFrame) : The pandas DataFrame.
+        industry_title (string)                 : The full 2017 NAICS US Title.
 
     Returns:
-        2 digit 2017 NAICS US Code
+        The 2-digit 2017 NAICS US Code.
     """
     return simplified_industry_type_df[simplified_industry_type_df['2017 NAICS US Title'] == industry_type]['2017 NAICS US Code'].values[0]
 
 
 def get_establishment_size_brackets_df(datadir, locations, state_location='Washington', country_location='usa', level='county'):
     """
-    Get size brackets dataframe from BLS 2017 Data.
+    Get size brackets DataFrame from Bureau of Labor Statistics (BLS) 2017 Data.
 
     Args:
+        datadir (string)            : The file path to the data directory.
+        locations (list)            : A list with the names of the locations at the county level.
+        state_location (string)     : The name of the state the location is in.
+        country_location (string)   : The name of the country the location is in.
+        level (string)              : The scale of region at which data is available.
 
     Returns:
-        Dataframe of size brackets for establishments in the United States.
+        A Dataframe of size brackets for establishments in the United States.
     """
     df = get_establishments_by_industries_df(datadir, locations, state_location, country_location, level)
     d = df[df['NAICS Industry'] == 'Total']
@@ -261,7 +272,21 @@ def get_establishment_size_brackets_df(datadir, locations, state_location='Washi
 
 def generate_synthetic_population_with_workplace_industries(n, datadir,location='seattle_metro',state_location='Washington',country_location='usa',sheet_name='United States of America',level='county',verbose=False,plot=False):
     """
-    
+    Modify the workplace network as generated by :py:meth:`~synthpops.generate_synthetic_population` to include  contact patterns according to each industry.
+
+    Args:
+        n (int)                                   : The number of people in the population.
+        datadir (string)                          : The file path to the data directory.
+        location (string)                         : The name of the location.
+        state_location (string)                   : The name of the state the location is in.
+        country_location (string)                 : The name of the country the location is in.
+        sheet_name (string)                       : The name of the sheet in the Excel file with contact patterns.
+        level (string)                            : The scale of region at which data is available.
+        verbose (bool)                            : If True, print statements as contacts are being generated.
+        plot (bool)                               : If True, plot and show a comparison of the generated workplace sizes vs. the expected sizes based on NAICS data.
+
+    Returns:
+        None
 
     """
     age_brackets = spdata.get_census_age_brackets(datadir,state_location,country_location)
