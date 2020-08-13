@@ -12,7 +12,7 @@ from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import base as spb
 from . import school_modules as spsm
-from .config import datadir, logger as log
+from .config import datadir, logger as log, checkmem
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
@@ -884,6 +884,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
     """
+    log.debug('make_contacts_from_microstructure()')
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
@@ -1077,6 +1078,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         smaller work groups are available via sp.trim_contacts() - see below).
 
     """
+    log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}
 
     grade_age_mapping = {i: i+5 for i in range(13)}
@@ -1093,6 +1095,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
 
+    log.debug('  starting...' + checkmem())
     for uid in age_by_uid_dic:
         popdict[uid] = {}
         popdict[uid]['age'] = int(age_by_uid_dic[uid])
@@ -1112,12 +1115,14 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
+    log.debug('...households ' + checkmem())
     for nh, household in enumerate(homes_by_uids):
         for uid in household:
             popdict[uid]['contacts']['H'] = set(household)
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
 
+    log.debug('...students ' + checkmem())
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
         if non_teaching_staff_uids is None:
@@ -1158,6 +1163,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
 
+    log.debug('...workplaces ' + checkmem())
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
             popdict[uid]['contacts']['W'] = set(workplace)
@@ -1166,6 +1172,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             if workplaces_by_industry_codes is not None:
                 popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
+
+    log.debug('...done ' + checkmem())
     return popdict
 
 

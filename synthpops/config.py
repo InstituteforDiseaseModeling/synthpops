@@ -66,6 +66,25 @@ if not logger.hasHandlers():
         logger.addHandler(handler)
     logger.setLevel(default_log_level)  # Set the overall log level
 
+
+def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
+    ''' For use with logger, check current memory usage '''
+    import os
+    import psutil
+    process = psutil.Process(os.getpid())
+    mapping = {'b':1, 'kb':1e3, 'mb':1e6, 'gb':1e9}
+    try:
+        factor = mapping[unit.lower()]
+    except KeyError:
+        raise sc.KeyNotFoundError(f'Unit {unit} not found')
+    mem_use = process.memory_info().rss/factor - start
+    if to_string:
+        output = f'{mem_use:{fmt}} {unit.upper()}'
+    else:
+        output = mem_use
+    return output
+
+
 #%% Functions
 
 logger.debug(f'SynthPops location: {thisdir}')
