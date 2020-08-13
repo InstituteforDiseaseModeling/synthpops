@@ -12,15 +12,18 @@ import tempfile
 import sciris as sc
 import synthpops as sp
 import inspect
-import numpy as np
-from fpdf import FPDF
+try:
+    from fpdf import FPDF
+except Exception as E:
+    print(f'Note: could not import fpdf, report not available ({E})')
 from scipy.spatial import distance
 from examples import plot_age_mixing_matrices
+
 
 class TestRegression(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls) -> None:
+    def setUpClass(cls):
         cls.resultdir = tempfile.TemporaryDirectory().name
         cls.figDir = os.path.join(cls.resultdir, "figs")
         cls.configDir = os.path.join(cls.resultdir, "configs")
@@ -30,12 +33,12 @@ class TestRegression(unittest.TestCase):
         os.makedirs(cls.configDir, exist_ok=True)
 
     @classmethod
-    def tearDownClass(cls) -> None:
+    def tearDownClass(cls):
         shutil.rmtree(cls.resultdir, ignore_errors=True)
 
     def test_regression_make_population(self):
         #set params, make sure name is identical to param names
-        n = 10001
+        n = 10001  # Minimum working population size
         rand_seed = 1001
         max_contacts = None
         with_industry_code = False
@@ -145,3 +148,8 @@ class TestRegression(unittest.TestCase):
 
     def cast_uid_toINT(self, dict):
         return {int(key): val for key, val in dict.items()}
+
+
+# Run unit tests if called as a script
+if __name__ == '__main__':
+    unittest.main()
