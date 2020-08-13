@@ -82,7 +82,8 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     suffix = '.dat'
     import synthpops as sp
     datadir = sp.datadir
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', prefix + suffix)
+    # file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', prefix + suffix)
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + '_' + base + suffix)
     print(file_path)
     return file, file_path
 
@@ -215,11 +216,11 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     elif country_location is None:
         raise NotImplementedError("Mssing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'household size distributions', country_location + '_household_size_distr.dat')
+        return os.path.join(datadir,  country_location, 'household_size_distributions', country_location + '_household_size_distr.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'household size distributions', state_location + '_household_size_distr.dat')
+        return os.path.join(datadir,  country_location, state_location, 'household_size_distributions', state_location + '_household_size_distr.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'household size distributions', location + '_household_size_distr.dat')
+        return os.path.join(datadir,  country_location, state_location, 'household_size_distributions', location + '_household_size_distr.dat')
     """
     paths = cfg.FilePaths(location, state_location, country_location)
     prefix = '{location}_household_size_distr'
@@ -229,7 +230,7 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     elif location is not None and country_location != 'Senegal':
         prefix = "{location}_household_size_distr".format(location=location)
 
-    file = paths.get_demographic_file(location=location, filedata_type='household size distributions', prefix=prefix, suffix='.dat')
+    file = paths.get_demographic_file(location=location, filedata_type='household_size_distributions', prefix=prefix, suffix='.dat')
     return file
 
 
@@ -292,7 +293,7 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     prefix = '{location}_head_age_bracket'
     if country_location != 'Senegal':
         prefix = "head_age_brackets"
-    file = paths.get_demographic_file(location=None, filedata_type='household living arrangements', prefix=prefix,
+    file = paths.get_demographic_file(location=None, filedata_type='household_living_arrangements', prefix=prefix,
                                       suffix='.dat')
     return file
 

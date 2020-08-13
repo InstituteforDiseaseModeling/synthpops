@@ -343,7 +343,7 @@ class FilePaths():
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household living arrangements', 'household size distributions', 'schools', 'workplaces']
+        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements', 'household_size_distributions', 'schools', 'workplaces']
         if filedata_type is None:
             raise NotImplementedError(f"Missing filedata_type string.")
             return None
