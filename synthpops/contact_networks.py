@@ -8,7 +8,6 @@ from collections import Counter
 
 import sciris as sc
 import numpy as np
-import pandas as pd
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -20,7 +19,7 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
-from .config import datadir
+from .config import logger as log
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -34,6 +33,7 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     Returns:
         An array with the count of households of size s at index s-1.
     """
+    log.debug('generate_household_sizes()')
     max_size = max(hh_size_distr.keys())
     hh_sizes = np.random.multinomial(Nhomes, [hh_size_distr[s] for s in range(1, max_size+1)], size=1)[0]
     return hh_sizes
@@ -172,6 +172,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         An array of households for size ``size`` where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual.
     """
+    log.debug('generate_larger_households()')
     ya_coin = 0.15  # produces far too few young adults without this for Seattle, Washington. This is a placeholder value. Users will need to change to fit whatever population they are working with.
 
     homes = np.zeros((hh_sizes[size-1], size), dtype=int)
@@ -186,7 +187,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
-        age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64)  # Convert to an array for faster processing
+        # age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64)  # Convert to an array for faster processing
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
@@ -224,6 +225,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
         An array of all households where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
     """
+    log.debug('generate_all_households()')
     homes_dic = {}
     homes_dic[1] = generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
@@ -378,6 +380,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     Returns:
         Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.
     """
+    log.debug('send_students_to_school()')
     syn_schools = []
     syn_school_uids = []
     syn_school_types = []
@@ -582,6 +585,7 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
         A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
         workers with that age, and a dictionary mapping age to the count of potential workers left to assign to a workplace for that age.
     """
+    log.debug('get_uids_potential_workers()')
     potential_worker_uids = deepcopy(age_by_uid_dic)
     potential_worker_uids_by_age = {}
     potential_worker_ages_left_count = {}
@@ -731,6 +735,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
         dictionary with the count of workers left to assign for each age after teachers have been assigned.
     """
+    log.debug('assign_teachers_to_schools()')
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
 
     all_teachers = dict.fromkeys(np.arange(101), 0)
@@ -740,7 +745,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
-        school_uids = syn_school_uids[n]
+        # school_uids = syn_school_uids[n]
 
         size = len(school)
         nteachers = int(size / float(average_student_teacher_ratio))
@@ -778,6 +783,9 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
 
 def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, verbose=True):
+    ''' For non-teaching staff '''
+    log.debug('assign_additional_staff_to_schools()')
+
     if average_student_all_staff_ratio is None:
         average_student_all_staff_ratio = 0
 
@@ -851,6 +859,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         dictionary of potential workers left mapping id to age, dictionary mapping age to a list of potential workers left of that age, dictionary
         mapping age to the count of workers left to assign.
     """
+    log.debug('assign_rest_of_workers()')
     syn_workplaces = []
     syn_workplace_uids = []
     worker_age_keys = workers_by_age_to_assign_count.keys()
@@ -1021,10 +1030,10 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     f_age_uid.close()
 
 
-def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', 
-                                  school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
-                                  average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75, 
-                                  average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75, 
+def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
+                                  school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                  average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
+                                  average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
                                   verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
@@ -1087,6 +1096,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                          country_location=country_location,
                                          sheet_name=sheet_name,verbose=verbose,plot=plot)
     """
+    log.debug('generate_synthetic_population()')
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
@@ -1193,10 +1203,10 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # Assign teachers and update school lists
     # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_schools(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
-    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_schools(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, 
+    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_schools(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                      average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
 
-    gen_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_additional_staff_to_schools(gen_school_uids, gen_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, 
+    gen_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_additional_staff_to_schools(gen_school_uids, gen_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                           average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
 
     # Generate non-school workplace sizes needed to send everyone to work

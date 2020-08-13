@@ -12,8 +12,7 @@ from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import base as spb
 from . import school_modules as spsm
-from .config import datadir
-from copy import deepcopy
+from .config import datadir, logger as log
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
@@ -34,6 +33,7 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     Returns:
         A dictionary where keys are the uid of each person and the values are another dictionary containing values for other attributes of the person
     """
+    log.debug('make_popdict()')
 
     min_people = 100
 
@@ -47,12 +47,12 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         try:
             uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
         except:
-            uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings                                                                                                                                                                           
+            uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
     else:  # Not supplied, generate
         n = int(n)
         # default to using ints for ids from now on
-        uids = [i for i in range(n)] 
-        uid_mapping = {i: i for i in range(n)}                                                  
+        uids = [i for i in range(n)]
+        uid_mapping = {i: i for i in range(n)}
         # using strings for uids
         # uids = []
         # for i in range(n):
@@ -914,7 +914,7 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     if isinstance(school_mixing_type, str):
         school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
     elif isinstance(school_mixing_type, dict):
-        school_mixing_type_dic = deepcopy(school_mixing_type)
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
 
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
@@ -1088,7 +1088,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     if isinstance(school_mixing_type, str):
         school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
     elif isinstance(school_mixing_type, dict):
-        school_mixing_type_dic = deepcopy(school_mixing_type)
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
 
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
@@ -1218,7 +1218,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     if isinstance(school_mixing_type, str):
         school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
     elif isinstance(school_mixing_type, dict):
-        school_mixing_type_dic = deepcopy(school_mixing_type)
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
 
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
@@ -1458,7 +1458,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
     if isinstance(school_mixing_type, str):
         school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
     elif isinstance(school_mixing_type, dict):
-        school_mixing_type_dic = deepcopy(school_mixing_type)
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
 
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
@@ -1698,6 +1698,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         A dictionary of individuals with attributes, including their age and the ids of their contacts.
 
     '''
+    log.debug('make_contacts()')
     ### Defaults ###
     if location             is None: location = 'seattle_metro'
     if state_location       is None: state_location = 'Washington'
@@ -1811,6 +1812,7 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
     Returns:
         A dictionary of individuals with attributes, including their age and the ids of their close contacts.
     """
+    log.debug('trim_contacts()')
 
     trimmed_size_dic = sc.mergedicts({'W': 20}, trimmed_size_dic)
 

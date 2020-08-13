@@ -3,6 +3,7 @@ This module provides the layer for communicating with the agent-based model Cova
 """
 
 import sciris as sc
+from .config import logger as log
 import synthpops as sp
 
 # Put this here so it's accessible as sp.api.popsize_choices
@@ -51,6 +52,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
     '''
+    log.debug('make_population()')
 
     if rand_seed is not None:
         sp.set_seed(rand_seed)
@@ -107,12 +109,13 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     # Heavy lift 1: make the contacts and their connections
     if not generate:
+        log.debug('Not generating a new population')
         # must read in from file, will fail if the data has not yet been generated
         population = sp.make_contacts(location=location, state_location=state_location,
                                       country_location=country_location, options_args=options_args,
                                       network_distr_args=network_distr_args)
     else:
-        # make a new network on the fly
+        log.debug('Generating a new population...')
         if with_facilities and with_industry_code:
             errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
