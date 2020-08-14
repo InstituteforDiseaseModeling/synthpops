@@ -31,8 +31,12 @@ def get_age_brackets_from_df(ab_file_path):
         get_age_brackets_from_df(ab_file_path) returns a dictionary age_brackets, where age_brackets[0] is the age range for the first age bracket, age_brackets[1] is the age range for the second age bracket, etc.
 
     """
-    ab_df = pd.read_csv(ab_file_path, header=None)
+    # check if age bracket files exists, if not set to 20 for default_country
     age_brackets = {}
+    check_exists = os.path.exists(ab_file_path)
+    if check_exists is False:
+        age_brackets = [16, 20][1]
+    ab_df = pd.read_csv(ab_file_path, header=None)
     for index, row in enumerate(ab_df.iterrows()):
         age_min = row[1].values[0]
         age_max = row[1].values[1]
@@ -68,13 +72,15 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     """
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"gender_fraction_by_age_bracket_{cfg.nbrackets}"
-    prefix = "{location}_" + base
+    # prefix = "{location}_" + base
+    prefix = location + base
     # review after re-org of data
     if location is not None and country_location != 'Senegal':  # ---remove
         prefix = prefix.format(location=location)
     elif location is None and state_location == 'Washington':
         location = state_location
         prefix = "seattle_metro_" + base
+        cfg.nbrackets = [16, 20][1]
     elif location is None and country_location != 'Senegal':
         prefix = base
 
@@ -82,7 +88,6 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     suffix = '.dat'
     import synthpops as sp
     datadir = sp.datadir
-    # file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', prefix + suffix)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + '_' + base + suffix)
     print(file_path)
     return file, file_path
@@ -155,8 +160,10 @@ def get_age_bracket_distr_path(location=None, state_location=None, country_locat
         return os.path.join(datadir,  country_location, state_location, 'age_distributions', location + f'_age_bracket_distr_{cfg.nbrackets}.dat')
     """
     paths = cfg.FilePaths(location, state_location, country_location)
-    base = f"age_bracket_distr_{cfg.nbrackets}"
-    prefix = "{location}_" + base
+    base = f"_age_bracket_distr_{cfg.nbrackets}"
+    prefix = location + base
+    if country_location == 'Senegal':
+        cfg.nbrackets = 18
     if location is not None and country_location != 'Senegal':  # remove after restructure
         prefix = prefix.format(location=location)
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat',
@@ -355,7 +362,7 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
         return os.path.join(datadir,  country_location, state_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
     """
     paths = cfg.FilePaths(None, state_location, country_location)
-    prefix = "{location}_household_head_age_and_size_count"
+    prefix = state_location + "_household_head_age_and_size_count"
     if country_location != 'Senegal':      #-----remove
         prefix = "household_head_age_and_size_count"
     file = paths.get_demographic_file(location=None, filedata_type='household_living_arrangements', prefix=prefix,
@@ -448,9 +455,14 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
         return os.path.join(datadir,  country_location, state_location, f'census_age_brackets_{cfg.nbrackets}.dat')
     """
     paths = cfg.FilePaths(None, state_location, country_location)
+    if country_location == cfg.default_country:
+        #TODO: age_bracket 16 is required for long_term_care_facilities; handle differently?
+        cfg.nbrackets = [16, 20][0]
     prefix = f"census_age_brackets_{cfg.nbrackets}"
     file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat')
-    return file
+    file_name = prefix + '.dat'
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, file_name)
+    return file, file_path
 
 
 def get_census_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -473,7 +485,7 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
 
     """
     if file_path is None:
-        file_path = get_census_age_brackets_path(datadir, state_location, country_location)
+        file, file_path = get_census_age_brackets_path(datadir, state_location, country_location)
     try:
         age_brackets = get_age_brackets_from_df(file_path)
     except:

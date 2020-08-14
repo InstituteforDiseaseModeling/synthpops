@@ -83,9 +83,9 @@ if __name__ == '__main__':
     test_get_school_enrollment_rates()
     test_get_head_age_brackets_path()
     test_get_contact_matrix()
+    test_get_age_bracket_distr_path()
     # We currently only have files for USA for this data
     test_get_household_size_distr_path()
     test_get_household_head_age_by_size_path()
     test_get_head_age_by_size_path()
     test_get_gender_fraction_by_age_path()
-    test_get_age_bracket_distr_path()

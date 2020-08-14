@@ -23,7 +23,8 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
 
     age_bracket_distr = sp.read_age_bracket_distr(dropbox_path, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, location, state_location, country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(dropbox_path, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(dropbox_path, state_location, country_location)
+    print(age_brackets_filepath)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
@@ -72,7 +73,7 @@ def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='W
 
     age_bracket_distr = sp.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
     # ## Test selecting an age and sex for an individual ###
@@ -96,7 +97,7 @@ def test_multiple_ages(n_people=1e4, location='seattle_metro', state_location='W
 
     age_bracket_distr = sp.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
 
     ages, sexes = sp.get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_people)
@@ -147,7 +148,7 @@ def test_generate_all_households(location='seattle_metro', state_location='Washi
     hha_brackets = sp.get_head_age_brackets(datadir, state_location=state_location, country_location=country_location)
     hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, state_location=state_location, country_location=country_location)
 
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
@@ -181,7 +182,7 @@ def test_generate_larger_households(location='seattle_metro', state_location='Wa
     hha_brackets = sp.get_head_age_brackets(datadir, country_location=country_location)
     hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, country_location=country_location)
 
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
@@ -247,28 +248,12 @@ def test_send_students_to_school(n=10000, location='seattle_metro', state_locati
                                                                                         homes_by_uids,
                                                                                         use_default=False)
 
-    # assert uids_in_school is not None
-
-# def test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
-#                                  country_location='usa'):
-    # homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
-    #                                       household_size_1_included=False, use_default=True)
-    # homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes, id_len=16)
-
-#     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
-#                                                                                         state_location,
-#                                                                                         country_location,
-#                                                                                         age_by_uid_dic,
-#                                                                                         homes_by_uids,
-#                                                                                         use_default=False)
-# >>>>>>> origin/mf/update-saved-pop-fixes
-
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
                                                                         country_location)
     school_size_brackets = sp.get_school_size_brackets(datadir, location, state_location, country_location)
     school_sizes = sp.generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school)
 
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
@@ -314,7 +299,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     school_size_brackets = sp.get_school_size_brackets(datadir, location, state_location, country_location)
     school_sizes = sp.generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school)
 
-    age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
+    age_brackets_file, age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 

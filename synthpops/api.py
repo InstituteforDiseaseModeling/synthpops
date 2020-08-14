@@ -74,7 +74,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         country_location = cfg.default_country
         state_location = cfg.default_state
         location = cfg.default_location
-        sheet_name = cfg.sheet_name
+        sheet_name = cfg.default_sheet_name
 
     if state_location is None and country_location == 'Senegal':
         country_location = 'Senegal'

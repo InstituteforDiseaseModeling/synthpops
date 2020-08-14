@@ -11,7 +11,7 @@ import re
 import yaml
 
 __all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
-           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'sheet_name']
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -38,12 +38,12 @@ if datadir is None:
 
 # Number of census age brackets to use
 # added 18 to support Senegal
-nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partially supported
+nbrackets = [16, 18, 20][1] # Choose how many age bins to use -- 20 is only partially supported
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 default_country = None
 default_state = None
 default_location = None
-sheet_name = None
+default_sheet_name = "United States of America"
 
 #%% Functions
 def set_location_defaults(country=None):
@@ -51,7 +51,7 @@ def set_location_defaults(country=None):
     global default_country
     global default_state
     global default_location
-    global sheet_name
+    global default_sheet_name
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
