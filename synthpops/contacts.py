@@ -1407,6 +1407,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             non_teaching_staff = non_teaching_staff_uids[ns]
 
         this_school_type = None
+        this_school_mixing_type = None
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
