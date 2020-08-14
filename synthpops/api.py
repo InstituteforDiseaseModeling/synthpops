@@ -4,6 +4,7 @@ This module provides the layer for communicating with the agent-based model Cova
 
 import sciris as sc
 import synthpops as sp
+from . import config as cfg
 
 # Put this here so it's accessible as sp.api.popsize_choices
 popsize_choices = [5000,
@@ -15,7 +16,9 @@ popsize_choices = [5000,
                 ]
 
 
-def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False, use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None):
+def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
+                    use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None,
+                    country_location=cfg.default_country, state_location=cfg.default_state):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -27,6 +30,8 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         with_facilities (bool)         : If True, create long term care facilities
         use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
         average_LTCF_degree (int)      : default average degree in long term care facilities
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
@@ -60,10 +65,27 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
-    country_location = 'usa'
-    state_location = 'Washington'
-    location = 'seattle_metro'
-    sheet_name = 'United States of America'
+    # country_location = 'usa'
+    # state_location = 'Washington'
+    # location = 'seattle_metro'
+    # sheet_name = 'United States of America'
+
+    if country_location == cfg.default_country:
+        country_location = cfg.default_country
+        state_location = cfg.default_state
+        location = cfg.default_location
+        sheet_name = cfg.sheet_name
+
+    if state_location is None and country_location == 'Senegal':
+        country_location = 'Senegal'
+        state_location = None
+        location = None
+        sheet_name = None
+    elif state_location == 'Dakar' and country_location == 'Senegal':
+        country_location = 'Senegal'
+        state_location = 'Dakar'
+        location = 'Dakar'
+        sheet_name = None
 
     options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities, 'use_two_group_reduction': use_two_group_reduction, 'average_LTCF_degree': average_LTCF_degree}
     network_distr_args = {'Npop': int(n)}

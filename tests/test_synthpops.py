@@ -144,8 +144,8 @@ def test_generate_all_households(location='seattle_metro', state_location='Washi
     household_size_distr = sp.get_household_size_distr(datadir, location, state_location, country_location)
 
     hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(N, household_size_distr)
-    hha_brackets = sp.get_head_age_brackets(datadir, country_location=country_location)
-    hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, country_location=country_location)
+    hha_brackets = sp.get_head_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    hha_by_size_counts = sp.get_head_age_by_size_distr(datadir, state_location=state_location, country_location=country_location)
 
     age_brackets_filepath = sp.get_census_age_brackets_path(datadir, state_location, country_location)
     age_brackets = sp.get_age_brackets_from_df(age_brackets_filepath)

@@ -903,8 +903,8 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
     # totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
-    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=True)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=True)
 
     homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = assign_uids_by_homes(homes)

@@ -10,8 +10,8 @@ import sciris as sc
 import re
 import yaml
 
-
-__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir', 'set_location_defaults','default_country', 'default_state', 'default_location']
+__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'sheet_name']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -43,6 +43,7 @@ matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is
 default_country = None
 default_state = None
 default_location = None
+sheet_name = None
 
 #%% Functions
 def set_location_defaults(country=None):
@@ -50,6 +51,7 @@ def set_location_defaults(country=None):
     global default_country
     global default_state
     global default_location
+    global sheet_name
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
@@ -384,6 +386,7 @@ class FilePaths():
             target_location = target[0]
             if target_location == "seattle_metro":
                 target_location = "Washington"
+                target_dir = os.path.abspath(os.path.join(target[1], '..'))
             elif target_location == location:
                 target_location = target[0]
             filedata_dir = target_dir
