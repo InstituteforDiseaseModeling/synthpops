@@ -1,6 +1,6 @@
-"""
+'''
 Generate contacts between people in the population, with many options possible
-"""
+'''
 
 import os
 import numpy as np
@@ -16,7 +16,7 @@ from .config import datadir
 from copy import deepcopy
 
 
-def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
+def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
     Create a dictionary of n people with age, sex and loc keys
 
@@ -35,28 +35,19 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
         A dictionary where keys are the uid of each person and the values are another dictionary containing values for other attributes of the person
     """
 
-    min_people = 100
+    min_people = 1000
 
-    if location is None: location = 'seattle_metro'
+    if location             is None: location = 'seattle_metro'
     if state_location is None: state_location = 'Washington'
 
     # A list of UIDs was supplied as the first argument
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
-        # uid_mapping = {uids[i]: i for i in range(len(uids))}
-        try:
-            uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
-        except:
-            uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings                                                                                                                                                                           
     else:  # Not supplied, generate
         n = int(n)
-        # default to using ints for ids from now on
-        uids = [i for i in range(n)] 
-        uid_mapping = {i: i for i in range(n)}                                                  
-        # using strings for uids
-        # uids = []
-        # for i in range(n):
-        #    uids.append(sc.uuid(length=id_len))
+        uids = []
+        for i in range(n):
+            uids.append(sc.uuid(length=id_len))
 
     # Check that there are enough people
     if n < min_people:
@@ -66,14 +57,11 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     if ages is None and sexes is None:
         if use_demography:
             if country_location != 'usa':
-                gen_ages = spsamp.get_age_n(datadir, n=n, location=location, state_location=state_location,
-                                            country_location=country_location)
+                gen_ages = spsamp.get_age_n(datadir, n=n, location=location, state_location=state_location, country_location=country_location)
                 gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
             else:
                 if location is None: location, state_location = 'seattle_metro', 'Washington'
-                gen_ages, gen_sexes = spsamp.get_usa_age_sex_n(datadir, location=location,
-                                                               state_location=state_location,
-                                                               country_location=country_location, n_people=n)
+                gen_ages, gen_sexes = spsamp.get_usa_age_sex_n(datadir, location=location, state_location=state_location, country_location=country_location, n_people=n)
         else:
             # if location is None:
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
@@ -82,18 +70,17 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     elif ages is not None and sexes is None:
         if country_location == 'usa':
             if location is None: location, state_location = 'seattle_metro', 'Washington'
-            gen_ages, gen_sexes = spsamp.get_usa_sex_n(datadir, ages, location=location, state_location=state_location,
-                                                       country_location=country_location)
+            gen_ages, gen_sexes = spsamp.get_usa_sex_n(datadir, ages, location=location, state_location=state_location, country_location=country_location)
         else:
             gen_ages = ages
             gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
+            # raise NotImplementedError('Currently, only locations in the US are supported.')
 
     # you only have sexes...
     elif ages is None and sexes is not None:
         if country_location == 'usa':
             if location is None: location, state_location = 'seattle_metro', 'Washington'
-            gen_ages, gen_sexes = spsamp.get_usa_age_n(datadir, sexes, location=location, state_location=state_location,
-                                                       country_location=country_location)
+            gen_ages, gen_sexes = spsamp.get_usa_age_n(datadir, sexes, location=location, state_location=state_location, country_location=country_location)
         else:
             # gen_sexes = sexes
             # gen_ages = sp.get_age_n(datadir,n=n,location=location,state_location=state_location,country_location=country_location)
@@ -108,9 +95,8 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # you have both ages and sexes so we'll just populate that for you...
     popdict = {}
     for i, uid in enumerate(uids):
-        u = uid_mapping[uid]
         popdict[uid] = {}
-        popdict[uid]['age'] = int(ages[i])
+        popdict[uid]['age'] = ages[i]
         popdict[uid]['sex'] = sexes[i]
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {'M': set()}
@@ -137,31 +123,25 @@ def make_contacts_generic(popdict, network_distr_args):
     uids = popdict.keys()
     uids = [uid for uid in uids]
 
-    # if isinstance(uids[0], str):
-    #     uid_mapping = {uid: u for u, uid in enumerate(uids)}
-
-    # elif isinstance(uids[0], int):
-    #     uid_mapping = {i: i for i in range(len(uids))}
-
     N = len(popdict)
 
     if network_type == 'poisson_degree':
-        p = float(n_contacts) / N
+        p = float(n_contacts)/N
 
         G = nx.erdos_renyi_graph(N, p, directed=directed)
 
     A = [a for a in G.adjacency()]
 
     for n, uid in enumerate(uids):
+        # source_uid = uids[n]
         targets = [t for t in A[n][1].keys()]
-        target_uids = [uids[target] for target in targets]  # if using uids which may be strings or ints
+        target_uids = [uids[target] for target in targets]
         popdict[uid]['contacts']['M'] = set(target_uids)
 
     return popdict
 
 
-def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location,
-                                            sheet_name, network_distr_args):
+def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, network_distr_args):
     """
     Create contact network according to overall age-mixing contact matrices. Does not capture clustering or microstructure,
     therefore exact households, schools, or workplaces are not created. However, this does separate agents according to their
@@ -187,14 +167,12 @@ def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, s
     """
 
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
-                                                  country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic,
-                                                      num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -205,27 +183,22 @@ def make_contacts_without_social_layers_152(popdict, n_contacts_dic, location, s
         if network_type == 'poisson_degree':
             for i in popdict:
                 nc = spsamp.pt(n_contacts)
-                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets,
-                                                                        age_by_brackets_dic, age_mixing_matrix_dic[k])
-                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(
-                    spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
+                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
     else:
         if network_type == 'poisson_degree':
-            n_contacts = n_contacts / 2
+            n_contacts = n_contacts/2
             for i in popdict:
                 nc = spsamp.pt(n_contacts)
-                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets,
-                                                                        age_by_brackets_dic, age_mixing_matrix_dic[k])
-                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(
-                    spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
+                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                 for c in popdict[i]['contacts'][k]:
                     popdict[c]['contacts'][k].add(i)
 
     return popdict
 
 
-def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location,
-                                         sheet_name, activity_args, network_distr_args):
+def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, activity_args, network_distr_args):
     """
     Create contact network according to overall age-mixing contact matrices. Does not capture clustering or microstructure,
     therefore exact households, schools, or workplaces are not created. However, this does separate agents according to their
@@ -256,14 +229,12 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     """
 
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
-                                                  country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     num_agebrackets = len(age_brackets)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
-    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic,
-                                                      num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     directed = network_distr_args['directed']
     network_type = network_distr_args['network_type']
@@ -273,12 +244,10 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
     non_student_n_dic = sc.dcp(n_contacts_dic)
 
     # this might not be needed because students will choose their teachers, but if directed then this makes teachers point to students as well
-    n_students = np.sum([len(uids_by_age_dic[a]) for a in
-                         range(activity_args['student_age_min'], activity_args['student_age_max'] + 1)])
-    n_workers = np.sum(
-        [len(uids_by_age_dic[a]) for a in range(activity_args['worker_age_min'], activity_args['worker_age_max'] + 1)])
-    n_teachers = n_students / activity_args['student_teacher_ratio']
-    teachers_school_weight = n_teachers / n_workers
+    n_students = np.sum([len(uids_by_age_dic[a]) for a in range(activity_args['student_age_min'], activity_args['student_age_max']+1)])
+    n_workers = np.sum([len(uids_by_age_dic[a]) for a in range(activity_args['worker_age_min'], activity_args['worker_age_max']+1)])
+    n_teachers = n_students/activity_args['student_teacher_ratio']
+    teachers_school_weight = n_teachers/n_workers
 
     student_n_dic['W'] = 0
     non_student_n_dic['S'] = teachers_school_weight  # make some teachers
@@ -302,56 +271,36 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['student_age_min'] and age < activity_args['student_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['college_age_min'] and age < activity_args['college_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['worker_age_min'] and age < activity_args['worker_age_max']:
                 for k in ['H', 'S', 'W', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(non_student_n_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['worker_age_max']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
     else:
         for uid in popdict:
@@ -359,73 +308,52 @@ def make_contacts_with_social_layers_152(popdict, n_contacts_dic, location, stat
             if age < activity_args['student_age_min']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['student_age_min'] and age < activity_args['student_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['college_age_min'] and age < activity_args['college_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['worker_age_min'] and age < activity_args['worker_age_max']:
                 for k in ['H', 'W', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(non_student_n_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(non_student_n_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['worker_age_max']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
     return popdict
 
 
-def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location,
-                                                sheet_name, network_distr_args):
+def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, network_distr_args):
     """
     Create contact network according to overall age-mixing contact matrices for the US. Does not capture clustering or microstructure, therefore
     exact households, schools, or workplaces are not created. However, this does separate agents according to their age and gives them contacts
@@ -455,14 +383,12 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     # age_bracket_distr = spdata.read_age_bracket_distr(datadir, location=location, state_location=state_location, country_location=country_location)
     # gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location=location, state_location=state_location, country_location=country_location)
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
-                                                  country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
-    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic,
-                                                      num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
+    age_mixing_matrix_dic['M'] = spb.combine_matrices(age_mixing_matrix_dic, n_contacts_dic, num_agebrackets)  # may need to normalize matrices before applying this method to K. Prem et al matrices because of the difference in what the raw matrices represent
 
     n_contacts = network_distr_args['average_degree']
     directed = network_distr_args['directed']
@@ -474,28 +400,23 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
         if network_type == 'poisson_degree':
             for i in popdict:
                 nc = spsamp.pt(n_contacts)
-                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets,
-                                                                        age_by_brackets_dic, age_mixing_matrix_dic[k])
-                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(
-                    spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
+                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
     else:
         if network_type == 'poisson_degree':
-            n_contacts = n_contacts / 2
+            n_contacts = n_contacts/2
             for i in popdict:
                 nc = spsamp.pt(n_contacts)
-                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets,
-                                                                        age_by_brackets_dic, age_mixing_matrix_dic[k])
-                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(
-                    spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
+                contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, popdict[i]['age'], age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                popdict[i]['contacts'][k] = popdict[i]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                 for c in popdict[i]['contacts'][k]:
                     popdict[c]['contacts'][k].add(i)
 
     return popdict
 
 
-def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location,
-                                             sheet_name, activity_args, network_distr_args):
+def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, state_location, country_location, sheet_name, activity_args, network_distr_args):
     """
     Create contact network according to overall age-mixing contact matrices for the US.
     Does not capture clustering or microstructure, therefore exact households, schools, or workplaces are not created.
@@ -524,8 +445,7 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
 
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
-                                                  country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
@@ -537,12 +457,10 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     non_student_n_dic = sc.dcp(n_contacts_dic)
 
     # this might not be needed because students will choose their teachers, but if directed then this makes teachers point to students as well
-    n_students = np.sum([len(uids_by_age_dic[a]) for a in
-                         range(activity_args['student_age_min'], activity_args['student_age_max'] + 1)])
-    n_workers = np.sum(
-        [len(uids_by_age_dic[a]) for a in range(activity_args['worker_age_min'], activity_args['worker_age_max'] + 1)])
-    n_teachers = n_students / activity_args['student_teacher_ratio']
-    teachers_school_weight = n_teachers / n_workers
+    n_students = np.sum([len(uids_by_age_dic[a]) for a in range(activity_args['student_age_min'], activity_args['student_age_max']+1)])
+    n_workers = np.sum([len(uids_by_age_dic[a]) for a in range(activity_args['worker_age_min'], activity_args['worker_age_max']+1)])
+    n_teachers = n_students/activity_args['student_teacher_ratio']
+    teachers_school_weight = n_teachers/n_workers
 
     student_n_dic['W'] = 0
     non_student_n_dic['S'] = teachers_school_weight  # make some teachers
@@ -566,57 +484,37 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['student_age_min'] and age < activity_args['student_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['college_age_min'] and age < activity_args['college_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
                         # people at school and work? how??? college students going to school might actually look like their work environments anyways so for now this is just going to have schools and no work
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['worker_age_min'] and age < activity_args['worker_age_max']:
                 for k in ['H', 'S', 'W', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(non_student_n_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
             elif age >= activity_args['worker_age_max']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
                         nc = spsamp.pt(n_contacts_dic[k])
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
 
     else:
         for uid in popdict:
@@ -624,65 +522,45 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
             if age < activity_args['student_age_min']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['student_age_min'] and age < activity_args['student_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['college_age_min'] and age < activity_args['college_age_max']:
                 for k in ['H', 'S', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['worker_age_min'] and age < activity_args['worker_age_max']:
                 for k in ['H', 'W', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(non_student_n_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(non_student_n_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
             elif age >= activity_args['worker_age_max']:
                 for k in ['H', 'C']:
                     if network_type == 'poisson_degree':
-                        nc = spsamp.pt(n_contacts_dic[k] / 2)
-                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets,
-                                                                                age_by_brackets_dic,
-                                                                                age_mixing_matrix_dic[k])
-                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(
-                            spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets,
-                                                            age_by_brackets_dic))
+                        nc = spsamp.pt(n_contacts_dic[k]/2)
+                        contact_ages = spsamp.sample_n_contact_ages_with_matrix(nc, age, age_brackets, age_by_brackets_dic, age_mixing_matrix_dic[k])
+                        popdict[uid]['contacts'][k] = popdict[uid]['contacts'][k].union(spsamp.get_n_contact_ids_by_age(uids_by_age_dic, contact_ages, age_brackets, age_by_brackets_dic))
                         for c in popdict[uid]['contacts'][k]:
                             popdict[c]['contacts'][k].add(uid)
 
@@ -728,15 +606,12 @@ def save_synthpop(datadir, contacts, location):
     sc.saveobj(filename=filename, obj=contacts)
 
 
-def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None,
-                                             force_cross_edges=True):
+def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):
     """
     Create contacts between members of group 1 and group 2, fixing the average degree, and the
     probability of an edge between any two groups controlled by p_matrix if provided.
     Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
     This means not everyone in group 2 will have a contact with group 1.
-
-    The members of group 1 and group 2 should be distinct and non-overlapping.
 
     Args:
         group_1 (list)            : list of ids for group 1
@@ -766,7 +641,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     r2 = [int(i) for i in group_2]
 
     n1 = list(np.arange(len(r1)).astype(int))
-    n2 = list(np.arange(len(r1), len(r1) + len(r2)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
@@ -786,7 +661,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
             # if the person's degree is too high, cut out some contacts
             if len(group_1_neighbors) > average_degree:
-                ncut = len(group_1_neighbors) - average_degree  # rough number to cut
+                ncut = len(group_1_neighbors) - average_degree # rough number to cut
                 # ncut = spsamp.pt(ncut) # sample from poisson that number
                 # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
                 for k in range(ncut):
@@ -796,7 +671,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     else:
         share_k_matrix = np.ones((2, 2))
-        share_k_matrix *= average_degree / np.sum(sizes)
+        share_k_matrix *= average_degree/np.sum(sizes)
 
         if p_matrix is None:
             p_matrix = share_k_matrix.copy()
@@ -818,6 +693,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
                 # need to add a contact in group 2
                 if len(group_2_neighbors) == 0:
+
                     random_group_2_j = np.random.choice(n2)
                     G.add_edge(i, random_group_2_j)
 
@@ -938,9 +814,9 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
-        popdict[uid]['sc_type'] = None
         for k in ['H', 'S', 'W', 'C']:
             popdict[uid]['contacts'][k] = set()
 
@@ -986,6 +862,8 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             non_teaching_staff = []
 
         this_school_type = None
+        this_school_mixing_type = None
+        # this_school_mixing_type = 'random'
 
         try:
             students = [int(i) for i in r1]
@@ -1012,16 +890,19 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     fs.close()
     ft.close()
@@ -1103,9 +984,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
         popdict[uid]['sc_teacher'] = None
-        popdict[uid]['sc_type'] = None
-        popdict[uid]['sc_type'] = None
         popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
 
@@ -1128,6 +1009,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             non_teaching_staff = non_teaching_staff_uids[ns]
 
         this_school_type = None
+        this_school_mixing_type = None
 
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
@@ -1147,16 +1029,19 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
@@ -1204,13 +1089,12 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
-                             state_location, 'contact_networks_facilities')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks_facilities')
 
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
 
-    grade_age_mapping = {i: i + 5 for i in range(13)}
-    age_grade_mapping = {i + 5: i for i in range(13)}
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
     age_grade_mapping[3] = 0
     age_grade_mapping[4] = 0
 
@@ -1228,17 +1112,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
     teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
-    facilities_staff_by_uid_path = os.path.join(file_path,
-                                                location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
-
-    if with_non_teaching_staff:
-        try:
-            non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(
-                n) + '_synthetic_non_teaching_staff_with_uids.dat')
-        except:
-            errormsg = f'Non teaching staff do not exist and so will not be created.'
-            print(errormsg)
-            with_non_teaching_staff = False
+    facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
     if with_non_teaching_staff:
         try:
@@ -1267,6 +1141,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1356,6 +1231,7 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             non_teaching_staff = []
 
         this_school_type = None
+        this_school_mixing_type = None
 
         try:
             students = [int(i) for i in r1]
@@ -1382,16 +1258,19 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     schools_by_uids.close()
     teachers_by_uids.close()
@@ -1414,10 +1293,10 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None,
-                                                              use_two_group_reduction=False, average_LTCF_degree=20,
-                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
-                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None, 
+                                                              use_two_group_reduction=False, average_LTCF_degree=20, 
+                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
+                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3, 
                                                               average_student_all_staff_ratio=15, average_additional_staff_degree=20,
                                                               school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
     """
@@ -1478,6 +1357,7 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         popdict[uid]['sc_teacher'] = None
         popdict[uid]['sc_staff'] = None
         popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
         popdict[uid]['wpid'] = None
         popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
@@ -1550,36 +1430,25 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in teachers:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_teacher'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
         for uid in non_teaching_staff:
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
     for nw, workplace in enumerate(workplaces_by_uids):
         for uid in workplace:
             popdict[uid]['contacts']['W'] = set(workplace)
             popdict[uid]['contacts']['W'].remove(uid)
             popdict[uid]['wpid'] = nw
-    if verbose:
-        print('n_staff', np.sum(n_non_teaching_staff))
-        print('n_teachers', np.sum(n_teaching_staff))
-        n_staff_again = 0
-        n_teachers_again = 0
-        for uid in popdict:
-            person = popdict[uid]
-            if person['sc_type'] in ['es', 'ms', 'hs']:
-                if person['sc_staff'] == 1:
-                    n_staff_again += 1
-                elif person['sc_teacher'] == 1:
-                    n_teachers_again += 1
-        print('n_staff_again', n_staff_again)
-        print('n_teachers_again', n_teachers_again)
 
     if verbose:
         print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))
@@ -1647,15 +1516,12 @@ def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=N
     if G_dic is None:
         G_dic = make_graphs(popdict, layers)
     for layer in G_dic:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
-                                 state_location, 'contact_networks')
-        file_path = os.path.join(file_path,
-                                 location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
+        file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
         nx.write_edgelist(G_dic[layer], file_path, data=False)
 
 
-def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_location=None, country_location=None,
-                  sheet_name=None, options_args=None, activity_args=None, network_distr_args=None):
+def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_location=None, country_location=None, sheet_name=None, options_args=None, activity_args=None, network_distr_args=None):
     '''
     Generates a list of contacts for everyone in the population. popdict is a
     dictionary with N keys (one for each person), with subkeys for age, sex, location,
@@ -1706,8 +1572,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree',
-                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1,
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 
+                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 
                                   'average_student_all_staff_ratio': 15, 'average_additional_staff_degree': 20,
                                   'average_LTCF_degree': 20, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
     default_network_distr_args['school_type_by_age'] = spsm.get_default_school_types_by_age_single()
@@ -1736,9 +1602,9 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types']
-    if options_args is None:
+    if options_args is None: 
         options_args = dict.fromkeys(options_keys, False)
-    # if options_args.get('average_LTCF_degree') is None:
+    # if options_args.get('average_LTCF_degree') is None: 
         # options_args['average_LTCF_degree'] = 20
 
     # fill in the other keys as False!
@@ -1799,6 +1665,7 @@ def choose_contacts(a, size):
 
 
 def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=False):
+
     """
     Trim down contacts in school or work environments from everyone.
 
@@ -1830,15 +1697,15 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
             for n, uid in enumerate(contacts):
                 for k in keys:
                     setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
-                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
-                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k] / 2))
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
                         contacts[uid]['contacts'][k] = set(close_contacts)
         else:
             for n, uid in enumerate(contacts):
                 for k in keys:
                     setting_contacts = list(contacts[uid]['contacts'][k])
-                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
-                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k] / 2))
+                    if len(setting_contacts) > trimmed_size_dic[k]/2:
+                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
                         contacts[uid]['contacts'][k] = set(close_contacts)
 
         for n, uid in enumerate(contacts):
@@ -1870,17 +1737,15 @@ def show_layers(popdict, show_ages=False, show_n=20):
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print('person', uid, 'age', popdict[uid]['age'])
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
-                print('layer', k, 'contact ages', sorted(contact_ages))
-            print()
+                print(k, sorted(contact_ages))
 
     else:
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print('person', uid, 'age', popdict[uid]['age'])
+            print(uid, popdict[uid]['age'])
             for k in layers:
-                print('layer', k, 'contact ids', popdict[uid]['contacts'][k])
-            print()
+                print(k, popdict[uid]['contacts'][k])

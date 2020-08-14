@@ -335,7 +335,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     return workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, workplace_sizes
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_assign_rest_of_workers(state_location='Washington', country_location='usa'):
     workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, \
     workplace_sizes = test_generate_workplace_sizes()
@@ -458,6 +458,7 @@ if __name__ == '__main__':
     test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
     # test_get_uids_potential_workers()
+    # test_assign_rest_of_workers()
     test_generate_workplace_sizes()
     test_generate_school_sizes()
 

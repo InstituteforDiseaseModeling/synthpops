@@ -131,7 +131,11 @@ schools = {'es': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
            'uv': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0}
            }
 
-print('counting schools')
+check_schools = True
+check_schools = False
+
+if check_schools:
+    print('counting schools')
 
 n_school_edges = 0
 for i in population:
