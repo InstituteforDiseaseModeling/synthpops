@@ -9,11 +9,13 @@ To change the level of log messages displayed, use e.g.
 #%% Housekeeping
 
 import os
+import sys
+import psutil
 import sciris as sc
 import logging
-import sys
 
-__all__ = ['logger', 'datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
+
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -69,8 +71,6 @@ if not logger.hasHandlers():
 
 def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     ''' For use with logger, check current memory usage '''
-    import os
-    import psutil
     process = psutil.Process(os.getpid())
     mapping = {'b':1, 'kb':1e3, 'mb':1e6, 'gb':1e9}
     try:
