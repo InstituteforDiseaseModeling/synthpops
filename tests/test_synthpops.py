@@ -454,14 +454,22 @@ if __name__ == '__main__':
     n = 1000
     location = 'seattle_metro'  # for census distributions
     state_location = 'Washington'  # for state wide age mixing patterns
+    country_location = 'usa'
     # location = 'portland_metro'
     # state_location = 'Oregon'
-    country_location = 'usa'
+    # location = 'Dakar'
+    # state_location = 'Dakar'
+    # country_location = 'Senegal'
     folder_name = 'contact_networks'
 
+    # We currently only have files for USA for this data
     test_all(location, state_location, country_location)
     test_n_single_ages(1e4, location, state_location, country_location)
     test_multiple_ages(1e4, location, state_location, country_location)
+    test_get_uids_in_school(location, state_location, country_location)
+    test_send_students_to_school(n=10000, location=location, state_location=state_location,
+                                 country_location=country_location)
+    # We currently have files for both Senegal and USA for this data
     test_resample_age()
     test_generate_household_sizes()
     test_generate_household_sizes_from_fixed_pop_size()
@@ -469,13 +477,11 @@ if __name__ == '__main__':
     test_get_totalpopsizes_from_household_sizes()
     test_assign_uids_by_homes()
     test_get_school_enrollment_rates_path()
-    test_get_uids_in_school(location, state_location, country_location)
-    test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
-                                 country_location='usa')
     test_get_uids_potential_workers()
     test_generate_workplace_sizes()
     test_generate_school_sizes()
 
+    # For US data only
     ages, sexes = sp.get_usa_age_sex_n(datadir, location, state_location, country_location, 1e2)
     print(ages, sexes)
 
