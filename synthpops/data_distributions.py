@@ -903,7 +903,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     # create size distribution from enrollment counts
     if counts_available:
         try:
-            df = fget_school_sizes_d(datadir, location, state_location, country_location)
+            df = get_school_sizes_df(datadir, location, state_location, country_location)
         except:
             if use_default:
                 # Note requires country, even with use defaults
