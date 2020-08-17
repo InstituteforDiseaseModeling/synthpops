@@ -22,6 +22,7 @@ def test_get_gender_fraction_by_age_path_country_variable_only():
     """
     Test getting the file path with only country_location variable
     """
+    # Test is working for not none, but if file does not exist none is returned
     dat_file = sp.get_gender_fraction_by_age_path(datadir, country_location=country_location)
     assert dat_file is not None
 
@@ -30,6 +31,7 @@ def test_get_gender_fraction_by_age_path_country_state_variables():
     """
     Test getting the file path with both state_location and country_location variables
     """
+    # Test is working for not none, but if file does not exist none is returned
     dat_file = sp.get_gender_fraction_by_age_path(datadir, state_location=state_location,
                                                   country_location=country_location)
     assert dat_file is not None

@@ -1228,6 +1228,7 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
         raise NotImplementedError("Part must be 1 or 2. Please try again.")
     postal_code = get_state_postal_code(state_location, country_location)
     target = os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
+
     return target
 
 
@@ -1375,11 +1376,11 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, locat
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
 
 
 def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
