@@ -379,8 +379,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
     hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
-    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
 
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
@@ -453,9 +453,10 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # Assign facilities care staff from 20 to 59
 
-    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    datadir = datadir + ''
+    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
     KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
-    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
 
     facilities_staff = []
     facilities_staff_uids = []

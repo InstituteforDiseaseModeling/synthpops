@@ -19,12 +19,15 @@ Senegal:
   - Dakar
   - Dakar
   - Senegal
+  - null
 defaults:
   - seattle_metro
   - Washington
   - usa
+  - United States of America
 usa:
   - seattle_metro
   - Washington
   - usa
+  - United States of America
 

@@ -10,8 +10,8 @@ import sciris as sc
 import re
 import yaml
 
-
-__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir', 'set_location_defaults','default_country', 'default_state', 'default_location']
+__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -38,11 +38,12 @@ if datadir is None:
 
 # Number of census age brackets to use
 # added 18 to support Senegal
-nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partially supported
+nbrackets = [16, 18, 20][1] # Choose how many age bins to use -- 20 is only partially supported
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 default_country = None
 default_state = None
 default_location = None
+default_sheet_name = "United States of America"
 
 #%% Functions
 def set_location_defaults(country=None):
@@ -50,6 +51,7 @@ def set_location_defaults(country=None):
     global default_country
     global default_state
     global default_location
+    global default_sheet_name
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
@@ -339,11 +341,11 @@ class FilePaths():
         location_info.append(self.alt_country)
         return location_info
 
-    def get_demographic_file(self,filedata_type=None, prefix=None, suffix = None, filter_list=None):
+    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household living arrangements', 'household size distributions', 'schools', 'workplaces']
+        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements', 'household living arrangements','household_size_distributions', 'schools', 'workplaces']
         if filedata_type is None:
             raise NotImplementedError(f"Missing filedata_type string.")
             return None
@@ -352,20 +354,22 @@ class FilePaths():
             raise NotImplementedError(f"Invalid filedata_type string {filedata_type}. filedata_type must be one of the following {filedata_types}")
             return None
 
-        file = self._search_dirs(filedata_type, prefix, suffix,filter_list)
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
         return file
 
-    def get_data_file(self, prefix=None, suffix = None, filter_list=None):
+    def get_data_file(self, location=None, prefix=None, suffix=None, filter_list=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
-
-        file = self._search_dirs(None, prefix, suffix, filter_list)
+        filedata_type = None
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
         return file
 
-    def _search_dirs(self,filedata_type, prefix, sufix, filter_list):
+    def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list):
         """
         Search the directories in self.basedirs for a file matches the conditions
+        Location is the state_location, province, or city level if applicable
+            (e.g. for usa, Washington state).
         Prefix is the start of the file name. Examples of prefix patterns are:
             '{location}_age_bracket_distr' or 'head_age_brackets'. If {location}
             appears in the prefix pattern, the country, province or location information
@@ -380,6 +384,11 @@ class FilePaths():
             files = None
             target_dir = target[1]
             target_location = target[0]
+            if target_location == "seattle_metro":
+                target_location = "Washington"
+                target_dir = os.path.abspath(os.path.join(target[1], '..'))
+            elif target_location == location:
+                target_location = target[0]
             filedata_dir = target_dir
             if filedata_type is not None:
                 filedata_dir = os.path.join(target_dir, filedata_type)
@@ -387,15 +396,13 @@ class FilePaths():
             # check if there is a directory
             if os.path.isdir(filedata_dir):
                 if len(os.listdir(filedata_dir)) > 0:
-                    files = self._list_files(target_location,filedata_dir,prefix, sufix, filter_list)
+                    files = self._list_files(target_location, filedata_dir, prefix, suffix, filter_list)
 
                     if len(files) > 0:
                         results = os.path.join(filedata_dir, files[0])
                         break
                 else:
                     print(f'no data in directory {filedata_dir}, skipping')
-            else:
-                print(f'{filedata_dir} does not exist at this level, skipping')
         return results
 
     def _list_files(self,level, target_dir,  prefix, suffix, filter_list):
