@@ -9,6 +9,7 @@ state_location = 'Washington'
 country_location = 'usa'
 
 
+
 def test_get_gender_fraction_by_age_path_all_variables():
     """
     Test getting the file path with all input variables

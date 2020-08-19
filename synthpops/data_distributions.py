@@ -298,14 +298,12 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     else:
         return os.path.join(datadir,  country_location, state_location, 'household_living_arrangements', 'head_age_brackets.dat')
     """
-    print(f"========== get_head_age_brackets_path country={country_location}, state={state_location}")
     paths = cfg.FilePaths(None, state_location, country_location)
     prefix = '{location}_head_age_brackets'
     filedata_type = 'household_living_arrangements'
     if country_location != 'Senegal':
         prefix = "head_age_brackets"
-        filedata_type = 'household living arrangements'
-    print(f"========== prefix = {prefix} ==========")
+
     file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
                                       suffix='.dat')
     return file
@@ -329,9 +327,7 @@ def get_head_age_brackets(datadir, state_location=None, country_location=None, f
 
     """
     if file_path is None:
-        print(f"========== get_head_age_brackets file_path is None ==========")
         file_path = get_head_age_brackets_path(datadir, state_location, country_location)
-    print(f"========== get_head_age_brackets file_path = {file_path}")
     try:
         age_brackets = get_age_brackets_from_df(file_path)
     except:
@@ -372,7 +368,6 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
     filedata_type='household_living_arrangements'
     if country_location != 'Senegal':      #-----remove
         prefix = "household_head_age_and_size_count"
-        filedata_type='household living arrangements'
     file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
                                       suffix='.dat')
     return file

@@ -714,7 +714,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         dictionary of potential workers left mapping id to age, dictionary mapping age to a list of potential workers left of that age, dictionary
         mapping age to the count of workers left to assign.
     """
-    print("======================================================in assign_rest_of_workers")
+
     syn_workplaces = []
     syn_workplace_uids = []
     worker_age_keys = workers_by_age_to_assign_count.keys()
@@ -765,7 +765,6 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
         # not enough people left over to try to match age mixing patterns in the last workplace so grab everyone who will get placed in order
         if len(potential_worker_uids) <= size or workers_left_count <= size:
-           # print('===================================================== in else')
             for ai in workers_by_age_to_assign_count:
                 for i in range(workers_by_age_to_assign_count[ai]):  # do not change this during the loop but afterwards, and if 0 then no one will be placed
                     uid = potential_worker_uids_by_age[ai][0]
@@ -776,16 +775,14 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 workers_by_age_to_assign_count[ai] = 0  # set to zero now that everyone will be placed in this last workplace
             workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
         else:
-            #print('===================================================== in else')
             for i in range(1, size):
 
                 bichoice = np.random.multinomial(1, b_prob)
                 bi = np.where(bichoice)[0][0]
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                #print(f"=================================================np.sum(b_prob={str(np.sum(b_prob))}")
+
                 if np.sum(b_prob):
-                    #print("==============================================b_prob starting loop")
                     while np.sum(workers_left_in_bracket) == 0:
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]

@@ -131,7 +131,7 @@ def validate(verbose=True):
                      |           |            |            + contact_networks
                      |           |            |            + employment
                      |           |            |            + enrollment
-                     |           |            |            + household living arrangements
+                     |           |            |            + household_living_arrangements
                      |           |            |            + household size distribution
                      |           |            |            + schools
                      |           |            |            + workplaces
@@ -140,7 +140,7 @@ def validate(verbose=True):
                      |           |            |            + contact_networks
                      |           |            |            + employment
                      |           |            |            + enrollment
-                     |           |            |            + household living arrangements
+                     |           |            |            + household_living_arrangements
                      |           |            |            + household size distribution
                      |           |            |            + schools
                      |           |            |            + workplaces
@@ -148,16 +148,16 @@ def validate(verbose=True):
                      |           |            + contact_networks
                      |           |            + employment
                      |           |            + enrollment
-                     |           |            + household living arrangements
-                     |           |            + household size distribution
+                     |           |            + household_living_arrangements
+                     |           |            + household_size_distribution
                      |           |            + schools
                      |           |            + workplaces
                      |           + age_distribution
                      |           + contact_networks
                      |           + employment
                      |           + enrollment
-                     |           + household living arrangements
-                     |           + household size distribution
+                     |           + household_living _arrangements
+                     |           + household_size_distribution
                      |           + schools
                      |           + workplaces
                      + defaults +
@@ -165,8 +165,8 @@ def validate(verbose=True):
                      |          + contact_networks
                      |          + employment
                      |          + enrollment
-                     |          + household living arrangements
-                     |          + household size distribution
+                     |          + household_living_arrangements
+                     |          + household_size_distribution
                      |          + schools
                      |          + workplaces
     Data data is not always availability at the highest resolution (e.g. location level).
@@ -243,12 +243,12 @@ class FilePaths():
         self.root_dir = base_dir if root_dir is None else root_dir
 
         self.alt_root_dir = alt_datadir if alt_rootdir is None else alt_rootdir
-        self.country = None
-        self.province = None
-        self.location = None
-        self.alt_country = None
-        self.alt_province = None
-        self.alt_location = None
+        self.country = country
+        self.province = province
+        self.location = location
+        self.alt_country = alt_country
+        self.alt_province = alt_province
+        self.alt_location = alt_location
 
         if self.alt_root_dir is None:
             self.alt_root_dir = self.root_dir
@@ -345,7 +345,7 @@ class FilePaths():
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements', 'household living arrangements','household_size_distributions', 'schools', 'workplaces']
+        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements','household_size_distributions', 'schools', 'workplaces']
         if filedata_type is None:
             raise NotImplementedError(f"Missing filedata_type string.")
             return None
@@ -434,7 +434,7 @@ class FilePaths():
         # get only the files in the list
         # assume the filter is a list of numbers, and file name ins in .dat
         def extract_number(f):
-            s = re.findall("\d+",f)
+            s = re.findall(r"\d+",f)
             #return (int(s[0]) if s else -1,f)
             return (int(s[0]) if s else -1)
 
