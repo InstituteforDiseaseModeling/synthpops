@@ -184,9 +184,8 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
                                                            country_location='usa', Npop=1000):
     # First generate microstructure with facilities
     sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
-                                               Npop, school_enrollment_counts_available=True,
-                                               write=True, plot=False, return_popdict=True)
-
+                                               Npop, school_enrollment_counts_available=False,
+                                               write=False, plot=False, return_popdict=True)
 
     # sp.generate_microstructure_with_facilities(datadir, location, state_location, 
     #                                         country_location, n, sheet_name='United States of America',
