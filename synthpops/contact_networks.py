@@ -300,20 +300,13 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the dictionary age_by_uid_dic.'
-            raise ValueError(errormsg)
-        # age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
         age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
     if homes_by_uids is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the list of lists homes_by_uids'
-            raise ValueError(errormsg)
         try:
-            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, setting='households', folder_name=folder_name, n=n)
+            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, folder_name, 'households', n, with_ages=False)
         except:
-            raise ValueError('No households to bring in. Create people through those first.')
+            raise NotImplementedError('No households to bring in. Create people through those first.')
 
     # # go through all people at random and make a list of uids going to school as students
     # for uid in age_by_uid_dic:
@@ -826,8 +819,9 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
     if min_n_non_teaching_staff <= 0:
-        errormsg = f'At least one school expects no additional non teaching staff. Either check the student to teacher ratio and the student to all staff ratio if you do not expect this to be the case, or some of the generated schools may be too small. '
+        errormsg = f'At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio and the average_student_all_staff_ratio if you do not expect this to be the case, or some of the generated schools may have too few staff members.'
         print(errormsg)
+        # print(n_students_list)
 
         if verbose:
             print(n_students_list)
@@ -836,6 +830,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
             print(n_non_teaching_staff_list)
         # n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
         n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
+        # n_non_teaching_staff_list = n_teachers_list.copy()
 
     non_teaching_staff_uids = []
 
@@ -999,7 +994,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         school_enrollment_counts_available (bool) : If True, a list of school sizes is available and a count of the sizes can be constructed.
         with_school_types (bool)                  : If True, create explicit school types
         average_class_size (float)                : The average classroom size
-        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        inter_grade_mixing (float)                : The average fraction of mixing between grades in the same school for clustered school mixing types.
         average_student_teacher_ratio (float)     : The average number of students per teacher.
         average_teacher_teacher_degree (float)    : The average number of contacts per teacher with other teachers.
         teacher_age_min (int)                     : The minimum age for teachers.
@@ -1067,7 +1062,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
     syn_age_count = Counter(syn_ages)
-    syn_age_distr_unordered = spb.norm_dic(syn_age_count) # Ensure it's ordered
+    syn_age_distr_unordered = spb.norm_dic(syn_age_count)  # Ensure it's ordered
     syn_age_keys = list(syn_age_distr_unordered.keys())
     sort_inds = np.argsort(syn_age_keys)
     syn_age_distr = {}

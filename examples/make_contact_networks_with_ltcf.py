@@ -93,7 +93,6 @@ population = sp.make_contacts_with_facilities_from_microstructure(datadir,
                                                                   average_student_all_staff_ratio=average_student_all_staff_ratio,
                                                                   average_additional_staff_degree=average_additional_staff_degree)
 
-
 # # generate on the fly
 sc.tic()
 population = sp.make_population(n=n,

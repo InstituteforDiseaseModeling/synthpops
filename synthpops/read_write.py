@@ -125,9 +125,6 @@ def read_setting_groups(datadir, location, state_location, country_location, fol
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_uids.dat')
     if with_ages:
         file_path = file_path.replace('_uids', '_ages')
-        # file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_ages.dat')
-    # else:
-        # file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_uids.dat')
     groups = []
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):

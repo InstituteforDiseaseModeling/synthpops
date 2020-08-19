@@ -534,7 +534,4 @@ class HouseholdsTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    test = HouseholdsTest()
-    test.setUp()
-    # test.test_seattle_age_distro_honored()  # this test doesn't seem to exist
-    test.test_seattle_household_size_distro_honored()
+    unittest.main()
