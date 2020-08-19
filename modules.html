@@ -160,25 +160,60 @@
 <p>This module provides the layer for communicating with the agent-based model Covasim.</p>
 <dl class="py function">
 <dt id="synthpops.api.make_population">
-<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">rand_seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.</p>
+<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_max</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">with_non_teaching_staff</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">rand_seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
+:param n: The number of people to create.
+:type n: int
+:param max_contacts: A dictionary for maximum number of contacts per layer: keys must be “W” (work).
+:type max_contacts: dict
+:param generate: If True, generate a new population. Else, look for cached population and if those are not available, generate a new population.
+:type generate: bool
+:param with_industry_code: If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
+:type with_industry_code: bool
+:param with_facilities: If True, create long term care facilities, currently only available for locations in the US.
+:type with_facilities: bool
+:param use_two_group_reduction: If True, create long term care facilities with reduced contacts across both groups.
+:type use_two_group_reduction: bool
+:param average_LTCF_degree: default average degree in long term care facilities.
+:type average_LTCF_degree: float
+:param ltcf_staff_age_min: Long term care facility staff minimum age.
+:type ltcf_staff_age_min: int
+:param ltcf_staff_age_max: Long term care facility staff maximum age.
+:type ltcf_staff_age_max: int
+:param with_school_types: If True, creates explicit school types.
+:type with_school_types: bool
+:param school_mixing_type: The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise.
+:type school_mixing_type: str or dict
+:param average_class_size: The average classroom size.
+:type average_class_size: float
+:param inter_grade_mixing: The average fraction of mixing between grades in the same school for clustered school mixing types.
+:type inter_grade_mixing: float
+:param average_student_teacher_ratio: The average number of students per teacher.
+:type average_student_teacher_ratio: float
+:param average_teacher_teacher_degree: The average number of contacts per teacher with other teachers.
+:type average_teacher_teacher_degree: float
+:param teacher_age_min: The minimum age for teachers.
+:type teacher_age_min: int
+:param teacher_age_max: The maximum age for teachers.
+:type teacher_age_max: int
+:param with_non_teaching_staff: If True, includes non teaching staff.
+:type with_non_teaching_staff: bool
+:param average_student_all_staff_ratio: The average number of students per staff members at school (including both teachers and non teachers).
+:type average_student_all_staff_ratio: float
+:param average_additional_staff_degree: The average number of contacts per additional non teaching staff in schools.
+:type average_additional_staff_degree: float
+:param staff_age_min: The minimum age for non teaching staff.
+:type staff_age_min: int
+:param staff_age_max: The maximum age for non teaching staff.
+:type staff_age_max: int
+:param rand_seed: Start point random sequence is generated from.
+:type rand_seed: int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em>) – The number of people to create.</p></li>
-<li><p><strong>max_contacts</strong> (<em>dict</em>) – A dictionary for maximum number of contacts per layer: keys must be “S” (school) and/or “W” (work).</p></li>
-<li><p><strong>generate</strong> (<em>bool</em>) – If True, first look for cached population files and if those are not available, generate new population</p></li>
-<li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US</p></li>
-<li><p><strong>with_facilities</strong> (<em>bool</em>) – If True, create long term care facilities</p></li>
-<li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
-<li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of the full population with ages and connections.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary of the full population with ages and connections.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>network (dict)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>network (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -572,6 +607,7 @@ The first age in the row is the age of the reference individual. Households are 
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>homes</strong> (<em>array</em>) – The generated synthetic ages of household members.</p></li>
 <li><p><strong>id_len</strong> (<em>int</em>) – The length of the UID.</p></li>
+<li><p><strong>use_int</strong> (<em>bool</em>) – If True, use ints for the uids of individuals; otherwise use strings of length ‘id_len’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -594,6 +630,7 @@ The first age in the row is the age of the reference individual. Households are 
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for all individuals in the population.</p></li>
 <li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>folder_name</strong> (<em>string</em>) – The name of the folder the location is in, e.g. ‘contact_networks’</p></li>
 <li><p><strong>use_default</strong> (<em>bool</em>) – If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.</p></li>
 </ul>
 </dd>
@@ -624,7 +661,8 @@ The first age in the row is the age of the reference individual. Households are 
 <dl class="py function">
 <dt id="synthpops.contact_networks.send_students_to_school">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">send_students_to_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">school_sizes</span></em>, <em class="sig-param"><span class="n">uids_in_school</span></em>, <em class="sig-param"><span class="n">uids_in_school_by_age</span></em>, <em class="sig-param"><span class="n">ages_in_school_count</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.send_students_to_school" title="Permalink to this definition">¶</a></dt>
-<dd><p>A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.</p>
+<dd><p>A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
+This method models schools using matrices and so it does not create explicit school types.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -639,7 +677,35 @@ The first age in the row is the age of the reference individual. Households are 
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.</p>
+<dd class="field-even"><p>Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
+in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it’s school type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks.send_students_to_school_with_school_types">
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">send_students_to_school_with_school_types</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">school_size_distr_by_type</span></em>, <em class="sig-param"><span class="n">school_size_brackets</span></em>, <em class="sig-param"><span class="n">uids_in_school</span></em>, <em class="sig-param"><span class="n">uids_in_school_by_age</span></em>, <em class="sig-param"><span class="n">ages_in_school_count</span></em>, <em class="sig-param"><span class="n">school_types_by_age</span></em>, <em class="sig-param"><span class="n">school_type_age_ranges</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.send_students_to_school_with_school_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method to send students to school together. This method uses the dictionaries school_types_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
+a sampled reference student. Then the school type is used to determine the age range of the school. After that, the size of the school is then sampled conditionally on the school type and then the rest of the students
+are chosen from the lists of students available in the dictionary uids_in_school_by_age. This method is not perfect and requires a strict definition of school type by age. For now, it is not able to model mixed school
+types such as schools with Kindergarten through Grade 8 (K-8), or Kindergarten through Grade 12. These mixed types of schools may be common in some settings and this feature may be added later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>school_size_distr_by_type</strong> (<em>dict</em>) – A dictionary of school size distributions binned by size groups or brackets for each school type.</p></li>
+<li><p><strong>school_size_brackets</strong> (<em>dict</em>) – A dictionary of school size brackets.</p></li>
+<li><p><strong>uids_in_school</strong> (<em>dict</em>) – A dictionary of students in school mapping ID to age.</p></li>
+<li><p><strong>uids_in_school_by_age</strong> (<em>dict</em>) – A dictionary of students in school mapping age to the list of IDs with that age.</p></li>
+<li><p><strong>ages_in_school_count</strong> (<em>dict</em>) – A dictionary mapping age to the number of students with that age.</p></li>
+<li><p><strong>school_types_by_age</strong> (<em>dict</em>) – A dictionary of the school type for each age.</p></li>
+<li><p><strong>school_type_age_ranges</strong> (<em>dict</em>) – A dictionary of the age range for each school type.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements about the generated schools as they’re being generated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
+in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it’s school type.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -685,7 +751,7 @@ workers with that age, and a dictionary mapping age to the count of potential wo
 <dt id="synthpops.contact_networks.generate_usa_workplace_sizes">
 <code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_usa_workplace_sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">workplace_sizes_by_bracket</span></em>, <em class="sig-param"><span class="n">workplace_size_brackets</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_usa_workplace_sizes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.
-Specific to data from the US.</p>
+Specific to data from the US. Deprecated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -719,8 +785,8 @@ Specific to data from the US.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="synthpops.contact_networks.assign_teachers_to_work">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_teachers_to_work</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_schools</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">employment_rates</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em>, <em class="sig-param"><span class="n">potential_worker_uids</span></em>, <em class="sig-param"><span class="n">potential_worker_uids_by_age</span></em>, <em class="sig-param"><span class="n">potential_worker_ages_left_count</span></em>, <em class="sig-param"><span class="n">student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_teachers_to_work" title="Permalink to this definition">¶</a></dt>
+<dt id="synthpops.contact_networks.assign_teachers_to_schools">
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_teachers_to_schools</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_schools</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">employment_rates</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em>, <em class="sig-param"><span class="n">potential_worker_uids</span></em>, <em class="sig-param"><span class="n">potential_worker_uids_by_age</span></em>, <em class="sig-param"><span class="n">potential_worker_ages_left_count</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_teachers_to_schools" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign teachers to each school according to the average student-teacher ratio.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -732,14 +798,42 @@ Specific to data from the US.</p>
 <li><p><strong>potential_worker_uids</strong> (<em>dict</em>) – dictionary of potential workers mapping their id to their age</p></li>
 <li><p><strong>potential_worker_uids_by_age</strong> (<em>dict</em>) – dictionary mapping age to the list of worker ids with that age</p></li>
 <li><p><strong>potential_worker_ages_left_count</strong> (<em>dict</em>) – dictionary of the count of potential workers left that can be assigned by age</p></li>
-<li><p><strong>student_teacher_ratio</strong> (<em>int</em>) – average student teacher ratio</p></li>
-<li><p><strong>teacher_age_min</strong> (<em>int</em>) – minimum age for teachers - should be location specific</p></li>
-<li><p><strong>teacher_age_max</strong> (<em>int</em>) – maximum age for teachers - should be location specific</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>teacher_age_min</strong> (<em>int</em>) – minimum age for teachers - should be location specific.</p></li>
+<li><p><strong>teacher_age_max</strong> (<em>int</em>) – maximum age for teachers - should be location specific.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements about the generated schools as teachers are being added to each school.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List of lists of schools with the ages of individuals in each, lists of lists of schools with the ids of individuals in each,
+dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
+dictionary with the count of workers left to assign for each age after teachers have been assigned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks.assign_additional_staff_to_schools">
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">assign_additional_staff_to_schools</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_teacher_uids</span></em>, <em class="sig-param"><span class="n">workers_by_age_to_assign_count</span></em>, <em class="sig-param"><span class="n">potential_worker_uids</span></em>, <em class="sig-param"><span class="n">potential_worker_uids_by_age</span></em>, <em class="sig-param"><span class="n">potential_worker_ages_left_count</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.assign_additional_staff_to_schools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign additional staff to each school according to the average student to all staff ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of lists where each sublist is a school with the ids of the students within</p></li>
+<li><p><strong>syn_teacher_uids</strong> (<em>list</em>) – list of lists where each sublist is a school with the ids of the teachers within</p></li>
+<li><p><strong>workers_by_age_to_assign_count</strong> (<em>dict</em>) – dictionary of the count of workers left to assign by age</p></li>
+<li><p><strong>potential_worker_uids</strong> (<em>dict</em>) – dictionary of potential workers mapping their id to their age</p></li>
+<li><p><strong>potential_worker_uids_by_age</strong> (<em>dict</em>) – dictionary mapping age to the list of worker ids with that age</p></li>
+<li><p><strong>potential_worker_ages_left_count</strong> (<em>dict</em>) – dictionary of the count of potential workers left that can be assigned by age</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>staff_age_min</strong> (<em>int</em>) – The minimum age for non teaching staff.</p></li>
+<li><p><strong>staff_age_max</strong> (<em>int</em>) – The maximum age for non teaching staff.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements about the generated schools as teachers are being added to each school.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of lists of schools with the ids of non teaching staff for each school,
 dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
 dictionary with the count of workers left to assign for each age after teachers have been assigned.</p>
 </dd>
@@ -774,7 +868,7 @@ mapping age to the count of workers left to assign.</p>
 
 <dl class="py function">
 <dt id="synthpops.contact_networks.generate_synthetic_population">
-<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_synthetic_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_synthetic_population" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contact_networks.</code><code class="sig-name descname">generate_synthetic_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks.generate_synthetic_population" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
 and then writes this population to appropriate files.</p>
 <dl class="field-list simple">
@@ -787,6 +881,18 @@ and then writes this population to appropriate files.</p>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
 <li><p><strong>sheet_name</strong> (<em>string</em>) – The name of the sheet in the Excel file with contact patterns.</p></li>
 <li><p><strong>school_enrollment_counts_available</strong> (<em>bool</em>) – If True, a list of school sizes is available and a count of the sizes can be constructed.</p></li>
+<li><p><strong>with_school_types</strong> (<em>bool</em>) – If True, create explicit school types</p></li>
+<li><p><strong>average_class_size</strong> (<em>float</em>) – The average classroom size</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – The average fraction of mixing between grades in the same school for clustered school mixing types.</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>float</em>) – The average number of contacts per teacher with other teachers.</p></li>
+<li><p><strong>teacher_age_min</strong> (<em>int</em>) – The minimum age for teachers.</p></li>
+<li><p><strong>teacher_age_max</strong> (<em>int</em>) – The maximum age for teachers.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>average_additional_staff_degree</strong> (<em>float</em>) – The average number of contacts per additional non teaching staff in schools.</p></li>
+<li><p><strong>staff_age_min</strong> (<em>int</em>) – The minimum age for non teaching staff.</p></li>
+<li><p><strong>staff_age_max</strong> (<em>int</em>) – The maximum age for non teaching staff.</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>string</em>) – The mixing type for schools.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated.</p></li>
 <li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.</p></li>
 <li><p><strong>write</strong> (<em>bool</em>) – If True, write population to file.</p></li>
@@ -1032,10 +1138,10 @@ household members are contacts of each other, and everyone in the same school is
 </div>
 <div class="section" id="module-synthpops.contacts">
 <span id="synthpops-contacts-module"></span><h2>synthpops.contacts module<a class="headerlink" href="#module-synthpops.contacts" title="Permalink to this headline">¶</a></h2>
-<p>Generate contacts between people in the population, with many options possible</p>
+<p>Generate contacts between people in the population, with many options possible.</p>
 <dl class="py function">
 <dt id="synthpops.contacts.make_popdict">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_popdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ages</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sexes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_demography</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">16</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_popdict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_popdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ages</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sexes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_demography</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">id_len</span><span class="o">=</span><span class="default_value">6</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_popdict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a dictionary of n people with age, sex and loc keys</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1236,7 +1342,6 @@ that was saved to data object</p>
 probability of an edge between any two groups controlled by p_matrix if provided.
 Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
 This means not everyone in group 2 will have a contact with group 1.</p>
-<p>The members of group 1 and group 2 should be distinct and non-overlapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1259,19 +1364,29 @@ for edges between any two groups is not supported. Future versions may add suppo
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_from_microstructure">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_non_teaching_staff</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_type_by_age</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
 will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
 codes are only available to assign to populations within the US.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
-<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
-<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
-<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
-<li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population</p></li>
+<li><p><strong>with_non_teaching_staff</strong> (<em>bool</em>) – If True, includes non teaching staff.</p></li>
+<li><p><strong>with_school_types</strong> (<em>bool</em>) – If True, creates explicit school types.</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em><em> or </em><em>dict</em>) – The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise. ‘random’ means random graphs for each school, ‘age_clustered’ means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), ‘age_and_grade_clustered’ means students cohorted into classes with their own teachers.</p></li>
+<li><p><strong>average_class_size</strong> (<em>float</em>) – The average classroom size.</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – The average fraction of mixing between grades in the same school for clustered school mixing types.</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>float</em>) – The average number of contacts per teacher with other teachers.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>average_additional_staff_degree</strong> (<em>float</em>) – The average number of contacts per additional non teaching staff in schools.</p></li>
 <li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign workplace industry code read in from cached file</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print debugging statements.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1290,18 +1405,30 @@ smaller work groups are available via sp.trim_contacts() - see below).</p>
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_from_microstructure_objects">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">non_teaching_staff_uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_type_by_age</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
 <dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
 Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
 school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for all individuals in the population</p></li>
-<li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
-<li><p><strong>schools_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a school and the ids of the students and teachers within it</p></li>
-<li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping id to age for all individuals in the population</p></li>
+<li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist is a household and the IDs of the household members.</p></li>
+<li><p><strong>schools_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a school and the ids of the students within it</p></li>
+<li><p><strong>teachers_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a school and the ids of the teachers within it</p></li>
+<li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
+<li><p><strong>non_teaching_staff_uids</strong> (<em>list</em>) – None or a list of lists, where each sublist represents a school and the ids of the non teaching staff within it</p></li>
+<li><p><strong>with_school_types</strong> (<em>bool</em>) – If True, creates explicit school types.</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em><em> or </em><em>dict</em>) – The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise. ‘random’ means random graphs for each school, ‘age_clustered’ means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), ‘age_and_grade_clustered’ means students cohorted into classes with their own teachers.</p></li>
+<li><p><strong>average_class_size</strong> (<em>float</em>) – The average classroom size.</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – The average fraction of mixing between grades in the same school for clustered school mixing types.</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>float</em>) – The average number of contacts per teacher with other teachers.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>average_additional_staff_degree</strong> (<em>float</em>) – The average number of contacts per additional non teaching staff in schools.</p></li>
+<li><p><strong>school_type_by_age</strong> (<em>dict</em>) – A dictionary of probabilities for the school type likely for each age.</p></li>
 <li><p><strong>workplaces_by_industry_codes</strong> (<em>np.ndarray</em><em> or </em><em>None</em>) – array with workplace industry code for each workplace</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print debugging statements.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1320,7 +1447,7 @@ smaller work groups are available via sp.trim_contacts() - see below).</p>
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_with_facilities_from_microstructure">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">with_non_teaching_staff</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_type_by_age</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
 will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
 codes are only available to assign to populations within the US.</p>
@@ -1332,9 +1459,19 @@ codes are only available to assign to populations within the US.</p>
 <li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
 <li><p><strong>n</strong> (<em>int</em>) – number of people in the population</p></li>
-<li><p><strong>with_industry_code</strong> (<em>bool</em>) – If True, assign workplace industry code read in from cached file</p></li>
 <li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
 <li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
+<li><p><strong>with_non_teaching_staff</strong> (<em>bool</em>) – If True, includes non teaching staff.</p></li>
+<li><p><strong>with_school_types</strong> (<em>bool</em>) – If True, creates explicit school types.</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em><em> or </em><em>dict</em>) – The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise. ‘random’ means random graphs for each school, ‘age_clustered’ means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), ‘age_and_grade_clustered’ means students cohorted into classes with their own teachers.</p></li>
+<li><p><strong>average_class_size</strong> (<em>float</em>) – The average classroom size.</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – The average fraction of mixing between grades in the same school for clustered school mixing types.</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>float</em>) – The average number of contacts per teacher with other teachers.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>average_additional_staff_degree</strong> (<em>float</em>) – The average number of contacts per additional non teaching staff in schools.</p></li>
+<li><p><strong>school_type_by_age</strong> (<em>dict</em>) – A dictionary of probabilities for the school type likely for each age.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print debugging statements.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1354,7 +1491,7 @@ smaller work groups are available via sp.trim_contacts() or sp.create_reduced_co
 
 <dl class="py function">
 <dt id="synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects">
-<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_staff_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.contacts.</code><code class="sig-name descname">make_contacts_with_facilities_from_microstructure_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">homes_by_uids</span></em>, <em class="sig-param"><span class="n">schools_by_uids</span></em>, <em class="sig-param"><span class="n">teachers_by_uids</span></em>, <em class="sig-param"><span class="n">workplaces_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_by_uids</span></em>, <em class="sig-param"><span class="n">facilities_staff_uids</span></em>, <em class="sig-param"><span class="n">non_teaching_staff_uids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_type_by_age</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">workplaces_by_industry_codes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contacts.make_contacts_with_facilities_from_microstructure_objects" title="Permalink to this definition">¶</a></dt>
 <dd><p>From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
 Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
 school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.</p>
@@ -1364,12 +1501,24 @@ school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if av
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dictionary mapping id to age for all individuals in the population</p></li>
 <li><p><strong>homes_by_uids</strong> (<em>list</em>) – A list of lists where each sublist is a household and the IDs of the household members.</p></li>
 <li><p><strong>schools_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a school and the ids of the students and teachers within it</p></li>
+<li><p><strong>teachers_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a school and the ids of the teachers within it</p></li>
 <li><p><strong>workplaces_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a workplace and the ids of the workers within it</p></li>
 <li><p><strong>facilities_by_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it</p></li>
 <li><p><strong>facilities_staff_uids</strong> (<em>list</em>) – A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it</p></li>
-<li><p><strong>workplaces_by_industry_codes</strong> (<em>np.ndarray</em><em> or </em><em>None</em>) – array with workplace industry code for each workplace</p></li>
+<li><p><strong>non_teaching_staff_uids</strong> (<em>list</em>) – None or a list of lists, where each sublist represents a school and the ids of the non teaching staff within it</p></li>
 <li><p><strong>use_two_group_reduction</strong> (<em>bool</em>) – If True, create long term care facilities with reduced contacts across both groups</p></li>
 <li><p><strong>average_LTCF_degree</strong> (<em>int</em>) – default average degree in long term care facilities</p></li>
+<li><p><strong>with_school_types</strong> (<em>bool</em>) – If True, creates explicit school types.</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em><em> or </em><em>dict</em>) – The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise. ‘random’ means random graphs for each school, ‘age_clustered’ means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), ‘age_and_grade_clustered’ means students cohorted into classes with their own teachers.</p></li>
+<li><p><strong>average_class_size</strong> (<em>float</em>) – The average classroom size.</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – The average fraction of mixing between grades in the same school for clustered school mixing types.</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>float</em>) – The average number of students per teacher.</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>float</em>) – The average number of contacts per teacher with other teachers.</p></li>
+<li><p><strong>average_student_all_staff_ratio</strong> (<em>float</em>) – The average number of students per staff members at school (including both teachers and non teachers).</p></li>
+<li><p><strong>average_additional_staff_degree</strong> (<em>float</em>) – The average number of contacts per additional non teaching staff in schools.</p></li>
+<li><p><strong>school_type_by_age</strong> (<em>dict</em>) – A dictionary of probabilities for the school type likely for each age.</p></li>
+<li><p><strong>workplaces_by_industry_codes</strong> (<em>np.ndarray</em><em> or </em><em>None</em>) – array with workplace industry code for each workplace</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print debugging statements.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1437,16 +1586,16 @@ if person A is a contact of person B, then person B is also a contact of person 
 <p>Example output (input is the same, minus the “contacts” field):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">popdict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;8acf08f0&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mf">57.3</span><span class="p">,</span>
+        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">57</span><span class="p">,</span>
         <span class="s1">&#39;sex&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">47.6062</span><span class="p">,</span> <span class="mf">122.3321</span><span class="p">),</span>
-        <span class="s1">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;43da76b5&#39;</span><span class="p">]</span>
+        <span class="s1">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">34</span><span class="p">}</span>
         <span class="p">},</span>
     <span class="s1">&#39;43da76b5&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mf">55.3</span><span class="p">,</span>
+        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
         <span class="s1">&#39;sex&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">47.2473</span><span class="p">,</span> <span class="mf">122.6482</span><span class="p">),</span>
-        <span class="s1">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;8acf08f0&#39;</span><span class="p">,</span> <span class="s1">&#39;2d2ad46f&#39;</span><span class="p">]</span>
+        <span class="s1">&#39;contacts&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">49</span><span class="p">}</span>
         <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
@@ -2529,7 +2678,7 @@ The first age in the row is the age of the reference individual. Households are 
 
 <dl class="py function">
 <dt id="synthpops.long_term_care_facilities.generate_microstructure_with_facilities">
-<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_max</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2628,6 +2777,7 @@ age brackets.</p>
 <li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
 <li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>folder_name</strong> (<em>string</em>) – The name of the folder the location is in, e.g. ‘contact_networks’</p></li>
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
 </ul>
 </dd>
@@ -2660,7 +2810,7 @@ age brackets.</p>
 
 <dl class="py function">
 <dt id="synthpops.read_write.write_groups_by_age_and_uid">
-<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">write_groups_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">groups_by_uids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.write_groups_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">write_groups_by_age_and_uid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">groups_by_uids</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.write_groups_by_age_and_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write groups to file with both ID and their ages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2669,9 +2819,10 @@ age brackets.</p>
 <li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
 <li><p><strong>state_location</strong> (<em>string</em>) – The name of the state of the location is in.</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>folder_name</strong> (<em>string</em>) – The name of the folder the location is in, e.g. ‘contact_networks’</p></li>
 <li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – A dictionary mapping ID to age for each individual in the population.</p></li>
-<li><p><strong>groups_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
 <li><p><strong>group_type</strong> (<em>string</em>) – The name of the group type.</p></li>
+<li><p><strong>groups_by_uids</strong> (<em>list</em>) – The list of lists, where each sublist represents a household and the IDs of the household members.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2682,7 +2833,7 @@ age brackets.</p>
 
 <dl class="py function">
 <dt id="synthpops.read_write.read_setting_groups">
-<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">read_setting_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_ages</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.read_setting_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">synthpops.read_write.</code><code class="sig-name descname">read_setting_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">folder_name</span></em>, <em class="sig-param"><span class="n">group_type</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">with_ages</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.read_write.read_setting_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read in groups of people interacting in different social settings from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2691,8 +2842,9 @@ age brackets.</p>
 <li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
 <li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
 <li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>folder_name</strong> (<em>string</em>) – The name of the folder the location is in, e.g. ‘contact_networks’</p></li>
+<li><p><strong>group_type</strong> (<em>string</em>) – The name of the group type.</p></li>
 <li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
-<li><p><strong>setting</strong> (<em>string</em>) – The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.</p></li>
 <li><p><strong>with_ages</strong> (<em>bool</em>) – If True, read in the ages of each individual in the group; otherwise, read in their IDs.</p></li>
 </ul>
 </dd>
@@ -3154,6 +3306,317 @@ first age bracket show up at the front of both lists and people from the last ag
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Bool representing the results of a binomial test; 1 for death, 0 for staying alive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-synthpops.school_modules">
+<span id="synthpops-school-modules-module"></span><h2>synthpops.school_modules module<a class="headerlink" href="#module-synthpops.school_modules" title="Permalink to this headline">¶</a></h2>
+<p>This module generates school contacts by class and grade in flexible ways.
+Contacts can be clustered into classes and also mixed across the grade and
+across the school.</p>
+<p>H. Guclu et. al (2016) shows that mixing across grades is low for public
+schools in elementary and middle schools. Mixing across grades is however
+higher in high schools.</p>
+<p>Functions in this module are flexible to allow users to specify the
+inter-grade mixing, and to choose whether contacts are clustered within a
+grade. Clustering contacts across different grades is not supported because
+there is no data to suggest that this happens commonly.</p>
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_edgelist">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_edgelist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">edgelist</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_edgelist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from edges in an edgelist. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>edgelist</strong> (<em>list</em>) – list of edges</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_group">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_group</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">group</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from fully connected group. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>group</strong> (<em>list</em>) – list of people in group</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_groups">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from fully connected groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>groups</strong> (<em>list</em>) – list of lists of people in groups</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_random_contacts_from_graph">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_random_contacts_from_graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">G</span></em>, <em class="sig-param"><span class="n">expected_average_degree</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_random_contacts_from_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add additional edges at random to achieve the expected or desired average degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>G</strong> (<em>networkx Graph</em>) – networkx Graph object</p></li>
+<li><p><strong>expected_average_degree</strong> (<em>int</em>) – expected or desired average degree</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated networkx Graph object with additional edges added at random.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_contacts_for_additional_school_members">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_contacts_for_additional_school_members</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">school_uids</span></em>, <em class="sig-param"><span class="n">additional_school_member_uids</span></em>, <em class="sig-param"><span class="n">average_additional_school_members_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_contacts_for_additional_school_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>school_uids</strong> (<em>list</em>) – list of uids of individuals already in the school</p></li>
+<li><p><strong>additional_school_member_uids</strong> (<em>list</em>) – list of uids of the additional school member who do not have contacts yet or for whom more contacts are needed</p></li>
+<li><p><strong>average_additional_school_members_degree</strong> (<em>float</em>) – average degree for the additional school members</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges for the additional school members in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_contacts_across_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_contacts_across_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_school_uids</span></em>, <em class="sig-param"><span class="n">average_class_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_contacts_across_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_school_uids</strong> (<em>list</em>) – list of uids of individuals in the school</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size or number of contacts in school</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print some edges</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between individuals in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_classes_by_grade_in_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_classes_by_grade_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_classes_by_grade_in_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – percent of within grade edges that rewired to create edges across grades</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between students in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_clustered_classes_by_grade_in_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_clustered_classes_by_grade_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">return_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_clustered_classes_by_grade_in_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – percent of within grade edges that rewired to create edges across grades</p></li>
+<li><p><strong>return_edges</strong> (<em>bool</em>) – If True, return edges, else return two groups of contacts - students and teachers for each class</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between students in school or groups of contacts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_between_teachers">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_between_teachers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_between_teachers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges between teachers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>teachers</strong> (<em>list</em>) – a list of teachers</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_for_teachers_in_random_classes">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_for_teachers_in_random_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_for_teachers_in_random_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges connected to teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_for_teachers_in_clustered_classes">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_for_teachers_in_clustered_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">return_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_for_teachers_in_clustered_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school. Students and teachers are clustered into disjoint classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>groups</strong> (<em>list</em>) – list of lists of students, clustered into groups mostly by grade</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>return_edges</strong> (<em>bool</em>) – If True, return edges, else return two groups of contacts - students and teachers for each class</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges connected to teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_school_edges">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_school_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">non_teaching_staff</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_school_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dictionary of people</p></li>
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em>) – ‘random’ for well mixed schools, ‘clustered’ for disjoint classes in a school</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_type_age_ranges">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_type_age_ranges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_type_age_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school types and the age range for each.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default school types and the age range for each.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_types_by_age">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_types_by_age</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_types_by_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default probabilities of school type for each age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default probabilities for the school type likely for each age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_types_by_age_single">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_types_by_age_single</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_types_by_age_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school type by age by assigning the school type with the highest probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default school type by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_size_distr_brackets">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_size_distr_brackets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_size_distr_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school size distribution brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of school size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_size_distr_by_type">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_size_distr_by_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_size_distr_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of school size distributions binned by size groups or brackets for each type of default school.</p>
 </dd>
 </dl>
 </dd></dl>
