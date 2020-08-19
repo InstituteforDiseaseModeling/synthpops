@@ -11,9 +11,14 @@ import unittest
 
 class DataFileFormatTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.is_debugging = False
+        self.is_debugging = True
+        self.needs_cleanup = False
+        self.cleanup_files = []
 
     def tearDown(self) -> None:
+        if self.needs_cleanup:
+            for f in self.cleanup_files:
+                os.unlink(f)
         pass
 
     def copy_dat_and_make_csv(self, dat_fullpath):
@@ -21,6 +26,7 @@ class DataFileFormatTest(unittest.TestCase):
           copies a .dat file locally with a DEBUG_prefix and makes a copy as .csv
           returns: .dat filename, .csv filename
         """
+        self.needs_cleanup = True
         dat_full_filename = os.path.basename(dat_fullpath)
         dat_filetitle = os.path.splitext(dat_full_filename)[0]
         dat_localfilename = f"DEBUG_{dat_filetitle}.dat"
@@ -31,6 +37,8 @@ class DataFileFormatTest(unittest.TestCase):
         )
         tmp_dataframe = pd.read_csv(dat_localfilename)
         tmp_dataframe.to_csv(csv_localfilename)
+        self.cleanup_files.append(dat_localfilename)
+        self.cleanup_files.append(csv_localfilename)
         return dat_localfilename, csv_localfilename
 
     def test_csv_loads_same_as_dat(self):
@@ -76,3 +84,9 @@ class DataFileFormatTest(unittest.TestCase):
 # data_distributions.py get_head_age_by_size_distr() uses this to
 # call data_distributions.py get_household_head_age_by_size_df() which
 # calls get_household_head_age_by_size_path() and reads as a csv into dataframe
+
+
+if __name__ == "__main__":
+    test = DataFileFormatTest()
+    test.setUp()
+    test.test_csv_loads_same_as_dat()

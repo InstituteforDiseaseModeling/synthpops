@@ -4,6 +4,7 @@ import numpy as np
 import sciris as sc
 import pytest
 from random import randrange
+from synthpops import read_write as sprw
 
 # pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
 
@@ -220,7 +221,7 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
 
     Npeople = 10000
 
-    homes = sp.read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, Npeople, with_ages=True)
+    homes = sprw.read_setting_groups(datadir, location, state_location, country_location, folder_name, 'households', Npeople, with_ages=True)
 
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
 
@@ -236,7 +237,7 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
 def test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa', folder_name='contact_networks'):
 
-    homes = sp.read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, n, with_ages=True)
+    homes = sprw.read_setting_groups(datadir, location, state_location, country_location, folder_name, 'households', n, with_ages=True)
 
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
 
@@ -246,22 +247,6 @@ def test_send_students_to_school(n=10000, location='seattle_metro', state_locati
                                                                                         age_by_uid_dic,
                                                                                         homes_by_uids,
                                                                                         use_default=False)
-
-    # assert uids_in_school is not None
-
-# def test_send_students_to_school(n=1000, location='seattle_metro', state_location='Washington',
-#                                  country_location='usa'):
-    # homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
-    #                                       household_size_1_included=False, use_default=True)
-    # homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes, id_len=16)
-
-#     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
-#                                                                                         state_location,
-#                                                                                         country_location,
-#                                                                                         age_by_uid_dic,
-#                                                                                         homes_by_uids,
-#                                                                                         use_default=False)
-# >>>>>>> origin/mf/update-saved-pop-fixes
 
     school_size_distr_by_bracket = sp.get_school_size_distr_by_brackets(datadir, location, state_location,
                                                                         country_location)
@@ -274,25 +259,29 @@ def test_send_students_to_school(n=10000, location='seattle_metro', state_locati
 
     contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name='United States of America')
 
-    syn_schools, syn_school_uids = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
-                                                              ages_in_school_count, age_brackets, age_by_brackets_dic,
-                                                              contact_matrix_dic, verbose=False)
+    syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
+                                                                                ages_in_school_count, age_brackets, age_by_brackets_dic,
+                                                                                contact_matrix_dic, verbose=False)
     assert syn_schools, syn_school_uids is not None
 
     return syn_schools, syn_school_uids
 
 
+@pytest.mark.skip
 def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
-                                    country_location='usa', folder_name='contact_networks'):
-    Nhomes = 10000
-    uids_in_school = sp.get_uids_in_school(datadir, Nhomes, location,
-                                           state_location,
-                                           country_location,
-                                           folder_name=folder_name,
-                                           use_default=True)
+                                    country_location='usa'):
+    n = 10000
+    homes = sp.get_head_age_by_size_distr(datadir, state_location, country_location, file_path=None,
+                                          household_size_1_included=False, use_default=True)
+    homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes, id_len=16)
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
+                                                                                        state_location,
+                                                                                        country_location,
+                                                                                        age_by_uid_dic,
+                                                                                        homes_by_uids,
+                                                                                        use_default=False)
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Nhomes)
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         uids_in_school, employment_rates, age_by_uid_dic)
     assert potential_worker_ages_left_count is not None
@@ -302,8 +291,8 @@ def test_get_uids_potential_workers(location='seattle_metro', state_location='Wa
 
 def test_generate_workplace_sizes(location='seattle_metro', state_location='Washington',
                                   country_location='usa', folder_name='contact_networks'):
-    Npeople = 10000
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
+    n = 10000
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, n, location,
                                                                                         state_location,
                                                                                         country_location,
                                                                                         folder_name=folder_name,
@@ -321,14 +310,14 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     contact_matrix_dic = sp.get_contact_matrix_dic(datadir, sheet_name='United States of America')
 
     # Need to instead get syn_schools now
-    syn_schools, syn_school_uids = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
-                                                              ages_in_school_count, age_brackets, age_by_brackets_dic,
-                                                              contact_matrix_dic)
+    syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
+                                                                                ages_in_school_count, age_brackets, age_by_brackets_dic,
+                                                                                contact_matrix_dic)
 
     employment_rates = sp.get_employment_rates(datadir, location=location, state_location=state_location,
                                                country_location=country_location, use_default=True)
 
-    age_by_uid_dic = sp.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, Npeople)
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
         syn_school_uids, employment_rates, age_by_uid_dic)
@@ -472,7 +461,8 @@ if __name__ == '__main__':
     test_get_uids_in_school(location, state_location, country_location)
     test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
-    test_get_uids_potential_workers()
+    # test_get_uids_potential_workers()
+    # test_assign_rest_of_workers()
     test_generate_workplace_sizes()
     test_generate_school_sizes()
 
