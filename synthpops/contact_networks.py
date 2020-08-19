@@ -246,8 +246,9 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Assign IDs to everyone in order by their households.
 
     Args:
-        homes (array): The generated synthetic ages of household members.
-        id_len (int) : The length of the UID.
+        homes (array)  : The generated synthetic ages of household members.
+        id_len (int)   : The length of the UID.
+        use_int (bool) : If True, use ints for the uids of individuals; otherwise use strings of length 'id_len'.
 
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
@@ -283,6 +284,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         country_location (string) : The name of the country the location is in.
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
         homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
@@ -795,8 +797,8 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         potential_worker_ages_left_count (dict) : dictionary of the count of potential workers left that can be assigned by age
         average_student_teacher_ratio (float)   : The average number of students per teacher.
         average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
-        teacher_age_min (int)                   : minimum age for teachers - should be location specific.
-        teacher_age_max (int)                   : maximum age for teachers - should be location specific.
+        staff_age_min (int)                     : The minimum age for non teaching staff.
+        staff_age_max (int)                     : The maximum age for non teaching staff.
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
@@ -976,74 +978,6 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
-
-
-# def write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, group_type, groups_by_uids):
-#     """
-#     Write groups to file with both ID and their ages.
-
-#     Args:
-#         datadir (string)                : The file path to the data directory.
-#         location (string)               : The name of the location.
-#         state_location (string)         : The name of the state of the location is in.
-#         country_location (string)       : The name of the country the location is in.
-#         age_by_uid_dic (dict)           : A dictionary mapping ID to age for each individual in the population.
-#         groups_by_uids (list)           : The list of lists, where each sublist represents a household and the IDs of the household members.
-#         group_type (string)             : The name of the group type.
-
-#     Returns:
-#         None
-#     """
-
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
-#     os.makedirs(file_path, exist_ok=True)
-
-#     groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
-#     groups_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_uids.dat')
-
-#     fg_age = open(groups_by_age_path, 'w')
-#     fg_uid = open(groups_by_uid_path, 'w')
-
-#     for n, ids in enumerate(groups_by_uids):
-
-#         group = groups_by_uids[n]
-
-#         for uid in group:
-
-#             fg_age.write(str(age_by_uid_dic[uid]) + ' ')
-#             fg_uid.write(str(uid) + ' ')
-#         fg_age.write('\n')
-#         fg_uid.write('\n')
-#     fg_age.close()
-#     fg_uid.close()
-
-
-# def write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic):
-#     """
-#     Write the dictionary of ID mapping to age for each individual in the population.
-
-#     Args:
-#         datadir (string)          : The file path to the data directory.
-#         location (string)         : The name of the location.
-#         state_location (string)   : The name of the state the location is in.
-#         country_location (string) : The name of the country the location is in.
-#         age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
-
-#     Returns:
-#         None
-#     """
-
-#     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
-#     os.makedirs(file_path, exist_ok=True)
-
-#     age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
-
-#     f_age_uid = open(age_by_uid_path, 'w')
-
-#     uids = sorted(age_by_uid_dic.keys())
-#     for uid in uids:
-#         f_age_uid.write(str(uid) + ' ' + str(age_by_uid_dic[uid]) + '\n')
-#     f_age_uid.close()
 
 
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
@@ -1250,7 +1184,6 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # save schools and workplace uids to file
     if write:
-def write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, group_type, groups_by_uids):
 
         sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
         sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'households', homes_by_uids)

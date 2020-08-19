@@ -11,18 +11,13 @@ Functions in this module are flexible to allow users to specify the
 inter-grade mixing, and to choose whether contacts are clustered within a
 grade. Clustering contacts across different grades is not supported because
 there is no data to suggest that this happens commonly.
-
 """
-# import os
 from copy import deepcopy
 from collections import Counter
 from itertools import combinations
 
-# import sciris as sc
 import numpy as np
-# import pandas as pd
 import networkx as nx
-# import math
 
 # from . import base as spb
 from . import data_distributions as spdata
@@ -115,9 +110,9 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     if len(nodes) == 0:
         return G
 
-    p = expected_average_degree/len(nodes)
+    p = expected_average_degree / len(nodes)
 
-    G2 = nx.erdos_renyi_graph(len(nodes), p) # will return a graph with nodes relabeled from 0 through len(nodes)-1
+    G2 = nx.erdos_renyi_graph(len(nodes), p)  # will return a graph with nodes relabeled from 0 through len(nodes)-1
 
     for node in nodes:
         ordered_node_id = ordered_node_ids[node]
@@ -136,7 +131,7 @@ def add_random_contacts_from_graph(G, expected_average_degree):
         ordered_node_id = ordered_node_ids[node]
         neighbors = list(G.neighbors(node))
         extra_edges_to_remove = G.degree(node) - G2.degree(ordered_node_id)
-        extra_edges_to_remove = int(extra_edges_to_remove/2.)
+        extra_edges_to_remove = int(extra_edges_to_remove / 2.)
 
         if extra_edges_to_remove > 0:
             extra_neighbors_to_remove = np.random.choice(extra_neighbors, extra_edges_to_remove)
@@ -150,7 +145,18 @@ def add_random_contacts_from_graph(G, expected_average_degree):
 
 
 def generate_random_contacts_for_additional_school_members(school_uids, additional_school_member_uids, average_additional_school_members_degree=20):
+    """
+    Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.
 
+    Args:
+        school_uids (list)                               : list of uids of individuals already in the school
+        additional_school_member_uids (list)             : list of uids of the additional school member who do not have contacts yet or for whom more contacts are needed
+        average_additional_school_members_degree (float) : average degree for the additional school members
+
+    Returns:
+        List of edges for the additional school members in school.
+
+    """
     edges = []
     all_school_uids = school_uids.copy() + additional_school_member_uids.copy()
     for uid in additional_school_member_uids:
@@ -186,7 +192,6 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
         node_j = all_school_uids[j]
         e = (node_i, node_j)
         edges.append(e)
-    # print('e',len(edges))
     return edges
 
 
@@ -234,7 +239,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
         # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
         p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
-        # print('a',a, len(uids_in_school_by_age[a]), p)
 
         Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
         for e in Ga.edges():
@@ -255,7 +259,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
     np.random.shuffle(E)
-    # print('e',len(E))
+
     nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
 
     for n in range(nE):
@@ -622,7 +626,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
         return groups, teacher_groups
 
 
-# def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, school_mixing_type='random', verbose=False):
 def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
     """
     Generate edges for teachers, including to both students and other teachers at the same school.
@@ -646,6 +649,10 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
+    available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
+    if school_mixing_type not in available_school_mixing_types:
+        print('Stop. school_mixing_type', school_mixing_type, 'does not exist. Please change this to one of', available_school_mixing_types)
+
     if school_mixing_type == 'random':
         # print('random', len(syn_school_uids), len(teachers))
         school = deepcopy(syn_school_uids)
@@ -653,7 +660,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         edges = generate_random_contacts_across_school(school, average_class_size)
         add_contacts_from_edgelist(popdict, edges, 'S')
 
-    # random contacts across a grade in the school, most edges will across the same age group, much like mmiddle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
+    # random contacts across a grade in the school, most edges will across the same age group, much like middle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
     elif school_mixing_type == 'age_clustered':
         edges = generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose)
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree, verbose)
@@ -764,7 +771,7 @@ def get_default_school_size_distr_brackets():
         A dictionary of school size brackets.
 
     """
-    return spdata.get_school_size_brackets(datadir, country_location='default', use_default=True)
+    return spdata.get_school_size_brackets(datadir, country_location='usa', use_default=True)
 
 
 def get_default_school_size_distr_by_type():
@@ -780,6 +787,6 @@ def get_default_school_size_distr_by_type():
     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
 
     for k in school_types:
-        school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='default', use_default=True)
+        school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='usa', use_default=True)
 
     return school_size_distr_by_type

@@ -49,6 +49,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
         country_location (string) : The name of the country the location is in.
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         n (int)                   : The number of people in the population.
+
     Returns:
         A dictionary mapping ID to age for all individuals in the population.
 
@@ -116,7 +117,6 @@ def read_setting_groups(datadir, location, state_location, country_location, fol
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         group_type (string)       : The name of the group type.
         n (int)                   : The number of people in the population.
-        setting (string)          : The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.
         with_ages (bool)          : If True, read in the ages of each individual in the group; otherwise, read in their IDs.
 
     Returns:
