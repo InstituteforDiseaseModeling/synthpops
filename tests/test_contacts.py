@@ -185,10 +185,10 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
     # First generate microstructure with facilities
     sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
                                                Npop, school_enrollment_counts_available=True,
-                                               write=True, plot=False, return_popdict=True)
+                                               write=False, plot=False, return_popdict=True)
 
 
-    # sp.generate_microstructure_with_facilities(datadir, location, state_location, 
+    # sp.generate_microstructure_with_facilities(datadir, location, state_location,
     #                                         country_location, n, sheet_name='United States of America',
     #                                         use_two_group_reduction=False, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
     #                                         school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
