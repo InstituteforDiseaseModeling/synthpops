@@ -18,7 +18,7 @@ popsize_choices = [5000,
 
 def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
                     use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None,
-                    country_location=cfg.default_country, state_location=cfg.default_state):
+                    country_location=None, state_location=None, location=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -70,22 +70,23 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     # location = 'seattle_metro'
     # sheet_name = 'United States of America'
 
-    if country_location == cfg.default_country:
+    if country_location is None:
+        # If no country is specified assume that defaults are used
         country_location = cfg.default_country
         state_location = cfg.default_state
         location = cfg.default_location
-        sheet_name = cfg.default_sheet_name
+    else:
+        # each country has a set of default values that are used, so get the defaults
+        # load defaults for the country
+        sp.config.set_location_defaults(country_location)
 
-    if state_location is None and country_location == 'Senegal':
-        country_location = 'Senegal'
-        state_location = None
+    # if country is specified, and state is not, we are doing a country population
+    # so set location to None just in case
+    if state_location is None:
         location = None
-        sheet_name = None
-    elif state_location == 'Dakar' and country_location == 'Senegal':
-        country_location = 'Senegal'
-        state_location = 'Dakar'
-        location = 'Dakar'
-        sheet_name = None
+
+    sheet_name = cfg.default_sheet_name
+
 
     options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities, 'use_two_group_reduction': use_two_group_reduction, 'average_LTCF_degree': average_LTCF_degree}
     network_distr_args = {'Npop': int(n)}
