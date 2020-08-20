@@ -16,18 +16,17 @@
 #  - state1
 #  - test2
 Senegal:
-  - Dakar
-  - Dakar
-  - Senegal
-  - null
+  location: Dakar
+  province: Dakar
+  country: Senegal
+  sheet_name: null
 defaults:
-  - seattle_metro
-  - Washington
-  - usa
-  - United States of America
+  location: seattle_metro
+  province: Washington
+  country: usa
+  sheet_name: United States of America
 usa:
-  - seattle_metro
-  - Washington
-  - usa
-  - United States of America
-
+  location: seattle_metro
+  province: Washington
+  country: usa
+  sheet_name: United States of America

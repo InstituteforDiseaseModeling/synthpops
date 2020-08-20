@@ -43,7 +43,7 @@ matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is
 default_country = None
 default_state = None
 default_location = None
-default_sheet_name = "United States of America"
+default_sheet_name = None
 
 #%% Functions
 def set_location_defaults(country=None):
@@ -59,15 +59,17 @@ def set_location_defaults(country=None):
         data = yaml.load(f, Loader=yaml.FullLoader)
         if country_location in data.keys():
             loc = data[country_location]
-            default_location = loc[0]
-            default_state = loc[1]
-            default_country =loc[2]
+            default_location = loc['location']
+            default_state = loc['province']
+            default_country =loc['country']
+            default_sheet_name = loc['sheet_name']
         else:
             print(f"warning: country not in config file, using defaults")
             loc = data['defaults']
-            default_location = loc[0]
-            default_state = loc[1]
-            default_country =loc[2]
+            default_location = loc['location']
+            default_state = loc['province']
+            default_country =loc['country']
+            default_sheet_name = loc['sheet_name']
 
 set_location_defaults()
 

@@ -3,6 +3,27 @@ import synthpops as sp
 import sciris as sc
 import pytest
 
+def test_set_location_defaults_none():
+    sp.config.set_location_defaults()
+    assert sp.config.default_country == 'usa'
+    assert sp.config.default_state == 'Washington'
+    assert sp.config.default_location == 'seattle_metro'
+    assert sp.config.default_sheet_name == 'United States of America'
+
+def test_set_location_defaults_Senegal():
+    sp.config.set_location_defaults('Senegal')
+    assert sp.config.default_country == 'Senegal'
+    assert sp.config.default_state == 'Dakar'
+    assert sp.config.default_location == 'Dakar'
+    assert sp.config.default_sheet_name is None
+
+def test_set_location_defaults_usa():
+    sp.config.set_location_defaults('usa')
+    assert sp.config.default_country == 'usa'
+    assert sp.config.default_state == 'Washington'
+    assert sp.config.default_location == 'seattle_metro'
+    assert sp.config.default_sheet_name == 'United States of America'
+
 def test_FilePath_init_None():
     with pytest.raises(NotImplementedError):
         file_paths = sp.config.FilePaths()
