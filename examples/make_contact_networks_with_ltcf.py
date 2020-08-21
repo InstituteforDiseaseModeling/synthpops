@@ -35,7 +35,7 @@ average_additional_staff_degree = 20
 staff_age_min = 20
 staff_age_max = 75
 
-# school_mixing_type = 'random'  # randomly mixing across the entire school
+school_mixing_type = 'random'  # randomly mixing across the entire school
 school_mixing_type = 'age_clustered'  # age_clustered means mixing across your own age/grade but randomly so students are not cohorted into classrooms but also don't mix much with other ages
 school_mixing_type = 'age_and_class_clustered'  # age_and_class_clustered means mixing strictly with your own class. Each class gets at least 1 teacher. Students don't mix with students from other classes.
 
@@ -49,12 +49,12 @@ rand_seed = 1
 n = 1000
 n = int(n)
 
-# # generate and write to file
+# # # generate and write to file
 population = sp.generate_microstructure_with_facilities(datadir,
                                                         location=location,
                                                         state_location=state_location,
                                                         country_location=country_location,
-                                                        gen_pop_size=n,
+                                                        n=n,
                                                         use_two_group_reduction=use_two_group_reduction,
                                                         average_LTCF_degree=average_LTCF_degree,
                                                         ltcf_staff_age_min=ltcf_staff_age_min,
@@ -120,34 +120,36 @@ sc.toc()
 
 sp.check_all_residents_are_connected_to_staff(population)
 
+
+check = True
+check = False
+
 # check students in ES, MS, HS
 # check teachers and staff in ES, MS, HS
+# check the edges in these schools
 
+if check:
+    schools = {'es': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
+               'ms': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
+               'hs': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
+               }
 
-schools = {'es': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
-           'ms': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
-           'hs': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
-           'pk': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0},
-           'uv': {'students': 0, 'teachers': 0, 'staff': 0, 'ns': 0}
-           }
+    print('counting schools')
 
-print('counting schools')
+    n_school_edges = 0
+    for i in population:
+        person = population[i]
 
-n_school_edges = 0
-for i in population:
-    person = population[i]
+        if person['scid'] is not None:
+            if person['sc_type'] in ['es', 'ms', 'hs']:
+                if person['sc_student']:
+                    schools[person['sc_type']]['students'] += 1
+                elif person['sc_teacher']:
+                    schools[person['sc_type']]['teachers'] += 1
+                elif person['sc_staff']:
+                    schools[person['sc_type']]['staff'] += 1
+            n_school_edges += len(person['contacts']['S'])
 
-    if person['scid'] is not None:
-        if person['sc_type'] in ['es', 'ms', 'hs', 'pk', 'uv']:
-            if person['sc_student']:
-                schools[person['sc_type']]['students'] += 1
-            elif person['sc_teacher']:
-                schools[person['sc_type']]['teachers'] += 1
-            elif person['sc_staff']:
-                schools[person['sc_type']]['staff'] += 1
-        n_school_edges += len(person['contacts']['S'])
-
-    # print(i, person['scid'], person['sc_student'], person['sc_teacher'], person['sc_staff'])
-print(n_school_edges)
-print(schools)
-
+        # print(i, person['scid'], person['sc_student'], person['sc_teacher'], person['sc_staff'])
+    print('edges in schools', n_school_edges)
+    print(schools)

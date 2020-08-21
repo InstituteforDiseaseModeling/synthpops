@@ -112,7 +112,7 @@ def add_random_contacts_from_graph(G, expected_average_degree):
 
     p = expected_average_degree / len(nodes)
 
-    G2 = nx.erdos_renyi_graph(len(nodes), p) # will return a graph with nodes relabeled from 0 through len(nodes)-1
+    G2 = nx.erdos_renyi_graph(len(nodes), p)  # will return a graph with nodes relabeled from 0 through len(nodes)-1
 
     for node in nodes:
         ordered_node_id = ordered_node_ids[node]
@@ -649,10 +649,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
-    # print(school_mixing_type)
-
-    if school_mixing_type not in ['random', 'age_clustered', 'age_and_class_clustered']:
-        print('school mixing type', school_mixing_type, 'does not exist. Please check this again.')
+    available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
+    if school_mixing_type not in available_school_mixing_types:
+        print('Stop. school_mixing_type', school_mixing_type, 'does not exist. Please change this to one of', available_school_mixing_types)
 
     if school_mixing_type == 'random':
         # print('random', len(syn_school_uids), len(teachers))

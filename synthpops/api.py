@@ -26,29 +26,30 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
     Args:
-        n (int)                        : The number of people to create.
-        max_contacts (dict)            : A dictionary for maximum number of contacts per layer: keys must be "S" (school) and/or "W" (work).
-        generate (bool)                : If True, first look for cached population files and if those are not available, generate new population.
-        with_industry_code (bool)      : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
-        with_facilities (bool)         : If True, create long term care facilities.
-        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups.
-        average_LTCF_degree (int)      : default average degree in long term care facilities.
-        ltcf_staff_age_min (int)       : Long term care facility staff minimum age.
-        ltcf_staff_age_max (int)       : Long term care facility staff maximum age.
-        with_school_types (bool)       : If True, creates explicit school types.
-        school_mixing_type (str)       : The mixing type for schools, 'clustered' or 'random'.
-        average_class_size (int)       : The average classroom size.
-        inter_grade_mixing (float)     : The average fraction of mixing between grades in the same school for cohorted school mixing types.
-        average_student_teacher_ratio (float) : The average number of students per teacher.
-        average_teacher_teacher_degree (float) : The average number of contacts per teacher with other teachers.
-        teacher_age_min (int)          : The minimum age for teachers.
-        teacher_age_max (int)          : The maximum age for teachers.
-        with_non_teaching_staff (bool) : If True, includes non teaching staff.
+        n (int)                                 : The number of people to create.
+        max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
+        generate (bool)                         : If True, generate a new population. Else, look for cached population and if those are not available, generate a new population.
+        with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
+        with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
+        use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
+        average_LTCF_degree (float)             : default average degree in long term care facilities.
+        ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
+        ltcf_staff_age_max (int)                : Long term care facility staff maximum age.
+        with_school_types (bool)                : If True, creates explicit school types.
+        school_mixing_type (str or dict)                : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
+        average_class_size (float)              : The average classroom size.
+        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        average_teacher_teacher_degree (float)  : The average number of contacts per teacher with other teachers.
+        teacher_age_min (int)                   : The minimum age for teachers.
+        teacher_age_max (int)                   : The maximum age for teachers.
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
         average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
         average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
-        staff_age_min (int)            : The minimum age for non teaching staff.
-        staff_age_max (int)            : The maximum age for non teaching staff.
-        rand_seed (int)                : Start point random sequence is generated from.
+        staff_age_min (int)                     : The minimum age for non teaching staff.
+        staff_age_max (int)                     : The maximum age for non teaching staff.
+        rand_seed (int)                         : Start point random sequence is generated from.
+
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
     '''
@@ -70,7 +71,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
             errormsg = f'If generate=False, number of people must be one of {choicestr}, not {n}'
             raise ValueError(errormsg)
         else:
-            generate = True # If not found, generate
+            generate = True  # If n not found in popsize_choices and generate was not False, generate a new population.
 
     # Default to False, unless LTCF are requested
     if generate is None:
@@ -87,7 +88,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     sheet_name = 'United States of America'
 
     options_args = {}
-    options_args['use_microstructure'] = True,
+    options_args['use_microstructure'] = True
     options_args['use_industry_code'] = with_industry_code
     options_args['use_long_term_care_facilities'] = with_facilities
     options_args['use_two_group_reduction'] = use_two_group_reduction
@@ -112,7 +113,8 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         log.debug('Not generating a new population')
         # must read in from file, will fail if the data has not yet been generated
         population = sp.make_contacts(location=location, state_location=state_location,
-                                      country_location=country_location, options_args=options_args,
+                                      country_location=country_location, sheet_name=sheet_name,
+                                      options_args=options_args,
                                       network_distr_args=network_distr_args)
     else:
         log.debug('Generating a new population...')
@@ -120,7 +122,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
             errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
             raise ValueError(errormsg)
         elif with_facilities:
-            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, gen_pop_size=n, sheet_name=sheet_name,
+            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, sheet_name=sheet_name,
                                                                     use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, ltcf_staff_age_min=ltcf_staff_age_min, ltcf_staff_age_max=ltcf_staff_age_max,
                                                                     with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
                                                                     average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,

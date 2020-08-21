@@ -68,6 +68,12 @@ class TestRegression(unittest.TestCase):
         unchanged = self.check_result(actual_file=filename, prefix=test_prefix)
         if not unchanged:
             self.generate_reports()
+            newfilename = os.path.join(self.pdfDir, "new_" + os.path.basename(filename))
+            expectedfilename = os.path.join(os.path.dirname(__file__), "expected", os.path.basename(filename))
+            shutil.copyfile(filename, newfilename)
+            print(f"regression test detected changes, please go to \n{self.pdfDir} "
+                  f"to review contact matrix report \n and compare {expectedfilename} \nwith {newfilename} "
+                  f"\n\nreplace expected {expectedfilename} \nwith {newfilename} \n if you approve this change.")
 
     def runpop(self, filename, actual_vals, testprefix = "test", method=sp.make_population):
         # if default sort order is not concerned:
@@ -136,7 +142,7 @@ class TestRegression(unittest.TestCase):
                     pdf.add_page()
                     figs = [f for f in os.listdir(self.figDir) if f.startswith(f"{name}_{code}_{type}")]
                     for ff in figs:
-                        print(ff)
+                        #print(ff)
                         pdf.image(os.path.join(self.figDir, ff), w=100, h=100)
             pdf.output(os.path.join(self.pdfDir,f"{name}.pdf"))
 

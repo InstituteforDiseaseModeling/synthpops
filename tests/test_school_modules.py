@@ -515,7 +515,6 @@ uids_in_school = {syn_school_uids[n]: syn_school_ages[n] for n in range(len(syn_
 
 uids_in_school_by_age = {}
 for a in range(100):
-# for a in sorted(set(syn_school_ages)):
     uids_in_school_by_age[a] = []
 for uid in uids_in_school:
     a = uids_in_school[uid]
@@ -529,6 +528,7 @@ ages_in_school_distr = sp.norm_dic(ages_in_school_count)
 
 achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
 aindex = np.where(achoice)[0][0]
+
 
 syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school_with_school_types(school_size_distr_by_type,
                                                                                               school_size_brackets,
