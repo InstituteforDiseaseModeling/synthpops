@@ -6,8 +6,6 @@ import tempfile
 import os
 import sys
 import shutil
-import pandas as pd
-import numpy as np
 import datetime
 import synthpops as sp
 import sciris as sc
@@ -16,6 +14,9 @@ from synthpops import cfg
 
 
 class TestSchoolStaff(unittest.TestCase):
+
+    do_close = True # Whether or not to close plots after saving them to disk
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.resultdir = tempfile.TemporaryDirectory().name
@@ -38,6 +39,7 @@ class TestSchoolStaff(unittest.TestCase):
         for f in os.listdir(cls.resultdir):
             if os.path.isfile(os.path.join(cls.resultdir, f)):
                 shutil.copy(os.path.join(cls.resultdir, f), os.path.join(dirname, f))
+
 
     @unittest.skip("this long running scenario is excluded from BVT")
     def test_scale(self):
@@ -62,12 +64,14 @@ class TestSchoolStaff(unittest.TestCase):
                 result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"calltwice_{n}_{i}", average_student_teacher_ratio,
                                                              average_student_all_staff_ratio=average_student_all_staff_ratio, err_margin=2)
                 utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location,
-                                                        test_prefix=f"calltwice{n}_{i}", skip_stat_check=True)
+                                                        test_prefix=f"calltwice{n}_{i}", skip_stat_check=True, do_close=self.do_close)
                 utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location,
-                                                 test_prefix=f"calltwice{n}_{i}")
+                                                 test_prefix=f"calltwice{n}_{i}", do_close=self.do_close)
                 i += 1
             except:
                 print("check failed, continue...")
+        return result
+
 
     def test_staff_generate(self):
 
@@ -103,8 +107,9 @@ class TestSchoolStaff(unittest.TestCase):
         utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
                                        average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"{test_prefix}", average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)
-        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}")
+        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}", do_close=self.do_close)
+
 
     def test_with_ltcf(self):
         """
@@ -146,5 +151,11 @@ class TestSchoolStaff(unittest.TestCase):
                                    average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio,
                                                      average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)
-        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)
+        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+
+
+# Run unit tests if called as a script
+if __name__ == '__main__':
+    TestSchoolStaff.do_close = False
+    unittest.main()
