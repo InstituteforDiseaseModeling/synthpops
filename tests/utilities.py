@@ -1,3 +1,7 @@
+'''
+Uitilities for test_school_staff (and possibly other functions)
+'''
+
 import synthpops as sp
 import sciris as sc
 import inspect
@@ -101,7 +105,7 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
     return result
 
 
-def plot_array(expected, actual, names=None, datadir=None, testprefix="test"):
+def plot_array(expected, actual, names=None, datadir=None, testprefix="test", do_close=True):
     """
     plot histogram on sorted array based by names
     if names not provided the order will be used
@@ -112,14 +116,30 @@ def plot_array(expected, actual, names=None, datadir=None, testprefix="test"):
     plt.rc('font', **font)
     plt.title(f"Comparison for {testprefix}")
 
-    names = range(0, len(expected)) if names is None else names
-    ax.hist(x=names, alpha=0.4, weights=expected, label='expected', bins=len(expected), color='g')
-    ax.hist(x=names, alpha=0.4, weights=actual, label='actual', bins=len(actual), color='r')
+    # Handle the case of names being supplied, or if numbers will be used
+    # if names is None:
+    #     width = 0.5 # Width of the bars
+    #     alpha = 1.0 # Alpha of the bars
+    #     x = np.arange(len(expected))
+    #     x_exp = x + width/2
+    #     x_act = x - width/2
+    # else:
+    # width = 1.0
+    # alpha = 0.5
+    # x_exp = names
+    # x_act = names
+    names = np.arange(len(expected)) if names is None else names
+    ax.hist(x=names, histtype='bar', weights=expected, label='expected', bins=len(expected))
+    ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
     ax.legend(loc='upper right')
-    # plt.show()
+
     if datadir:
         plt.savefig(os.path.join(os.path.dirname(datadir), f"{testprefix}_graph.png"), format="png")
-    plt.close()
+    if do_close:
+        plt.close()
+    else:
+        plt.show()
+    return
 
 
 def check_age_distribution(pop,
@@ -130,7 +150,9 @@ def check_age_distribution(pop,
                            country_location=None,
                            file_path=None,
                            use_default=False,
-                           test_prefix="test", skip_stat_check=False):
+                           test_prefix="test",
+                           skip_stat_check=False,
+                           do_close=True):
     """
     construct histogram from expected age distribution
     compare with the actual generated data
@@ -150,7 +172,7 @@ def check_age_distribution(pop,
     expected_values = np.array(list(age_dist.values()))
     actual_values = np.array(list(sp.norm_dic(actual_age_dist).values()))
     names = np.array([i[0] for i in brackets.values()])
-    plot_array(expected_values, actual_values, names, datadir, test_prefix + "_age")
+    plot_array(expected_values, actual_values, names, datadir, test_prefix + "_age", do_close=do_close)
     if not skip_stat_check:
         statistic_test(expected_values, actual_values, test="x", comments="age distribution check")
 
@@ -164,7 +186,8 @@ def check_enrollment_distribution(pop,
                                   file_path=None,
                                   use_default=False,
                                   test_prefix="test",
-                                  skip_stat_check=False):
+                                  skip_stat_check=False,
+                                  do_close=True):
     """
     Compute the statistic on expected enrollment-age distribution and compare with actual distribution
     check zero enrollment bins to make sure there is nothing generated
@@ -202,7 +225,7 @@ def check_enrollment_distribution(pop,
     print(f"total enroll actual :{sum(actual_dist.values())}")
 
     # make sure results are sorted by key
-    scaled_dist_dist = dict(sorted(scaled_dist.items()))
+    # scaled_dist_dist = dict(sorted(scaled_dist.items()))
     actual_dist = dict(sorted(actual_dist.items()))
 
     expected_values = np.array(list(scaled_dist.values()))
@@ -211,9 +234,9 @@ def check_enrollment_distribution(pop,
     actual_combined_values = np.array(list(actual_combined_dist.values()))
 
     # uncomment below if you need to plot and check data
-    plot_array(expected_values, actual_values, None, datadir, test_prefix + "_enrollment")
+    plot_array(expected_values, actual_values, None, datadir, test_prefix + "_enrollment", do_close=do_close)
     plot_array(expected_combined_values, actual_combined_values, np.array([i[0] for i in brackets.values()]),
-               datadir, test_prefix + "_enrollment_combined")
+               datadir, test_prefix + "_enrollment_combined", do_close=do_close)
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_expected.csv"), expected_values, delimiter=",")
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_actual.csv"), actual_values, delimiter=",")
 
