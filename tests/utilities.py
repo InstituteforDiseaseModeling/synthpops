@@ -116,18 +116,6 @@ def plot_array(expected, actual, names=None, datadir=None, testprefix="test", do
     plt.rc('font', **font)
     plt.title(f"Comparison for {testprefix}")
 
-    # Handle the case of names being supplied, or if numbers will be used
-    # if names is None:
-    #     width = 0.5 # Width of the bars
-    #     alpha = 1.0 # Alpha of the bars
-    #     x = np.arange(len(expected))
-    #     x_exp = x + width/2
-    #     x_act = x - width/2
-    # else:
-    # width = 1.0
-    # alpha = 0.5
-    # x_exp = names
-    # x_act = names
     names = np.arange(len(expected)) if names is None else names
     ax.hist(x=names, histtype='bar', weights=expected, label='expected', bins=len(expected))
     ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
