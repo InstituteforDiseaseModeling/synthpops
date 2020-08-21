@@ -14,6 +14,7 @@ import sciris as sc
 import utilities
 from synthpops import cfg
 
+
 class TestSchoolStaff(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -30,19 +31,6 @@ class TestSchoolStaff(unittest.TestCase):
         shutil.rmtree(cls.resultdir, ignore_errors=True)
 
     @classmethod
-    def copy_input(cls):
-        to_exclude = [os.path.join(cls.sourcedir, "contact_networks"),
-                      os.path.join(cls.sourcedir, "contact_networks_facilities")]
-
-
-        # copy all files to datadir except the ignored files
-        ignorepatterns = shutil.ignore_patterns("*contact_networks*",
-                                                "*contact_networks_facilities*",
-                                                "*New_York*",
-                                                "*Oregon*")
-        shutil.copytree(cls.sourcedir, os.path.join(cls.resultdir, cls.subdir_level), ignore=ignorepatterns)
-
-    @classmethod
     def copy_output(cls):
         dirname = datetime.datetime.now().strftime("%m%d%Y_%H_%M")
         dirname = os.path.join(os.path.dirname(__file__), dirname)
@@ -51,11 +39,10 @@ class TestSchoolStaff(unittest.TestCase):
             if os.path.isfile(os.path.join(cls.resultdir, f)):
                 shutil.copy(os.path.join(cls.resultdir, f), os.path.join(dirname, f))
 
-    @unittest.skip("this scenario is excluded")
-    def test_calltwice(self):
+    @unittest.skip("this long running scenario is excluded from BVT")
+    def test_scale(self):
         seed = 1
         # set param
-        n = 10001
         average_student_teacher_ratio = 22
         average_student_all_staff_ratio = 15
         datadir = self.dataDir
@@ -63,18 +50,24 @@ class TestSchoolStaff(unittest.TestCase):
         state_location = 'Washington'
         country_location = 'usa'
         i = 0
-        for n in [10001, 10001, 10001]:
-            pop = {}
-            sp.set_seed(seed)
-            print(seed)
-            pop = sp.generate_synthetic_population(n, datadir,average_student_teacher_ratio=average_student_teacher_ratio,
-                                                   average_student_all_staff_ratio = average_student_all_staff_ratio,
-                                                   return_popdict=True)
-            sc.savejson(os.path.join(self.resultdir, f"calltwice_{n}_{i}.json"), pop, indent=2)
-            result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"calltwice_{n}_{i}", average_student_teacher_ratio,
+        for n in [10001, 20001, 50001, 80001, 100001]:
+            try:
+                pop = {}
+                sp.set_seed(seed)
+                print(seed)
+                pop = sp.generate_synthetic_population(n, datadir,average_student_teacher_ratio=average_student_teacher_ratio,
+                                                       average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                       return_popdict=True)
+                sc.savejson(os.path.join(self.resultdir, f"calltwice_{n}_{i}.json"), pop, indent=2)
+                result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"calltwice_{n}_{i}", average_student_teacher_ratio,
                                                              average_student_all_staff_ratio=average_student_all_staff_ratio, err_margin=2)
-            utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=f"calltwice{n}_{i}", skip_stat_check=True)
-            i += 1
+                utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location,
+                                                        test_prefix=f"calltwice{n}_{i}", skip_stat_check=True)
+                utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location,
+                                                 test_prefix=f"calltwice{n}_{i}")
+                i += 1
+            except:
+                print("check failed, continue...")
 
     def test_staff_generate(self):
 
@@ -108,7 +101,7 @@ class TestSchoolStaff(unittest.TestCase):
         vals = locals()
         pop = utilities.runpop(resultdir=self.resultdir, testprefix=f"{test_prefix}", actual_vals=vals, method=sp.generate_synthetic_population)
         utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
-                                       average_student_all_staff_ratio, f"{test_prefix}", 1)
+                                       average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"{test_prefix}", average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=2)
         utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)
         utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}")
@@ -148,10 +141,10 @@ class TestSchoolStaff(unittest.TestCase):
         vals = locals()
         test_prefix = sys._getframe().f_code.co_name
         pop = utilities.runpop(resultdir=self.resultdir, testprefix=test_prefix, actual_vals=vals,
-                                   method=sp.generate_microstructure_with_facilities)
+                               method=sp.generate_microstructure_with_facilities)
         utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
-                                       average_student_all_staff_ratio, f"{test_prefix}", 1)
+                                   average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio,
-                                                         average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location,test_prefix=test_prefix)
-        utilities.check_enrollment_distribution(pop,n,datadir, location, state_location,country_location, test_prefix=test_prefix)
+                                                     average_student_all_staff_ratio, err_margin=2)
+        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)
+        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix)

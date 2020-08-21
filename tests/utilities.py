@@ -10,7 +10,6 @@ from scipy import stats
 
 
 def runpop(resultdir, actual_vals, testprefix, method):
-
     """
     run any method which create apopulation
     and write args and population to file "{resultdir}/{testprefix}.txt"
@@ -40,7 +39,6 @@ def runpop(resultdir, actual_vals, testprefix, method):
 
 
 def copy_input(sourcedir, resultdir, subdir_level):
-
     """
     Copy files to the target datadir up to the subdir level
     """
@@ -53,8 +51,8 @@ def copy_input(sourcedir, resultdir, subdir_level):
     shutil.copytree(sourcedir, os.path.join(resultdir, subdir_level), ignore=ignorepatterns)
 
 
-def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=0):
-
+def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio, average_student_all_staff_ratio,
+                              err_margin=0):
     """
     check if generated population matches
     average_student_teacher_ratio and average_student_all_staff_ratio
@@ -79,10 +77,10 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
 
     # check for 0 staff/teacher case to see if it is dues to school size being too small
     zero_teacher_case = result.query('teacher == 0 & student > @average_student_teacher_ratio')
-    assert(len(zero_teacher_case) == 0), \
+    assert (len(zero_teacher_case) == 0), \
         f"All schools with more students than the student teacher ratio should have at least one teacher. {len(zero_teacher_case)} did not."
     zero_staff_case = result.query('staff == 0 & student > @average_student_all_staff_ratio')
-    assert(len(zero_staff_case) == 0), \
+    assert (len(zero_staff_case) == 0), \
         f"All schools with more students than the student staff ratio: {average_student_all_staff_ratio} should have at least 1 staff. {len(zero_staff_case)} did not."
 
     # exclude 0 teacher if size is too small
@@ -90,35 +88,39 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
 
     # exclude student size less than 3*average_student_all_staff_ratio
     # average across school must match input
-    actual_teacher_ratio = result[result["student"] > 3*average_student_teacher_ratio]["teacher_ratio"].mean()
+    actual_teacher_ratio = result[result["student"] > 3 * average_student_teacher_ratio]["teacher_ratio"].mean()
     print(f"actual average student teacher ratio (ignore small size schools):{actual_teacher_ratio}")
-    assert (int(average_student_teacher_ratio + err_margin) >= actual_teacher_ratio >= int(average_student_teacher_ratio - err_margin)), \
+    assert (int(average_student_teacher_ratio + err_margin) >= actual_teacher_ratio >= int(
+        average_student_teacher_ratio - err_margin)), \
         f"teacher ratio: expected: {average_student_teacher_ratio} actual: {actual_teacher_ratio}"
-    actual_staff_ratio = result[result["student"] > 3*average_student_teacher_ratio]["allstaff_ratio"].mean()
+    actual_staff_ratio = result[result["student"] > 3 * average_student_teacher_ratio]["allstaff_ratio"].mean()
     print(f"actual average student all staff ratio (ignore small size schools):{actual_staff_ratio}")
-    assert (int(average_student_all_staff_ratio + err_margin) >= actual_staff_ratio >= int(average_student_all_staff_ratio - err_margin)), \
+    assert (int(average_student_all_staff_ratio + err_margin) >= actual_staff_ratio >= int(
+        average_student_all_staff_ratio - err_margin)), \
         f"all staff ratio expected: {average_student_all_staff_ratio} actual: {actual_staff_ratio}"
     return result
+
 
 def plot_array(expected, actual, names=None, datadir=None, testprefix="test"):
     """
     plot histogram on sorted array based by names
     if names not provided the order will be used
     """
-    fig, ax = plt.subplots(1,1)
+    fig, ax = plt.subplots(1, 1)
     font = {'weight': 'bold',
             'size': 10}
     plt.rc('font', **font)
     plt.title(f"Comparison for {testprefix}")
 
     names = range(0, len(expected)) if names is None else names
-    ax.hist(x=names, alpha=0.5, weights=expected, label='expected',bins=len(expected))
-    ax.hist(x=names, alpha=0.5, weights=actual, label='actual', bins=len(actual))
+    ax.hist(x=names, alpha=0.4, weights=expected, label='expected', bins=len(expected), color='g')
+    ax.hist(x=names, alpha=0.4, weights=actual, label='actual', bins=len(actual), color='r')
     ax.legend(loc='upper right')
-    plt.show()
+    # plt.show()
     if datadir:
         plt.savefig(os.path.join(os.path.dirname(datadir), f"{testprefix}_graph.png"), format="png")
     plt.close()
+
 
 def check_age_distribution(pop,
                            n,
@@ -129,7 +131,6 @@ def check_age_distribution(pop,
                            file_path=None,
                            use_default=False,
                            test_prefix="test", skip_stat_check=False):
-
     """
     construct histogram from expected age distribution
     compare with the actual generated data
@@ -143,12 +144,12 @@ def check_age_distribution(pop,
                 actual_age_dist[b] += 1
                 break
     # un-normalized data
-    #expected_values = np.array(list(age_dist.values())) * n
-    #actual_values = np.array(list(actual_age_dist.values()))
+    # expected_values = np.array(list(age_dist.values())) * n
+    # actual_values = np.array(list(actual_age_dist.values()))
     # normalized
     expected_values = np.array(list(age_dist.values()))
     actual_values = np.array(list(sp.norm_dic(actual_age_dist).values()))
-    names = np.array(list(age_dist.keys()))
+    names = np.array([i[0] for i in brackets.values()])
     plot_array(expected_values, actual_values, names, datadir, test_prefix + "_age")
     if not skip_stat_check:
         statistic_test(expected_values, actual_values, test="x", comments="age distribution check")
@@ -164,12 +165,12 @@ def check_enrollment_distribution(pop,
                                   use_default=False,
                                   test_prefix="test",
                                   skip_stat_check=False):
-
     """
     Compute the statistic on expected enrollment-age distribution and compare with actual distribution
     check zero enrollment bins to make sure there is nothing generated
     """
-    expected_dist = sp.get_school_enrollment_rates(datadir, location, state_location, country_location, file_path, use_default)
+    expected_dist = sp.get_school_enrollment_rates(datadir, location, state_location, country_location, file_path,
+                                                   use_default)
     age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
 
@@ -181,46 +182,47 @@ def check_enrollment_distribution(pop,
             actual_dist[p["age"]] += 1
             actual_pool.append(p["age"])
 
-    #adjust expected enrollment percentage by age brackets
+    # adjust expected enrollment percentage by age brackets
     expected_combined_dist = dict.fromkeys(list(range(0, len(brackets))), 0)
     actual_combined_dist = dict.fromkeys(list(range(0, len(brackets))), 0)
     scaled_dist = dict.fromkeys(list(range(0, 101)), 0)
     for i in age_dist:
         for j in brackets[i]:
-            scaled_dist[j] = (expected_dist[j] * n * age_dist[i])/len(brackets[i])
+            scaled_dist[j] = (expected_dist[j] * n * age_dist[i]) / len(brackets[i])
             expected_combined_dist[i] += scaled_dist[j]
             actual_combined_dist[i] += actual_dist[j]
 
-    #construct expected pool based on adjusted distribution
-    expected_pool =[]
+    # construct expected pool based on adjusted distribution
+    expected_pool = []
     for key in scaled_dist:
-        for i in range(0,int(scaled_dist[key])):
+        for i in range(0, int(scaled_dist[key])):
             expected_pool.append(key)
 
     print(f"total enroll expected :{int(sum(scaled_dist.values()))}")
     print(f"total enroll actual :{sum(actual_dist.values())}")
 
-    #make sure results are sorted by key
+    # make sure results are sorted by key
     scaled_dist_dist = dict(sorted(scaled_dist.items()))
     actual_dist = dict(sorted(actual_dist.items()))
 
     expected_values = np.array(list(scaled_dist.values()))
-    actual_values =  np.array(list(actual_dist.values()))
+    actual_values = np.array(list(actual_dist.values()))
     expected_combined_values = np.array(list(expected_combined_dist.values()))
     actual_combined_values = np.array(list(actual_combined_dist.values()))
 
-    #uncomment below if you need to plot and check data
-    plot_array(expected_values, actual_values, None, datadir, test_prefix)
-    plot_array(expected_combined_values, actual_combined_values, None, datadir, test_prefix + "_combined")
+    # uncomment below if you need to plot and check data
+    plot_array(expected_values, actual_values, None, datadir, test_prefix + "_enrollment")
+    plot_array(expected_combined_values, actual_combined_values, np.array([i[0] for i in brackets.values()]),
+               datadir, test_prefix + "_enrollment_combined")
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_expected.csv"), expected_values, delimiter=",")
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_actual.csv"), actual_values, delimiter=",")
 
     # check for expected 0 count bins
     # if expected enrollment is 0, actual enrollment must be 0
     threshold = 9
-    assert np.sum(actual_values[expected_values == 0]) ==0, \
+    assert np.sum(actual_values[expected_values == 0]) == 0, \
         f"expected enrollment should be 0 for these age bins: " \
-        f"{str(np.where((expected_values == 0) & (actual_values!=0)))}"
+        f"{str(np.where((expected_values == 0) & (actual_values != 0)))}"
 
     # if expected is greater than some threshold, actual should not be 0
     assert len(actual_values[np.where((expected_values > threshold) & (actual_values == 0))]) == 0, \
@@ -230,24 +232,26 @@ def check_enrollment_distribution(pop,
     # if bin count less than threshold use range check to allow up
     # not exceeding up to 2*threshold
     i = np.where((expected_values <= threshold) & (expected_values > 0))
-    u = expected_values[i] + threshold #upper bound
-    l = np.zeros(len(expected_values[i])) #lower bound can be 0
-    assert (sum(l <= actual_values[i]) == len(actual_values[i]) and sum(actual_values[i] <= u) == len(actual_values[i])),\
-    f"results show too much difference:\n" \
-    f"expected:{expected_values[i]} \n actual:{actual_values[i]} \n" \
-    f"please check these age bins: {i}"
+    u = expected_values[i] + threshold  # upper bound
+    l = np.zeros(len(expected_values[i]))  # lower bound can be 0
+    assert (sum(l <= actual_values[i]) == len(actual_values[i]) and sum(actual_values[i] <= u) == len(
+        actual_values[i])), \
+        f"results show too much difference:\n" \
+        f"expected:{expected_values[i]} \n actual:{actual_values[i]} \n" \
+        f"please check these age bins: {i}"
 
-    #check if pool looks right
-    #h, bins = np.histogram(np.array(expected_pool), bins=100)
-    #h, bins = np.histogram(np.array(actual_pool), bins=100)
-    #plt.bar(bins[:-1],h,width=1)
-    #plt.show()
+    # check if pool looks right
+    # h, bins = np.histogram(np.array(expected_pool), bins=100)
+    # h, bins = np.histogram(np.array(actual_pool), bins=100)
+    # plt.bar(bins[:-1],h,width=1)
+    # plt.show()
 
     if not skip_stat_check:
         statistic_test(expected_pool, actual_pool, test="ks", comments="enrollment distribution check")
     # todo: theoretically this should work, however does not pass in our example
-    #statistic_test(actual_combined_values[expected_combined_values > 0],
+    # statistic_test(actual_combined_values[expected_combined_values > 0],
     # expected_combined_values[expected_combined_values > 0], test="x")
+
 
 def statistic_test(expected, actual, test="ks", comments=""):
     print(comments)
@@ -264,13 +268,13 @@ def statistic_test(expected, actual, test="ks", comments=""):
                      f" If statistics is small or the p-value is high (greater than the significance level 5%)" \
                      f", then we cannot reject the hypothesis. But we got p={p} and s={s}"
 
+
 def check_class_size(pop,
                      expected_class_size,
                      average_student_teacher_ratio,
                      average_student_all_staff_ratio,
-                     test_prefix="test",
-                     err_margin =1):
-    contact_nums =[ ]
+                     err_margin=1):
+    contact_nums = []
     for p in pop.values():
         if p["sc_student"] is not None:
             people = len(p["contacts"]["S"])
