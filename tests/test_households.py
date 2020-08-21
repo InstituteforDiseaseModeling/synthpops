@@ -149,7 +149,7 @@ class HouseholdsTest(unittest.TestCase):
         self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
 
     def test_custom_age_brackets(self):
-        self.is_debugging = True
+        self.is_debugging = False
         college_years = list(range(19, 23))
         early_career = list(range(23, 30))
         mid_career = list(range(30, 50))
@@ -534,6 +534,4 @@ class HouseholdsTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    test = HouseholdsTest()
-    test.setUp()
-    test.test_seattle_age_distro_honored()
+    unittest.main()

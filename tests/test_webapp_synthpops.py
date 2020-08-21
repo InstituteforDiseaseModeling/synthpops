@@ -114,8 +114,7 @@ if __name__ == '__main__':
 
     test_webapp_synthpops_calls(n, location=location, state_location=state_location, country_location=country_location,
                                 sheet_name=sheet_name)
-    test_webapp_contacts_calls(n, location=location, state_location=state_location, country_location=country_location,
-                               sheet_name=sheet_name)
+    test_webapp_contacts_calls(n, location=location, state_location=state_location, country_location=country_location)
     test_webapp_make_contacts(n, state_location=state_location, location=location, country_location=country_location)
     test_webapp_make_contacts_and_show_some_layers(n, state_location=state_location, location=location,
                                                    country_location=country_location)
