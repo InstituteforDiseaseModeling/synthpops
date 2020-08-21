@@ -16,6 +16,7 @@ from synthpops import cfg
 class TestSchoolStaff(unittest.TestCase):
 
     do_close = True # Whether or not to close plots after saving them to disk
+    n = 5001 # Number of people to run the tests for
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -76,12 +77,12 @@ class TestSchoolStaff(unittest.TestCase):
     def test_staff_generate(self):
 
         """
-        generate 10001 population and check if teacher/staff ratio match
+        generate a population and check if teacher/staff ratio match
         """
         seed = 1
         sp.set_seed(seed)
         #set param
-        n = 10001
+        n = self.n
         datadir = self.dataDir
         location = 'seattle_metro'
         state_location = 'Washington'
@@ -107,8 +108,8 @@ class TestSchoolStaff(unittest.TestCase):
         utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
                                        average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"{test_prefix}", average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
-        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}", do_close=self.do_close)
+        utilities.check_age_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}", do_close=self.do_close)
 
 
     def test_with_ltcf(self):
@@ -118,7 +119,7 @@ class TestSchoolStaff(unittest.TestCase):
         seed = 1
         sp.set_seed(seed)
         # set param
-        n= 10001
+        n = self.n
         datadir = self.dataDir
         location = 'seattle_metro'
         state_location = 'Washington'
@@ -151,8 +152,8 @@ class TestSchoolStaff(unittest.TestCase):
                                    average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio,
                                                      average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
-        utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_age_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
 
 
 # Run unit tests if called as a script

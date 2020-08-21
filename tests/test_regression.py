@@ -66,14 +66,18 @@ class TestRegression(unittest.TestCase):
 
         sc.savejson(filename, pop, indent=2)
         unchanged = self.check_result(actual_file=filename, prefix=test_prefix)
-        if not unchanged:
+        if unchanged:
+            print(f'Note: regression unchanged')
+        else:
+            print(f'Warning, regression changed! Generating report...')
             self.generate_reports()
             newfilename = os.path.join(self.pdfDir, "new_" + os.path.basename(filename))
             expectedfilename = os.path.join(os.path.dirname(__file__), "expected", os.path.basename(filename))
             shutil.copyfile(filename, newfilename)
-            print(f"regression test detected changes, please go to \n{self.pdfDir} "
-                  f"to review contact matrix report \n and compare {expectedfilename} \nwith {newfilename} "
-                  f"\n\nreplace expected {expectedfilename} \nwith {newfilename} \n if you approve this change.")
+            errormsg = f"regression test detected changes, please go to \n{self.pdfDir} " \
+                  f"to review contact matrix report \n and compare {expectedfilename} \nwith {newfilename} " \
+                  f"\n\nreplace expected {expectedfilename} \nwith {newfilename} \n if you approve this change."
+            raise ValueError(errormsg)
 
     def runpop(self, filename, actual_vals, testprefix = "test", method=sp.make_population):
         # if default sort order is not concerned:
