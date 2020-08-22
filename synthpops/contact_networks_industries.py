@@ -1,3 +1,5 @@
+# NOTE: This is a scratch file for the time being
+
 """
 This module uses workplace data by industry from `North American Industry Classification System`_ (NAICS) codes  to model workplaces as specific industries and the contact patterns for workers within each workplace.
 
