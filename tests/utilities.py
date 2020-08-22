@@ -28,8 +28,8 @@ def runpop(resultdir, actual_vals, testprefix, method):
     os.makedirs(resultdir, exist_ok=True)
     params = {}
     args = inspect.getfullargspec(method).args
-    for i in range(0, len(args)):
-        params[args[i]] = inspect.signature(method).parameters[args[i]].default
+    for arg in args:
+        params[arg] = inspect.signature(method).parameters[arg].default
     for name in actual_vals:
         if name in params.keys():
             params[name] = actual_vals[name]
