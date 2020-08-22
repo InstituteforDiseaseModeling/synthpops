@@ -11,6 +11,7 @@ if not sp.config.full_data_available:
 
 def test_api():
     ''' Basic SynthPops test '''
+    sp.logger.info('Testing API and logger')
 
     n = 2000
     max_contacts = {'S': 20, 'W': 10}
