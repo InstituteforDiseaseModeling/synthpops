@@ -42,7 +42,7 @@ class TestSchoolStaff(unittest.TestCase):
                 shutil.copy(os.path.join(cls.resultdir, f), os.path.join(dirname, f))
 
 
-    @unittest.skip("this long running scenario is excluded from BVT")
+    @unittest.skip("this long running scenario is excluded from BVT (basic verification tests)")
     def test_scale(self):
         seed = 1
         # set param
