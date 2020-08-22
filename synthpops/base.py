@@ -18,7 +18,8 @@ def norm_dic(dic):
     Returns:
         A normalized dictionary.
     """
-    total = sum(dic.values(), 0.0)
+    # total = np.sum([dic[i] for i in dic], dtype=float)
+    total = float(sum(dic.values()))
     if total == 0.0:
         return dic
     return {k:v/total for k,v in dic.items()}

@@ -2,13 +2,13 @@
 This module generates the household, school, and workplace contact networks.
 """
 
-# import os
+import os
 from copy import deepcopy
 from collections import Counter
 
 import sciris as sc
 import numpy as np
-# import pandas as pd
+import pandas as pd
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -18,7 +18,9 @@ from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import contacts as spct
+from . import school_modules as spsm
 from . import read_write as sprw
+from .config import datadir
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -228,7 +230,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
 
-    for s in range(2, 8):
+    for s in range(2, len(hh_sizes) + 1):
         homes_dic[s] = generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
@@ -244,14 +246,14 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Assign IDs to everyone in order by their households.
 
     Args:
-        homes (array): The generated synthetic ages of household members.
-        id_len (int) : The length of the UID.
+        homes (array)  : The generated synthetic ages of household members.
+        id_len (int)   : The length of the UID.
+        use_int (bool) : If True, use ints for the uids of individuals; otherwise use strings of length 'id_len'.
 
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
     age_by_uid_dic = dict()
-    # age_by_uid_dic = sc.objdict()
     homes_by_uids = []
 
     for h, home in enumerate(homes):
@@ -282,6 +284,7 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         country_location (string) : The name of the country the location is in.
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
         homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
 
     Returns:
@@ -297,21 +300,13 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         uids_in_school_by_age[a] = []
 
     if age_by_uid_dic is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the dictionary age_by_uid_dic.'
-            raise ValueError(errormsg)
-        # age_by_uid_dic = read_in_age_by_uid(datadir, location, state_location, country_location, n)
         age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
 
     if homes_by_uids is None:
-        if folder_name is None:
-            errormsg = f'The variable folder_name is not given. Please provide this variable so that synthpops knows where to read in the list of lists homes_by_uids'
-            raise ValueError(errormsg)
         try:
-            # homes_by_uids = read_setting_groups(datadir, location, state_location, country_location, 'households', folder_name, n)
-            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, setting='households', folder_name=folder_name, n=n)
+            homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, folder_name, 'households', n, with_ages=False)
         except:
-            raise ValueError('No households to bring in. Create people through those first.')
+            raise NotImplementedError('No households to bring in. Create people through those first.')
 
     # # go through all people at random and make a list of uids going to school as students
     # for uid in age_by_uid_dic:
@@ -371,22 +366,25 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
 def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
     """
     A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
+    This method models schools using matrices and so it does not create explicit school types.
 
     Args:
-        school_sizes (list): A list of school sizes.
-        uids_in_school (dict): A dictionary of students in school mapping ID to age.
-        uids_in_school_by_age (dict): A dictionary of students in school mapping age to the list of IDs with that age.
-        ages_in_school_count (dict): A dictionary mapping age to the number of students with that age.
+        school_sizes (list)          : A list of school sizes.
+        uids_in_school (dict)        : A dictionary of students in school mapping ID to age.
+        uids_in_school_by_age (dict) : A dictionary of students in school mapping age to the list of IDs with that age.
+        ages_in_school_count (dict)  : A dictionary mapping age to the number of students with that age.
         age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
         age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
         contact_matrix_dic (dict)    : A dictionary of age specific contact matrix for different physical contact settings.
-        verbose (bool): If True, print statements about the generated schools as they're being generated.
+        verbose (bool)               : If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student in place of their age.
+        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
+        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
     """
     syn_schools = []
     syn_school_uids = []
+    syn_school_types = []
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
     left_in_bracket = spb.get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
@@ -473,6 +471,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
+        syn_school_types.append('s')
         new_school = np.array(new_school)
         kids = new_school <= 19
         # new_school_age_counter = Counter(new_school)
@@ -480,7 +479,95 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
             print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
     if verbose:
         print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
-    return syn_schools, syn_school_uids
+    return syn_schools, syn_school_uids, syn_school_types
+
+
+def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
+
+    """
+    A method to send students to school together. This method uses the dictionaries school_types_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
+    a sampled reference student. Then the school type is used to determine the age range of the school. After that, the size of the school is then sampled conditionally on the school type and then the rest of the students
+    are chosen from the lists of students available in the dictionary uids_in_school_by_age. This method is not perfect and requires a strict definition of school type by age. For now, it is not able to model mixed school
+    types such as schools with Kindergarten through Grade 8 (K-8), or Kindergarten through Grade 12. These mixed types of schools may be common in some settings and this feature may be added later.
+
+    Args:
+        school_size_distr_by_type (dict) : A dictionary of school size distributions binned by size groups or brackets for each school type.
+        school_size_brackets (dict)      : A dictionary of school size brackets.
+        uids_in_school (dict)            : A dictionary of students in school mapping ID to age.
+        uids_in_school_by_age (dict)     : A dictionary of students in school mapping age to the list of IDs with that age.
+        ages_in_school_count (dict)      : A dictionary mapping age to the number of students with that age.
+        school_types_by_age (dict)       : A dictionary of the school type for each age.
+        school_type_age_ranges (dict)    : A dictionary of the age range for each school type.
+        verbose (bool)                   : If True, print statements about the generated schools as they're being generated.
+
+    Returns:
+        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
+        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+    """
+
+    syn_schools = []
+    syn_school_uids = []
+    syn_school_types = []
+
+    sorted_size_brackets = sorted(school_size_brackets.keys())
+
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+    age_keys = sorted(ages_in_school_count.keys())
+
+    while len(uids_in_school):
+
+        new_school = []
+        new_school_uids = []
+
+        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
+        aindex = age_keys[np.where(achoice)[0][0]]
+
+        uid = uids_in_school_by_age[aindex][0]
+        uids_in_school_by_age[aindex].remove(uid)
+        uids_in_school.pop(uid, None)
+        ages_in_school_count[aindex] -= 1
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        new_school.append(aindex)
+        new_school_uids.append(uid)
+
+        school_types = sorted(school_types_by_age[aindex].keys())
+        prob = [school_types_by_age[aindex][s] for s in school_types]
+        school_type = np.random.choice(school_types, p=prob, size=1)[0]
+        school_type_age_range = school_type_age_ranges[school_type]
+
+        school_size_distr = school_size_distr_by_type[school_type]
+
+        # sorted_brackets = sorted(school_size_brackets.keys())
+        prob_by_sorted_size_brackets = [school_size_distr[b] for b in sorted_size_brackets]
+        size_bracket = np.random.choice(sorted_size_brackets, p=prob_by_sorted_size_brackets)
+        size = np.random.choice(school_size_brackets[size_bracket])
+        size -= 1
+
+        # assume ages are uniformly distributed - all grades are roughy the same size - so calculate how many are in each grade or age
+        school_age_count = np.random.multinomial(size, [1./len(school_type_age_range)] * len(school_type_age_range), size=1)[0]
+
+        for n, a in enumerate(school_type_age_range):
+            count = school_age_count[n]
+            if count > ages_in_school_count[a]:
+                count = ages_in_school_count[a]
+                count = max(0, count)
+
+            school_uids_in_age = uids_in_school_by_age[a][:count]  # assign students to the school
+            uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
+            new_school += [a for i in range(count)]
+            new_school_uids += school_uids_in_age
+            ages_in_school_count[a] -= count
+
+        for uid in new_school_uids:
+            uids_in_school.pop(uid, None)
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        syn_schools.append(new_school)
+        syn_school_uids.append(new_school_uids)
+        syn_school_types.append(school_type)
+
+    return syn_schools, syn_school_uids, syn_school_types
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
@@ -562,7 +649,7 @@ def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_bra
 def generate_usa_workplace_sizes(workplace_sizes_by_bracket, workplace_size_brackets, workers_by_age_to_assign_count):
     """
     Given a number of individuals employed, generate a list of workplace sizes to place everyone in a workplace.
-    Specific to data from the US.
+    Specific to data from the US. Deprecated.
 
     Args:
         workplace_sizes_by_bracket (dict)     : The distribution of binned workplace sizes.
@@ -623,22 +710,22 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
+def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.
 
     Args:
-        syn_schools (list): list of lists where each sublist is a school with the ages of the students within
-        syn_school_uids (list): list of lists where each sublist is a school with the ids of the students within
-        employment_rates (dict): employment rates by age
-        workers_by_age_to_assign_count (dict): dictionary of the count of workers left to assign by age
-        potential_worker_uids (dict): dictionary of potential workers mapping their id to their age
-        potential_worker_uids_by_age (dict): dictionary mapping age to the list of worker ids with that age
-        potential_worker_ages_left_count (dict): dictionary of the count of potential workers left that can be assigned by age
-        student_teacher_ratio (int): average student teacher ratio
-        teacher_age_min (int): minimum age for teachers - should be location specific
-        teacher_age_max (int): maximum age for teachers - should be location specific
-        verbose (bool): If True, print statements about the generated schools as teachers are being added to each school.
+        syn_schools (list)                      : list of lists where each sublist is a school with the ages of the students within
+        syn_school_uids (list)                  : list of lists where each sublist is a school with the ids of the students within
+        employment_rates (dict)                 : employment rates by age
+        workers_by_age_to_assign_count (dict)   : dictionary of the count of workers left to assign by age
+        potential_worker_uids (dict)            : dictionary of potential workers mapping their id to their age
+        potential_worker_uids_by_age (dict)     : dictionary mapping age to the list of worker ids with that age
+        potential_worker_ages_left_count (dict) : dictionary of the count of potential workers left that can be assigned by age
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        teacher_age_min (int)                   : minimum age for teachers - should be location specific.
+        teacher_age_max (int)                   : maximum age for teachers - should be location specific.
+        verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
         List of lists of schools with the ages of individuals in each, lists of lists of schools with the ids of individuals in each,
@@ -650,14 +737,14 @@ def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, work
     all_teachers = dict.fromkeys(np.arange(101), 0)
 
     syn_teachers = []
-    syn_teacher_ids = []
+    syn_teacher_uids = []
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
         school_uids = syn_school_uids[n]
 
         size = len(school)
-        nteachers = int(size / float(student_teacher_ratio))
+        nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
         if verbose:
             print('nteachers', nteachers, 'student-teacher ratio', size / nteachers)
@@ -676,22 +763,94 @@ def assign_teachers_to_work(syn_schools, syn_school_uids, employment_rates, work
             potential_worker_ages_left_count[a] -= 1
             potential_worker_uids.pop(uid, None)
 
-            # school.append(a)
-            # school_uids.append(uid)
             teachers.append(a)
             teacher_uids.append(uid)
 
         syn_teachers.append(teachers)
-        syn_teacher_ids.append(teacher_uids)
-        # syn_schools[n] = school
-        # syn_school_uids[n] = school_uids
+        syn_teacher_uids.append(teacher_uids)
+
         if verbose:
             print('school with teachers', sorted(school))
             print('nkids', (np.array(school) <= 19).sum(), 'n20+', (np.array(school) > 19).sum())
             print('kid-adult ratio', (np.array(school) <= 19).sum() / (np.array(school) > 19).sum())
 
-    # return syn_schools, syn_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
-    return syn_teachers, syn_teacher_ids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+    return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+
+
+def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, verbose=True):
+    """
+    Assign additional staff to each school according to the average student to all staff ratio.
+
+    Args:
+        syn_school_uids (list)                  : list of lists where each sublist is a school with the ids of the students within
+        syn_teacher_uids (list)                 : list of lists where each sublist is a school with the ids of the teachers within
+        workers_by_age_to_assign_count (dict)   : dictionary of the count of workers left to assign by age
+        potential_worker_uids (dict)            : dictionary of potential workers mapping their id to their age
+        potential_worker_uids_by_age (dict)     : dictionary mapping age to the list of worker ids with that age
+        potential_worker_ages_left_count (dict) : dictionary of the count of potential workers left that can be assigned by age
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        staff_age_min (int)                     : The minimum age for non teaching staff.
+        staff_age_max (int)                     : The maximum age for non teaching staff.
+        verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
+
+    Returns:
+        List of lists of schools with the ids of non teaching staff for each school,
+        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
+        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+    """
+
+    if average_student_all_staff_ratio is None:
+        average_student_all_staff_ratio = 0
+
+    if average_student_teacher_ratio < average_student_all_staff_ratio:
+        errormsg = f'The ratio of students to all staff at school must be lower than or equal to the ratio students to teachers at school. All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school.'
+        raise ValueError(errormsg)
+
+    n_students_list = [len(student_list) for student_list in syn_school_uids]  # what is the number of students in each school
+    n_teachers_list = [len(teacher_list) for teacher_list in syn_teacher_uids]  # what is the number of teachers in each school
+
+    if average_student_all_staff_ratio == 0:
+        n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
+    else:
+        n_all_staff_list = [max(1, int(i/average_student_all_staff_ratio)) for i in n_students_list]  # need at least one staff member
+    n_non_teaching_staff_list = [n_all_staff_list[i] - n_teachers_list[i] for i in range(len(n_students_list))]
+
+    min_n_non_teaching_staff = min(n_non_teaching_staff_list)
+
+    if min_n_non_teaching_staff <= 0:
+        errormsg = f'At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio and the average_student_all_staff_ratio if you do not expect this to be the case, or some of the generated schools may have too few staff members.'
+        print(errormsg)
+        # print(n_students_list)
+
+        if verbose:
+            print(n_students_list)
+            print(n_teachers_list)
+            print(n_all_staff_list)
+            print(n_non_teaching_staff_list)
+        # n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
+        n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
+        # n_non_teaching_staff_list = n_teachers_list.copy()
+
+    non_teaching_staff_uids = []
+
+    for i in range(len(n_non_teaching_staff_list)):
+        n_non_teaching_staff = n_non_teaching_staff_list[i]  # how many non teaching staff for the school
+        non_teaching_staff_uids_in_this_school = []
+
+        for j in range(n_non_teaching_staff):
+            a = spsamp.sample_from_range(workers_by_age_to_assign_count, staff_age_min, staff_age_max)
+            uid = potential_worker_uids_by_age[a][0]
+            workers_by_age_to_assign_count[a] -= 1
+            potential_worker_ages_left_count[a] -= 1
+            potential_worker_uids.pop(uid, None)
+            potential_worker_uids_by_age[a].remove(uid)
+
+            non_teaching_staff_uids_in_this_school.append(uid)
+
+        non_teaching_staff_uids.append(non_teaching_staff_uids_in_this_school)
+
+    return non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
 def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
@@ -818,7 +977,11 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', school_enrollment_counts_available=False, verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
+                                  school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                  average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
+                                  average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
+                                  verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
     and then writes this population to appropriate files.
@@ -831,6 +994,18 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         country_location (string)                 : The name of the country the location is in.
         sheet_name (string)                       : The name of the sheet in the Excel file with contact patterns.
         school_enrollment_counts_available (bool) : If True, a list of school sizes is available and a count of the sizes can be constructed.
+        with_school_types (bool)                  : If True, create explicit school types
+        average_class_size (float)                : The average classroom size
+        inter_grade_mixing (float)                : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)     : The average number of students per teacher.
+        average_teacher_teacher_degree (float)    : The average number of contacts per teacher with other teachers.
+        teacher_age_min (int)                     : The minimum age for teachers.
+        teacher_age_max (int)                     : The maximum age for teachers.
+        average_student_all_staff_ratio (float)   : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float)   : The average number of contacts per additional non teaching staff in schools.
+        staff_age_min (int)                       : The minimum age for non teaching staff.
+        staff_age_max (int)                       : The maximum age for non teaching staff.
+        school_mixing_type (string)               : The mixing type for schools.
         verbose (bool)                            : If True, print statements as contacts are being generated.
         plot (bool)                               : If True, plot and show a comparison of the generated age distribution in households vs. the expected age distribution of the population from census data being sampled.
         write (bool)                              : If True, write population to file.
@@ -889,7 +1064,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
     syn_age_count = Counter(syn_ages)
-    syn_age_distr_unordered = spb.norm_dic(syn_age_count) # Ensure it's ordered
+    syn_age_distr_unordered = spb.norm_dic(syn_age_count)  # Ensure it's ordered
     syn_age_keys = list(syn_age_distr_unordered.keys())
     sort_inds = np.argsort(syn_age_keys)
     syn_age_distr = {}
@@ -898,7 +1073,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # actual household sizes
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
-    # totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
+    totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
     hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
     hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
@@ -942,24 +1117,43 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
-    uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=age_by_uid_dic, homes_by_uids=homes_by_uids, use_default=use_default)  # use_default will call in school enrollment rates from the location if available or use the defaults
+    uids_in_school, uids_in_school_by_age, ages_in_school_count = get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
-    # Get school sizes
-    gen_school_sizes = generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+    if with_school_types:
+        school_size_distr_by_type = spsm.get_default_school_size_distr_by_type()  # this and related school type functions should become location dependent
+        school_size_brackets = spsm.get_default_school_size_distr_brackets()
 
-    # Assign students to school
-    gen_schools, gen_school_uids = send_students_to_school(gen_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose)
+        school_types_by_age = spsm.get_default_school_types_by_age()
+        school_type_age_ranges = spsm.get_default_school_type_age_ranges()
+
+        syn_schools, syn_school_uids, syn_school_types = send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
+                                                                                                   ages_in_school_count,
+                                                                                                   school_types_by_age,
+                                                                                                   school_type_age_ranges,
+                                                                                                   verbose=verbose)
+
+    else:
+        # use contact matrices to send students to school
+
+        # Get school sizes
+        syn_school_sizes = generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+
+        # Assign students to school
+        syn_schools, syn_school_uids, syn_school_types = send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose)
 
     # Get employment rates
     employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     # Find people who can be workers (removing everyone who is currently a student)
-    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = get_uids_potential_workers(gen_school_uids, employment_rates, age_by_uid_dic)
+    potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic)
     workers_by_age_to_assign_count = get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
     # Assign teachers and update school lists
-    # gen_schools, gen_school_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
-    gen_teachers, gen_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_work(gen_schools, gen_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, verbose=verbose)
+    syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
+                                                                                                                                                     average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
+
+    syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
+                                                                                                                                                          average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
 
     # Generate non-school workplace sizes needed to send everyone to work
     workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -972,10 +1166,10 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
             print(a, workers_by_age_to_assign_count[a]/len(uids_by_age_dic[a]), employment_rates[a])
 
     # Assign all workers who are not staff at schools to workplaces
-    gen_workplaces, gen_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
+    syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
 
     workers_placed_by_age_count = dict.fromkeys(np.arange(0, 101), 0)
-    for w in gen_workplaces:
+    for w in syn_workplaces:
         for a in w:
             workers_placed_by_age_count[a] += 1
 
@@ -983,17 +1177,31 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         for a in workers_placed_by_age_count:
             print(a, workers_placed_by_age_count[a], int(employment_rates[a] * len(uids_by_age_dic[a])), workers_placed_by_age_count[a]/len(uids_by_age_dic[a]), employment_rates[a], workers_placed_by_age_count[a]/len(uids_by_age_dic[a])/employment_rates[a])
         print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
-        print('work sizes made', np.sum([len(w) for w in gen_workplaces]))
+        print('work sizes made', np.sum([len(w) for w in syn_workplaces]))
 
     # save schools and workplace uids to file
     if write:
 
         sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'schools', gen_school_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'teachers', gen_teacher_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, 'workplaces', gen_workplace_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'households', homes_by_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'schools', syn_school_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'teachers', syn_teacher_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'non_teaching_staff', syn_non_teaching_staff_uids)
+        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'workplaces', syn_workplace_uids)
 
     if return_popdict:
-        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, gen_school_uids, gen_teacher_uids, gen_workplace_uids)
+        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic,
+                                                                 homes_by_uids,
+                                                                 syn_school_uids,
+                                                                 syn_teacher_uids,
+                                                                 syn_workplace_uids,
+                                                                 syn_non_teaching_staff_uids,
+                                                                 with_school_types=with_school_types,
+                                                                 school_mixing_type=school_mixing_type,
+                                                                 average_class_size=average_class_size,
+                                                                 inter_grade_mixing=inter_grade_mixing,
+                                                                 average_student_teacher_ratio=average_student_teacher_ratio,
+                                                                 average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                                 average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                                 average_additional_staff_degree=average_additional_staff_degree)
         return popdict

@@ -8,8 +8,6 @@ import sciris as sc
 import numpy as np
 import pandas as pd
 
-from . import base as spb
-
 
 def write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic):
     """
@@ -20,12 +18,13 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
         location (string)         : The name of the location.
         state_location (string)   : The name of the state the location is in.
         country_location (string) : The name of the country the location is in.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
 
     Returns:
         None
-    """
 
+    """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
@@ -50,6 +49,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
         country_location (string) : The name of the country the location is in.
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
         n (int)                   : The number of people in the population.
+
     Returns:
         A dictionary mapping ID to age for all individuals in the population.
 
@@ -64,23 +64,24 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
     # return sc.objdict(zip(df.iloc[:, 0].values, df.iloc[:, 1].values.astype(int)))
 
 
-def write_groups_by_age_and_uid(datadir, location, state_location, country_location, age_by_uid_dic, folder_name, group_type, groups_by_uids):
+def write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, group_type, groups_by_uids):
     """
     Write groups to file with both ID and their ages.
 
     Args:
-        datadir (string)                : The file path to the data directory.
-        location (string)               : The name of the location.
-        state_location (string)         : The name of the state of the location is in.
-        country_location (string)       : The name of the country the location is in.
-        age_by_uid_dic (dict)           : A dictionary mapping ID to age for each individual in the population.
-        groups_by_uids (list)           : The list of lists, where each sublist represents a household and the IDs of the household members.
-        group_type (string)             : The name of the group type.
+        datadir (string)          : The file path to the data directory.
+        location (string)         : The name of the location.
+        state_location (string)   : The name of the state of the location is in.
+        country_location (string) : The name of the country the location is in.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
+        age_by_uid_dic (dict)     : A dictionary mapping ID to age for each individual in the population.
+        group_type (string)       : The name of the group type.
+        groups_by_uids (list)     : The list of lists, where each sublist represents a household and the IDs of the household members.
 
     Returns:
         None
-    """
 
+    """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
@@ -104,7 +105,7 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     fg_uid.close()
 
 
-def read_setting_groups(datadir, location, state_location, country_location, setting, folder_name, n, with_ages=False):
+def read_setting_groups(datadir, location, state_location, country_location, folder_name, group_type, n, with_ages=False):
     """
     Read in groups of people interacting in different social settings from file.
 
@@ -113,17 +114,17 @@ def read_setting_groups(datadir, location, state_location, country_location, set
         location (string)         : The name of the location.
         state_location (string)   : The name of the state the location is in.
         country_location (string) : The name of the country the location is in.
+        folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
+        group_type (string)       : The name of the group type.
         n (int)                   : The number of people in the population.
-        setting (string): The name of the physical contact setting: H for households, S for schools, W for workplaces, C for community or other.
-        with_ages (bool): If True, read in the ages of each individual in the group; otherwise, read in their IDs.
+        with_ages (bool)          : If True, read in the ages of each individual in the group; otherwise, read in their IDs.
 
     Returns:
         A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.
     """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_uids.dat')
     if with_ages:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_ages.dat')
-    else:
-        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + setting + '_with_uids.dat')
+        file_path = file_path.replace('_uids', '_ages')
     groups = []
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):
