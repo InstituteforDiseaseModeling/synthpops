@@ -91,7 +91,9 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
     result = result[result.teacher > 0][result.staff > 0]
 
     # exclude student size less than 3*average_student_all_staff_ratio
-    # average across school must match input
+    # 3 is an experimental number and a more relaxed margin to prevent small schools to impact
+    # the average_student_all_staff_ratio as they tend to be larger than average
+    # in general, average across schools must match input
     actual_teacher_ratio = result[result["student"] > 3 * average_student_teacher_ratio]["teacher_ratio"].mean()
     print(f"actual average student teacher ratio (ignore small size schools):{actual_teacher_ratio}")
     assert (int(average_student_teacher_ratio + err_margin) >= actual_teacher_ratio >= int(
@@ -116,18 +118,6 @@ def plot_array(expected, actual, names=None, datadir=None, testprefix="test", do
     plt.rc('font', **font)
     plt.title(f"Comparison for {testprefix}")
 
-    # Handle the case of names being supplied, or if numbers will be used
-    # if names is None:
-    #     width = 0.5 # Width of the bars
-    #     alpha = 1.0 # Alpha of the bars
-    #     x = np.arange(len(expected))
-    #     x_exp = x + width/2
-    #     x_act = x - width/2
-    # else:
-    # width = 1.0
-    # alpha = 0.5
-    # x_exp = names
-    # x_act = names
     names = np.arange(len(expected)) if names is None else names
     ax.hist(x=names, histtype='bar', weights=expected, label='expected', bins=len(expected))
     ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
@@ -159,12 +149,11 @@ def check_age_distribution(pop,
     """
     age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    ageindex = sp.get_age_by_brackets_dic(brackets)
     actual_age_dist = dict.fromkeys(list(range(0, len(brackets))), 0)
     for p in pop.values():
-        for b in brackets:
-            if p["age"] in brackets[b]:
-                actual_age_dist[b] += 1
-                break
+       actual_age_dist[ageindex[p["age"]]] += 1
+
     # un-normalized data
     # expected_values = np.array(list(age_dist.values())) * n
     # actual_values = np.array(list(actual_age_dist.values()))
@@ -242,12 +231,14 @@ def check_enrollment_distribution(pop,
 
     # check for expected 0 count bins
     # if expected enrollment is 0, actual enrollment must be 0
+    # if the expected enrollment is greater than threshold, actual enrollment should not be zero
+    # here we use tentative threshold 9 meaning if we expected 10+ enrollment and actually
+    # generate 0, we should investigate why
     threshold = 9
     assert np.sum(actual_values[expected_values == 0]) == 0, \
         f"expected enrollment should be 0 for these age bins: " \
         f"{str(np.where((expected_values == 0) & (actual_values != 0)))}"
 
-    # if expected is greater than some threshold, actual should not be 0
     assert len(actual_values[np.where((expected_values > threshold) & (actual_values == 0))]) == 0, \
         f"actual enrollment should not be 0 for these age bins: " \
         f"{str(np.where((expected_values > threshold) & (actual_values == 0)))}"
