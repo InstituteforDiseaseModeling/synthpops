@@ -1,6 +1,4 @@
-"""
-The module contains frequently-used functions that do not neatly fit into other areas of the code base.
-"""
+"""The module contains frequently-used functions that do not neatly fit into other areas of the code base."""
 
 # import sciris as sc
 import numpy as np
@@ -22,7 +20,7 @@ def norm_dic(dic):
     total = float(sum(dic.values()))
     if total == 0.0:
         return dic
-    return {k:v/total for k,v in dic.items()}
+    return {k: v / total for k, v in dic.items()}
 
 
 def norm_age_group(age_dic, age_min, age_max):
@@ -38,7 +36,7 @@ def norm_age_group(age_dic, age_min, age_max):
         A normalized dictionary for keys in the range ``age_min`` to ``age_max``, inclusive.
 
     """
-    dic = {a:age_dic[a] for a in range(age_min, age_max+1)}
+    dic = {a: age_dic[a] for a in range(age_min, age_max + 1)}
     return norm_dic(dic)
 
 
