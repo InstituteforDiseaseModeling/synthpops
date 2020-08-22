@@ -36,14 +36,6 @@ synthpops.contact\_networks module
    :undoc-members:
    :show-inheritance:
 
-synthpops.contact\_networks\_industries module
-----------------------------------------------
-
-.. automodule:: synthpops.contact_networks_industries
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 synthpops.contacts module
 -------------------------
 
@@ -92,6 +84,14 @@ synthpops.sampling module
    :undoc-members:
    :show-inheritance:
 
+synthpops.school\_modules module
+--------------------------------
+
+.. automodule:: synthpops.school_modules
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 synthpops.version module
 ------------------------
 
@@ -99,6 +99,7 @@ synthpops.version module
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 Module contents
 ---------------
