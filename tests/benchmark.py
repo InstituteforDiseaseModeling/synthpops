@@ -18,8 +18,20 @@ from pathlib import Path
 import synthpops as sp
 from datetime import datetime
 
-#to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
-to_profile_dict = {0:'make_population',1:'trim_contacts',2:'generate_synthetic_population',3:'generate_all_households', 4:'generate_larger_households', 5:'assign_rest_of_workers', 6:'make_popdict', 7:'make_contacts', 8:'simple_n_contact_ages', 9:'generate_living_alone', 10:'generate_household_head_age_by_size' , 11:'sample_from_range'}
+# to_profile = 'assign_rest_of_workers' # Must be one of the options listed below
+to_profile_dict = {
+    0: 'make_population',
+    1: 'trim_contacts',
+    2: 'generate_synthetic_population',
+    3: 'generate_all_households',
+    4: 'generate_larger_households',
+    5: 'assign_rest_of_workers',
+    6: 'make_popdict',
+    7: 'make_contacts',
+    8: 'simple_n_contact_ages',
+    9: 'generate_living_alone',
+    10: 'generate_household_head_age_by_size',
+    11: 'sample_from_range'}
 func_options = {
     'make_population': sp.make_population,
     'trim_contacts': sp.trim_contacts, # This is where most of the time goes for loading a population
@@ -35,16 +47,18 @@ func_options = {
     'sample_from_range':sp.sampling.sample_from_range,
     }
 
+
 def make_pop(n):
     """
-        run function to create n population for input n
+    run function to create n population for input n
     """
-    #n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
-    max_contacts = {'S': 20, 'W': 10}
+    # n = [10000, 10001][1] # Use either a pre-generated population, or one that has to be made from scratch
+    max_contacts = {'W': 10}  # only workplaces get trimmed. Schools have a separate method in the schools_module
     population = sp.make_population(n=n, max_contacts=max_contacts)
     return population
 
-def run_benchmark(n, test_index_list, out_dir, nruns = 1):
+
+def run_benchmark(n, test_index_list, out_dir, nruns=1):
     """
     loop over list of n and output perf profile for each n to test_n.txt
     """
@@ -68,10 +82,11 @@ def run_benchmark(n, test_index_list, out_dir, nruns = 1):
             sys.stdout.close()
             sys.stdout = saved_stdout
             if j == 0:
-                test_dict[indx] =stop
+                test_dict[indx] = stop
             else:
-                test_dict[indx] = test_dict[indx] + (stop )
+                test_dict[indx] = test_dict[indx] + (stop)
     return test_dict
+
 
 if __name__ == '__main__':
 
@@ -80,7 +95,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
     parser.add_argument('--runs', dest='num_runs', type=int, default=1, help='number of runs to average')
-    parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')
+    parser.add_argument('-t', '--test', dest='test_index_list', type=int, action='append', default=[], help='test to run')
     parser.add_argument('n', nargs='*', default=[10001], type=int, help='population')
     args = parser.parse_args()
     test_list = args.test_index_list
@@ -89,7 +104,7 @@ if __name__ == '__main__':
     nruns = args.num_runs
     runs = {}
     for n in args.n:
-        print("start processing {0} , time = {1}".format(n,datetime.now().strftime("%H:%M:%S")))
+        print("start processing {0} , time = {1}".format(n, datetime.now().strftime("%H:%M:%S")))
         outdir = os.path.join(args.outdir, "pop_" + str(n))
         Path(outdir).mkdir(parents=True, exist_ok=True)
         runs[n] = run_benchmark(n, test_list, outdir, nruns=nruns)
@@ -97,10 +112,6 @@ if __name__ == '__main__':
     print("end  processing time = {0}".format(datetime.now().strftime("%H:%M:%S")))
 
     print("population  test                              time")
-    for pop,test in runs.items():
+    for pop, test in runs.items():
         for t_indx, t_time in test.items():
             print("{:10d}  {:30} {:.2f}".format(pop, to_profile_dict[t_indx], t_time))
-
-
-
-

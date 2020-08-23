@@ -913,7 +913,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['W'][bindex, :]
         sum_b_prob = np.sum(b_prob)
-        if sum_b_prob> 0:
+        if sum_b_prob > 0:
             b_prob = b_prob / sum_b_prob
 
         if size > len(potential_worker_uids) - 1:
@@ -965,9 +965,13 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     contact_matrix_dic['W'][:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = contact_matrix_dic['W'][bindex, :]
-                    local_sum_b_prob = np.sum(b_prob)
-                    if local_sum_b_prob > 0:
-                        b_prob = b_prob / local_sum_b_prob
+                    # local_sum_b_prob = np.sum(b_prob)
+                    # if local_sum_b_prob > 0:
+                    #     b_prob = b_prob / local_sum_b_prob
+                    sum_b_prob = np.sum(b_prob)
+                    if sum_b_prob > 0:
+                        b_prob = b_prob / sum_b_prob
+                    sum_b_prob = np.sum(b_prob)
 
         if verbose:
             print(n, Counter(new_work))
