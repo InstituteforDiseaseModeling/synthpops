@@ -10,7 +10,7 @@ from collections import Counter
 from . import base as spb
 from . import config as cfg
 
-def get_relitive_path(datadir):
+def get_relative_path(datadir):
     base_dir = datadir
     if len(cfg.rel_path) > 1:
         base_dir = os.path.join(datadir, *cfg.rel_path)
@@ -517,7 +517,7 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
     """
     if file_path is None:
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
-        base_dir = get_relitive_path(datadir)
+        base_dir = get_relative_path(datadir)
 
 
         if setting_code in setting_names:
@@ -945,11 +945,16 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
                 raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
         sizes = df.iloc[:, 0].values
         size_count = Counter(sizes)
+        # drop school sizes under 2
+        for s in range(2):
+            size_count.pop(s, None)
+
         # question: do we need to locations to default values before call
         # if use_default is set, and and we use it to get df, shouldest we use
         # defaults to get_get_school_brackets()?. If yes, we could assign values in
         # if use_defailts.
         # review for multi countries
+
         size_brackets = get_school_size_brackets(datadir, location, state_location, country_location)  # add option to give input filenames!
 
         size_by_bracket_dic = spb.get_age_by_brackets_dic(size_brackets)
@@ -958,8 +963,11 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
 
         # aggregate the counts by bracket or bins
         for s in size_count:
-            b = size_by_bracket_dic[s]
-            bracket_count[b] += size_count[s]
+            try:
+                b = size_by_bracket_dic[s]
+                bracket_count[b] += size_count[s]
+            except KeyError:
+                continue
 
         size_distr = spb.norm_dic(bracket_count)
     # read in size distribution from data file
@@ -1069,7 +1077,7 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
         A file path to employment rates by age.
     """
     levels = [location, state_location, country_location]
-    base_dir = get_relitive_path(datadir)
+    base_dir = get_relative_path(datadir)
 
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -1127,7 +1135,7 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
     Returns:
         A file path to workplace size brackets.
     """
-    base_dir = get_relitive_path(datadir)
+    base_dir = get_relative_path(datadir)
 
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -1187,7 +1195,7 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
         A file path to the distribution of workplace sizes by bracket.
     """
     levels = [location, state_location, country_location]
-    base_dir = get_relitive_path(datadir)
+    base_dir = get_relative_path(datadir)
 
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -1231,7 +1239,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
 
 
 def get_state_postal_code( state_location, country_location):
-    base_dir = get_relitive_path(cfg.datadir)
+    base_dir = get_relative_path(cfg.datadir)
     file_path = os.path.join(base_dir,  country_location, 'postal_codes.csv')
 
     df = pd.read_csv(file_path, delimiter=',')
@@ -1252,7 +1260,7 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
         A file path to data on Long Term Care Facilities from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
         Part 1 or 2 are available.
     """
-    base_dir=get_relitive_path(datadir)
+    base_dir=get_relative_path(datadir)
     if country_location is None:
         raise NotImplementedError("Missing country_location string.")
     if state_location is None:
@@ -1293,7 +1301,7 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
         A file path to data on the size distribution of residents per facility for Long Term Care Facilities.
     """
     levels = [location, state_location, country_location]
-    base_dir = get_relitive_path(cfg.datadir)
+    base_dir = get_relative_path(cfg.datadir)
 
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -1354,11 +1362,11 @@ def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, locat
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(get_relitive_path(datadir),  country_location, 'assisted_living', 'aggregated_residents_bins.csv')
+        return os.path.join(get_relative_path(datadir), country_location, 'assisted_living', 'aggregated_residents_bins.csv')
     elif location is None:
-        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
+        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
     else:
-        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
+        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
 
 
 def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
@@ -1409,11 +1417,11 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, locat
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(get_relitive_path(datadir),  country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relative_path(datadir), country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
     elif location is None:
-        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
     else:
-        return os.path.join(get_relitive_path(datadir),  country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
+        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
 
 
 def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):

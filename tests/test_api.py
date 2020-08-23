@@ -9,6 +9,8 @@ if not sp.config.full_data_available:
 
 
 def test_api():
+    ''' Basic SynthPops test '''
+    sp.logger.info('Testing API and logger')
 
     n = 2000
     max_contacts = {'S': 20, 'W': 10}
@@ -21,7 +23,8 @@ def test_api():
     return population
 
 
-def test_plot_pop(do_show=False, pause=0.2):
+def plot_pop(do_show=False, pause=0.2):
+    ''' Plot an example population '''
 
     plotconnections = True
     n = 5000
@@ -88,5 +91,5 @@ def test_plot_pop(do_show=False, pause=0.2):
 
 if __name__ == '__main__':
     pop1 = test_api()
-    fig  = test_plot_pop(do_show=True)
+    # fig  = test_plot_pop(do_show=True)
     print('Done.')

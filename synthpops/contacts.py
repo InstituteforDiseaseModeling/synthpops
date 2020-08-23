@@ -1,5 +1,5 @@
 """
-Generate contacts between people in the population, with many options possible
+Generate contacts between people in the population, with many options possible.
 """
 
 import os
@@ -11,12 +11,13 @@ import networkx as nx
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import base as spb
-from . import contact_networks as spcnx
+from . import school_modules as spsm
 from . import read_write as sprw
-from .config import datadir
+from .config import datadir, logger as log, checkmem
+from copy import deepcopy
 
 
-def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=16):
+def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
     Create a dictionary of n people with age, sex and loc keys
 
@@ -34,8 +35,9 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     Returns:
         A dictionary where keys are the uid of each person and the values are another dictionary containing values for other attributes of the person
     """
+    log.debug('make_popdict()')
 
-    min_people = 100
+    min_people = 1000
 
     if location             is None: location = 'seattle_metro'
     if state_location is None: state_location = 'Washington'
@@ -43,21 +45,16 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     # A list of UIDs was supplied as the first argument
     if uids is not None:  # UIDs were supplied, use them
         n = len(uids)
-        # uid_mapping = {uids[i]: i for i in range(len(uids))}
+        # if uids are ints
         try:
             uid_mapping = {uid: int(uid) for u, uid in enumerate(uids)}
+        # if uids are strings then map them to an int
         except:
             uid_mapping = {uid: u for u, uid in enumerate(uids)}  # replacing uids for uid_mapping since uids might be strings
     else:  # Not supplied, generate
         n = int(n)
-        # default to using ints for ids from now on
-        uids = [i for i in range(n)]
-        uid_mapping = {i: i for i in range(n)}
-
-        # using strings for uids
-        # uids = []
-        # for i in range(n):
-            # uids.append(sc.uuid(length=id_len))
+        uids = list(range(n))
+        uid_mapping = {u: u for u in uids}
 
     # Check that there are enough people
     if n < min_people:
@@ -67,23 +64,29 @@ def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_
     if ages is None and sexes is None:
         if use_demography:
             if country_location != 'usa':
-                gen_ages = spsamp.get_age_n(datadir, n=n, location=location, state_location=state_location, country_location=country_location)
-                gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
+                # no sex data for places outside of the US
+                gen_ages = spsamp.get_age_n(datadir, n=n, location=location, state_location=state_location,
+                                            country_location=country_location)
+                gen_sexes = list(np.random.binomial(1, p=0.5, size=n))  # randomly assign sex
             else:
-                if location is None: location, state_location = 'seattle_metro', 'Washington'
-                gen_ages, gen_sexes = spsamp.get_usa_age_sex_n(datadir, location=location, state_location=state_location, country_location=country_location, n_people=n)
+                if location is None: location, state_location = 'seattle_metro', 'Washington'  # currently defaults to Seattle based data
+                gen_ages, gen_sexes = spsamp.get_usa_age_sex_n(datadir, location=location,
+                                                               state_location=state_location,
+                                                               country_location=country_location, n_people=n)
         else:
-            # if location is None:
+            # not using any demography data so simply creating uniformly distributed ages and sex for n people
             gen_ages, gen_sexes = spsamp.get_age_sex_n(None, None, None, n_people=n)
 
     # you only have ages...
     elif ages is not None and sexes is None:
         if country_location == 'usa':
-            if location is None: location, state_location = 'seattle_metro', 'Washington'
-            gen_ages, gen_sexes = spsamp.get_usa_sex_n(datadir, ages, location=location, state_location=state_location, country_location=country_location)
+            if location is None: location, state_location = 'seattle_metro', 'Washington'  # currently defaults to Seattle based data
+            gen_ages, gen_sexes = spsamp.get_usa_sex_n(datadir, ages, location=location, state_location=state_location,
+                                                       country_location=country_location)
         else:
             gen_ages = ages
             gen_sexes = list(np.random.binomial(1, p=0.5, size=n))
+            # raise NotImplementedError('Currently, only locations in the US are supported.')
 
     # you only have sexes...
     elif ages is None and sexes is not None:
@@ -133,24 +136,22 @@ def make_contacts_generic(popdict, network_distr_args):
     uids = popdict.keys()
     uids = [uid for uid in uids]
 
-    # if isinstance(uids[0], str):
-    #     uid_mapping = {uid: u for u, uid in enumerate(uids)}
-
-    # elif isinstance(uids[0], int):
-    #     uid_mapping = {i: i for i in range(len(uids))}
-
     N = len(popdict)
+    if n_contacts > N:
+        print(f'Average degree cannot be larger than the size of the population. Creating a completely connected graph now instead.')
+        n_contacts = N
 
     if network_type == 'poisson_degree':
-        p = float(n_contacts)/N
+        p = float(n_contacts) / N
 
         G = nx.erdos_renyi_graph(N, p, directed=directed)
 
     A = [a for a in G.adjacency()]
 
     for n, uid in enumerate(uids):
+        # source_uid = uids[n]
         targets = [t for t in A[n][1].keys()]
-        target_uids = [uids[target] for target in targets]  # if using uids which may be strings or ints
+        target_uids = [uids[target] for target in targets]
         popdict[uid]['contacts']['M'] = set(target_uids)
 
     return popdict
@@ -393,9 +394,10 @@ def make_contacts_without_social_layers_and_sex(popdict, n_contacts_dic, locatio
 
     """
 
-    # using a single contact matrix combined from the other settings available
+    # using a flat contact matrix
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
+                                                  country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
     num_agebrackets = len(age_brackets)
 
@@ -457,7 +459,8 @@ def make_contacts_with_social_layers_and_sex(popdict, n_contacts_dic, location, 
     # use a contact matrix dictionary and n_contacts_dic for the average number of contacts in each layer
     uids_by_age_dic = spb.get_uids_by_age_dic(popdict)
 
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location,
+                                                  country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_mixing_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name)
@@ -614,7 +617,7 @@ def save_synthpop(datadir, contacts, location):
         None
     """
 
-    filename = os.path.join(spdata.get_relitive_path(datadir), location + '_synthpop_' + str(len(contacts)) + '.pop')
+    filename = os.path.join(spdata.get_relative_path(datadir), location + '_synthpop_' + str(len(contacts)) + '.pop')
     sc.saveobj(filename=filename, obj=contacts)
 
 
@@ -624,8 +627,6 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     probability of an edge between any two groups controlled by p_matrix if provided.
     Forces inter group edge for each individual in group 1 with force_cross_groups equal to True.
     This means not everyone in group 2 will have a contact with group 1.
-
-    The members of group 1 and group 2 should be distinct and non-overlapping.
 
     Args:
         group_1 (list)            : list of ids for group 1
@@ -743,19 +744,35 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     return popdict
 
 
-def make_contacts_from_microstructure(datadir, location, state_location, country_location, n, with_industry_code=False):
+def make_contacts_from_microstructure(datadir, location, state_location, country_location, n,
+                                      with_non_teaching_staff=True,
+                                      with_school_types=False, school_mixing_type='random',
+                                      average_class_size=20, inter_grade_mixing=0.1,
+                                      average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
+                                      average_student_all_staff_ratio=15, average_additional_staff_degree=20,
+                                      school_type_by_age=None, with_industry_code=False, verbose=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
     codes are only available to assign to populations within the US.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        n (int)                   : number of people in the population
-        with_industry_code (bool) : If True, assign workplace industry code read in from cached file
+        datadir (string)                        : The file path to the data directory
+        location (string)                       : The name of the location
+        state_location (string)                 : The name of the state the location is in
+        country_location (string)               : The name of the country the location is in
+        n (int)                                 : The number of people in the population
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
+        with_school_types (bool)                : If True, creates explicit school types.
+        school_mixing_type (str or dict)        : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise. 'random' means random graphs for each school, 'age_clustered' means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), 'age_and_grade_clustered' means students cohorted into classes with their own teachers.
+        average_class_size (float)              : The average classroom size.
+        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        average_teacher_teacher_degree (float)  : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
+        with_industry_code (bool)               : If True, assign workplace industry code read in from cached file
+        verbose (bool)                          : If True, print debugging statements.
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
@@ -769,10 +786,10 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
     """
+    log.debug('make_contacts_from_microstructure()')
     folder_name = 'contact_networks'
-    file_path = None
-    base_dir = spdata.get_relitive_path(datadir)
-    file_path = os.path.join(base_dir, country_location, state_location, folder_name)
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
+                             state_location, folder_name)
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
 
@@ -781,168 +798,195 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
         workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
     else:
         workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+
     schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
     teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
-# <<<<<<< HEAD
+    if with_non_teaching_staff:
+        try:
+            non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            fnt = open(non_teaching_staff_by_uid_path, 'r')
+            fnt.close()
+        except:
+            errormsg = f'Non teaching staff do not exist and so will not be created.'
+            print(errormsg)
+            with_non_teaching_staff = False
+
     age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
-# =======
-    # age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, country_location, state_location, 'contact_networks', n)
-# >>>>>>> origin/mf/update-saved-pop-fixes
+
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
-    # uid are strings or ints
-    if isinstance(uids[0], str):
-        uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        uid_mapping = {u: u for u in uids}
-    else:
-        errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
-        raise ValueError(errormsg)
+    # check school mixing type
+    if isinstance(school_mixing_type, str):
+        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+    elif isinstance(school_mixing_type, dict):
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
+
+    # school type age ranges by default
+    school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
+
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
 
     # you have ages but not sexes so we'll just populate that for you at random
     popdict = {}
     for i, uid in enumerate(uids):
-        u = uid_mapping[uid]
-        popdict[u] = {}
-        popdict[u]['age'] = int(age_by_uid_dic[uid])
-        popdict[u]['sex'] = np.random.binomial(1, p=0.5)
-        popdict[u]['loc'] = None
-        popdict[u]['contacts'] = {}
-        popdict[u]['hhid'] = None
-        popdict[u]['scid'] = None
-        popdict[u]['sc_student'] = None
-        popdict[u]['sc_teacher'] = None
-        popdict[u]['wpid'] = None
-        popdict[u]['wpindcode'] = None
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.binomial(1, p=0.5)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
+        popdict[uid]['wpid'] = None
+        popdict[uid]['wpindcode'] = None
         for k in ['H', 'S', 'W', 'C']:
-            popdict[u]['contacts'][k] = set()
+            popdict[uid]['contacts'][k] = set()
 
     fh = open(households_by_uid_path, 'r')
+    for nh, line in enumerate(fh):
+        r = line.strip().split(' ')
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
+        for uid in r:
+            popdict[uid]['contacts']['H'] = set(r)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+    fh.close()
+
     fs = open(schools_by_uid_path, 'r')
     ft = open(teachers_by_uid_path, 'r')
-    fw = open(workplaces_by_uid_path, 'r')
 
+    # sometimes you may not create populations with other staff
+    if with_non_teaching_staff:
+        line3_list = []
+        fnt = open(non_teaching_staff_by_uid_path, 'r')
+        for i, line in enumerate(fnt):
+            line3_list.append(line)
+        fnt.close()
+
+    for ns, (line1, line2) in enumerate(zip(fs, ft)):
+        r1 = line1.strip().split(' ')
+        r2 = line2.strip().split(' ')
+        if with_non_teaching_staff:
+            line3 = line3_list[ns]
+            if line3 == '\n':
+                r3 = []
+            else:
+                r3 = line3.strip().split(' ')
+            try:
+                non_teaching_staff = [int(i) for i in r3]
+            except:
+                non_teaching_staff = [i for i in r3]
+        else:
+            r3 = []
+            non_teaching_staff = []
+
+        this_school_type = None
+        this_school_mixing_type = None
+        # this_school_mixing_type = 'random'
+
+        try:
+            students = [int(i) for i in r1]
+            teachers = [int(i) for i in r2]
+
+        except:
+            students = [i for i in r1]
+            teachers = [i for i in r2]
+
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            min_age = min(student_ages)
+            # max_ages = max(student_ages)
+            this_school_type = school_type_by_age[min_age]
+            this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
+
+        else:
+            school = students.copy() + teachers.copy() + non_teaching_staff.copy()
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+        for uid in teachers:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+        for uid in non_teaching_staff:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_staff'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+    fs.close()
+    ft.close()
+
+    fw = open(workplaces_by_uid_path, 'r')
     if with_industry_code:
         fi = open(workplaces_by_industry_code_path, 'r')
         workplaces_by_industry_codes = np.loadtxt(fi)
-        fi.close()
-
-    # map uids to ints in the popdict created
-    if isinstance(uids[0], str):
-        # read in home contacts
-        for nh, line in enumerate(fh):
-            r = line.strip().split(' ')
-            household = [uid_mapping[uid] for uid in r]
-
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
-
-        # read in school contacts
-        for ns, (line1, line2) in enumerate(zip(fs, ft)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
-
-            students = [uid_mapping[uid] for uid in r1]
-            teachers = [uid_mapping[uid] for uid in r2]
-
-            # for uid in school:
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
-
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
-
-        # read in workplace contacts
-        for nw, line in enumerate(fw):
-            r = line.strip().split(' ')
-            workplace = [uid_mapping[uid] for uid in r]
-
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if with_industry_code:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
-
-    # uids are ints so no need to do any mapping
-    # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        # read in home contacts
-        for nh, line in enumerate(fh):
-            r = line.strip().split(' ')
-            home = [int(u) for u in r]
-
-            for u in home:
-                popdict[u]['contacts']['H'] = set(home)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
-
-        # read in school contacts
-        for ns, (line1, line2) in enumerate(zip(fs, ft)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
-
-            students = [int(u) for u in r1]
-            teachers = [int(u) for u in r2]
-
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
-
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
-
-        # read in workplace contacts
-        for nw, line in enumerate(fw):
-            r = line.strip().split(' ')
-            workplace = [int(u) for u in r]
-
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if with_industry_code:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
-
-    fh.close()
-    fs.close()
-    ft.close()
+    for nw, line in enumerate(fw):
+        r = line.strip().split(' ')
+        try:
+            r = [int(i) for i in r]
+        except:
+            r = [i for i in r]
+        for uid in r:
+            popdict[uid]['contacts']['W'] = set(r)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+            if with_industry_code:
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
     fw.close()
 
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, workplaces_by_industry_codes=None):
+def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, non_teaching_staff_uids=None,
+                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
+                                              average_student_all_staff_ratio=15, average_additional_staff_degree=20,
+                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
     school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
 
     Args:
-        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
-        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
-        schools_by_uids (list)                            : list of lists, where each sublist represents a school and the ids of the students and teachers within it
-        workplaces_by_uids (list)                         : list of lists, where each sublist represents a workplace and the ids of the workers within it
+        age_by_uid_dic (dict)                             : A dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists, where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students within it
+        teachers_by_uids (list)                           : A list of lists, where each sublist represents a school and the ids of the teachers within it
+        workplaces_by_uids (list)                         : A list of lists, where each sublist represents a workplace and the ids of the workers within it
+        non_teaching_staff_uids (list)                    : None or a list of lists, where each sublist represents a school and the ids of the non teaching staff within it
+        with_school_types (bool)                          : If True, creates explicit school types.
+        school_mixing_type (str or dict)                  : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise. 'random' means random graphs for each school, 'age_clustered' means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), 'age_and_grade_clustered' means students cohorted into classes with their own teachers.
+        average_class_size (float)                        : The average classroom size.
+        inter_grade_mixing (float)                        : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)             : The average number of students per teacher.
+        average_teacher_teacher_degree (float)            : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float)           : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float)           : The average number of contacts per additional non teaching staff in schools.
+        school_type_by_age (dict)                         : A dictionary of probabilities for the school type likely for each age.
         workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+        verbose (bool)                                    : If True, print debugging statements.
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
@@ -955,133 +999,142 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
     Notes:
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() - see below).
+
     """
-    uids = age_by_uid_dic.keys()
-    uids = [uid for uid in uids]
-
-    # uid are strings or ints
-    if isinstance(uids[0], str):
-        uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        uid_mapping = {u: u for u in uids}
-    else:
-        errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
-        raise ValueError(errormsg)
-
+    log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}
+
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
+
+    # check school mixing type
+    if isinstance(school_mixing_type, str):
+        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+    elif isinstance(school_mixing_type, dict):
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
+
+    # school type age ranges by default
+    school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
+
+    log.debug('  starting...' + checkmem())
     for uid in age_by_uid_dic:
-        u = uid_mapping[uid]
-        popdict[u] = {}
-        popdict[u]['age'] = int(age_by_uid_dic[uid])
-        popdict[u]['sex'] = np.random.binomial(1, p=0.5)
-        popdict[u]['loc'] = None
-        popdict[u]['contacts'] = {}
-        popdict[u]['hhid'] = None
-        popdict[u]['scid'] = None
-        popdict[u]['sc_student'] = None
-        popdict[u]['sc_teacher'] = None
-        popdict[u]['wpid'] = None
-        popdict[u]['wpindcode'] = None
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
+        popdict[uid]['wpid'] = None
+        popdict[uid]['wpindcode'] = None
+
         for k in ['H', 'S', 'W', 'C']:
-            popdict[u]['contacts'][k] = set()
+            popdict[uid]['contacts'][k] = set()
 
-    if isinstance(uids[0], str):
-        # read in home contacts
-        for nh, household in enumerate(homes_by_uids):
-            household = [uid_mapping[uid] for uid in household]
+    log.debug('...households ' + checkmem())
+    for nh, household in enumerate(homes_by_uids):
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
 
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
+    log.debug('...students ' + checkmem())
+    for ns, students in enumerate(schools_by_uids):
+        teachers = teachers_by_uids[ns]
+        if non_teaching_staff_uids is None:
+            non_teaching_staff = []
+        elif non_teaching_staff_uids == []:
+            non_teaching_staff = []
+        else:
+            non_teaching_staff = non_teaching_staff_uids[ns]
 
-        # read in school contacts
-        for ns, students in enumerate(schools_by_uids):
-            students = [uid_mapping[uid] for uid in students]
-            teachers = teachers_by_uids[ns]
-            teachers = [uid_mapping[uid] for uid in teachers]
+        this_school_type = None
+        this_school_mixing_type = None
 
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            min_age = min(student_ages)
+            # max_ages = max(student_ages)
+            this_school_type = school_type_by_age[min_age]
+            this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
 
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
+        else:
+            school = students.copy() + teachers.copy() + non_teaching_staff.copy()
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
-        # read in workplace contacts
-        for nw, workplace in enumerate(workplaces_by_uids):
-            workplace = [uid_mapping[uid] for uid in workplace]
+        for uid in students:
 
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-    # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        # read in home contacts
-        for nh, household in enumerate(homes_by_uids):
+        for uid in teachers:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
+        for uid in non_teaching_staff:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_staff'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-        # read in school contacts
-        for ns, students in enumerate(schools_by_uids):
-            teachers = teachers_by_uids[ns]
+    log.debug('...workplaces ' + checkmem())
+    for nw, workplace in enumerate(workplaces_by_uids):
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+            if workplaces_by_industry_codes is not None:
+                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
 
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
-
-        # read in workplace contacts
-        for nw, workplace in enumerate(workplaces_by_uids):
-
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
-
+    log.debug('...done ' + checkmem())
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n, use_two_group_reduction=False, average_LTCF_degree=20):
+def make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, n,
+                                                      use_two_group_reduction=False, average_LTCF_degree=20,
+                                                      with_non_teaching_staff=True,
+                                                      with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                                      average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
+                                                      average_student_all_staff_ratio=15, average_additional_staff_degree=20,
+                                                      school_type_by_age=None, verbose=False):
     """
     Make a popdict from synthetic household, school, and workplace files with uids. If with_industry_code is True, then individuals
     will have a workplace industry code as well (default value is -1 to represent that this data is unavailable). Currently, industry
     codes are only available to assign to populations within the US.
 
     Args:
-        datadir (string)               : file path to the data directory
-        location (string)              : name of the location
-        state_location (string)        : name of the state the location is in
-        country_location (string)      : name of the country the location is in
-        n (int)                        : number of people in the population
-        with_industry_code (bool)      : If True, assign workplace industry code read in from cached file
-        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
-        average_LTCF_degree (int)      : default average degree in long term care facilities
+        datadir (string)                        : file path to the data directory
+        location (string)                       : name of the location
+        state_location (string)                 : name of the state the location is in
+        country_location (string)               : name of the country the location is in
+        n (int)                                 : number of people in the population
+        use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)               : default average degree in long term care facilities
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
+        with_school_types (bool)                : If True, creates explicit school types.
+        school_mixing_type (str or dict)        : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise. 'random' means random graphs for each school, 'age_clustered' means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), 'age_and_grade_clustered' means students cohorted into classes with their own teachers.
+        average_class_size (float)              : The average classroom size.
+        inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        average_teacher_teacher_degree (float)  : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
+        school_type_by_age (dict)               : A dictionary of probabilities for the school type likely for each age.
+        verbose (bool)                          : If True, print debugging statements.
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
@@ -1097,10 +1150,27 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
     folder_name = 'contact_networks_facilities'
-    base_dir = spdata.get_relitive_path(datadir)
-    file_path = os.path.join(base_dir,  country_location, state_location, folder_name)
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
+                             state_location, folder_name)
 
-    # age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
+
+    uids = age_by_uid_dic.keys()
+    uids = [uid for uid in uids]
+
+    grade_age_mapping = {i: i+5 for i in range(13)}
+    age_grade_mapping = {i+5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
+
+    # check school mixing type
+    if isinstance(school_mixing_type, str):
+        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+    elif isinstance(school_mixing_type, dict):
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
+
+    # school type age ranges by default
+    school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
 
     households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
     workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
@@ -1109,205 +1179,189 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
     facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
-    age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
+    if with_non_teaching_staff:
+        try:
+            non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            fnt = open(non_teaching_staff_by_uid_path, 'r')
+            fnt.close()
+        except:
+            errormsg = f'Non teaching staff do not exist and so will not be created.'
+            print(errormsg)
+            with_non_teaching_staff = False
 
-    uids = age_by_uid_dic.keys()
-    uids = [uid for uid in uids]
-
-    # uid are strings or ints
-    if isinstance(uids[0], str):
-        uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        uid_mapping = {u: u for u in uids}
-    else:
-        errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
-        raise ValueError(errormsg)
-
-    # you have ages but not sexes so we'll just populate that for you at random
     popdict = {}
-    for i, uid in enumerate(uids):
-        u = uid_mapping[uid]
-        popdict[u] = {}
-        popdict[u]['age'] = int(age_by_uid_dic[uid])
-        popdict[u]['sex'] = np.random.binomial(1, p=0.5)
-        popdict[u]['loc'] = None
-        popdict[u]['contacts'] = {}
-        popdict[u]['snf_res'] = None
-        popdict[u]['snf_staff'] = None
-        popdict[u]['hhid'] = None
-        popdict[u]['scid'] = None
-        popdict[u]['sc_student'] = None
-        popdict[u]['sc_teacher'] = None
-        popdict[u]['wpid'] = None
-        popdict[u]['snfid'] = None
+    for uid in age_by_uid_dic:
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['snf_res'] = None
+        popdict[uid]['snf_staff'] = None
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
+        popdict[uid]['wpid'] = None
+        popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
-            popdict[u]['contacts'][k] = set()
+            popdict[uid]['contacts'][k] = set()
 
-    fh = open(households_by_uid_path, 'r')
-    fs = open(schools_by_uid_path, 'r')
-    ft = open(teachers_by_uid_path, 'r')
-    fw = open(workplaces_by_uid_path, 'r')
-    ffres = open(facilities_by_uid_path, 'r')
-    ffstaff = open(facilities_staff_by_uid_path, 'r')
+    facilities_by_uids = open(facilities_by_uid_path, 'r')
+    facilities_staff_uids = open(facilities_staff_by_uid_path, 'r')
 
-    if isinstance(uids[0], str):
-        # read in facility residents and staff
-        for nf, (line1, line2) in enumerate(zip(ffres, ffstaff)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
+    for nf, (line1, line2) in enumerate(zip(facilities_by_uids, facilities_staff_uids)):
+        r1 = line1.strip().split(' ')
+        r2 = line2.strip().split(' ')
 
-            facility = [uid_mapping[uid] for uid in r1]
-            facility_staff = [uid_mapping[uid] for uid in r2]
+        try:
+            facility = [int(i) for i in r1]
+            facility_staff = [int(i) for i in r2]
+        except:
+            facility = [i for i in r1]
+            facility_staff = [i for i in r2]
 
-            for u in facility:
-                popdict[u]['snf_res'] = 1
-                popdict[u]['snfid'] = nf
+        for uid in facility:
+            popdict[uid]['snf_res'] = 1
+            popdict[uid]['snfid'] = nf
 
-            for u in facility_staff:
-                popdict[u]['snf_staff'] = 1
-                popdict[u]['snfid'] = nf
+        for uid in facility_staff:
+            popdict[uid]['snf_staff'] = 1
+            popdict[uid]['snfid'] = nf
 
-            if use_two_group_reduction:
-                popdict = create_reduced_contacts_with_group_types(popdict, r1, r2, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, r1, r2, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
 
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+    facilities_by_uids.close()
+    facilities_staff_uids.close()
+
+    homes_by_uids = open(households_by_uid_path, 'r')
+    for nh, line in enumerate(homes_by_uids):
+        r = line.strip().split(' ')
+        try:
+            household = [int(i) for i in r]
+        except:
+            household = [i for i in r]
+
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+
+    homes_by_uids.close()
+
+    schools_by_uids = open(schools_by_uid_path, 'r')
+    teachers_by_uids = open(teachers_by_uid_path, 'r')
+
+    # sometimes you may not create populations with other staff
+    if with_non_teaching_staff:
+        line3_list = []
+        non_teaching_staff_uids = open(non_teaching_staff_by_uid_path, 'r')
+        for i, line in enumerate(non_teaching_staff_uids):
+            line3_list.append(line)
+        non_teaching_staff_uids.close()
+
+    for ns, (line1, line2) in enumerate(zip(schools_by_uids, teachers_by_uids)):
+        r1 = line1.strip().split(' ')
+        r2 = line2.strip().split(' ')
+
+        if with_non_teaching_staff:
+            line3 = line3_list[ns]
+            if line3 == '\n':
+                r3 = []
             else:
-                for u in facility:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
+                r3 = line3.strip().split(' ')
+            try:
+                non_teaching_staff = [int(i) for i in r3]
+            except:
+                non_teaching_staff = [i for i in r3]
+        else:
+            r3 = []
+            non_teaching_staff = []
 
-                for u in facility_staff:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
+        this_school_type = None
+        this_school_mixing_type = None
 
-        # read in home contacts
-        for nh, line in enumerate(fh):
-            r = line.strip().split(' ')
-            household = [uid_mapping[uid] for uid in r]
+        try:
+            students = [int(i) for i in r1]
+            teachers = [int(i) for i in r2]
 
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
+        except:
+            students = [i for i in r1]
+            teachers = [i for i in r2]
 
-        # read in school contacts
-        for ns, (line1, line2) in enumerate(zip(fs, ft)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            min_age = min(student_ages)
+            # max_ages = max(student_ages)
+            this_school_type = school_type_by_age[min_age]
+            this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
 
-            students = [uid_mapping[uid] for uid in r1]
-            teachers = [uid_mapping[uid] for uid in r2]
+        else:
+            school = students.copy() + teachers.copy() + non_teaching_staff.copy()
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
+        for uid in students:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
+        for uid in teachers:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-        # read in workplace contacts
-        for nw, line in enumerate(fw):
-            r = line.strip().split(' ')
-            workplace = [uid_mapping[uid] for uid in r]
+        for uid in non_teaching_staff:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_staff'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
+    schools_by_uids.close()
+    teachers_by_uids.close()
 
-    # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        # read in facility residents and staff
-        for nf, (line1, line2) in enumerate(zip(ffres, ffstaff)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
+    workplaces_by_uids = open(workplaces_by_uid_path, 'r')
+    for nw, line in enumerate(workplaces_by_uids):
+        r = line.strip().split(' ')
+        try:
+            workplace = [int(i) for i in r]
+        except:
+            workplace = [i for i in r]
 
-            facility = [int(u) for u in r1]
-            facility_staff = [int(u) for u in r2]
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
 
-            for u in facility:
-                popdict[u]['snf_res'] = 1
-                popdict[u]['snfid'] = nf
-
-            for u in facility_staff:
-                popdict[u]['snf_staff'] = 1
-                popdict[u]['snfid'] = nf
-
-            if use_two_group_reduction:
-                popdict = create_reduced_contacts_with_group_types(popdict, r1, r2, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
-
-            else:
-                for u in facility:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
-
-                for u in facility_staff:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
-
-        # read in home contacts
-        for nh, line in enumerate(fh):
-            r = line.strip().split(' ')
-            household = [int(u) for u in r]
-
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
-
-        # read in school contacts
-        for ns, (line1, line2) in enumerate(zip(fs, ft)):
-            r1 = line1.strip().split(' ')
-            r2 = line2.strip().split(' ')
-
-            students = [int(u) for u in r1]
-            teachers = [int(u) for u in r2]
-
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
-
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
-
-        # read in workplace contacts
-        for nw, line in enumerate(fw):
-            r = line.strip().split(' ')
-            workplace = [int(u) for u in r]
-
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-
-    fh.close()
-    fs.close()
-    ft.close()
-    fw.close()
-    ffres.close()
-    ffstaff.close()
+    workplaces_by_uids.close()
 
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, workplaces_by_industry_codes=None, use_two_group_reduction=False, average_LTCF_degree=20):
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None, 
+                                                              use_two_group_reduction=False, average_LTCF_degree=20, 
+                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
+                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3, 
+                                                              average_student_all_staff_ratio=15, average_additional_staff_degree=20,
+                                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
@@ -1317,12 +1371,24 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
         homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
         schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        teachers_by_uids (list)                           : A list of lists, where each sublist represents a school and the ids of the teachers within it
         workplaces_by_uids (list)                         : A list of lists, where each sublist represents a workplace and the ids of the workers within it
-        facilities_by_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it
-        facilities_staff_uids (list): A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it
+        facilities_by_uids (list)                         : A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it
+        facilities_staff_uids (list)                      : A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it
+        non_teaching_staff_uids (list)                    : None or a list of lists, where each sublist represents a school and the ids of the non teaching staff within it
+        use_two_group_reduction (bool)                    : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)                         : default average degree in long term care facilities
+        with_school_types (bool)                          : If True, creates explicit school types.
+        school_mixing_type (str or dict)                  : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise. 'random' means random graphs for each school, 'age_clustered' means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), 'age_and_grade_clustered' means students cohorted into classes with their own teachers.
+        average_class_size (float)                        : The average classroom size.
+        inter_grade_mixing (float)                        : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)             : The average number of students per teacher.
+        average_teacher_teacher_degree (float)            : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float)           : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float)           : The average number of contacts per additional non teaching staff in schools.
+        school_type_by_age (dict)                         : A dictionary of probabilities for the school type likely for each age.
         workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
-        use_two_group_reduction (bool) : If True, create long term care facilities with reduced contacts across both groups
-        average_LTCF_degree (int)      : default average degree in long term care facilities
+        verbose (bool)                                    : If True, print debugging statements.
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
@@ -1337,166 +1403,154 @@ def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, ho
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
     """
+    grade_age_mapping = {i: i + 5 for i in range(13)}
+    age_grade_mapping = {i + 5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
+
+    # check school mixing type
+    if isinstance(school_mixing_type, str):
+        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+    elif isinstance(school_mixing_type, dict):
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
+
+    # school type age ranges by default
+    school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
 
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
-    # uid are strings or ints
-    if isinstance(uids[0], str):
-        uid_mapping = {uid: u for u, uid in enumerate(uids)}
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        uid_mapping = {u: u for u in uids}
-    else:
-        print(uids[0], type(uids[0]))
-        errormsg = f'Agent IDs should be either a string or an integer. The IDs being read in do not match either of those types. Please check that the data files being read in are correct.'
-        raise ValueError(errormsg)
-
     popdict = {}
     for uid in age_by_uid_dic:
-        u = uid_mapping[uid]
-        popdict[u] = {}
-        popdict[u]['age'] = int(age_by_uid_dic[uid])
-        popdict[u]['sex'] = np.random.randint(2)
-        popdict[u]['loc'] = None
-        popdict[u]['contacts'] = {}
-        popdict[u]['snf_res'] = None
-        popdict[u]['snf_staff'] = None
-        popdict[u]['hhid'] = None
-        popdict[u]['scid'] = None
-        popdict[u]['wpid'] = None
-        popdict[u]['snfid'] = None
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['snf_res'] = None
+        popdict[uid]['snf_staff'] = None
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
+        popdict[uid]['wpid'] = None
+        popdict[uid]['snfid'] = None
         for k in ['H', 'S', 'W', 'C', 'LTCF']:
-            popdict[u]['contacts'][k] = set()
+            popdict[uid]['contacts'][k] = set()
 
-    if isinstance(uids[0], str):
-        # read in facility residents and staff
-        for nf, facility in enumerate(facilities_by_uids):
-            facility = [uid_mapping[uid] for uid in facility]
-            facility_staff = facilities_staff_uids[nf]
-            facility_staff = [uid_mapping[uid] for uid in facility_staff]
+    # read in facility residents and staff
+    for nf, facility in enumerate(facilities_by_uids):
+        facility_staff = facilities_staff_uids[nf]
 
-            for u in facility:
-                popdict[u]['snf_res'] = 1
-                popdict[u]['snfid'] = nf
+        for u in facility:
+            popdict[u]['snf_res'] = 1
+            popdict[u]['snfid'] = nf
 
-            for u in facility_staff:
-                popdict[u]['snf_staff'] = 1
-                popdict[u]['snfid'] = nf
+        for u in facility_staff:
+            popdict[u]['snf_staff'] = 1
+            popdict[u]['snfid'] = nf
 
-            if use_two_group_reduction:
-                popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF',
+                                                               average_degree=average_LTCF_degree,
+                                                               force_cross_edges=True)
 
-            else:
-                for u in facility:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
 
-                for u in facility_staff:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
 
-        # read in home contacts
-        for nh, household in enumerate(homes_by_uids):
-            household = [uid_mapping[uid] for uid in household]
+    for nh, household in enumerate(homes_by_uids):
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
 
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
+    n_non_teaching_staff = []
+    n_teaching_staff = []
 
-        # read in school contacts
-        for ns, students in enumerate(schools_by_uids):
-            students = [uid_mapping[uid] for uid in students]
-            teachers = teachers_by_uids[ns]
-            teachers = [uid_mapping[uid] for uid in teachers]
+    for ns, students in enumerate(schools_by_uids):
+        teachers = teachers_by_uids[ns]
+        if non_teaching_staff_uids is None:
+            non_teaching_staff = []
+        elif non_teaching_staff_uids == []:
+            non_teaching_staff = []
+        else:
+            non_teaching_staff = non_teaching_staff_uids[ns]
 
-            for u in students:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
+        this_school_type = None
+        this_school_mixing_type = None
 
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(students)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            min_age = min(student_ages)
+            # max_ages = max(student_ages)
+            this_school_type = school_type_by_age[min_age]
+            this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            # print(this_school_mixing_type)
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
+            if verbose:
+                if this_school_type in ['es', 'ms', 'hs']:
+                    n_non_teaching_staff.append(len(non_teaching_staff))
+                    n_teaching_staff.append(len(teachers))
+        else:
+            school = students.copy() + teachers.copy() + non_teaching_staff.copy()
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
-        # read in workplace contacts
-        for nw, workplace in enumerate(workplaces_by_uids):
-            workplace = [uid_mapping[uid] for uid in workplace]
+        for uid in students:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+        for uid in teachers:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-    # elif isinstance(uids[0], int) or isinstance(uids[0], np.int64):
-    elif isinstance(uids[0], np.integer) or isinstance(uids[0], int):
-        # read in facility residents and staff
-        for nf, facility in enumerate(facilities_by_uids):
-            facility_staff = facilities_staff_uids[nf]
+        for uid in non_teaching_staff:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_staff'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
-            for u in facility:
-                popdict[u]['snf_res'] = 1
-                popdict[u]['snfid'] = nf
+    for nw, workplace in enumerate(workplaces_by_uids):
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
 
-            for u in facility_staff:
-                popdict[u]['snf_staff'] = 1
-                popdict[u]['snfid'] = nf
+    if verbose:
+        print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))
+        print('n_teachers in es, ms, hs', np.sum(n_teaching_staff))
+        n_staff_again = 0
+        n_teachers_again = 0
+        n_school_edges = 0
+        for uid in popdict:
+            person = popdict[uid]
+            if person['sc_type'] in ['es', 'ms', 'hs']:
+                if person['sc_staff'] == 1:
+                    n_staff_again += 1
+                elif person['sc_teacher'] == 1:
+                    n_teachers_again += 1
+            if person['scid'] is not None:
+                n_school_edges += len(person['contacts']['S'])
 
-            if use_two_group_reduction:
-                popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF', average_degree=average_LTCF_degree, force_cross_edges=True)
-
-            else:
-                for u in facility:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
-
-                for u in facility_staff:
-                    popdict[u]['contacts']['LTCF'] = set(facility)
-                    popdict[u]['contacts']['LTCF'] = popdict[u]['contacts']['LTCF'].union(set(facility_staff))
-                    popdict[u]['contacts']['LTCF'].remove(u)
-
-        # read in home contacts
-        for nh, household in enumerate(homes_by_uids):
-            for u in household:
-                popdict[u]['contacts']['H'] = set(household)
-                popdict[u]['contacts']['H'].remove(u)
-                popdict[u]['hhid'] = nh
-
-        # read in school contacts
-        for ns, school in enumerate(schools_by_uids):
-            teachers = teachers_by_uids[ns]
-            for u in school:
-                popdict[u]['contacts']['S'] = set(school)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_student'] = 1
-
-            for u in teachers:
-                popdict[u]['contacts']['S'] = set(school)
-                popdict[u]['contacts']['S'] = popdict[u]['contacts']['S'].union(set(teachers))
-                popdict[u]['contacts']['S'].remove(u)
-                popdict[u]['scid'] = ns
-                popdict[u]['sc_teacher'] = 1
-
-        # read in workplace contacts
-        for nw, workplace in enumerate(workplaces_by_uids):
-            for u in workplace:
-                popdict[u]['contacts']['W'] = set(workplace)
-                popdict[u]['contacts']['W'].remove(u)
-                popdict[u]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
-                    popdict[u]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+        print('n_staff_again in es, ms, hs', n_staff_again)
+        print('n_teachers_again in es, ms, hs', n_teachers_again)
+        print('number of edges in school', n_school_edges / 2, n_school_edges)
 
     return popdict
 
@@ -1544,7 +1598,7 @@ def write_edgelists(popdict, layers, G_dic=None, location=None, state_location=N
     if G_dic is None:
         G_dic = make_graphs(popdict, layers)
     for layer in G_dic:
-        file_path = os.path.join(spdata.get_relitive_path(datadir),  country_location, state_location, 'contact_networks')
+        file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
         file_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_' + layer_names[layer] + '_edgelist.dat')
         nx.write_edgelist(G_dic[layer], file_path, data=False)
 
@@ -1561,16 +1615,16 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
         popdict = {
             '8acf08f0': {
-                'age': 57.3,
+                'age': 57,
                 'sex': 0,
                 'loc': (47.6062, 122.3321),
-                'contacts': ['43da76b5']
+                'contacts': {'M': 2, 34}
                 },
             '43da76b5': {
-                'age': 55.3,
+                'age': 55,
                 'sex': 1,
                 'loc': (47.2473, 122.6482),
-                'contacts': ['8acf08f0', '2d2ad46f']
+                'contacts': {'M': 20, 8, 49}
                 },
         }
 
@@ -1592,30 +1646,55 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         A dictionary of individuals with attributes, including their age and the ids of their contacts.
 
     '''
-    ### Defaults ###
-    if location             is None: location = 'seattle_metro'
-    if state_location       is None: state_location = 'Washington'
-    if country_location     is None: country_location = 'usa'
-    if sheet_name           is None: sheet_name = 'United States of America'
+    log.debug('make_contacts()')
+    # Defaults #
+    if location           is None:
+        location = 'seattle_metro'
+    if state_location     is None:
+        state_location = 'Washington'
+    if country_location   is None:
+        country_location = 'usa'
+    if sheet_name         is None:
+        sheet_name = 'United States of America'
 
-    if n_contacts_dic       is None: n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
+    if n_contacts_dic     is None:
+        n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
-    if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
-    if 'directed' not in network_distr_args: network_distr_args['directed'] = False
-    if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 
+                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 
+                                  'average_student_all_staff_ratio': 15, 'average_additional_staff_degree': 20,
+                                  'average_LTCF_degree': 20, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    default_network_distr_args['school_type_by_age'] = spsm.get_default_school_types_by_age_single()
 
-    ### Rationale behind default activity_args parameters
+    if network_distr_args is None:
+        network_distr_args = default_network_distr_args
+    network_distr_args = sc.mergedicts(default_network_distr_args, network_distr_args)
+
+    default_options_args = dict.fromkeys(['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types', 'with_non_teaching_staff'])
+    if options_args       is None:
+        options_args = default_options_args
+    options_args = sc.mergedicts(default_options_args, options_args)
+
+    # if network_distr_args   is None: network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
+    # if 'network_type' not in network_distr_args: network_distr_args['network_type'] = 'poisson_degree'
+    # if 'directed' not in network_distr_args: network_distr_args['directed'] = False
+    # if 'average_degree' not in network_distr_args: network_distr_args['average_degree'] = 30
+    # if 'average_class_size' not in network_distr_args: network_distr_args['average_class_size'] = 20
+    # if 'average_student_teacher_ratio' not in network_distr_args: network_distr_args['average_student_teacher_ratio'] = 20
+    # if 'average_teacher_teacher_degree' not in network_distr_args: network_distr_args['average_teacher_teacher_degree'] = 3
+
+    # Rationale behind default activity_args parameters
     # college_age_max: 22: Because many people in the usa context finish tertiary school of some form (vocational, community college, university), but not all and this is a rough cutoff
     # student_teacher_ratio: 30: King County, WA records seem to indicate median value near that (many many 1 student classrooms skewing the average) - could vary and may need to be lowered to account for extra staff in schools
     # worker_age_min: 23: to keep ages for different activities clean
     # worker_age_max: 65: age at which people are able to retire in many places
     # activity_args might also include different n_contacts for college kids ....
-    if activity_args        is None: activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
+    if activity_args        is None:
+        activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
-    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction']
-    if options_args is None: options_args = dict.fromkeys(options_keys, False)
-    if options_args.get('average_LTCF_degree') is None: options_args['average_LTCF_degree'] = 20
+    options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types']
+    if options_args is None: 
+        options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
     for key in options_keys:
@@ -1624,12 +1703,37 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
 
     # to call in pre-generated contact networks that exhibit real-world-like clustering and age-specific mixing
     if options_args['use_microstructure']:
-        if 'Npop' not in network_distr_args: network_distr_args['Npop'] = 10000
+        if 'Npop' not in network_distr_args:
+            network_distr_args['Npop'] = 10000
         country_location = 'usa'
         if options_args['use_long_term_care_facilities']:
-            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_two_group_reduction'], options_args['average_LTCF_degree'])
+            popdict = make_contacts_with_facilities_from_microstructure(datadir, location, state_location,
+                                                                        country_location, network_distr_args['Npop'],
+                                                                        use_two_group_reduction=options_args['use_two_group_reduction'],
+                                                                        average_LTCF_degree=network_distr_args['average_LTCF_degree'],
+                                                                        with_non_teaching_staff=options_args['with_non_teaching_staff'],
+                                                                        with_school_types=options_args['with_school_types'],
+                                                                        school_mixing_type=network_distr_args['school_mixing_type'],
+                                                                        average_class_size=network_distr_args['average_class_size'],
+                                                                        inter_grade_mixing=network_distr_args['inter_grade_mixing'],
+                                                                        average_student_teacher_ratio=network_distr_args['average_student_teacher_ratio'],
+                                                                        average_teacher_teacher_ratio=network_distr_args['average_teacher_teacher_degree'],
+                                                                        average_student_all_staff_ratio=network_distr_args['average_student_all_staff_ratio'],
+                                                                        average_additional_staff_degree=network_distr_args['average_additional_staff_degree'],
+                                                                        school_type_by_age=network_distr_args['school_type_by_age'])
         else:
-            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'], options_args['use_industry_code'])
+            popdict = make_contacts_from_microstructure(datadir, location, state_location, country_location, network_distr_args['Npop'],
+                                                        with_non_teaching_staff=options_args['with_non_teaching_staff'],
+                                                        with_school_types=options_args['with_school_types'],
+                                                        school_mixing_type=network_distr_args['school_mixing_type'],
+                                                        average_class_size=network_distr_args['average_class_size'],
+                                                        inter_grade_mixing=network_distr_args['inter_grade_mixing'],
+                                                        average_student_teacher_ratio=network_distr_args['average_student_teacher_ratio'],
+                                                        average_teacher_teacher_degree=network_distr_args['average_teacher_teacher_degree'],
+                                                        average_student_all_staff_ratio=network_distr_args['average_student_all_staff_ratio'],
+                                                        average_additional_staff_degree=network_distr_args['average_additional_staff_degree'],
+                                                        school_type_by_age=network_distr_args['school_type_by_age'],
+                                                        with_industry_code=options_args['use_industry_code'])
 
     # to generate contact networks that observe age-specific mixing but not clustering (for locations that haven't been vetted by the microstructure generation method in contact_networks.py or for which we don't have enough data to do that)
     else:
@@ -1675,8 +1779,9 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
     Returns:
         A dictionary of individuals with attributes, including their age and the ids of their close contacts.
     """
+    log.debug('trim_contacts()')
 
-    trimmed_size_dic = sc.mergedicts({'S': 20, 'W': 10}, trimmed_size_dic)
+    trimmed_size_dic = sc.mergedicts({'W': 20}, trimmed_size_dic)
 
     keys = trimmed_size_dic.keys()
 
@@ -1694,21 +1799,22 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
             for n, uid in enumerate(contacts):
                 for k in keys:
                     setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
-                    if len(setting_contacts) > trimmed_size_dic[k]/2:
-                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
+                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k] / 2))
                         contacts[uid]['contacts'][k] = set(close_contacts)
         else:
             for n, uid in enumerate(contacts):
                 for k in keys:
                     setting_contacts = list(contacts[uid]['contacts'][k])
-                    if len(setting_contacts) > trimmed_size_dic[k]/2:
-                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k]/2))
+                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
+                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k] / 2))
                         contacts[uid]['contacts'][k] = set(close_contacts)
 
         for n, uid in enumerate(contacts):
             for k in keys:
                 for c in contacts[uid]['contacts'][k]:
                     contacts[c]['contacts'][k].add(uid)
+
     return contacts
 
 
@@ -1733,17 +1839,15 @@ def show_layers(popdict, show_ages=False, show_n=20):
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print('person', uid, 'age', popdict[uid]['age'])
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 contact_ages = [popdict[c]['age'] for c in popdict[uid]['contacts'][k]]
                 print('layer', k, 'contact ages', sorted(contact_ages))
-            print()
 
     else:
         for n, uid in enumerate(uids):
             if n >= show_n:
                 break
-            print('person', uid, 'age', popdict[uid]['age'])
+            print(uid, popdict[uid]['age'])
             for k in layers:
                 print('layer', k, 'contact ids', popdict[uid]['contacts'][k])
-            print()
