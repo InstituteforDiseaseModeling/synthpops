@@ -18,6 +18,7 @@ from . import contacts as spct
 from . import contact_networks as spcnx
 from . import school_modules as spsm
 from . import read_write as sprw
+from .config import logger as log
 
 part = 2
 
@@ -172,6 +173,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                                             average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                                             average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
                                             verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+    log.debug('generate_microstructure_with_facilities()')
 
     # Grab Long Term Care Facilities data
     ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
