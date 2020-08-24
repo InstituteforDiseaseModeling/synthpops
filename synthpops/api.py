@@ -18,7 +18,7 @@ popsize_choices = [5000,
 
 def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
                     use_two_group_reduction=True, average_LTCF_degree=20, rand_seed=None,
-                    country_location=None, state_location=None, location=None):
+                    location=None, state_location=None, country_location=None, sheet_name = None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
 
@@ -65,11 +65,6 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
-    # country_location = 'usa'
-    # state_location = 'Washington'
-    # location = 'seattle_metro'
-    # sheet_name = 'United States of America'
-
     if country_location is None:
         # If no country is specified assume that defaults are used
         country_location = cfg.default_country
@@ -80,12 +75,12 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         # load defaults for the country
         sp.config.set_location_defaults(country_location)
 
-    # if country is specified, and state is not, we are doing a country population
-    # so set location to None just in case
+    # if country is specified, and state is not, we are using country level data to create a
+    # network population. Set location to None
     if state_location is None:
         location = None
 
-    sheet_name = cfg.default_sheet_name
+    sheet_name = cfg.default_sheet_name if sheet_name is None else sheer_name
 
 
     options_args = {'use_microstructure': True, 'use_industry_code': with_industry_code, 'use_long_term_care_facilities': with_facilities, 'use_two_group_reduction': use_two_group_reduction, 'average_LTCF_degree': average_LTCF_degree}
