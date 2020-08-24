@@ -50,8 +50,10 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
         rand_seed (int)                         : Start point random sequence is generated from.
+        location                  : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
+        sheet_name                : sheet name where data is located
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
