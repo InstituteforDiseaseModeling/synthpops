@@ -1,7 +1,6 @@
 name: Synthpops Examples
 on:
-  pull_request:
-    branches: [master]
+  workflow_dispatch
 
 jobs:
   install_and_test:
@@ -24,6 +23,8 @@ jobs:
       - name: Run Examples
         working-directory: ./tests
         run: |
+          apt-get install graphviz
+          which neato
           pip install pytest
           pip install -r requirements_test.txt
           pytest run_example.py --durations=0 --junitxml=test-results.xml # Run actual tests
