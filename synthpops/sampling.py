@@ -11,6 +11,7 @@ import random
 from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
+from .config import logger as log
 
 
 
@@ -224,6 +225,7 @@ def sample_n_contact_ages(n_contacts, age, age_brackets, age_by_brackets_dic, ag
         List of ages of n_contacts contacts by age of individual sampled from a combined age mixing matrix.
 
     """
+    log.debug('sample_n_contact_ages()')
     num_agebrackets = len(age_brackets)
     age_mixing_matrix = spb.combine_matrices(age_mixing_matrix_dic, weights_dic, num_agebrackets)
     contact_ages = []

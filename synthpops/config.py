@@ -1,16 +1,24 @@
 '''
-This module sets the location of the data folder.
+This module sets the location of the data folder and other global settings.
+
+To change the level of log messages displayed, use e.g.
+
+    sp.logger.setLevel('CRITICAL')
 '''
 
 #%% Housekeeping
 
 import os
+import sys
+import psutil
+import sciris as sc
+import logging
 import datetime
 import sciris as sc
 import re
 import yaml
 
-__all__ = ['datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
            'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name']
 
 # Declaring this here makes it globally available as synthpops.datadir
@@ -21,12 +29,12 @@ rel_path = ['demographics', 'contact_matrices_152_countries']
 full_data_available = False # this is likely not necesary anymore
 
 # Set the local data folder
-#thisdir = sc.thisdir(__file__)
+# thisdir = sc.thisdir(__file__)
 thisdir = os.path.dirname(os.path.abspath(__file__))
 print(thisdir)
 config_file = os.path.join(thisdir, 'config_info.yaml')
-#localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
-#recomended change
+# localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
+# recommended change
 localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
@@ -45,6 +53,54 @@ default_state = None
 default_location = None
 default_sheet_name = None
 
+#%% Logger -- adapted from Atomica
+
+# Set the default logging level
+default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
+
+logger = logging.getLogger('synthpops')
+
+if not logger.hasHandlers():
+    # Only add handlers if they don't already exist in the module-level logger
+    # This means that it's possible for the user to completely customize *a* logger called 'atomica'
+    # prior to importing Atomica, and the user's custom logger won't be overwritten as long as it has
+    # at least one handler already added. The use case was originally to suppress messages on import, but since
+    # importing is silent now, it doesn't matter so much.
+    debug_handler = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
+    info_handler = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
+    warning_handler = logging.StreamHandler(sys.stderr)  # warning_handler will send all messages at or above WARNING to STDERR
+
+    # Handle levels
+    debug_handler.setLevel(0)  # Handle all lower levels - the output should be filtered further by setting the logger level, not the handler level
+    info_handler.setLevel(logging.INFO)  # Handle all lower levels - the output should be filtered further by setting the logger level, not the handler level
+    warning_handler.setLevel(logging.WARNING)
+    debug_handler.addFilter(type("ThresholdFilter", (object,), {"filter": lambda x, logRecord: logRecord.levelno < logging.INFO})())  # Display anything INFO or higher
+    info_handler.addFilter(type("ThresholdFilter", (object,), {"filter": lambda x, logRecord: logRecord.levelno < logging.WARNING})())  # Don't display WARNING or higher
+
+    # Set formatting and log level
+    formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d {%(filename)s:%(lineno)d} - %(message)s', datefmt='%H:%M:%S')
+    debug_handler.setFormatter(formatter)
+    for handler in [debug_handler, info_handler, warning_handler]:
+        logger.addHandler(handler)
+    logger.setLevel(default_log_level)  # Set the overall log level
+
+
+def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
+    ''' For use with logger, check current memory usage '''
+    process = psutil.Process(os.getpid())
+    mapping = {'b': 1, 'kb': 1e3, 'mb': 1e6, 'gb': 1e9}
+    try:
+        factor = mapping[unit.lower()]
+    except KeyError:
+        raise sc.KeyNotFoundError(f'Unit {unit} not found')
+    mem_use = process.memory_info().rss / factor - start
+    if to_string:
+        output = f'{mem_use:{fmt}} {unit.upper()}'
+    else:
+        output = mem_use
+    return output
+
+
 #%% Functions
 def set_location_defaults(country=None):
     global config_file
@@ -61,17 +117,21 @@ def set_location_defaults(country=None):
             loc = data[country_location]
             default_location = loc['location']
             default_state = loc['province']
-            default_country =loc['country']
+            default_country = loc['country']
             default_sheet_name = loc['sheet_name']
         else:
             print(f"warning: country not in config file, using defaults")
             loc = data['defaults']
             default_location = loc['location']
             default_state = loc['province']
-            default_country =loc['country']
+            default_country = loc['country']
             default_sheet_name = loc['sheet_name']
 
 set_location_defaults()
+
+logger.info(f'Loading SynthPops: {thisdir}')
+logger.debug(f'Data folder: {datadir}')
+
 
 def set_datadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
@@ -81,7 +141,9 @@ def set_datadir(folder):
     datadir = folder
     rel_path = []
     print(f'Done: data directory set to {folder}.')
+    logger.info(f'Done: data directory set to {folder}.')
     return datadir
+
 
 def set_altdatadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
@@ -90,6 +152,7 @@ def set_altdatadir(folder):
     print(f'Done: data directory set to {folder}.')
     return alt_datadir
 
+
 def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
     global nbrackets
@@ -97,7 +160,7 @@ def set_nbrackets(n):
     nbrackets = n
     if nbrackets not in [16, 20]:
         print(f'Note: current supported bracket choices are 16 or 20, use {nbrackets} at your own risk.')
-    print(f'Done: number of brackets is set to {n}.')
+    logger.info(f'Done: number of brackets is set to {n}.')
     return nbrackets
 
 
@@ -105,7 +168,7 @@ def validate(verbose=True):
     ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
         if verbose:
-            print(f'The data folder {datadir} was found.')
+            logger.debug(f'The data folder {datadir} was found.')
     else:
         if datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')
@@ -197,7 +260,9 @@ def validate(verbose=True):
     3) By default the default path is not searched
     4) if the data  is not found on the primary or alternate path an error is thrown.
 """
-class FilePaths():
+
+
+class FilePaths:
     """
     FilepPaths:
     FilePath builds a set of of possible path names for data file.
@@ -307,7 +372,6 @@ class FilePaths():
                 pathdirs.append((location,os.path.join(root, country, province, location)))
         return pathdirs
 
-
     def validate_dirs(self):
         # heck directories in base list and remove missing dirs from the list
         for i,e in reversed(list(enumerate(self.basedirs))):
@@ -407,14 +471,14 @@ class FilePaths():
                     print(f'no data in directory {filedata_dir}, skipping')
         return results
 
-    def _list_files(self,level, target_dir,  prefix, suffix, filter_list):
+    def _list_files(self, level, target_dir, prefix, suffix, filter_list):
         global nbrackets
         prefix_pattern = prefix
         suffix_pattern = suffix
         if level is not None and prefix_pattern is not None:
             prefix_pattern = prefix_pattern.format(location=level)
 
-        #if level is not None and suffix is not None:
+        # if level is not None and suffix is not None:
         #    suffix_pattern = suffix.format(location=level)
         files = []
         if prefix_pattern is not None and suffix_pattern is not None:
@@ -430,14 +494,14 @@ class FilePaths():
             files = self._filter(files, filter_list)
         return files
 
-    def _filter(self,file_list,filter_list):
+    def _filter(self, file_list, filter_list):
         # the filter is a list of numbers added to the file name representing the number
         # of brackets in the file (e.g. age brackets). We want the highest number possible
         # get only the files in the list
         # assume the filter is a list of numbers, and file name ins in .dat
         def extract_number(f):
-            s = re.findall(r"\d+",f)
-            #return (int(s[0]) if s else -1,f)
+            s = re.findall(r"\d+", f)
+            # return (int(s[0]) if s else -1,f)
             return (int(s[0]) if s else -1)
 
         #files = []
@@ -446,5 +510,3 @@ class FilePaths():
         #files = [max(file_list, key=extract_number)]
         files = [f for f in file_list if extract_number(f) == filter_list]
         return files
-
-

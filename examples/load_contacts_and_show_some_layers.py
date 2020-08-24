@@ -40,7 +40,7 @@ if __name__ == '__main__':
     sheet_name = 'United States of America'
     level = 'county'
 
-    n = 20000
+    n = 10000
     verbose = True
     plot = True
 
