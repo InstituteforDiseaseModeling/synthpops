@@ -25,6 +25,7 @@ jobs:
         working-directory: ./tests
         run: |
           pip install pytest
+          pip install -r requirements_test.txt
           pytest run_example.py --durations=0 --junitxml=test-results.xml # Run actual tests
 
       - name: Upload test results
