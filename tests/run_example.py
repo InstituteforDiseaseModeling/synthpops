@@ -4,11 +4,12 @@ import pathlib
 import subprocess
 from multiprocessing import Process, Manager, Pool
 
-finalresult = {}
 class TestExample(unittest.TestCase):
 
-    #some examples are under construction
-    excluded =['read_workplaces_with_industry_naics.py']
+    # some examples are under construction
+    # or need to download external library (e.g. pymnet) manually
+    excluded =['read_workplaces_with_industry_naics.py',
+               'draw_multilayer_network.py']
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -17,7 +18,7 @@ class TestExample(unittest.TestCase):
         os.makedirs(cls.resultdir, exist_ok=True)
 
     @classmethod
-    def run_examples(cls, commandargs, workingdir, resultdir):
+    def run_examples(cls, workingdir, resultdir, commandargs):
         succeeded = False
         cmd = ['python']
         commandargs = [commandargs] if isinstance(commandargs, str) else commandargs
@@ -35,8 +36,8 @@ class TestExample(unittest.TestCase):
         except subprocess.CalledProcessError as e:
             print("error:", str(cmd))
             #print(str(e))
-        #print("result:", succeeded)
         succeeded = "passed" if succeeded else "failed"
+        print(f"{commandargs[0]} finished: {succeeded}")
         return {commandargs[0]: succeeded}
 
     @classmethod
@@ -50,14 +51,16 @@ class TestExample(unittest.TestCase):
 
     def test_examples(self):
         files = []
+        finalresult = {}
         for root, dirnames, filenames in os.walk(self.example_path):
             for f in filenames:
                 if str(f).endswith('.py') and f not in self.excluded:
-                    print("-------------")
-                    print(f)
+                    #print("-------------")
+                    #print(f)
                     files.append(f)
 
-        t = [(f, self.example_path, self.resultdir) for f in files]
+        t = [(self.example_path, self.resultdir, f) for f in files]
+        #user 4 parallel processes to run
         with Pool(processes=4) as pool:
             result = pool.starmap(self.run_examples, t)
 
