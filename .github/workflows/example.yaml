@@ -1,7 +1,6 @@
 name: Synthpops Examples
 on:
-  pull_request:
-    branches: [master]
+  workflow_dispatch
 
 jobs:
   install_and_test:
