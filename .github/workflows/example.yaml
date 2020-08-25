@@ -28,7 +28,7 @@ jobs:
           which neato
           pip install pytest
           pip install -r requirements_test.txt
-          pytest run_example.py --durations=0 --junitxml=test-results.xml # Run actual tests
+          pytest run_example.py -s --durations=0 --junitxml=test-results.xml # Run actual tests
 
       - name: Upload test results
         uses: actions/upload-artifact@v2
