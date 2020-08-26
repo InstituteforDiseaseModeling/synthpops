@@ -34,6 +34,7 @@ class TestExample(unittest.TestCase):
 
     @classmethod
     def run_examples(cls, workingdir, resultdir, commandargs):
+        T = sc.tic()
         succeeded = False
         cmd = ['python']
         commandargs = [commandargs] if isinstance(commandargs, str) else commandargs
@@ -50,7 +51,8 @@ class TestExample(unittest.TestCase):
             succeeded = succeeded and cls.check_log(os.path.join(resultdir, errfilename))
         except subprocess.CalledProcessError as e:
             print("error:", str(cmd), str(e))
-        succeeded = "passed" if succeeded else "failed"
+        elapsed = sc.toc(T, output=True)
+        succeeded = f"passed in {elapsed:0.1f} s" if succeeded else "failed"
         print(f"{commandargs[0]} finished: {succeeded}")
         return {commandargs[0]: succeeded}
 
