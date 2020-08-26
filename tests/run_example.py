@@ -1,11 +1,11 @@
 '''
-This can be run with
+This file can be run with
 
-pytest -s run_example.py
+    pytest -s run_example.py
 
 or
 
-python run_example.py
+    python run_example.py
 '''
 
 import unittest
@@ -15,7 +15,6 @@ import subprocess
 from pathlib import Path
 from multiprocessing import Pool
 
-N_PROCS = 4 # Number of parallel processes to run
 
 class TestExample(unittest.TestCase):
 
@@ -23,6 +22,9 @@ class TestExample(unittest.TestCase):
     # or need to download external library (e.g. pymnet) manually
     excluded =['read_workplaces_with_industry_naics.py',
                'draw_multilayer_network.py']
+
+    n_procs = 4  # Number of parallel processes to run
+    parallelize = True
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -73,8 +75,13 @@ class TestExample(unittest.TestCase):
 
         t = [(self.example_path, self.resultdir, f) for f in files]
         #user 4 parallel processes to run
-        with Pool(processes=N_PROCS) as pool:
-            result = pool.starmap(self.run_examples, t)
+        if self.parallelize:
+            with Pool(processes=self.n_procs) as pool:
+                result = pool.starmap(self.run_examples, t)
+        else:
+            result = []
+            for entry in t:
+                result.append(self.run_examples(*entry))
 
         print("-------------")
         for r in result:
@@ -86,4 +93,5 @@ class TestExample(unittest.TestCase):
 
 # Run unit tests if called as a script
 if __name__ == '__main__':
+    TestExample.parallelize = False
     unittest.main()
