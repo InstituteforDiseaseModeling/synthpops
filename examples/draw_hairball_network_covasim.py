@@ -10,26 +10,6 @@ import covasim as cv
 mplt.rcParams['font.family'] = 'Roboto'
 
 
-def create_sim(TRACE_PROB=None,  TEST_PROB=None, TRACE_TIME=None, TEST_DELAY=None):
-
-    # initialize simulation
-    sim = cv.Sim()
-
-    # PARAMETERS
-    pars = {'pop_size': 1e3}  # start with a small pool << actual population e4 # DEBUG
-
-    # diagnosed individuals maintain same beta
-    pars.update({
-        'pop_type': 'synthpops',
-        'beta_layer': {'h': 2.0, 's': 0, 'w': 0, 'c': 0},  # Turn off all but home
-    })
-
-    # update parameters
-    sim.update_pars(pars=pars)
-
-    return sim
-
-
 if __name__ == '__main__':
 
     # directory for storing results
@@ -37,16 +17,17 @@ if __name__ == '__main__':
     verbose = False
     do_save = False
 
-    #fn = f'sim_sar.sim'
-    sim = create_sim()
-    sim.initialize()
+    pars = {'pop_size': 1e3,
+            'pop_type': 'synthpops',
+            }
 
-    # Need to create contacts
+    sim = cv.Sim(pars)
+    sim.initialize()
 
     titles = {'h': 'Households', 's': 'Schools', 'w': 'Workplaces', 'c': 'Community'}
 
     fig = plt.figure(figsize=(16, 16))
-    for i, layer in enumerate(['h', 's', 'w', 'c']):
+    for i, layer in enumerate(titles.keys()):
         print(titles[layer])
         ax = plt.subplot(2, 2, i+1)
         hdf = sim.people.contacts[layer].to_df()
