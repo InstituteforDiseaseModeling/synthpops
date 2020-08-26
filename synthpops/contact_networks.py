@@ -18,6 +18,7 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
+from .config import logger as log
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -31,6 +32,7 @@ def generate_household_sizes(Nhomes, hh_size_distr):
     Returns:
         An array with the count of households of size s at index s-1.
     """
+    log.debug('generate_household_sizes()')
     max_size = max(hh_size_distr.keys())
     hh_sizes = np.random.multinomial(Nhomes, [hh_size_distr[s] for s in range(1, max_size+1)], size=1)[0]
     return hh_sizes
@@ -169,6 +171,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         An array of households for size ``size`` where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual.
     """
+    log.debug('generate_larger_households()')
     ya_coin = 0.15  # produces far too few young adults without this for Seattle, Washington. This is a placeholder value. Users will need to change to fit whatever population they are working with.
 
     homes = np.zeros((hh_sizes[size-1], size), dtype=int)
@@ -219,6 +222,7 @@ def generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_b
         An array of all households where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
     """
+    log.debug('generate_all_households()')
     homes_dic = {}
     homes_dic[1] = generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
@@ -377,6 +381,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
         in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
     """
+    log.debug('send_students_to_school()')
     syn_schools = []
     syn_school_uids = []
     syn_school_types = []
@@ -578,6 +583,7 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
         A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
         workers with that age, and a dictionary mapping age to the count of potential workers left to assign to a workplace for that age.
     """
+    log.debug('get_uids_potential_workers()')
     potential_worker_uids = deepcopy(age_by_uid_dic)
     potential_worker_uids_by_age = {}
     potential_worker_ages_left_count = {}
@@ -727,6 +733,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
         dictionary with the count of workers left to assign for each age after teachers have been assigned.
     """
+    log.debug('assign_teachers_to_schools()')
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
 
     all_teachers = dict.fromkeys(np.arange(101), 0)
@@ -793,7 +800,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
         dictionary with the count of workers left to assign for each age after teachers have been assigned.
     """
-
+    log.debug('assign_additional_staff_to_schools()')
     if average_student_all_staff_ratio is None:
         average_student_all_staff_ratio = 0
 
@@ -867,6 +874,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         dictionary of potential workers left mapping id to age, dictionary mapping age to a list of potential workers left of that age, dictionary
         mapping age to the count of workers left to assign.
     """
+    log.debug('assign_rest_of_workers()')
     syn_workplaces = []
     syn_workplace_uids = []
     worker_age_keys = workers_by_age_to_assign_count.keys()
@@ -967,9 +975,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                         b_prob = b_prob / sum_b_prob
                     sum_b_prob = np.sum(b_prob)
 
-        if verbose:
-            print(n, Counter(new_work))
-
+        if verbose: # CK: I know, overkill to have both
+            log.debug(f'  Progress: {n}, {Counter(new_work)}')
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
@@ -1041,6 +1048,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                          country_location=country_location,
                                          sheet_name=sheet_name,verbose=verbose,plot=plot)
     """
+    log.debug('generate_synthetic_population()')
     folder_name = 'contact_networks'
     age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
