@@ -268,6 +268,7 @@ def test_send_students_to_school(n=10000, location='seattle_metro', state_locati
     return syn_schools, syn_school_uids
 
 
+@pytest.mark.skip
 def test_get_uids_potential_workers(location='seattle_metro', state_location='Washington',
                                     country_location='usa'):
     n = 10000
@@ -357,6 +358,7 @@ def test_generate_workplace_sizes(location='seattle_metro', state_location='Wash
     return workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, workplace_sizes
 
 
+@pytest.mark.skip
 def test_assign_rest_of_workers(state_location='Washington', country_location='usa'):
     workers_by_age_to_assign_count, workplace_size_brackets, workplace_size_distr_by_brackets, \
     workplace_sizes = test_generate_workplace_sizes()
@@ -413,6 +415,7 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
     assert school_sizes is not None
 
 
+@pytest.mark.skip
 def test_assign_teachers_to_work(location='seattle_metro', state_location='Washington',
                                  country_location='usa', folder_name='contact_networks', n=10000):
     # Assign students to school
@@ -478,8 +481,8 @@ if __name__ == '__main__':
     test_get_uids_in_school(location, state_location, country_location)
     test_send_students_to_school(n=10000, location='seattle_metro', state_location='Washington',
                                  country_location='usa')
-    test_get_uids_potential_workers()
-    test_assign_rest_of_workers()
+    # test_get_uids_potential_workers()
+    # test_assign_rest_of_workers()
     test_generate_workplace_sizes()
     test_generate_school_sizes()
 
