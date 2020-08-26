@@ -2,13 +2,11 @@
 This module generates the household, school, and workplace contact networks.
 """
 
-import os
 from copy import deepcopy
 from collections import Counter
 
 import sciris as sc
 import numpy as np
-import pandas as pd
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -20,7 +18,6 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
-from .config import datadir
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -185,8 +182,6 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b = age_by_brackets_dic[hha]
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
-
-        age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64)  # Convert to an array for faster processing
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
@@ -741,7 +736,6 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
-        school_uids = syn_school_uids[n]
 
         size = len(school)
         nteachers = int(size / float(average_student_teacher_ratio))
