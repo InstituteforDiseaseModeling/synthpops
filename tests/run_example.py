@@ -1,3 +1,13 @@
+'''
+This can be run with
+
+pytest -s run_example.py
+
+or
+
+python run_example.py
+'''
+
 import unittest
 import os
 import pathlib
@@ -70,3 +80,8 @@ class TestExample(unittest.TestCase):
             print(r)
 
         self.assertFalse('failed' in finalresult.values())
+
+
+# Run unit tests if called as a script
+if __name__ == '__main__':
+    unittest.main()
