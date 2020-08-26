@@ -380,6 +380,9 @@ for l, layer in enumerate(keys_to_plot):
 
 fig_path = os.path.join(dir_path, '..', 'figures')
 fig_name = os.path.join(fig_path, 'si_fig_4b.pdf')
-fig.savefig(fig_name, format='pdf')
-fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
-fig.savefig(fig_name.replace('pdf', 'png'), format='png')
+
+do_save = False
+if do_save:
+    fig.savefig(fig_name, format='pdf')
+    fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
+    fig.savefig(fig_name.replace('pdf', 'png'), format='png')

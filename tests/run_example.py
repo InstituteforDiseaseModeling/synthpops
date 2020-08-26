@@ -10,9 +10,12 @@ python run_example.py
 
 import unittest
 import os
-import pathlib
+import sciris as sc
 import subprocess
-from multiprocessing import Process, Manager, Pool
+from pathlib import Path
+from multiprocessing import Pool
+
+N_PROCS = 4 # Number of parallel processes to run
 
 class TestExample(unittest.TestCase):
 
@@ -23,7 +26,7 @@ class TestExample(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.example_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'examples')
+        cls.example_path = Path(sc.thisdir(__file__)).joinpath('../examples')
         cls.resultdir = os.path.join(os.path.dirname(__file__), 'result')
         os.makedirs(cls.resultdir, exist_ok=True)
 
@@ -44,15 +47,14 @@ class TestExample(unittest.TestCase):
             succeeded = True if retcode == 0 else False
             succeeded = succeeded and cls.check_log(os.path.join(resultdir, errfilename))
         except subprocess.CalledProcessError as e:
-            print("error:", str(cmd))
-            #print(str(e))
+            print("error:", str(cmd), str(e))
         succeeded = "passed" if succeeded else "failed"
         print(f"{commandargs[0]} finished: {succeeded}")
         return {commandargs[0]: succeeded}
 
     @classmethod
     def check_log(cls, logfile):
-        if pathlib.Path(logfile).stat().st_size > 0:
+        if Path(logfile).stat().st_size > 0:
             with open(logfile) as f:
                 output = f.readlines()
             if 'error' in str(output).lower():
@@ -71,7 +73,7 @@ class TestExample(unittest.TestCase):
 
         t = [(self.example_path, self.resultdir, f) for f in files]
         #user 4 parallel processes to run
-        with Pool(processes=4) as pool:
+        with Pool(processes=N_PROCS) as pool:
             result = pool.starmap(self.run_examples, t)
 
         print("-------------")
