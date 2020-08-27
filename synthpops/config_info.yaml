@@ -15,19 +15,25 @@
 #  - null
 #  - state1
 #  - test2
+valid_nbrackets:
+  - 16
+  - 18
+  - 20
 Senegal:
   location: Dakar
   province: Dakar
   country: Senegal
   sheet_name: null
+  nbrackets: 18
 defaults:
   location: seattle_metro
   province: Washington
   country: usa
   sheet_name: United States of America
+  nbrackets: 20
 usa:
   location: seattle_metro
   province: Washington
   country: usa
   sheet_name: United States of America
-
+  nbrackets: 20

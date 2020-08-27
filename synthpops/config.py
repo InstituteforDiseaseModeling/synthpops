@@ -46,7 +46,8 @@ if datadir is None:
 
 # Number of census age brackets to use
 # added 18 to support Senegal
-nbrackets = [16, 18, 20][1] # Choose how many age bins to use -- 20 is only partially supported
+valid_nbracket_ranges = [16, 18, 20] # Choose how many age bins to use -- 20 is only partially supported
+nbrackets = 20
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 default_country = None
 default_state = None
@@ -108,17 +109,22 @@ def set_location_defaults(country=None):
     global default_state
     global default_location
     global default_sheet_name
+    global nbrackets
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
     with open(config_file) as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
+        if 'valid_nbrackets' in data.keys():
+            valid_nbracket_ranges = data['valid_nbrackets']
+
         if country_location in data.keys():
             loc = data[country_location]
             default_location = loc['location']
             default_state = loc['province']
             default_country = loc['country']
             default_sheet_name = loc['sheet_name']
+            nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
         else:
             print(f"warning: country not in config file, using defaults")
             loc = data['defaults']
@@ -126,6 +132,7 @@ def set_location_defaults(country=None):
             default_state = loc['province']
             default_country = loc['country']
             default_sheet_name = loc['sheet_name']
+            nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
 
 set_location_defaults()
 

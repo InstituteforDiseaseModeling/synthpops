@@ -458,9 +458,7 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
         return os.path.join(datadir,  country_location, state_location, f'census_age_brackets_{cfg.nbrackets}.dat')
     """
     paths = cfg.FilePaths(None, state_location, country_location)
-    if country_location == cfg.default_country:
-        #TODO: age_bracket 16 is required for long_term_care_facilities; handle differently?
-        cfg.nbrackets = [16, 20][0]
+
     prefix = f"census_age_brackets_{cfg.nbrackets}"
     file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat')
     file_name = prefix + '.dat'
