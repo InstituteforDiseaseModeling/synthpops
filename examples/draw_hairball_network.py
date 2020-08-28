@@ -81,5 +81,6 @@ if __name__ == '__main__':
         ax.set_title(titles[layer], fontsize=24)
 
     if do_save:
-        fig.savefig(f"seattle_metro_{n}_contact_networks.png")
+        os.makedirs('figures', exist_ok=True)
+        fig.savefig(os.path.join('figures', f"seattle_metro_{n}_contact_networks.png"))
     plt.show()
