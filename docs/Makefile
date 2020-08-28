@@ -53,7 +53,7 @@ clean:
 
 # Generates the API doc
 generate-api:
-	rm modules.rst
+	-rm modules.rst
 	sphinx-apidoc -f -e -o . ../synthpops
 
 
