@@ -76,9 +76,9 @@ if errorlevel 9009 (
 
 if "%1" == "generate-api" (
     del modules.rst >nul 2>&1
-    sphinx-apidoc -f --tocfile dummy -o . ../synthpops
-    del dummy.rst >nul 2>&1
-    REN synthpops.rst modules.rst
+    del sythpops_index.rst >nul 2>&1
+    sphinx-apidoc -f -e -o . ../synthpops
+    REN modules.rst synthpops_index.rst
 	goto end
 )
 
