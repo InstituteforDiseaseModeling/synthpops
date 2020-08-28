@@ -53,9 +53,8 @@ clean:
 
 # Generates the API doc
 generate-api:
-	rm synthpops_index.rst modules.rst
+	rm modules.rst
 	sphinx-apidoc -f -e -o . ../synthpops
-	mv modules.rst synthpops_index.rst
 
 
 .PHONY: html
