@@ -461,7 +461,9 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     paths = cfg.FilePaths(None, state_location, country_location)
 
     prefix = f"census_age_brackets_{cfg.nbrackets}"
-    file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat')
+    if country_location == 'Senegal':
+        prefix = "{location}_" + prefix
+    file = paths.get_data_file(location=state_location, prefix=prefix.format(location=state_location), suffix='.dat')
     file_name = prefix + '.dat'
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, file_name)
     return file, file_path
