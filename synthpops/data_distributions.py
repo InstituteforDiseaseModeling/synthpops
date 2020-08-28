@@ -73,8 +73,7 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"gender_fraction_by_age_bracket_{cfg.nbrackets}"
     prefix = "{location}_" + base
-    #prefix = location + base
-    # review after re-org of data
+
     if location is not None and country_location != 'Senegal':  # ---remove
         prefix = prefix.format(location=location)
     elif location is None and state_location == 'Washington':
@@ -161,9 +160,8 @@ def get_age_bracket_distr_path(location=None, state_location=None, country_locat
     """
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"_age_bracket_distr_{cfg.nbrackets}"
-    prefix = location + base
-    if country_location == 'Senegal':
-        cfg.nbrackets = 18
+    prefix = "{location}" + base
+
     if location is not None and country_location != 'Senegal':  # remove after restructure
         prefix = prefix.format(location=location)
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat',
