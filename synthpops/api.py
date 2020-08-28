@@ -98,7 +98,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         location = cfg.default_location
         sheet_name = cfg.default_sheet_name
     else:
-        sp.config.set_location_defaults(country)
+        sp.config.set_location_defaults(country_location)
     # if country is specified, and state is not, we are doing a country population
     if state_location is None:
         location = None
