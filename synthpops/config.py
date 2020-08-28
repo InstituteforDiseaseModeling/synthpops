@@ -18,7 +18,7 @@ import sciris as sc
 import re
 import yaml
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'set_datadir', 'set_nbrackets', 'validate', 'set_altdatadir',
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_datadir',  'set_nbrackets', 'validate', 'set_altdatadir',
            'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name']
 
 # Declaring this here makes it globally available as synthpops.datadir
@@ -26,7 +26,8 @@ datadir = None
 alt_datadir = None
 localdatadir = None
 rel_path = ['demographics', 'contact_matrices_152_countries']
-full_data_available = False # this is likely not necesary anymore
+alt_rel_path = ['demographics', 'contact_matrices_152_countries']
+full_data_available = False # this is likely not necessary anymore
 
 # Set the local data folder
 # thisdir = sc.thisdir(__file__)
@@ -140,23 +141,36 @@ logger.info(f'Loading SynthPops: {thisdir}')
 logger.debug(f'Data folder: {datadir}')
 
 
-def set_datadir(folder):
-    '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
+def set_datadir(root_dir, relative_path=None):
+    '''Set the data folder and relative path to the user-specified
+        location.
+        On startup, the datadir and rel_path are set to the conventions
+        used to store data. datadir is the root directory to the data, and
+        rel_path is a list of sub directories to the data -->
+        rel_path = ['demographics', 'contact_matrices_152_countries']
+        to change the location of the data the user is able to supply a new root_dir and new relative path. If the user uses a similar directory path model that we use
+        e.g. root_dir/demographic/contact... the user can change datadir without changing relitive path, by passing in relative_path = None (default)
+        -- note, mostly deprecated.'''
     ''' user specifies complete path'''
     global datadir
     global rel_path
-    datadir = folder
-    rel_path = []
-    print(f'Done: data directory set to {folder}.')
+    datadir = root_dir
+    if relative_path is not None:
+        rel_path = relative_path
     logger.info(f'Done: data directory set to {folder}.')
+    logger.info(f'Relative Path set to  {rel_path}.')
     return datadir
 
 
-def set_altdatadir(folder):
+def set_altdatadir(root_dir, relative_path=None):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
     global alt_datadir
-    alt_datadir = folder
-    print(f'Done: data directory set to {folder}.')
+    global alt_rel_path
+    alt_datadir = root_dir
+    if relative_path is not None:
+        alt_rel_path = relative_path
+    logger.info(f'Done: alt data directory set to {folder}.')
+    logger.info(f'alt relative Path set to  {rel_path}.')
     return alt_datadir
 
 

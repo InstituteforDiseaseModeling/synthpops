@@ -241,7 +241,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # local elderly population estimate
     local_elderly_2018 = 0
-    for ab in range(12, 16):
+    #for ab in range(12, 16):
+    for ab in range(12, spdata.get_nbrackets()):
         local_elderly_2018 += age_distr_16[ab] * pop
 
     if verbose:

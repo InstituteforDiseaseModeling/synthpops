@@ -16,6 +16,9 @@ def get_relative_path(datadir):
         base_dir = os.path.join(datadir, *cfg.rel_path)
     return base_dir
 
+def get_nbrackets():
+    return cfg.nbrackets
+
 def get_age_brackets_from_df(ab_file_path):
     """
     Create a dict of age bracket ranges from ab_file_path.

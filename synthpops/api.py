@@ -23,7 +23,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                     with_non_teaching_staff=False,
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                    rand_seed=None, country_location=cfg.default_country, state_location=cfg.default_state):
+                    rand_seed=None, country_location=None, state_location=None, location=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
     Args:
@@ -92,22 +92,18 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     # location = 'seattle_metro'
     # sheet_name = 'United States of America'
 
-    if country_location == cfg.default_country:
+    if country_location is None :
         country_location = cfg.default_country
         state_location = cfg.default_state
         location = cfg.default_location
         sheet_name = cfg.default_sheet_name
-
-    if state_location is None and country_location == 'Senegal':
-        country_location = 'Senegal'
-        state_location = None
+    else:
+        sp.config.set_location_defaults(country)
+    # if country is specified, and state is not, we are doing a country population
+    if state_location is None:
         location = None
-        sheet_name = None
-    elif state_location == 'Dakar' and country_location == 'Senegal':
-        country_location = 'Senegal'
-        state_location = 'Dakar'
-        location = 'Dakar'
-        sheet_name = None
+
+    sheet_name = cfg.default_sheet_name
 
     options_args = {}
     options_args['use_microstructure'] = True
