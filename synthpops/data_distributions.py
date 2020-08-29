@@ -465,7 +465,7 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
         prefix = "{location}_" + prefix
     file = paths.get_data_file(location=state_location, prefix=prefix.format(location=state_location), suffix='.dat')
     file_name = prefix.format(location=state_location) + '.dat'
-    file_path = os.path.join(get_relative_path(data_dir),  country_location, state_location, file_name)
+    file_path = os.path.join(get_relative_path(datadir),  country_location, state_location, file_name)
     return file, file_path
 
 
