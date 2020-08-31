@@ -157,7 +157,7 @@ def set_datadir(root_dir, relative_path=None):
     datadir = root_dir
     if relative_path is not None:
         rel_path = relative_path
-    logger.info(f'Done: data directory set to {folder}.')
+    logger.info(f'Done: data directory set to {root_dir}.')
     logger.info(f'Relative Path set to  {rel_path}.')
     return datadir
 
@@ -169,7 +169,7 @@ def set_altdatadir(root_dir, relative_path=None):
     alt_datadir = root_dir
     if relative_path is not None:
         alt_rel_path = relative_path
-    logger.info(f'Done: alt data directory set to {folder}.')
+    logger.info(f'Done: alt data directory set to {root_dir}.')
     logger.info(f'alt relative Path set to  {rel_path}.')
     return alt_datadir
 
@@ -395,13 +395,14 @@ class FilePaths:
 
     def validate_dirs(self):
         # heck directories in base list and remove missing dirs from the list
+        dirs = self.basedirs
         for i,e in reversed(list(enumerate(self.basedirs))):
             if not os.path.isdir(e[1]):
                 print(f"Warning: Directory {e[1]} missing, removing.")
                 self.basedirs.pop(i)
         # make sure we have at least one directory, or through an error
         if len(self.basedirs) < 1:
-             raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell.')
+             raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {dirs}')
              return False
         return True
 
