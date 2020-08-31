@@ -14,19 +14,21 @@ class TestSenegal(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.dataUSAdir = tempfile.TemporaryDirectory().name
         cls.dataSenegalDir = tempfile.TemporaryDirectory().name
+        cls.initia_default_dir = cfg.datadir
         os.makedirs(os.path.join(cls.dataUSAdir, "data"), exist_ok=True)
         os.makedirs(os.path.join(cls.dataSenegalDir, "data"), exist_ok=True)
         cls.subdir_level = "data/demographics/contact_matrices_152_countries"
         cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), cls.subdir_level)
         patternIgnore1 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*Senegal*"]
         patternIgnore2 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*usa*"]
-        utilities.copy_input(cls.sourcedir, cls.dataUSAdir, cls.subdir_level, patternIgnore1)
-        utilities.copy_input(cls.sourcedir, cls.dataSenegalDir, cls.subdir_level, patternIgnore2)
+        utilities.copy_input(cls.sourcedir, cls.dataUSAdir, cls.subdir_level, patterns=patternIgnore1)
+        utilities.copy_input(cls.sourcedir, cls.dataSenegalDir, cls.subdir_level, patterns=patternIgnore2)
         cls.n = 2001
         cls.seed = 1
         cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
         cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
         cls.average_student_all_staff_ratio = inspect.signature(sp.make_population).parameters["average_student_all_staff_ratio"].default
+
 
     @classmethod
     def copy_output(cls):
@@ -41,16 +43,18 @@ class TestSenegal(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls.copy_output()
+        cfg.set_datadir(cls.initia_default_dir, ["demographics","contact_matrices_152_countries"])
+        cfg.set_location_defaults(country="default")
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
             shutil.rmtree(d, ignore_errors=True)
 
     @unittest.skip("in progress")
     def test_senegal_default(self):
-        cfg.set_datadir(self.dataSenegalDir, "demographics/contact_matrices_152_countries")
+        cfg.set_datadir(os.path.join(self.dataSenegalDir,'data'), ["demographics","contact_matrices_152_countries"])
         cfg.set_location_defaults(country="Senegal")
         rand_seed = self.seed
         n = self.n
-        datadir = self.dataSenegalDir
+        datadir = os.path.join(self.dataSenegalDir, 'data')
         test_prefix = sys._getframe().f_code.co_name
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True)
         location = cfg.default_location
@@ -108,3 +112,4 @@ class TestSenegal(unittest.TestCase):
                                          test_prefix=test_prefix, do_close=self.do_close)
         utilities.check_enrollment_distribution(pop, self.n, datadir, location, state_location, country_location,
                                                 test_prefix=f"{test_prefix}", do_close=self.do_close)
+

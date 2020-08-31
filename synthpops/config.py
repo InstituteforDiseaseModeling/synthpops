@@ -395,14 +395,14 @@ class FilePaths:
 
     def validate_dirs(self):
         # heck directories in base list and remove missing dirs from the list
-        dirs = self.basedirs
-        for i,e in reversed(list(enumerate(self.basedirs))):
+        search_list = reversed(list(enumerate(self.basedirs)))
+        for i,e in search_list:
             if not os.path.isdir(e[1]):
-                print(f"Warning: Directory {e[1]} missing, removing.")
+                print(f"Warning: Directory {e[1]} missing for location={i}, removing.")
                 self.basedirs.pop(i)
         # make sure we have at least one directory, or through an error
         if len(self.basedirs) < 1:
-             raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {dirs}')
+             raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {search_list}')
              return False
         return True
 
