@@ -19,7 +19,14 @@ import re
 import yaml
 
 __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_datadir',  'set_nbrackets', 'validate', 'set_altdatadir',
-           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name']
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name',  'alt_location']
+
+
+class LocationClass:
+    def __init__(self, location=None, state_location=None, country_location=None):
+        self.country_location = country_location
+        self.state_location = state_location
+        self.location = location
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -54,6 +61,7 @@ default_country = None
 default_state = None
 default_location = None
 default_sheet_name = None
+alt_location = None
 
 #%% Logger -- adapted from Atomica
 
@@ -134,6 +142,23 @@ def set_location_defaults(country=None):
             default_country = loc['country']
             default_sheet_name = loc['sheet_name']
             nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+
+def set_alt_location(location=None, state_location=None, country_location=None):
+    global alt_location
+    levels = [location,state_location, country_location]
+
+    if all(level is None for level in levels) :
+        alt_location = None
+        logger.warning(f"Warning: No alternate location specified")
+    elif country_location is None:
+        alt_location = None
+        logger.warning(f"Warning: No alternate country specified, alternate country is required")
+    elif country_location is not None and state_location is None:
+        # ifstate_location is none make sure alt_location only has country
+        alt_location = LocationClass(country_location=country_location)
+    else:
+        alt_location = LocationClass(location=location, state_location=state_location, country_location=country_location)
+
 
 set_location_defaults()
 
@@ -323,8 +348,8 @@ class FilePaths:
     """
     # note-change: add 'demographics', 'contact_matrices_152_countries' to root
 
-    def __init__(self,  location=None, province=None, country=None,  alt_location= None, alt_province=None, alt_country=None, root_dir=None, alt_rootdir=None,  use_defaults=False):
-        global datadir, alt_datadir, rel_path
+    def __init__(self,  location=None, province=None, country=None,  alternate_location= None,  root_dir=None, alt_rootdir=None,  use_defaults=False):
+        global datadir, alt_datadir, rel_path, alt_location
         base_path = datadir
         if len(rel_path) > 0:
             base_dir= os.path.join(datadir, *rel_path)
@@ -334,9 +359,10 @@ class FilePaths:
         self.country = country
         self.province = province
         self.location = location
-        self.alt_country = alt_country
-        self.alt_province = alt_province
-        self.alt_location = alt_location
+
+        self.alt_country = None
+        self.alt_province = None
+        self.alt_location = None
 
         if self.alt_root_dir is None:
             self.alt_root_dir = self.root_dir
@@ -344,7 +370,11 @@ class FilePaths:
 
         self.add_base_location(location, province, country)
 
-        self.add_alternate_location(alt_location, alt_province, alt_country)
+        if alternate_location is not None:
+            self.add_alternate_location(location=alternate_location.location, province=alternate_location.state_location, country=alternate_location.country_location)
+        elif alt_location is not None:
+            self.add_alternate_location(location=alt_location.location, province=alt_location.state_location, country=alt_location.country_location)
+
 
     def add_base_location(self, location=None, province=None, country=None):
 
@@ -364,22 +394,33 @@ class FilePaths:
     def add_alternate_location(self, location=None, province=None, country=None):
         levels = [location,province, country]
 
+        altdirs = None
         if all(level is None for level in levels) :
             self.alt_country = None
             self.alt_province = None
             self.alt_location = None
-            #print(f"Warning: No alternate location specified")
+            logger.warning(f"Warning: No alternate location specified")
         elif country is None:
             self.alt_country = None
             self.alt_province = None
             self.alt_location = None
-            #print(f"Warning: No alternate country specified, alternate country is required")
+            logger.warning(f"Warning: No alternate country specified, alternate country is required")
+        elif country is not None and province is None:
+            # if province is none make sure location is none
+            self.alt_country = country
+            self.alt_province = None
+            self.alt_location = None
+            altdirs = self._add_dirs(self.alt_root_dir, None, None,country)
         else:
+            self.alt_country = country
+            self.alt_province = province
+            self.alt_location = location
             # build alternate dirs
             altdirs = self._add_dirs(self.alt_root_dir, location, province,country)
-            if len(altdirs) > 0:
-                altdirs.reverse()
-                self.basedirs.extend(altdirs)
+
+        if len(altdirs) > 0:
+            altdirs.reverse()
+            self.basedirs.extend(altdirs)
         self.validate_dirs()
 
     def _add_dirs(self, root,location, province, country):
@@ -429,7 +470,7 @@ class FilePaths:
         location_info.append(self.alt_country)
         return location_info
 
-    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None):
+    def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
@@ -442,18 +483,18 @@ class FilePaths:
             raise NotImplementedError(f"Invalid filedata_type string {filedata_type}. filedata_type must be one of the following {filedata_types}")
             return None
 
-        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list, alt_prefix)
         return file
 
-    def get_data_file(self, location=None, prefix=None, suffix=None, filter_list=None):
+    def get_data_file(self, location=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
         filedata_type = None
-        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list)
+        file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list, alt_prefix)
         return file
 
-    def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list):
+    def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list, alt_prefix):
         """
         Search the directories in self.basedirs for a file matches the conditions
         Location is the state_location, province, or city level if applicable
@@ -484,7 +525,7 @@ class FilePaths:
             # check if there is a directory
             if os.path.isdir(filedata_dir):
                 if len(os.listdir(filedata_dir)) > 0:
-                    files = self._list_files(target_location, filedata_dir, prefix, suffix, filter_list)
+                    files = self._list_files(target_location, filedata_dir, prefix, suffix, filter_list, alt_prefix)
 
                     if len(files) > 0:
                         results = os.path.join(filedata_dir, files[0])
@@ -493,16 +534,19 @@ class FilePaths:
                     print(f'no data in directory {filedata_dir}, skipping')
         return results
 
-    def _list_files(self, level, target_dir, prefix, suffix, filter_list):
+    def _list_files(self, level, target_dir, prefix, suffix, filter_list, alt_prefix):
         global nbrackets
         prefix_pattern = prefix
         suffix_pattern = suffix
+        alt_prefix_pattern = alt_prefix
+
         if level is not None and prefix_pattern is not None:
             prefix_pattern = prefix_pattern.format(location=level)
 
         # if level is not None and suffix is not None:
         #    suffix_pattern = suffix.format(location=level)
         files = []
+
         if prefix_pattern is not None and suffix_pattern is not None:
             files = [f for f in os.listdir(target_dir) if f.startswith(prefix_pattern) and f.endswith(suffix_pattern)]
         elif prefix_pattern is not None and suffix_pattern is None:
@@ -511,6 +555,13 @@ class FilePaths:
             files = [f for f in os.listdir(target_dir) if f.endswith(suffix_pattern)]
         else:
             files = [f for f in os.listdir(target_dir)]
+
+        # if if we have the file needed. if not check the alternate
+        if len(files) == 0 and alt_prefix_pattern is not None:
+            if alt_prefix_pattern is not None and suffix_pattern is not None:
+                files = [f for f in os.listdir(target_dir) if f.startswith(alt_prefix_pattern) and f.endswith(suffix_pattern)]
+            elif alt_prefix_pattern is not None and suffix_pattern is None:
+                files = [f for f in os.listdir(target_dir) if f.startswith(alt_prefix_pattern)]
 
         if len(files) > 0 and filter_list is not None:
             files = self._filter(files, filter_list)

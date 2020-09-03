@@ -32,6 +32,14 @@ class TestFilePath(unittest.TestCase):
         with pytest.raises(NotImplementedError):
             file_paths = sp.config.FilePaths()
 
+    def test_check_defaults(cls):
+        # defaults ae set when config.py is loaded. check for the defaults
+        # should be the same as usa
+        assert sp.config.default_country == 'usa'
+        assert sp.config.default_state == 'Washington'
+        assert sp.config.default_location == 'seattle_metro'
+        assert sp.config.default_sheet_name == 'United States of America'
+
     def test_FilePath_no_country(cls):
         with pytest.raises(NotImplementedError):
             file_paths = sp.config.FilePaths('seattle_metro', 'Washington')
@@ -130,5 +138,34 @@ class TestFilePath(unittest.TestCase):
         assert file_paths.location == 'seattle_metro'
         assert file_paths.basedirs is not None
         assert len(file_paths.basedirs) == 3
+
+    def test_set_alt_location(cls):
+        current_alt_location = sp.config.alt_location
+        sp.config.set_alt_location('Yakima', 'Washington', 'usa')
+        assert sp.config.alt_location.country_location == 'usa'
+        assert sp.config.alt_location.state_location == 'Washington'
+        assert sp.config.alt_location.location == 'Yakima'
+        sp.config.alt_location = current_alt_location
+
+    def test_FilePaths_usa_Washington_yakima_with_alt_location(cls):
+        current_alt_location = sp.config.alt_location
+        sp.config.set_alt_location(location='seattle_metro', state_location='Washington', country_location='usa')
+        file_paths = sp.config.FilePaths(location='yakima',province='Washington', country='usa')
+        assert file_paths is not None
+        assert file_paths.country is not None
+        assert file_paths.country == 'usa'
+        assert file_paths.province is not None
+        assert file_paths.province == 'Washington'
+        assert file_paths.location is not None
+        assert file_paths.location == 'yakima'
+        assert file_paths.alt_country is not None
+        assert file_paths.alt_country == 'usa'
+        assert file_paths.alt_province is not None
+        assert file_paths.alt_province == 'Washington'
+        assert file_paths.alt_location is not None
+        assert file_paths.alt_location == 'seattle_metro'
+        assert file_paths.basedirs is not None
+        assert len(file_paths.basedirs) == 5
+        sp.config.alt_location = current_alt_location
 
 
