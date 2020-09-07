@@ -227,11 +227,11 @@ def test_get_uids_in_school(location='seattle_metro', state_location='Washington
     homes_by_uids, age_by_uid_dic = sp.assign_uids_by_homes(homes)
 
     uids_in_school, uids_in_school_by_age, ages_in_school_count = sp.get_uids_in_school(datadir, Npeople, location,
-                                                                                        state_location,
-                                                                                        country_location,
-                                                                                        age_by_uid_dic,
-                                                                                        homes_by_uids,
-                                                                                        use_default=False)
+                state_location,
+                country_location,
+                age_by_uid_dic,
+                homes_by_uids,
+                use_default=False)
     assert uids_in_school is not None
 
 

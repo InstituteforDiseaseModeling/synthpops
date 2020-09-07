@@ -19,7 +19,7 @@ import re
 import yaml
 
 __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_datadir',  'set_nbrackets', 'validate', 'set_altdatadir',
-           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name',  'alt_location']
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name',  'alt_location', 'default_household_size_1_included']
 
 
 class LocationClass:
@@ -62,6 +62,7 @@ default_state = None
 default_location = None
 default_sheet_name = None
 alt_location = None
+default_household_size_1_included = False
 
 #%% Logger -- adapted from Atomica
 
@@ -119,6 +120,7 @@ def set_location_defaults(country=None):
     global default_location
     global default_sheet_name
     global nbrackets
+    global default_household_size_1_included
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
@@ -134,6 +136,8 @@ def set_location_defaults(country=None):
             default_country = loc['country']
             default_sheet_name = loc['sheet_name']
             nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+            default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+
         else:
             print(f"warning: country not in config file, using defaults")
             loc = data['defaults']
@@ -141,7 +145,9 @@ def set_location_defaults(country=None):
             default_state = loc['province']
             default_country = loc['country']
             default_sheet_name = loc['sheet_name']
-            nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+            nbrackets = 20 if 'nbrackets' not in loc.keys() else loc['nbrackets']
+            default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+
 
 def set_alt_location(location=None, state_location=None, country_location=None):
     global alt_location
@@ -350,7 +356,7 @@ class FilePaths:
 
     def __init__(self,  location=None, province=None, country=None,  alternate_location= None,  root_dir=None, alt_rootdir=None,  use_defaults=False):
         global datadir, alt_datadir, rel_path, alt_location
-        base_path = datadir
+        base_dir = datadir
         if len(rel_path) > 0:
             base_dir= os.path.join(datadir, *rel_path)
         self.root_dir = base_dir if root_dir is None else root_dir
@@ -371,8 +377,10 @@ class FilePaths:
         self.add_base_location(location, province, country)
 
         if alternate_location is not None:
+            print(f"adding alternate location")
             self.add_alternate_location(location=alternate_location.location, province=alternate_location.state_location, country=alternate_location.country_location)
         elif alt_location is not None:
+            print(f"adding alt location")
             self.add_alternate_location(location=alt_location.location, province=alt_location.state_location, country=alt_location.country_location)
 
 
@@ -457,17 +465,11 @@ class FilePaths:
         return self.basedirs
 
     def get_location(self):
-        location_info = []
-        location_info.append(self.location)
-        location_info.append(self.province)
-        location_info.append(self.country)
+        location_info = LocationClass(location=location, state_locaitno=province, country_location=country)
         return location_info
 
     def get_alt_location(self):
-        location_info = []
-        location_info.append(self.alt_location)
-        location_info.append(self.alt_province)
-        location_info.append(self.alt_country)
+        location_info = LocationClass(location=atl_location, state_location=alt_province, country_location=alt_country)
         return location_info
 
     def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
@@ -486,11 +488,11 @@ class FilePaths:
         file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list, alt_prefix)
         return file
 
-    def get_data_file(self, location=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
+    def get_data_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        filedata_type = None
+        #filedata_type = None
         file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list, alt_prefix)
         return file
 

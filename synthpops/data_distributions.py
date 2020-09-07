@@ -35,8 +35,10 @@ def get_age_brackets_from_df(ab_file_path):
 
     """
     # check if age bracket files exists, if not set to 20 for default_country
+
+
     age_brackets = {}
-    check_exists = os.path.exists(ab_file_path)
+    check_exists = False if ab_file_path is None else  os.path.exists(ab_file_path)
     # check exist check is the file exist
     # shouldn't we st age_brackets to nbrackets and not 20?
     if check_exists is False:
@@ -75,11 +77,13 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     else:
         return os.path.join(datadir,  country_location, state_location, 'age_distributions', location + f'_gender_fraction_by_age_bracket_{cfg.nbrackets}.dat')
     """
+
     paths = cfg.FilePaths(location, state_location, country_location)
     base = f"gender_fraction_by_age_bracket_{cfg.nbrackets}"
     prefix = "{location}_" + base
     alt_prefix = None
 
+    """
     # get primary prefix mpte --remove after refactor of usa data
     if location is not None and country_location == 'usa':  # ---remove
         prefix = prefix.format(location=location)
@@ -88,28 +92,16 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
         prefix = "seattle_metro_" + base
     elif location is None and country_location == 'usa':
         prefix = base
-
+    """
     # if alt_locaton get alt_prefix -- --remove after data re-factor
-
     if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix = "{location}_" + base
-        if alt_location is not None and alt_country_location == 'usa':  # ---remove
-            prefix = prefix.format(location=alt_location)
-        elif alt_location is None and alt_state_location == 'Washington':
-            alt_location = alt_state_location
-            prefix = "seattle_metro_" + base
-        elif location is None and country_location == 'usa':
-            alt_prefix = base
+        alt_prefix = prefix
 
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', filter_list=None, alt_prefix=alt_prefix)
     suffix = '.dat'
-
     datadir = cfg.datadir
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', location + '_' + base + suffix)
-    print(file_path)
+    file_path = file
+
     return file, file_path
 
 
@@ -136,9 +128,6 @@ def read_gender_fraction_by_age_bracket(datadir, location=None, state_location=N
         file, file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
     try:
         file, file_path = get_gender_fraction_by_age_path(location, state_location, country_location)
-        check_exists = os.path.exists(file_path)
-        if check_exists is True:
-            print(file_path)
         df = pd.read_csv(file_path)
     except:
         if use_default:
@@ -183,19 +172,6 @@ def get_age_bracket_distr_path(location=None, state_location=None, country_locat
     base = f"age_bracket_distr_{cfg.nbrackets}"
     prefix = "{location}_" + base
     alt_prefix = None
-
-    # remove after data re-factor
-    if location is not None and country_location == 'usa':  # remove after restructure
-        prefix = prefix.format(location=location)
-
-    # check for alternate: -- remove after data re-factor
-    if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-        if alt_location is not None and alt_country_location == 'usa':  # remove after restructure
-            prefix = prefix.format(location=alt_location)
 
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', filter_list=None, alt_prefix=alt_prefix)
     return file
@@ -264,23 +240,7 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     prefix = '{location}_' + base
     alt_prefix = None
 
-    # if statement below should be remove when refactored ---remove
-    if location is  None and country_location == 'usa':
-        prefix = base
-    elif location is not None and country_location == 'usa':
-        prefix = prefix.format(location=location)
-
-    if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-        if alt_location is  None and alt_country_location == 'usa':
-            prefix = base
-        elif alt_location is not None and alt_country_location == 'usa':
-            prefix = prefix.format(location=location)
-
-    file = paths.get_demographic_file(location=location, filedata_type='household_size_distributions', prefix=prefix, suffix='.dat')
+    file = paths.get_demographic_file(location=location, filedata_type='household_size_distributions', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
     return file
 
 
@@ -346,17 +306,20 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     prefix = '{location}_' + base
     alt_prefix = None
     filedata_type = 'household_living_arrangements'
-
+    """
     if country_location == 'usa':
         prefix = base
-
+    """
     if cfg.alt_location is not None:
+        alt_prefix = prefix
+    """
         alt_location = cfg.alt_location.location
         alt_state_location = cfg.alt_location.state_location
         alt_country_location = cfg.alt_location.country_location
         alt_prefix ="{location}_" + base
         if alt_country_location == 'usa':
             alt_prefix = base
+    """
 
     file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
                                       suffix='.dat', alt_prefix=alt_prefix)
@@ -423,17 +386,22 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
     alt_prefix = None
 
     filedata_type='household_living_arrangements'
+    """
     if country_location == 'usa':      #-----remove
         prefix = base
+    """
 
     if cfg.alt_location is not None:
+        alt_prefix = prefix
+    """
         alt_location = cfg.alt_location.location
         alt_state_location = cfg.alt_location.state_location
         alt_country_location = cfg.alt_location.country_location
         alt_prefix ="{location}_" + base
 
         if alt_country_location == 'usa':      #-----remove
-            prefix = base
+            alt_prefix = base
+    """
 
     file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
                                       suffix='.dat', alt_prefix=alt_prefix)
@@ -488,7 +456,9 @@ def get_head_age_by_size_distr(datadir, state_location=None, country_location=No
 
     """
     hha_df = get_household_head_age_by_size_df(datadir, state_location, country_location, file_path, use_default)
+
     hha_by_size = np.zeros((2 + len(hha_df), len(hha_df.columns)-1))
+
     if household_size_1_included:
         for s in range(1, len(hha_df)+1):
             d = hha_df[hha_df['family_size'] == s].values[0][1:]
@@ -513,38 +483,21 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     Returns:
         A file path to the age brackets to be used with census age data in combination with the contact matrix data.
     """
-    """
-    levels = [state_location, country_location]
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(datadir,  country_location, f'census_age_brackets_{cfg.nbrackets}.dat')
-    else:
-        return os.path.join(datadir,  country_location, state_location, f'census_age_brackets_{cfg.nbrackets}.dat')
-    """
-    paths = cfg.FilePaths(None, state_location, country_location)
-
     base = f"census_age_brackets_{cfg.nbrackets}"
     prefix = "{location}_" + base
     alt_prefix = None
 
-    if country_location == 'usa':
-        prefix = base
-
+    """
+    #if country_location == 'usa':
+    #    prefix = base
+    #prefix = prefix.format(location = country_location)
+    """
     if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
+        alt_prefix = prefix
+    paths = cfg.FilePaths(None, state_location, country_location)
+    file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
-        if alt_country_location == 'usa':
-            prefix = base
-
-    file = paths.get_data_file(location=state_location, prefix=prefix.format(location=state_location), suffix='.dat', alt_prefix=alt_prefix)
-    file_name = prefix.format(location=state_location) + '.dat'
-    file_path = os.path.join(get_relative_path(datadir),  country_location, state_location, file_name)
+    file_path = file
     return file, file_path
 
 
@@ -795,21 +748,23 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
     base = 'school_enrollment_by_age'
     prefix = "{location}_" + base
     alt_prefix = None
-
+    """
     # remove after data refactor
     if country_location == 'usa':      # usa --remove after refactor
         prefix = prefix if location is None else prefix.format(location=location)
-
+    """
     #remove after data e-factor
     if cfg.alt_location is not None:
+        alt_prefix = prefix
+    """
         alt_location = cfg.alt_location.location
         alt_state_location = cfg.alt_location.state_location
         alt_country_location = cfg.alt_location.country_location
         alt_prefix ="{location}_" + base
 
         if alt_country_location == 'usa':      # usa --remove after re-factor
-            prefix = prefix if alt_location is None else prefix.format(location=alt_location)
-
+            alt_prefix = alt_prefix if alt_location is None else alt_prefix.format(location=alt_location)
+    """
     file = paths.get_demographic_file(location, filedata_type='enrollment', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
     return file
 
@@ -858,39 +813,19 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
     Returns:
         A file path to school size brackets.
     """
-    """
-    levels = [location, state_location, country_location]
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(datadir,  country_location, 'schools', 'school_size_brackets.dat')
-    elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'schools', 'school_size_brackets.dat')
-    else:
-        return os.path.join(datadir,  country_location, state_location, 'schools', location + '_school_size_brackets.dat')
-    """
+
     paths = cfg.FilePaths(location, state_location, country_location)
     #prefix = "{location}_school_size_brackets" if location is None else f"{location}_school_size_brackets"
     base =  "school_size_brackets"
     prefix = '{location}_' + base
     alt_prefix = None
 
-    #remove after data re-factor
-    if country_location == 'usa':    # usa -- remove
-        prefix = prefix if location is None else prefix.format(location=location)
-
     #remove after data e-factor
     if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-        if alt_country_location == 'usa':    # usa -- remove
-            prefix = prefix if alt_location is None else prefix.format(location=alt_location)
+        alt_prefix = prefix
 
     file= paths.get_demographic_file(location, filedata_type='schools', prefix=prefix,suffix='.dat', alt_prefix=alt_prefix)
+
     return file
 
 
@@ -956,19 +891,22 @@ def get_school_sizes_path(datadir, location=None, state_location=None, country_l
     prefix = "{location}_" + base
     alt_prefix = None
 
+    """
     if country_location == 'usa' and location is not None:
         prefix = prefix.format(location=location)
-
+    """
     #remove after data e-factor
     if cfg.alt_location is not None:
+        alt_prefix = prefix
+    """
         alt_location = cfg.alt_location.location
         alt_state_location = cfg.alt_location.state_location
         alt_country_location = cfg.alt_location.country_location
         alt_prefix ="{location}_" + base
 
         if alt_country_location == 'usa' and alt_location is not None:
-            prefix = prefix.format(location=alt_location)
-
+            alt_prefix = alt_prefix.format(location=alt_location)
+    """
     file= paths.get_demographic_file(location, filedata_type='schools', prefix=prefix,suffix='.dat', alt_prefix=alt_prefix)
     return file
 
@@ -1034,29 +972,12 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     prefix = "{location}_" + base
     alt_prefix = None
 
-    # remove after data refactor
-    if country_location == 'usa':            # --remove
-        if location is not None:
-            prefix = prefix.format(location=location)
-        else:
-            prefix = base
-
     #remove after data e-factor
     if cfg.alt_location is not None:
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-
-        # remove after data refactor
-        if alt_country_location == 'usa':            # --remove
-            if alt_location is not None:
-                alt_prefix = prefix.format(location=alt_location)
-            else:
-                alt_prefix = base
-
+        alt_prefix = prefix
 
     file = paths.get_demographic_file(location, filedata_type='schools', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+
     return file
 
 def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):
@@ -1157,11 +1078,11 @@ def write_school_size_distr_by_brackets(datadir, location=None, state_location=N
     if country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        file_path = os.path.join(datadir,  country_location, 'schools', 'school_size_distr.dat')
+        file_path = os.path.join(get_relative_path(datadir),  country_location, 'schools', 'school_size_distr.dat')
     elif location is None:
-        file_path = os.path.join(datadir,  country_location, state_location, 'schools', 'school_size_distr.dat')
+        file_path = os.path.join(get_relative_path(datadir),  country_location, state_location, 'schools', 'school_size_distr.dat')
     else:
-        file_path = os.path.join(datadir,  country_location, state_location, 'schools', location + '_school_size_distr.dat')
+        file_path = os.path.join(get_relitive_path(datadir),  country_location, state_location, 'schools', location + '_school_size_distr.dat')
 
     f = open(file_path, 'w')
     f.write('size_bracket,percent\n')
@@ -1220,6 +1141,20 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
     Returns:
         A file path to employment rates by age.
     """
+
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'employment_rates_by_age'
+    prefix = "{location}_" + base
+    alt_prefix = None
+
+    #remove after data e-factor
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_demographic_file(location, filedata_type='employment', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+    return file
+
+    """
     levels = [location, state_location, country_location]
     base_dir = get_relative_path(datadir)
 
@@ -1228,12 +1163,13 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(base_dir,  country_location, 'employment', 'employment_rates_by_age.dat')
+        file = os.path.join(base_dir,  country_location, 'employment', 'employment_rates_by_age.dat')
     elif location is None:
-        return os.path.join(base_dir,  country_location, state_location, 'employment', 'employment_rates_by_age.dat')
+        file= os.path.join(base_dir,  country_location, state_location, 'employment', 'employment_rates_by_age.dat')
     else:
-        return os.path.join(base_dir,  country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
-
+        fil os.path.join(base_dir,  country_location, state_location, 'employment', location + '_employment_rates_by_age.dat')
+    """
+    return file
 
 def get_employment_rates(datadir, location, state_location, country_location, file_path=None, use_default=False):
     """
@@ -1279,20 +1215,18 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
     Returns:
         A file path to workplace size brackets.
     """
-    base_dir = get_relative_path(datadir)
 
-    levels = [location, state_location, country_location]
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(base_dir,  country_location, 'workplaces', 'work_size_brackets.dat')
-    elif location is None:
-        return os.path.join(base_dir,  country_location, state_location, 'workplaces', 'work_size_brackets.dat')
-    else:
-        return os.path.join(base_dir,  country_location, state_location, 'workplaces', location + '_work_size_brackets.dat')
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'work_size_brackets'
+    prefix = "{location}_" + base
+    alt_prefix = None
 
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_demographic_file(location, filedata_type='workplaces', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+
+    return file
 
 def get_workplace_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
@@ -1338,19 +1272,18 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
     Returns:
         A file path to the distribution of workplace sizes by bracket.
     """
-    levels = [location, state_location, country_location]
-    base_dir = get_relative_path(datadir)
 
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(base_dir,  country_location, 'workplaces', 'work_size_count.dat')
-    elif location is None:
-        return os.path.join(base_dir,  country_location, state_location, 'workplaces', 'work_size_count.dat')
-    else:
-        return os.path.join(base_dir,  country_location, state_location, 'workplaces', location + '_work_size_count.dat')
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'work_size_count'
+    prefix = "{location}_" + base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_demographic_file(location, filedata_type='workplaces', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+
+    return file
 
 
 def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -1404,6 +1337,25 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
         A file path to data on Long Term Care Facilities from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
         Part 1 or 2 are available.
     """
+
+    if country_location is None:
+        raise NotImplementedError("Missing country_location string.")
+    if state_location is None:
+        raise NotImplementedError("Missing state_location string.")
+    if part != 1 and part != 2:
+        raise NotImplementedError("Part must be 1 or 2. Please try again.")
+    postal_code = get_state_postal_code(state_location, country_location)
+    paths = cfg.FilePaths(None, state_location, country_location)
+    base = 'LongTermCare_Table_48_Part{0}_{1}_2015_2016'.format(part, postal_code)
+    prefix =  base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_data_file(None, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+
+    """
     base_dir=get_relative_path(datadir)
     if country_location is None:
         raise NotImplementedError("Missing country_location string.")
@@ -1415,6 +1367,8 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
     target = os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'LongTermCare_Table_48_Part{0}_{1}_2015_2016.csv'.format(part, postal_code))
 
     return target
+    """
+    return file
 
 
 def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
@@ -1444,19 +1398,18 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
     Returns:
         A file path to data on the size distribution of residents per facility for Long Term Care Facilities.
     """
-    levels = [location, state_location, country_location]
-    base_dir = get_relative_path(cfg.datadir)
 
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(base_dir,  country_location, 'assisted_living', 'aggregated_residents_distr.csv')
-    elif location is None:
-        return os.path.join(base_dir,  country_location, state_location, 'assisted_living', 'aggregated_residents_distr.csv')
-    else:
-        return os.path.join(base_dir,  country_location, state_location, 'assisted_living', location + '_aggregated_residents_distr.csv')
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'aggregated_residents_distr'
+    prefix =  "{location}_" + base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_data_file(location, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+
+    return file
 
 
 def get_usa_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
@@ -1500,6 +1453,18 @@ def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, locat
     Returns:
         A file path to data on the size bins for the distribution of residents per facility for Long Term Care Facilities.
     """
+
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'aggregated_residents_bins'
+    prefix =  "{location}_" + base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_data_file(location, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+
+    """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -1511,7 +1476,8 @@ def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, locat
         return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', 'aggregated_residents_bins.csv')
     else:
         return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', location + '_aggregated_residents_bins.csv')
-
+    """
+    return file
 
 def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
@@ -1555,17 +1521,18 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, locat
     Returns:
         A file path to data on the distribution of resident to staff ratios per facility for Long Term Care Facilities.
     """
-    levels = [location, state_location, country_location]
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(get_relative_path(datadir), country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
-    elif location is None:
-        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_distr.csv')
-    else:
-        return os.path.join(get_relative_path(datadir), country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_distr.csv')
+
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'aggregated_resident_to_staff_ratios_distr'
+    prefix =  "{location}_" + base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_data_file(location, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+
+    return file
 
 
 def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
@@ -1610,17 +1577,18 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path(datad
     Returns:
         A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
     """
-    levels = [location, state_location, country_location]
-    if all(level is None for level in levels):
-        raise NotImplementedError("Missing input strings. Try again.")
-    elif country_location is None:
-        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
-    elif state_location is None:
-        return os.path.join(datadir,  country_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_bins.csv')
-    elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', 'aggregated_resident_to_staff_ratios_bins.csv')
-    else:
-        return os.path.join(datadir,  country_location, state_location, 'assisted_living', location + '_aggregated_resident_to_staff_ratios_bins.csv')
+
+    paths = cfg.FilePaths(location, state_location, country_location)
+    base = 'aggregated_resident_to_staff_ratios_bins'
+    prefix =  "{location}_" + base
+    alt_prefix = None
+
+    if cfg.alt_location is not None:
+        apt_prefix = prefix
+
+    file = paths.get_data_file(location, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+
+    return file
 
 
 def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):

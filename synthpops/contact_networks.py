@@ -22,6 +22,7 @@ from . import school_modules as spsm
 from . import read_write as sprw
 from .config import datadir
 from .config import logger as log
+from . import config as cfg
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -186,6 +187,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         homes[h][0] = int(hha)
 
         b = age_by_brackets_dic[hha]
+
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
@@ -1070,6 +1072,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
+    #syn_ages= spsamp.get_age_n(datadir,totalpop, location=location, state_location=state_location, country_location=country_location)
     syn_age_count = Counter(syn_ages)
     syn_age_distr_unordered = spb.norm_dic(syn_age_count)  # Ensure it's ordered
     syn_age_keys = list(syn_age_distr_unordered.keys())
@@ -1083,7 +1086,8 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
     hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=True)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=True)
+
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=True, household_size_1_included=cfg.default_household_size_1_included)
 
     homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = assign_uids_by_homes(homes)

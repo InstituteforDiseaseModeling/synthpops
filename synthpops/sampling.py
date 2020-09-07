@@ -360,11 +360,13 @@ def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_peo
         ages, sexes = [], []
 
         for b in bracket_count:
-            sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
             ages_in_bracket = np.random.choice(age_brackets[b], bracket_count[b])
-            sexes_in_bracket = np.random.choice(np.arange(2), bracket_count[b], p=sex_probabilities)
             ages += list(ages_in_bracket)
-            sexes += list(sexes_in_bracket)
+
+            if gender_fraction_by_age is not None:
+                sex_probabilities = [gender_fraction_by_age['female'][b], gender_fraction_by_age['male'][b]]
+                sexes_in_bracket = np.random.choice(np.arange(2), bracket_count[b], p=sex_probabilities)
+                sexes += list(sexes_in_bracket)
 
     return ages, sexes
 
@@ -454,8 +456,14 @@ def get_usa_age_sex_n(datadir, location='seattle_metro', state_location='Washing
 
     """
     age_bracket_distr = spdata.read_age_bracket_distr(datadir, location, state_location, country_location)
-    gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
+
+    gender_fraction_by_age = None
+
+    temp_file , temp_file_path =spdata.get_gender_fraction_by_age_path(location, state_location, country_location)
+    check_exists = os.path.exists(temp_file_path)
+    if check_exists is True:
+        gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
 
     ages, sexes = get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_people)
     return ages, sexes

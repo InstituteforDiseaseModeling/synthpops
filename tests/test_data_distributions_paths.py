@@ -1,4 +1,5 @@
 import os
+import unittest
 import synthpops as sp
 import sciris as sc
 import pytest
@@ -9,15 +10,29 @@ state_location = 'Washington'
 country_location = 'usa'
 
 
-
 def test_get_gender_fraction_by_age_path_all_variables():
     """
     Test getting the file path with all input variables
     """
-    dat_file, file_path = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,
-                                                  country_location=country_location)
-    print(file_path)
-    assert file_path is not  None
+    dat_file, file_path = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location, country_location=country_location)
+    check_exists = False if dat_file is None else os.path.exists(dat_file)
+    assert os.path.basename(dat_file) == 'Washington_gender_fraction_by_age_bracket_20.dat'
+    assert file_path is not None
+    assert check_exists == True
+
+def test_get_gender_fraction_by_age_path_all_variables_alt_location():
+    """
+    Test getting the file path with all input variables
+    """
+    current_alt_location = sp.config.alt_location
+    sp.config.set_alt_location(location=location, state_location=state_location, country_location=country_location)
+    dat_file, file_path = sp.get_gender_fraction_by_age_path(location='Yakima', state_location=state_location, country_location=country_location)
+    sp.config.alt_location = current_alt_location
+    check_exists = False if dat_file is None else os.path.exists(dat_file)
+
+    assert os.path.basename(dat_file) == 'Washington_gender_fraction_by_age_bracket_20.dat'
+    assert dat_file is not None
+    assert check_exists == True
 
 # def test_get_gender_fraction_by_age_path_country_variable_only():
 #     """
@@ -27,18 +42,22 @@ def test_get_gender_fraction_by_age_path_all_variables():
 #     print(dat_file)
 #     assert dat_file is not None
 
-
 def test_get_gender_fraction_by_age_path_country_state_variables():
     """
     Test getting the file path with both state_location and country_location variables
     """
-    dat_file = sp.get_gender_fraction_by_age_path(state_location=state_location,
+    dat_file, file_path = sp.get_gender_fraction_by_age_path(state_location=state_location,
                                                   country_location=country_location)
+    check_exists = False if dat_file is None else os.path.exists(dat_file)
     assert dat_file is not None
+    assert os.path.basename(dat_file) == 'Washington_gender_fraction_by_age_bracket_20.dat'
+    assert check_exists == True
 
+@unittest.skip("in progress")
 def test_get_gender_fraction_by_age_path_all_variables_Senegal():
     """
     Test getting the file path with all input variables
+    Note get_gender_fraction_by_age does not exist for senegal
     """
     default_country = sp.config.default_country
     sp.config.set_location_defaults('Senegal')
@@ -46,11 +65,27 @@ def test_get_gender_fraction_by_age_path_all_variables_Senegal():
     location = 'Dakar'
     state_location = 'Dakar'
     country_location = 'Senegal'
-    dat_file, file_path = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,
-                                                  country_location=country_location)
-    print(file_path)
+    dat_file, file_path = sp.get_gender_fraction_by_age_path(location=location, state_location=state_location,   country_location=country_location)
     sp.config.set_location_defaults(default_country)
     assert file_path is not None
+
+def test_get_census_age_brackets_path_usa():
+    """
+    Test getting the file path with all input variables
+    """
+    #default_country = sp.config.default_country
+    #sp.config.set_location_defaults('Senegal')
+    datadir = sp.datadir
+    location = 'seattle_metro'
+    state_location = 'Washington'
+    country_location = 'usa'
+    data_file, file_path = sp.get_census_age_brackets_path(datadir, state_location=state_location,
+                                                  country_location=country_location)
+    assert file_path is not None
+    check_file = os.path.exists(file_path)
+    assert check_file == True
+
+
 
 def test_get_census_age_brackets_path_Senegal():
     """

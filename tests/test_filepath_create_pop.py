@@ -9,9 +9,10 @@ import sys
 import synthpops as sp
 from synthpops import cfg
 
-class TestSenegal(unittest.TestCase):
+class TestFilePathCreatePop(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        cls.do_close = False
         cls.dataUSAdir = tempfile.TemporaryDirectory().name
         cls.dataSenegalDir = tempfile.TemporaryDirectory().name
         cls.initia_default_dir = cfg.datadir
@@ -44,15 +45,21 @@ class TestSenegal(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.copy_output()
         cfg.set_datadir(cls.initia_default_dir, ["demographics","contact_matrices_152_countries"])
-        cfg.set_location_defaults(country="default")
+        cfg.set_location_defaults(country="defaults")
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
-            shutil.rmtree(d, ignore_errors=True)
+           shutil.rmtree(d, ignore_errors=True)
 
     @unittest.skip("in progress")
     def test_location_walk_back(self):
-        sp.config.set_datadir(self.dataUSAdir, ["demographics", "contact_matrices_152_countries"])
-        file_paths = sp.config.FilePaths(location="yakima", country="usa", province="Washington")
-        file_paths.add_alternate_location(location="seattle_metro", country="usa", province="Washington")
+        # works
+        current_datadir = sp.config.datadir
+        current_rel_path = sp.config.rel_path
+        current_alt_location = sp.config.alt_location
+
+        sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
+        sp.config.set_alt_location(location="seattle_metro", country_location="usa", state_location="Washington")
+        #file_paths = sp.config.FilePaths(location="yakima", country="usa", province="Washington")
+        #file_paths.add_alternate_location(location="seattle_metro", country="usa", province="Washington")
         rand_seed = self.seed
         n = self.n
         datadir = self.dataUSAdir
@@ -62,11 +69,19 @@ class TestSenegal(unittest.TestCase):
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
+        sp.config.datadir = current_datadir
+        sp.config.rel_path = current_rel_path
+        sp.config.alt_location = current_alt_location
 
-    @unittest.skip("in progress")
+
+   #@unittest.skip("in progress")    # returns average 22.5 instead of 22
     def test_usa_default_with_param(self):
-        sp.config.set_datadir(self.dataUSAdir, ["demographics", "contact_matrices_152_countries"])
+        current_datadir = sp.config.datadir
+        current_rel_path = sp.config.rel_path
+        current_alt_location = sp.config.alt_location
+
+        sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
         sp.config.set_location_defaults(country="usa")
         rand_seed = self.seed
         n = self.n
@@ -77,11 +92,19 @@ class TestSenegal(unittest.TestCase):
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
+        sp.config.datadir = current_datadir
+        sp.config.rel_path = current_rel_path
+        sp.config.alt_location = current_alt_location
 
     @unittest.skip("in progress")
     def test_usa_default(self):
-        sp.config.set_datadir(self.dataUSAdir, ["demographics", "contact_matrices_152_countries"])
+        #works
+        current_datadir = sp.config.datadir
+        current_rel_path = sp.config.rel_path
+        current_alt_location = sp.config.alt_location
+
+        sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
         sp.config.set_location_defaults(country="usa")
         rand_seed = self.seed
         n = self.n
@@ -91,7 +114,10 @@ class TestSenegal(unittest.TestCase):
         state_location = "Washington"
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
+        sp.config.datadir = current_datadir
+        sp.config.rel_path = current_rel_path
+        sp.config.alt_location = current_alt_location
 
     @unittest.skip("in progress")
     def test_senegal_default(self):

@@ -20,6 +20,7 @@ from . import contact_networks as spcnx
 from . import school_modules as spsm
 from . import read_write as sprw
 from .config import logger as log
+from . import config as cfg
 
 part = 2
 
@@ -290,9 +291,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
-    age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'seattle_metro_age_bracket_distr_18.dat')
+    age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'Washington_age_bracket_distr_18.dat')
     age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
-    age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'census_age_brackets_18.dat')
+    age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'Washington_census_age_brackets_18.dat')
     age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
     age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
@@ -385,7 +386,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
     hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
     hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 

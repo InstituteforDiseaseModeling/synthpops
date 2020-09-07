@@ -791,20 +791,26 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
                              state_location, folder_name)
 
-    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-
+    #households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    households_by_uid_path = os.path.join(file_path, state_location+ '_' + str(n) + '_synthetic_households_with_uids.dat')
     if with_industry_code:
-        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
-        workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+        #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        #workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+        workplaces_by_industry_code_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
     else:
-        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+        #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+        workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
 
-    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    #schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    #teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
     if with_non_teaching_staff:
         try:
-            non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            #non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            non_teaching_staff_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
             fnt = open(non_teaching_staff_by_uid_path, 'r')
             fnt.close()
         except:
@@ -1172,12 +1178,19 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
 
-    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
-    facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
-    facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
+    #households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    #schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    #teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    #facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+    #facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
+
+    households_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    facilities_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+    facilities_staff_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
     if with_non_teaching_staff:
         try:
@@ -1356,10 +1369,10 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None, 
-                                                              use_two_group_reduction=False, average_LTCF_degree=20, 
-                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
-                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3, 
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None,
+                                                              use_two_group_reduction=False, average_LTCF_degree=20,
+                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
                                                               average_student_all_staff_ratio=15, average_additional_staff_degree=20,
                                                               school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
     """
@@ -1660,8 +1673,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if n_contacts_dic     is None:
         n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 
-                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree',
+                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1,
                                   'average_student_all_staff_ratio': 15, 'average_additional_staff_degree': 20,
                                   'average_LTCF_degree': 20, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
     default_network_distr_args['school_type_by_age'] = spsm.get_default_school_types_by_age_single()
@@ -1693,7 +1706,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types']
-    if options_args is None: 
+    if options_args is None:
         options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
