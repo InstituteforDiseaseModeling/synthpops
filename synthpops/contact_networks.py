@@ -368,7 +368,6 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
     np.random.shuffle(school_sizes)
     return school_sizes
 
-
 def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
     """
     A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
