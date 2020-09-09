@@ -603,7 +603,6 @@ def rehydrate(data):
 
     return popdict
 
-
 def save_synthpop(datadir, contacts, location):
     """
     Save pop data object to file.

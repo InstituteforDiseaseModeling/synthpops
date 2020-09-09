@@ -24,6 +24,7 @@ def test_get_gender_fraction_by_age_path_all_variables_alt_location():
     """
     Test getting the file path with all input variables
     """
+
     current_alt_location = sp.config.alt_location
     sp.config.set_alt_location(location=location, state_location=state_location, country_location=country_location)
     dat_file, file_path = sp.get_gender_fraction_by_age_path(location='Yakima', state_location=state_location, country_location=country_location)

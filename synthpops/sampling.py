@@ -13,8 +13,6 @@ from . import base as spb
 from . import data_distributions as spdata
 from .config import logger as log
 
-
-
 def set_seed(seed=None):
     ''' Reset the random seed -- complicated because of Numba '''
 

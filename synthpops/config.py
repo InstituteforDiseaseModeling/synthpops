@@ -37,12 +37,9 @@ alt_rel_path = ['demographics', 'contact_matrices_152_countries']
 full_data_available = False # this is likely not necessary anymore
 
 # Set the local data folder
-# thisdir = sc.thisdir(__file__)
 thisdir = os.path.dirname(os.path.abspath(__file__))
-print(thisdir)
+#print(thisdir)
 config_file = os.path.join(thisdir, 'config_info.yaml')
-# localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
-# recommended change
 localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
@@ -51,9 +48,7 @@ if datadir is None:
     full_data_available = True
     datadir = localdatadir
 
-
 # Number of census age brackets to use
-# added 18 to support Senegal
 valid_nbracket_ranges = [16, 18, 20] # Choose how many age bins to use -- 20 is only partially supported
 nbrackets = 20
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
@@ -139,7 +134,7 @@ def set_location_defaults(country=None):
             default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
 
         else:
-            print(f"warning: country not in config file, using defaults")
+            logger.warning(f"warning: country not in config file, using defaults")
             loc = data['defaults']
             default_location = loc['location']
             default_state = loc['province']
@@ -208,10 +203,10 @@ def set_altdatadir(root_dir, relative_path=None):
 def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
     global nbrackets
-    print(f"set_nbrackets n = {n}")
+    logger.info(f"set_nbrackets n = {n}")
     nbrackets = n
-    if nbrackets not in [16, 20]:
-        print(f'Note: current supported bracket choices are 16 or 20, use {nbrackets} at your own risk.')
+    if nbrackets not in valid_nbracket_ranges:
+        logger.warningnt(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
     logger.info(f'Done: number of brackets is set to {n}.')
     return nbrackets
 
@@ -377,10 +372,10 @@ class FilePaths:
         self.add_base_location(location, province, country)
 
         if alternate_location is not None:
-            print(f"adding alternate location")
+            logger.info(f"adding user call supplied alternate location ")
             self.add_alternate_location(location=alternate_location.location, province=alternate_location.state_location, country=alternate_location.country_location)
         elif alt_location is not None:
-            print(f"adding alt location")
+            logger.info(f"adding config alt location")
             self.add_alternate_location(location=alt_location.location, province=alt_location.state_location, country=alt_location.country_location)
 
 
@@ -447,7 +442,7 @@ class FilePaths:
         search_list = reversed(list(enumerate(self.basedirs)))
         for i,e in search_list:
             if not os.path.isdir(e[1]):
-                print(f"Warning: Directory {e[1]} missing for location={i}, removing.")
+                logger.warning(f"Warning: Directory {e[1]} missing for location={i}, removing.")
                 self.basedirs.pop(i)
         # make sure we have at least one directory, or through an error
         if len(self.basedirs) < 1:
@@ -533,7 +528,7 @@ class FilePaths:
                         results = os.path.join(filedata_dir, files[0])
                         break
                 else:
-                    print(f'no data in directory {filedata_dir}, skipping')
+                    logger.info(f'no data in directory {filedata_dir}, skipping')
         return results
 
     def _list_files(self, level, target_dir, prefix, suffix, filter_list, alt_prefix):

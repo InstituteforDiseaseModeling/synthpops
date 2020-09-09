@@ -49,7 +49,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
            shutil.rmtree(d, ignore_errors=True)
 
-    @unittest.skip("in progress")
+    #@unittest.skip("in progress")
     def test_location_walk_back(self):
         # works
         current_datadir = sp.config.datadir
@@ -97,7 +97,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         sp.config.rel_path = current_rel_path
         sp.config.alt_location = current_alt_location
 
-    @unittest.skip("in progress")
+    #@unittest.skip("in progress")
     def test_usa_default(self):
         #works
         current_datadir = sp.config.datadir
@@ -175,8 +175,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
 
     def check_result(self, pop, datadir, test_prefix, location, state_location, country_location):
-        utilities.check_class_size(pop, self.average_class_size, self.average_student_teacher_ratio,
-                                   self.average_student_all_staff_ratio, 1)
+        utilities.check_class_size(pop, self.average_class_size, self.average_student_teacher_ratio,self.average_student_all_staff_ratio, 1)
         utilities.check_teacher_staff_ratio(pop, datadir, f"{test_prefix}", self.average_student_teacher_ratio,
                                             self.average_student_all_staff_ratio, err_margin=2)
         utilities.check_age_distribution(pop, self.n, datadir, location, state_location, country_location,

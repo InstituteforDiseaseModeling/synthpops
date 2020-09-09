@@ -96,12 +96,11 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     # if alt_locaton get alt_prefix -- --remove after data re-factor
     if cfg.alt_location is not None:
         alt_prefix = prefix
-
     file = paths.get_demographic_file(location=location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', filter_list=None, alt_prefix=alt_prefix)
     suffix = '.dat'
     datadir = cfg.datadir
     file_path = file
-
+    #print(f"========== file = {file}")
     return file, file_path
 
 
@@ -1410,7 +1409,6 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
     file = paths.get_data_file(location, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
 
     return file
-
 
 def get_usa_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """

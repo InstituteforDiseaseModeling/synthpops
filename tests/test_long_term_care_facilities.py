@@ -52,8 +52,10 @@ n = 1000
 n = int(n)
 
 
+
 def test_generate_microstructures_with_non_teaching_staff():
     # # generate and write to file
+    sp.config.set_location_defaults(country_location)
     population1 = sp.generate_microstructure_with_facilities(datadir,
                                                              location=location,
                                                              state_location=state_location,
