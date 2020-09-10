@@ -130,7 +130,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
 
     def test_senegal_set_param(self):
-        cfg.set_datadir(self.dataSenegalDir, "demographics/contact_matrices_152_countries")
+        cfg.set_datadir(os.path.join(self.dataSenegalDir,'data'), ["demographics","contact_matrices_152_countries"])
         rand_seed = self.seed
         n = self.n
         datadir = os.path.join(self.dataSenegalDir, 'data')
