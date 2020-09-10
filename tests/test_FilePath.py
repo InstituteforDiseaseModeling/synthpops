@@ -56,7 +56,7 @@ class TestFilePath(unittest.TestCase):
         assert sp.config.default_country == 'Senegal'
         assert sp.config.default_state == 'Dakar'
         assert sp.config.default_location == 'Dakar'
-        assert sp.config.default_sheet_name is None
+        assert sp.config.default_sheet_name == 'Senegal'
 
     def test_set_location_defaults_usacls(cls):
         sp.config.set_location_defaults('usa')

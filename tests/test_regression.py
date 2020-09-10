@@ -15,6 +15,7 @@ import tempfile
 import sciris as sc
 import synthpops as sp
 import inspect
+import utilities
 from scipy.spatial import distance
 from examples import plot_age_mixing_matrices
 try:
@@ -60,7 +61,7 @@ class TestRegression(unittest.TestCase):
         test_prefix = sys._getframe().f_code.co_name
         filename = os.path.join(self.resultdir,f'pop_{n}_seed{rand_seed}.json')
         actual_vals = locals()
-        pop = self.runpop(filename=filename, actual_vals=actual_vals, testprefix=test_prefix)
+        pop = utilities.runpop(resultdir=self.configDir, actual_vals=actual_vals, testprefix=test_prefix, method=sp.make_population)
         # if default sort order is not concerned:
         # pop = dict(sorted(pop.items(), key=lambda x: x[0]))
 
@@ -79,23 +80,6 @@ class TestRegression(unittest.TestCase):
                   f"\n\nreplace expected {expectedfilename} \nwith {newfilename} \n if you approve this change."
             raise ValueError(errormsg)
 
-    def runpop(self, filename, actual_vals, testprefix = "test", method=sp.make_population):
-        # if default sort order is not concerned:
-        # pop = dict(sorted(pop.items(), key=lambda x: x[0]))
-        params = {}
-        args = inspect.getfullargspec(method).args
-        for i in range(0, len(args)):
-            params[args[i]] = inspect.signature(method).parameters[args[i]].default
-        for name in actual_vals:
-            if name in params.keys():
-                params[name] = actual_vals[name]
-        with open(os.path.join(self.configDir, f"{testprefix}.txt"), mode="w") as cf:
-            for key, value in params.items():
-                cf.writelines(str(key) + ':' + str(value) + "\n")
-
-        pop = method(**params)
-        return pop
-
     def check_result(self, actual_file, expected_file = None, prefix="test"):
         if not os.path.isfile(actual_file):
             raise FileNotFoundError(actual_file)
@@ -113,18 +97,24 @@ class TestRegression(unittest.TestCase):
         # generate the figures for comparison
         for code in ['H', 'W', 'S']:
             for type in ['density', 'frequency']:
-                fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
-                                                                                  population=expected,
-                                                                                  title_prefix="Baseline_",
-                                                                                  density_or_frequency=type)
-                #fig.show()
-                fig.savefig(os.path.join(self.figDir,f"{prefix}_{code}_{type}_expected.png"))
-                fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
-                                                                                  population=actual,
-                                                                                  title_prefix="Actual_",
-                                                                                  density_or_frequency=type)
-                #fig.show()
-                fig.savefig(os.path.join(self.figDir,f"{prefix}_{code}_{type}_actual.png"))
+                expected_matrix =  sp.calculate_contact_matrix(expected, type, code)
+                actual_matrix = sp.calculate_contact_matrix(actual, type, code)
+                if (expected_matrix==actual_matrix).all():
+                    print(f"contact matrix for {code}_{type} is identical.")
+                else:
+                    print(f"contact matrix for {code}_{type} changed.")
+                    fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
+                                                                                      population=expected,
+                                                                                      title_prefix="Baseline_",
+                                                                                      density_or_frequency=type)
+                    #fig.show()
+                    fig.savefig(os.path.join(self.figDir,f"{prefix}_{code}_{type}_expected.png"))
+                    fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
+                                                                                      population=actual,
+                                                                                      title_prefix="Actual_",
+                                                                                      density_or_frequency=type)
+                    #fig.show()
+                    fig.savefig(os.path.join(self.figDir,f"{prefix}_{code}_{type}_actual.png"))
         return False
 
     def generate_reports(self):
