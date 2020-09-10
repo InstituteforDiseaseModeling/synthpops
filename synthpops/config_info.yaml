@@ -23,7 +23,7 @@ Senegal:
   location: Dakar
   province: Dakar
   country: Senegal
-  sheet_name: null
+  sheet_name: Senegal
   nbrackets: 18
   household_size_1: true
 defaults:
