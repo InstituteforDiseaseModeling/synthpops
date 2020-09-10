@@ -8,7 +8,6 @@ import unittest
 import os
 class TestLocation(unittest.TestCase):
 
-    @unittest.skip("in progress")
     def test_usa_path_methods(self):
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(keywords=keywords)
@@ -17,7 +16,16 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "usa", "state_location": "Washington", "location":"seattle_metro"}
         self.run_tests(datadir, methods, testcase)
 
-    #@unittest.skip("in progress")
+    def test_usa_state_path_methods(self):
+        keywords = ["get", "path"]
+        args=['country_location', 'state_location']
+        ignored_args = ['location', 'part']
+        methods = self.get_methods_to_test(keywords=keywords, target_args=args, exclude_args=ignored_args)
+        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        sp.cfg.set_location_defaults("usa")
+        testcase = {"country_location": "usa", "state_location": "Washington"}
+        self.run_tests(datadir, methods, testcase)
+
     def test_Senegal_path_methods(self):
         exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
@@ -27,7 +35,17 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location":"Dakar"}
         self.run_tests(datadir, methods, testcase)
 
-    @unittest.skip("in progress")
+    def test_Senegal_state_path_methods(self):
+        exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
+        keywords = ["get", "path"]
+        args = ['country_location', 'state_location']
+        ignored_args = ['location', 'part']
+        methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords, target_args=args, exclude_args=ignored_args)
+        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        sp.cfg.set_location_defaults("Senegal")
+        testcase = {"country_location": "Senegal", "state_location": "Dakar"}
+        self.run_tests(datadir, methods, testcase)
+
     def test_usa_data_methods(self):
         keywords = ["get", "distr"]
         methods = self.get_methods_to_test(exclude_pattern=["path"], keywords=keywords)
@@ -38,7 +56,6 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase, ispath=False)
 
-    @unittest.skip("in progress")
     def test_Senegal_data_methods(self):
         keywords = ["get", "distr"]
         exclude_pattern = ["get_usa", "path", "get_gender_fraction_by_age"]
@@ -77,7 +94,10 @@ class TestLocation(unittest.TestCase):
                         # except Exception as e:
             #    print(str(e))
 
-    def get_methods_to_test(self, exclude_pattern=[], keywords=["path"]):
+    def get_methods_to_test(self, exclude_pattern=[],
+                            keywords=["path"],
+                            target_args=['country_location', 'state_location', 'location'],
+                            exclude_args=[]):
         methods = [o for o in inspect.getmembers(sp) if inspect.isfunction(o[1])]
         path_methods = []
         for m in methods:
@@ -88,8 +108,10 @@ class TestLocation(unittest.TestCase):
             if True in ep:
                 continue
             args = inspect.getfullargspec(m[1]).args
-            matched = ([x in ['country_location', 'state_location', 'location'] for x in args].count(True) == 3)
+            matched = ([x in target_args for x in args].count(True) == len(target_args))
             if matched:
+                if len(exclude_args) > 0 and [x in exclude_args for x in args].count(True) > 0:
+                    continue
                 # print(m[0])
                 if "datadir" in args:
                     path_methods.append((m[0], True))

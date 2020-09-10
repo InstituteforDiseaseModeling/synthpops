@@ -24,7 +24,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         patternIgnore2 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*usa*"]
         utilities.copy_input(cls.sourcedir, cls.dataUSAdir, cls.subdir_level, patterns=patternIgnore1)
         utilities.copy_input(cls.sourcedir, cls.dataSenegalDir, cls.subdir_level, patterns=patternIgnore2)
-        cls.n = 2001
+        cls.n = 3001
         cls.seed = 1
         cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
         cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
@@ -49,8 +49,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
            shutil.rmtree(d, ignore_errors=True)
 
-    #@unittest.skip("in progress")
-    def test_location_walk_back(self):
+    def test_usa_location_walk_back(self):
         # works
         current_datadir = sp.config.datadir
         current_rel_path = sp.config.rel_path
@@ -62,20 +61,19 @@ class TestFilePathCreatePop(unittest.TestCase):
         #file_paths.add_alternate_location(location="seattle_metro", country="usa", province="Washington")
         rand_seed = self.seed
         n = self.n
-        datadir = self.dataUSAdir
+        datadir = os.path.join(self.dataUSAdir, "data")
         test_prefix = sys._getframe().f_code.co_name
         location = "yakima"
         state_location = "Washington"
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result(spop, datadir, test_prefix, location, state_location, country_location)
         sp.config.datadir = current_datadir
         sp.config.rel_path = current_rel_path
         sp.config.alt_location = current_alt_location
 
 
-   #@unittest.skip("in progress")    # returns average 22.5 instead of 22
     def test_usa_default_with_param(self):
         current_datadir = sp.config.datadir
         current_rel_path = sp.config.rel_path
@@ -85,7 +83,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         sp.config.set_location_defaults(country="usa")
         rand_seed = self.seed
         n = self.n
-        datadir = self.dataUSAdir
+        datadir = os.path.join(self.dataUSAdir, "data")
         test_prefix = sys._getframe().f_code.co_name
         location = "seattle_metro"
         state_location = "Washington"
@@ -97,7 +95,6 @@ class TestFilePathCreatePop(unittest.TestCase):
         sp.config.rel_path = current_rel_path
         sp.config.alt_location = current_alt_location
 
-    #@unittest.skip("in progress")
     def test_usa_default(self):
         #works
         current_datadir = sp.config.datadir
@@ -108,7 +105,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         sp.config.set_location_defaults(country="usa")
         rand_seed = self.seed
         n = self.n
-        datadir = self.dataUSAdir
+        datadir = os.path.join(self.dataUSAdir, "data")
         test_prefix = sys._getframe().f_code.co_name
         location = "seattle_metro"
         state_location = "Washington"
@@ -119,7 +116,6 @@ class TestFilePathCreatePop(unittest.TestCase):
         sp.config.rel_path = current_rel_path
         sp.config.alt_location = current_alt_location
 
-    @unittest.skip("in progress")
     def test_senegal_default(self):
         cfg.set_datadir(os.path.join(self.dataSenegalDir,'data'), ["demographics","contact_matrices_152_countries"])
         cfg.set_location_defaults(country="Senegal")
@@ -133,12 +129,11 @@ class TestFilePathCreatePop(unittest.TestCase):
         country_location = cfg.default_country
         self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
 
-    @unittest.skip("in progress")
     def test_senegal_set_param(self):
         cfg.set_datadir(self.dataSenegalDir, "demographics/contact_matrices_152_countries")
         rand_seed = self.seed
         n = self.n
-        datadir = self.dataSenegalDir
+        datadir = os.path.join(self.dataSenegalDir, 'data')
         test_prefix = sys._getframe().f_code.co_name
         location = "Dakar"
         state_location = "Dakar"
@@ -147,12 +142,11 @@ class TestFilePathCreatePop(unittest.TestCase):
                                   country_location=country_location, state_location=state_location)
         self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
 
-    @unittest.skip("in progress")
     def test_senegal_basic(self):
         #everything is default no cfg ops
         rand_seed = self.seed
         n = self.n
-        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        datadir = os.path.join(self.dataSenegalDir, 'data')
         test_prefix = sys._getframe().f_code.co_name
         location = "Dakar"
         state_location = "Dakar"
@@ -161,12 +155,11 @@ class TestFilePathCreatePop(unittest.TestCase):
                                   country_location=country_location, state_location=state_location)
         self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
 
-    @unittest.skip("in progress")
     def test_senegal_generate_synthetic_population(self):
         # everything is default no cfg ops
         sp.set_seed(self.seed)
         n = self.n
-        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        datadir = os.path.join(self.dataSenegalDir, 'data')
         test_prefix = sys._getframe().f_code.co_name
         location = "Dakar"
         state_location = "Dakar"

@@ -459,7 +459,7 @@ def get_usa_age_sex_n(datadir, location='seattle_metro', state_location='Washing
     gender_fraction_by_age = None
 
     temp_file , temp_file_path =spdata.get_gender_fraction_by_age_path(location, state_location, country_location)
-    check_exist = False
+    check_exists = False
     if temp_file is not None:
         check_exists = os.path.exists(temp_file)
     if check_exists is True:
