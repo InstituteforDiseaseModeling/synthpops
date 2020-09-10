@@ -4,8 +4,8 @@
   <Description>Search SynthPops  documentation</Description>
   <InputEncoding>utf-8</InputEncoding>
   <Url type="text/html" method="get"
-       template="www.idmod.org/docs//search.html?q={searchTerms}"/>
+       template="docs.idmod.org/projects/synthpops/en/latest/search.html?q={searchTerms}"/>
   <LongName>SynthPops  documentation</LongName>
-  <Image height="16" width="16" type="image/x-icon">www.idmod.org/docs//_static/favicon.ico</Image>
+  <Image height="16" width="16" type="image/x-icon">docs.idmod.org/projects/synthpops/en/latest/_static/favicon.ico</Image>
   
 </OpenSearchDescription>
