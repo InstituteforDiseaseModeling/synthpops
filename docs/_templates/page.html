@@ -3,6 +3,7 @@
 {% set css_files = css_files + ["_static/theme_overrides.css"] %}
 {% block htmltitle %}
 {{ super() }}
+<meta name="robots" content="none">
 <meta http-equiv="refresh" content="0; URL={{ rtd_url }}/{{ pagename }}{{ file_suffix }}">
 {% endblock %}
 {% block extrahead %}
