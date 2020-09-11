@@ -56,7 +56,7 @@ if __name__ == '__main__':
     path_len = nx.single_source_shortest_path_length(G,ncenter)
 
     plt.figure(figsize=(10,10))
-    nx.draw_networkx_edges(G,pos,nodelist = [ncenter], alpha = 0.2, lw = 0.2)
+    nx.draw_networkx_edges(G,pos,nodelist = [ncenter], alpha = 0.2, width = 0.2)
     nx.draw_networkx_nodes(G,pos,nodelist = [k for k in path_len.keys()],
                                 node_size = 20,
                                 node_color = [v for v in path_len.values()],

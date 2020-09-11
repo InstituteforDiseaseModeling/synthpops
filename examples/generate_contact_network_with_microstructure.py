@@ -1,7 +1,4 @@
 import synthpops as sp
-import sciris as sc
-import numpy as np
-import os
 
 """
 An of how to make synthetic populations with microstructure (households, schools, and workplaces)
@@ -19,11 +16,11 @@ if __name__ == '__main__':
     country_location = 'usa'
     sheet_name = 'United States of America'
 
-    n = 10000
+    n = 5000
     n = int(n)
     verbose = False
     plot = False
-    write = True
+    write = False
     return_popdict = True
 
     # this will generate a population with microstructure and age demographics that approximate those of the location selected
