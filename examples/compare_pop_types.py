@@ -11,10 +11,9 @@ import cmocean
 import os
 
 
-# def calculate_age_mixing_matrix
-
-
 if __name__ == '__main__':
+
+    do_save = False
 
     pars = sc.objdict(
         pop_size  = 10000,
@@ -97,7 +96,8 @@ if __name__ == '__main__':
         ax.set_yticklabels(tick_labels, fontsize=16)
 
         # fig.savefig('data/'+pars['pop_type'] + '_' + str(pars['pop_size']) + '_' + layer + '_contact_matrix.pdf', format='pdf')
-        fig_name = os.path.join("..", "data", f"{pars['pop_type']}_{pars['pop_size']}_total_contact_matrix_day_{pars['n_days']}.png")
-        fig.savefig(fig_name)
+        if do_save:
+            fig_name = os.path.join("..", "data", f"{pars['pop_type']}_{pars['pop_size']}_total_contact_matrix_day_{pars['n_days']}.png")
+            fig.savefig(fig_name)
         plt.show()
 
