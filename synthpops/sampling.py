@@ -50,10 +50,9 @@ def sample_single_dict(distr_keys, distr_vals):
     sorted_distr = distr_vals[sort_inds]
     norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
-    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     sum_norm_sorted_distr = norm_sorted_distr.sum()
     if sum_norm_sorted_distr > 0:
-        norm_sorted_distr = norm_sorted_distr / (sum_norm_sorted_distr + eps)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        norm_sorted_distr = norm_sorted_distr / sum_norm_sorted_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
         return 0
     n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
@@ -72,11 +71,10 @@ def sample_single_arr(distr):
     Returns:
         A single sampled value from a distribution.
     """
-    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
     sum_norm_distr = norm_distr.sum()
     if sum_norm_distr > 0:
-        norm_distr = norm_distr / (sum_norm_distr + eps)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        norm_distr = norm_distr / sum_norm_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
     else:
         return 0
     n = np.random.multinomial(1, norm_distr, size=1)[0]
