@@ -2,13 +2,11 @@
 This module generates the household, school, and workplace contact networks.
 """
 
-import os
 from copy import deepcopy
 from collections import Counter
 
 import sciris as sc
 import numpy as np
-import pandas as pd
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -20,7 +18,6 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
-from .config import datadir
 from .config import logger as log
 
 
