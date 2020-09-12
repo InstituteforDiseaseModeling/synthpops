@@ -13,9 +13,10 @@ import sys
 import psutil
 import sciris as sc
 import logging
+from . import version as spv
 
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'version_info', 'set_datadir', 'set_nbrackets', 'validate']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -40,7 +41,7 @@ matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is
 #%% Logger -- adapted from Atomica
 
 # Set the default logging level
-default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
+default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][0]
 
 logger = logging.getLogger('synthpops')
 
@@ -86,9 +87,13 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 
 
 #%% Functions
+def version_info():
+    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
+    print(f'Data folder: {datadir}')
+    print(f'Git information:')
+    sc.pp(spv.__gitinfo__)
+    return
 
-logger.info(f'Loading SynthPops: {thisdir}')
-logger.debug(f'Data folder: {datadir}')
 
 def set_datadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
