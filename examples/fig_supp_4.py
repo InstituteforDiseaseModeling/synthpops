@@ -248,8 +248,8 @@ for l, layer in enumerate(keys_to_plot):
         pos = nx.nx_pydot.graphviz_layout(G)
     else:
         pos = nx.spring_layout(G, k=kdict[layer], iterations=200)
-    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer], 
-            node_shape=mdict[layer], 
+    nx.draw(G, pos=pos, ax=ax[2*l + 1], node_size=ndict[layer],
+            node_shape=mdict[layer],
             # node_shape=mdict_2,
             width=width, arrows=False, node_color=color)
     # still need to find a way to plot only the staff from LTCF layer in the households layer with the diamond marker
@@ -270,8 +270,8 @@ for l, layer in enumerate(keys_to_plot):
             subpos = {i: pos[i] for i in sli}
             # sublayer_index = layer_indices[sublayer]
             sublayer_index = layer_indices['h']
-            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=120, 
-                    node_shape=mdict[sublayer], 
+            nx.draw(subG, pos=subpos, ax=ax[2*sublayer_index + 1], node_size=120,
+                    node_shape=mdict[sublayer],
                     # node_shape=mdict_2,
                     width=width, arrows=False, node_color=colors[sli])
     ax[2*l + 1].set_title(mapping[layer], fontsize=fontsize + 10)
@@ -280,7 +280,7 @@ for l, layer in enumerate(keys_to_plot):
 ### Age mixing matrice ###
 
 # create a large enough population to make the age mixing matrices
-n = int(80e3)
+n = int(20e3)
 generate = True
 population = sp.make_population(n, generate=generate, with_facilities=with_facilities)
 
@@ -380,6 +380,9 @@ for l, layer in enumerate(keys_to_plot):
 
 fig_path = os.path.join(dir_path, '..', 'figures')
 fig_name = os.path.join(fig_path, 'si_fig_4b.pdf')
-fig.savefig(fig_name, format='pdf')
-fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
-fig.savefig(fig_name.replace('pdf', 'png'), format='png')
+
+do_save = False
+if do_save:
+    fig.savefig(fig_name, format='pdf')
+    fig.savefig(fig_name.replace('pdf', 'svg'), format='svg')
+    fig.savefig(fig_name.replace('pdf', 'png'), format='png')

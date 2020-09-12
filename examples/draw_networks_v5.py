@@ -245,5 +245,8 @@ for i, layer in enumerate(keys_to_plot):
 fig_name = location + "_"
 fig_name = fig_name + "".join([k for k in keys_to_plot])
 # fig_name = fig_name + "_".join([mapping[k].replace(' ', '_').replace('_networks','') for k in keys_to_plot])
-fig.savefig(os.path.join('figures', fig_name + '_network_0.pdf'), format='pdf')
-fig.savefig(os.path.join('figures', fig_name + '_network_0.svg'), format='svg')
+do_save = False
+if do_save:
+    os.makedirs('figures', exist_ok=True)
+    fig.savefig(os.path.join('figures', fig_name + '_network_0.pdf'), format='pdf')
+    fig.savefig(os.path.join('figures', fig_name + '_network_0.svg'), format='svg')

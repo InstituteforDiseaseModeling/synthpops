@@ -195,7 +195,7 @@ if __name__ == '__main__':
     fontsize = 26
     rotation = 90
 
-    do_save = True
+    do_save = False
     # do_save = False
 
     do_trimmed = True

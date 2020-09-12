@@ -1,5 +1,6 @@
-name: Synthpops CI workflow
-on: [pull_request]
+name: Synthpops Examples
+on:
+  workflow_dispatch
 
 jobs:
   install_and_test:
@@ -9,7 +10,7 @@ jobs:
       max-parallel: 8
       matrix:
         python-version: [ '3.7' ]
-    name: Install and test
+    name: Install and run examples
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
@@ -19,23 +20,18 @@ jobs:
           architecture: x64
       - name: Install synthpops
         run: python setup.py develop
-      - name: Run tests
+      - name: Run Examples
         working-directory: ./tests
         run: |
+          sudo apt-get install graphviz
+          which neato
           pip install pytest
           pip install -r requirements_test.txt
-          pytest test_*.py --durations=0 --junitxml=test-results.xml # Run actual tests
+          pytest run_example.py -s --durations=0 --junitxml=test-results.xml # Run actual tests
 
       - name: Upload test results
-        uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: test_results
-          path: tests/test-results.xml
-
-      - name: Upload report
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: report
-          path: tests/report/
+          name: test_results
+          path: tests/result
