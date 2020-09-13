@@ -28,7 +28,7 @@ to_profile_dict = {
     5: 'assign_rest_of_workers',
     6: 'make_popdict',
     7: 'make_contacts',
-    8: 'simple_n_contact_ages',
+    8: 'sample_n_contact_ages',
     9: 'generate_living_alone',
     10: 'generate_household_head_age_by_size',
     11: 'sample_from_range'}
@@ -66,6 +66,7 @@ def run_benchmark(n, test_index_list, out_dir, nruns=1):
 
     for j in range(nruns):
         for indx in test_index_list:
+            print(f'running {j} {indx}')
             to_profile = to_profile_dict[indx]
             file_name = f'test_{to_profile}_{n}.txt'
             file_path = os.path.join(out_dir, file_name)
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     test_list = args.test_index_list
     if len(test_list) == 0:
-        test_list = [5]
+        test_list = list(to_profile_dict.keys())
     nruns = args.num_runs
     runs = {}
     for n in args.n:

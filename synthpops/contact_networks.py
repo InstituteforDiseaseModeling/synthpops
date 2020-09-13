@@ -450,7 +450,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                     break
 
                 # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with
-                if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
+                if np.sum(left_in_bracket[bi_min:bi_max+1]) == 0:
                     break
 
                 bi = spsamp.sample_single_arr(b_prob)
@@ -893,9 +893,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
     for n, size in enumerate(workplace_sizes):
         workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
-        if np.sum([workers_by_age_to_assign_distr[a] for a in workers_by_age_to_assign_distr]) == 0:
+        if sum(workers_by_age_to_assign_distr.values()) == 0:
             break
-        if np.sum([len(potential_worker_uids_by_age[a]) for a in potential_worker_uids_by_age]) == 0:
+        if sum([len(v) for v in potential_worker_uids_by_age.values()]) == 0:
             break
         new_work, new_work_uids = [], []
 
@@ -952,8 +952,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                         bi = np.where(bichoice)[0][0]
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                    a_prob = np.array(a_prob)
-                    a_prob = a_prob/np.sum(a_prob)
+                    # a_prob = np.array(a_prob)
+                    # a_prob = a_prob/np.sum(a_prob)
 
                     # ai = np.random.choice(a=age_brackets[bi], p=a_prob)
                     ai = age_brackets[bi][spsamp.fast_choice(a_prob)]
@@ -968,7 +968,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                if np.sum(workers_left_in_bracket) == 0:
+                if sum(workers_left_in_bracket) == 0:
                     contact_matrix_dic['W'][:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = contact_matrix_dic['W'][bindex, :]

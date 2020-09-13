@@ -41,7 +41,7 @@ matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is
 #%% Logger -- adapted from Atomica
 
 # Set the default logging level
-default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][0]
+default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
 
 logger = logging.getLogger('synthpops')
 
