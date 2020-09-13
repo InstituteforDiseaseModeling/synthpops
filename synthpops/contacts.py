@@ -17,7 +17,10 @@ from .config import datadir, logger as log, checkmem
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
     """
-    Create a dictionary of n people with age, sex and loc keys
+    Create a dictionary of n people with age, sex and loc keys.
+
+    NOTE: this function is standalone, and does not interact with the network
+    generating functions (e.g. sp.make_population()).
 
     Args:
         n (int)                   : number of people
