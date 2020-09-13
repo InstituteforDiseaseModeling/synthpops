@@ -1059,10 +1059,15 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         layer_keys = ['H', 'S', 'W', 'C']
 
     log.debug('  starting...' + checkmem())
-    for uid in age_by_uid_dic:
+
+    # TODO: include age-based sex ratios
+    sexes = np.random.randint(2, size=len(age_by_uid_dic))
+
+
+    for u,uid in enumerate(age_by_uid_dic):
         popdict[uid] = {}
         popdict[uid]['age'] = int(age_by_uid_dic[uid])
-        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['sex'] = sexes[u]
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
         if use_ltcf:
