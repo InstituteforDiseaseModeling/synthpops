@@ -942,7 +942,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 bi = np.where(bichoice)[0][0]
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                if sum_b_prob: # CKWARN, try np.sum(b_prob)
+                if np.sum(b_prob):# sum_b_prob: # CKWARN, try np.sum(b_prob)
                     while np.sum(workers_left_in_bracket) == 0:
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]
