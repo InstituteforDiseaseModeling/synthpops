@@ -399,15 +399,17 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = []
         new_school_uids = []
 
-        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-        aindex = np.where(achoice)[0][0]
+        # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+        # aindex = np.where(achoice)[0][0]
+        aindex = spsamp.fast_choice(ages_in_school_distr.values())
         bindex = age_by_brackets_dic[aindex]
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
         if bindex >= 4:
             if np.random.binomial(1, p=0.7):
-                achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-                aindex = np.where(achoice)[0][0]
+                # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+                # aindex = np.where(achoice)[0][0]
+                aindex = spsamp.fast_choice(ages_in_school_distr.values())
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
@@ -512,15 +514,16 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
     sorted_size_brackets = sorted(school_size_brackets.keys())
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-    age_keys = sorted(ages_in_school_count.keys())
+    # age_keys = sorted(ages_in_school_count.keys())
 
     while len(uids_in_school):
 
         new_school = []
         new_school_uids = []
 
-        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
-        aindex = age_keys[np.where(achoice)[0][0]]
+        aindex = spsamp.fast_choice(ages_in_school_distr.values())
+        # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
+        # aindex = age_keys[np.where(achoice)[0][0]]
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
@@ -938,8 +941,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         else:
             for i in range(1, size):
 
-                bichoice = np.random.multinomial(1, b_prob)
-                bi = np.where(bichoice)[0][0]
+                # bichoice = np.random.multinomial(1, b_prob)
+                # bi = np.where(bichoice)[0][0]
+                bi = spsamp.fast_choice(b_prob)
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                 if sum_b_prob:
@@ -951,7 +955,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     a_prob = np.array(a_prob)
                     a_prob = a_prob/np.sum(a_prob)
 
-                    ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    # ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    ai = age_brackets[bi][spsamp.fast_choice(a_prob)]
 
                     uid = potential_worker_uids_by_age[ai][0]
                     new_work.append(ai)
