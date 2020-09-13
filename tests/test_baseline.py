@@ -10,7 +10,7 @@ stride = 10 # Keep one out of every this many people
 sp.logger.setLevel('DEBUG')
 
 pars = dict(
-    n                               = 10001,
+    n                               = 100001,
     rand_seed                       = 123,
     max_contacts                    = None,
     generate                        = True,

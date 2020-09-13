@@ -172,7 +172,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                                             school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random',average_class_size=20, inter_grade_mixing=0.1,
                                             average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                                             average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                                            verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+                                            verbose=False, plot=False, write=False, return_popdict=False, use_default=False, trimmed_size_dic=None):
     log.debug('generate_microstructure_with_facilities()')
 
     # Grab Long Term Care Facilities data
@@ -544,24 +544,25 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     if verbose:
         print('facilities_staff_uids', facilities_staff_uids)
-    popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic,
-                                                                             homes_by_uids,
-                                                                             syn_school_uids,
-                                                                             syn_teacher_uids,
-                                                                             syn_workplace_uids,
-                                                                             facilities_by_uids,
-                                                                             facilities_staff_uids,
-                                                                             syn_non_teaching_staff_uids,
-                                                                             use_two_group_reduction=use_two_group_reduction,
-                                                                             average_LTCF_degree=average_LTCF_degree,
-                                                                             with_school_types=with_school_types,
-                                                                             school_mixing_type=school_mixing_type,
-                                                                             average_class_size=average_class_size,
-                                                                             inter_grade_mixing=inter_grade_mixing,
-                                                                             average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                             average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                             average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                             average_additional_staff_degree=average_additional_staff_degree)
+    popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic,
+                                                            homes_by_uids,
+                                                            syn_school_uids,
+                                                            syn_teacher_uids,
+                                                            syn_workplace_uids,
+                                                            facilities_by_uids,
+                                                            facilities_staff_uids,
+                                                            syn_non_teaching_staff_uids,
+                                                            use_two_group_reduction=use_two_group_reduction,
+                                                            average_LTCF_degree=average_LTCF_degree,
+                                                            with_school_types=with_school_types,
+                                                            school_mixing_type=school_mixing_type,
+                                                            average_class_size=average_class_size,
+                                                            inter_grade_mixing=inter_grade_mixing,
+                                                            average_student_teacher_ratio=average_student_teacher_ratio,
+                                                            average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                            average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                            average_additional_staff_degree=average_additional_staff_degree,
+                                                            trimmed_size_dic=trimmed_size_dic)
 
     if verbose:
         uids = popdict.keys()
