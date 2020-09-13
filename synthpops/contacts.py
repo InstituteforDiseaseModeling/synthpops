@@ -1200,7 +1200,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         # Add pairing contacts back in
         for uid in popdict.keys():
             for c in popdict[uid]['contacts']['W']:
-                popdict[c]['contacts'][k].add(uid)
+                popdict[c]['contacts']['W'].add(uid)
     else:
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
