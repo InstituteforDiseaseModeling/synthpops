@@ -991,7 +991,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                   school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                                   average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                                   average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                                  verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+                                  verbose=False, plot=False, write=False, return_popdict=False, use_default=False, trimmed_size_dic=None):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
     and then writes this population to appropriate files.
@@ -1021,6 +1021,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         write (bool)                              : If True, write population to file.
         return_popdict (bool)                     : If True, returns a dictionary of individuals in the population
         use_default (bool)                        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
+        trimmed_size_dic (dict)                   : If supplied, trim contacts as they're being generated
 
     Returns:
         If return_popdict is True, returns popdict, a dictionary of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary for each individual with their
@@ -1190,16 +1191,17 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
         print('work sizes made', np.sum([len(w) for w in syn_workplaces]))
 
-    # save schools and workplace uids to file
+    # Save schools and workplace uids to file
     if write:
+        args = [datadir, location, state_location, country_location, folder_name, age_by_uid_dic]
+        sprw.write_age_by_uid_dic(*args)
+        sprw.write_groups_by_age_and_uid(*args, 'households', homes_by_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'schools', syn_school_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'teachers', syn_teacher_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'non_teaching_staff', syn_non_teaching_staff_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'workplaces', syn_workplace_uids)
 
-        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'schools', syn_school_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'teachers', syn_teacher_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'non_teaching_staff', syn_non_teaching_staff_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'workplaces', syn_workplace_uids)
-
+    # Main use case: return the dictionary
     if return_popdict:
         popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic,
                                                                  homes_by_uids,
@@ -1214,5 +1216,6 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                                                  average_student_teacher_ratio=average_student_teacher_ratio,
                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                 average_additional_staff_degree=average_additional_staff_degree)
+                                                                 average_additional_staff_degree=average_additional_staff_degree,
+                                                                 trimmed_size_dic=trimmed_size_dic)
         return popdict

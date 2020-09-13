@@ -63,7 +63,7 @@ if not logger.hasHandlers():
     info_handler.addFilter(type("ThresholdFilter", (object,), {"filter": lambda x, logRecord: logRecord.levelno < logging.WARNING})())  # Don't display WARNING or higher
 
     # Set formatting and log level
-    formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d {%(filename)s:%(lineno)d} - %(message)s', datefmt='%H:%M:%S')
+    formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d %(filename)s:%(lineno)d → %(message)s', datefmt='%H:%M:%S')
     debug_handler.setFormatter(formatter)
     for handler in [debug_handler, info_handler, warning_handler]:
         logger.addHandler(handler)

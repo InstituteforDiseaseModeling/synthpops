@@ -542,7 +542,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'facilities', facilities_by_uids)
         sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'facilities_staff', facilities_staff_uids)
 
-    print('facilities_staff_uids', facilities_staff_uids)
+    if verbose:
+        print('facilities_staff_uids', facilities_staff_uids)
     popdict = spct.make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic,
                                                                              homes_by_uids,
                                                                              syn_school_uids,

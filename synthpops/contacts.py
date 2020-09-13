@@ -961,7 +961,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
                                               with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                                               average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
                                               average_student_all_staff_ratio=15, average_additional_staff_degree=20,
-                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
+                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False,
+                                              trimmed_size_dic=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
@@ -985,6 +986,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
         school_type_by_age (dict)                         : A dictionary of probabilities for the school type likely for each age.
         workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
         verbose (bool)                                    : If True, print debugging statements.
+        trimmed_size_dic (dict)                           : If supplied, trim contacts on creation rather than post hoc.
 
     Returns:
         A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
@@ -1015,6 +1017,11 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
 
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
+
+    # Handle trimming
+    do_trim = trimmed_size_dic is not None
+    trimmed_size_dic = sc.mergedicts({'W': 20}, trimmed_size_dic)
+    trim_keys = trimmed_size_dic.keys()
 
     log.debug('  starting...' + checkmem())
     for uid in age_by_uid_dic:
@@ -1062,7 +1069,10 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             # max_ages = max(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
-            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff,
+                                  age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size,
+                                  inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree,
+                                  average_additional_staff_degree, this_school_mixing_type, verbose)
 
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
@@ -1088,14 +1098,33 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, sch
             popdict[uid]['sc_type'] = this_school_type
             popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
+
     log.debug('...workplaces ' + checkmem())
-    for nw, workplace in enumerate(workplaces_by_uids):
-        for uid in workplace:
-            popdict[uid]['contacts']['W'] = set(workplace)
-            popdict[uid]['contacts']['W'].remove(uid)
-            popdict[uid]['wpid'] = nw
-            if workplaces_by_industry_codes is not None:
-                popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+    if do_trim and 'W' in trim_keys:
+
+        # Loop over workplaces but only generate the requested contacts
+        for nw, workplace in enumerate(workplaces_by_uids):
+            for uid in workplace:
+                uids = set(workplace)
+                uids.remove(uid)
+                uids = np.random.choice(list(uids), size=int(trimmed_size_dic['W']//2))
+                popdict[uid]['contacts']['W'] = set(uids)
+                popdict[uid]['wpid'] = nw
+                if workplaces_by_industry_codes is not None:
+                    popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+
+        # Add pairing contacts back in
+        for uid in popdict.keys():
+            for c in popdict[uid]['contacts']['W']:
+                popdict[c]['contacts'][k].add(uid)
+    else:
+        for nw, workplace in enumerate(workplaces_by_uids):
+            for uid in workplace:
+                popdict[uid]['contacts']['W'] = set(workplace)
+                popdict[uid]['contacts']['W'].remove(uid)
+                popdict[uid]['wpid'] = nw
+                if workplaces_by_industry_codes is not None:
+                    popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
 
     log.debug('...done ' + checkmem())
@@ -1791,27 +1820,25 @@ def trim_contacts(contacts, trimmed_size_dic=None, use_clusters=False, verbose=F
     if use_clusters:
         raise NotImplementedError("Clustered method not yet implemented.")
 
-    else:
-
-        if not string_uids:
-            for n, uid in enumerate(contacts):
-                for k in keys:
-                    setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
-                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
-                        close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k] / 2))
-                        contacts[uid]['contacts'][k] = set(close_contacts)
-        else:
-            for n, uid in enumerate(contacts):
-                for k in keys:
-                    setting_contacts = list(contacts[uid]['contacts'][k])
-                    if len(setting_contacts) > trimmed_size_dic[k] / 2:
-                        close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k] / 2))
-                        contacts[uid]['contacts'][k] = set(close_contacts)
-
+    if not string_uids:
         for n, uid in enumerate(contacts):
             for k in keys:
-                for c in contacts[uid]['contacts'][k]:
-                    contacts[c]['contacts'][k].add(uid)
+                setting_contacts = np.array(list(contacts[uid]['contacts'][k]), dtype=np.int64)
+                if len(setting_contacts) > trimmed_size_dic[k] / 2:
+                    close_contacts = choose_contacts(setting_contacts, size=int(trimmed_size_dic[k] / 2))
+                    contacts[uid]['contacts'][k] = set(close_contacts)
+    else:
+        for n, uid in enumerate(contacts):
+            for k in keys:
+                setting_contacts = list(contacts[uid]['contacts'][k])
+                if len(setting_contacts) > trimmed_size_dic[k] / 2:
+                    close_contacts = np.random.choice(setting_contacts, size=int(trimmed_size_dic[k] / 2))
+                    contacts[uid]['contacts'][k] = set(close_contacts)
+
+    for n, uid in enumerate(contacts):
+        for k in keys:
+            for c in contacts[uid]['contacts'][k]:
+                contacts[c]['contacts'][k].add(uid)
 
     return contacts
 

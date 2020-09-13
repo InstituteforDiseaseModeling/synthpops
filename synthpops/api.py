@@ -109,6 +109,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     network_distr_args['school_mixing_type'] = school_mixing_type
 
     # Heavy lift 1: make the contacts and their connections
+    # needs_trimming = True
     if not generate:
         log.debug('Not generating a new population')
         # must read in from file, will fail if the data has not yet been generated
@@ -129,11 +130,12 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                                                                     average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
                                                                     return_popdict=True )
         else:
+            # needs_trimming = False
             population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name,
                                                           with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
                                                           average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
                                                           average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                          return_popdict=True,
+                                                          return_popdict=True, trimmed_size_dic=max_contacts,
                                                           )
 
     # Semi-heavy-lift 2: trim them to the desired numbers
