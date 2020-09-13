@@ -5,7 +5,6 @@ import sciris as sc
 import pytest
 from random import randrange
 from synthpops import read_write as sprw
-from collections import defaultdict
 
 # pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
 

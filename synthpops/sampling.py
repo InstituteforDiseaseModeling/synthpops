@@ -342,14 +342,15 @@ def get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets, min_age
         Sampled age (float), sex (int; 0 for female, 1 for male)
     """
     try:
-        b = sample_bracket(age_bracket_distr, age_brackets)
+        # b = sample_bracket(age_bracket_distr, age_brackets)
+        b = fast_choice(age_bracket_distr)
         age = np.random.choice(age_brackets[b])
         sex = np.random.binomial(1, gender_fraction_by_age['male'][b])
         return age, sex
     except:
         sex = np.random.randint(2)  # Define female (0) or male (1) -- evenly distributed
         age = np.random.normal(age_mean, age_std)  # Define age distribution for the crew and guests
-        age = np.median([min_age, age, max_age])  # Bound age by the interval
+        age = np.median([min_age, int(round(age)), max_age])  # Bound age by the interval
         return age, sex
 
 
