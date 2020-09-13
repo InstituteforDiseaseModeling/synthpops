@@ -4,7 +4,6 @@ Generate contacts between people in the population, with many options possible.
 
 import os
 import numpy as np
-import pandas as pd
 import numba as nb
 import sciris as sc
 import networkx as nx
@@ -14,7 +13,6 @@ from . import base as spb
 from . import school_modules as spsm
 from . import read_write as sprw
 from .config import datadir, logger as log, checkmem
-from copy import deepcopy
 
 
 def make_popdict(n=None, uids=None, ages=None, sexes=None, location=None, state_location=None, country_location=None, use_demography=False, id_len=6):
@@ -1356,10 +1354,10 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     return popdict
 
 
-def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None, 
-                                                              use_two_group_reduction=False, average_LTCF_degree=20, 
-                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
-                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3, 
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None,
+                                                              use_two_group_reduction=False, average_LTCF_degree=20,
+                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
                                                               average_student_all_staff_ratio=15, average_additional_staff_degree=20,
                                                               school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
     """
@@ -1660,8 +1658,8 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     if n_contacts_dic     is None:
         n_contacts_dic = {'H': 4, 'S': 20, 'W': 20, 'C': 20}
 
-    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree', 
-                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1, 
+    default_network_distr_args = {'average_degree': 30, 'directed': False, 'network_type': 'poisson_degree',
+                                  'average_class_size': 20, 'average_student_teacher_ratio': 20, 'average_teacher_teacher_degree': 3, 'inter_grade_mixing': 0.1,
                                   'average_student_all_staff_ratio': 15, 'average_additional_staff_degree': 20,
                                   'average_LTCF_degree': 20, 'school_mixing_type': 'random'}  # general we should default to undirected because directionality doesn't make sense for infectious diseases
     default_network_distr_args['school_type_by_age'] = spsm.get_default_school_types_by_age_single()
@@ -1693,7 +1691,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
         activity_args = {'student_age_min': 4, 'student_age_max': 18, 'student_teacher_ratio': 30, 'worker_age_min': 23, 'worker_age_max': 65, 'college_age_min': 18, 'college_age_max': 23}
 
     options_keys = ['use_age', 'use_sex', 'use_loc', 'use_social_layers', 'use_activity_rates', 'use_microstructure', 'use_age_mixing', 'use_industry_code', 'use_long_term_care_facilities', 'use_two_group_reduction', 'with_school_types']
-    if options_args is None: 
+    if options_args is None:
         options_args = dict.fromkeys(options_keys, False)
 
     # fill in the other keys as False!
