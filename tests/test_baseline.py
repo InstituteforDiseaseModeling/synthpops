@@ -4,13 +4,13 @@ import pylab as pl
 
 from examples.plot_age_mixing_matrices import test_plot_generated_contact_matrix as plotmatrix # WARNING, refactor
 
-do_save = 0
+do_save = 1
 stride = 10 # Keep one out of every this many people
 
 sp.logger.setLevel('DEBUG')
 
 pars = dict(
-    n                               = 100001,
+    n                               = 1000,
     rand_seed                       = 123,
     max_contacts                    = None,
     generate                        = True,
