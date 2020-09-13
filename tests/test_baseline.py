@@ -10,8 +10,8 @@ stride = 10 # Keep one out of every this many people
 sp.logger.setLevel('DEBUG')
 
 pars = dict(
-    n                               = 1001,
-    rand_seed                       = 1,
+    n                               = 1000,
+    rand_seed                       = 123,
     max_contacts                    = None,
     generate                        = True,
 
@@ -25,7 +25,7 @@ pars = dict(
     ltcf_staff_age_min              = 20,
     ltcf_staff_age_max              = 60,
 
-    school_mixing_type              = 'random',
+    school_mixing_type              = 'age_and_class_clustered',
     average_class_size              = 20,
     inter_grade_mixing              = 0.1,
     teacher_age_min                 = 25,
