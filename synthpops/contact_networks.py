@@ -1203,12 +1203,12 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # Main use case: return the dictionary
     if return_popdict:
-        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic,
-                                                                 homes_by_uids,
-                                                                 syn_school_uids,
-                                                                 syn_teacher_uids,
-                                                                 syn_workplace_uids,
-                                                                 syn_non_teaching_staff_uids,
+        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+                                                                 homes_by_uids=homes_by_uids,
+                                                                 schools_by_uids=syn_school_uids,
+                                                                 teachers_by_uids=syn_teacher_uids,
+                                                                 non_teaching_staff_uids=syn_non_teaching_staff_uids,
+                                                                 workplaces_by_uids=syn_workplace_uids,
                                                                  with_school_types=with_school_types,
                                                                  school_mixing_type=school_mixing_type,
                                                                  average_class_size=average_class_size,

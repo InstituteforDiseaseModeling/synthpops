@@ -957,12 +957,27 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     return popdict
 
 
-def make_contacts_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids=None, facilities_staff_uids=None, non_teaching_staff_uids=None,
-                                              use_two_group_reduction=False, average_LTCF_degree=20,
-                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
-                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
-                                              average_student_all_staff_ratio=15, average_additional_staff_degree=20,
-                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False,
+def make_contacts_from_microstructure_objects(age_by_uid_dic,
+                                              homes_by_uids,
+                                              schools_by_uids=None,
+                                              teachers_by_uids=None,
+                                              non_teaching_staff_uids=None,
+                                              workplaces_by_uids=None,
+                                              facilities_by_uids=None,
+                                              facilities_staff_uids=None,
+                                              use_two_group_reduction=False,
+                                              average_LTCF_degree=20,
+                                              with_school_types=False,
+                                              school_mixing_type='random',
+                                              average_class_size=20,
+                                              inter_grade_mixing=0.1,
+                                              average_student_teacher_ratio=20,
+                                              average_teacher_teacher_degree=3,
+                                              average_student_all_staff_ratio=15,
+                                              average_additional_staff_degree=20,
+                                              school_type_by_age=None,
+                                              workplaces_by_industry_codes=None,
+                                              verbose=False,
                                               trimmed_size_dic=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
