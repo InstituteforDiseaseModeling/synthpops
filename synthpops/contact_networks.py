@@ -964,7 +964,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     potential_worker_uids_by_age[ai].remove(uid)
                     potential_worker_uids.pop(uid, None)
                     workers_by_age_to_assign_count[ai] -= 1
-                    workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
+                    # workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
