@@ -39,7 +39,9 @@ def test_plot_generated_contact_matrix(setting_code='H',
                                        fontsize=16,
                                        rotation=50,
                                        population=None,
-                                       title_prefix =None):
+                                       title_prefix =None,
+                                       fig=None,
+                                       ax=None):
     """
     Plot the age mixing matrix for a specific setting.
 
@@ -105,7 +107,8 @@ def test_plot_generated_contact_matrix(setting_code='H',
     #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     fig = sp.plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix)
+                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
+                                    fig=fig, ax=ax)
 
     return fig
 

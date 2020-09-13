@@ -2,28 +2,14 @@
 This module plots the age-specific contact matrix in different settings.
 """
 
-import os
-from copy import deepcopy
-
-import sciris as sc
 import numpy as np
-import networkx as nx
-
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import cmocean
 import cmasher as cmr
-# from matplotlib.ticker import LogLocator, LogFormatter
-# import matplotlib.font_manager as font_manager
-
 from . import base as spb
-from . import data_distributions as spdata
-from . import sampling as spsamp
-from . import contacts as spct
-from . import contact_networks as spcn
-from .config import datadir
 
 
 # Pretty fonts
@@ -91,7 +77,10 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
     return M
 
 
-def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, setting_code='H', density_or_frequency='density', logcolors_flag=False, aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+                        setting_code='H', density_or_frequency='density', logcolors_flag=False,
+                        aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50,
+                        title_prefix=None, fig=None, ax=None):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density
@@ -112,6 +101,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         fontsize (int)                   : base font size
         rotation (int)                   : rotation for x axis labels
         title_prefix(str)                : optional title prefix for the figure
+        fig (Figure)                     : if supplied, use this figure instead of generating one
+        ax (Axes)                        : if supplied, use these axes instead of generating one
 
     Returns:
         A fig object.
@@ -122,11 +113,14 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     """
     cmap = mplt.cm.get_cmap(cmap)
 
-    fig = plt.figure(figsize=(10, 10), tight_layout=True)
-    ax = []
+    if fig is None:
+        fig = plt.figure(figsize=(10, 10), tight_layout=True)
+    if ax is None:
+        ax = [fig.add_subplot(1, 1, 1)]
+    else:
+        ax = [ax]
     cax = []
     cbar = []
-    leg = []
     implot = []
 
     titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facilities'}
@@ -136,9 +130,6 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         asymmetric_M = spb.get_asymmetric_matrix(aggregate_M, aggregate_age_count)
     else:
         asymmetric_M = spb.get_asymmetric_matrix(matrix, age_count)
-
-    for i in range(1):
-        ax.append(fig.add_subplot(1, 1, i + 1))
 
     if logcolors_flag:
 
