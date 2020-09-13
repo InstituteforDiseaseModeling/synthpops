@@ -111,11 +111,10 @@ def resample_age(age_dist_vals, age):
         age_max = 100
 
     age_distr = age_dist_vals[age_min:age_max + 1]  # create an array of the values, not yet normalized
-    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
     norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
     sum_norm_age_distr = norm_age_distr.sum()
     if sum_norm_age_distr > 0:
-        norm_age_distr = norm_age_distr / (sum_norm_age_distr + eps)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+        norm_age_distr = norm_age_distr / (sum_norm_age_distr)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
 
     age_range = np.arange(age_min, age_max + 1)
     n = np.random.multinomial(1, norm_age_distr, size=1)[0]
