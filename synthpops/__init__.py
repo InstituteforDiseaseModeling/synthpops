@@ -1,4 +1,4 @@
-from .version import __version__, __versiondate__, __gitinfo__
+from .version import __version__, __versiondate__
 from .config import *
 from .base import *
 from .data_distributions import *
