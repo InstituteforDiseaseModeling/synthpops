@@ -24,7 +24,8 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
                     rand_seed=None):
     '''
-    Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
+    Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington data.
+
     Args:
         n (int)                                 : The number of people to create.
         max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
@@ -36,7 +37,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
         ltcf_staff_age_max (int)                : Long term care facility staff maximum age.
         with_school_types (bool)                : If True, creates explicit school types.
-        school_mixing_type (str or dict)                : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
+        school_mixing_type (str or dict)        : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
         average_class_size (float)              : The average classroom size.
         inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
         average_student_teacher_ratio (float)   : The average number of students per teacher.
