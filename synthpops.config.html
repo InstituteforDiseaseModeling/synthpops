@@ -8,13 +8,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
 
-  <title>SynthPops overview &mdash; SynthPops  documentation</title>
+  <title>synthpops.config module &mdash; SynthPops  documentation</title>
   
 
 
 
 <meta name="robots" content="none">
-<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/overview.html">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.config.html">
 
 
 
@@ -52,8 +52,8 @@
           href="_static/opensearch.xml"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SynthPops algorithm" href="algorithm.html" />
-    <link rel="prev" title="Installation" href="installation.html" />
+    <link rel="next" title="synthpops.contact_networks module" href="synthpops.contact_networks.html" />
+    <link rel="prev" title="synthpops.base module" href="synthpops.base.html" />
 
 <link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
 
@@ -107,10 +107,25 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 
@@ -147,7 +162,9 @@
         <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
         <li><a href="index.html">SynthPops</a> &raquo;</li>
         
-        <li>SynthPops overview</li>
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.config module</li>
         <li class="wy-breadcrumbs-aside">
             
             
@@ -159,40 +176,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sp-overview">
-<h1>SynthPops overview<a class="headerlink" href="#sp-overview" title="Permalink to this headline">¶</a></h1>
-<p>Fundamentally, the population network can be considered a multilayer <a class="reference external" href="https://en.wikipedia.org/wiki/Network_theory">network</a> with
-the following qualities:</p>
-<ul class="simple">
-<li><p>Nodes are people, with attributes like age.</p></li>
-<li><p>Edges represent interactions between people, with attributes like the setting in which the
-interactions take place (for example, household, school, or work). The relationship between the
-interaction setting and properties governing disease transmission, such as frequency of contact and risk
-associated with each contact, is mapped separately by Covasim or other <a class="reference internal" href="glossary.html#term-agent-based-model"><span class="xref std std-term">agent-based model</span></a>.
-SynthPops reports whether the edge exists or not.</p></li>
-</ul>
-<p>If you are using SynthPops with Covasim, note that the relevant value in Covasim is the parameter <strong>beta</strong>,
-which captures the probability of transmission via a given edge per <a class="reference internal" href="glossary.html#term-time-step"><span class="xref std std-term">time step</span></a>. The value of this parameter
-captures both number of effective contacts for disease transmission and transmission probability per contact.</p>
-<p>The generated network is a multilayer network in the sense that it is possible for people to be
-connected by multiple edges each in different layers of the network. The layers are referred to as
-<a class="reference internal" href="glossary.html#term-contact-layers"><span class="xref std std-term">contact layers</span></a>. For example, the <a class="reference internal" href="glossary.html#term-workplace-contact-layer"><span class="xref std std-term">workplace contact layer</span></a> is a representation of all
-of the pairwise connections between people at work, and the <a class="reference internal" href="glossary.html#term-household-contact-layer"><span class="xref std std-term">household contact layer</span></a>
-represents the pairwise connections between household members. Typically these networks are
-clustered; in other words, everyone within a household interacts with each other, but not with other
-households. However, they may interact with members of other households via their school or
-workplace. Some level of community contacts outside of these networks can be configured using Covasim
-or other model being used with SynthPops.</p>
-<p>SynthPops functions in two stages:</p>
-<ol class="arabic simple">
-<li><p>Generate people living in households, and then assign individuals to workplaces and schools.
-Save the output to a cache file on disk. Implemented in
-<a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_synthetic_population" title="synthpops.contact_networks.generate_synthetic_population"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code></a>.</p></li>
-<li><p>Load the cached file and produce a dictionary that can be used by Covasim. Implemented in
-<a class="reference internal" href="synthpops.api.html#synthpops.api.make_population" title="synthpops.api.make_population"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_population()</span></code></a>. Covasim assigns community contacts at random on a daily basis
-to reflect the random and stochastic aspect of contacts in many public spaces, such as shopping
-centers, parks, and community centers.</p></li>
-</ol>
+  <div class="section" id="module-synthpops.config">
+<span id="synthpops-config-module"></span><h1>synthpops.config module<a class="headerlink" href="#module-synthpops.config" title="Permalink to this headline">¶</a></h1>
+<p>This module sets the location of the data folder.</p>
+<dl class="py function">
+<dt id="synthpops.config.set_datadir">
+<code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">set_datadir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.set_datadir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data folder to the user-specified location – note, mostly deprecated.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.config.set_nbrackets">
+<code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">set_nbrackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.set_nbrackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of census brackets – usually 16 or 20.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.config.validate">
+<code class="sig-prename descclassname">synthpops.config.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.config.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the data folder can be found.</p>
+</dd></dl>
+
 </div>
 
 
@@ -203,10 +207,10 @@ centers, parks, and community centers.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="algorithm.html" class="btn btn-neutral float-right" title="SynthPops algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="synthpops.contact_networks.html" class="btn btn-neutral float-right" title="synthpops.contact_networks module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="synthpops.base.html" class="btn btn-neutral float-left" title="synthpops.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

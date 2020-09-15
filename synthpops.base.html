@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.base module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.base.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.config module" href="synthpops.config.html" />
+    <link rel="prev" title="synthpops.api module" href="synthpops.api.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.base module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.base">
+<span id="synthpops-base-module"></span><h1>synthpops.base module<a class="headerlink" href="#module-synthpops.base" title="Permalink to this headline">¶</a></h1>
+<p>The module contains frequently-used functions that do not neatly fit into other areas of the code base.</p>
+<dl class="py function">
+<dt id="synthpops.base.norm_dic">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">norm_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.norm_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the dictionary <code class="docutils literal notranslate"><span class="pre">dic</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dic</strong> (<em>dict</em>) – A dictionary with numerical values.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A normalized dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.norm_age_group">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">norm_age_group</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_dic</span></em>, <em class="sig-param"><span class="n">age_min</span></em>, <em class="sig-param"><span class="n">age_max</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.norm_age_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a normalized dictionary for the range <code class="docutils literal notranslate"><span class="pre">age_min</span></code> to <code class="docutils literal notranslate"><span class="pre">age_max</span></code>, inclusive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>age_dic</strong> (<em>dict</em>) – A dictionary with numerical values.</p></li>
+<li><p><strong>age_min</strong> (<em>int</em>) – The minimum value of the range for the dictionary.</p></li>
+<li><p><strong>age_max</strong> (<em>int</em>) – The maximum value of the range for the dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A normalized dictionary for keys in the range <code class="docutils literal notranslate"><span class="pre">age_min</span></code> to <code class="docutils literal notranslate"><span class="pre">age_max</span></code>, inclusive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_age_by_brackets_dic">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_age_by_brackets_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_brackets</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_age_by_brackets_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dictionary mapping age to the age bracket it falls in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of age bracket by age.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_aggregate_ages">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_aggregate_ages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ages</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_aggregate_ages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dictionary of the count of ages by age brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ages</strong> (<em>dict</em>) – A dictionary of age count by single year.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of aggregated age count for specified age brackets.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_aggregate_age_dict_conversion">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_aggregate_age_dict_conversion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">larger_aggregate_ages</span></em>, <em class="sig-param"><span class="n">larger_age_brackets</span></em>, <em class="sig-param"><span class="n">smaller_age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic_larger</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic_smaller</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_aggregate_age_dict_conversion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the aggregate age count in <code class="docutils literal notranslate"><span class="pre">larger_aggregate_ages</span></code> from a larger number of age brackets to a smaller number of age brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>larger_aggregate_ages</strong> (<em>dict</em>) – A dictionary of aggregated age count.</p></li>
+<li><p><strong>larger_age_brackets</strong> (<em>dict</em>) – A dictionary of age brackets.</p></li>
+<li><p><strong>smaller_age_brackets</strong> (<em>dict</em>) – A dictionary of fewer age brackets.</p></li>
+<li><p><strong>age_by_brackets_dic_larger</strong> (<em>dict</em>) – A dictionary mapping age to the larger number of age brackets.</p></li>
+<li><p><strong>age_by_brackets_dic_smaller</strong> (<em>dict</em>) – A dictionary mapping age to the smaller number of age brackets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the aggregated age count for the smaller number of age brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_aggregate_matrix">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_aggregate_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_aggregate_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate a symmetric matrix to fewer age brackets. Do not use for homogeneous mixing matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>np.ndarray</em>) – A symmetric age contact matrix.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A symmetric contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) aggregated to age brackets.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+
+<span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+
+<span class="n">asymmetric_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_asymmetric_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">aggregate_age_count</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_asymmetric_matrix">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_asymmetric_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symmetric_matrix</span></em>, <em class="sig-param"><span class="n">aggregate_ages</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_asymmetric_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the contact matrix for the average individual in each age bracket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symmetric_matrix</strong> (<em>np.ndarray</em>) – A symmetric age contact matrix.</p></li>
+<li><p><strong>aggregate_ages</strong> (<em>dict</em>) – A dictionary mapping single year ages to age brackets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) whose elements <code class="docutils literal notranslate"><span class="pre">M_ij</span></code> describe the contact frequency for the average individual in age bracket <code class="docutils literal notranslate"><span class="pre">i</span></code> with all possible contacts in age bracket <code class="docutils literal notranslate"><span class="pre">j</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">age_brackets</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_census_age_brackets</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">state_location</span><span class="o">=</span><span class="s1">&#39;Washington&#39;</span><span class="p">,</span><span class="n">country_location</span><span class="o">=</span><span class="s1">&#39;usa&#39;</span><span class="p">)</span>
+<span class="n">age_by_brackets_dic</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_age_by_brackets_dic</span><span class="p">(</span><span class="n">age_brackets</span><span class="p">)</span>
+
+<span class="n">aggregate_age_count</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_ages</span><span class="p">(</span><span class="n">age_count</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">symmetric_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">aggregate_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_aggregate_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">age_by_brackets_dic</span><span class="p">)</span>
+
+<span class="n">asymmetric_matrix</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">get_asymmetric_matrix</span><span class="p">(</span><span class="n">aggregate_matrix</span><span class="p">,</span> <span class="n">aggregate_age_count</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_symmetric_community_matrix">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_symmetric_community_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ages</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_symmetric_community_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a symmetric homogeneous matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ages</strong> (<em>dict</em>) – A dictionary with the count of each single year age.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A symmetric homogeneous matrix for age count in ages.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.combine_matrices">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">combine_matrices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix_dic</span></em>, <em class="sig-param"><span class="n">weights_dic</span></em>, <em class="sig-param"><span class="n">num_agebrackets</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.combine_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine different contact matrices into a single contact matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix_dic</strong> (<em>dict</em>) – A dictionary of different contact matrices by setting.</p></li>
+<li><p><strong>weights_dic</strong> (<em>dict</em>) – A dictionary of weights for each setting.</p></li>
+<li><p><strong>num_agebrackets</strong> (<em>int</em>) – The number of age brackets for the different matrices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A contact matrix (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) that is a linear combination of setting specific matrices given weights for each setting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_ids_by_age_dic">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_ids_by_age_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_by_id_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_ids_by_age_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get lists of IDs that map to each age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>age_by_id_dic</strong> (<em>dict</em>) – A dictionary with the age of each individual by their ID.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary listing IDs for each age from a dictionary that maps ID to age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.base.get_uids_by_age_dic">
+<code class="sig-prename descclassname">synthpops.base.</code><code class="sig-name descname">get_uids_by_age_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.base.get_uids_by_age_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get lists of UIDs that map to each age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>popdict</strong> (<em>sc.dict</em>) – A dictionary mapping an individual’s ID to a dictionary with their age and other attributes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary listing UIDs for each age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.config.html" class="btn btn-neutral float-right" title="synthpops.config module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.api.html" class="btn btn-neutral float-left" title="synthpops.api module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

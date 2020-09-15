@@ -115,7 +115,7 @@
 <li class="toctree-l2"><a class="reference internal" href="workplaces.html">Workplace contact layer</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">synthpops package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 
@@ -249,11 +249,11 @@ schools, from possibly preschools to universities.</p>
 <h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
 <p>Use these SynthPops functions to implement the school contact layer as follows:</p>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.get_uids_in_school" title="synthpops.contact_networks.get_uids_in_school"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_uids_in_school()</span></code></a> uses the enrollment rates to determine
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.get_uids_in_school" title="synthpops.contact_networks.get_uids_in_school"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_uids_in_school()</span></code></a> uses the enrollment rates to determine
 which people attend school. This then provides the number of students needing to be assigned to schools.</p></li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.generate_school_sizes" title="synthpops.contact_networks.generate_school_sizes"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_school_sizes()</span></code></a> generates schools according to the
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_school_sizes" title="synthpops.contact_networks.generate_school_sizes"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_school_sizes()</span></code></a> generates schools according to the
 school size distribution until there are enough places for every student to be assigned a school.</p></li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.send_students_to_school" title="synthpops.contact_networks.send_students_to_school"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_students_to_school()</span></code></a> assigns specific students to
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.send_students_to_school" title="synthpops.contact_networks.send_students_to_school"><code class="xref py py-func docutils literal notranslate"><span class="pre">send_students_to_school()</span></code></a> assigns specific students to
 specific schools.</p>
 <ul class="simple">
 <li><p>This function is similar to households in that a reference student is selected, and then the contact
@@ -264,9 +264,9 @@ person so that a primary school age reference person will result in the rest of 
 populated with other primary school age children</p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.get_uids_potential_workers" title="synthpops.contact_networks.get_uids_potential_workers"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_uids_potential_workers()</span></code></a> selects teachers by first
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.get_uids_potential_workers" title="synthpops.contact_networks.get_uids_potential_workers"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_uids_potential_workers()</span></code></a> selects teachers by first
 getting a pool of working age people that are not students.</p></li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.get_workers_by_age_to_assign" title="synthpops.contact_networks.get_workers_by_age_to_assign"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_workers_by_age_to_assign()</span></code></a> further filters this population
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.get_workers_by_age_to_assign" title="synthpops.contact_networks.get_workers_by_age_to_assign"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_workers_by_age_to_assign()</span></code></a> further filters this population
 by employment rates resulting in a collection of people that need to be assigned workplaces.</p></li>
 <li><p>In <code class="xref py py-func docutils literal notranslate"><span class="pre">assign_teachers_to_work()</span></code>, for each school, work out how
 many teachers are needed according to the number of students and the student-teacher ratio, and

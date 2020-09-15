@@ -1,0 +1,7 @@
+synthpops.read\_write module
+============================
+
+.. automodule:: synthpops.read_write
+   :members:
+   :undoc-members:
+   :show-inheritance:

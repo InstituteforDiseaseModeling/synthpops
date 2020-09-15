@@ -1,0 +1,7 @@
+synthpops.long\_term\_care\_facilities module
+=============================================
+
+.. automodule:: synthpops.long_term_care_facilities
+   :members:
+   :undoc-members:
+   :show-inheritance:

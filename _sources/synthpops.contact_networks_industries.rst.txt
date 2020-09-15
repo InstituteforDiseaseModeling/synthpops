@@ -1,0 +1,7 @@
+synthpops.contact\_networks\_industries module
+==============================================
+
+.. automodule:: synthpops.contact_networks_industries
+   :members:
+   :undoc-members:
+   :show-inheritance:

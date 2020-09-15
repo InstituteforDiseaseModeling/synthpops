@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.school_modules module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.school_modules.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.version module" href="synthpops.version.html" />
+    <link rel="prev" title="synthpops.sampling module" href="synthpops.sampling.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.school_modules module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.school_modules">
+<span id="synthpops-school-modules-module"></span><h1>synthpops.school_modules module<a class="headerlink" href="#module-synthpops.school_modules" title="Permalink to this headline">¶</a></h1>
+<p>This module generates school contacts by class and grade in flexible ways.
+Contacts can be clustered into classes and also mixed across the grade and
+across the school.</p>
+<p>H. Guclu et. al (2016) shows that mixing across grades is low for public
+schools in elementary and middle schools. Mixing across grades is however
+higher in high schools.</p>
+<p>Functions in this module are flexible to allow users to specify the
+inter-grade mixing, and to choose whether contacts are clustered within a
+grade. Clustering contacts across different grades is not supported because
+there is no data to suggest that this happens commonly.</p>
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_edgelist">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_edgelist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">edgelist</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_edgelist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from edges in an edgelist. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>edgelist</strong> (<em>list</em>) – list of edges</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_group">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_group</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">group</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from fully connected group. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>group</strong> (<em>list</em>) – list of people in group</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_contacts_from_groups">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_contacts_from_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">setting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_contacts_from_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add contacts to popdict from fully connected groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dict of people</p></li>
+<li><p><strong>groups</strong> (<em>list</em>) – list of lists of people in groups</p></li>
+<li><p><strong>setting</strong> (<em>str</em>) – social setting layer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_random_contacts_from_graph">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_random_contacts_from_graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">G</span></em>, <em class="sig-param"><span class="n">expected_average_degree</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_random_contacts_from_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add additional edges at random to achieve the expected or desired average degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>G</strong> (<em>networkx Graph</em>) – networkx Graph object</p></li>
+<li><p><strong>expected_average_degree</strong> (<em>int</em>) – expected or desired average degree</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated networkx Graph object with additional edges added at random.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_contacts_for_additional_school_members">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_contacts_for_additional_school_members</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">school_uids</span></em>, <em class="sig-param"><span class="n">additional_school_member_uids</span></em>, <em class="sig-param"><span class="n">average_additional_school_members_degree</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_contacts_for_additional_school_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>school_uids</strong> (<em>list</em>) – list of uids of individuals already in the school</p></li>
+<li><p><strong>additional_school_member_uids</strong> (<em>list</em>) – list of uids of the additional school member who do not have contacts yet or for whom more contacts are needed</p></li>
+<li><p><strong>average_additional_school_members_degree</strong> (<em>float</em>) – average degree for the additional school members</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges for the additional school members in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_contacts_across_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_contacts_across_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_school_uids</span></em>, <em class="sig-param"><span class="n">average_class_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_contacts_across_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_school_uids</strong> (<em>list</em>) – list of uids of individuals in the school</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size or number of contacts in school</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print some edges</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between individuals in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_random_classes_by_grade_in_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_random_classes_by_grade_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_random_classes_by_grade_in_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – percent of within grade edges that rewired to create edges across grades</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between students in school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_clustered_classes_by_grade_in_school">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_clustered_classes_by_grade_in_school</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">return_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_clustered_classes_by_grade_in_school" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>inter_grade_mixing</strong> (<em>float</em>) – percent of within grade edges that rewired to create edges across grades</p></li>
+<li><p><strong>return_edges</strong> (<em>bool</em>) – If True, return edges, else return two groups of contacts - students and teachers for each class</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between students in school or groups of contacts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_between_teachers">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_between_teachers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_between_teachers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges between teachers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>teachers</strong> (<em>list</em>) – a list of teachers</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges between teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_for_teachers_in_random_classes">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_for_teachers_in_random_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_for_teachers_in_random_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges connected to teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.generate_edges_for_teachers_in_clustered_classes">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">generate_edges_for_teachers_in_clustered_classes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">return_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.generate_edges_for_teachers_in_clustered_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school. Students and teachers are clustered into disjoint classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>groups</strong> (<em>list</em>) – list of lists of students, clustered into groups mostly by grade</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>return_edges</strong> (<em>bool</em>) – If True, return edges, else return two groups of contacts - students and teachers for each class</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of edges connected to teachers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.add_school_edges">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">add_school_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em>, <em class="sig-param"><span class="n">syn_school_uids</span></em>, <em class="sig-param"><span class="n">syn_school_ages</span></em>, <em class="sig-param"><span class="n">teachers</span></em>, <em class="sig-param"><span class="n">non_teaching_staff</span></em>, <em class="sig-param"><span class="n">age_by_uid_dic</span></em>, <em class="sig-param"><span class="n">grade_age_mapping</span></em>, <em class="sig-param"><span class="n">age_grade_mapping</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.add_school_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate edges for teachers, including to both students and other teachers at the same school.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popdict</strong> (<em>dict</em>) – dictionary of people</p></li>
+<li><p><strong>syn_school_uids</strong> (<em>list</em>) – list of uids of students in the school</p></li>
+<li><p><strong>syn_school_ages</strong> (<em>list</em>) – list of the ages of the students in the school</p></li>
+<li><p><strong>teachers</strong> (<em>list</em>) – list of teachers in the school</p></li>
+<li><p><strong>age_by_uid_dic</strong> (<em>dict</em>) – dict mapping uid to age</p></li>
+<li><p><strong>grade_age_mapping</strong> (<em>dict</em>) – dict mapping grade to an age</p></li>
+<li><p><strong>age_grade_mapping</strong> (<em>dict</em>) – dict mapping age to a grade</p></li>
+<li><p><strong>average_class_size</strong> (<em>int</em>) – average class size</p></li>
+<li><p><strong>average_student_teacher_ratio</strong> (<em>int</em>) – average number of students per teacher</p></li>
+<li><p><strong>average_teacher_teacher_degree</strong> (<em>int</em>) – average number of contacts with other teachers</p></li>
+<li><p><strong>school_mixing_type</strong> (<em>str</em>) – ‘random’ for well mixed schools, ‘clustered’ for disjoint classes in a school</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – print statements throughout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated popdict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_type_age_ranges">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_type_age_ranges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_type_age_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school types and the age range for each.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default school types and the age range for each.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_types_by_age">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_types_by_age</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_types_by_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default probabilities of school type for each age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default probabilities for the school type likely for each age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_types_by_age_single">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_types_by_age_single</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_types_by_age_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school type by age by assigning the school type with the highest probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of default school type by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_size_distr_brackets">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_size_distr_brackets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_size_distr_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school size distribution brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of school size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.school_modules.get_default_school_size_distr_by_type">
+<code class="sig-prename descclassname">synthpops.school_modules.</code><code class="sig-name descname">get_default_school_size_distr_by_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.school_modules.get_default_school_size_distr_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of school size distributions binned by size groups or brackets for each type of default school.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.version.html" class="btn btn-neutral float-right" title="synthpops.version module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.sampling.html" class="btn btn-neutral float-left" title="synthpops.sampling module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

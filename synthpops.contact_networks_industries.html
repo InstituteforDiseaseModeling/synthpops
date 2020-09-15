@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.contact_networks_industries module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.contact_networks_industries.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.contacts module" href="synthpops.contacts.html" />
+    <link rel="prev" title="synthpops.contact_networks module" href="synthpops.contact_networks.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.contact_networks_industries module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.contact_networks_industries">
+<span id="synthpops-contact-networks-industries-module"></span><h1>synthpops.contact_networks_industries module<a class="headerlink" href="#module-synthpops.contact_networks_industries" title="Permalink to this headline">¶</a></h1>
+<p>This module uses workplace data by industry from <a class="reference external" href="https://www.census.gov/eos/www/naics/">North American Industry Classification System</a> (NAICS) codes  to model workplaces as specific industries and the contact patterns for workers within each workplace.</p>
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_establishments_by_industries_df">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_establishments_by_industries_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_establishments_by_industries_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a pandas DataFrame on establishment sizes by industry for the locations of interest at the county level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>locations</strong> (<em>list of string</em>) – A list with the names of the locations at the county level.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pandas DataFrame with necessary columns to calculate establishment sizes by industry for the specified locations of interest.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_industry_type_df">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_type_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">country_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_type_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the 2017 NAICS US Codes and Titles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pandas DataFrame with 2017 NAICS US Code and Title.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_simplified_industry_type_df">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_type_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">country_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_type_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the simplified 2017 NAICS US Codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pandas DataFrame with 2 digit 2017 NAICS US Codes mapping to main industry types.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_industry_code">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the 2017 NAICS Code based on industry title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>industry_type_df</strong> (<em>dataframe</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The 2017 NAICS US Title.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2017 NAICS US Code as an integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_main_industry_code">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_main_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_main_industry_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the 2-digit 2017 NAICS US Code based on industry title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The 2017 NAICS US Title.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2-digit 2017 NAICS US Code as an integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_industry_title">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_industry_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the 2017 NAICS US Title based on full industry code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2017 NAICS US Code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2017 NAICS US Title.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_main_industry_title">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_main_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_main_industry_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the main 2017 NAICS US Title based on 2-digit industry code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2-digit 2017 NAICS US Code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2017 NAICS US Title.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_simplified_industry_title">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simplified_industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the simplified 2017 NAICS US Title from the 2-digit 2017 NAICS Code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>simplified_industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame</p></li>
+<li><p><strong>industry_code</strong> (<em>int</em>) – The 2-digit 2017 NAICS US Code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2017 NAICS US Title for the 2-digit code.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_simplified_industry_code">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_simplified_industry_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simplified_industry_type_df</span></em>, <em class="sig-param"><span class="n">industry_title</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_simplified_industry_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the simplified 2017 NAICS US Code from the full title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>simplified_industry_type_df</strong> (<em>DataFrame</em>) – The pandas DataFrame.</p></li>
+<li><p><strong>industry_title</strong> (<em>string</em>) – The full 2017 NAICS US Title.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 2-digit 2017 NAICS US Code.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.get_establishment_size_brackets_df">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">get_establishment_size_brackets_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">'county'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.get_establishment_size_brackets_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size brackets DataFrame from Bureau of Labor Statistics (BLS) 2017 Data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>locations</strong> (<em>list</em>) – A list with the names of the locations at the county level.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Dataframe of size brackets for establishments in the United States.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.contact_networks_industries.generate_synthetic_population_with_workplace_industries">
+<code class="sig-prename descclassname">synthpops.contact_networks_industries.</code><code class="sig-name descname">generate_synthetic_population_with_workplace_industries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">'county'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.contact_networks_industries.generate_synthetic_population_with_workplace_industries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the workplace network as generated by <code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code> to include  contact patterns according to each industry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>datadir</strong> (<em>string</em>) – The file path to the data directory.</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – The name of the location.</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – The name of the state the location is in.</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – The name of the country the location is in.</p></li>
+<li><p><strong>sheet_name</strong> (<em>string</em>) – The name of the sheet in the Excel file with contact patterns.</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – The scale of region at which data is available.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print statements as contacts are being generated.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – If True, plot and show a comparison of the generated workplace sizes vs. the expected sizes based on NAICS data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.contacts.html" class="btn btn-neutral float-right" title="synthpops.contacts module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.contact_networks.html" class="btn btn-neutral float-left" title="synthpops.contact_networks module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.api module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.api.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.base module" href="synthpops.base.html" />
+    <link rel="prev" title="API reference" href="modules.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.api module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.api">
+<span id="synthpops-api-module"></span><h1>synthpops.api module<a class="headerlink" href="#module-synthpops.api" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the layer for communicating with the agent-based model Covasim.</p>
+<dl class="py function">
+<dt id="synthpops.api.make_population">
+<code class="sig-prename descclassname">synthpops.api.</code><code class="sig-name descname">make_population</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_contacts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generate</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_industry_code</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_facilities</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_max</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">with_non_teaching_staff</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">rand_seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.api.make_population" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
+:param n: The number of people to create.
+:type n: int
+:param max_contacts: A dictionary for maximum number of contacts per layer: keys must be “W” (work).
+:type max_contacts: dict
+:param generate: If True, generate a new population. Else, look for cached population and if those are not available, generate a new population.
+:type generate: bool
+:param with_industry_code: If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
+:type with_industry_code: bool
+:param with_facilities: If True, create long term care facilities, currently only available for locations in the US.
+:type with_facilities: bool
+:param use_two_group_reduction: If True, create long term care facilities with reduced contacts across both groups.
+:type use_two_group_reduction: bool
+:param average_LTCF_degree: default average degree in long term care facilities.
+:type average_LTCF_degree: float
+:param ltcf_staff_age_min: Long term care facility staff minimum age.
+:type ltcf_staff_age_min: int
+:param ltcf_staff_age_max: Long term care facility staff maximum age.
+:type ltcf_staff_age_max: int
+:param with_school_types: If True, creates explicit school types.
+:type with_school_types: bool
+:param school_mixing_type: The mixing type for schools, ‘random’, ‘age_clustered’, or ‘age_and_class_clustered’ if string, and a dictionary of these by school type otherwise.
+:type school_mixing_type: str or dict
+:param average_class_size: The average classroom size.
+:type average_class_size: float
+:param inter_grade_mixing: The average fraction of mixing between grades in the same school for clustered school mixing types.
+:type inter_grade_mixing: float
+:param average_student_teacher_ratio: The average number of students per teacher.
+:type average_student_teacher_ratio: float
+:param average_teacher_teacher_degree: The average number of contacts per teacher with other teachers.
+:type average_teacher_teacher_degree: float
+:param teacher_age_min: The minimum age for teachers.
+:type teacher_age_min: int
+:param teacher_age_max: The maximum age for teachers.
+:type teacher_age_max: int
+:param with_non_teaching_staff: If True, includes non teaching staff.
+:type with_non_teaching_staff: bool
+:param average_student_all_staff_ratio: The average number of students per staff members at school (including both teachers and non teachers).
+:type average_student_all_staff_ratio: float
+:param average_additional_staff_degree: The average number of contacts per additional non teaching staff in schools.
+:type average_additional_staff_degree: float
+:param staff_age_min: The minimum age for non teaching staff.
+:type staff_age_min: int
+:param staff_age_max: The maximum age for non teaching staff.
+:type staff_age_max: int
+:param rand_seed: Start point random sequence is generated from.
+:type rand_seed: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary of the full population with ages and connections.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>network (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.base.html" class="btn btn-neutral float-right" title="synthpops.base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

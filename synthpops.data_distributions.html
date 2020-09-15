@@ -1,0 +1,1168 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.data_distributions module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.data_distributions.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.long_term_care_facilities module" href="synthpops.long_term_care_facilities.html" />
+    <link rel="prev" title="synthpops.contacts module" href="synthpops.contacts.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.data_distributions module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.data_distributions">
+<span id="synthpops-data-distributions-module"></span><h1>synthpops.data_distributions module<a class="headerlink" href="#module-synthpops.data_distributions" title="Permalink to this headline">¶</a></h1>
+<p>Read in data distributions.</p>
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_age_brackets_from_df">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_age_brackets_from_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ab_file_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_age_brackets_from_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dict of age bracket ranges from ab_file_path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ab_file_path</strong> (<em>string</em>) – file path to get the ends of different age brackets from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with a np.ndarray of the age range that maps to each age bracket key.</p>
+</dd>
+</dl>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">get_age_brackets_from_df</span><span class="p">(</span><span class="n">ab_file_path</span><span class="p">)</span> <span class="n">returns</span> <span class="n">a</span> <span class="n">dictionary</span> <span class="n">age_brackets</span><span class="p">,</span> <span class="n">where</span> <span class="n">age_brackets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">age</span> <span class="nb">range</span> <span class="k">for</span> <span class="n">the</span> <span class="n">first</span> <span class="n">age</span> <span class="n">bracket</span><span class="p">,</span> <span class="n">age_brackets</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">age</span> <span class="nb">range</span> <span class="k">for</span> <span class="n">the</span> <span class="n">second</span> <span class="n">age</span> <span class="n">bracket</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_gender_fraction_by_age_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_gender_fraction_by_age_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_gender_fraction_by_age_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for gender fractions by age bracket. This should only be used if the data is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the gender fraction by age bracket data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.read_gender_fraction_by_age_bracket">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">read_gender_fraction_by_age_bracket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.read_gender_fraction_by_age_bracket" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict of gender fractions by age bracket, either by location, state_location, country_location strings, or by the file_path if that’s given.
+If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This
+may not be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the fractions for two genders by age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_age_bracket_distr_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_age_bracket_distr_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_age_bracket_distr_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for age distribution by age brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the age distribution by age bracket data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.read_age_bracket_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">read_age_bracket_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.read_age_bracket_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict of age distribution by age brackets. If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This
+may not be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the age distribution by age bracket. Keys map to a range of ages in that age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_household_size_distr_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_household_size_distr_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_household_size_distr_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for household size distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the household size distribution data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_household_size_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_household_size_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_household_size_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of the distributions of household sizes. If you don’t give the file_path, then supply the location and state_location strings.
+If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This
+may not be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the household size distribution data. Keys map to the household size as an integer, values are the percent of households of that size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_head_age_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_head_age_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_head_age_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for head of household age brackets. If data doesn’t exist at the state level, only give the country_location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the age brackets for head of household distribution data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_head_age_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_head_age_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_head_age_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary of head age brackets either from the file_path directly, or using the other parameters to figure out what the file_path should be.
+If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This
+may not be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the age brackets for head of household distribution data. Keys map to the age bracket as an integer, values are the percent of households which head of household in that age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_household_head_age_by_size_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_household_head_age_by_size_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_household_head_age_by_size_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for head of household age by size counts or distribution. If the data doesn’t exist at the state level, only give the country_location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the head of household age by household size count or distribution data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_household_head_age_by_size_df">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_household_head_age_by_size_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_household_head_age_by_size_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a pandas df of head of household age by the size of the household. If the file_path is given return from there first.
+If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This
+may not be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the head of household age by household size count or distribution data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_head_age_by_size_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_head_age_by_size_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">household_size_1_included</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_head_age_by_size_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an array of head of household age bracket counts (col) given by size (row). If use_default, then we’ll first try to look for location
+specific data and if that’s not available we’ll use default data from Seattle, WA. This may not be appropriate for the population under study
+so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>household_size_1_included</strong> – if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array where each row s represents the age distribution of the head of households for households of size s-1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_census_age_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_census_age_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_census_age_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for census age brackets: depends on the state or country of the source data on contact patterns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the age brackets to be used with census age data in combination with the contact matrix data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_census_age_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_census_age_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_census_age_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get census age brackets: depends on the country or source of contact pattern data. If use_default, then we’ll
+first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA.
+This may not be appropriate for the population under study so it’s best to provide as much data as you can for the
+specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the state_location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>household_size_1_included</strong> – if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the range of ages that map to each age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_contact_matrix">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_contact_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">setting_code</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_contact_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get setting specific contact matrix given sheet name to use. If file_path is given, then delimiter and header should also be specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>setting_code</strong> (<em>string</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other</p></li>
+<li><p><strong>sheet_name</strong> (<em>string</em>) – name of the sheet in the excel file with contact patterns</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>delimiter</strong> (<em>string</em>) – delimter for the contact matrix file</p></li>
+<li><p><strong>header</strong> (<em>int</em>) – row number for the header of the file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matrix of contact patterns where each row i is the average contact patterns for an individual in age bracket i and the columns represent the age brackets of their contacts. The matrix element i,j is then the contact rate, number, or frequency for the average individual in age bracket i with all of their contacts in age bracket j in that physical contact setting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_contact_matrix_dic">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_contact_matrix_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path_dic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_contact_matrix_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dict of setting specific age mixing matrices. If use_default, then we’ll first try to look for location specific
+data and if that’s not available we’ll use default data from Seattle, WA. This may not be appropriate for the population
+under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>setting_code</strong> (<em>string</em>) – name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other</p></li>
+<li><p><strong>sheet_name</strong> (<em>string</em>) – name of the sheet in the excel file with contact patterns</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>delimiter</strong> (<em>string</em>) – delimter for the contact matrix file</p></li>
+<li><p><strong>header</strong> (<em>int</em>) – row number for the header of the file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the different contact matrices for each population, given by the sheet name. Keys map to the different possible physical contact settings for which data are available.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_school_enrollment_rates_df">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_school_enrollment_rates_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_school_enrollment_rates_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters a dataframe on school enrollment rates in the US at the scale of county or PUMA down to relevant locations in the state. Specifying locations as a list allow the selection of
+multiple counties in the same state, in whatever combination desired.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>locations</strong> (<em>string</em><em> or </em><em>list</em>) – name of locations to filter for, either as a string or a list of multiple locations</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which here should always be ‘usa’</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – name of the level at which the data are aggregated, in general ‘county’ but could also be ‘PUMA’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pandas dataframe with school enrollment data in the US for at the scale of county of PUMA for specified locations within the same state.</p>
+</dd>
+</dl>
+<p>Example usage:</p>
+<blockquote>
+<div><p>locations = ‘King County, Washington’ for a single county</p>
+<p>locations = [‘King County, Washington’, ‘Pierce County, Washington’] for multiple counties</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.process_usa_school_enrollment_rates">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">process_usa_school_enrollment_rates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.process_usa_school_enrollment_rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process US school enrollment rates at the county level for age groups and create a dictionary of rates for single year ages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>locations</strong> (<em>string</em><em> or </em><em>list</em>) – name of locations to filter for, either as a string or a list of multiple locations</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which here should always be ‘usa’</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – name of the level at which the data are aggregated, in general ‘county’ but could also be ‘PUMA’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of enrollment rates by single year ages from 0 to 100.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.write_school_enrollment_rates">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">write_school_enrollment_rates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">locations</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.write_school_enrollment_rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write enrollment rates from age brackets into a file for single year ages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>locations</strong> (<em>string</em><em> or </em><em>list</em>) – name of locations to filter for, either as a string or a list of multiple locations</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which here should always be ‘usa’</p></li>
+<li><p><strong>level</strong> (<em>string</em>) – name of the level at which the data are aggregated, in general ‘county’ but could also be ‘PUMA’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_enrollment_rates_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_enrollment_rates_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_enrollment_rates_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a file_path for enrollment rates by age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the school enrollment rates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_enrollment_rates">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_enrollment_rates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_enrollment_rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get dictionary of enrollment rates by age. If use_default, then we’ll first try to look for location specific
+data and if that’s not available we’ll use default data from Seattle, WA. This may not be appropriate for the population
+under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of school enrollment rates by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_size_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_size_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_size_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for school size brackets specific to the location under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to school size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_size_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_size_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_size_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get school size brackets: depends on the source/location of the data. If use_default, then we’ll
+first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA.
+This may not be appropriate for the population under study so it’s best to provide as much data as you can for the
+specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of school size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_sizes_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_sizes_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_sizes_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for school sizes specific to the location under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to school sizes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_sizes_df">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_sizes_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_sizes_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pandas dataframe with school enrollment sizes: depends on the country or source of contact pattern data. If use_default, then we’ll first
+try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This may not
+be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pandas dataframe with school sizes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_size_distr_by_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_size_distr_by_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_size_distr_by_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the distribution of school size by brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the distribution of school sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_school_size_distr_by_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_school_size_distr_by_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">counts_available</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_school_size_distr_by_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get distribution of school sizes by bracket. Either you have enrollments by individual school or you have school size distribution that is binned. Either way, you want to get a school size distribution.
+If use_default, then we’ll first try to look for location specific data and if that’s not available we’ll use default data from Seattle, WA. This may not
+be appropriate for the population under study so it’s best to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>counts_available</strong> (<em>bool</em>) – if True, a list of school sizes is available and a count of the sizes can be constructed</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of school sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.write_school_size_distr_by_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">write_school_size_distr_by_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">counts_available</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.write_school_size_distr_by_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write school size distribution by brackets to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>counts_available</strong> (<em>bool</em>) – if True, a list of school sizes is available and a count of the sizes can be constructed</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of school sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_school_sizes_by_bracket">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_school_sizes_by_bracket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_school_sizes_by_bracket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get distribution of school sizes by bracket specifically for the US.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of school sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_employment_rates_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_employment_rates_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_employment_rates_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for employment rates by age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to employment rates by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_employment_rates">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_employment_rates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_employment_rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get employment rates by age. If use_default, then we’ll first try to look for location specific data and if that’s not
+available we’ll use default data from Seattle, WA. This may not be appropriate for the population under study so it’s best
+to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of employment rates by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_workplace_size_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_workplace_size_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_workplace_size_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for workplace size brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to workplace size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_workplace_size_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_workplace_size_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_workplace_size_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get workplace size brackets. If use_default, then we’ll first try to look for location specific data and if that’s not
+available we’ll use default data from Seattle, WA. This may not be appropriate for the population under study so it’s best
+to provide as much data as you can for the specific population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of workplace size brackets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_workplace_size_distr_by_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_workplace_size_distr_by_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_workplace_size_distr_by_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the distribution of workplace size by brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to the distribution of workplace sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_workplace_size_distr_by_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_workplace_size_distr_by_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_workplace_size_distr_by_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the distribution of workplace size by brackets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of workplace sizes by bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_state_postal_code">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_state_postal_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_state_postal_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">part</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for state level data on Long Term Care Facilities for the US from 2015-2016.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state</p></li>
+<li><p><strong>part</strong> (<em>int</em>) – part 1 or 2 of the table</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>National Study of Long-Term Care Providers, 2015-2016’.
+Part 1 or 2 are available.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A file path to data on Long Term Care Facilities from ‘Long-Term Care Providers and Services Users in the United States - State Estimates Supplement</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_data">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">part</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_residents_distr_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_residents_distr_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size bins for the distribution of residents per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of size brackets or bins for residents per facility.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_distr">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_distr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>file_path</strong> (<em>string</em>) – file path to user specified distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the distribution of residents per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file_path for the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets">
+<code class="sig-prename descclassname">synthpops.data_distributions.</code><code class="sig-name descname">get_usa_long_term_care_facility_resident_to_staff_ratios_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.data_distributions.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in, which should be the ‘usa’</p></li>
+<li><p><strong>size_distr_file_path</strong> (<em>string</em>) – file path to user specified gender by age bracket distribution data</p></li>
+<li><p><strong>use_default</strong> (<em>bool</em>) – if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of size brackets or bins for resident to staff ratios per facility.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.long_term_care_facilities.html" class="btn btn-neutral float-right" title="synthpops.long_term_care_facilities module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.contacts.html" class="btn btn-neutral float-left" title="synthpops.contacts module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

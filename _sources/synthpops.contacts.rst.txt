@@ -1,0 +1,7 @@
+synthpops.contacts module
+=========================
+
+.. automodule:: synthpops.contacts
+   :members:
+   :undoc-members:
+   :show-inheritance:

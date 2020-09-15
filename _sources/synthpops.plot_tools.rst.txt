@@ -1,0 +1,7 @@
+synthpops.plot\_tools module
+============================
+
+.. automodule:: synthpops.plot_tools
+   :members:
+   :undoc-members:
+   :show-inheritance:

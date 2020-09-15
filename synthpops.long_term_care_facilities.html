@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.long_term_care_facilities module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.long_term_care_facilities.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.plot_tools module" href="synthpops.plot_tools.html" />
+    <link rel="prev" title="synthpops.data_distributions module" href="synthpops.data_distributions.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.sampling.html">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.long_term_care_facilities module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.long_term_care_facilities">
+<span id="synthpops-long-term-care-facilities-module"></span><h1>synthpops.long_term_care_facilities module<a class="headerlink" href="#module-synthpops.long_term_care_facilities" title="Permalink to this headline">¶</a></h1>
+<p>Modeling Seattle Metro Long Term Care Facilities</p>
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.custom_resample_age">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_resample_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp_age_distr</span></em>, <em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_resample_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resampling younger ages to better match data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution</p></li>
+<li><p><strong>age</strong> (<em>int</em>) – age as an integer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resampled age as an integer.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is not always necessary, but is mostly used to smooth out sharp edges in the age distribution when spsamp.resample_age() produces too many of one year and under produces the surrounding ages. For example, new borns (0 years old) may
+be over produced, and 1 year olds under produced, so this function can be customized to correct for that.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.custom_generate_larger_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_generate_larger_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_generate_larger_households" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
+All other household members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix
+in households for the population under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>) – The household size.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – A dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – A dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – A dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of households for size <code class="docutils literal notranslate"><span class="pre">size</span></code> where each household is a row and the values in the row are the ages of the household members.
+The first age in the row is the age of the reference individual.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.custom_generate_all_households">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">custom_generate_all_households</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">hh_sizes</span></em>, <em class="sig-param"><span class="n">hha_by_size_counts</span></em>, <em class="sig-param"><span class="n">hha_brackets</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">contact_matrix_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.custom_generate_all_households" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the ages of those living in households together. First create households of people living alone, then larger households.
+For households larger than 1, a reference individual’s age is sampled conditional on the household size, while all other household
+members have their ages sampled conditional on the reference person’s age and the age mixing contact matrix in households
+for the population under study.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of people in the population.</p></li>
+<li><p><strong>hh_sizes</strong> (<em>array</em>) – The count of household size s at index s-1.</p></li>
+<li><p><strong>hha_by_size_counts</strong> (<em>matrix</em>) – A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.</p></li>
+<li><p><strong>hha_brackets</strong> (<em>dict</em>) – The age brackets for the heads of household.</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – The dictionary mapping age bracket keys to age bracket range.</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – The dictionary mapping age to the age bracket range it falls within.</p></li>
+<li><p><strong>contact_matrix_dic</strong> (<em>dict</em>) – The dictionary of the age-specific contact matrix for different physical contact settings.</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – The age distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of all households where each household is a row and the values in the row are the ages of the household members.
+The first age in the row is the age of the reference individual. Households are randomly shuffled by size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.generate_microstructure_with_facilities">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">generate_microstructure_with_facilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">state_location</span></em>, <em class="sig-param"><span class="n">country_location</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">sheet_name</span><span class="o">=</span><span class="default_value">'United States of America'</span></em>, <em class="sig-param"><span class="n">use_two_group_reduction</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">average_LTCF_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">ltcf_staff_age_max</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">school_enrollment_counts_available</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">with_school_types</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">school_mixing_type</span><span class="o">=</span><span class="default_value">'random'</span></em>, <em class="sig-param"><span class="n">average_class_size</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">inter_grade_mixing</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">average_student_teacher_ratio</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">average_teacher_teacher_degree</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">teacher_age_min</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">teacher_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">average_student_all_staff_ratio</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">average_additional_staff_degree</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_min</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">staff_age_max</span><span class="o">=</span><span class="default_value">75</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">return_popdict</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_default</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.generate_microstructure_with_facilities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff">
+<code class="sig-prename descclassname">synthpops.long_term_care_facilities.</code><code class="sig-name descname">check_all_residents_are_connected_to_staff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">popdict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.long_term_care_facilities.check_all_residents_are_connected_to_staff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.plot_tools.html" class="btn btn-neutral float-right" title="synthpops.plot_tools module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.data_distributions.html" class="btn btn-neutral float-left" title="synthpops.data_distributions module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

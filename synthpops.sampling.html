@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+  <title>synthpops.sampling module &mdash; SynthPops  documentation</title>
+  
+
+
+
+<meta name="robots" content="none">
+<meta http-equiv="refresh" content="0; URL=https://docs.idmod.org/projects/synthpops/en/latest/synthpops.sampling.html">
+
+
+
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within SynthPops  documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="synthpops.school_modules module" href="synthpops.school_modules.html" />
+    <link rel="prev" title="synthpops.read_write module" href="synthpops.read_write.html" />
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Montserrat|Open+Sans" rel="stylesheet">
+
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SynthPops
+          
+
+          
+            
+            <img src="_static/IDM_white.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">SynthPops overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">SynthPops algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Using SynthPops</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="synthpops.api.html">synthpops.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.base.html">synthpops.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.config.html">synthpops.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks.html">synthpops.contact_networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contact_networks_industries.html">synthpops.contact_networks_industries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.contacts.html">synthpops.contacts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.data_distributions.html">synthpops.data_distributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.long_term_care_facilities.html">synthpops.long_term_care_facilities module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.plot_tools.html">synthpops.plot_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.read_write.html">synthpops.read_write module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">synthpops.sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.school_modules.html">synthpops.school_modules module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthpops.version.html">synthpops.version module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SynthPops</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+<div aria-label="breadcrumbs navigation" role="navigation">
+    <ul class="wy-breadcrumbs">
+        <li><a href="https://idmod.org/documentation">IDM docs</a> &raquo;</li>
+        <li><a href="index.html">SynthPops</a> &raquo;</li>
+        
+        <li><a href="modules.html">API reference</a> &raquo;</li>
+        
+        <li>synthpops.sampling module</li>
+        <li class="wy-breadcrumbs-aside">
+            
+            
+            
+        </li>
+    </ul>
+    <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-synthpops.sampling">
+<span id="synthpops-sampling-module"></span><h1>synthpops.sampling module<a class="headerlink" href="#module-synthpops.sampling" title="Permalink to this headline">¶</a></h1>
+<p>Sample distributions, either from real world data or from uniform distributions</p>
+<dl class="py function">
+<dt id="synthpops.sampling.set_seed">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.set_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the random seed – complicated because of Numba</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_single_dict">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr_keys</span></em>, <em class="sig-param"><span class="n">distr_vals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distr</strong> (<em>dict</em><em> or </em><em>np.ndarray</em>) – distribution</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single sampled value from a distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_single_arr">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_single_arr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_single_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distr</strong> (<em>dict</em><em> or </em><em>np.ndarray</em>) – distribution</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single sampled value from a distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.resample_age">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">resample_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age_dist_vals</span></em>, <em class="sig-param"><span class="n">age</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.resample_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample age from single year age distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>single_year_age_distr</strong> (<em>arr</em>) – age distribution, ordered by age</p></li>
+<li><p><strong>age</strong> (<em>int</em>) – age as an integer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resampled age as an integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_from_range">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_from_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr</span></em>, <em class="sig-param"><span class="n">min_val</span></em>, <em class="sig-param"><span class="n">max_val</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_from_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a distribution from min_val to max_val, inclusive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distr</strong> (<em>dict</em>) – distribution with integer keys</p></li>
+<li><p><strong>min_val</strong> (<em>int</em>) – minimum of the range to sample from</p></li>
+<li><p><strong>max_val</strong> (<em>int</em>) – maximum of the range to sample from</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A sampled number from the range min_val to max_val in the distribution distr.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_bracket">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_bracket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">distr</span></em>, <em class="sig-param"><span class="n">brackets</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_bracket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample bracket from a distribution (potentially absolete).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distr</strong> (<em>dict</em><em> or </em><em>np.ndarray</em>) – distribution for bracket keys</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A sampled bracket from a distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nk</span></em>, <em class="sig-param"><span class="n">distr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample nk values from a distribution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nk</strong> (<em>int</em>) – number of samples</p></li>
+<li><p><strong>distr</strong> (<em>dict</em><em> or </em><em>np.ndarray</em>) – distribution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with the count for n samples from a distribution</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_contact_age">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_contact_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">age</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">age_mixing_matrix</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_contact_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the age of a contact from age mixing patterns. Age of contact is uniformly drawn from the age bracket sampled from the age mixing matrix, unless single_year_age_distr is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>age</strong> (<em>int</em>) – age of reference individual</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_mixing_matrix</strong> (<em>matrix</em>) – age specific contact matrix</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution by single year ages if available</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Age of contact by age of individual sampled from an age mixing matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_n_contact_ages">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_n_contact_ages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_contacts</span></em>, <em class="sig-param"><span class="n">age</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">age_mixing_matrix_dic</span></em>, <em class="sig-param"><span class="n">weights_dic</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_n_contact_ages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the age of n_contacts contacts from age mixing patterns. Age of each contact is uniformly drawn from the age bracket sampled from the age
+mixing matrix, unless single_year_age_distr is available. Combines setting specific weights to create an age mixing matrix
+from which contact ages are sampled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_contacts</strong> (<em>int</em>) – number of contacts to draw ages for</p></li>
+<li><p><strong>age</strong> (<em>int</em>) – age of reference individual</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+<li><p><strong>age_mixing_matrix_dic</strong> (<em>dict</em>) – dictionary of age specific contact matrix for different physical contact settings</p></li>
+<li><p><strong>weights_dic</strong> (<em>dict</em>) – weights to combine contact matrices</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution by single year ages if available</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of ages of n_contacts contacts by age of individual sampled from a combined age mixing matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.sample_n_contact_ages_with_matrix">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">sample_n_contact_ages_with_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_contacts</span></em>, <em class="sig-param"><span class="n">age</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em>, <em class="sig-param"><span class="n">age_mixing_matrix</span></em>, <em class="sig-param"><span class="n">single_year_age_distr</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.sample_n_contact_ages_with_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the age of n_contacts contacts from age mixing matrix. Age of each contact is uniformly drawn from the age bracket sampled from the age
+mixing matrix, unless single_year_age_distr is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_contacts</strong> (<em>int</em>) – number of contacts to draw ages for</p></li>
+<li><p><strong>age</strong> (<em>int</em>) – age of reference individual</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+<li><p><strong>age_mixing_matrix</strong> (<em>matrix</em>) – age specific contact matrix</p></li>
+<li><p><strong>weights_dic</strong> (<em>dict</em>) – weights to combine contact matrices</p></li>
+<li><p><strong>single_year_age_distr</strong> (<em>dict</em>) – age distribution by single year ages if available</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of ages of n_contacts contacts by age of individual sampled from an age mixing matrix.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_n_contact_ids_by_age">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_n_contact_ids_by_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contact_ids_by_age_dic</span></em>, <em class="sig-param"><span class="n">contact_ages</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">age_by_brackets_dic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_n_contact_ids_by_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get ids for the contacts with ages in contact_ages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contact_ids_by_age_dic</strong> (<em>dict</em>) – dictionary mapping lists of ids to the age of individuals with those ids</p></li>
+<li><p><strong>contact_ages</strong> (<em>list</em>) – list of integer ages</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_by_brackets_dic</strong> (<em>dict</em>) – dictionary mapping age to the age bracket range it falls in</p></li>
+</ul>
+</dd>
+</dl>
+<p>Return set of ids of n_contacts sampled from an age mixing matrix, where potential contacts are chosen from a list of contact ids by age</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.pt">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">pt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rate</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.pt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Results of a Poisson trial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rate</strong> (<em>float</em>) – Poisson rate</p>
+</dd>
+</dl>
+<p>Returns result (bool) of Poisson trial.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_age_sex">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_age_sex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gender_fraction_by_age</span></em>, <em class="sig-param"><span class="n">age_bracket_distr</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">min_age</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">max_age</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">age_mean</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">age_std</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_age_sex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a person’s age and sex based on gender and age census data defined for age brackets. Else, return random age and sex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gender_fraction_by_age</strong> (<em>dict</em>) – dictionary of the fractions for two genders by age bracket</p></li>
+<li><p><strong>age_bracket_distr</strong> (<em>dict</em>) – : distribution of ages by brackets</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>min_age</strong> (<em>int</em>) – minimum age to draw</p></li>
+<li><p><strong>max_age</strong> (<em>int</em>) – maximum age to draw</p></li>
+<li><p><strong>age_mean</strong> (<em>int</em>) – mean of age distribution</p></li>
+<li><p><strong>age_std</strong> (<em>int</em>) – standard deviation of age distribution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sampled age (float), sex (int; 0 for female, 1 for male)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_age_sex_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_age_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gender_fraction_by_age</span></em>, <em class="sig-param"><span class="n">age_bracket_distr</span></em>, <em class="sig-param"><span class="n">age_brackets</span></em>, <em class="sig-param"><span class="n">n_people</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">min_age</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">max_age</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_age_sex_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ age and sex from gender and age census data defined for age brackets. Else, return random ages and sex.
+Two lists ordered by age bracket so that people from the first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gender_fraction_by_age</strong> (<em>dict</em>) – dictionary of the fractions for two genders by age bracket</p></li>
+<li><p><strong>age_bracket_distr</strong> (<em>dict</em>) – : distribution of ages by brackets</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>n_people</strong> (<em>int</em>) – number of people to draw age and sex for</p></li>
+<li><p><strong>min_age</strong> (<em>int</em>) – minimum age to draw</p></li>
+<li><p><strong>max_age</strong> (<em>int</em>) – maximum age to draw</p></li>
+<li><p><strong>age_mean</strong> (<em>int</em>) – mean of age distribution</p></li>
+<li><p><strong>age_std</strong> (<em>int</em>) – standard deviation of age distribution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
+first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_seattle_age_sex">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_seattle_age_sex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_seattle_age_sex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a person’s age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sampled age (float), sex (int; 0 for female, 1 for male)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_seattle_age_sex_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_seattle_age_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">n_people</span><span class="o">=</span><span class="default_value">10000.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_seattle_age_sex_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>n_people</strong> (<em>float</em><em> or </em><em>int</em>) – number of people to draw age and sex for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
+first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_usa_age_sex">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_usa_age_sex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_usa_age_sex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a person’s age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sampled age (float), sex (int; 0 for female, 1 for male)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_usa_age_sex_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_usa_age_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">n_people</span><span class="o">=</span><span class="default_value">10000.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_usa_age_sex_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>n_people</strong> (<em>float</em><em> or </em><em>int</em>) – number of people to draw age and sex for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
+first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_usa_age_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_usa_age_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">sexes</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_usa_age_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ age based on list of sexes supplied and US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>sexes</strong> (<em>list</em>) – list of sexes</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>n_people</strong> (<em>float</em><em> or </em><em>int</em>) – number of people to draw age and sex for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
+first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_usa_sex_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_usa_sex_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">ages</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_usa_sex_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ sex based on list of ages supplied and US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>ages</strong> (<em>list</em>) – list of ages</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>n_people</strong> (<em>float</em><em> or </em><em>int</em>) – number of people to draw age and sex for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
+first age bracket show up at the front of both lists and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_age_n">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_age_n</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">location</span><span class="o">=</span><span class="default_value">'seattle_metro'</span></em>, <em class="sig-param"><span class="n">state_location</span><span class="o">=</span><span class="default_value">'Washington'</span></em>, <em class="sig-param"><span class="n">country_location</span><span class="o">=</span><span class="default_value">'usa'</span></em>, <em class="sig-param"><span class="n">age_brackets_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">age_bracket_distr_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">age_brackets</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">age_bracket_distr</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_age_n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample n_people peoples’ age based on age census data defined for age brackets, with defaults set to Seattle, Washington.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadir</strong> (<em>string</em>) – file path to the data directory</p></li>
+<li><p><strong>n</strong> (<em>float</em><em> or </em><em>int</em>) – number of people to draw age and sex for</p></li>
+<li><p><strong>location</strong> (<em>string</em>) – name of the location</p></li>
+<li><p><strong>state_location</strong> (<em>string</em>) – name of the state the location is in</p></li>
+<li><p><strong>country_location</strong> (<em>string</em>) – name of the country the location is in</p></li>
+<li><p><strong>age_brackets_file</strong> (<em>string</em>) – user file path to get age brackets from</p></li>
+<li><p><strong>age_bracket_distr_file</strong> (<em>string</em>) – user file path to get age distribution by brackets from</p></li>
+<li><p><strong>age_brackets</strong> (<em>dict</em>) – dictionary mapping age bracket keys to age bracket range</p></li>
+<li><p><strong>age_bracket_distr</strong> (<em>dict</em>) – : distribution of ages by brackets</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled ages (float) ordered by age bracket so that people from the first age bracket show up at the front of the list and people from the last age bracket show up at the end.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_mortality_rates_filepath">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_mortality_rates_filepath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_mortality_rates_filepath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file path to mortality rates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>string</em>) – path to folder containing mortality rates by age brackets data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The filepath to mortality rates by age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_mortality_rates_by_age_bracket">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_mortality_rates_by_age_bracket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_mortality_rates_by_age_bracket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mortality rates by age bracket</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>string</em>) – path to mortality rates by age bracket data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of mortality rates by age bracket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.get_mortality_rates_by_age">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">get_mortality_rates_by_age</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mortality_rate_by_age_bracket</span></em>, <em class="sig-param"><span class="n">mortality_age_brackets</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.get_mortality_rates_by_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mortality rates by age</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mortality_rate_by_age_bracket</strong> (<em>dict</em>) – dictionary of mortality rates by age bracket</p></li>
+<li><p><strong>mortality_age_brackets</strong> (<em>dict</em>) – dictionary of age brackets for raw mortality rate data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of mortality rates by age.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="synthpops.sampling.calc_death">
+<code class="sig-prename descclassname">synthpops.sampling.</code><code class="sig-name descname">calc_death</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">person_age</span></em>, <em class="sig-param"><span class="n">mortality_rates</span></em><span class="sig-paren">)</span><a class="headerlink" href="#synthpops.sampling.calc_death" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binomial draw of whether or not an individual succumbs to disease.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>person_age</strong> (<em>int</em>) – age of the ill individual.</p></li>
+<li><p><strong>mortality_rates</strong> (<em>dict</em>) – dictionary of mortality rates by age</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool representing the results of a binomial test; 1 for death, 0 for staying alive.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synthpops.school_modules.html" class="btn btn-neutral float-right" title="synthpops.school_modules module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synthpops.read_write.html" class="btn btn-neutral float-left" title="synthpops.read_write module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Bill &amp; Melinda Gates Foundation. All rights reserved.
+
+    </p>
+  </div>
+<p>SynthPops is licensed under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode">Creative Commons
+    Attribution-Noncommercial-ShareAlike 4.0 License</a>.</p>
+<p>Send documentation feedback to <a href="mailto:feedback@idmod.org" target="_top">feedback@idmod.org</a>. If you have
+    questions, email <a href="mailto:support@idmod.org" target="_top">support@idmod.org</a>.</p>
+<p><a href="https://www.gatesfoundation.org/Privacy-and-Cookies-Notice">Privacy and Cookies Notice</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+<a href="https://www.gatesfoundation.org/Terms-of-Use">Terms of Use</a></p>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

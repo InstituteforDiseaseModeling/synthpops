@@ -115,7 +115,7 @@
 <li class="toctree-l2"><a class="reference internal" href="workplaces.html">Workplace contact layer</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">synthpops package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 
@@ -249,21 +249,21 @@ empirical contact matrices from survey studies).</p>
 <h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
 <p>Use these SynthPops functions to instantiate households as follows:</p>
 <ol class="arabic simple">
-<li><p>Call <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_synthetic_population" title="synthpops.contact_networks.generate_synthetic_population"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code></a> and provide the binned
+<li><p>Call <a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_synthetic_population" title="synthpops.contact_networks.generate_synthetic_population"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_synthetic_population()</span></code></a> and provide the binned
 age bracket distribution data described above. This wrapper function calls the following functions:</p>
 <ol class="arabic simple">
 <li><p>From the binned age distribution, <code class="xref py py-func docutils literal notranslate"><span class="pre">get_age_n()</span></code> creates samples
 of ages from the binned distribution, and then normalizes to create a single-year distribution.
 This distribution can therefore be gathered using whatever age bins are present in any given dataset.</p></li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size" title="synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_household_sizes_from_fixed_pop_size()</span></code></a> generates empty
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size" title="synthpops.contact_networks.generate_household_sizes_from_fixed_pop_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_household_sizes_from_fixed_pop_size()</span></code></a> generates empty
 households with known size based on the distribution of household sizes.</p></li>
-<li><p><a class="reference internal" href="modules.html#synthpops.contact_networks.generate_all_households" title="synthpops.contact_networks.generate_all_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_all_households()</span></code></a> contains the core implementation
+<li><p><a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_all_households" title="synthpops.contact_networks.generate_all_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_all_households()</span></code></a> contains the core implementation
 and constructs households with individuals of different ages living together. It takes in the
 remaining data sources above, and then does the following:</p>
 <ul class="simple">
-<li><p>Calls <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_living_alone" title="synthpops.contact_networks.generate_living_alone"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_living_alone()</span></code></a> to populate households with
+<li><p>Calls <a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_living_alone" title="synthpops.contact_networks.generate_living_alone"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_living_alone()</span></code></a> to populate households with
 1 person (either from data on those living alone or, if unavailable, from the adult age distribution).</p></li>
-<li><p>Calls <a class="reference internal" href="modules.html#synthpops.contact_networks.generate_larger_households" title="synthpops.contact_networks.generate_larger_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_larger_households()</span></code></a> repeatedly with with
+<li><p>Calls <a class="reference internal" href="synthpops.contact_networks.html#synthpops.contact_networks.generate_larger_households" title="synthpops.contact_networks.generate_larger_households"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_larger_households()</span></code></a> repeatedly with with
 different household sizes to populate those households, first sampling the age of a reference
 person and then their household contacts as outlined above.</p></li>
 </ul>
