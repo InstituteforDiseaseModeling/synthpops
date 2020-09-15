@@ -41,13 +41,13 @@ def fast_choice(weights):
     Choose an option -- quickly -- from the provided weights. Weights do not need
     to be normalized.
 
-    Reimplementation of random.choices(), removing the junk.
+    Reimplementation of random.choices(), removing everything inessential.
 
     Example:
         fast_choice([0.1,0.2,0.3,0.2,0.1]) # might return 2
     """
     cum_weights = list(itertools.accumulate(weights))
-    return bisect.bisect(cum_weights, random._inst.random()*(cum_weights[-1]), 0, len(cum_weights)-1)
+    return bisect.bisect(cum_weights, random.random()*(cum_weights[-1]), 0, len(cum_weights)-1)
 
 
 # @nb.njit(cache=True)
