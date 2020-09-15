@@ -77,6 +77,7 @@ if errorlevel 9009 (
 if "%1" == "generate-api" (
     del modules.rst >nul 2>&1
     sphinx-apidoc -f -e -M -o . ../synthpops
+    move /Y synthpops.rst modules.rst
 	goto end
 )
 
