@@ -127,7 +127,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         location = cfg.default_location
         state_location = cfg.default_state
         country_location = cfg.default_country
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
 
     def test_senegal_set_param(self):
         cfg.set_datadir(os.path.join(self.dataSenegalDir,'data'), ["demographics","contact_matrices_152_countries"])
@@ -140,20 +140,20 @@ class TestFilePathCreatePop(unittest.TestCase):
         country_location = "Senegal"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
 
     def test_senegal_basic(self):
         #everything is default no cfg ops
         rand_seed = self.seed
         n = self.n
-        datadir = os.path.join(self.dataSenegalDir, 'data')
+        datadir = os.path.join(dataSenegalDir, 'data')
         test_prefix = sys._getframe().f_code.co_name
         location = "Dakar"
         state_location = "Dakar"
         country_location = "Senegal"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
 
     def test_senegal_generate_synthetic_population(self):
         # everything is default no cfg ops
@@ -165,7 +165,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         state_location = "Dakar"
         country_location = "Senegal"
         spop = sp.generate_synthetic_population(n=n, datadir=datadir, location=location, country_location=country_location, state_location=state_location)
-        self.check_result(self, spop, datadir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, test_prefix, location, state_location, country_location)
 
     def check_result(self, pop, datadir, test_prefix, location, state_location, country_location):
         utilities.check_class_size(pop, self.average_class_size, self.average_student_teacher_ratio,self.average_student_all_staff_ratio, 1)
