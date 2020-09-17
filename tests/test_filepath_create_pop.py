@@ -15,6 +15,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         cls.do_close = False
         cls.dataUSAdir = tempfile.TemporaryDirectory().name
         cls.dataSenegalDir = tempfile.TemporaryDirectory().name
+        cls.initial_default_dir = cfg.datadir
         os.makedirs(os.path.join(cls.dataUSAdir, "data"), exist_ok=True)
         os.makedirs(os.path.join(cls.dataSenegalDir, "data"), exist_ok=True)
         cls.subdir_level = "data/demographics/contact_matrices_152_countries"
@@ -43,6 +44,7 @@ class TestFilePathCreatePop(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls.copy_output()
+        cfg.set_datadir(cls.initial_default_dir, ["demographics", "contact_matrices_152_countries"])
         cfg.set_location_defaults(country="defaults")
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
            shutil.rmtree(d, ignore_errors=True)
