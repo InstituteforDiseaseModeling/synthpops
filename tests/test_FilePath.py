@@ -16,15 +16,16 @@ class TestFilePath(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.rootDir = tempfile.TemporaryDirectory().name
-        cls.initia_default_dir = cfg.datadir
+        cls.initial_default_dir = cfg.datadir
         os.makedirs(os.path.join(cls.rootDir, "data"), exist_ok=True)
         cls.dataDir = os.path.join(cls.rootDir, "data")
+
 
     @classmethod
     def tearDownClass(cls) -> None:
         #cls.copy_output()
-        cfg.set_datadir(cls.initia_default_dir, ["demographics","contact_matrices_152_countries"])
-        cfg.set_location_defaults(country="default")
+        cfg.set_datadir(cls.initial_default_dir, ["demographics","contact_matrices_152_countries"])
+        cfg.set_location_defaults(country="defaults")
         #for d in [cls.rootDir]:
         #    shutil.rmtree(d, ignore_errors=True)
 
@@ -51,15 +52,23 @@ class TestFilePath(unittest.TestCase):
         assert sp.config.default_location == 'seattle_metro'
         assert sp.config.default_sheet_name == 'United States of America'
 
+    def test_set_location_defaults_usa(cls):
+        sp.config.set_location_defaults(country='Senegal')
+        sp.config.set_location_defaults(country='usa')
+        assert sp.config.default_country == 'usa'
+        assert sp.config.default_state == 'Washington'
+        assert sp.config.default_location == 'seattle_metro'
+        assert sp.config.default_sheet_name == 'United States of America'
+
     def test_set_location_defaults_Senegal(cls):
-        sp.config.set_location_defaults('Senegal')
+        sp.config.set_location_defaults(country='Senegal')
         assert sp.config.default_country == 'Senegal'
         assert sp.config.default_state == 'Dakar'
         assert sp.config.default_location == 'Dakar'
         assert sp.config.default_sheet_name == 'Senegal'
 
     def test_set_location_defaults_usacls(cls):
-        sp.config.set_location_defaults('usa')
+        sp.config.set_location_defaults(country='usa')
         assert sp.config.default_country == 'usa'
         assert sp.config.default_state == 'Washington'
         assert sp.config.default_location == 'seattle_metro'

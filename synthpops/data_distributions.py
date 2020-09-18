@@ -470,7 +470,7 @@ def get_head_age_by_size_distr(datadir, state_location=None, country_location=No
     return hha_by_size
 
 
-def get_census_age_brackets_path(datadir, state_location=None, country_location=None):
+def get_census_age_brackets_path(datadir, state_location=None, country_location=None, nbrackets= None):
     """
     Get file_path for census age brackets: depends on the state or country of the source data on contact patterns.
 
@@ -482,7 +482,9 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     Returns:
         A file path to the age brackets to be used with census age data in combination with the contact matrix data.
     """
-    base = f"census_age_brackets_{cfg.nbrackets}"
+    if nbrackets is None:
+        nbrackets = cfg.nbrackets
+    base = f"census_age_brackets_{nbrackets}"
     prefix = "{location}_" + base
     alt_prefix = None
 
@@ -494,13 +496,22 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     if cfg.alt_location is not None:
         alt_prefix = prefix
     paths = cfg.FilePaths(None, state_location, country_location)
-    file = paths.get_data_file(location=state_location, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+    file = paths.get_data_file(location=state_location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
     file_path = file
+    if file is None:
+        print(f"========== state_location = {state_location}")
+        print(f"========== country_location = {country_location}")
+        print(f"========== prefix = {prefix}")
+        print(f"========== nbrackets = {nbrackets}")
+        print(f"========== filedata_type = age_distributions")
+    else:
+        print(f"========== file = {file}")
     return file, file_path
 
 
-def get_census_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
+
+def get_census_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False, nbrackets=None):
     """
     Get census age brackets: depends on the country or source of contact pattern data. If use_default, then we'll
     first try to look for location specific data and if that's not available we'll use default data from Seattle, WA.
@@ -519,13 +530,16 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
         A dictionary of the range of ages that map to each age bracket.
 
     """
+    print(f"========== nbrackets = {nbrackets}")
+    if  nbrackets is None:
+        nbrackets = cfg.nbrackets
     if file_path is None:
-        file, file_path = get_census_age_brackets_path(datadir, state_location, country_location)
+        file, file_path = get_census_age_brackets_path(datadir, state_location, country_location, nbrackets=nbrackets)
     try:
         age_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_census_age_brackets_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
+            file_path = get_census_age_brackets_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country, nbrackets=nbrackets)
             age_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")

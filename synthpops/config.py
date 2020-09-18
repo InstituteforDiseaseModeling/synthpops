@@ -19,7 +19,7 @@ import re
 import yaml
 
 __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_datadir',  'set_nbrackets', 'validate', 'set_altdatadir',
-           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name',  'alt_location', 'default_household_size_1_included']
+           'set_location_defaults', 'default_country', 'default_state', 'default_location', 'default_sheet_name',  'alt_location', 'default_household_size_1_included', 'get_config_data']
 
 
 class LocationClass:
@@ -106,6 +106,13 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
         output = mem_use
     return output
 
+def get_config_data(config_file):
+    with open(config_file) as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+        if 'valid_nbrackets' in data.keys():
+            valid_nbracket_ranges = data['valid_nbrackets']
+        f.close()
+    return data
 
 #%% Functions
 def set_location_defaults(country=None):
@@ -119,29 +126,25 @@ def set_location_defaults(country=None):
 
     # read the yaml file
     country_location = country if country is not None else 'defaults'
-    with open(config_file) as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-        if 'valid_nbrackets' in data.keys():
-            valid_nbracket_ranges = data['valid_nbrackets']
+    data = get_config_data(config_file)
 
-        if country_location in data.keys():
-            loc = data[country_location]
-            default_location = loc['location']
-            default_state = loc['province']
-            default_country = loc['country']
-            default_sheet_name = loc['sheet_name']
-            nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
-            default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-
-        else:
-            logger.warning(f"warning: country not in config file, using defaults")
-            loc = data['defaults']
-            default_location = loc['location']
-            default_state = loc['province']
-            default_country = loc['country']
-            default_sheet_name = loc['sheet_name']
-            nbrackets = 20 if 'nbrackets' not in loc.keys() else loc['nbrackets']
-            default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+    if country_location in data.keys():
+        loc = data[country_location]
+        default_location = loc['location']
+        default_state = loc['province']
+        default_country = loc['country']
+        default_sheet_name = loc['sheet_name']
+        nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+        default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+    else:
+        #logger.warning(f"warning: country not in config file, using defaults")
+        loc = data['defaults']
+        default_location = loc['location']
+        default_state = loc['province']
+        default_country = loc['country']
+        default_sheet_name = loc['sheet_name']
+        nbrackets = 20 if 'nbrackets' not in loc.keys() else loc['nbrackets']
+        default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
 
 
 def set_alt_location(location=None, state_location=None, country_location=None):
