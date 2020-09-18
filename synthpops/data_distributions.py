@@ -100,7 +100,6 @@ def get_gender_fraction_by_age_path(location=None, state_location=None, country_
     suffix = '.dat'
     datadir = cfg.datadir
     file_path = file
-    #print(f"========== file = {file}")
     return file, file_path
 
 
@@ -499,14 +498,6 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     file = paths.get_data_file(location=state_location, filedata_type='age_distributions', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
     file_path = file
-    if file is None:
-        print(f"========== state_location = {state_location}")
-        print(f"========== country_location = {country_location}")
-        print(f"========== prefix = {prefix}")
-        print(f"========== nbrackets = {nbrackets}")
-        print(f"========== filedata_type = age_distributions")
-    else:
-        print(f"========== file = {file}")
     return file, file_path
 
 
@@ -530,7 +521,6 @@ def get_census_age_brackets(datadir, state_location=None, country_location=None,
         A dictionary of the range of ages that map to each age bracket.
 
     """
-    print(f"========== nbrackets = {nbrackets}")
     if  nbrackets is None:
         nbrackets = cfg.nbrackets
     if file_path is None:

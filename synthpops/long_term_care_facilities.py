@@ -234,7 +234,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # location age distribution
     #age_brackets_16fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'Washington_census_age_brackets_16.dat')
     age_distr_16 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
-    print(f"========== nbrackets = 16")
     age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location,  nbrackets=16)
     age_by_brackets_dic_16 = spb.get_age_by_brackets_dic(age_brackets_16)
 
@@ -244,7 +243,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # local elderly population estimate
     local_elderly_2018 = 0
     #for ab in range(12, 16):
-    for ab in range(12, data_brackets):
+    for ab in range(12, spdata.get_nbrackets()):
         local_elderly_2018 += age_distr_16[ab] * pop
 
     if verbose:
@@ -292,9 +291,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
-    age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_census_age_brackets_18.dat')
+    age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_18.dat')
 
-    age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
+    age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_brackets_18_fp)
 
     age_brackets_18 = spdata.get_census_age_brackets(datadir, state_location, country_location, nbrackets=18)
     age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
