@@ -610,8 +610,13 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
 
     for uid in potential_worker_uids:
         ai = potential_worker_uids[uid]
-        potential_worker_uids_by_age[ai].append(uid)
-        potential_worker_ages_left_count[ai] += 1
+
+        # potential_worker_uid[uid] may generate persions who are not valid working age
+        # This will cause a 'key' error in potential__worker_uids_by_age
+        # Since potential_worker_uids_age keys are valid work ages,  skip invalid workers
+        if ai in potential_worker_uids_by_age.keys():
+            potential_worker_uids_by_age[ai].append(uid)
+            potential_worker_ages_left_count[ai] += 1
 
     # shuffle workers around!
     for ai in potential_worker_uids_by_age:
@@ -739,6 +744,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
         dictionary with the count of workers left to assign for each age after teachers have been assigned.
     """
+
     log.debug('assign_teachers_to_schools()')
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
 
@@ -1214,4 +1220,5 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
                                                                  average_additional_staff_degree=average_additional_staff_degree)
+
         return popdict
