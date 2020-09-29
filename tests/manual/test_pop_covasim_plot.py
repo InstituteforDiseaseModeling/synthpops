@@ -1,7 +1,7 @@
 import covasim as cv
 import os
 import pathlib
-reportdir = pathlib.Path(os.path.dirname(__file__), "report")
+reportdir = pathlib.Path(os.path.dirname(__file__), "covasim_report")
 os.makedirs(reportdir, exist_ok=True)
 
 n = 2e4+1 # Total population size
