@@ -1,0 +1,35 @@
+name: Synthpops Regression Tests
+on:
+  workflow_dispatch
+
+jobs:
+  install_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        python-version: [ '3.7' ]
+    name: Install and run examples
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+      - uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install synthpops
+        run: python setup.py develop
+      - name: Run Regression Tests
+        working-directory: ./tests/manual
+        run: |
+          pip install pytest
+          pip install -r ../requirements_test.txt
+          pytest test_regression.py -s --durations=0 --junitxml=regression-results.xml # Run manual tests
+
+      - name: Upload report
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: report
+          path: tests/manual/report/

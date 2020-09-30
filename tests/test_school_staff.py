@@ -66,7 +66,7 @@ class TestSchoolStaff(unittest.TestCase):
                                                              average_student_all_staff_ratio=average_student_all_staff_ratio, err_margin=2)
                 utilities.check_enrollment_distribution(pop, n, datadir, location, state_location, country_location,
                                                         test_prefix=f"calltwice{n}_{i}", skip_stat_check=True, do_close=self.do_close)
-                utilities.check_age_distribution(pop, n, datadir, location, state_location, country_location,
+                utilities.check_age_distribution(pop, n, datadir, self.resultdir, location, state_location, country_location,
                                                  test_prefix=f"calltwice{n}_{i}", do_close=self.do_close)
                 i += 1
             except:
@@ -108,8 +108,8 @@ class TestSchoolStaff(unittest.TestCase):
         utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
                                        average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, self.dataDir, f"{test_prefix}", average_student_teacher_ratio, average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
-        utilities.check_enrollment_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=f"{test_prefix}", do_close=self.do_close)
+        utilities.check_age_distribution(pop, self.n, datadir, self.resultdir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, self.n, datadir, self.resultdir, location, state_location, country_location, test_prefix=f"{test_prefix}", do_close=self.do_close)
 
 
     def test_with_ltcf(self):
@@ -152,8 +152,8 @@ class TestSchoolStaff(unittest.TestCase):
                                    average_student_all_staff_ratio, 1)
         result = utilities.check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio,
                                                      average_student_all_staff_ratio, err_margin=2)
-        utilities.check_age_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
-        utilities.check_enrollment_distribution(pop, self.n, datadir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_age_distribution(pop, self.n, datadir, self.resultdir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
+        utilities.check_enrollment_distribution(pop, self.n, datadir, self.resultdir, location, state_location, country_location, test_prefix=test_prefix, do_close=self.do_close)
 
 
 # Run unit tests if called as a script

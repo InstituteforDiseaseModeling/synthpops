@@ -130,7 +130,7 @@ def check_household_dist(pop,
     actual_values = np.array(list(sp.norm_dic(sorted_actual_household_count).values()))
     expected_values = np.array(list(hs.values()))
     utilities.plot_array(expected_values, actual_values, names=hs.keys(), datadir=figdir,
-                         testprefix="household count percentage " + test_prefix, do_close=do_close)
+                         testprefix="household count percentage " + test_prefix, do_close=do_close, value_text=True)
 
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x",

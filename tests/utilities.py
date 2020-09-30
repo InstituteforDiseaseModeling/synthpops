@@ -12,13 +12,12 @@ import shutil
 import matplotlib.pyplot as plt
 from scipy import stats
 
-
 def runpop(resultdir, actual_vals, testprefix, method):
     """
     run any method which create apopulation
-    and write args and population to file "{resultdir}/{testprefix}.txt"
+    and write args and population to file "{resultdir}/{testprefix}.json"
     method must be a method which returns population
-    and write population file to "{resultdir}/{testprefix}_pop.json"
+    and write population file to "{resultdir}/{testprefix}.config.json"
 
     args:
       resultdir (str): result folder
@@ -33,10 +32,7 @@ def runpop(resultdir, actual_vals, testprefix, method):
     for name in actual_vals:
         if name in params.keys():
             params[name] = actual_vals[name]
-    with open(os.path.join(resultdir, f"{testprefix}.txt"), mode="w") as cf:
-        for key, value in params.items():
-            cf.writelines(str(key) + ':' + str(value) + "\n")
-
+    sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
     pop = method(**params)
     sc.savejson(os.path.join(resultdir, f"{testprefix}_pop.json"), pop, indent=2)
     return pop
@@ -107,24 +103,30 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
     return result
 
 
-def plot_array(expected, actual, names=None, datadir=None, testprefix="test", do_close=True):
+def plot_array(expected, actual=None, names=None, datadir=None, testprefix="test", do_close=True, expect_label='expected', value_text=False):
     """
     plot histogram on sorted array based by names
     if names not provided the order will be used
+    if actual data is not provided, plot only the expected values
     """
     fig, ax = plt.subplots(1, 1)
     font = {'weight': 'bold',
             'size': 10}
     plt.rc('font', **font)
-    plt.title(f"Comparison for {testprefix}")
-
+    title = testprefix if actual is None else f"Comparison for {testprefix}"
+    plt.title(title)
     names = np.arange(len(expected)) if names is None else names
-    ax.hist(x=names, histtype='bar', weights=expected, label='expected', bins=len(expected))
-    ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
+    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label, bins=len(expected))
+    if actual is not None:
+        arr = ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
+        if value_text:
+            #display values
+            for i in range(len(actual)):
+                plt.text(arr[1][i], arr[0][i], str(round(arr[0][i],3)))
     ax.legend(loc='upper right')
 
     if datadir:
-        plt.savefig(os.path.join(os.path.dirname(datadir), f"{testprefix}_graph.png"), format="png")
+        plt.savefig(os.path.join(datadir, f"{testprefix}_graph.png"), format="png")
     if do_close:
         plt.close()
     else:
@@ -135,6 +137,7 @@ def plot_array(expected, actual, names=None, datadir=None, testprefix="test", do
 def check_age_distribution(pop,
                            n,
                            datadir,
+                           figdir,
                            location=None,
                            state_location=None,
                            country_location=None,
@@ -161,7 +164,7 @@ def check_age_distribution(pop,
     expected_values = np.array(list(age_dist.values()))
     actual_values = np.array(list(sp.norm_dic(actual_age_dist).values()))
     names = np.array([i[0] for i in brackets.values()])
-    plot_array(expected_values, actual_values, names, datadir, test_prefix + "_age", do_close=do_close)
+    plot_array(expected_values, actual_values, names, figdir,  "age_distribution_" + test_prefix, do_close=do_close)
     if not skip_stat_check:
         statistic_test(expected_values, actual_values, test="x", comments="age distribution check")
 
@@ -169,6 +172,7 @@ def check_age_distribution(pop,
 def check_enrollment_distribution(pop,
                                   n,
                                   datadir,
+                                  figdir,
                                   location=None,
                                   state_location=None,
                                   country_location=None,
@@ -176,7 +180,8 @@ def check_enrollment_distribution(pop,
                                   use_default=False,
                                   test_prefix="test",
                                   skip_stat_check=False,
-                                  do_close=True):
+                                  do_close=True,
+                                  plot_only=False):
     """
     Compute the statistic on expected enrollment-age distribution and compare with actual distribution
     check zero enrollment bins to make sure there is nothing generated
@@ -223,9 +228,11 @@ def check_enrollment_distribution(pop,
     actual_combined_values = np.array(list(actual_combined_dist.values()))
 
     # uncomment below if you need to plot and check data
-    plot_array(expected_values, actual_values, None, datadir, test_prefix + "_enrollment", do_close=do_close)
+    plot_array(expected_values, actual_values, None, figdir, "enrollment_" + test_prefix, do_close=do_close)
     plot_array(expected_combined_values, actual_combined_values, np.array([i[0] for i in brackets.values()]),
-               datadir, test_prefix + "_enrollment_combined", do_close=do_close)
+               figdir, "enrollment_combined_" + test_prefix, do_close=do_close)
+    if plot_only:
+        return
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_expected.csv"), expected_values, delimiter=",")
     np.savetxt(os.path.join(os.path.dirname(datadir), f"{test_prefix}_actual.csv"), actual_values, delimiter=",")
 
@@ -300,3 +307,42 @@ def check_class_size(pop,
     print(f"average class size:{actual_class_size}")
     assert expected_class_size - err_margin <= actual_class_size <= expected_class_size + err_margin, \
         f"expected class size: {expected_class_size} but actual class size: {actual_class_size}"
+
+def get_average_contact_by_age(pop, datadir, state_location="Washington", country_location="usa", code="H", decimal=3):
+    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    ageindex = sp.get_age_by_brackets_dic(brackets)
+    total = np.zeros(len(brackets))
+    contacts = np.zeros(len(brackets))
+    for p in pop.values():
+        total[ageindex[p["age"]]] += 1
+        contacts[ageindex[p["age"]]] += len(p["contacts"][code])
+    average = np.round(np.divide(contacts, total), decimals=decimal)
+    return average
+
+def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_location="usa"):
+    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    ageindex = sp.get_age_by_brackets_dic(brackets)
+    agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
+    from collections import Counter
+    counter = Counter(ageindex.values())
+    for i in range(0, len(counter)):
+        for j in range(0, len(counter)):
+            agg_matrix[i,j] /= (counter[i] * counter[j])
+    return agg_matrix
+
+def resize_2darray(array, merge_size):
+    """
+    shrink the array by merging elements
+    calculate average per (merge_size * merge_size area)
+    """
+    M = array.shape[0] // merge_size if array.shape[0] % merge_size == 0 else (array.shape[0] // merge_size + 1)
+    N = array.shape[1] // merge_size if array.shape[1] % merge_size == 0 else (array.shape[1] // merge_size + 1)
+    new_array = np.zeros((M,N))
+    for i in range(0, M):
+        x1 = i * merge_size
+        x2 = (i+1) * merge_size if (i + 1) * merge_size < array.shape[0] else array.shape[0]
+        for j in range(0, N):
+            y1 = j * merge_size
+            y2 = (j+1) * merge_size if (j + 1) * merge_size < array.shape[1] else array.shape[1]
+            new_array[i,j] = np.nanmean(array[x1:x2, y1:y2])
+    return new_array
