@@ -70,6 +70,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/synthpops.*.rst
+docs/modules.rst
 
 # PyBuilder
 target/
