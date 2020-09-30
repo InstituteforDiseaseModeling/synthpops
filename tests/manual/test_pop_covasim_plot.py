@@ -1,3 +1,8 @@
+"""
+this test uses covasim people plot tool for contact distribution
+results will be saved in covasim_report folder
+note that tests looping over seeds 1 to 5000 with increment of 100, please change line 13 if needed
+"""
 import covasim as cv
 import os
 import pathlib
