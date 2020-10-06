@@ -206,7 +206,7 @@ def check_household_head(pop,
     actual_values = actual_hh_ages_percetnage.values
     family_sizes = [i+2 for i in range(0, len(expected_hh_ages_percentage))]
     plot_heatmap(expected_values, actual_values, expected_hh_ages_percentage.columns, family_sizes,
-                 testprefix= "household_age_family_size " + test_prefix, figdir=figdir, do_close=do_close)
+                 testprefix= "household_head_age_family_size " + test_prefix, figdir=figdir, do_close=do_close)
 
 def get_index_by_brackets_dic(brackets):
     by_brackets_dic = {}
@@ -296,14 +296,13 @@ def get_household_age_brackets_index(df):
             index +=1
     return dict
 
-def plot_heatmap(expected, actual, names_x, names_y, figdir=None, testprefix="test", do_close=True):
+def plot_heatmap(expected, actual, names_x, names_y, figdir=None, testprefix="test", do_close=True, range=[0,1]):
     fig, axs = plt.subplots(1, 2, figsize=(16, 8), subplot_kw={'aspect': 1}, gridspec_kw={'width_ratios': [1, 1]})
     font = {'weight': 'bold',
             'size': 14}
     plt.rc('font', **font)
-    im1 = axs[0].imshow(expected, cmap='coolwarm', interpolation='nearest', aspect="auto")
-    im2 = axs[1].imshow(actual, cmap='coolwarm', interpolation='nearest', aspect="auto")
-    fig.colorbar(im1)
+    im1 = axs[0].imshow(expected, cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
+    im2 = axs[1].imshow(actual, cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
     for ax in axs:
         ax.set_xticks(np.arange(len(names_x)))
         ax.set_yticks(np.arange(len(names_y)))
@@ -314,8 +313,10 @@ def plot_heatmap(expected, actual, names_x, names_y, figdir=None, testprefix="te
     axs[0].set_title(f"Expected")
     axs[1].set_title(f"Actual")
     plt.tight_layout()
-    plt.subplots_adjust(top=0.8)
+    plt.subplots_adjust(top=0.8, right=0.8)
     fig.suptitle(testprefix, fontsize=28)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    fig.colorbar(im1, cax=cbar_ax)
     if figdir:
         os.makedirs(figdir, exist_ok=True)
         plt.savefig(os.path.join(figdir, f"{testprefix}_graph.png"), format="png", bbox_inches="tight")
