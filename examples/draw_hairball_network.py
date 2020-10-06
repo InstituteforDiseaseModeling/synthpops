@@ -1,19 +1,12 @@
-import numpy as np
 import networkx as nx
 import synthpops as sp
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 import os
-import cmocean
-import covasim as cova
 
 
-"""
-Please note this examples takes a few minutes to run
-"""
-
-
+# Illustration of using a custom font
 try:
     username = os.path.split(os.path.expanduser('~'))[-1]
     fontdirdict = {
@@ -34,38 +27,13 @@ except:
     mplt.rcParams['font.family'] = 'Roboto'
 
 
-def create_sim(TRACE_PROB=None,  TEST_PROB=None, TRACE_TIME=None, TEST_DELAY=None):
-
-    # initialize simulation
-    sim = cova.Sim()
-
-    # PARAMETERS
-    pars = {'pop_size': 5e3}  # start with a small pool << actual population e4 # DEBUG
-
-    # diagnosed individuals maintain same beta
-    pars.update({
-        'pop_type': 'synthpops',
-        # 'pop_type': 'hybrid', # synthpops, hybrid
-        'pop_infected': 0,  # Infect none for starters
-        'n_days': 100,  # 40d is long enough for everything to play out
-        'beta_layer': {'h': 2.0, 's': 0, 'w': 0, 'c': 0},  # Turn off all but home
-    })
-
-    # update parameters
-    sim.update_pars(pars=pars)
-
-    return sim
-
-
+# Main example code
 if __name__ == '__main__':
 
     # directory for storing results
     do_run = True
     verbose = True
-    do_save = True
-
-    sim = create_sim()
-    sim.initialize()
+    do_save = False
 
     n = int(200)
     population = sp.make_population(n, generate=True)
@@ -113,8 +81,6 @@ if __name__ == '__main__':
         ax.set_title(titles[layer], fontsize=24)
 
     if do_save:
-        fig_path = os.path.join("..", "data", 'demographics', 'contact_matrices_152_countries', 'usa', 'Washington', "figures")
-        if not os.path.exists(fig_path):
-            os.makedirs(fig_path)
-        fig.savefig(f"{fig_path}_seattle_metro_{sim.pars['pop_size']}_contact_networks.png")
+        os.makedirs('figures', exist_ok=True)
+        fig.savefig(os.path.join('figures', f"seattle_metro_{n}_contact_networks.png"))
     plt.show()
