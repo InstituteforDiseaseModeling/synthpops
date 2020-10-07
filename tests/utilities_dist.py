@@ -40,7 +40,7 @@ def check_work_size_dist(pop,
             actual_values[i] = actual_worksizes[i]
     actual_values = actual_values / np.nansum(actual_values)
     expected_values = np.array(list(ws.values()))
-    utilities.plot_array(expected_values, actual_values, names=wb.keys(), datadir=figdir,
+    utilities.plot_array(expected_values, actual_values, names=list(wb.keys()), datadir=figdir,
                          testprefix="work size distribution "+test_prefix, do_close=do_close)
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x", comments="work size distribution check")

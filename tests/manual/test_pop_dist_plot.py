@@ -15,29 +15,35 @@ results will be saved to dist_reports folder
 import os
 import pathlib
 import synthpops as sp
+import sciris as sc
 import sys
 import shutil
 n = 20001
-testdir = os.path.dirname(os.path.dirname(__file__))
+testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 datadir = str(pathlib.Path(testdir, "../data").absolute())
 figdir = os.path.join(os.path.dirname(__file__), "dist_reports")
 shutil.rmtree(figdir, ignore_errors=True)
 os.makedirs(figdir, exist_ok=True)
-location="seattle_metro"
-state_location = "Washington"
-country_location = "usa"
+
 sys.path.append(testdir)
 import utilities_dist
 import utilities
-for seed in range(1, 5000, 100):
+
+location="seattle_metro"
+state_location = "Washington"
+country_location = "usa"
+
+for seed in range(1, 200, 100):
     test_prefix=f"{n}_seed{seed}"
     print("seed:", seed)  # Random seed
+    sc.tic()
     pop = sp.make_population(n=n, generate=True, rand_seed=seed)
+    sc.toc()
     for code in ['H', 'S', 'W']:
         average = utilities.get_average_contact_by_age(pop,
-                                              datadir=datadir,
-                                              state_location=state_location,
-                                              country_location=country_location, code=code, decimal=3)
+                                                       datadir=datadir,
+                                                       state_location=state_location,
+                                                       country_location=country_location, code=code, decimal=3)
         utilities.plot_array(average, datadir=figdir, testprefix=f"{code} {test_prefix} contact by age", expect_label="contacts")
 
     utilities.check_age_distribution(pop, n,

@@ -9,20 +9,25 @@ import os
 import numpy as np
 import pandas as pd
 import shutil
+import matplotlib as mplt
 import matplotlib.pyplot as plt
 from scipy import stats
 
+
 def runpop(resultdir, actual_vals, testprefix, method):
     """
-    run any method which create apopulation
-    and write args and population to file "{resultdir}/{testprefix}.json"
-    method must be a method which returns population
-    and write population file to "{resultdir}/{testprefix}.config.json"
+    Run any method which creates a population and write args and population to
+    file "{resultdir}/{testprefix}.json". The method must be a method which
+    returns a population. Write the population file to
+    "{resultdir}/{testprefix}.config.json"
 
-    args:
-      resultdir (str): result folder
-      actual_vals (dict): a dictionary with param name and param value
-      testprefix (str): test prefix to generate file name
+    Args:
+      resultdir (str)    : result directory
+      actual_vals (dict) : a dictionary with param name and param value
+      testprefix (str)   : test prefix to generate file name
+
+    Returns:
+        Population dictionary
     """
     os.makedirs(resultdir, exist_ok=True)
     params = {}
@@ -40,7 +45,15 @@ def runpop(resultdir, actual_vals, testprefix, method):
 
 def copy_input(sourcedir, resultdir, subdir_level):
     """
-    Copy files to the target datadir up to the subdir level
+    Copy files to the target datadir up to the subdir level.
+
+    Args:
+        sourcedir (str): source directory
+        resultdir (str): result directory
+        subdir_level (str): sub-directory
+
+    Returns:
+        None
     """
 
     # copy all files to datadir except the ignored files
@@ -54,9 +67,19 @@ def copy_input(sourcedir, resultdir, subdir_level):
 def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher_ratio, average_student_all_staff_ratio,
                               err_margin=0):
     """
-    check if generated population matches
-    average_student_teacher_ratio and average_student_all_staff_ratio
+    Check if generated population matches average_student_teacher_ratio and
+    average_student_all_staff_ratio.
 
+    Args:
+        pop (dict): population dictionary
+        datadir (str): data directory
+        test_prefix (str): prefix str for test
+        average_student_teacher_ratio (float)   : The average number of students per teacher.
+        average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
+        err_margin (float): error margin
+
+    Returns:
+        Average number of students per teacher and average number of students per all staff in the input population.
     """
     i = 0
     school = {}
@@ -105,24 +128,40 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
 
 def plot_array(expected, actual=None, names=None, datadir=None, testprefix="test", do_close=True, expect_label='expected', value_text=False):
     """
-    plot histogram on sorted array based by names
-    if names not provided the order will be used
-    if actual data is not provided, plot only the expected values
+    Plot histogram on a sorted array based by names. If names not provided the
+    order will be used. If actual data is not provided, plot only the expected values.
+
+    Args:
+        expected (np.ndarray): Array of expected values.
+        actual (np.ndarray): Array of actual values.
+        names ()
+        datadir (str)
+
     """
     fig, ax = plt.subplots(1, 1)
-    font = {'weight': 'bold',
-            'size': 10}
-    plt.rc('font', **font)
+    font = {
+            'weight': 'bold',
+            'size': 10
+            }
+    # plt.rc('font', **font)
+    # try:
+    mplt.rcParams['font.family'] = 'Roboto Condensed'
+    # except:
+        # pass
     title = testprefix if actual is None else f"Comparison for {testprefix}"
-    plt.title(title)
+    # plt.title(title)
+    ax.set_title(title)
     names = np.arange(len(expected)) if names is None else names
-    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label, bins=len(expected))
+    print('name', names, len(names))
+    print('expected', expected, len(expected), type(expected))
+    print('actual', actual)
+    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label, bins=len(expected), color='steelblue')
     if actual is not None:
-        arr = ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual))
+        arr = ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual), color='salmon')
         if value_text:
             #display values
             for i in range(len(actual)):
-                plt.text(arr[1][i], arr[0][i], str(round(arr[0][i],3)))
+                plt.text(arr[1][i], arr[0][i], str(round(arr[0][i], 3)))
     ax.legend(loc='upper right')
 
     if datadir:
