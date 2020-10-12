@@ -8,17 +8,17 @@ from collections import Counter
 
 
 def check_work_size_dist(pop,
-                           n,
-                           datadir,
-                           figdir,
-                           location=None,
-                           state_location=None,
-                           country_location=None,
-                           file_path=None,
-                           use_default=False,
-                           test_prefix="",
-                           skip_stat_check=False,
-                           do_close=True):
+                         n,
+                         datadir,
+                         figdir,
+                         location=None,
+                         state_location=None,
+                         country_location=None,
+                         file_path=None,
+                         use_default=False,
+                         test_prefix="",
+                         skip_stat_check=False,
+                         do_close=True):
     wb = sp.get_workplace_size_brackets(datadir, location, state_location, country_location, file_path, use_default)
     ws = sp.norm_dic(
         sp.get_workplace_size_distr_by_brackets(datadir, location, state_location, country_location, file_path, use_default)
@@ -30,18 +30,22 @@ def check_work_size_dist(pop,
     for v in actual_work_dist.values():
         if v > upper_bound:
             v = upper_bound
-        if ws_index[v] in actual_worksizes:
-            actual_worksizes[ws_index[v]] +=1
-        else:
-            actual_worksizes[ws_index[v]] = 1
+        actual_worksizes.setdefault(ws_index[v], 0)
+        actual_worksizes[ws_index[v]] += 1
+        # if ws_index[v] in actual_worksizes:
+        #     actual_worksizes[ws_index[v]] += 1
+        # else:
+        #     actual_worksizes[ws_index[v]] = 1
     actual_values = np.zeros(len(ws.keys()))
     for i in range(0, len(ws.keys())):
         if i in actual_worksizes:
             actual_values[i] = actual_worksizes[i]
     actual_values = actual_values / np.nansum(actual_values)
     expected_values = np.array(list(ws.values()))
+    xlabels = [str(wb[b][0]) + '-' + str(wb[b][-1]) for b in sorted(wb.keys())]
     utilities.plot_array(expected_values, actual_values, names=list(wb.keys()), datadir=figdir,
-                         testprefix="work size distribution "+test_prefix, do_close=do_close)
+                         testprefix="work size distribution "+test_prefix, do_close=do_close,
+                         xlabels=xlabels, xlabel_rotation=50)
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x", comments="work size distribution check")
 
@@ -67,6 +71,8 @@ def check_employment_age_dist(pop,
     sorted_actual_employed_rate = {}
     actual_employed_rate = calc_rate(actual_employed_age_dist, actual_unemployed_age_dist)
     for i in er.keys():
+        # sorted_actual_employed_rate.setdefault(i, 0)
+        # sorted_actual_employed_rate[i] = actual_employed_rate[i]
         if i in actual_employed_rate:
             sorted_actual_employed_rate[i] = actual_employed_rate[i]
         else:
@@ -76,15 +82,16 @@ def check_employment_age_dist(pop,
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="employment rate distribution check")
-    #plotting fill 0 to under age 16 for better display
+    # plotting fill 0 to under age 16 for better display
     filled_count = min(er.keys())
     expected_values = np.insert(expected_values, 0, np.zeros(filled_count))
     actual_values = np.insert(actual_values, 0, np.zeros(filled_count))
     names = [i for i in range(0, max(er.keys())+1)]
+    # somehow double stacks for age 100
     utilities.plot_array(expected_values, actual_values, names=names, datadir=figdir,
                          testprefix="employment rate distribution " + test_prefix, do_close=do_close)
 
-    #check if total employment match
+    # check if total employment match
     expected_employed_brackets = {k: 0 for k in brackets}
     actual_employed_brackets ={k: 0 for k in brackets}
     for i in names:
@@ -135,7 +142,7 @@ def check_household_dist(pop,
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="household count percentage check")
-    #check average household size
+    # check average household size
     expected_average_household_size = round(sum([(i+1)*expected_values[np.where(i)] for i in expected_values])[0], 3)
     actual_average_household_size = round(sum([(i+1)*actual_values[np.where(i)] for i in actual_values])[0], 3)
     print(f"expected average household size: {expected_average_household_size}\n"
@@ -144,17 +151,17 @@ def check_household_dist(pop,
 
 
 def check_school_size_dist(pop,
-                         n,
-                         datadir,
-                         figdir,
-                         location=None,
-                         state_location=None,
-                         country_location=None,
-                         file_path=None,
-                         use_default=False,
-                         test_prefix="",
-                         skip_stat_check=False,
-                         do_close=True):
+                           n,
+                           datadir,
+                           figdir,
+                           location=None,
+                           state_location=None,
+                           country_location=None,
+                           file_path=None,
+                           use_default=False,
+                           test_prefix="",
+                           skip_stat_check=False,
+                           do_close=True):
 
     sb = sp.get_school_size_brackets(datadir,
                                      location=location,
@@ -178,10 +185,11 @@ def check_school_size_dist(pop,
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="school size check")
-    #check average school size
+    # check average school size
     expected_average_school_size = sum(sdf.iloc[:, 0].values) / len(sdf)
     actual_average_school_size = sum([i * actual_scount[i] for i in actual_scount]) / sum(actual_scount.values())
     check_error_percentage(n, expected_average_school_size, actual_average_school_size, name="average school size")
+
 
 def check_household_head(pop,
                          n,
@@ -204,9 +212,20 @@ def check_household_head(pop,
     actual_hh_ages_percetnage = get_household_head_age_size(pop, index=hh_index)
     expected_values = expected_hh_ages_percentage.values
     actual_values = actual_hh_ages_percetnage.values
+    label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
+    xlabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
+
     family_sizes = [i+2 for i in range(0, len(expected_hh_ages_percentage))]
-    plot_heatmap(expected_values, actual_values, expected_hh_ages_percentage.columns, family_sizes,
-                 testprefix= "household_head_age_family_size " + test_prefix, figdir=figdir, do_close=do_close)
+    # ylabels = family_sizes
+
+    plot_heatmap(expected_values, actual_values,
+                 xlabels, family_sizes,
+                 'Head of Household Age',
+                 'Household Size',
+                 # expected_hh_ages_percentage.columns,
+                 # family_sizes,
+                 testprefix="household_head_age_family_size " + test_prefix, figdir=figdir, do_close=do_close)
+
 
 def get_index_by_brackets_dic(brackets):
     by_brackets_dic = {}
@@ -221,6 +240,7 @@ def calc_rate(a, b):
     for k, v in a.items():
         rate[k] = v/(v + b[k])
     return rate
+
 
 def sort_dict(d):
     new_dict = {}
@@ -265,6 +285,7 @@ def check_error_percentage(n, expected, actual, err_margin_percent=10, name="", 
     if assertfail:
         assert err < err_margin_percent, f"failed with {err_margin_percent}% percentage error margin"
 
+
 def get_household_head_age_size(pop, index):
     """
      lowest uids in the household should be head
@@ -282,8 +303,9 @@ def get_household_head_age_size(pop, index):
         .pivot(index='size', columns='age_bracket', values='hhid').reset_index().drop(["size"], axis=1)
     df_household_age = df_household_age[[c for c in df_household_age.columns if type(c) is int]]
     df_household_age = df_household_age.div(df_household_age.sum(axis=0), axis=1)
-    #ignore family size =1
+    # ignore family size =1
     return df_household_age.drop(index=0)
+
 
 def get_household_age_brackets_index(df):
     dict = {}
@@ -292,17 +314,18 @@ def get_household_age_brackets_index(df):
         if c.startswith("household_head_age_"):
             age_range = str(c)[19:].split("_")
             for i in range(int(age_range[0]), int(age_range[1])+1):
-                dict[i]= index
-            index +=1
+                dict[i] = index
+            index += 1
     return dict
 
-def plot_heatmap(expected, actual, names_x, names_y, figdir=None, testprefix="test", do_close=True, range=[0,1]):
+
+def plot_heatmap(expected, actual, names_x, names_y, xlabel, ylabel, figdir=None, testprefix="test", do_close=True, range=[0,1]):
     fig, axs = plt.subplots(1, 2, figsize=(16, 8), subplot_kw={'aspect': 1}, gridspec_kw={'width_ratios': [1, 1]})
     font = {'weight': 'bold',
             'size': 14}
     plt.rc('font', **font)
-    im1 = axs[0].imshow(expected, cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
-    im2 = axs[1].imshow(actual, cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
+    im1 = axs[0].imshow(expected, origin='lower', cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
+    im2 = axs[1].imshow(actual, origin='lower', cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
     for ax in axs:
         ax.set_xticks(np.arange(len(names_x)))
         ax.set_yticks(np.arange(len(names_y)))
@@ -310,6 +333,8 @@ def plot_heatmap(expected, actual, names_x, names_y, figdir=None, testprefix="te
         ax.set_yticklabels(names_y)
         # Rotate the tick labels and set their alignment.
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
     axs[0].set_title(f"Expected")
     axs[1].set_title(f"Actual")
     plt.tight_layout()

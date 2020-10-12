@@ -12,6 +12,7 @@ import shutil
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from scipy import stats
+from collections import Counter
 
 
 def runpop(resultdir, actual_vals, testprefix, method):
@@ -126,7 +127,7 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
     return result
 
 
-def plot_array(expected, actual=None, names=None, datadir=None, testprefix="test", do_close=True, expect_label='expected', value_text=False):
+def plot_array(expected, actual=None, names=None, datadir=None, testprefix="test", do_close=True, expect_label='Expected', value_text=False, xlabels=None, xlabel_rotation=0):
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If actual data is not provided, plot only the expected values.
@@ -138,30 +139,37 @@ def plot_array(expected, actual=None, names=None, datadir=None, testprefix="test
         datadir (str)
 
     """
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots(1, 1, tight_layout=True)
     font = {
-            'weight': 'bold',
-            'size': 10
+            'size': 14
             }
-    # plt.rc('font', **font)
-    # try:
+    plt.rc('font', **font)
     mplt.rcParams['font.family'] = 'Roboto Condensed'
-    # except:
-        # pass
     title = testprefix if actual is None else f"Comparison for {testprefix}"
-    # plt.title(title)
     ax.set_title(title)
     names = np.arange(len(expected)) if names is None else names
-    print('name', names, len(names))
-    print('expected', expected, len(expected), type(expected))
-    print('actual', actual)
-    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label, bins=len(expected), color='steelblue')
+
+    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=len(expected) - 0, rwidth=1, color='#1a9ac0', align='left')
     if actual is not None:
-        arr = ax.hist(x=names, histtype='step', lw=3, weights=actual, label='actual', bins=len(actual), color='salmon')
+        arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual) - 0, rwidth=1, color='#ff957a', align='left')
         if value_text:
-            #display values
+            # display values
             for i in range(len(actual)):
-                plt.text(arr[1][i], arr[0][i], str(round(arr[0][i], 3)))
+                ax.text(arr[1][i], arr[0][i], str(round(arr[0][i], 3)))
+        print(arr)
+        print(len(expected), 'expected', expected)
+        print(len(actual), 'actual', actual, len(arr[1]))
+        # print(arr[0][-3:], arr[1][-3:])
+    if xlabels is not None:
+        if isinstance(xlabels, dict):
+            xticks = sorted(xlabels.keys())
+            xticklabels = [xlabels[k] for k in xticks]
+        else:
+            xticks = np.arange(len(xlabels))
+            xticklabels = xlabels
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
+    ax.set_xlim(left=-1)
     ax.legend(loc='upper right')
 
     if datadir:
@@ -194,7 +202,7 @@ def check_age_distribution(pop,
     ageindex = sp.get_age_by_brackets_dic(brackets)
     actual_age_dist = dict.fromkeys(list(range(0, len(brackets))), 0)
     for p in pop.values():
-       actual_age_dist[ageindex[p["age"]]] += 1
+        actual_age_dist[ageindex[p["age"]]] += 1
 
     # un-normalized data
     # expected_values = np.array(list(age_dist.values())) * n
@@ -347,6 +355,7 @@ def check_class_size(pop,
     assert expected_class_size - err_margin <= actual_class_size <= expected_class_size + err_margin, \
         f"expected class size: {expected_class_size} but actual class size: {actual_class_size}"
 
+
 def get_average_contact_by_age(pop, datadir, state_location="Washington", country_location="usa", code="H", decimal=3):
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
@@ -358,16 +367,17 @@ def get_average_contact_by_age(pop, datadir, state_location="Washington", countr
     average = np.round(np.divide(contacts, total), decimals=decimal)
     return average
 
+
 def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_location="usa"):
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
     agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
-    from collections import Counter
-    counter = Counter(ageindex.values())
+    counter = Counter(ageindex.values())  # number of ageindex per bracket
     for i in range(0, len(counter)):
         for j in range(0, len(counter)):
-            agg_matrix[i,j] /= (counter[i] * counter[j])
+            agg_matrix[i, j] /= (counter[i] * counter[j])
     return agg_matrix
+
 
 def resize_2darray(array, merge_size):
     """
@@ -376,12 +386,12 @@ def resize_2darray(array, merge_size):
     """
     M = array.shape[0] // merge_size if array.shape[0] % merge_size == 0 else (array.shape[0] // merge_size + 1)
     N = array.shape[1] // merge_size if array.shape[1] % merge_size == 0 else (array.shape[1] // merge_size + 1)
-    new_array = np.zeros((M,N))
+    new_array = np.zeros((M, N))
     for i in range(0, M):
         x1 = i * merge_size
         x2 = (i+1) * merge_size if (i + 1) * merge_size < array.shape[0] else array.shape[0]
         for j in range(0, N):
             y1 = j * merge_size
             y2 = (j+1) * merge_size if (j + 1) * merge_size < array.shape[1] else array.shape[1]
-            new_array[i,j] = np.nanmean(array[x1:x2, y1:y2])
+            new_array[i, j] = np.nanmean(array[x1:x2, y1:y2])
     return new_array
