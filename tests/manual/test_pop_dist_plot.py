@@ -29,7 +29,7 @@ sys.path.append(testdir)
 import utilities_dist
 import utilities
 
-n = 20001
+n = 5001
 location = "seattle_metro"
 state_location = "Washington"
 country_location = "usa"

@@ -4,6 +4,7 @@ import pandas as pd
 import utilities
 import os
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
 
 
@@ -23,7 +24,7 @@ def check_work_size_dist(pop,
     ws = sp.norm_dic(
         sp.get_workplace_size_distr_by_brackets(datadir, location, state_location, country_location, file_path, use_default)
     )
-    ws_index = get_index_by_brackets_dic(wb)
+    ws_index = sp.get_index_by_brackets_dic(wb)
     upper_bound = max(ws_index.keys())
     actual_work_dist, actual_work_dist_none = get_ids_count_by_param(pop, "wpid")
     actual_worksizes = {}
@@ -168,7 +169,7 @@ def check_school_size_dist(pop,
                                      state_location=state_location,
                                      country_location=country_location,
                                      file_path=file_path, use_default=use_default)
-    sb_index = get_index_by_brackets_dic(sb)
+    sb_index = sp.get_index_by_brackets_dic(sb)
 
     sdf = sp.get_school_sizes_df(datadir, location=location,
                                  state_location=state_location,
@@ -227,12 +228,12 @@ def check_household_head(pop,
                  testprefix="household_head_age_family_size " + test_prefix, figdir=figdir, do_close=do_close)
 
 
-def get_index_by_brackets_dic(brackets):
-    by_brackets_dic = {}
-    for b in brackets:
-        for a in brackets[b]:
-            by_brackets_dic[a] = b
-    return by_brackets_dic
+# def get_index_by_brackets_dic(brackets):
+#     by_brackets_dic = {}
+#     for b in brackets:
+#         for a in brackets[b]:
+#             by_brackets_dic[a] = b
+#     return by_brackets_dic
 
 
 def calc_rate(a, b):
@@ -319,13 +320,18 @@ def get_household_age_brackets_index(df):
     return dict
 
 
-def plot_heatmap(expected, actual, names_x, names_y, xlabel, ylabel, figdir=None, testprefix="test", do_close=True, range=[0,1]):
-    fig, axs = plt.subplots(1, 2, figsize=(16, 8), subplot_kw={'aspect': 1}, gridspec_kw={'width_ratios': [1, 1]})
+def plot_heatmap(expected, actual, names_x, names_y, xlabel, ylabel, figdir=None, testprefix="test", do_close=True, range=[0, 1]):
+    fig, axs = plt.subplots(1, 2, figsize=(17, 8),
+                            # subplot_kw={'aspect': 1},
+                            # gridspec_kw={'width_ratios': [1, 1]}
+                            )
+    fig.subplots_adjust(top=0.8, right=0.8, wspace=0.15)
+
     font = {'weight': 'bold',
             'size': 14}
     plt.rc('font', **font)
-    im1 = axs[0].imshow(expected, origin='lower', cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
-    im2 = axs[1].imshow(actual, origin='lower', cmap='coolwarm', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
+    im1 = axs[0].imshow(expected, origin='lower', cmap='viridis', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
+    im2 = axs[1].imshow(actual, origin='lower', cmap='viridis', interpolation='nearest', aspect="auto", vmin=range[0], vmax=range[1])
     for ax in axs:
         ax.set_xticks(np.arange(len(names_x)))
         ax.set_yticks(np.arange(len(names_y)))
@@ -337,11 +343,17 @@ def plot_heatmap(expected, actual, names_x, names_y, xlabel, ylabel, figdir=None
         ax.set_ylabel(ylabel)
     axs[0].set_title(f"Expected")
     axs[1].set_title(f"Actual")
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.8, right=0.8)
+    # plt.tight_layout()
     fig.suptitle(testprefix, fontsize=28)
-    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-    fig.colorbar(im1, cax=cbar_ax)
+
+    divider = make_axes_locatable(axs[1])
+    cax = divider.new_horizontal(size='5%', pad=0.15)
+    fig.add_axes(cax)
+    cbar = fig.colorbar(im1, cax=cax)
+    # cbar.ax.set_xlabel('')
+
+    # cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    # fig.colorbar(im1, cax=cbar_ax)
     if figdir:
         os.makedirs(figdir, exist_ok=True)
         plt.savefig(os.path.join(figdir, f"{testprefix}_graph.png"), format="png", bbox_inches="tight")

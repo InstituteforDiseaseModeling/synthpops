@@ -23,13 +23,14 @@ try:
 except Exception as E:
     print(f'Note: could not import fpdf, report not available ({E})')
 
-#import utilities from test directory
-testdir = os.path.dirname(os.path.dirname(__file__))
+# import utilities from test directory
+testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(testdir)
 import utilities
 
 # Whether to remove temporary files generated in the process
 remove_files = True
+
 
 class TestRegression(unittest.TestCase):
 
@@ -37,7 +38,7 @@ class TestRegression(unittest.TestCase):
     def setUpClass(cls):
         cls.n = 20001
         cls.seed = 1001
-        #change this to True if you need to re-generate the baseline
+        # change this to True if you need to re-generate the baseline
         cls.generateBaseline = False
         cls.pdfDir = os.path.join(os.path.dirname(__file__), "report")
         cls.expectedDir = os.path.join(os.path.dirname(__file__), "expected")
@@ -67,7 +68,7 @@ class TestRegression(unittest.TestCase):
             print(f"Generated baseline files without comparison.\n please review at {cls.pdfDir} and copy them to {cls.expectedDir}.")
 
     def test_regression_make_population(self):
-        #set params, make sure name is identical to param names
+        # set params, make sure name is identical to param names
         n = self.n
         rand_seed = self.seed
         max_contacts = None
@@ -86,7 +87,7 @@ class TestRegression(unittest.TestCase):
 
     @unittest.skip("This is just to show an example of adding a different scenario will work")
     def test_regression_lower_teacher_age(self):
-        #set params, make sure name is identical to param names
+        # set params, make sure name is identical to param names
         n = self.n
         rand_seed = self.seed
         max_contacts = None
@@ -129,8 +130,8 @@ class TestRegression(unittest.TestCase):
         os.makedirs(dir, exist_ok=True)
         for code in ['H', 'W', 'S']:
             average_contacts = utilities.get_average_contact_by_age(pop, self.datadir, code=code, decimal=decimal)
-            fmt=f'%.{str(decimal)}f'
-            #print(f"expected contacts by age for {code}:\n", average_contacts)
+            fmt = f'%.{str(decimal)}f'
+            # print(f"expected contacts by age for {code}:\n", average_contacts)
             utilities.plot_array(average_contacts, datadir = self.figDir,
                                  testprefix=f"{self.n}_seed_{self.seed}_{code}_average_contacts",
                                  expect_label='expected' if self.generateBaseline else 'test')
@@ -189,7 +190,7 @@ class TestRegression(unittest.TestCase):
         return passed & checked, failed_cases
 
     def generate_reports(self, test_prefix="", failedcases=[]):
-        #search for config files
+        # search for config files
         configs = [f for f in os.listdir(self.configDir) if os.path.isfile(os.path.join(self.configDir, f)) and f.endswith("config.json")]
         for c in configs:
             pdf = FPDF()
@@ -197,7 +198,7 @@ class TestRegression(unittest.TestCase):
             pdf.set_font("Arial", size=12)
             name = os.path.splitext(c)[0]
             contents = ""
-            #pdf.cell(w=200, h=10, txt=name, align="C")
+            # pdf.cell(w=200, h=10, txt=name, align="C")
             with open(os.path.join(self.configDir, c)) as cf:
                 contents = "\n".join([line.strip() for line in cf])
             print(contents)
@@ -224,7 +225,7 @@ class TestRegression(unittest.TestCase):
         passed = True
         checked = False
         for code in ['H', 'W', 'S']:
-            #check average contacts per age, if difference is small enough to tolerate
+            # check average contacts per age, if difference is small enough to tolerate
             expected_contacts = utilities.get_average_contact_by_age(expected, self.datadir, code=code)
             print("expected contacts by age:\n", expected_contacts)
             np.savetxt(os.path.join(self.pdfDir,f"pop{self.n}_seed_{self.seed}_{code}_average_contact.csv"), expected_contacts, delimiter=",")
