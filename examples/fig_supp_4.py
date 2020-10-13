@@ -51,24 +51,25 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 if not sp.config.full_data_available:
     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
-try:
-    username = os.path.split(os.path.expanduser('~'))[-1]
-    fontdirdict = {
-        'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
-        'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
-    }
-    if username not in fontdirdict:
-        fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
+# try:
+#     username = os.path.split(os.path.expanduser('~'))[-1]
+#     fontdirdict = {
+#         'dmistry': '/home/dmistry/Dropbox (IDM)/GoogleFonts',
+#         'cliffk': '/home/cliffk/idm/covid-19/GoogleFonts',
+#     }
+#     if username not in fontdirdict:
+#         fontdirdict[username] = os.path.expanduser(os.path.expanduser('~'), 'Dropbox', 'GoogleFonts')
 
-    font_path = fontdirdict[username]
+#     font_path = fontdirdict[username]
 
-    fontpath = fontdirdict[username]
-    font_style = 'Roboto_Condensed'
-    fontstyle_path = os.path.join(fontpath, font_style, font_style.replace('_', '') + '-Light.ttf')
-    prop = font_manager.FontProperties(fname=fontstyle_path)
-    mplt.rcParams['font.family'] = prop.get_name()
-except:
-    mplt.rcParams['font.family'] = 'Roboto'
+#     fontpath = fontdirdict[username]
+#     font_style = 'Roboto_Condensed'
+#     fontstyle_path = os.path.join(fontpath, font_style, font_style.replace('_', '') + '-Light.ttf')
+#     prop = font_manager.FontProperties(fname=fontstyle_path)
+#     mplt.rcParams['font.family'] = prop.get_name()
+# except:
+#     mplt.rcParams['font.family'] = 'Roboto'
+mplt.rcParams['font.family'] = 'Roboto'
 mplt.rcParams['font.size'] = 16
 
 fontsize = 34
