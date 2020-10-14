@@ -44,49 +44,49 @@ for seed in range(1, 100, 100):
     pop = sp.make_population(n=n, generate=True, rand_seed=seed)
     sc.toc()
 
-    # for code in ['H', 'S', 'W']:
-    #     average = utilities.get_average_contact_by_age(pop,
-    #                                                    datadir=datadir,
-    #                                                    state_location=state_location,
-    #                                                    country_location=country_location, code=code, decimal=3)
-    #     utilities.plot_array(average, datadir=figdir, testprefix=f"{code} {test_prefix} contact by age", expect_label="contacts",
-    #                          xlabels=age_brackets_labels, xlabel_rotation=50)
+    for code in ['H', 'S', 'W']:
+        average = utilities.get_average_contact_by_age(pop,
+                                                       datadir=datadir,
+                                                       state_location=state_location,
+                                                       country_location=country_location, code=code, decimal=3)
+        utilities.plot_array(average, datadir=figdir, testprefix=f"{code} {test_prefix} contact by age", expect_label="contacts",
+                             xlabels=age_brackets_labels, xlabel_rotation=50)
 
-    # utilities.check_age_distribution(pop, n,
-    #                                  datadir=datadir, figdir=figdir,
-    #                                  location=location, state_location=state_location, country_location=country_location,
-    #                                  test_prefix=test_prefix,
-    #                                  skip_stat_check=True)
+    utilities_dist.check_age_distribution(pop, n,
+                                     datadir=datadir, figdir=figdir,
+                                     location=location, state_location=state_location, country_location=country_location,
+                                     test_prefix=test_prefix,
+                                     skip_stat_check=True)
 
-    # utilities.check_enrollment_distribution(pop, n,
-    #                                         datadir=datadir, figdir=figdir,
-    #                                         location=location, state_location=state_location, country_location=country_location,
-    #                                         test_prefix=test_prefix,
-    #                                         skip_stat_check=True, plot_only=True)
+    utilities_dist.check_enrollment_distribution(pop, n,
+                                            datadir=datadir, figdir=figdir,
+                                            location=location, state_location=state_location, country_location=country_location,
+                                            test_prefix=test_prefix,
+                                            skip_stat_check=True, plot_only=True)
 
-    # utilities_dist.check_work_size_dist(pop=pop, n=n, datadir=datadir, figdir=figdir,
-    #                                     state_location=state_location,
-    #                                     test_prefix=test_prefix,
-    #                                     country_location=country_location)
+    utilities_dist.check_work_size_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
+                                                state_location=state_location,
+                                                test_prefix=test_prefix,
+                                                country_location=country_location)
 
-    # utilities_dist.check_employment_age_dist(pop=pop, n=n, datadir=datadir, figdir=figdir,
-    #                                          state_location=state_location,
-    #                                          country_location=country_location,
-    #                                          test_prefix=test_prefix,
-    #                                          use_default=True)
+    utilities_dist.check_employment_age_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
+                                                     state_location=state_location,
+                                                     country_location=country_location,
+                                                     test_prefix=test_prefix,
+                                                     use_default=True)
 
-    # utilities_dist.check_household_dist(pop=pop, n=n, datadir=datadir, figdir=figdir,
-    #                                     state_location=state_location,
-    #                                     country_location=country_location,
-    #                                     test_prefix=test_prefix,
-    #                                     use_default=True)
+    utilities_dist.check_household_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
+                                                state_location=state_location,
+                                                country_location=country_location,
+                                                test_prefix=test_prefix,
+                                                use_default=True)
 
-    # utilities_dist.check_school_size_dist(pop=pop, n=n, datadir=datadir, figdir=figdir,
-    #                                       location="seattle_metro",
-    #                                       state_location=state_location,
-    #                                       country_location=country_location,
-    #                                       test_prefix=test_prefix,
-    #                                       use_default=True)
+    utilities_dist.check_school_size_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
+                                                  location="seattle_metro",
+                                                  state_location=state_location,
+                                                  country_location=country_location,
+                                                  test_prefix=test_prefix,
+                                                  use_default=True)
 
     utilities_dist.check_household_head(pop=pop, n=n, datadir=datadir,
                                         figdir=figdir,
