@@ -56,7 +56,7 @@ jobs:
       - name: Build Docs
         run: |
           pushd  synthpops/docs
-          make html SPHINXOPTS='-W -A READTHEDOCS=False'
+          make html SPHINXOPTS='-W'
           popd
 
           rm -rf gh-pages/*
