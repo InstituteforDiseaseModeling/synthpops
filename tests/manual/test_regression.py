@@ -71,6 +71,9 @@ class TestRegression(unittest.TestCase):
         # set params, make sure name is identical to param names
         n = self.n
         rand_seed = self.seed
+        location = 'seattle_metro'
+        state_location = 'Washington'
+        country_location = 'usa'
         max_contacts = None
         with_industry_code = False
         with_facilities = False
@@ -83,7 +86,7 @@ class TestRegression(unittest.TestCase):
         os.makedirs(self.reportfolder, exist_ok=True)
         filename = os.path.join(self.resultdir,f'pop_{n}_seed{rand_seed}.json')
         actual_vals = locals()
-        self.run_regression(filename, test_prefix, actual_vals)
+        self.run_regression(filename, test_prefix, actual_vals, location, state_location, country_location)
 
     @unittest.skip("This is just to show an example of adding a different scenario will work")
     def test_regression_lower_teacher_age(self):
@@ -104,13 +107,13 @@ class TestRegression(unittest.TestCase):
         actual_vals = locals()
         self.run_regression(filename, test_prefix, actual_vals)
 
-    def run_regression(self, filename, test_prefix, actual_vals):
+    def run_regression(self, filename, test_prefix, actual_vals, location, state_location, country_location):
         pop = utilities.runpop(resultdir=self.configDir, actual_vals=actual_vals, testprefix=test_prefix,
                                method=sp.make_population)
         # if default sort order is not concerned:
         pop = dict(sorted(pop.items(), key=lambda x: x[0]))
         sc.savejson(filename, pop, indent=2)
-        self.get_pop_details(pop, self.resultdir, test_prefix)
+        self.get_pop_details(pop, self.resultdir, test_prefix, location, state_location, country_location)
         if not self.generateBaseline:
             unchanged, failed_cases = self.check_result(actual_folder=self.resultdir, test_prefix=test_prefix)
             if unchanged:
@@ -126,7 +129,7 @@ class TestRegression(unittest.TestCase):
                            f"if you approve this change."
                 raise ValueError(errormsg)
 
-    def get_pop_details(self, pop, dir, title_prefix, decimal=3):
+    def get_pop_details(self, pop, dir, title_prefix, location, state_location, country_location, decimal=3):
         os.makedirs(dir, exist_ok=True)
         for code in ['H', 'W', 'S']:
             average_contacts = utilities.get_average_contact_by_age(pop, self.datadir, code=code, decimal=decimal)
@@ -139,7 +142,9 @@ class TestRegression(unittest.TestCase):
                         dict(enumerate(average_contacts.tolist())), indent=2)
             for type in ['density', 'frequency']:
                 matrix = sp.calculate_contact_matrix(pop, type, code)
-                agg_matrix = utilities.rebin_matrix_by_age(matrix, self.datadir)
+                brackets = sp.get_census_age_brackets(self.datadir, state_location, country_location)
+                ageindex = sp.get_age_by_brackets_dic(brackets)
+                agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
                 np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{code}_{type}_contact_matrix.csv"),
                            agg_matrix, delimiter=",", fmt=fmt)
                 fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
