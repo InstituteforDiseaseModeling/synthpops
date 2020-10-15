@@ -62,9 +62,8 @@ def check_work_size_distribution(pop,
     actual_values = actual_values / np.nansum(actual_values)
     expected_values = np.array(list(ws.values()))
     xlabels = [str(wb[b][0]) + '-' + str(wb[b][-1]) for b in sorted(wb.keys())]
-    utilities.plot_array(expected_values, actual_values, names=list(wb.keys()), datadir=figdir,
-                         testprefix="work size distribution "+test_prefix, do_close=do_close,
-                         xlabels=xlabels, xlabel_rotation=50)
+    utilities.plot_array(expected_values, actual_values, names=xlabels, datadir=figdir,
+                         testprefix="work size distribution "+test_prefix, do_close=do_close, xlabel_rotation=50)
     if not skip_stat_check:
         utilities.statistic_test(expected_values, actual_values, test="x", comments="work size distribution check")
 
@@ -127,8 +126,8 @@ def check_employment_age_distribution(pop,
     actual_values = np.insert(actual_values, 0, np.zeros(filled_count))
     names = [i for i in range(0, max(er.keys())+1)]
     # somehow double stacks for age 100
-    utilities.plot_array(expected_values, actual_values, names=names, datadir=figdir,
-                         testprefix="employment rate distribution " + test_prefix, do_close=do_close)
+    utilities.plot_array(expected_values, actual_values, names=None, datadir=figdir,
+                         testprefix="employment rate distribution " + test_prefix, do_close=do_close, )
 
     # check if total employment match
     expected_employed_brackets = {k: 0 for k in brackets}
@@ -194,7 +193,7 @@ def check_household_distribution(pop,
         sorted_actual_household_count[i] = actual_household_count[i]
     actual_values = np.array(list(sp.norm_dic(sorted_actual_household_count).values()))
     expected_values = np.array(list(hs.values()))
-    utilities.plot_array(expected_values, actual_values, names=hs.keys(), datadir=figdir,
+    utilities.plot_array(expected_values, actual_values, names=[x for x in list(hs.keys())], datadir=figdir,
                          testprefix="household count percentage " + test_prefix, do_close=do_close, value_text=True)
 
     if not skip_stat_check:
