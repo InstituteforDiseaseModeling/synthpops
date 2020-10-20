@@ -150,17 +150,17 @@ def plot_array(expected,
     Args:
         expected: Array of expected values
         actual: Array of actual values
-        names: data to display on x-axis, default is set to the indexes of data
+        names: names to display on x-axis, default is set to the indexes of data
         datadir: directory to save the plot if provided
         testprefix: used to prefix the title of the plot
         do_close: close the plot immediately if set to True
         expect_label: Label to show in the plot, default to "expected"
         value_text: display the values on top of the bar if specified
-        xlabels: custom label for x axis if specified
         xlabel_rotation: rotation degree for x labels if specified
 
     Returns:
-
+    None
+    plot will be saved in datadir if given
     """
     fig, ax = plt.subplots(1, 1, tight_layout=True)
     font = {
@@ -170,28 +170,28 @@ def plot_array(expected,
     mplt.rcParams['font.family'] = 'Roboto Condensed'
     title = testprefix if actual is None else f"Comparison for \n{testprefix}"
     ax.set_title(title)
-    names = np.arange(len(expected)) if names is None else names
-    ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=len(expected), rwidth=1, color='#1a9ac0', align='left')
+    x = np.arange(len(expected))
+    width = np.min(np.diff(x))/3
+    rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
+    #ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
     if actual is not None:
-        arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
-        if value_text:
-            # display values
-            for i in range(len(actual)):
-                ax.text(arr[1][i], arr[0][i], str(round(arr[0][i], 3)))
-        print(arr)
-        print(len(expected), 'expected', expected)
-        print(len(actual), 'actual', actual, len(arr[1]))
-        # print(arr[0][-3:], arr[1][-3:])
-    if xlabels is not None:
-        if isinstance(xlabels, dict):
-            xticks = sorted(xlabels.keys())
-            xticklabels = [xlabels[k] for k in xticks]
+        line, = ax.plot(x, actual, color='red', marker='.', label='Actual')
+        #arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+    if value_text:
+        autolabel(ax, rect1, 0, 5)
+        for j, v in enumerate(actual):
+            ax.text(j, v, str(round(v, 3)), fontsize=6, horizontalalignment='right', verticalalignment='top', color='red')
+    if names is not None:
+        if isinstance(names, dict):
+            xticks = sorted(names.keys())
+            xticklabels = [names[k] for k in xticks]
         else:
-            xticks = np.arange(len(xlabels))
-            xticklabels = xlabels
+            xticks = np.arange(len(names))
+            xticklabels = names
+        #plt.locator_params(axis='x', nbins=len(xticks))
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
-    ax.set_xlim(left=-1)
+        # ax.set_xlim(left=-1)
     ax.legend(loc='upper right')
 
     if datadir:
@@ -201,6 +201,28 @@ def plot_array(expected,
     else:
         plt.show()
     return
+
+def autolabel(ax, rects, h_offset=0, v_offset=0.3):
+    """
+    Attach a text label above each bar in *rects*, displaying its height.
+    Args:
+        ax: matplotlib.axes figure object
+        rects: matplotlib.container.BarContainer
+        h_offset: The position x to place the text at.
+        v_offset: The position y to place the text at.
+
+    Returns:
+    None
+    Set the annotation according to the input parameters
+    """
+    for rect in rects:
+        height = rect.get_height()
+        text = ax.annotate('{}'.format(round(height,3)),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(h_offset, v_offset),
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+        text.set_fontsize(6)
 
 
 def statistic_test(expected, actual, test="ks", comments=""):
