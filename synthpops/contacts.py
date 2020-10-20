@@ -1689,7 +1689,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
     return popdict
 
 
-@nb.njit((nb.int64[:], nb.int64))
+@nb.njit((nb.int64[:], nb.int64), cache=True)
 def choose_contacts(a, size):
     ''' Numbafy np.random.choice(); about twice as fast '''
     close_contacts = np.random.choice(a, size=size, replace=False)

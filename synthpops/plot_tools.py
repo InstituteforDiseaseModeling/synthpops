@@ -7,8 +7,6 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import cmocean
-import cmasher as cmr
 from . import base as spb
 
 
