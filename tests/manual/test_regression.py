@@ -23,6 +23,7 @@ try:
 except Exception as E:
     print(f'Note: could not import fpdf, report not available ({E})')
 
+
 # import utilities from test directory
 testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(testdir)
@@ -84,7 +85,7 @@ class TestRegression(unittest.TestCase):
         test_prefix = sys._getframe().f_code.co_name
         self.reportfolder = os.path.join(self.pdfDir, test_prefix)
         os.makedirs(self.reportfolder, exist_ok=True)
-        filename = os.path.join(self.resultdir,f'pop_{n}_seed{rand_seed}.json')
+        filename = os.path.join(self.resultdir, f'pop_{n}_seed{rand_seed}.json')
         actual_vals = locals()
         self.run_regression(filename, test_prefix, actual_vals, location, state_location, country_location)
 
@@ -103,7 +104,7 @@ class TestRegression(unittest.TestCase):
         test_prefix = sys._getframe().f_code.co_name
         self.reportfolder = os.path.join(self.pdfDir, test_prefix)
         os.makedirs(self.reportfolder, exist_ok=True)
-        filename = os.path.join(self.resultdir,f'pop_{n}_seed{rand_seed}.json')
+        filename = os.path.join(self.resultdir, f'pop_{n}_seed{rand_seed}.json')
         actual_vals = locals()
         self.run_regression(filename, test_prefix, actual_vals)
 
@@ -131,28 +132,29 @@ class TestRegression(unittest.TestCase):
 
     def get_pop_details(self, pop, dir, title_prefix, location, state_location, country_location, decimal=3):
         os.makedirs(dir, exist_ok=True)
-        for code in ['H', 'W', 'S']:
-            average_contacts = utilities.get_average_contact_by_age(pop, self.datadir, code=code, decimal=decimal)
+        for setting_code in ['H', 'W', 'S']:
+            average_contacts = utilities.get_average_contact_by_age(pop, self.datadir, setting_code=setting_code, decimal=decimal)
             fmt = f'%.{str(decimal)}f'
             # print(f"expected contacts by age for {code}:\n", average_contacts)
             utilities.plot_array(average_contacts, datadir = self.figDir,
-                                 testprefix=f"{self.n}_seed_{self.seed}_{code}_average_contacts",
-                                 expect_label='expected' if self.generateBaseline else 'test')
-            sc.savejson(os.path.join(dir, f"{self.n}_seed_{self.seed}_{code}_average_contact.json"),
+                                 testprefix=f"{self.n}_seed_{self.seed}_{setting_code}_average_contacts",
+                                 expect_label='Expected' if self.generateBaseline else 'Test')
+            sc.savejson(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_average_contact.json"),
                         dict(enumerate(average_contacts.tolist())), indent=2)
+
             for type in ['density', 'frequency']:
-                matrix = sp.calculate_contact_matrix(pop, type, code)
+                matrix = sp.calculate_contact_matrix(pop, type, setting_code)
                 brackets = sp.get_census_age_brackets(self.datadir, state_location, country_location)
                 ageindex = sp.get_age_by_brackets_dic(brackets)
                 agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
-                np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{code}_{type}_contact_matrix.csv"),
+                np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.csv"),
                            agg_matrix, delimiter=",", fmt=fmt)
-                fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=code,
+                fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=setting_code,
                                                                                   population=pop,
-                                                                                  title_prefix=" expected " if self.generateBaseline else " test ",
+                                                                                  title_prefix=" Expected " if self.generateBaseline else " Test ",
                                                                                   density_or_frequency=type)
                 # fig.show()
-                fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{code}_{type}_contact_matrix.png"))
+                fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.png"))
 
     """
     Compare all csv, json files between actual/expected folder
@@ -174,12 +176,12 @@ class TestRegression(unittest.TestCase):
                 checked = True
                 expected_data = np.loadtxt(os.path.join(expected_folder, f), delimiter=",")
                 actual_data = np.loadtxt(os.path.join(actual_folder, f), delimiter=",")
-                if (np.round(expected_data, decimal)==np.round(actual_data, decimal)).all():
+                if (np.round(expected_data, decimal) == np.round(actual_data, decimal)).all():
                     print("values unchanged, passed")
                 else:
                     passed = False
                     failed_cases.append(os.path.basename(f).replace(".csv", "*"))
-                    print("result has been changed in these indexes:\n", np.where(expected_data!=actual_data)[0])
+                    print("result has been changed in these indexes:\n", np.where(expected_data != actual_data)[0])
             elif f.endswith(".json"):
                 expected_data = sc.loadjson(os.path.join(expected_folder, f))
                 actual_data = sc.loadjson(os.path.join(actual_folder, f))
@@ -243,13 +245,13 @@ class TestRegression(unittest.TestCase):
                 for option in ['density', 'frequency']:
                     print(f"\ncheck:{code} with {option}")
                     actual_matrix = sp.calculate_contact_matrix(actual, density_or_frequency=option, setting_code=code)
-                    #expected_matrix = sp.calculate_contact_matrix(expected, density_or_frequency=option, setting_code=code)
+                    # expected_matrix = sp.calculate_contact_matrix(expected, density_or_frequency=option, setting_code=code)
                     expected_matrix = np.loadtxt(os.path.join(self.expectedDir,f"pop{self.n}_seed_{self.seed}_{code}_{option}_contact_matrix.csv"), unpack=True, delimiter=",")
                     np.savetxt(os.path.join(self.pdfDir,f"pop{self.n}_seed_{self.seed}_{code}_{option}_contact_matrix.csv"), expected_matrix, delimiter=",")
                     # calculate Canberra distance
                     # assuming they should round to 0
                     d = np.abs(expected_matrix - actual_matrix).mean()
-                    #d = distance.canberra(actual_matrix.flatten(), expected_matrix.flatten())
+                    # d = distance.canberra(actual_matrix.flatten(), expected_matrix.flatten())
                     print(f"mean absolute difference between actual/expected contact matrix for {code}/{option} is {str(round(d, 3))}")
                     if d > 1:
                         passed = passed & False

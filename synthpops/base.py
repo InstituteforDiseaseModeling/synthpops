@@ -47,7 +47,6 @@ def norm_age_group(age_dic, age_min, age_max):
 
 
 # Functions related to age distributions
-
 def get_index_by_brackets_dic(brackets):
     """
     Create a dictionary mapping each item in the value arrays to the key. For example, if brackets
@@ -59,6 +58,7 @@ def get_index_by_brackets_dic(brackets):
 
     Returns:
         dict: A dictionary mapping indices to the brackets or bins each index belongs to.
+
     """
     by_brackets_dic = {}
     for b in brackets:
@@ -152,7 +152,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
     Aggregate a symmetric matrix to fewer age brackets. Do not use for homogeneous mixing matrix.
 
     Args:
-        M (np.ndarray)             : A symmetric age contact matrix.
+        matrix (np.ndarray)        : A symmetric age contact matrix.
         age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
 
     Returns:

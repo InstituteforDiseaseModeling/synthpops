@@ -15,6 +15,9 @@ from scipy import stats
 from collections import Counter
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+# set the font family if available
+mplt.rcParams['font.family'] = 'Roboto Condensed'
+
 
 def runpop(resultdir, actual_vals, testprefix, method):
     """
@@ -30,7 +33,7 @@ def runpop(resultdir, actual_vals, testprefix, method):
       method (str)       : method which generates population
 
     Returns:
-        Population dictionary
+        Population dictionary.
     """
     os.makedirs(resultdir, exist_ok=True)
     params = {}
@@ -51,12 +54,12 @@ def copy_input(sourcedir, resultdir, subdir_level):
     Copy files to the target datadir up to the subdir level.
 
     Args:
-        sourcedir (str): source directory
-        resultdir (str): result directory
-        subdir_level (str): sub-directory
+        sourcedir (str)    : source directory
+        resultdir (str)    : result directory
+        subdir_level (str) : subdirectory
 
     Returns:
-        None
+        None.
     """
 
     # copy all files to datadir except the ignored files
@@ -74,16 +77,17 @@ def check_teacher_staff_ratio(pop, datadir, test_prefix, average_student_teacher
     average_student_all_staff_ratio.
 
     Args:
-        pop (dict): population dictionary
-        datadir (str): data directory
-        test_prefix (str): prefix str for test
+        pop (dict)                              : population dictionary
+        datadir (str)                           : data directory
+        test_prefix (str)                       : prefix str for test
         average_student_teacher_ratio (float)   : The average number of students per teacher.
         average_student_all_staff_ratio (float) : The average number of students per staff members at school
                                                   (including both teachers and non teachers).
-        err_margin (float): error margin
+        err_margin (float)                      : error margin
 
     Returns:
         Average number of students per teacher and average number of students per all staff in the input population.
+
     """
     i = 0
     school = {}
@@ -148,19 +152,20 @@ def plot_array(expected,
     Note this can only be used with the limitation that data that has already been binned
 
     Args:
-        expected: Array of expected values
-        actual: Array of actual values
-        names: names to display on x-axis, default is set to the indexes of data
-        datadir: directory to save the plot if provided
-        testprefix: used to prefix the title of the plot
-        do_close: close the plot immediately if set to True
-        expect_label: Label to show in the plot, default to "expected"
-        value_text: display the values on top of the bar if specified
-        xlabel_rotation: rotation degree for x labels if specified
+        expected        : Array of expected values
+        actual          : Array of actual values
+        names           : names to display on x-axis, default is set to the indexes of data
+        datadir         : directory to save the plot if provided
+        testprefix      : used to prefix the title of the plot
+        do_close        : close the plot immediately if set to True
+        expect_label    : Label to show in the plot, default to "expected"
+        value_text      : display the values on top of the bar if specified
+        xlabel_rotation : rotation degree for x labels if specified
 
     Returns:
-    None
-    plot will be saved in datadir if given
+        None.
+
+    Plot will be saved in datadir if given
     """
     fig, ax = plt.subplots(1, 1, tight_layout=True)
     font = {
@@ -173,14 +178,14 @@ def plot_array(expected,
     x = np.arange(len(expected))
     width = np.min(np.diff(x))/3
     rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
-    #ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
+    # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
     if actual is not None:
-        line, = ax.plot(x, actual, color='red', marker='.', label='Actual')
-        #arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+        line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
+        # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
     if value_text:
         autolabel(ax, rect1, 0, 5)
         for j, v in enumerate(actual):
-            ax.text(j, v, str(round(v, 3)), fontsize=6, horizontalalignment='right', verticalalignment='top', color='red')
+            ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
     if names is not None:
         if isinstance(names, dict):
             xticks = sorted(names.keys())
@@ -188,7 +193,7 @@ def plot_array(expected,
         else:
             xticks = np.arange(len(names))
             xticklabels = names
-        #plt.locator_params(axis='x', nbins=len(xticks))
+        # plt.locator_params(axis='x', nbins=len(xticks))
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
         # ax.set_xlim(left=-1)
@@ -202,27 +207,30 @@ def plot_array(expected,
         plt.show()
     return
 
+
 def autolabel(ax, rects, h_offset=0, v_offset=0.3):
     """
     Attach a text label above each bar in *rects*, displaying its height.
+
     Args:
-        ax: matplotlib.axes figure object
-        rects: matplotlib.container.BarContainer
-        h_offset: The position x to place the text at.
-        v_offset: The position y to place the text at.
+        ax       : matplotlib.axes figure object
+        rects    : matplotlib.container.BarContainer
+        h_offset : The position x to place the text at.
+        v_offset : The position y to place the text at.
 
     Returns:
-    None
+        None.
+
     Set the annotation according to the input parameters
     """
     for rect in rects:
         height = rect.get_height()
-        text = ax.annotate('{}'.format(round(height,3)),
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(h_offset, v_offset),
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-        text.set_fontsize(6)
+        text = ax.annotate('{}'.format(round(height, 3)),
+                           xy=(rect.get_x() + rect.get_width() / 2, height),
+                           xytext=(h_offset, v_offset),
+                           textcoords="offset points",
+                           ha='center', va='bottom')
+        text.set_fontsize(10)
 
 
 def statistic_test(expected, actual, test="ks", comments=""):
@@ -231,13 +239,13 @@ def statistic_test(expected, actual, test="ks", comments=""):
     based on the null hypothesis that expected/actual distributions are identical
     throw assertion if the expected/actual differ significantly based on the test selected
     Args:
-        expected: expected data (array)
-        actual: actual data (array)
-        test: "ks" for Kolmogorov-Smirnov, "x" for Chi-square statistic
-        comments: for printing information only
+        expected : expected data (array)
+        actual   : actual data (array)
+        test     : "ks" for Kolmogorov-Smirnov, "x" for Chi-square statistic
+        comments : for printing information only
 
     Returns:
-    None
+        None.
     """
     print(comments)
     if test == "ks":
@@ -264,14 +272,14 @@ def check_class_size(pop,
     Total Students were based on length of contacts mius teachers and staffs (calculated from
     average_student_teacher_ratio and average_student_all_staff_ratio
     Args:
-        pop: population dictionary
-        expected_class_size: expected class size
-        average_student_teacher_ratio: average student teacher ratio
-        average_student_all_staff_ratio: average student allstaff ratio
-        err_margin: error margin allowed, default to 1
+        pop                             : population dictionary
+        expected_class_size             : expected class size
+        average_student_teacher_ratio   : average student teacher ratio
+        average_student_all_staff_ratio : average student allstaff ratio
+        err_margin                      : error margin allowed, default to 1
 
     Returns:
-    None
+        None.
     """
     contact_nums = []
     for p in pop.values():
@@ -287,19 +295,20 @@ def check_class_size(pop,
         f"expected class size: {expected_class_size} but actual class size: {actual_class_size}"
 
 
-def get_average_contact_by_age(pop, datadir, state_location="Washington", country_location="usa", code="H", decimal=3):
+def get_average_contact_by_age(pop, datadir, state_location="Washington", country_location="usa", setting_code="H", decimal=3):
     """
     Helper method to get average contacts by age brackets
     Args:
-        pop: population dictionary
-        datadir: data directory to look up reference data
-        state_location: state location
-        country_location: country location
-        code: contact layer code, can be "H", "W", "S"
-        decimal: digits for rounding, default to 3
+        pop              : population dictionary
+        datadir          : data directory to look up reference data
+        state_location   : state location
+        country_location : country location
+        setting_code     : contact layer code, can be "H", "W", "S"
+        decimal          : digits for rounding, default to 3
 
     Returns:
-        a numpy array with average contacts by age barckets
+        numpy.ndarray: A numpy array with average contacts by age brackets.
+
     """
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
@@ -307,7 +316,7 @@ def get_average_contact_by_age(pop, datadir, state_location="Washington", countr
     contacts = np.zeros(len(brackets))
     for p in pop.values():
         total[ageindex[p["age"]]] += 1
-        contacts[ageindex[p["age"]]] += len(p["contacts"][code])
+        contacts[ageindex[p["age"]]] += len(p["contacts"][setting_code])
     average = np.round(np.divide(contacts, total), decimals=decimal)
     return average
 
@@ -317,14 +326,16 @@ def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_lo
     Helper method to get the average of contact matrix by age brackets
     @TODO: should we merge the functionalities with sp.get_aggregate_matrix
     or remove as this operation may not be scientifically meaningful (?)
+
     Args:
-        matrix: raw matrix with single age bracket
-        datadir: data directory
-        state_location: state location
-        country_location: country location
+        matrix           : raw matrix with single age bracket
+        datadir          : data directory
+        state_location   : state location
+        country_location : country location
 
     Returns:
-        a matrix with desired age bracket with average values for all cells
+        numpy.ndarray: A matrix with desired age bracket with average values for all cells.
+
     """
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
@@ -338,12 +349,12 @@ def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_lo
 
 def resize_2darray(array, merge_size):
     """
-    helper method to shrink the array by merging elements
-    it calculates average per (merge_size * merge_size area)
-    for example, an array of 100*100 with resize_2darray(array, 10) will yield 10*10 matrix
+    Helper method to shrink the array by merging elements. Calculates average per (merge_size * merge_size area).
+    For example, an array of 100*100 with resize_2darray(array, 10) will yield 10*10 matrix.
+
     Args:
-        array: original array
-        merge_size: how many cells to merge
+        array      : original array
+        merge_size : how many cells to merge
 
     Returns:
         a reduced-size array
@@ -363,7 +374,8 @@ def resize_2darray(array, merge_size):
 
 def get_age_distribution_from_pop(pop, brackets, normalized=True):
     """
-    get age distribution from the population dictionary
+    Get age distribution from the population dictionary
+
     Args:
         pop: population dictionary
         brackets: age brackets
@@ -375,7 +387,7 @@ def get_age_distribution_from_pop(pop, brackets, normalized=True):
     ageindex = sp.get_age_by_brackets_dic(brackets)
     actual_age_dist = dict.fromkeys(list(range(0, len(brackets))), 0)
     for p in pop.values():
-        actual_age_dist[ageindex[p["age"]]] += 1
+        actual_age_dist[ageindex[p['age']]] += 1
     if normalized:
         actual_values = np.array(list(sp.norm_dic(actual_age_dist).values()))
     else:
@@ -385,7 +397,8 @@ def get_age_distribution_from_pop(pop, brackets, normalized=True):
 
 def calc_rate(a, b):
     """
-    helper method to calculate the rate r= a/(a+b) giving a, b are both dictionaries
+    Helper method to calculate the rate r= a/(a+b) giving a, b are both dictionaries
+
     Args:
         a: a dictionary used as numerator
         b: a dictionary used as part of denominator (a+b)
@@ -401,7 +414,8 @@ def calc_rate(a, b):
 
 def sort_dict(d):
     """
-    helper method to sort the dictionary by it's key
+
+    Helper method to sort the dictionary by it's key
     Args:
         d: input dictionary
 
@@ -416,17 +430,18 @@ def sort_dict(d):
 
 def get_ids_count_by_param(pop, condition_name, param=None):
     """
-    helper method to count by parameter from the population dictionary
+    Helper method to count by parameter from the population dictionary
     for example get_ids_count_by_param(pop, "wpid", param="age") will count by age
     with respect to nodes with or without "wpid"
+
     Args:
-        pop: population dictionary
-        condition_name: the field to be used for filtering the target population, use param if not specified
-        param: the field to be used for counting
+        pop            : population dictionary
+        condition_name : the field to be used for filtering the target population, use param if not specified
+        param          : the field to be used for counting
 
     Returns:
-        ret: a dictionary with count by param of which condition_name exists
-        ret_none: a dictionary with count by param of which condition_name not exist
+        ret      : a dictionary with count by param of which condition_name exists
+        ret_none : a dictionary with count by param of which condition_name not exist
     """
     ret = {}
     ret_none = {}
@@ -450,13 +465,14 @@ def get_bucket_count(index, brackets, values):
     Helper method to sum the total count for each bucket,
     if the value exceeds the upper bound or falls below lower bound,
     it will be counted within the last or the first brackets respectively
+
     Args:
-        index: bracket index dictionary
-        brackets: a dictionary with values as list of numbers (representing ranges)
-        values: a dictionary of which keys are the range numbers
+        index    : bracket index dictionary
+        brackets : a dictionary with values as list of numbers (representing ranges)
+        values   : a dictionary of which keys are the range numbers
 
     Returns:
-    A dictionary that the key is the index and the values are total count within that bucket index
+        dict: A dictionary that the key is the index and the values are total count within that bucket index
     """
     values_by_brackets = {k: 0 for k in brackets.keys()}
     for i in values:
@@ -471,15 +487,15 @@ def check_error_percentage(n, expected, actual, err_margin_percent=10, name="", 
     """
 
     Args:
-        n: population size
-        expected: expected value (float)
-        actual: actual value (float)
-        err_margin_percent: percentage of error margin between 0 to 100, default is 10 (10%)
-        name: name of the checked value, used for display only
-        assertfail: fail the tests if set to True, display info only if set to False
+        n                  : population size
+        expected           : expected value (float)
+        actual             : actual value (float)
+        err_margin_percent : percentage of error margin between 0 to 100, default is 10 (10%)
+        name               : name of the checked value, used for display only
+        assertfail         : fail the tests if set to True, display info only if set to False
 
     Returns:
-        None
+        None.
     """
     print(f"\nexpected {name} {expected}\n actual {name} {actual} \n for n={n}")
     # check if within err_margin_percent% error
@@ -493,9 +509,10 @@ def get_household_head_age_size(pop, index):
     """
     Calculate the household count by household size and household head's age
     assuming lowest uids in the household should be household head
+
     Args:
-        pop: population dictionary
-        index: household head's age brackets index
+        pop   : population dictionary
+        index : household head's age bracket index
 
     Returns:
         dataframe with normalized household count by size and household head's age
@@ -519,12 +536,13 @@ def get_household_head_age_size(pop, index):
 
 def get_household_age_brackets_index(df):
     """
-    helper method to process data from sp.get_household_head_age_by_size_df
+    Helper method to process data from sp.get_household_head_age_by_size_df
+
     Args:
         df: dataframe obtained from sp.get_household_head_age_by_size_df
 
     Returns:
-        dictionary of household head's age brackets' index
+        dict: A dictionary of household head's age brackets' index
     """
     age_dict = {}
     index = 0
@@ -548,21 +566,23 @@ def plot_heatmap(expected,
                  do_close=True,
                  range=[0, 1]):
     """
-    plotting a heatmap of matrix
+    Plotting a heatmap of matrix
+
     Args:
-        expected: expected 2-dimenional matrix
-        actual: actual 2-dimenional matrix
-        names_x: name for x-axis
-        names_y: name for y-axis
-        xlabel:
-        ylabel:
-        figdir: directory where to result files are saved
-        testprefix: used for prefix of the plot title
-        do_close: close the image immediately if set to True
-        range: range for heatmap's [vmin,vmax], default to [0,1]
+        expected   : expected 2-dimenional matrix
+        actual     : actual 2-dimenional matrix
+        names_x    : name for x-axis
+        names_y    : name for y-axis
+        xlabel     :
+        ylabel     :
+        figdir     : directory where to result files are saved
+        testprefix : used for prefix of the plot title
+        do_close   : close the image immediately if set to True
+        range      : range for heatmap's [vmin,vmax], default to [0,1]
 
     Returns:
-        None
+        None.
+
         Plots will be save to figdir if provided
     """
     fig, axs = plt.subplots(1, 2, figsize=(17, 8),

@@ -19,23 +19,25 @@ def check_work_size_distribution(pop,
                                  do_close=True):
     """
     Check the population workplace size distribution against the reference data
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     wb = sp.get_workplace_size_brackets(datadir, location, state_location, country_location, file_path, use_default)
     ws = sp.norm_dic(
@@ -51,10 +53,7 @@ def check_work_size_distribution(pop,
             v = upper_bound
         actual_worksizes.setdefault(ws_index[v], 0)
         actual_worksizes[ws_index[v]] += 1
-        # if ws_index[v] in actual_worksizes:
-        #     actual_worksizes[ws_index[v]] += 1
-        # else:
-        #     actual_worksizes[ws_index[v]] = 1
+
     actual_values = np.zeros(len(ws.keys()))
     for i in range(0, len(ws.keys())):
         if i in actual_worksizes:
@@ -82,23 +81,25 @@ def check_employment_age_distribution(pop,
                                       do_close=True):
     """
     Check the population employment by age distribution against the reference data
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     er = sp.get_employment_rates(datadir, location, state_location, country_location, file_path, use_default)
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
@@ -109,8 +110,6 @@ def check_employment_age_distribution(pop,
     sorted_actual_employed_rate = {}
     actual_employed_rate = utilities.calc_rate(actual_employed_age_dist, actual_unemployed_age_dist)
     for i in er.keys():
-        # sorted_actual_employed_rate.setdefault(i, 0)
-        # sorted_actual_employed_rate[i] = actual_employed_rate[i]
         if i in actual_employed_rate:
             sorted_actual_employed_rate[i] = actual_employed_rate[i]
         else:
@@ -162,23 +161,25 @@ def check_household_distribution(pop,
                                  do_close=True):
     """
     Check the household size distribution against the reference data
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     hs = sp.get_household_size_distr(datadir, location=location,
                                      state_location=state_location,
@@ -222,23 +223,25 @@ def check_school_size_distribution(pop,
                                    do_close=True):
     """
     Check the school size distribution against the reference data
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     sb = sp.get_school_size_brackets(datadir,
                                      location=location,
@@ -285,24 +288,26 @@ def check_enrollment_distribution(pop,
     """
     Compute the statistic on expected enrollment-age distribution and compare with actual distribution
     check zero enrollment bins to make sure there is nothing generated
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
-        plot_only: plot only without doing any data checks
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
+        plot_only        : plot only without doing any data checks
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     expected_dist = sp.get_school_enrollment_rates(datadir, location, state_location, country_location, file_path,
                                                    use_default)
@@ -431,25 +436,26 @@ def check_age_distribution(pop,
                            skip_stat_check=False,
                            do_close=True):
     """
-    construct histogram from expected age distribution
-    compare with the actual generated data
+    Construct histogram from expected age distribution and compare with the actual generated data.
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        location: location of the reference data
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        skip_stat_check: skip the statistics check for distribution
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        location         : location of the reference data
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        skip_stat_check  : skip the statistics check for distribution
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
     brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
@@ -478,21 +484,23 @@ def check_household_head(pop,
                          do_close=True):
     """
     Check the household head by age distribution against the reference data
+
     Args:
-        pop: population dictionary
-        n: population size
-        datadir: root data directory which has resides the reference data
-        figdir: directory where to result files are saved
-        state_location: state location of the reference data
-        country_location: country location of the reference data
-        file_path: reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default: use default location if set to True
-        test_prefix: used for prefix of the plot title
-        do_close: close the image immediately if set to True
+        pop              : population dictionary
+        n                : population size
+        datadir          : root data directory which has resides the reference data
+        figdir           : directory where to result files are saved
+        state_location   : state location of the reference data
+        country_location : country location of the reference data
+        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
+        use_default      : use default location if set to True
+        test_prefix      : used for prefix of the plot title
+        do_close         : close the image immediately if set to True
 
     Returns:
-        None
-        Plots will be save to figdir if provided
+        None.
+
+    Plots will be save to figdir if provided
     """
     df = sp.get_household_head_age_by_size_df(datadir,
                                               state_location=state_location,
