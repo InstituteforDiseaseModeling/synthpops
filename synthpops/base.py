@@ -47,6 +47,25 @@ def norm_age_group(age_dic, age_min, age_max):
 
 
 # Functions related to age distributions
+def get_index_by_brackets_dic(brackets):
+    """
+    Create a dictionary mapping each item in the value arrays to the key. For example, if brackets
+    are age brackets, then this function will map each age to the age bracket or bin that it belongs to,
+    so that the resulting dictionary will give by_brackets_dic[age_index] = age bracket of age_index.
+
+    Args:
+        brackets (dict): A dictionary mapping bracket or bin keys to the array of values that belong to each bracket.
+
+    Returns:
+        dict: A dictionary mapping indices to the brackets or bins each index belongs to.
+
+    """
+    by_brackets_dic = {}
+    for b in brackets:
+        for a in brackets[b]:
+            by_brackets_dic[a] = b
+    return by_brackets_dic
+
 
 def get_age_by_brackets_dic(age_brackets):
     """
@@ -66,11 +85,12 @@ def get_age_by_brackets_dic(age_brackets):
         age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     """
-    age_by_brackets_dic = {}
-    for b in age_brackets:
-        for a in age_brackets[b]:
-            age_by_brackets_dic[a] = b
-    return age_by_brackets_dic
+    # age_by_brackets_dic = {}
+    # for b in age_brackets:
+    #     for a in age_brackets[b]:
+    #         age_by_brackets_dic[a] = b
+    # return age_by_brackets_dic
+    return get_index_by_brackets_dic(age_brackets)
 
 
 def get_aggregate_ages(ages, age_by_brackets_dic):
@@ -127,13 +147,12 @@ def get_aggregate_age_dict_conversion(larger_aggregate_ages, larger_age_brackets
 
 
 # Functions related to contact matrices
-
-def get_aggregate_matrix(M, age_by_brackets_dic):
+def get_aggregate_matrix(matrix, age_by_brackets_dic):
     """
     Aggregate a symmetric matrix to fewer age brackets. Do not use for homogeneous mixing matrix.
 
     Args:
-        M (np.ndarray)             : A symmetric age contact matrix.
+        matrix (np.ndarray)        : A symmetric age contact matrix.
         age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
 
     Returns:
@@ -141,7 +160,6 @@ def get_aggregate_matrix(M, age_by_brackets_dic):
 
     Example
     =======
-
     ::
 
         age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
@@ -154,15 +172,15 @@ def get_aggregate_matrix(M, age_by_brackets_dic):
         asymmetric_matrix = sp.get_asymmetric_matrix(aggregate_matrix, aggregate_age_count)
 
    """
-    N = len(M)
+    n = len(matrix)
     num_agebrackets = len(set(age_by_brackets_dic.values()))
-    M_agg = np.zeros((num_agebrackets, num_agebrackets))
-    for i in range(N):
+    m_agg = np.zeros((num_agebrackets, num_agebrackets))
+    for i in range(n):
         bi = age_by_brackets_dic[i]
-        for j in range(N):
+        for j in range(n):
             bj = age_by_brackets_dic[j]
-            M_agg[bi][bj] += M[i][j]
-    return M_agg
+            m_agg[bi][bj] += matrix[i][j]
+    return m_agg
 
 
 def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
