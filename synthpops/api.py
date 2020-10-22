@@ -138,7 +138,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                                                           )
 
     # Semi-heavy-lift 2: trim them to the desired numbers
-    population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
+    # population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
 
     # Change types
     for key, person in population.items():
