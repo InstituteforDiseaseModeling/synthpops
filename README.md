@@ -5,7 +5,7 @@ SynthPops is a module designed to generate synthetic populations that are used f
 
 The code was developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim).
 
-More extensive installation and usage instructions are in the [SynthPops documentation](https://institutefordiseasemodeling.github.io/synthpops/).
+More extensive installation and usage instructions are in the [SynthPops documentation](https://docs.idmod.org/projects/synthpops/en/latest).
 
 ## Installation
 
@@ -15,7 +15,7 @@ To install, first clone the GitHub repository, and then type:
 
 `python setup.py develop`
 
-Note: while `synthpops` can also be installed via pypi, this method does not currently include the data files which are required to function, and thus is not recommended.
+Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended.
 
 ## Quick Start
 
@@ -41,7 +41,7 @@ sp.generate_synthetic_population(npop,datadir,location=location,
 
 ## Usage
 
-In addition to the [documentation](https://institutefordiseasemodeling.github.io/synthpops/usage.html), see the `examples` folder for usage examples.
+In addition to the [documentation](https://docs.idmod.org/projects/synthpops/en/latest/usage.html), see the `examples` folder for usage examples.
 
 ## Structure
 

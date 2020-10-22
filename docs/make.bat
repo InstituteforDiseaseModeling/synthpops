@@ -5,7 +5,7 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
-set SPHINXOPTS=-W
+set "SPHINXOPTS=-W -A READTHEDOCS=True"
 set BUILDDIR=_build
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% .
 set I18NSPHINXOPTS=%SPHINXOPTS% .
@@ -76,9 +76,8 @@ if errorlevel 9009 (
 
 if "%1" == "generate-api" (
     del modules.rst >nul 2>&1
-    sphinx-apidoc -f --tocfile dummy -o . ../synthpops
-    del dummy.rst >nul 2>&1
-    REN synthpops.rst modules.rst
+    sphinx-apidoc -f -e -M -o . ../synthpops
+    move /Y synthpops.rst modules.rst
 	goto end
 )
 

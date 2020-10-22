@@ -21,10 +21,21 @@ import subprocess
 import sys
 import sphinx_rtd_theme
 
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
 if sys.platform in ["linux", "darwin"]:
     subprocess.check_output(["make", "generate-api"], cwd=os.path.dirname(os.path.abspath(__file__)))
 else:
     subprocess.check_output(["make.bat", "generate-api"], cwd=os.path.dirname(os.path.abspath(__file__)))
+
+# Rename "synthpops package" to "API reference"
+filename = 'modules.rst' # This must match the Makefile
+with open(filename) as f: # Read existing file
+    lines = f.readlines()
+lines[0] = "API reference\n" # Blast away the existing heading and replace with this
+lines[1] = "=============\n" # Ensure the heading is the right length
+with open(filename, "w") as f: # Write new file
+    f.writelines(lines)
 
 # -- General configuration ------------------------------------------------
 
@@ -36,7 +47,7 @@ else:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.imgmath',
+    'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
@@ -187,15 +198,18 @@ html_favicon = "images/favicon.ico"
 html_static_path = ['_static']
 
 html_context = {
+    'rtd_url': 'https://docs.idmod.org/projects/synthpops/en/latest',
+    'theme_vcs_pageview_mode': 'edit',
     'css_files': [
         '_static/theme_overrides.css'
-        ]
+    ]
 }
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
 #
-# html_extra_path = []
+if not on_rtd: 
+    html_extra_path = ['robots.txt']
 
 # If not None, a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -245,7 +259,7 @@ html_show_sphinx = False
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
 #
-html_use_opensearch = 'www.idmod.org/docs/'
+html_use_opensearch = 'docs.idmod.org/projects/synthpops/en/latest'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None
