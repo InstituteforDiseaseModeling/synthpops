@@ -53,9 +53,8 @@ clean:
 
 # Generates the API doc
 generate-api:
-	rm -rf temp
-	sphinx-apidoc -f --tocfile dummy -o . ../synthpops
-	-rm dummy.rst
+	-rm modules.rst
+	sphinx-apidoc -f -e -M -o . ../synthpops
 	mv synthpops.rst modules.rst
 
 
