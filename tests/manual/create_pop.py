@@ -72,7 +72,7 @@ def cache_populations(seed, pop_size, popfile, do_save=True):
 
 if __name__ == '__main__':
 
-    seed = 1
+    seed = 3
     pop_size = 20e3
-    fn = 'testpop.pop'
+    fn = 'testpop4.pop'
     popdict = cache_populations(seed, pop_size, fn)
