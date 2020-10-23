@@ -53,7 +53,7 @@ class TestRegression(unittest.TestCase):
         cls.generateBaseline = regenerate
         cls.pdfDir = sc.thisdir(__file__, "regression", "report")
         cls.expectedDir = sc.thisdir(__file__, "regression", "expected")
-        cls.datadir = sc.thisdir(__file__, "regression", "data")
+        cls.datadir = sc.thisdir(__file__, os.pardir, "data")
         shutil.rmtree(cls.pdfDir, ignore_errors=True)
         os.makedirs(cls.pdfDir, exist_ok=True)
 
@@ -170,16 +170,13 @@ class TestRegression(unittest.TestCase):
     Compare all csv, json files between actual/expected folder
     files must be under "test_prefix" subfolder and have the same name in both folders
     """
-    def check_result(self, actual_folder, expected_folder=None, test_prefix="test", decimal=3):
+    def check_result(self, actual_folder, test_prefix="test", decimal=3):
         passed = True
         checked = False
         failed_cases = []
         if not os.path.exists(actual_folder):
             raise FileNotFoundError(actual_folder)
-        if expected_folder is None:
-            expected_folder = os.path.join(os.path.join(os.path.dirname(__file__), 'expected', test_prefix))
-        if not os.path.exists(expected_folder):
-            raise FileNotFoundError(f"{expected_folder} does not exist, use cls.generateBaseline = True to generate them")
+        expected_folder = self.expectedDir
         for f in os.listdir(expected_folder):
             print(f"\n{f}")
             if f.endswith(".csv"):
