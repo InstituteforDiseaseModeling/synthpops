@@ -35,12 +35,6 @@ remove_files = True
 
 # Whether to regenerate files
 regenerate = False
-if len(sys.argv)>1:
-    if sys.argv[1] == 'regenerate':
-        regenerate = True
-    else:
-        errormsg = f'If an argument is supplied, expecting "regenerate", not "{sys.argv[1]}"'
-        raise ValueError(errormsg)
 
 
 class TestRegression(unittest.TestCase):
