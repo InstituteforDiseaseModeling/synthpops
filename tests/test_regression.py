@@ -174,7 +174,7 @@ class TestRegression(unittest.TestCase):
         failed_cases = []
         if not os.path.exists(actual_folder):
             raise FileNotFoundError(actual_folder)
-        expected_folder = self.expectedDir
+        expected_folder = os.path.join(self.expectedDir, test_prefix)
         for f in os.listdir(expected_folder):
             print(f"\n{f}")
             if f.endswith(".csv"):
