@@ -14,18 +14,15 @@ import sys
 import tempfile
 import sciris as sc
 import synthpops as sp
-import inspect
 import numpy as np
-from scipy.spatial import distance
 from examples import plot_age_mixing_matrices
 try:
     from fpdf import FPDF
 except Exception as E:
     print(f'Note: could not import fpdf, report not available ({E})')
 
-
 # import utilities from test directory
-testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+testdir = sc.thisdir(__file__, os.pardir)
 sys.path.append(testdir)
 import utilities
 
