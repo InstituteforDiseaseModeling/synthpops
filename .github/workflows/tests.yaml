@@ -22,7 +22,7 @@ jobs:
       - name: Install tests
         run: |
           pip install pytest
-          pip install -r requirements_test.txt
+          pip install -r tests/requirements_test.txt
       - name: Run unit and regression tests
         working-directory: ./tests
         run: pytest test_*.py --durations=0 --junitxml=test-results.xml # Run actual tests
@@ -32,7 +32,6 @@ jobs:
         with:
           name: test_results
           path: tests/test-results.xml
-
       - name: Upload report
         uses: actions/upload-artifact@v2
         if: failure()
