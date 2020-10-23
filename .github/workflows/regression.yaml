@@ -1,8 +1,5 @@
 name: Synthpops Regression Tests
-on:
-  pull_request:
-    branches: [master]
-    types: [ready_for_review]
+on: [pull_request]
 
 jobs:
   install_and_test:
