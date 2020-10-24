@@ -514,16 +514,14 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
     sorted_size_brackets = sorted(school_size_brackets.keys())
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-    age_keys = sorted(ages_in_school_count.keys())
+    age_keys = list(ages_in_school_count.keys())
 
     while len(uids_in_school):
 
         new_school = []
         new_school_uids = []
 
-        # aindex = spsamp.fast_choice(ages_in_school_distr.values())
-        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
-        aindex = age_keys[np.where(achoice)[0][0]]
+        aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
