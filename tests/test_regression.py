@@ -9,7 +9,7 @@ run, you will need to manually copy the files from
     regression/report/test_regression_make_population/test_results
 
 to
-    regression/expected
+    regression/expected/test_regression_make_population
 
 for the new baseline to take effect.
 """
