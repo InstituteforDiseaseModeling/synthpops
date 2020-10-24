@@ -11,7 +11,11 @@ More extensive installation and usage instructions are in the [SynthPops documen
 
 Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
 
-To install, first clone the GitHub repository, and then type:
+To install, first clone the GitHub repository:
+
+`git clone https://github.com/InstituteforDiseaseModeling/synthpops.git`
+
+Then install via:
 
 `python setup.py develop`
 
