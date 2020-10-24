@@ -1,9 +1,6 @@
-import numpy   as np; np
-import pylab   as pl; pl
-import pandas  as pd; pd
-import sciris  as sc; sc
-import covasim as cv; cv
-import random
+import numpy as np
+import pylab as pl
+import sciris as sc
 import random as rnd
 
 import itertools
@@ -15,12 +12,12 @@ def fast_choices(weights):
     """
     Choose an option -- quickly -- from the provided weights.
 
-    Reimplementation of random.choices() removing the junk.
+    Reimplementation of rnd.choices() removing the junk.
     """
     cum_weights = list(itertools.accumulate(weights))
     total = cum_weights[-1]
     max_ind = len(cum_weights) - 1
-    return bs.bisect(cum_weights, random._inst.random()*total, 0, max_ind)
+    return bs.bisect(cum_weights, rnd._inst.random()*total, 0, max_ind)
 
 
 def fast_choice(weights):
@@ -28,7 +25,7 @@ def fast_choice(weights):
     Choose an option -- quickly -- from the provided weights. Weights do not need
     to be normalized.
 
-    Reimplementation of random.choices(), removing the junk.
+    Reimplementation of rnd.choices(), removing the junk.
 
     Example:
         fast_choice([0.1,0.2,0.3,0.2,0.1]) # might return 2
@@ -36,7 +33,7 @@ def fast_choice(weights):
     cum_weights = list(itertools.accumulate(weights))
     if cum_weights[-1] == 0:
         return 0
-    return bisect.bisect(cum_weights, random._inst.random()*(cum_weights[-1]), 0, len(cum_weights)-1)
+    return bisect.bisect(cum_weights, rnd._inst.random()*(cum_weights[-1]), 0, len(cum_weights)-1)
 
 
 repeats = int(1e4)
