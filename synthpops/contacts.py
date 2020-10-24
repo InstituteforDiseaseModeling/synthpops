@@ -1157,7 +1157,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                     n_teaching_staff.append(len(teachers))
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
-            school += teachers
             school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
             spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
@@ -1191,7 +1190,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                 uids = set(workplace)
                 uids.remove(uid)
                 if len(uids)>max_W_size:
-                    uids = np.random.choice(list(uids), size=max_W_size)
+                    uids = np.random.choice(list(uids), size=max_W_size, replace=False)
                 popdict[uid]['contacts']['W'] = set(uids)
                 popdict[uid]['wpid'] = nw
                 if workplaces_by_industry_codes is not None:
