@@ -1,6 +1,4 @@
-"""
-Sample distributions, either from real world data or from uniform distributions
-"""
+"""Sample distributions, either from real world data or from uniform distributions."""
 
 import os
 import numpy as np
@@ -8,16 +6,16 @@ import pandas as pd
 import sciris as sc
 import numba as nb
 import random
+import itertools
+import bisect
 from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
 from .config import logger as log
 
 
-
 def set_seed(seed=None):
-    ''' Reset the random seed -- complicated because of Numba '''
-
+    """Reset the random seed -- complicated because of Numba."""
     @nb.njit((nb.int64,), cache=True)
     def set_seed_numba(seed):
         return np.random.seed(seed)
@@ -29,15 +27,30 @@ def set_seed(seed=None):
     if seed is not None:
         seed = int(seed)
 
-    set_seed_regular(seed) # If None, reinitializes it
-    if seed is None: # Numba can't accept a None seed, so use our just-reinitialized Numpy stream to generate one
+    set_seed_regular(seed)  # If None, reinitializes it
+    if seed is None:  # Numba can't accept a None seed, so use our just-reinitialized Numpy stream to generate one
         seed = np.random.randint(1e9)
     set_seed_numba(seed)
-    random.seed(seed) # Finally, reset Python's built-in random number generator
+    random.seed(seed)  # Finally, reset Python's built-in random number generator
 
     return
 
-# @nb.njit((nb.int64[:], nb.float64[:]))
+
+def fast_choice(weights):
+    """
+    Choose an option -- quickly -- from the provided weights. Weights do not need
+    to be normalized.
+
+    Reimplementation of random.choices(), removing everything inessential.
+
+    Example:
+        fast_choice([0.1,0.2,0.3,0.2,0.1]) # might return 2
+    """
+    cum_weights = list(itertools.accumulate(weights))
+    return bisect.bisect(cum_weights, random.random()*(cum_weights[-1]), 0, len(cum_weights)-1)
+
+
+# @nb.njit(cache=True)
 def sample_single_dict(distr_keys, distr_vals):
     """
     Sample from a distribution.
@@ -47,20 +60,22 @@ def sample_single_dict(distr_keys, distr_vals):
 
     Returns:
         A single sampled value from a distribution.
-    """
-    sort_inds = np.argsort(distr_keys)
-    sorted_keys = distr_keys[sort_inds]
-    sorted_distr = distr_vals[sort_inds]
-    norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
 
-    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
-    if norm_sorted_distr.sum() > 0:
-        norm_sorted_distr = norm_sorted_distr/(eps+norm_sorted_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-    else:
-        return 0
-    n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
-    index = np.where(n)[0][0]
-    return sorted_keys[index]
+    """
+    return distr_keys[fast_choice(distr_vals)]
+    # sort_inds = np.argsort(distr_keys)
+    # sorted_keys = distr_keys[sort_inds]
+    # sorted_distr = distr_vals[sort_inds]
+    # norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
+
+    # sum_norm_sorted_distr = norm_sorted_distr.sum()
+    # if sum_norm_sorted_distr > 0:
+    #     norm_sorted_distr = norm_sorted_distr / sum_norm_sorted_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    # else:
+    #     return 0
+    # n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
+    # index = np.where(n)[0][0]
+    # return sorted_keys[index]
 
 
 # @nb.njit((nb.float64[:],), cache=True)
@@ -74,15 +89,18 @@ def sample_single_arr(distr):
     Returns:
         A single sampled value from a distribution.
     """
-    eps = 1e-9  # This is required with Numba to avoid "E   ValueError: binomial(): p outside of [0, 1]" errors for some reason
-    norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
-    if norm_distr.sum() > 0:
-        norm_distr = norm_distr/(eps+norm_distr.sum())  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-    else:
-        return 0
-    n = np.random.multinomial(1, norm_distr, size=1)[0]
-    index = np.where(n)[0][0]
-    return index
+    if any(distr<0):
+        raise Exception('foooo')
+    return fast_choice(distr)
+    # norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
+    # sum_norm_distr = norm_distr.sum()
+    # if sum_norm_distr > 0:
+    #     norm_distr = norm_distr / sum_norm_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+    # else:
+    #     return 0
+    # n = np.random.multinomial(1, norm_distr, size=1)[0]
+    # index = np.where(n)[0][0]
+    # return index
 
 
 # @nb.njit((nb.float64[:], nb.int64), cache=True)
@@ -112,14 +130,16 @@ def resample_age(age_dist_vals, age):
         age_min = 98
         age_max = 100
 
-    age_distr = age_dist_vals[age_min:age_max+1]  # create an array of the values, not yet normalized
-    norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
-    if norm_age_distr.sum() > 0:
-        norm_age_distr = norm_age_distr/norm_age_distr.sum()  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-    age_range = np.arange(age_min, age_max+1)
-    n = np.random.multinomial(1, norm_age_distr, size=1)[0]
-    index = np.where(n)[0]
-    return age_range[index][0]
+    age_distr = age_dist_vals[age_min:age_max + 1]  # create an array of the values, not yet normalized
+    # norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
+    # sum_norm_age_distr = norm_age_distr.sum()
+    # if sum_norm_age_distr > 0:
+    #     norm_age_distr = norm_age_distr / (sum_norm_age_distr)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
+
+    age_range = np.arange(age_min, age_max + 1)
+    # n = np.random.multinomial(1, norm_age_distr, size=1)[0]
+    # index = np.where(n)[0]
+    return age_range[fast_choice(age_distr)]
 
 
 def sample_from_range(distr, min_val, max_val):
@@ -139,26 +159,28 @@ def sample_from_range(distr, min_val, max_val):
     return sample_single_dict(distr_keys, distr_vals)
 
 
-def sample_bracket(distr, brackets):
-    """
-    Sample bracket from a distribution (potentially absolete).
+# def sample_bracket(distr, brackets):
+#     """
+#     Sample bracket from a distribution (potentially absolete).
 
-    Args:
-        distr (dict or np.ndarray): distribution for bracket keys
+#     Args:
+#         distr (dict or np.ndarray): distribution for bracket keys
 
-    Returns:
-        A sampled bracket from a distribution.
-    """
-    sorted_keys = sorted(distr.keys())
-    sorted_distr = [distr[k] for k in sorted_keys]
-    n = np.random.multinomial(1, sorted_distr, size=1)[0]
-    index = np.where(n)[0][0]
-    return index
+#     Returns:
+#         A sampled bracket from a distribution.
+#     """
+#     if len(distr) != len(brackets):
+#         raise ValueError("The size of the distr dictionary should be the same as brackets.")
+#     # we can sort the dictionary using sorted on the items(), saving the 'for loop'
+#     sorted_distr = dict(sorted(distr.items()))
+#     n = np.random.multinomial(1, list(sorted_distr.values()), size=1)[0]
+#     index = np.where(n)[0][0]
+#     return index
 
 
 def sample_n(nk, distr):
     """
-    Sample nk values from a distribution
+    Sample nk values from a distribution.
 
     Args:
         nk (int)                   : number of samples
@@ -169,10 +191,13 @@ def sample_n(nk, distr):
     """
     if type(distr) == dict:
         distr = spb.norm_dic(distr)
-        sorted_keys = sorted(distr.keys())
-        sorted_distr = [distr[k] for k in sorted_keys]
-        n = np.random.multinomial(nk, sorted_distr, size=1)[0]
-        dic = dict(zip(sorted_keys, n))
+        # sorted_keys = sorted(distr.keys())
+        # sorted_distr = [distr[k] for k in sorted_keys]
+        # we can sort the dictionary using sorted on the items(), saving the 'for loop'
+        sorted_distr = dict(sorted(distr.items()))  # item keys got sorted and then dict got created mapping each key to its value, returns a dict sorted by keys
+
+        n = np.random.multinomial(nk, list(sorted_distr.values()), size=1)[0]
+        dic = dict(zip(list(sorted_distr.keys()), n))
         return dic
     elif type(distr) == np.ndarray:
         distr = distr / np.sum(distr)
@@ -196,7 +221,7 @@ def sample_contact_age(age, age_brackets, age_by_brackets_dic, age_mixing_matrix
 
     """
     b = age_by_brackets_dic[age]
-    b = min(b, age_mixing_matrix.shape[0]-1) # Ensure it doesn't go past the end of the array
+    b = min(b, age_mixing_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array
     b_contact = sample_single_arr(age_mixing_matrix[b, :])
     if single_year_age_distr is None:
         a = np.random.choice(age_brackets[b_contact])
@@ -289,19 +314,19 @@ def get_n_contact_ids_by_age(contact_ids_by_age_dic, contact_ages, age_brackets,
 
 @nb.njit((nb.int64,), cache=True)
 def pt(rate):
-    '''
-    Results of a Poisson trial
+    """
+    Return results of a Poisson trial.
 
     Args:
         rate (float): Poisson rate
 
     Returns result (bool) of Poisson trial.
-    '''
+    """
     return np.random.poisson(rate, 1)[0]
 
 
 def get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets, min_age=0, max_age=100, age_mean=40, age_std=20):
-    '''
+    """
     Sample a person's age and sex based on gender and age census data defined for age brackets. Else, return random age and sex.
 
     Args:
@@ -315,16 +340,17 @@ def get_age_sex(gender_fraction_by_age, age_bracket_distr, age_brackets, min_age
 
     Returns:
         Sampled age (float), sex (int; 0 for female, 1 for male)
-    '''
+    """
     try:
-        b = sample_bracket(age_bracket_distr, age_brackets)
+        # b = sample_bracket(age_bracket_distr, age_brackets)
+        b = fast_choice(age_bracket_distr)
         age = np.random.choice(age_brackets[b])
         sex = np.random.binomial(1, gender_fraction_by_age['male'][b])
         return age, sex
     except:
         sex = np.random.randint(2)  # Define female (0) or male (1) -- evenly distributed
         age = np.random.normal(age_mean, age_std)  # Define age distribution for the crew and guests
-        age = np.median([min_age, age, max_age])  # Bound age by the interval
+        age = np.median([min_age, int(round(age)), max_age])  # Bound age by the interval
         return age, sex
 
 
@@ -352,7 +378,7 @@ def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_peo
 
     if age_bracket_distr is None:
         sexes = np.random.binomial(1, p=0.5, size=n_people)
-        ages = np.random.randint(min_age, max_age+1, size=n_people)  # should return a flat distribution if we don't know the age distribution, not a normal distribution...
+        ages = np.random.randint(min_age, max_age + 1, size=n_people)  # should return a flat distribution if we don't know the age distribution, not a normal distribution...
         ages = [np.median([min_age, int(a), max_age]) for a in ages]
 
     else:
@@ -370,7 +396,7 @@ def get_age_sex_n(gender_fraction_by_age, age_bracket_distr, age_brackets, n_peo
 
 
 def get_seattle_age_sex(datadir, location='seattle_metro', state_location='Washington', country_location='usa'):
-    '''
+    """
     Sample a person's age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
 
     Args:
@@ -382,7 +408,7 @@ def get_seattle_age_sex(datadir, location='seattle_metro', state_location='Washi
     Returns:
         Sampled age (float), sex (int; 0 for female, 1 for male)
 
-    '''
+    """
     age_bracket_distr = spdata.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
@@ -392,7 +418,7 @@ def get_seattle_age_sex(datadir, location='seattle_metro', state_location='Washi
 
 
 def get_seattle_age_sex_n(datadir, location='seattle_metro', state_location='Washington', country_location='usa', n_people=1e4):
-    '''
+    """
     Sample n_people peoples' age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
 
     Args:
@@ -406,7 +432,7 @@ def get_seattle_age_sex_n(datadir, location='seattle_metro', state_location='Was
         Two lists of sampled ages (float) and sexes (int; 0 for female, 1 for male) ordered by age bracket so that people from the
         first age bracket show up at the front of both lists and people from the last age bracket show up at the end.
 
-    '''
+    """
     age_bracket_distr = spdata.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
@@ -416,7 +442,7 @@ def get_seattle_age_sex_n(datadir, location='seattle_metro', state_location='Was
 
 
 def get_usa_age_sex(datadir, location='seattle_metro', state_location='Washington', country_location='usa'):
-    '''
+    """
     Sample a person's age and sex based on US gender and age census data defined for age brackets, with defaults set to Seattle, Washington.
 
     Args:
@@ -428,7 +454,7 @@ def get_usa_age_sex(datadir, location='seattle_metro', state_location='Washingto
     Returns:
         Sampled age (float), sex (int; 0 for female, 1 for male)
 
-    '''
+    """
     age_bracket_distr = spdata.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
@@ -513,7 +539,6 @@ def get_usa_sex_n(datadir, ages, location='seattle_metro', state_location='Washi
         first age bracket show up at the front of both lists and people from the last age bracket show up at the end.
 
     """
-
     gender_fraction_by_age = spdata.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
     age_brackets = spdata.get_census_age_brackets(datadir, state_location, country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)

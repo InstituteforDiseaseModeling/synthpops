@@ -2,13 +2,11 @@
 This module generates the household, school, and workplace contact networks.
 """
 
-import os
 from copy import deepcopy
 from collections import Counter
 
 import sciris as sc
 import numpy as np
-import pandas as pd
 
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -20,7 +18,6 @@ from . import sampling as spsamp
 from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
-from .config import datadir
 from .config import logger as log
 
 
@@ -188,8 +185,6 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         b = age_by_brackets_dic[hha]
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
-
-        # age_distr_vals = np.array(list(single_year_age_distr.values()), dtype=np.float64)  # Convert to an array for faster processing
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
@@ -404,15 +399,17 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = []
         new_school_uids = []
 
-        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-        aindex = np.where(achoice)[0][0]
+        # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+        # aindex = np.where(achoice)[0][0]
+        aindex = spsamp.fast_choice(ages_in_school_distr.values())
         bindex = age_by_brackets_dic[aindex]
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
         if bindex >= 4:
             if np.random.binomial(1, p=0.7):
-                achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-                aindex = np.where(achoice)[0][0]
+                # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+                # aindex = np.where(achoice)[0][0]
+                aindex = spsamp.fast_choice(ages_in_school_distr.values())
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
@@ -453,7 +450,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                     break
 
                 # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with
-                if np.sum([left_in_bracket[bi] for bi in np.arange(bi_min, bi_max+1)]) == 0:
+                if sum([left_in_bracket[bi] for bi in range(bi_min, bi_max+1)]) == 0:
                     break
 
                 bi = spsamp.sample_single_arr(b_prob)
@@ -517,15 +514,14 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
     sorted_size_brackets = sorted(school_size_brackets.keys())
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-    age_keys = sorted(ages_in_school_count.keys())
+    age_keys = list(ages_in_school_count.keys())
 
     while len(uids_in_school):
 
         new_school = []
         new_school_uids = []
 
-        achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in age_keys])
-        aindex = age_keys[np.where(achoice)[0][0]]
+        aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
@@ -748,7 +744,6 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
     for n in range(len(syn_schools)):
         school = syn_schools[n]
-        # school_uids = syn_school_uids[n]
 
         size = len(school)
         nteachers = int(size / float(average_student_teacher_ratio))
@@ -896,9 +891,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
     for n, size in enumerate(workplace_sizes):
         workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
-        if np.sum([workers_by_age_to_assign_distr[a] for a in workers_by_age_to_assign_distr]) == 0:
+        if sum(workers_by_age_to_assign_distr.values()) == 0:
             break
-        if np.sum([len(potential_worker_uids_by_age[a]) for a in potential_worker_uids_by_age]) == 0:
+        if sum([len(v) for v in potential_worker_uids_by_age.values()]) == 0:
             break
         new_work, new_work_uids = [], []
 
@@ -920,8 +915,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         bindex = age_by_brackets_dic[aindex]
         bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['W'][bindex, :]
-        if np.sum(b_prob) > 0:
-            b_prob = b_prob / np.sum(b_prob)
+        sum_b_prob = np.sum(b_prob)
+        if sum_b_prob > 0:
+            b_prob = b_prob / sum_b_prob
 
         if size > len(potential_worker_uids) - 1:
             size = len(potential_worker_uids) - 1
@@ -943,20 +939,22 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         else:
             for i in range(1, size):
 
-                bichoice = np.random.multinomial(1, b_prob)
-                bi = np.where(bichoice)[0][0]
+                # bichoice = np.random.multinomial(1, b_prob)
+                # bi = np.where(bichoice)[0][0]
+                bi = spsamp.fast_choice(b_prob)
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                if np.sum(b_prob):
-                    while np.sum(workers_left_in_bracket) == 0:
+                if sum_b_prob:
+                    while sum(workers_left_in_bracket) == 0:
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                    a_prob = np.array(a_prob)
-                    a_prob = a_prob/np.sum(a_prob)
+                    # a_prob = np.array(a_prob)
+                    # a_prob = a_prob/np.sum(a_prob)
 
-                    ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    # ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    ai = age_brackets[bi][spsamp.fast_choice(a_prob)]
 
                     uid = potential_worker_uids_by_age[ai][0]
                     new_work.append(ai)
@@ -964,16 +962,21 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     potential_worker_uids_by_age[ai].remove(uid)
                     potential_worker_uids.pop(uid, None)
                     workers_by_age_to_assign_count[ai] -= 1
-                    workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
+                    # workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                if np.sum(workers_left_in_bracket) == 0:
+                if sum(workers_left_in_bracket) == 0:
                     contact_matrix_dic['W'][:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = contact_matrix_dic['W'][bindex, :]
-                    if np.sum(b_prob) > 0:
-                        b_prob = b_prob / np.sum(b_prob)
+                    # local_sum_b_prob = np.sum(b_prob)
+                    # if local_sum_b_prob > 0:
+                    #     b_prob = b_prob / local_sum_b_prob
+                    sum_b_prob = np.sum(b_prob)
+                    if sum_b_prob > 0:
+                        b_prob = b_prob / sum_b_prob
+                    # sum_b_prob = np.sum(b_prob)
 
         if verbose: # CK: I know, overkill to have both
             log.debug(f'  Progress: {n}, {Counter(new_work)}')
@@ -986,7 +989,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                   school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                                   average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                                   average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                                  verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+                                  verbose=False, plot=False, write=False, return_popdict=False, use_default=False, trimmed_size_dic=None):
     """
     Wrapper function that calls other functions to generate a full population with their contacts in the household, school, and workplace layers,
     and then writes this population to appropriate files.
@@ -1016,6 +1019,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         write (bool)                              : If True, write population to file.
         return_popdict (bool)                     : If True, returns a dictionary of individuals in the population
         use_default (bool)                        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
+        trimmed_size_dic (dict)                   : If supplied, trim contacts as they're being generated
 
     Returns:
         If return_popdict is True, returns popdict, a dictionary of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary for each individual with their
@@ -1185,23 +1189,24 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
         print('workers left to place', np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count]))
         print('work sizes made', np.sum([len(w) for w in syn_workplaces]))
 
-    # save schools and workplace uids to file
+    # Save schools and workplace uids to file
     if write:
+        args = [datadir, location, state_location, country_location, folder_name, age_by_uid_dic]
+        sprw.write_age_by_uid_dic(*args)
+        sprw.write_groups_by_age_and_uid(*args, 'households', homes_by_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'schools', syn_school_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'teachers', syn_teacher_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'non_teaching_staff', syn_non_teaching_staff_uids)
+        sprw.write_groups_by_age_and_uid(*args, 'workplaces', syn_workplace_uids)
 
-        sprw.write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'schools', syn_school_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'teachers', syn_teacher_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'non_teaching_staff', syn_non_teaching_staff_uids)
-        sprw.write_groups_by_age_and_uid(datadir, location, state_location, country_location, folder_name, age_by_uid_dic, 'workplaces', syn_workplace_uids)
-
+    # Main use case: return the dictionary
     if return_popdict:
-        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic,
-                                                                 homes_by_uids,
-                                                                 syn_school_uids,
-                                                                 syn_teacher_uids,
-                                                                 syn_workplace_uids,
-                                                                 syn_non_teaching_staff_uids,
+        popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+                                                                 homes_by_uids=homes_by_uids,
+                                                                 schools_by_uids=syn_school_uids,
+                                                                 teachers_by_uids=syn_teacher_uids,
+                                                                 non_teaching_staff_uids=syn_non_teaching_staff_uids,
+                                                                 workplaces_by_uids=syn_workplace_uids,
                                                                  with_school_types=with_school_types,
                                                                  school_mixing_type=school_mixing_type,
                                                                  average_class_size=average_class_size,
@@ -1209,5 +1214,6 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
                                                                  average_student_teacher_ratio=average_student_teacher_ratio,
                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                 average_additional_staff_degree=average_additional_staff_degree)
+                                                                 average_additional_staff_degree=average_additional_staff_degree,
+                                                                 trimmed_size_dic=trimmed_size_dic)
         return popdict

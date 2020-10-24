@@ -19,20 +19,19 @@ jobs:
           architecture: x64
       - name: Install synthpops
         run: python setup.py develop
-      - name: Run tests
-        working-directory: ./tests
+      - name: Install tests
         run: |
           pip install pytest
-          pip install -r requirements_test.txt
-          pytest test_*.py --durations=0 --junitxml=test-results.xml # Run actual tests
-
+          pip install -r tests/requirements_test.txt
+      - name: Run unit and regression tests
+        working-directory: ./tests
+        run: pytest test_*.py --durations=0 --junitxml=test-results.xml # Run actual tests
       - name: Upload test results
         uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: test_results
           path: tests/test-results.xml
-
       - name: Upload report
         uses: actions/upload-artifact@v2
         if: failure()

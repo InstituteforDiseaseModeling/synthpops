@@ -22,10 +22,7 @@ def norm_dic(dic):
     total = float(sum(dic.values()))
     if total == 0.0:
         return dic
-    new_dic = {}
-    for i in dic:
-        new_dic[i] = float(dic[i]) / total
-    return new_dic
+    return {k: v / total for k, v in dic.items()}
 
 
 def norm_age_group(age_dic, age_min, age_max):
@@ -40,9 +37,7 @@ def norm_age_group(age_dic, age_min, age_max):
     Returns:
         A normalized dictionary for keys in the range ``age_min`` to ``age_max``, inclusive.
     """
-    dic = {}
-    for a in range(age_min, age_max + 1):
-        dic[a] = age_dic[a]
+    dic = {a: age_dic[a] for a in range(age_min, age_max + 1)}
     return norm_dic(dic)
 
 
@@ -160,6 +155,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
 
     Example
     =======
+
     ::
 
         age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')

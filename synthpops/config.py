@@ -13,9 +13,10 @@ import sys
 import psutil
 import sciris as sc
 import logging
+from . import version as spv
 
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'set_datadir', 'set_nbrackets', 'validate']
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'version_info', 'set_datadir', 'set_nbrackets', 'validate']
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -62,7 +63,7 @@ if not logger.hasHandlers():
     info_handler.addFilter(type("ThresholdFilter", (object,), {"filter": lambda x, logRecord: logRecord.levelno < logging.WARNING})())  # Don't display WARNING or higher
 
     # Set formatting and log level
-    formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d {%(filename)s:%(lineno)d} - %(message)s', datefmt='%H:%M:%S')
+    formatter = logging.Formatter('%(levelname)s %(asctime)s.%(msecs)d %(filename)s:%(lineno)d → %(message)s', datefmt='%H:%M:%S')
     debug_handler.setFormatter(formatter)
     for handler in [debug_handler, info_handler, warning_handler]:
         logger.addHandler(handler)
@@ -86,9 +87,13 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 
 
 #%% Functions
+def version_info():
+    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
+    print(f'Data folder: {datadir}')
+    print(f'Git information:')
+    sc.pp(spv.__gitinfo__)
+    return
 
-logger.info(f'Loading SynthPops: {thisdir}')
-logger.debug(f'Data folder: {datadir}')
 
 def set_datadir(folder):
     '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
