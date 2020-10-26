@@ -38,7 +38,7 @@ nbrackets = [16, 20][1] # Choose how many age bins to use -- 20 is only partiall
 matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
 
 
-#%% Logger -- adapted from Atomica
+#%% Logger
 
 # Set the default logging level
 default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
@@ -47,12 +47,11 @@ logger = logging.getLogger('synthpops')
 
 if not logger.hasHandlers():
     # Only add handlers if they don't already exist in the module-level logger
-    # This means that it's possible for the user to completely customize *a* logger called 'atomica'
-    # prior to importing Atomica, and the user's custom logger won't be overwritten as long as it has
-    # at least one handler already added. The use case was originally to suppress messages on import, but since
-    # importing is silent now, it doesn't matter so much.
-    debug_handler = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
-    info_handler = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
+    # This means that it's possible for the user to completely customize *a* logger called 'synthpops'
+    # prior to importing SynthPops, and the user's custom logger won't be overwritten as long as it has
+    # at least one handler already added.
+    debug_handler   = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
+    info_handler    = logging.StreamHandler(sys.stdout)  # info_handler will handle all messages below WARNING sending them to STDOUT
     warning_handler = logging.StreamHandler(sys.stderr)  # warning_handler will send all messages at or above WARNING to STDERR
 
     # Handle levels
