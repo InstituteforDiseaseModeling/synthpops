@@ -25,7 +25,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         patternIgnore2 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*usa*"]
         utilities.copy_input(cls.sourcedir, cls.dataUSAdir, cls.subdir_level, patterns=patternIgnore1)
         utilities.copy_input(cls.sourcedir, cls.dataSenegalDir, cls.subdir_level, patterns=patternIgnore2)
-        cls.n = 5001
+        cls.n = 10001
         cls.seed = 1
         cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
         cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
@@ -64,7 +64,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result(spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location)
+        self.check_result(spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
 
     def test_usa_default_with_param(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
@@ -78,7 +78,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
-        self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
 
     def test_usa_default(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
@@ -91,7 +91,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         state_location = "Washington"
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True)
-        self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location)
+        self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
 
 
     def test_senegal_default(self):
