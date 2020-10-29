@@ -5,6 +5,7 @@ This module provides the layer for communicating with the agent-based model Cova
 import sciris as sc
 from .config import logger as log
 import synthpops as sp
+from . import config as cfg
 
 # Put this here so it's accessible as sp.api.popsize_choices
 popsize_choices = [5000,
@@ -22,7 +23,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                     with_non_teaching_staff=False,
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                    rand_seed=None):
+                    rand_seed=None, country_location=None, state_location=None, location=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington data.
 
@@ -50,6 +51,10 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
         rand_seed (int)                         : Start point random sequence is generated from.
+        location                  : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        sheet_name                : sheet name where data is located
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
@@ -83,10 +88,24 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
-    country_location = 'usa'
-    state_location = 'Washington'
-    location = 'seattle_metro'
-    sheet_name = 'United States of America'
+    # country_location = 'usa'
+    # state_location = 'Washington'
+    # location = 'seattle_metro'
+    # sheet_name = 'United States of America'
+
+    if country_location is None :
+        country_location = cfg.default_country
+        state_location = cfg.default_state
+        location = cfg.default_location
+
+    else:
+        print(f"========== setting country location = {country_location}")
+        sp.config.set_location_defaults(country_location)
+    # if country is specified, and state is not, we are doing a country population
+    if state_location is None:
+        location = None
+
+    sheet_name = cfg.default_sheet_name
 
     options_args = {}
     options_args['use_microstructure'] = True

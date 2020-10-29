@@ -19,6 +19,7 @@ from . import contacts as spct
 from . import school_modules as spsm
 from . import read_write as sprw
 from .config import logger as log
+from . import config as cfg
 
 
 def generate_household_sizes(Nhomes, hh_size_distr):
@@ -183,6 +184,7 @@ def generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets,
         homes[h][0] = int(hha)
 
         b = age_by_brackets_dic[hha]
+
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
@@ -360,7 +362,6 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
         school_sizes[-1] = school_sizes[-1] + ns
     np.random.shuffle(school_sizes)
     return school_sizes
-
 
 def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
     """
@@ -605,8 +606,13 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
 
     for uid in potential_worker_uids:
         ai = potential_worker_uids[uid]
-        potential_worker_uids_by_age[ai].append(uid)
-        potential_worker_ages_left_count[ai] += 1
+
+        # potential_worker_uid[uid] may generate persions who are not valid working age
+        # This will cause a 'key' error in potential__worker_uids_by_age
+        # Since potential_worker_uids_age keys are valid work ages,  skip invalid workers
+        if ai in potential_worker_uids_by_age.keys():
+            potential_worker_uids_by_age[ai].append(uid)
+            potential_worker_ages_left_count[ai] += 1
 
     # shuffle workers around!
     for ai in potential_worker_uids_by_age:
@@ -734,6 +740,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
         dictionary with the count of workers left to assign for each age after teachers have been assigned.
     """
+
     log.debug('assign_teachers_to_schools()')
     # matrix method will already get some teachers into schools so student_teacher_ratio should be higher
 
@@ -944,17 +951,17 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 bi = spsamp.fast_choice(b_prob)
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                if sum_b_prob:
-                    while sum(workers_left_in_bracket) == 0:
+
+                if np.sum(b_prob):
+                    while np.sum(workers_left_in_bracket) == 0:
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                    # a_prob = np.array(a_prob)
-                    # a_prob = a_prob/np.sum(a_prob)
+                    a_prob = np.array(a_prob)
+                    a_prob = a_prob/np.sum(a_prob)
 
-                    # ai = np.random.choice(a=age_brackets[bi], p=a_prob)
-                    ai = age_brackets[bi][spsamp.fast_choice(a_prob)]
+                    ai = np.random.choice(a=age_brackets[bi], p=a_prob)
 
                     uid = potential_worker_uids_by_age[ai][0]
                     new_work.append(ai)
@@ -962,21 +969,16 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     potential_worker_uids_by_age[ai].remove(uid)
                     potential_worker_uids.pop(uid, None)
                     workers_by_age_to_assign_count[ai] -= 1
-                    # workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
+                    workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
 
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                if sum(workers_left_in_bracket) == 0:
+                if np.sum(workers_left_in_bracket) == 0:
                     contact_matrix_dic['W'][:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = contact_matrix_dic['W'][bindex, :]
-                    # local_sum_b_prob = np.sum(b_prob)
-                    # if local_sum_b_prob > 0:
-                    #     b_prob = b_prob / local_sum_b_prob
-                    sum_b_prob = np.sum(b_prob)
-                    if sum_b_prob > 0:
-                        b_prob = b_prob / sum_b_prob
-                    # sum_b_prob = np.sum(b_prob)
+                    if np.sum(b_prob) > 0:
+                        b_prob = b_prob / np.sum(b_prob)
 
         if verbose: # CK: I know, overkill to have both
             log.debug(f'  Progress: {n}, {Counter(new_work)}')
@@ -984,7 +986,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
-
+  
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
                                   school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                                   average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
@@ -1073,6 +1075,7 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
 
     # create a rough single year age distribution to draw from instead of the distribution by age brackets.
     syn_ages, syn_sexes = spsamp.get_usa_age_sex_n(datadir, location, state_location, country_location, totalpop)
+    #syn_ages= spsamp.get_age_n(datadir,totalpop, location=location, state_location=state_location, country_location=country_location)
     syn_age_count = Counter(syn_ages)
     syn_age_distr_unordered = spb.norm_dic(syn_age_count)  # Ensure it's ordered
     syn_age_keys = list(syn_age_distr_unordered.keys())
@@ -1085,8 +1088,9 @@ def generate_synthetic_population(n, datadir, location='seattle_metro', state_lo
     hh_sizes = generate_household_sizes_from_fixed_pop_size(n, household_size_distr)
     totalpop = get_totalpopsize_from_household_sizes(hh_sizes)
 
-    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=True)
+
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=True, household_size_1_included=cfg.default_household_size_1_included)
 
     homes_dic, homes = generate_all_households(n, hh_sizes, hha_by_size, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, deepcopy(syn_age_distr))
     homes_by_uids, age_by_uid_dic = assign_uids_by_homes(homes)

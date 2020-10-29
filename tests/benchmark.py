@@ -58,7 +58,7 @@ def make_pop(n):
     return population
 
 
-def run_benchmark(n, test_index_list, out_dir, nruns=1):
+def run_benchmark(n, test_index_list, out_dir, nruns = 1, base_seed=0):
     """
     loop over list of n and output perf profile for each n to test_n.txt
     """
@@ -97,6 +97,8 @@ if __name__ == '__main__':
     parser.add_argument('--dir', dest='outdir', default=default_outdir, help='Output Directory')
     parser.add_argument('--runs', dest='num_runs', type=int, default=1, help='number of runs to average')
     parser.add_argument('-t', '--test', dest='test_index_list', type=int, action='append', default=[], help='test to run')
+    parser.add_argument('--seed', dest='seed', type=int, default=0, help='random seed base value')
+    parser.add_argument('-t', '--test', dest='test_index_list', type=int,action='append', default=[], help='test to run')
     parser.add_argument('n', nargs='*', default=[10001], type=int, help='population')
     args = parser.parse_args()
     test_list = args.test_index_list
@@ -105,14 +107,15 @@ if __name__ == '__main__':
     nruns = args.num_runs
     runs = {}
     for n in args.n:
-        print("start processing {0} , time = {1}".format(n, datetime.now().strftime("%H:%M:%S")))
+        print("start processing {0} , time = {1}".format(n,datetime.now().strftime("%H:%M:%S")))
         outdir = os.path.join(args.outdir, "pop_" + str(n))
         Path(outdir).mkdir(parents=True, exist_ok=True)
-        runs[n] = run_benchmark(n, test_list, outdir, nruns=nruns)
+        runs[n] = run_benchmark(n, test_list, outdir, nruns=nruns,base_seed=args.seed)
 
     print("end  processing time = {0}".format(datetime.now().strftime("%H:%M:%S")))
 
     print("population  test                              time")
+
     for pop, test in runs.items():
         for t_indx, t_time in test.items():
             print("{:10d}  {:30} {:.2f}".format(pop, to_profile_dict[t_indx], t_time))

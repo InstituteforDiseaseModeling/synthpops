@@ -49,7 +49,7 @@ def runpop(resultdir, actual_vals, testprefix, method):
     return pop
 
 
-def copy_input(sourcedir, resultdir, subdir_level):
+def copy_input(sourcedir, resultdir, subdir_level, patterns=None):
     """
     Copy files to the target datadir up to the subdir level.
 
@@ -63,10 +63,8 @@ def copy_input(sourcedir, resultdir, subdir_level):
     """
 
     # copy all files to datadir except the ignored files
-    ignorepatterns = shutil.ignore_patterns("*contact_networks*",
-                                            "*contact_networks_facilities*",
-                                            "*New_York*",
-                                            "*Oregon*")
+    patterns = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*"] if patterns is None else patterns
+    ignorepatterns = shutil.ignore_patterns(*patterns)
     shutil.copytree(sourcedir, os.path.join(resultdir, subdir_level), ignore=ignorepatterns)
 
 

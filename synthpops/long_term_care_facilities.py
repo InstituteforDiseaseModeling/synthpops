@@ -19,6 +19,7 @@ from . import contact_networks as spcnx
 from . import school_modules as spsm
 from . import read_write as sprw
 from .config import logger as log
+from . import config as cfg
 
 part = 2
 
@@ -176,7 +177,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     log.debug('generate_microstructure_with_facilities()')
 
     # Grab Long Term Care Facilities data
-    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, part)
+    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part)
 
     # ltcf_df keys
     ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']
@@ -231,8 +232,9 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
         print('users in 2018', expected_users_2018)
 
     # location age distribution
+    #age_brackets_16fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'Washington_census_age_brackets_16.dat')
     age_distr_16 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
-    age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location, country_location)
+    age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location,  nbrackets=16)
     age_by_brackets_dic_16 = spb.get_age_by_brackets_dic(age_brackets_16)
 
     # current King County population size
@@ -240,7 +242,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # local elderly population estimate
     local_elderly_2018 = 0
-    for ab in range(12, 16):
+    #for ab in range(12, 16):
+    for ab in range(12, spdata.get_nbrackets()):
         local_elderly_2018 += age_distr_16[ab] * pop
 
     if verbose:
@@ -288,10 +291,11 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
     est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
-    age_distr_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'seattle_metro_age_bracket_distr_18.dat')
-    age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_distr_18_fp)
-    age_brackets_18_fp = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions', 'census_age_brackets_18.dat')
-    age_brackets_18 = spdata.get_census_age_brackets(datadir, file_path=age_brackets_18_fp)
+    age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_18.dat')
+
+    age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_brackets_18_fp)
+
+    age_brackets_18 = spdata.get_census_age_brackets(datadir, state_location, country_location, nbrackets=18)
     age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
     n = int(n)
@@ -382,8 +386,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
     hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
-    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, use_default=use_default)
-    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, use_default=use_default)
+    hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
+    hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
     contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
@@ -473,9 +477,10 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # Assign facilities care staff from 20 to 59
 
-    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    datadir = datadir + ''
+    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
     KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
-    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
 
     facilities_staff = []
     facilities_staff_uids = []

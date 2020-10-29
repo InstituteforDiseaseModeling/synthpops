@@ -604,7 +604,6 @@ def rehydrate(data):
 
     return popdict
 
-
 def save_synthpop(datadir, contacts, location):
     """
     Save pop data object to file.
@@ -618,7 +617,7 @@ def save_synthpop(datadir, contacts, location):
         None
     """
 
-    filename = os.path.join(datadir, location + '_synthpop_' + str(len(contacts)) + '.pop')
+    filename = os.path.join(spdata.get_relative_path(datadir), location + '_synthpop_' + str(len(contacts)) + '.pop')
     sc.saveobj(filename=filename, obj=contacts)
 
 
@@ -792,20 +791,26 @@ def make_contacts_from_microstructure(datadir, location, state_location, country
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location,
                              state_location, folder_name)
 
-    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-
+    #households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    households_by_uid_path = os.path.join(file_path, state_location+ '_' + str(n) + '_synthetic_households_with_uids.dat')
     if with_industry_code:
-        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
-        workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+        #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_by_industry_with_uids.dat')
+        #workplaces_by_industry_code_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
+        workplaces_by_industry_code_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_by_industry_codes.dat')
     else:
-        workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+        #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+        workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
 
-    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    #schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    #teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
 
     if with_non_teaching_staff:
         try:
-            non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            #non_teaching_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
+            non_teaching_staff_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_non_teaching_staff_with_uids.dat')
             fnt = open(non_teaching_staff_by_uid_path, 'r')
             fnt.close()
         except:
@@ -1301,12 +1306,19 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
     # school type age ranges by default
     school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
 
-    households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-    workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
-    schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
-    teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
-    facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
-    facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
+    #households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    #workplaces_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    #schools_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    #teachers_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    #facilities_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+    #facilities_staff_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
+
+    households_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_households_with_uids.dat')
+    workplaces_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_workplaces_with_uids.dat')
+    schools_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_schools_with_uids.dat')
+    teachers_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_teachers_with_uids.dat')
+    facilities_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_facilities_with_uids.dat')
+    facilities_staff_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_synthetic_facilities_staff_with_uids.dat')
 
     if with_non_teaching_staff:
         try:
@@ -1481,6 +1493,205 @@ def make_contacts_with_facilities_from_microstructure(datadir, location, state_l
             popdict[uid]['wpid'] = nw
 
     workplaces_by_uids.close()
+
+    return popdict
+
+
+def make_contacts_with_facilities_from_microstructure_objects(age_by_uid_dic, homes_by_uids, schools_by_uids, teachers_by_uids, workplaces_by_uids, facilities_by_uids, facilities_staff_uids, non_teaching_staff_uids=None,
+                                                              use_two_group_reduction=False, average_LTCF_degree=20,
+                                                              with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                                                              average_student_teacher_ratio=20, average_teacher_teacher_degree=3,
+                                                              average_student_all_staff_ratio=15, average_additional_staff_degree=20,
+                                                              school_type_by_age=None, workplaces_by_industry_codes=None, verbose=False):
+    """
+    From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
+    Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
+    school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
+
+    Args:
+        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
+        schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students and teachers within it
+        teachers_by_uids (list)                           : A list of lists, where each sublist represents a school and the ids of the teachers within it
+        workplaces_by_uids (list)                         : A list of lists, where each sublist represents a workplace and the ids of the workers within it
+        facilities_by_uids (list)                         : A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the residents living within it
+        facilities_staff_uids (list)                      : A list of lists, where each sublist represents a skilled nursing or long term care facility and the ids of the staff working within it
+        non_teaching_staff_uids (list)                    : None or a list of lists, where each sublist represents a school and the ids of the non teaching staff within it
+        use_two_group_reduction (bool)                    : If True, create long term care facilities with reduced contacts across both groups
+        average_LTCF_degree (int)                         : default average degree in long term care facilities
+        with_school_types (bool)                          : If True, creates explicit school types.
+        school_mixing_type (str or dict)                  : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise. 'random' means random graphs for each school, 'age_clustered' means random graphs but with students mostly mixing within the age/grade (inter_grade_mixing controls mixing between grades), 'age_and_grade_clustered' means students cohorted into classes with their own teachers.
+        average_class_size (float)                        : The average classroom size.
+        inter_grade_mixing (float)                        : The average fraction of mixing between grades in the same school for clustered school mixing types.
+        average_student_teacher_ratio (float)             : The average number of students per teacher.
+        average_teacher_teacher_degree (float)            : The average number of contacts per teacher with other teachers.
+        average_student_all_staff_ratio (float)           : The average number of students per staff members at school (including both teachers and non teachers).
+        average_additional_staff_degree (float)           : The average number of contacts per additional non teaching staff in schools.
+        school_type_by_age (dict)                         : A dictionary of probabilities for the school type likely for each age.
+        workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
+        verbose (bool)                                    : If True, print debugging statements.
+
+    Returns:
+        A popdict of people with attributes. Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        for each individual with their attributes, such as age, household ID (hhid), school ID (scid), workplace ID (wpid), workplace
+        industry code (wpindcode) if available, and the IDs of their contacts in different layers. Different layers available are
+        households ('H'), schools ('S'), and workplaces ('W'), and long term care facilities ('LTCF'). Contacts in these layers are clustered and thus form a network composed of
+        groups of people interacting with each other. For example, all household members are contacts of each other, and everyone in the
+        same school is considered a contact of each other. If use_two_group_reduction is True, then contracts within 'LTCF' are reduced
+        from fully connected.
+
+    Notes:
+        Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
+        smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
+    """
+    grade_age_mapping = {i: i + 5 for i in range(13)}
+    age_grade_mapping = {i + 5: i for i in range(13)}
+    age_grade_mapping[3] = 0
+    age_grade_mapping[4] = 0
+
+    # check school mixing type
+    if isinstance(school_mixing_type, str):
+        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+    elif isinstance(school_mixing_type, dict):
+        school_mixing_type_dic = sc.dcp(school_mixing_type)
+
+    # school type age ranges by default
+    school_type_by_age = sc.mergedicts(spsm.get_default_school_types_by_age_single(), school_type_by_age)
+
+    uids = age_by_uid_dic.keys()
+    uids = [uid for uid in uids]
+
+    popdict = {}
+    for uid in age_by_uid_dic:
+        popdict[uid] = {}
+        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['sex'] = np.random.randint(2)
+        popdict[uid]['loc'] = None
+        popdict[uid]['contacts'] = {}
+        popdict[uid]['snf_res'] = None
+        popdict[uid]['snf_staff'] = None
+        popdict[uid]['hhid'] = None
+        popdict[uid]['scid'] = None
+        popdict[uid]['sc_student'] = None
+        popdict[uid]['sc_teacher'] = None
+        popdict[uid]['sc_staff'] = None
+        popdict[uid]['sc_type'] = None
+        popdict[uid]['sc_mixing_type'] = None
+        popdict[uid]['wpid'] = None
+        popdict[uid]['snfid'] = None
+        for k in ['H', 'S', 'W', 'C', 'LTCF']:
+            popdict[uid]['contacts'][k] = set()
+
+    # read in facility residents and staff
+    for nf, facility in enumerate(facilities_by_uids):
+        facility_staff = facilities_staff_uids[nf]
+
+        for u in facility:
+            popdict[u]['snf_res'] = 1
+            popdict[u]['snfid'] = nf
+
+        for u in facility_staff:
+            popdict[u]['snf_staff'] = 1
+            popdict[u]['snfid'] = nf
+
+        if use_two_group_reduction:
+            popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF',
+                                                               average_degree=average_LTCF_degree,
+                                                               force_cross_edges=True)
+
+        else:
+            for uid in facility:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+            for uid in facility_staff:
+                popdict[uid]['contacts']['LTCF'] = set(facility)
+                popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
+                popdict[uid]['contacts']['LTCF'].remove(uid)
+
+    for nh, household in enumerate(homes_by_uids):
+        for uid in household:
+            popdict[uid]['contacts']['H'] = set(household)
+            popdict[uid]['contacts']['H'].remove(uid)
+            popdict[uid]['hhid'] = nh
+
+    n_non_teaching_staff = []
+    n_teaching_staff = []
+
+    for ns, students in enumerate(schools_by_uids):
+        teachers = teachers_by_uids[ns]
+        if non_teaching_staff_uids is None:
+            non_teaching_staff = []
+        elif non_teaching_staff_uids == []:
+            non_teaching_staff = []
+        else:
+            non_teaching_staff = non_teaching_staff_uids[ns]
+
+        this_school_type = None
+        this_school_mixing_type = None
+
+        if with_school_types:
+            student_ages = [age_by_uid_dic[i] for i in students]
+            min_age = min(student_ages)
+            # max_ages = max(student_ages)
+            this_school_type = school_type_by_age[min_age]
+            this_school_mixing_type = school_mixing_type_dic[this_school_type]
+            # print(this_school_mixing_type)
+            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
+            if verbose:
+                if this_school_type in ['es', 'ms', 'hs']:
+                    n_non_teaching_staff.append(len(non_teaching_staff))
+                    n_teaching_staff.append(len(teachers))
+        else:
+            school = students.copy() + teachers.copy() + non_teaching_staff.copy()
+            school += teachers
+            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
+            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
+        for uid in students:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_student'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+        for uid in teachers:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_teacher'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+        for uid in non_teaching_staff:
+            popdict[uid]['scid'] = ns
+            popdict[uid]['sc_staff'] = 1
+            popdict[uid]['sc_type'] = this_school_type
+            popdict[uid]['sc_mixing_type'] = this_school_mixing_type
+
+    for nw, workplace in enumerate(workplaces_by_uids):
+        for uid in workplace:
+            popdict[uid]['contacts']['W'] = set(workplace)
+            popdict[uid]['contacts']['W'].remove(uid)
+            popdict[uid]['wpid'] = nw
+
+    if verbose:
+        print('n_staff in es, ms, hs', np.sum(n_non_teaching_staff))
+        print('n_teachers in es, ms, hs', np.sum(n_teaching_staff))
+        n_staff_again = 0
+        n_teachers_again = 0
+        n_school_edges = 0
+        for uid in popdict:
+            person = popdict[uid]
+            if person['sc_type'] in ['es', 'ms', 'hs']:
+                if person['sc_staff'] == 1:
+                    n_staff_again += 1
+                elif person['sc_teacher'] == 1:
+                    n_teachers_again += 1
+            if person['scid'] is not None:
+                n_school_edges += len(person['contacts']['S'])
+
+        print('n_staff_again in es, ms, hs', n_staff_again)
+        print('n_teachers_again in es, ms, hs', n_teachers_again)
+        print('number of edges in school', n_school_edges / 2, n_school_edges)
 
     return popdict
 

@@ -27,6 +27,7 @@ class TestSchoolStaff(unittest.TestCase):
         cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), cls.subdir_level)
         utilities.copy_input(cls.sourcedir, cls.resultdir, cls.subdir_level)
         cfg.set_nbrackets(20)
+        cfg.set_location_defaults('defaults')
 
     @classmethod
     def tearDownClass(cls) -> None:
