@@ -40,7 +40,7 @@ if __name__ == '__main__':
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'contact_networks')
 
     # households_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_synthetic_households_with_uids.dat')
-    age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+    age_by_uid_path = os.path.join(file_path, state_location + '_' + str(n) + '_age_by_uid.dat')
     df = pd.read_csv(age_by_uid_path, delimiter=' ', header=None)
 
     # age_by_uid_dic = sc.objdict(zip(df.iloc[:,0], df.iloc[:,1]))

@@ -9,14 +9,14 @@ if __name__ == '__main__':
 
     datadir = sp.datadir
 
-    # location = 'seattle_metro'
-    # state_location = 'Washington'
-    # country_location = 'usa'
-    # sheet_name = 'United States of America'
-    location = 'Dakar'
-    state_location = 'Dakar'
-    country_location = 'Senegal'
-    sheet_name = None
+    location = 'seattle_metro'
+    state_location = 'Washington'
+    country_location = 'usa'
+    sheet_name = 'United States of America'
+    # location = 'Dakar'
+    # state_location = 'Dakar'
+    # country_location = 'Senegal'
+    # sheet_name = None
 
     n = 10000
     n = int(n)

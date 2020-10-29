@@ -156,6 +156,7 @@ def test_get_school_size_distr_by_brackets_path_Senegal():
     """
     default_country = sp.config.default_country
     sp.config.set_location_defaults('Senegal')
+    sp.set_nbrackets(18)
     datadir = sp.datadir
     location = 'Dakar'
     state_location = 'Dakar'

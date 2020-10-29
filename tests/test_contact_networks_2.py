@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     popdict = {}
 
-    n = 20000
+    n = 10000
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
@@ -32,9 +32,7 @@ if __name__ == '__main__':
     # contacts = sp.trim_contacts(contacts,trimmed_size_dic=None,use_clusters=False)
     # print(contacts[uids[3]]['contacts'])
 
-
-
-    sp.save_synthpop(os.path.join(datadir,'demographics',country_location,state_location),contacts)
+    sp.save_synthpop(os.path.join(datadir, 'demographics', country_location, state_location), contacts, location)
 
     sc.toc()
 

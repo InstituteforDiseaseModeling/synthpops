@@ -9,7 +9,7 @@ if __name__ == '__main__':
     location = 'seattle_metro'
     state_location = 'Washington'
     country_location = 'usa'
-    n = 100e3
+    n = 10000
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
