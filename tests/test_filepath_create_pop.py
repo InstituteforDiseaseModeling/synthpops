@@ -160,3 +160,6 @@ class TestFilePathCreatePop(unittest.TestCase):
         utilities_dist.check_enrollment_distribution(pop, self.n, datadir, figdir, location, state_location, country_location,
                                                 test_prefix=f"{test_prefix}", skip_stat_check=skip_stat_check, do_close=self.do_close)
 
+
+if __name__ == "__main__":
+    unittest.main()

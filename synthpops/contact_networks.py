@@ -953,10 +953,15 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
 
                 if np.sum(b_prob):
+                    count = 0
                     while np.sum(workers_left_in_bracket) == 0:
+                        count += 1
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
+                        if count > 100:
+                            print('eh oh')
+                            import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
                     a_prob = np.array(a_prob)
                     a_prob = a_prob/np.sum(a_prob)
@@ -986,7 +991,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
-  
+
 def generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
                                   school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                                   average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
