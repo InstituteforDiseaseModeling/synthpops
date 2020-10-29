@@ -169,7 +169,7 @@ if __name__ == '__main__':
     test_get_gender_fraction_by_age_path_all_variables()
     # test_get_gender_fraction_by_age_path_country_variable_only()
     test_get_gender_fraction_by_age_path_country_state_variables()
-    test_get_gender_fraction_by_age_path_all_variables_Senegal()
+    # test_get_gender_fraction_by_age_path_all_variables_Senegal()
     test_get_census_age_brackets_path_Senegal()
     test_get_school_size_brackets_path_Senegal()
     test_get_school_sizes_path_Senegal()
