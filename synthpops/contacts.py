@@ -1858,7 +1858,7 @@ def make_contacts(popdict=None, n_contacts_dic=None, location=None, state_locati
                                                                         average_class_size=network_distr_args['average_class_size'],
                                                                         inter_grade_mixing=network_distr_args['inter_grade_mixing'],
                                                                         average_student_teacher_ratio=network_distr_args['average_student_teacher_ratio'],
-                                                                        average_teacher_teacher_ratio=network_distr_args['average_teacher_teacher_degree'],
+                                                                        average_teacher_teacher_degree=network_distr_args['average_teacher_teacher_degree'],
                                                                         average_student_all_staff_ratio=network_distr_args['average_student_all_staff_ratio'],
                                                                         average_additional_staff_degree=network_distr_args['average_additional_staff_degree'],
                                                                         school_type_by_age=network_distr_args['school_type_by_age'])
