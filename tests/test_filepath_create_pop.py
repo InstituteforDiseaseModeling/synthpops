@@ -31,7 +31,8 @@ class TestFilePathCreatePop(unittest.TestCase):
         cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
         cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
         cls.average_student_all_staff_ratio = inspect.signature(sp.make_population).parameters["average_student_all_staff_ratio"].default
-
+        cfg.set_datadir(cls.initial_default_dir, ["demographics", "contact_matrices_152_countries"])
+        cfg.set_location_defaults(country="defaults")
 
     @classmethod
     def copy_output(cls):
