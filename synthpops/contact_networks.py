@@ -953,14 +953,21 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
 
                 if np.sum(b_prob):
+                    loop_b_prob = sc.dcp(b_prob) # Make a copy to avoid overwriting he original
                     count = 0
                     while np.sum(workers_left_in_bracket) == 0:
+                        if count == 0:
+                            print('\n\nDFOIUDFOIUDOFUDOIFUD', i, 'orig bi:', bi)
+                        loop_b_prob[bi] = 0
                         count += 1
-                        bichoice = np.random.multinomial(1, b_prob)
-                        bi = np.where(bichoice)[0][0]
+                        # bichoice = np.random.multinomial(1, loop_b_prob)
+                        # bi = np.where(bichoice)[0][0]
+                        bi = spsamp.fast_choice(loop_b_prob)
+                        # loop_b_prob[bi] = 0 # If we have tried an entry and it didn't work, don't try again
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                        if count == 100:
-                            print('Count exceeded 100')
+                        print(count, bi, loop_b_prob, workers_left_in_bracket)
+                        if count == 10:
+                            print('Count exceeded 10')
                             raise Exception
                             # import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
