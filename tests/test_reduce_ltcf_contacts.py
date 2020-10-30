@@ -3,15 +3,13 @@ An example of creating a population with LTCF and reducing contacts within LTCF
 while ensuring that every resident is in contact with at least one staff member.
 """
 
-import numpy as np
 import synthpops as sp
 
 set_seed = True
-set_seed = False
 
 if set_seed:
     seed = 70
-    np.random.seed(seed)
+    sp.set_seed(seed)
 
 datadir = sp.datadir
 location = 'seattle_metro'
@@ -31,9 +29,9 @@ def test_create_reduced_contacts_with_group_types():
 
     # Make 2 groups of contacts
     # Facility contacts - use generating function so that data can be generated as needed to run this test
-    contacts_group_1 = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location, 
-                                                                  n, plot=False, verbose=False, 
-                                                                  write=False, return_popdict=True, 
+    contacts_group_1 = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
+                                                                  n, plot=False, verbose=False,
+                                                                  write=False, return_popdict=True,
                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
 
     # List of ids for group_1 facility contacts
