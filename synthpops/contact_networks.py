@@ -959,9 +959,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                         bichoice = np.random.multinomial(1, b_prob)
                         bi = np.where(bichoice)[0][0]
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
-                        if count > 100:
-                            print('eh oh')
-                            import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
+                        if count == 100:
+                            print('Count exceeded 100')
+                            # import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
                     a_prob = np.array(a_prob)
                     a_prob = a_prob/np.sum(a_prob)
