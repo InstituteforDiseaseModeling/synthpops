@@ -31,8 +31,16 @@ class TestFilePathCreatePop(unittest.TestCase):
         cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
         cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
         cls.average_student_all_staff_ratio = inspect.signature(sp.make_population).parameters["average_student_all_staff_ratio"].default
+        cls.restore_defaults()
+
+
+    @classmethod
+    def restore_defaults(cls):
+        ''' Ensure defaults aree restored, leaving SynthPops in a stable state '''
         cfg.set_datadir(cls.initial_default_dir, ["demographics", "contact_matrices_152_countries"])
         cfg.set_location_defaults(country="defaults")
+        return
+
 
     @classmethod
     def copy_output(cls):
@@ -52,6 +60,7 @@ class TestFilePathCreatePop(unittest.TestCase):
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
            shutil.rmtree(d, ignore_errors=True)
 
+
     def test_usa_location_walk_back(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
         sp.config.set_alt_location(location="seattle_metro", country_location="usa", state_location="Washington")
@@ -67,6 +76,9 @@ class TestFilePathCreatePop(unittest.TestCase):
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
         self.check_result(spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
+        self.restore_defaults()
+        return
+
 
     def test_usa_default_with_param(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
@@ -81,6 +93,9 @@ class TestFilePathCreatePop(unittest.TestCase):
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
         self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
+        self.restore_defaults()
+        return
+
 
     def test_usa_default(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
@@ -94,6 +109,8 @@ class TestFilePathCreatePop(unittest.TestCase):
         country_location = "usa"
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True)
         self.check_result( spop, datadir, self.dataUSAdir, test_prefix, location, state_location, country_location, skip_stat_check=True)
+        self.restore_defaults()
+        return
 
 
     def test_senegal_default(self):
@@ -108,7 +125,8 @@ class TestFilePathCreatePop(unittest.TestCase):
         state_location = cfg.default_state
         country_location = cfg.default_country
         self.check_result( spop, datadir, self.dataSenegalDir, test_prefix, location, state_location, country_location, skip_stat_check=True)
-
+        self.restore_defaults()
+        return
 
     def test_senegal_set_param(self):
         cfg.set_datadir(os.path.join(self.dataSenegalDir,'data'), ["demographics","contact_matrices_152_countries"])
@@ -122,6 +140,8 @@ class TestFilePathCreatePop(unittest.TestCase):
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
         self.check_result( spop, datadir, self.dataSenegalDir, test_prefix, location, state_location, country_location, skip_stat_check=True)
+        self.restore_defaults()
+        return
 
 
     def test_senegal_basic(self):
@@ -136,22 +156,9 @@ class TestFilePathCreatePop(unittest.TestCase):
         spop = sp.make_population(n=n, rand_seed=rand_seed, generate=True,
                                   country_location=country_location, state_location=state_location)
         self.check_result( spop, datadir, self.dataSenegalDir, test_prefix, location, state_location, country_location, skip_stat_check=True)
+        self.restore_defaults()
+        return
 
-
-    def test_senegal_generate_synthetic_population(self):
-        # everything is default no cfg ops
-        sp.set_seed(self.seed)
-        n = self.n
-        datadir = os.path.join(self.dataSenegalDir, 'data')
-        test_prefix = sys._getframe().f_code.co_name
-        location = "Dakar"
-        state_location = "Dakar"
-        country_location = "Senegal"
-        # Note: generate_synthetic_population normally returns None
-        #       to get population you need to set return_popdict to True
-        spop = sp.generate_synthetic_population(n=n, datadir=datadir, location=location, country_location=country_location, state_location=state_location, return_popdict=True)
-
-        self.check_result( spop, datadir, self.dataSenegalDir, test_prefix, location, state_location, country_location, skip_stat_check=True)
 
     def check_result(self, pop, datadir, figdir, test_prefix, location, state_location, country_location, skip_stat_check=False):
         if self.do_plot:
