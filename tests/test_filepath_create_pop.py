@@ -60,7 +60,8 @@ class TestFilePathCreatePop(unittest.TestCase):
         for d in [cls.dataUSAdir, cls.dataSenegalDir]:
            shutil.rmtree(d, ignore_errors=True)
 
-    def TearDown(self):
+    def tearDown(self):
+        print("restore to defaults")
         self.restore_defaults()
 
     def test_usa_location_walk_back(self):
