@@ -959,10 +959,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                         bi = spsamp.fast_choice(loop_b_prob)
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
-                    a_prob = np.array(a_prob)
-                    a_prob = a_prob/np.sum(a_prob)
-
-                    ai = np.random.choice(a=age_brackets[bi], p=a_prob)
+                    ai = age_brackets[bi][spsamp.fast_choice(a_prob)]
 
                     uid = potential_worker_uids_by_age[ai][0]
                     new_work.append(ai)
