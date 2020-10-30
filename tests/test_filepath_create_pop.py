@@ -13,6 +13,7 @@ from synthpops import cfg
 class TestFilePathCreatePop(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        cls.do_plot = False # Whether or not to generate plots
         cls.do_close = False
         cls.dataUSAdir = tempfile.TemporaryDirectory().name
         cls.dataSenegalDir = tempfile.TemporaryDirectory().name
@@ -152,13 +153,14 @@ class TestFilePathCreatePop(unittest.TestCase):
         self.check_result( spop, datadir, self.dataSenegalDir, test_prefix, location, state_location, country_location, skip_stat_check=True)
 
     def check_result(self, pop, datadir, figdir, test_prefix, location, state_location, country_location, skip_stat_check=False):
-        utilities.check_class_size(pop, self.average_class_size, self.average_student_teacher_ratio,self.average_student_all_staff_ratio, 1)
-        utilities.check_teacher_staff_ratio(pop, datadir, f"{test_prefix}", self.average_student_teacher_ratio,
-                                            self.average_student_all_staff_ratio, err_margin=2)
-        utilities_dist.check_age_distribution(pop, self.n, datadir, figdir, location, state_location, country_location,
-                                         test_prefix=test_prefix, do_close=self.do_close)
-        utilities_dist.check_enrollment_distribution(pop, self.n, datadir, figdir, location, state_location, country_location,
-                                                test_prefix=f"{test_prefix}", skip_stat_check=skip_stat_check, do_close=self.do_close)
+        if self.do_plot:
+            utilities.check_class_size(pop, self.average_class_size, self.average_student_teacher_ratio,self.average_student_all_staff_ratio, 1)
+            utilities.check_teacher_staff_ratio(pop, datadir, f"{test_prefix}", self.average_student_teacher_ratio,
+                                                self.average_student_all_staff_ratio, err_margin=2)
+            utilities_dist.check_age_distribution(pop, self.n, datadir, figdir, location, state_location, country_location,
+                                             test_prefix=test_prefix, do_close=self.do_close)
+            utilities_dist.check_enrollment_distribution(pop, self.n, datadir, figdir, location, state_location, country_location,
+                                                    test_prefix=f"{test_prefix}", skip_stat_check=skip_stat_check, do_close=self.do_close)
 
 
 if __name__ == "__main__":
