@@ -829,17 +829,14 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
     if min_n_non_teaching_staff <= 0:
         errormsg = f'At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio and the average_student_all_staff_ratio if you do not expect this to be the case, or some of the generated schools may have too few staff members.'
-        print(errormsg)
-        # print(n_students_list)
+        log.debug(errormsg)
 
         if verbose:
             print(n_students_list)
             print(n_teachers_list)
             print(n_all_staff_list)
             print(n_non_teaching_staff_list)
-        # n_non_teaching_staff_list = [i if i > 0 else 0 for i in n_non_teaching_staff_list]  # accept that sometimes there will be no extra staff
         n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
-        # n_non_teaching_staff_list = n_teachers_list.copy()
 
     non_teaching_staff_uids = []
 
@@ -946,8 +943,6 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         else:
             for i in range(1, size):
 
-                # bichoice = np.random.multinomial(1, b_prob)
-                # bi = np.where(bichoice)[0][0]
                 bi = spsamp.fast_choice(b_prob)
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
