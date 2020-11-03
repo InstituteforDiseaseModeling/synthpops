@@ -13,23 +13,15 @@ import sys
 import psutil
 import sciris as sc
 import logging
-import datetime
-import sciris as sc
-import re
 import yaml
 from . import version as spv
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_datadir', 'set_nbrackets',
-           'validate', 'set_altdatadir', 'set_location_defaults', 'default_country', 'default_state',
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets',
+           'validate', 'set_location_defaults', 'default_country', 'default_state',
            'default_location', 'default_sheet_name', 'alt_location', 'default_household_size_1_included',
            'get_config_data', 'version_info']
 
 
-class LocationClass:
-    def __init__(self, location=None, state_location=None, country_location=None):
-        self.country_location = country_location
-        self.state_location = state_location
-        self.location = location
 
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
@@ -111,8 +103,6 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 def get_config_data(config_file):
     with open(config_file) as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
-        if 'valid_nbrackets' in data.keys():
-            valid_nbracket_ranges = data['valid_nbrackets']
         f.close()
     return data
 
@@ -145,68 +135,12 @@ def set_location_defaults(country=None):
         default_sheet_name = loc['sheet_name']
         nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
         default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-    else:
-        #logger.warning(f"warning: country not in config file, using defaults")
-        loc = data['defaults']
-        default_location = loc['location']
-        default_state = loc['province']
-        default_country = loc['country']
-        default_sheet_name = loc['sheet_name']
-        nbrackets = 20 if 'nbrackets' not in loc.keys() else loc['nbrackets']
-        default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-
-
-def set_alt_location(location=None, state_location=None, country_location=None):
-    global alt_location
-    levels = [location,state_location, country_location]
-
-    if all(level is None for level in levels) :
-        alt_location = None
-        logger.warning(f"Warning: No alternate location specified")
-    elif country_location is None:
-        alt_location = None
-        logger.warning(f"Warning: No alternate country specified, alternate country is required")
-    elif country_location is not None and state_location is None:
-        # ifstate_location is none make sure alt_location only has country
-        alt_location = LocationClass(country_location=country_location)
-    else:
-        alt_location = LocationClass(location=location, state_location=state_location, country_location=country_location)
 
 
 set_location_defaults()
 
 
-def set_datadir(root_dir, relative_path=None):
-    '''Set the data folder and relative path to the user-specified
-        location.
-        On startup, the datadir and rel_path are set to the conventions
-        used to store data. datadir is the root directory to the data, and
-        rel_path is a list of sub directories to the data -->
-        rel_path = ['demographics', 'contact_matrices_152_countries']
-        to change the location of the data the user is able to supply a new root_dir and new relative path. If the user uses a similar directory path model that we use
-        e.g. root_dir/demographic/contact... the user can change datadir without changing relitive path, by passing in relative_path = None (default)
-        -- note, mostly deprecated.'''
-    ''' user specifies complete path'''
-    global datadir
-    global rel_path
-    datadir = root_dir
-    if relative_path is not None:
-        rel_path = relative_path
-    logger.info(f'Done: data directory set to {root_dir}.')
-    logger.info(f'Relative Path set to  {rel_path}.')
-    return datadir
 
-
-def set_altdatadir(root_dir, relative_path=None):
-    '''Set the data folder to the user-specified location -- note, mostly deprecated.'''
-    global alt_datadir
-    global alt_rel_path
-    alt_datadir = root_dir
-    if relative_path is not None:
-        alt_rel_path = relative_path
-    logger.info(f'Done: alt data directory set to {root_dir}.')
-    logger.info(f'alt relative Path set to  {rel_path}.')
-    return alt_datadir
 
 
 def set_nbrackets(n):
@@ -231,91 +165,6 @@ def validate(verbose=True):
         else:
             raise FileNotFoundError(f'The folder "{datadir}" does not exist, as far as I can tell.')
 
-"""
-    It is assumed that the data files used for synthpops are organized by location path
-    and data type. A location path consisting of multiple administrative levels commonly
-    referred to as country, state/province and and location.Location can be a district
-    (w.g. Kin County), city (Seattle) or a metropolitan area (e.g. Seattle metropolitan area).
-    Each of these levels is represents by a directory in the data tree and contains the data
-    for administrative boundaries
-
-    When storing the data files, each administrative area is represented by a directory.
-    In addition to each administrative directory there is a list of optional parameter directories,
-    and each parameter directory contains and actual data file. An example of a data storage
-    structure is described below.
-        /data_dir/ --+
-                     |
-                     + country 1 +
-                     |           + province_a +
-                     |           |            + location_1 +
-                     |           |            |            + age_distribution
-                     |           |            |            + contact_networks
-                     |           |            |            + employment
-                     |           |            |            + enrollment
-                     |           |            |            + household_living_arrangements
-                     |           |            |            + household size distribution
-                     |           |            |            + schools
-                     |           |            |            + workplaces
-                     |           |            + location_2
-                     |           |            |            + age_distribution
-                     |           |            |            + contact_networks
-                     |           |            |            + employment
-                     |           |            |            + enrollment
-                     |           |            |            + household_living_arrangements
-                     |           |            |            + household size distribution
-                     |           |            |            + schools
-                     |           |            |            + workplaces
-                     |           |            + age_distribution
-                     |           |            + contact_networks
-                     |           |            + employment
-                     |           |            + enrollment
-                     |           |            + household_living_arrangements
-                     |           |            + household_size_distribution
-                     |           |            + schools
-                     |           |            + workplaces
-                     |           + age_distribution
-                     |           + contact_networks
-                     |           + employment
-                     |           + enrollment
-                     |           + household_living _arrangements
-                     |           + household_size_distribution
-                     |           + schools
-                     |           + workplaces
-                     + defaults +
-                     |          + age_distribution
-                     |          + contact_networks
-                     |          + employment
-                     |          + enrollment
-                     |          + household_living_arrangements
-                     |          + household_size_distribution
-                     |          + schools
-                     |          + workplaces
-    Data data is not always availability at the highest resolution (e.g. location level).
-    And when that occurs, we want to fall back to the next highest level. For example,
-    if location_1 has not age_distribution data (represented by an empty directory or
-    no directory) under location_1, then we want to see if there is and age_distributon
-    data file in province+_a. If there is no age_distribution in province_a, then we want to
-    use the age_distribution in country_1.
-
-    Alternate location:
-    It is not always possible to get all the for all country provinces or location. Because
-    of this we allow for the use of 'similar data'. An example of this would be location like
-    Portland and Seattle. Population size, age distribution and industrial mix are very similar.
-    If we were missing household or school information for Portland, it reasonable to use
-    Seattle data for these items. This class allows the user to define an alternate location
-    to search for missing data.
-
-    Default Location:
-    Finally if the 'use_default' flag is set True, and data is not found the default data will be
-    used.
-
-    Assumption:
-    1) We always want the data for the  highest resolution on the primary location path
-    2) If the data is not found in the primary location path, the alternate path will be
-    searched
-    3) By default the default path is not searched
-    4) if the data  is not found on the primary or alternate path an error is thrown.
-"""
 
 
 class FilePaths:
@@ -403,40 +252,8 @@ class FilePaths:
                 self.basedirs.extend(basedirs)
         self.validate_dirs()
 
-    def add_alternate_location(self, location=None, province=None, country=None):
-        levels = [location,province, country]
-
-        altdirs = None
-        if all(level is None for level in levels) :
-            self.alt_country = None
-            self.alt_province = None
-            self.alt_location = None
-            logger.warning(f"Warning: No alternate location specified")
-        elif country is None:
-            self.alt_country = None
-            self.alt_province = None
-            self.alt_location = None
-            logger.warning(f"Warning: No alternate country specified, alternate country is required")
-        elif country is not None and province is None:
-            # if province is none make sure location is none
-            self.alt_country = country
-            self.alt_province = None
-            self.alt_location = None
-            altdirs = self._add_dirs(self.alt_root_dir, None, None,country)
-        else:
-            self.alt_country = country
-            self.alt_province = province
-            self.alt_location = location
-            # build alternate dirs
-            altdirs = self._add_dirs(self.alt_root_dir, location, province,country)
-
-        if len(altdirs) > 0:
-            altdirs.reverse()
-            self.basedirs.extend(altdirs)
-        self.validate_dirs()
 
     def _add_dirs(self, root,location, province, country):
-        levels = [location,province, country]
         pathdirs = []
         # build alternate dirs
         pathdirs.append((country, os.path.join(root, country)))
@@ -458,23 +275,6 @@ class FilePaths:
              raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {search_list}')
              return False
         return True
-
-
-
-    @staticmethod
-    def norm_join(dir, path):
-        return os.path.normpath(os.path.join(dir, path))
-
-    def get_dir_list(self):
-        return self.basedirs
-
-    def get_location(self):
-        location_info = LocationClass(location=location, state_locaitno=province, country_location=country)
-        return location_info
-
-    def get_alt_location(self):
-        location_info = LocationClass(location=atl_location, state_location=alt_province, country_location=alt_country)
-        return location_info
 
     def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
         """
@@ -571,21 +371,4 @@ class FilePaths:
 
         if len(files) > 0 and filter_list is not None:
             files = self._filter(files, filter_list)
-        return files
-
-    def _filter(self, file_list, filter_list):
-        # the filter is a list of numbers added to the file name representing the number
-        # of brackets in the file (e.g. age brackets). We want the highest number possible
-        # get only the files in the list
-        # assume the filter is a list of numbers, and file name ins in .dat
-        def extract_number(f):
-            s = re.findall(r"\d+", f)
-            # return (int(s[0]) if s else -1,f)
-            return (int(s[0]) if s else -1)
-
-        #files = []
-        #if len(str_list ) > 0:
-        #    files = [max(str_list, key=extract_number)]
-        #files = [max(file_list, key=extract_number)]
-        files = [f for f in file_list if extract_number(f) == filter_list]
         return files
