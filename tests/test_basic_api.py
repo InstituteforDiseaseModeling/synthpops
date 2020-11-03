@@ -5,6 +5,7 @@ To create the test file, set regenerate = True. To test if it matches the saved
 version, set regenerate = False.
 '''
 
+import os
 import sciris as sc
 import synthpops as sp
 
@@ -48,7 +49,7 @@ def test_basic_api():
 
     pop = sp.make_population(**pars)
 
-    if regenerate:
+    if regenerate or not os.path.exists(outfile):
         print('Saving...')
         sc.saveobj(outfile, pop)
     else:
