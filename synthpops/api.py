@@ -3,18 +3,9 @@ This module provides the layer for communicating with the agent-based model Cova
 """
 
 import sciris as sc
-from .config import logger as log
 import synthpops as sp
+from .config import logger as log
 from . import config as cfg
-
-# Put this here so it's accessible as sp.api.popsize_choices
-popsize_choices = [5000,
-                   10000,
-                   20000,
-                   50000,
-                   100000,
-                   120000,
-                ]
 
 
 def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
@@ -64,27 +55,9 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     if rand_seed is not None:
         sp.set_seed(rand_seed)
 
-    default_n = 10000
     default_max_contacts = {'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
-    if n is None:
-        n = default_n
     n = int(n)
-
-    if n not in popsize_choices:
-        if generate is False:
-            choicestr = ', '.join([str(choice) for choice in popsize_choices])
-            errormsg = f'If generate=False, number of people must be one of {choicestr}, not {n}'
-            raise ValueError(errormsg)
-        else:
-            generate = True  # If n not found in popsize_choices and generate was not False, generate a new population.
-
-    # Default to False, unless LTCF are requested
-    if generate is None:
-        if with_facilities:
-            generate = True
-        else:
-            generate = False
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
@@ -100,7 +73,7 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     else:
         print(f"========== setting country location = {country_location}")
-        sp.config.set_location_defaults(country_location)
+        cfg.set_location_defaults(country_location)
     # if country is specified, and state is not, we are doing a country population
     if state_location is None:
         location = None
@@ -129,35 +102,13 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     network_distr_args['school_mixing_type'] = school_mixing_type
 
     # Heavy lift 1: make the contacts and their connections
-    if not generate:
-        log.debug('Not generating a new population')
-        # must read in from file, will fail if the data has not yet been generated
-        population = sp.make_contacts(location=location, state_location=state_location,
-                                      country_location=country_location, sheet_name=sheet_name,
-                                      options_args=options_args,
-                                      network_distr_args=network_distr_args)
-    else:
-        log.debug('Generating a new population...')
-        if with_facilities and with_industry_code:
-            errormsg = f'Requesting both long term care facilities and industries by code is not supported yet.'
-            raise ValueError(errormsg)
-        elif with_facilities:
-            population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, sheet_name=sheet_name,
-                                                                    use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, ltcf_staff_age_min=ltcf_staff_age_min, ltcf_staff_age_max=ltcf_staff_age_max,
-                                                                    with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
-                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
-                                                                    average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                                    return_popdict=True, trimmed_size_dic=max_contacts)
-        else:
-            population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name,
-                                                          with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
-                                                          average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
-                                                          average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                          return_popdict=True, trimmed_size_dic=max_contacts,
-                                                          )
-
-    # Semi-heavy-lift 2: trim them to the desired numbers
-    # population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
+    log.debug('Generating a new population...')
+    population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, sheet_name=sheet_name,
+                                                            use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, ltcf_staff_age_min=ltcf_staff_age_min, ltcf_staff_age_max=ltcf_staff_age_max,
+                                                            with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
+                                                            average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
+                                                            average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
+                                                            return_popdict=True, trimmed_size_dic=max_contacts)
 
     # Change types
     for key, person in population.items():
