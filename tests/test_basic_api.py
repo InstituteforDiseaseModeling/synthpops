@@ -1,5 +1,8 @@
 '''
-Simple benchmarking of individual functions
+Simple benchmarking of individual functions.
+
+To create the test file, set regenerate = True. To test if it matches the saved
+version, set regenerate = False.
 '''
 
 import sciris as sc
