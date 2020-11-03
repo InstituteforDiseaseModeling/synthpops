@@ -69,81 +69,6 @@ def add_contacts_from_group(popdict, group, setting):
     return popdict
 
 
-def add_contacts_from_groups(popdict, groups, setting):
-    """
-    Add contacts to popdict from fully connected groups.
-
-    Args:
-        popdict (dict) : dict of people
-        groups (list)  : list of lists of people in groups
-        setting (str)  : social setting layer
-
-    Returns:
-        Updated popdict.
-
-    """
-    for group in groups:
-        add_contacts_from_group(popdict, group, setting)
-
-    return popdict
-
-
-def add_random_contacts_from_graph(G, expected_average_degree):
-    """
-    Add additional edges at random to achieve the expected or desired average degree.
-
-    Args:
-        G (networkx Graph)            : networkx Graph object
-        expected_average_degree (int) : expected or desired average degree
-
-    Returns:
-        Updated networkx Graph object with additional edges added at random.
-
-    """
-    nodes = G.nodes()
-
-    # print('before',len(G.edges()))
-
-    ordered_node_ids = {node: node_id for node_id, node in enumerate(nodes)}
-    ids_to_ordered_nodes = {node_id: node for node_id, node in enumerate(nodes)}
-
-    if len(nodes) == 0:
-        return G
-
-    p = expected_average_degree / len(nodes)
-
-    G2 = nx.erdos_renyi_graph(len(nodes), p)  # will return a graph with nodes relabeled from 0 through len(nodes)-1
-
-    for node in nodes:
-        ordered_node_id = ordered_node_ids[node]
-
-        extra_neighbors = list(G2.neighbors(ordered_node_id))
-        extra_edges_needed = len(extra_neighbors) - G.degree(node)
-
-        if extra_edges_needed > 0:
-            extra_neighbors_to_add = np.random.choice(extra_neighbors, extra_edges_needed)
-            for j in extra_neighbors_to_add:
-                neighbor = ids_to_ordered_nodes[j]
-                G.add_edge(node, neighbor)
-
-    # in case you've added too many edges, let's remove a few - likely to not be hit
-    for node in nodes:
-        ordered_node_id = ordered_node_ids[node]
-        neighbors = list(G.neighbors(node))
-        extra_edges_to_remove = G.degree(node) - G2.degree(ordered_node_id)
-        extra_edges_to_remove = int(extra_edges_to_remove / 2.)
-
-        if extra_edges_to_remove > 0:
-            extra_neighbors_to_remove = np.random.choice(extra_neighbors, extra_edges_to_remove)
-            for j in extra_neighbors_to_remove:
-                neighbor = ids_to_ordered_nodes[j]
-                if G.has_edge(node, neighbor):
-                    G.remove_edge(node, neighbor)
-
-    # print('after',len(G.edges()))
-    return G
-
-
 def generate_random_contacts_for_additional_school_members(school_uids, additional_school_member_uids, average_additional_school_members_degree=20):
     """
     Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.
@@ -170,146 +95,122 @@ def generate_random_contacts_for_additional_school_members(school_uids, addition
     return edges
 
 
-def generate_random_contacts_across_school(all_school_uids, average_class_size):
-    """
-    Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
 
-    Args:
-        all_school_uids (list)   : list of uids of individuals in the school
-        average_class_size (int) : average class size or number of contacts in school
-        verbose (bool)           : If True, print some edges
+# def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
+#     """
+#     Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
 
-    Returns:
-        List of edges between individuals in school.
+#     Args:
+#         syn_school_uids (list)     : list of uids of students in the school
+#         syn_school_ages (list)     : list of the ages of the students in the school
+#         age_by_uid_dic (dict)      : dict mapping uid to age
+#         grade_age_mapping (dict)   : dict mapping grade to an age
+#         age_grade_mapping (dict)   : dict mapping age to a grade
+#         average_class_size (int)   : average class size
+#         inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
+#         verbose (bool)             : print statements throughout
 
-    """
-    edges = []
-    p = average_class_size / len(all_school_uids)
-    G = nx.erdos_renyi_graph(len(all_school_uids), p)
-    for n, e in enumerate(G.edges()):
-        i, j = e
-        node_i = all_school_uids[i]
-        node_j = all_school_uids[j]
-        e = (node_i, node_j)
-        edges.append(e)
-    return edges
+#     Returns:
+#         List of edges between students in school.
 
+#     """
+#     # what are the ages in the school
+#     age_counter = Counter(syn_school_ages)
+#     age_keys = sorted(age_counter.keys())
+#     age_keys_indices = {a: i for i, a in enumerate(age_keys)}
 
-def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
-    """
-    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+#     # create a dictionary with the list of uids for each age/grade
+#     uids_in_school_by_age = {}
+#     for a in age_keys:
+#         uids_in_school_by_age[a] = []
 
-    Args:
-        syn_school_uids (list)     : list of uids of students in the school
-        syn_school_ages (list)     : list of the ages of the students in the school
-        age_by_uid_dic (dict)      : dict mapping uid to age
-        grade_age_mapping (dict)   : dict mapping grade to an age
-        age_grade_mapping (dict)   : dict mapping age to a grade
-        average_class_size (int)   : average class size
-        inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
-        verbose (bool)             : print statements throughout
+#     for uid in syn_school_uids:
+#         a = age_by_uid_dic[uid]
+#         uids_in_school_by_age[a].append(uid)
 
-    Returns:
-        List of edges between students in school.
+#     age_groups_smaller_than_degree = False
+#     for a in uids_in_school_by_age:
+#         if average_class_size > len(uids_in_school_by_age[a]):
+#             age_groups_smaller_than_degree = True
 
-    """
-    # what are the ages in the school
-    age_counter = Counter(syn_school_ages)
-    age_keys = sorted(age_counter.keys())
-    age_keys_indices = {a: i for i, a in enumerate(age_keys)}
+#     # create a graph of contacts in the school
+#     G = nx.Graph()
 
-    # create a dictionary with the list of uids for each age/grade
-    uids_in_school_by_age = {}
-    for a in age_keys:
-        uids_in_school_by_age[a] = []
+#     for a in uids_in_school_by_age:
 
-    for uid in syn_school_uids:
-        a = age_by_uid_dic[uid]
-        uids_in_school_by_age[a].append(uid)
+#         # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
+#         p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
 
-    age_groups_smaller_than_degree = False
-    for a in uids_in_school_by_age:
-        if average_class_size > len(uids_in_school_by_age[a]):
-            age_groups_smaller_than_degree = True
+#         Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
+#         for e in Ga.edges():
+#             i, j = e
 
-    # create a graph of contacts in the school
-    G = nx.Graph()
+#             # add each edge to the overall school graph
+#             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
+#     # print('e0', len(G.edges()))
+#     # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
+#     if age_groups_smaller_than_degree:
+#         # print('grades too small')
+#         # add some extra edges
+#         G = add_random_contacts_from_graph(G, average_class_size)
 
-    for a in uids_in_school_by_age:
+#     if verbose:
+#         print('clustering within the school', nx.transitivity(G))
 
-        # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
-        p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
+#     # rewire some edges between people within the same grade/age to now being edges across grades/ages
+#     E = list(G.edges())
+#     np.random.shuffle(E)
 
-        Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
-        for e in Ga.edges():
-            i, j = e
+#     nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
 
-            # add each edge to the overall school graph
-            G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
-    # print('e0', len(G.edges()))
-    # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
-    if age_groups_smaller_than_degree:
-        # print('grades too small')
-        # add some extra edges
-        G = add_random_contacts_from_graph(G, average_class_size)
+#     for n in range(nE):
+#         if np.random.binomial(1, p=inter_grade_mixing):
 
-    if verbose:
-        print('clustering within the school', nx.transitivity(G))
+#             i = 2 * n
+#             j = 2 * n + 1
 
-    # rewire some edges between people within the same grade/age to now being edges across grades/ages
-    E = list(G.edges())
-    np.random.shuffle(E)
+#             ei = E[i]
+#             ej = E[j]
 
-    nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
+#             ei1, ei2 = ei
+#             ej1, ej2 = ej
 
-    for n in range(nE):
-        if np.random.binomial(1, p=inter_grade_mixing):
+#             # try to switch from ei1-ei2, ej1-ej2 to ei1-ej2, ej1-ei2
+#             if ei1 != ej1 and ei2 != ej2 and ei1 != ej2 and ej1 != ei2:
+#                 new_ei = (ei1, ej2)
+#                 new_ej = (ei2, ej1)
 
-            i = 2 * n
-            j = 2 * n + 1
+#             # instead try to switch from ei1-ei2, ej1-ej2 to ei1-ej1, ei2-ej2
+#             elif ei1 != ej2 and ei2 != ej1 and ei1 != ej1 and ej2 != ei2:
+#                 new_ei = (ei1, ej1)
+#                 new_ej = (ei2, ej2)
 
-            ei = E[i]
-            ej = E[j]
+#             else:
+#                 continue
 
-            ei1, ei2 = ei
-            ej1, ej2 = ej
+#             G.remove_edges_from([ei, ej])
+#             G.add_edges_from([new_ei, new_ej])
 
-            # try to switch from ei1-ei2, ej1-ej2 to ei1-ej2, ej1-ei2
-            if ei1 != ej1 and ei2 != ej2 and ei1 != ej2 and ej1 != ei2:
-                new_ei = (ei1, ej2)
-                new_ej = (ei2, ej1)
+#     # calculate school age mixing
+#     # print(syn_school_uids, 'ids')
+#     # print(syn_school_ages, 'ages')
+#     if verbose:
+#         ecount = np.zeros((len(age_keys), len(age_keys)))
+#         for e in G.edges():
+#             i, j = e
 
-            # instead try to switch from ei1-ei2, ej1-ej2 to ei1-ej1, ei2-ej2
-            elif ei1 != ej2 and ei2 != ej1 and ei1 != ej1 and ej2 != ei2:
-                new_ei = (ei1, ej1)
-                new_ej = (ei2, ej2)
+#             age_i = age_by_uid_dic[i]
+#             index_i = age_keys_indices[age_i]
+#             age_j = age_by_uid_dic[j]
+#             index_j = age_keys_indices[age_j]
 
-            else:
-                continue
+#             ecount[index_i][index_j] += 1
+#             ecount[index_j][index_i] += 1
 
-            G.remove_edges_from([ei, ej])
-            G.add_edges_from([new_ei, new_ej])
+#         print('within school age mixing matrix')
+#         print(ecount)
 
-    # calculate school age mixing
-    # print(syn_school_uids, 'ids')
-    # print(syn_school_ages, 'ages')
-    if verbose:
-        ecount = np.zeros((len(age_keys), len(age_keys)))
-        for e in G.edges():
-            i, j = e
-
-            age_i = age_by_uid_dic[i]
-            index_i = age_keys_indices[age_i]
-            age_j = age_by_uid_dic[j]
-            index_j = age_keys_indices[age_j]
-
-            ecount[index_i][index_j] += 1
-            ecount[index_j][index_i] += 1
-
-        print('within school age mixing matrix')
-        print(ecount)
-
-    return list(G.edges())
+#     return list(G.edges())
 
 
 def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, return_edges=False, verbose=False):
@@ -451,98 +352,98 @@ def generate_edges_between_teachers(teachers, average_teacher_teacher_degree):
     return edges
 
 
-def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, verbose=False):
-    """
-    Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
+# def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, verbose=False):
+#     """
+#     Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
 
-    Args:
-        syn_school_uids (list)               : list of uids of students in the school
-        syn_school_ages (list)               : list of the ages of the students in the school
-        teachers (list)                      : list of teachers in the school
-        age_by_uid_dic (dict)                : dict mapping uid to age
-        grade_age_mapping (dict)             : dict mapping grade to an age
-        age_grade_mapping (dict)             : dict mapping age to a grade
-        average_student_teacher_ratio (int)  : average number of students per teacher
-        average_teacher_teacher_degree (int) : average number of contacts with other teachers
-        verbose (bool)                       : print statements throughout
+#     Args:
+#         syn_school_uids (list)               : list of uids of students in the school
+#         syn_school_ages (list)               : list of the ages of the students in the school
+#         teachers (list)                      : list of teachers in the school
+#         age_by_uid_dic (dict)                : dict mapping uid to age
+#         grade_age_mapping (dict)             : dict mapping grade to an age
+#         age_grade_mapping (dict)             : dict mapping age to a grade
+#         average_student_teacher_ratio (int)  : average number of students per teacher
+#         average_teacher_teacher_degree (int) : average number of contacts with other teachers
+#         verbose (bool)                       : print statements throughout
 
-    Return:
-        List of edges connected to teachers.
+#     Return:
+#         List of edges connected to teachers.
 
-    """
-    age_keys = list(set(syn_school_ages))
+#     """
+#     age_keys = list(set(syn_school_ages))
 
-    # create a dictionary with the list of uids for each age/grade
-    uids_in_school_by_age = {}
-    for a in age_keys:
-        uids_in_school_by_age[a] = []
+#     # create a dictionary with the list of uids for each age/grade
+#     uids_in_school_by_age = {}
+#     for a in age_keys:
+#         uids_in_school_by_age[a] = []
 
-    for uid in syn_school_uids:
-        a = age_by_uid_dic[uid]
-        uids_in_school_by_age[a].append(uid)
+#     for uid in syn_school_uids:
+#         a = age_by_uid_dic[uid]
+#         uids_in_school_by_age[a].append(uid)
 
-    edges = []
+#     edges = []
 
-    teachers_assigned = []
-    available_teachers = deepcopy(teachers)
-    for a in uids_in_school_by_age:
+#     teachers_assigned = []
+#     available_teachers = deepcopy(teachers)
+#     for a in uids_in_school_by_age:
 
-        n_teachers_needed = int(np.round(len(uids_in_school_by_age[a]) / average_student_teacher_ratio, 1))
-        n_teachers_needed = max(1, n_teachers_needed)  # at least one teacher
+#         n_teachers_needed = int(np.round(len(uids_in_school_by_age[a]) / average_student_teacher_ratio, 1))
+#         n_teachers_needed = max(1, n_teachers_needed)  # at least one teacher
 
-        if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
-            n_teachers_needed = len(available_teachers) + len(teachers_assigned)
-            selected_teachers = available_teachers + teachers_assigned
+#         if n_teachers_needed > len(available_teachers) + len(teachers_assigned):
+#             n_teachers_needed = len(available_teachers) + len(teachers_assigned)
+#             selected_teachers = available_teachers + teachers_assigned
 
-        elif n_teachers_needed > len(available_teachers):
-            selected_teachers = available_teachers
-            n_teachers_needed = n_teachers_needed - len(available_teachers)
-            selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
+#         elif n_teachers_needed > len(available_teachers):
+#             selected_teachers = available_teachers
+#             n_teachers_needed = n_teachers_needed - len(available_teachers)
+#             selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
 
-            # selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
-        else:
-            selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
-            for t in selected_teachers:
-                available_teachers.remove(t)
-                teachers_assigned.append(t)
+#             # selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
+#         else:
+#             selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
+#             for t in selected_teachers:
+#                 available_teachers.remove(t)
+#                 teachers_assigned.append(t)
 
-        # only adds one teacher per student
-        for student in uids_in_school_by_age[a]:
-            teacher = np.random.choice(selected_teachers)
-            e = (student, teacher)
-            edges.append(e)
+#         # only adds one teacher per student
+#         for student in uids_in_school_by_age[a]:
+#             teacher = np.random.choice(selected_teachers)
+#             e = (student, teacher)
+#             edges.append(e)
 
-    # some teachers left so add them as contacts to other students
-    for teacher in available_teachers:
+#     # some teachers left so add them as contacts to other students
+#     for teacher in available_teachers:
 
-        n_students = max(1, np.random.poisson(average_student_teacher_ratio))
+#         n_students = max(1, np.random.poisson(average_student_teacher_ratio))
 
-        if n_students > len(syn_school_uids):
-            n_students = len(syn_school_uids)
+#         if n_students > len(syn_school_uids):
+#             n_students = len(syn_school_uids)
 
-        selected_students = np.random.choice(syn_school_uids, replace=False, size=n_students)
+#         selected_students = np.random.choice(syn_school_uids, replace=False, size=n_students)
 
-        for student in selected_students:
-            e = (student, teacher)
-            edges.append(e)
+#         for student in selected_students:
+#             e = (student, teacher)
+#             edges.append(e)
 
-        teachers_assigned.append(teacher)
+#         teachers_assigned.append(teacher)
 
-    available_teachers = []
+#     available_teachers = []
 
-    teacher_teacher_edges = generate_edges_between_teachers(teachers_assigned, average_teacher_teacher_degree)
-    edges += teacher_teacher_edges
+#     teacher_teacher_edges = generate_edges_between_teachers(teachers_assigned, average_teacher_teacher_degree)
+#     edges += teacher_teacher_edges
 
-    if verbose:
-        G = nx.Graph()
-        G.add_edges_from(edges)
-        for s in syn_school_uids:
-            print('student', s, 'contacts with teachers', G.degree(s))
-        for t in teachers_assigned:
-            print('teacher', t, 'contacts with students', G.degree(t))
+#     if verbose:
+#         G = nx.Graph()
+#         G.add_edges_from(edges)
+#         for s in syn_school_uids:
+#             print('student', s, 'contacts with teachers', G.degree(s))
+#         for t in teachers_assigned:
+#             print('teacher', t, 'contacts with students', G.degree(t))
 
-    # not returning student-student contacts
-    return edges
+#     # not returning student-student contacts
+#     return edges
 
 
 def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False, verbose=False):
