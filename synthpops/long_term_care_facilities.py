@@ -583,22 +583,3 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     if return_popdict:
         return popdict
-
-
-def check_all_residents_are_connected_to_staff(popdict):
-    flag = True
-    for i in popdict:
-        person = popdict[i]
-        if person['snf_res'] == 1:
-
-            contacts = person['contacts']['LTCF']
-            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
-
-            if len(staff_contacts) == 0:
-                flag = False
-                print('i', person['snf_res'], [popdict[j]['snf_staff'] for j in person['contacts']['LTCF']])
-                errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
-                raise ValueError(errormsg)
-
-    if flag:
-        print('All LTCF residents have at least one contact with a staff member.')
