@@ -1,17 +1,11 @@
 """Sample distributions, either from real world data or from uniform distributions."""
 
-import os
 import numpy as np
-import pandas as pd
-import sciris as sc
 import numba as nb
 import random
 import itertools
 import bisect
-from collections import Counter
 from . import base as spb
-from . import data_distributions as spdata
-from .config import logger as log
 
 
 def set_seed(seed=None):
@@ -63,22 +57,8 @@ def sample_single_dict(distr_keys, distr_vals):
 
     """
     return distr_keys[fast_choice(distr_vals)]
-    # sort_inds = np.argsort(distr_keys)
-    # sorted_keys = distr_keys[sort_inds]
-    # sorted_distr = distr_vals[sort_inds]
-    # norm_sorted_distr = np.maximum(0, sorted_distr)  # Don't allow negatives, and mask negative values to 0.
-
-    # sum_norm_sorted_distr = norm_sorted_distr.sum()
-    # if sum_norm_sorted_distr > 0:
-    #     norm_sorted_distr = norm_sorted_distr / sum_norm_sorted_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-    # else:
-    #     return 0
-    # n = np.random.multinomial(1, norm_sorted_distr, size=1)[0]
-    # index = np.where(n)[0][0]
-    # return sorted_keys[index]
 
 
-# @nb.njit((nb.float64[:],), cache=True)
 def sample_single_arr(distr):
     """
     Sample from a distribution.
@@ -89,21 +69,9 @@ def sample_single_arr(distr):
     Returns:
         A single sampled value from a distribution.
     """
-    if any(distr<0):
-        raise Exception('foooo')
     return fast_choice(distr)
-    # norm_distr = np.maximum(0, distr)  # Don't allow negatives, and mask negative values to 0.
-    # sum_norm_distr = norm_distr.sum()
-    # if sum_norm_distr > 0:
-    #     norm_distr = norm_distr / sum_norm_distr  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-    # else:
-    #     return 0
-    # n = np.random.multinomial(1, norm_distr, size=1)[0]
-    # index = np.where(n)[0][0]
-    # return index
 
 
-# @nb.njit((nb.float64[:], nb.int64), cache=True)
 def resample_age(age_dist_vals, age):
     """
     Resample age from single year age distribution.
@@ -131,14 +99,7 @@ def resample_age(age_dist_vals, age):
         age_max = 100
 
     age_distr = age_dist_vals[age_min:age_max + 1]  # create an array of the values, not yet normalized
-    # norm_age_distr = np.maximum(0, age_distr)  # Don't allow negatives, and mask negative values to 0.
-    # sum_norm_age_distr = norm_age_distr.sum()
-    # if sum_norm_age_distr > 0:
-    #     norm_age_distr = norm_age_distr / (sum_norm_age_distr)  # Ensure it sums to 1 - normalize all values by the summation, but only if the sum of them is not zero.
-
     age_range = np.arange(age_min, age_max + 1)
-    # n = np.random.multinomial(1, norm_age_distr, size=1)[0]
-    # index = np.where(n)[0]
     return age_range[fast_choice(age_distr)]
 
 
