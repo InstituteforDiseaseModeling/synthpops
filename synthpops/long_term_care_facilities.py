@@ -14,10 +14,10 @@ from collections import Counter
 from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
-from . import contacts as spct
+# from . import contacts as spct
 from . import contact_networks as spcnx
 from . import school_modules as spsm
-from . import read_write as sprw
+# from . import read_write as sprw
 from .config import logger as log
 from . import config as cfg
 
@@ -378,7 +378,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     ltcf_adjusted_age_distr_dict = spb.norm_dic(ltcf_adjusted_age_count)
     ltcf_adjusted_age_distr = np.array([ltcf_adjusted_age_distr_dict[i] for i in range(max_age+1)])
 
-    exp_age_distr = np.array([expected_age_distr[i] for i in range(max_age+1)], dtype=np.float64)
+    # exp_age_distr = np.array([expected_age_distr[i] for i in range(max_age+1)], dtype=np.float64)
     # exp_age_distr = np.array(list(expected_age_distr.values()), dtype=np.float64)
 
     # build rest of the population
@@ -535,22 +535,22 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # remove facilities from homes to write households as a separate file
     homes_by_uids = homes_by_uids[len(facilities_by_uids):]
     # group uids to file
-    folder_name = 'contact_networks_facilities'
-    if write:
-        args = [datadir, location, state_location, country_location, folder_name, age_by_uid_dic]
-        sprw.write_age_by_uid_dic(*args)
+    # folder_name = 'contact_networks_facilities'
+    # if write:
+    #     args = [datadir, location, state_location, country_location, folder_name, age_by_uid_dic]
+    #     sprw.write_age_by_uid_dic(*args)
 
-        sprw.write_groups_by_age_and_uid(*args, 'households', homes_by_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'schools', syn_school_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'teachers', syn_teacher_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'non_teaching_staff', syn_non_teaching_staff_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'workplaces', syn_workplace_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'facilities', facilities_by_uids)
-        sprw.write_groups_by_age_and_uid(*args, 'facilities_staff', facilities_staff_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'households', homes_by_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'schools', syn_school_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'teachers', syn_teacher_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'non_teaching_staff', syn_non_teaching_staff_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'workplaces', syn_workplace_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'facilities', facilities_by_uids)
+    #     sprw.write_groups_by_age_and_uid(*args, 'facilities_staff', facilities_staff_uids)
 
     if verbose:
         print('facilities_staff_uids', facilities_staff_uids)
-    popdict = spct.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+    popdict = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                              homes_by_uids=homes_by_uids,
                                                              schools_by_uids=syn_school_uids,
                                                              teachers_by_uids=syn_teacher_uids,
