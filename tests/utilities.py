@@ -45,8 +45,7 @@ def runpop(resultdir, actual_vals, testprefix, method):
     for name in actual_vals:
         if name in params.keys():
             params[name] = actual_vals[name]
-    if do_save:
-        sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
+    sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
     pop = method(**params)
     if do_save:
         sc.savejson(os.path.join(resultdir, f"{testprefix}_pop.json"), pop, indent=2)
