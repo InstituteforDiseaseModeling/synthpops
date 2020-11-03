@@ -1,2 +1,3 @@
 fpdf>=1.7.2
 covasim>=1.5.0
+pytest-parallel
