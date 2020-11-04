@@ -21,7 +21,7 @@ part = 2 # CK: not sure what this is
 
 class Pop(sc.prettyobj):
 
-    def __init__(self, n=None, max_contacts=None, with_industry_code=False, with_facilities=False, use_default=False,
+    def __init__(self, n=None, max_contacts=None, ltcf_pars=None, school_pars=None, with_industry_code=False, with_facilities=False, use_default=False,
                     use_two_group_reduction=True, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
                     with_school_types=False, school_enrollment_counts_available=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
@@ -35,6 +35,8 @@ class Pop(sc.prettyobj):
         Args:
             n (int)                                 : The number of people to create.
             max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
+            ltcf_pars (dict): if supplied, replace default LTCF parameters
+            school_pars (dict): if supplied, replace default school parameters
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
             use_default (bool)                      :  ?????
@@ -68,53 +70,57 @@ class Pop(sc.prettyobj):
         '''
         log.debug('Pop()')
 
+
         # Assign all the variables
-        self.school_pars = sc.objdict()
+        self.school_pars = sc.mergedicts()
         self.ltcf_pars = sc.objdict()
-        self.n                               = n
-        self.max_contacts                    = max_contacts
-        self.with_industry_code              = with_industry_code
-        self.rand_seed                       = rand_seed
-        self.country_location                = country_location
-        self.state_location                  = state_location
-        self.location                        = location
-        self.ltcf_pars.with_facilities                 = with_facilities
-        self.ltcf_pars.use_two_group_reduction         = use_two_group_reduction
-        self.ltcf_pars.average_LTCF_degree             = average_LTCF_degree
-        self.ltcf_pars.ltcf_staff_age_min              = ltcf_staff_age_min
-        self.ltcf_pars.ltcf_staff_age_max              = ltcf_staff_age_max
-        self.ltcf_pars.use_default                      = use_default
-        self.school_pars.with_school_types               = with_school_types
+
+        # General parameters
+        self.n                  = int(n)
+        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code = with_industry_code
+        self.rand_seed          = rand_seed
+        self.country_location   = country_location
+        self.state_location     = state_location
+        self.location           = location
+
+        # School parameters
+        self.school_pars.with_school_types                  = with_school_types
         self.school_pars.school_enrollment_counts_available = school_enrollment_counts_available
-        self.school_pars.school_mixing_type              = school_mixing_type
-        self.school_pars.average_class_size              = average_class_size
-        self.school_pars.inter_grade_mixing              = inter_grade_mixing
-        self.school_pars.average_student_teacher_ratio   = average_student_teacher_ratio
-        self.school_pars.average_teacher_teacher_degree  = average_teacher_teacher_degree
-        self.school_pars.teacher_age_min                 = teacher_age_min
-        self.school_pars.teacher_age_max                 = teacher_age_max
-        self.school_pars.with_non_teaching_staff         = with_non_teaching_staff
-        self.school_pars.average_student_all_staff_ratio = average_student_all_staff_ratio
-        self.school_pars.average_additional_staff_degree = average_additional_staff_degree
-        self.school_pars.staff_age_min                   = staff_age_min
-        self.school_pars.staff_age_max                   = staff_age_max
+        self.school_pars.school_mixing_type                 = school_mixing_type
+        self.school_pars.average_class_size                 = average_class_size
+        self.school_pars.inter_grade_mixing                 = inter_grade_mixing
+        self.school_pars.average_student_teacher_ratio      = average_student_teacher_ratio
+        self.school_pars.average_teacher_teacher_degree     = average_teacher_teacher_degree
+        self.school_pars.teacher_age_min                    = teacher_age_min
+        self.school_pars.teacher_age_max                    = teacher_age_max
+        self.school_pars.with_non_teaching_staff            = with_non_teaching_staff
+        self.school_pars.average_student_all_staff_ratio    = average_student_all_staff_ratio
+        self.school_pars.average_additional_staff_degree    = average_additional_staff_degree
+        self.school_pars.staff_age_min                      = staff_age_min
+        self.school_pars.staff_age_max                      = staff_age_max
 
+        # LTCF parameters
+        self.ltcf_pars.with_facilities         = with_facilities
+        self.ltcf_pars.use_two_group_reduction = use_two_group_reduction
+        self.ltcf_pars.average_LTCF_degree     = average_LTCF_degree
+        self.ltcf_pars.ltcf_staff_age_min      = ltcf_staff_age_min
+        self.ltcf_pars.ltcf_staff_age_max      = ltcf_staff_age_max
+        self.ltcf_pars.use_default             = use_default
 
-        # Handle more initialization
+        # If any parameters are supplied as a dict to override defaults, merge them in now
+        self.school_pars = sc.mergedicts(self.school_pars, school_pars)
+        self.ltcf_pars = sc.mergedicts(self.school_pars, ltcf_pars)
+
+        # Handle the seed
         if self.rand_seed is not None:
             spsamp.set_seed(self.rand_seed)
-
-        default_max_contacts = {'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
-
-        self.n = int(self.n)
-        self.trimmed_size_dic = sc.mergedicts(default_max_contacts, self.max_contacts) # TODO: make names consistent
 
         # Handle data
         if self.country_location is None :
             self.country_location = cfg.default_country
             self.state_location = cfg.default_state
             self.location = cfg.default_location
-
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
@@ -125,14 +131,9 @@ class Pop(sc.prettyobj):
         self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir # Assume this has been reset...
 
-        # Heavy lift 1: make the contacts and their connections
+        # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
         population = self.generate()
-
-        # Change types
-        for key, person in population.items():
-            for layerkey in population[key]['contacts'].keys():
-                population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
         self.popdict = population
         log.debug('Pop(): done.')
@@ -275,6 +276,11 @@ class Pop(sc.prettyobj):
                                                                  average_additional_staff_degree=average_additional_staff_degree,
                                                                  trimmed_size_dic=trimmed_size_dic)
 
+        # Change types
+        for key, person in population.items():
+            for layerkey in population[key]['contacts'].keys():
+                population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
+
         return population
 
 
@@ -282,7 +288,30 @@ class Pop(sc.prettyobj):
         ''' Export to a dictionary '''
         return sc.dcp(self.popdict)
 
-    def save(self, filename, **kwargs):
-        ''' Simply save to an object '''
-        return sc.saveobj()
 
+    def save(self, filename, **kwargs):
+        ''' Save population to an object '''
+        return sc.saveobj(filename, self, **kwargs)
+
+
+    @staticmethod
+    def load(filename, *args, **kwargs):
+        '''
+        Load from disk from a gzipped pickle.
+
+        Args:
+            filename (str): the name or path of the file to load from
+            kwargs: passed to sc.loadobj()
+
+        Returns:
+            pop (Pop): the loaded Pop object
+
+        **Example**::
+
+            pop = sp.Pop.load('my-pop.pop')
+        '''
+        pop = sc.loadobj(filename, *args, **kwargs)
+        if not isinstance(pop, Pop):
+            errormsg = f'Cannot load object of {type(pop)} as a Pop object'
+            raise TypeError(errormsg)
+        return pop
