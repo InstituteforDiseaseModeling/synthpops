@@ -492,11 +492,6 @@ class Pop(sc.prettyobj):
             facilities_staff.append(new_staff)
             facilities_staff_uids.append(new_staff_uids)
 
-        if verbose:
-            print(len(facilities_staff_uids))
-            for nf, fc in enumerate(facilities):
-                print(fc, facilities_staff[nf], len(fc)/len(facilities_staff[nf]))
-
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
         workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
