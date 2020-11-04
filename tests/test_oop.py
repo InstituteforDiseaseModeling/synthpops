@@ -83,7 +83,7 @@ def test_alternatives():
 
 if __name__ == '__main__':
     T = sc.tic()
-    # pop = test_basic_oop()
+    pop = test_basic_oop()
     pop2 = test_alternatives()
     sc.toc(T)
     print('Done.')
