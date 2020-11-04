@@ -172,18 +172,23 @@ class Pop(sc.prettyobj):
         staff_age_max = self.school_pars.staff_age_max
         trimmed_size_dic = self.trimmed_size_dic
 
+        # Load the contact matrix
+        contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+
 
         # Generate LTCFs
-        n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcf_ids(n, datadir, country_location, state_location, location, part, use_default)
+        n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, datadir, country_location, state_location, location, part, use_default)
 
 
         #%% Move on
+
+
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
-        contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+
 
         homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
         homes = facilities + homes
@@ -216,11 +221,8 @@ class Pop(sc.prettyobj):
                                                                                                              school_type_age_ranges,
                                                                                                              verbose=verbose)
         else:
-            # use contact matrices to send students to school
-
             # Get school sizes
             syn_school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
-
             # Assign students to school
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
 
@@ -249,7 +251,6 @@ class Pop(sc.prettyobj):
                                                                                                                                                                     average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
 
         # Assign facilities care staff from 20 to 59
-
         datadir = datadir + ''
         KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
         KC_ratio_distr = spb.norm_dic(KC_ratio_distr)

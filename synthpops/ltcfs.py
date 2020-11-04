@@ -14,7 +14,7 @@ from . import base as spb
 part = 2
 
 
-def generate_ltcf_ids(n, datadir, country_location, state_location, location, part, use_default, verbose=False):
+def generate_ltcfs(n, datadir, country_location, state_location, location, part, use_default, verbose=False):
 
     # Grab Long Term Care Facilities data
     ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part)
