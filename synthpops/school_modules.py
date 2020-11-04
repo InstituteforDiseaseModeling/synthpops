@@ -19,10 +19,7 @@ from itertools import combinations
 import numpy as np
 import networkx as nx
 
-# from . import base as spb
 from . import data_distributions as spdata
-# from . import sampling as spsamp
-# from . import contacts as spct
 from .config import datadir
 
 
