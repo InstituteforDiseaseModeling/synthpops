@@ -88,23 +88,26 @@ def test_alternatives():
 
 
 def test_api(do_plot=False):
-    # basic usage
+    ''' More basic API usage '''
     pop = sp.Pop(n=5000) # default parameters, 5k people
-    # pop.plot() # do the most obvious plotting thing, whatever that may be
     pop.save('test_api.pop') # save as pickle
     pop.to_json('test_api.json') # save as JSON
     popdict = pop.to_dict() # export from class to standard python object; current default synthpops output
     if do_plot:
-        pop.plot_people() # equivalent to cv.Sim.people.plot() perhaps?
-        pop.plot_contacts() # equivalent to sp.plot_contact_matrix(popdict) perhaps?
+        # pop.plot() # do the most obvious plotting thing, whatever that may be
+        pop.plot_people() # equivalent to cv.Sim.people.plot()
+        # pop.plot_contacts() # equivalent to sp.plot_contact_matrix(popdict) perhaps?
     return popdict
 
 
 if __name__ == '__main__':
+
     T = sc.tic()
+
     pop0 = test_default()
     pop1 = test_basic_oop()
     pop2 = test_alternatives()
     pop3 = test_api(do_plot=True)
+
     sc.toc(T)
     print('Done.')

@@ -338,9 +338,18 @@ class Pop(sc.prettyobj):
 
 
     def plot_people(self):
+        ''' Placeholder example of plotting the people in a population '''
+        import covasim as cv # Optional import
+        pars = dict(
+            pop_size = self.n,
+            pop_type = 'synthpops',
+            beta_layer = {k: 1 for k in 'hscwl'},
+            )
+        sim = cv.Sim(pars, popfile=self.popdict)
+        ppl = cv.make_people(sim)  # Create the corresponding population
+        fig = ppl.plot()
         return fig
 
 
     def plot_contacts(self):
-
-        return fig
+        return NotImplementedError('Need to adapt from matrix-based plotting')
