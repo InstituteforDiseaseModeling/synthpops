@@ -5,7 +5,7 @@ This module generates the household, school, and workplace contact networks.
 import sciris as sc
 import numpy as np
 import networkx as nx
-from . import school_modules as spsm
+from . import schools as spsm
 from .config import logger as log, checkmem
 
 

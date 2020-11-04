@@ -4,18 +4,9 @@ Modeling Seattle Metro Long Term Care Facilities
 """
 
 import numpy as np
-
-import os
-import math
-from copy import deepcopy
-
-from . import base as spb
-from . import data_distributions as spdata
 from . import sampling as spsamp
+from . import households as sphh
 from . import contact_networks as spcnx
-from . import school_modules as spsm
-from .config import logger as log
-from . import config as cfg
 
 part = 2
 
@@ -87,7 +78,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
 
     for h in range(hh_sizes[size-1]):
 
-        hha = spcnx.generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
+        hha = sphh.generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
 
         homes[h][0] = hha
 
@@ -147,7 +138,7 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
     """
 
     homes_dic = {}
-    homes_dic[1] = spcnx.generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
+    homes_dic[1] = sphh.generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
     for h in homes_dic[1]:
         single_year_age_distr[h[0]] -= 1.0/N
