@@ -16,7 +16,7 @@ pars = dict(
         n                               = 20001,
         rand_seed                       = 123,
         max_contacts                    = None,
-        generate                        = True,
+        # generate                        = True,
 
         with_industry_code              = 0,
         with_facilities                 = 1,

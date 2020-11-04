@@ -2,26 +2,17 @@
 This module provides the layer for communicating with the agent-based model Covasim.
 """
 
-import sciris as sc
 import synthpops as sp
 from .config import logger as log
-from . import config as cfg
 
 
-def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
-                    use_two_group_reduction=True, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
-                    with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
-                    average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
-                    with_non_teaching_staff=False,
-                    average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                    rand_seed=None, country_location=None, state_location=None, location=None):
+def make_population(*args, **kwargs):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington data.
 
     Args:
         n (int)                                 : The number of people to create.
         max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
-        generate (bool)                         : If True, generate a new population. Else, look for cached population and if those are not available, generate a new population.
         with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
         with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
         use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
@@ -52,40 +43,9 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     '''
     log.debug('make_population()')
 
-    if rand_seed is not None:
-        sp.set_seed(rand_seed)
-
-    default_max_contacts = {'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
-
-    n = int(n)
-
-    max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
-
-    # country_location = 'usa'
-    # state_location = 'Washington'
-    # location = 'seattle_metro'
-    # sheet_name = 'United States of America'
-
-    if country_location is None :
-        country_location = cfg.default_country
-        state_location = cfg.default_state
-        location = cfg.default_location
-
-    else:
-        print(f"========== setting country location = {country_location}")
-        cfg.set_location_defaults(country_location)
-    # if country is specified, and state is not, we are doing a country population
-    if state_location is None:
-        location = None
-
     # Heavy lift 1: make the contacts and their connections
     log.debug('Generating a new population...')
-    pop = sp.Pop(location=location, state_location=state_location, country_location=country_location, n=n,
-                                                            use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, ltcf_staff_age_min=ltcf_staff_age_min, ltcf_staff_age_max=ltcf_staff_age_max,
-                                                            with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
-                                                            average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
-                                                            average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                            max_contacts=max_contacts)
+    pop = sp.Pop(*args, **kwargs)
 
     population = pop.to_dict()
 
