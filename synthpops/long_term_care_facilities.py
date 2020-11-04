@@ -384,6 +384,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     # build rest of the population
     n_nonltcf = n - np.sum([len(f) for f in facilities])  # remove those placed in care homes
 
+
+    # Move on
     household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
     hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
     hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
@@ -395,28 +397,8 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
     homes = facilities + homes
 
     homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  # include facilities to assign ids
-    new_ages_count = Counter(age_by_uid_dic.values())
 
     facilities_by_uids = homes_by_uids[0:len(facilities)]
-
-    if plot:
-
-        fig = plt.figure(figsize=(7, 5))
-        ax = fig.add_subplot(111)
-        x = np.arange(max_age+1)
-        y_exp = np.zeros(max_age+1)
-        y_sim = np.zeros(max_age+1)
-        for a in x:
-            y_exp[a] = expected_age_distr[a]
-            y_sim[a] = new_ages_count[a]/n
-        ax.plot(x, y_exp, color='k', label='Expected')
-        ax.plot(x, y_sim, color='teal', label='Simulated')
-        leg = ax.legend(fontsize=18)
-        leg.draw_frame(False)
-        ax.set_xlim(0, max_age+1)
-        for a in range(6):
-            ax.axvline(x=a, ymin=0, ymax=1)
-        plt.show()
 
     # Make a dictionary listing out uids of people by their age
     uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)
@@ -441,7 +423,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                                                                                                          school_types_by_age,
                                                                                                          school_type_age_ranges,
                                                                                                          verbose=verbose)
-
     else:
         # use contact matrices to send students to school
 

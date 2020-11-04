@@ -57,7 +57,7 @@ default_household_size_1_included = False
 #%% Logger
 
 # Set the default logging level
-default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
+default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][0]
 
 logger = logging.getLogger('synthpops')
 
