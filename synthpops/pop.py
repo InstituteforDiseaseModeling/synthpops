@@ -285,12 +285,35 @@ class Pop(sc.prettyobj):
 
 
     def to_dict(self):
-        ''' Export to a dictionary '''
+        '''
+        Export to a dictionary -- official way to get the popdict
+
+        **Example**::
+
+            popdict = pop.to_dict()
+        '''
         return sc.dcp(self.popdict)
 
 
+    def to_json(self, filename, indent=2, **kwargs):
+        '''
+        Export to a JSON file
+
+        **Example**::
+
+            pop.to_json('my-pop.json')
+        '''
+        return sc.savejson(filename, self.popdict, indent=indent, **kwargs)
+
+
     def save(self, filename, **kwargs):
-        ''' Save population to an object '''
+        '''
+        Save population to an binary, gzipped object file
+
+        **Example**::
+
+            pop.save('my-pop.pop')
+        '''
         return sc.saveobj(filename, self, **kwargs)
 
 
@@ -303,9 +326,6 @@ class Pop(sc.prettyobj):
             filename (str): the name or path of the file to load from
             kwargs: passed to sc.loadobj()
 
-        Returns:
-            pop (Pop): the loaded Pop object
-
         **Example**::
 
             pop = sp.Pop.load('my-pop.pop')
@@ -315,3 +335,12 @@ class Pop(sc.prettyobj):
             errormsg = f'Cannot load object of {type(pop)} as a Pop object'
             raise TypeError(errormsg)
         return pop
+
+
+    def plot_people(self):
+        return fig
+
+
+    def plot_contacts(self):
+
+        return fig
