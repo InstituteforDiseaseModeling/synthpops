@@ -1,4 +1,7 @@
-import pytest
+'''
+Test that different population sizes work -- TODO: remove this test
+'''
+
 import synthpops as sp
 
 
@@ -11,9 +14,6 @@ def test_sizes():
         print(f'Working on {n}')
         pop = sp.make_population(n=n, generate=True)
         assert len(pop) == n
-
-    with pytest.raises(NotImplementedError):
-        sp.make_population(n=99, generate=True) # Too small
 
     return pop
 
