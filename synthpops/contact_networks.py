@@ -4,21 +4,14 @@ This module generates the household, school, and workplace contact networks.
 
 from copy import deepcopy
 from collections import Counter
-
 import sciris as sc
 import numpy as np
-
-import matplotlib as mplt
-import matplotlib.pyplot as plt
-import cmocean
 import networkx as nx
-
 from . import base as spb
 from . import data_distributions as spdata
 from . import sampling as spsamp
 from . import school_modules as spsm
 from .config import logger as log, checkmem
-from . import config as cfg
 
 
 
