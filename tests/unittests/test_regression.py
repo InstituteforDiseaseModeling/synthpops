@@ -20,9 +20,12 @@ import shutil
 import fnmatch
 import unittest
 import tempfile
+import numpy as np
 import sciris as sc
 import synthpops as sp
-import numpy as np
+from synthpops import data_distributions as spdd
+from synthpops import base as spb
+
 try:
     from fpdf import FPDF
 except Exception as E:
@@ -150,13 +153,13 @@ class TestRegression(unittest.TestCase):
                         dict(enumerate(average_contacts.tolist())), indent=2)
 
             for method in ['density', 'frequency']:
-                fig = pop.plot_contacts(method=method)
                 matrix = sp.calculate_contact_matrix(pop, method, setting_code)
-                brackets = sp.get_census_age_brackets(self.datadir, state_location, country_location)
-                ageindex = sp.get_age_by_brackets_dic(brackets)
-                agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
-                np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv"),
-                           agg_matrix, delimiter=",", fmt=fmt)
+                brackets = spdd.get_census_age_brackets(self.datadir, state_location, country_location)
+                ageindex = spb.get_age_by_brackets_dic(brackets)
+                agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
+                textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")
+                np.savetxt(textfile, agg_matrix, delimiter=",", fmt=fmt)
+                fig = sp.plot_contacts(pop, density_or_frequency=method)
                 fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.png"))
 
     """
