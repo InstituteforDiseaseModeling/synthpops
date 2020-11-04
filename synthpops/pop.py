@@ -143,7 +143,7 @@ class Pop(sc.prettyobj):
 
         log.debug('generate_microstructure_with_facilities()')
 
-        print('TEMP: unpack variables')
+        print('TEMP: unpack variables -- to be refactored to pass parameters directly')
 
         datadir = self.datadir
         location = self.location
@@ -153,6 +153,7 @@ class Pop(sc.prettyobj):
         sheet_name = self.sheet_name
         use_two_group_reduction = self.ltcf_pars.use_two_group_reduction
         average_LTCF_degree = self.ltcf_pars.average_LTCF_degree
+        with_facilities = self.ltcf_pars.with_facilities
         use_default = self.ltcf_pars.use_default
         ltcf_staff_age_min = self.ltcf_pars.ltcf_staff_age_min
         ltcf_staff_age_max = self.ltcf_pars.ltcf_staff_age_max
@@ -175,7 +176,7 @@ class Pop(sc.prettyobj):
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
         # Generate LTCFs
-        n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, datadir, country_location, state_location, location, part, use_default)
+        n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, part, use_default)
 
         # Generate households
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
