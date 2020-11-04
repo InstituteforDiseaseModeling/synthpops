@@ -17,9 +17,6 @@ def test_api():
 
     population = sp.make_population(n=n, max_contacts=max_contacts)
 
-    with pytest.raises(ValueError):
-        population = sp.make_population(n=298437, generate=False)  # Not a supported number
-
     return population
 
 
