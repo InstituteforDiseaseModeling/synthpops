@@ -56,24 +56,24 @@ def test_basic_oop():
     return pop
 
 
-def test_alternative_oop():
-    ''' Alternative SynthPops test '''
-    sp.logger.info('Testing alternative API')
+# def test_alternative_oop():
+#     ''' Alternative SynthPops test '''
+#     sp.logger.info('Testing alternative API')
 
-    pars2 = sc.dcp(pars)
-    pars2.update(dict(
-        with_school_types = False,
-        school_mixing_type = 'random',
-    ))
+#     pars2 = sc.dcp(pars)
+#     pars2.update(dict(
+#         with_school_types = False,
+#         school_mixing_type = 'random',
+#     ))
 
-    pop = sp.Pop(**pars2) # Don't check that it's the same as anything, just that it works
+#     pop = sp.Pop(**pars2) # Don't check that it's the same as anything, just that it works
 
-    return pop
+#     return pop
 
 
 if __name__ == '__main__':
     T = sc.tic()
     pop = test_basic_oop()
-    pop2 = test_alternative_oop()
+    # pop2 = test_alternative_oop()
     sc.toc(T)
     print('Done.')
