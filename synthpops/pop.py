@@ -16,6 +16,8 @@ from . import workplaces as spw
 
 part = 2 # CK: not sure what this is
 
+__all__ = ['Pop', 'make_population']
+
 
 class Pop(sc.prettyobj):
 
@@ -28,7 +30,7 @@ class Pop(sc.prettyobj):
                     rand_seed=None, country_location=None, state_location=None, location=None,
                     do_make=True):
         '''
-        Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington data.
+        Make a full population network including both people (ages, sexes) and contacts. By default uses Seattle, Washington data.
 
         Args:
             n (int)                                 : The number of people to create.
@@ -352,3 +354,20 @@ class Pop(sc.prettyobj):
 
     def plot_contacts(self):
         return NotImplementedError('Need to adapt from matrix-based plotting')
+
+
+
+def make_population(*args, **kwargs):
+    '''
+    Interface to sp.Pop().to_dict(). Included for backwards compatibility.
+    '''
+    log.debug('make_population()')
+
+    # Heavy lift 1: make the contacts and their connections
+    log.debug('Generating a new population...')
+    pop = Pop(*args, **kwargs)
+
+    population = pop.to_dict()
+
+    log.debug('make_population(): done.')
+    return population
