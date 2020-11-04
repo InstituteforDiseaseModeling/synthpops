@@ -2,17 +2,26 @@
 This module provides the layer for communicating with the agent-based model Covasim.
 """
 
+import os
+import numpy as np
 import sciris as sc
-import synthpops as sp
 from .config import logger as log
 from . import config as cfg
+from . import sampling as spsamp
+from . import base as spb
+from . import data_distributions as spdata
+from . import contact_networks as spcnx
+from . import long_term_care_facilities as spltcf
+from . import school_modules as spsm
+
+part = 2 # CK: not sure what this is
 
 
 class Pop(sc.prettyobj):
 
-    def __init__(self, n=None, max_contacts=None, with_industry_code=False, with_facilities=False,
+    def __init__(self, n=None, max_contacts=None, with_industry_code=False, with_facilities=False, use_default=False,
                     use_two_group_reduction=True, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
-                    with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                    with_school_types=False, school_enrollment_counts_available=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                     with_non_teaching_staff=False,
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
@@ -26,11 +35,13 @@ class Pop(sc.prettyobj):
             max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
+            use_default (bool)                      :  ?????
             use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
             average_LTCF_degree (float)             : default average degree in long term care facilities.
             ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
             ltcf_staff_age_max (int)                : Long term care facility staff maximum age.
             with_school_types (bool)                : If True, creates explicit school types.
+            school_enrollment_counts_available (bool): ????
             school_mixing_type (str or dict)        : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
             average_class_size (float)              : The average classroom size.
             inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
@@ -70,7 +81,9 @@ class Pop(sc.prettyobj):
         self.ltcf_pars.average_LTCF_degree             = average_LTCF_degree
         self.ltcf_pars.ltcf_staff_age_min              = ltcf_staff_age_min
         self.ltcf_pars.ltcf_staff_age_max              = ltcf_staff_age_max
+        self.ltcf_pars.use_default                      = use_default
         self.school_pars.with_school_types               = with_school_types
+        self.school_pars.school_enrollment_counts_available = school_enrollment_counts_available
         self.school_pars.school_mixing_type              = school_mixing_type
         self.school_pars.average_class_size              = average_class_size
         self.school_pars.inter_grade_mixing              = inter_grade_mixing
@@ -87,12 +100,12 @@ class Pop(sc.prettyobj):
 
         # Handle more initialization
         if self.rand_seed is not None:
-            sp.set_seed(self.rand_seed)
+            spsamp.set_seed(self.rand_seed)
 
         default_max_contacts = {'W': 20}  # this can be anything but should be based on relevant average number of contacts for the population under study
 
         self.n = int(self.n)
-        self.max_contacts = sc.mergedicts(default_max_contacts, self.max_contacts)
+        self.trimmed_size_dic = sc.mergedicts(default_max_contacts, self.max_contacts) # TODO: make names consistent
 
         # Handle data
         if self.country_location is None :
@@ -108,7 +121,7 @@ class Pop(sc.prettyobj):
             self.location = None
 
         self.sheet_name = cfg.default_sheet_name
-        self.datadir = sp.datadir # Assume this has been reset...
+        self.datadir = cfg.datadir # Assume this has been reset...
 
         # Heavy lift 1: make the contacts and their connections
         log.debug('Generating a new population...')
@@ -128,6 +141,34 @@ class Pop(sc.prettyobj):
         ''' Actually generate the network '''
 
         log.debug('generate_microstructure_with_facilities()')
+
+        print('TEMP: unpack variables')
+
+        datadir = self.datadir
+        location = self.location
+        state_location = self.state_location
+        country_location = self.country_location
+        n = self.n
+        sheet_name = self.sheet_name
+        use_two_group_reduction = self.ltcf_pars.use_two_group_reduction
+        average_LTCF_degree = self.ltcf_pars.average_LTCF_degree
+        use_default = self.ltcf_pars.use_default
+        ltcf_staff_age_min = self.ltcf_pars.ltcf_staff_age_min
+        ltcf_staff_age_max = self.ltcf_pars.ltcf_staff_age_max
+        school_enrollment_counts_available = self.school_pars.school_enrollment_counts_available
+        with_school_types = self.school_pars.with_school_types
+        school_mixing_type = self.school_pars.school_mixing_type
+        average_class_size = self.school_pars.average_class_size
+        inter_grade_mixing = self.school_pars.inter_grade_mixing
+        average_student_teacher_ratio = self.school_pars.average_student_teacher_ratio
+        average_teacher_teacher_degree = self.school_pars.average_teacher_teacher_degree
+        teacher_age_min = self.school_pars.teacher_age_min
+        teacher_age_max = self.school_pars.teacher_age_max
+        average_student_all_staff_ratio = self.school_pars.average_student_all_staff_ratio
+        average_additional_staff_degree = self.school_pars.average_additional_staff_degree
+        staff_age_min = self.school_pars.staff_age_min
+        staff_age_max = self.school_pars.staff_age_max
+        trimmed_size_dic = self.trimmed_size_dic
 
         # Grab Long Term Care Facilities data
         ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part)
@@ -261,28 +302,28 @@ class Pop(sc.prettyobj):
 
                 expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
                 expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['60-64']
-                expected_users_by_age[a] = int(math.ceil(expected_users_by_age[a]))
+                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
 
             elif a < 75:
                 b = age_by_brackets_dic_18[a]
 
                 expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
                 expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['70-74']
-                expected_users_by_age[a] = int(math.ceil(expected_users_by_age[a]))
+                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
 
             elif a < 85:
                 b = age_by_brackets_dic_18[a]
 
                 expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
                 expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['80-84']
-                expected_users_by_age[a] = int(math.ceil(expected_users_by_age[a]))
+                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
 
             elif a < 101:
                 b = age_by_brackets_dic_18[a]
 
                 expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
                 expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['85-100']
-                expected_users_by_age[a] = int(math.ceil(expected_users_by_age[a]))
+                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
 
         if verbose:
             print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
@@ -325,20 +366,18 @@ class Pop(sc.prettyobj):
             expected_age_distr[a] = age_distr_16[age_by_brackets_dic_16[a]]/len(age_brackets_16[age_by_brackets_dic_16[a]])
             expected_age_count[a] = int(n * expected_age_distr[a])
 
-        ltcf_adjusted_age_count = deepcopy(expected_age_count)
+        ltcf_adjusted_age_count = sc.dcp(expected_age_count)
         for a in expected_users_by_age:
             ltcf_adjusted_age_count[a] -= expected_users_by_age[a]
         ltcf_adjusted_age_distr_dict = spb.norm_dic(ltcf_adjusted_age_count)
         ltcf_adjusted_age_distr = np.array([ltcf_adjusted_age_distr_dict[i] for i in range(max_age+1)])
 
-        # exp_age_distr = np.array([expected_age_distr[i] for i in range(max_age+1)], dtype=np.float64)
-        # exp_age_distr = np.array(list(expected_age_distr.values()), dtype=np.float64)
-
         # build rest of the population
         n_nonltcf = n - np.sum([len(f) for f in facilities])  # remove those placed in care homes
 
 
-        # Move on
+
+        #%% Move on
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = spcnx.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
@@ -346,7 +385,7 @@ class Pop(sc.prettyobj):
 
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
-        homes_dic, homes = custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
+        homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
         homes = facilities + homes
 
         homes_by_uids, age_by_uid_dic = spcnx.assign_uids_by_homes(homes)  # include facilities to assign ids
@@ -434,7 +473,7 @@ class Pop(sc.prettyobj):
             resident_staff_ratio = resident_staff_ratio/3.
             # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
 
-            n_staff = int(math.ceil(n_residents/resident_staff_ratio))
+            n_staff = int(np.ceil(n_residents/resident_staff_ratio))
             new_staff, new_staff_uids = [], []
 
             for i in range(n_staff):
@@ -469,7 +508,7 @@ class Pop(sc.prettyobj):
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
 
-        popdict = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+        population = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                                  homes_by_uids=homes_by_uids,
                                                                  schools_by_uids=syn_school_uids,
                                                                  teachers_by_uids=syn_teacher_uids,
