@@ -386,10 +386,10 @@ def make_population(*args, **kwargs):
     '''
     log.debug('make_population()')
 
-    deprecated = ['generate', 'datadir', 'sheet_name', 'verbose', 'plot', 'write', 'return_popdict']
+    deprecated = ['generate', 'datadir', 'sheet_name', 'verbose', 'plot', 'write', 'return_popdict', 'use_demography']
     for key in list(kwargs.keys()):
         if key in deprecated:
-            log.warn(f'You have specified parameter {key}, but this parameter is deprecated and will be ignored.')
+            log.warning(f'You have specified parameter {key}, but this parameter is deprecated and will be ignored.')
             kwargs.pop(key)
 
 
@@ -405,5 +405,5 @@ def make_population(*args, **kwargs):
 
 def generate_synthetic_population(*args, **kwargs):
     ''' For backwards compatibility only. '''
-    log.warn('This function is deprecated and may be removed in future releases')
+    log.warning('This function is deprecated and may be removed in future releases')
     return make_population(*args, **kwargs)
