@@ -161,7 +161,25 @@ def set_location_defaults(country=None):
 set_location_defaults()
 
 
-
+def set_datadir(root_dir, relative_path=None):
+    '''Set the data folder and relative path to the user-specified
+        location.
+        On startup, the datadir and rel_path are set to the conventions
+        used to store data. datadir is the root directory to the data, and
+        rel_path is a list of sub directories to the data -->
+        rel_path = ['demographics', 'contact_matrices_152_countries']
+        to change the location of the data the user is able to supply a new root_dir and new relative path. If the user uses a similar directory path model that we use
+        e.g. root_dir/demographic/contact... the user can change datadir without changing relitive path, by passing in relative_path = None (default)
+        -- note, mostly deprecated.'''
+    ''' user specifies complete path'''
+    global datadir
+    global rel_path
+    datadir = root_dir
+    if relative_path is not None:
+        rel_path = relative_path
+    logger.info(f'Done: data directory set to {root_dir}.')
+    logger.info(f'Relative Path set to  {rel_path}.')
+    return datadir
 
 
 def set_nbrackets(n):

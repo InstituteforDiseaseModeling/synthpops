@@ -1,5 +1,4 @@
 import datetime
-import inspect
 import unittest
 import utilities
 import utilities_dist
@@ -8,8 +7,10 @@ import os
 import shutil
 import sys
 import synthpops as sp
-from synthpops import cfg
+from synthpops import config as cfg
 
+
+@unittest.skip("Skip since file loading is being refactored into a DB approach")
 class TestFilePathCreatePop(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -21,16 +22,16 @@ class TestFilePathCreatePop(unittest.TestCase):
         os.makedirs(os.path.join(cls.dataUSAdir, "data"), exist_ok=True)
         os.makedirs(os.path.join(cls.dataSenegalDir, "data"), exist_ok=True)
         cls.subdir_level = "data/demographics/contact_matrices_152_countries"
-        cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), cls.subdir_level)
+        cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), os.pardir, cls.subdir_level)
         patternIgnore1 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*Senegal*"]
         patternIgnore2 = ["*contact_networks*", "*contact_networks_facilities*", "*New_York*", "*Oregon*", "*usa*"]
         utilities.copy_input(cls.sourcedir, cls.dataUSAdir, cls.subdir_level, patterns=patternIgnore1)
         utilities.copy_input(cls.sourcedir, cls.dataSenegalDir, cls.subdir_level, patterns=patternIgnore2)
         cls.n = 2001
         cls.seed = 1
-        cls.average_class_size = inspect.signature(sp.make_population).parameters["average_class_size"].default
-        cls.average_student_teacher_ratio = inspect.signature(sp.make_population).parameters["average_student_teacher_ratio"].default
-        cls.average_student_all_staff_ratio = inspect.signature(sp.make_population).parameters["average_student_all_staff_ratio"].default
+        cls.average_class_size = 20
+        cls.average_student_teacher_ratio = 20
+        cls.average_student_all_staff_ratio = 15
         cls.restore_defaults()
 
 
@@ -66,7 +67,7 @@ class TestFilePathCreatePop(unittest.TestCase):
 
     def test_usa_location_walk_back(self):
         sp.config.set_datadir(os.path.join(self.dataUSAdir, 'data'), ["demographics", "contact_matrices_152_countries"])
-        sp.config.set_alt_location(location="seattle_metro", country_location="usa", state_location="Washington")
+        # sp.config.set_alt_location(location="seattle_metro", country_location="usa", state_location="Washington")
         #file_paths = sp.config.FilePaths(location="yakima", country="usa", province="Washington")
         #file_paths.add_alternate_location(location="seattle_metro", country="usa", province="Washington")
         rand_seed = self.seed
