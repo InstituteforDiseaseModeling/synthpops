@@ -124,7 +124,7 @@ def test_generate_microstructures_with_non_teaching_staff():
                                      rand_seed=rand_seed)
     sc.toc()
 
-    sp.check_all_residents_are_connected_to_staff(population3)
+    check_all_residents_are_connected_to_staff(population3)
 
     return population1, population2, population3
 
