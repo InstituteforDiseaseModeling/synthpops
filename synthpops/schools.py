@@ -1061,5 +1061,162 @@ def add_random_contacts_from_graph(G, expected_average_degree):
                 if G.has_edge(node, neighbor):
                     G.remove_edge(node, neighbor)
 
-    # print('after',len(G.edges()))
     return G
+
+
+def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
+    """
+    Only used for with_school_types = False
+
+    Given a number of students in school, generate a list of school sizes to place everyone in a school.
+
+    Args:
+        school_size_distr_by_bracket (dict) : The distribution of binned school sizes.
+        school_size_brackets (dict)         : A dictionary of school size brackets.
+        uids_in_school (dict)               : A dictionary of students in school mapping ID to age.
+
+    Returns:
+        A list of school sizes whose sum is the length of ``uids_in_school``.
+    """
+    ns = len(uids_in_school)
+    sorted_brackets = sorted(school_size_brackets.keys())
+    prob_by_sorted_brackets = [school_size_distr_by_bracket[b] for b in sorted_brackets]
+
+    school_sizes = []
+
+    while ns > 0:
+        size_bracket = np.random.choice(sorted_brackets, p=prob_by_sorted_brackets)
+        # size = np.random.choice(school_size_brackets[size_bracket])  # creates some schools that are much smaller than expected so use average instead
+        size = int(np.mean(school_size_brackets[size_bracket]))  # use average school size to avoid schools with very small sizes
+        ns -= size
+        school_sizes.append(size)
+    if ns < 0:
+        school_sizes[-1] = school_sizes[-1] + ns
+    np.random.shuffle(school_sizes)
+    return school_sizes
+
+
+
+def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
+    """
+    Only used for with_school_types = False
+
+
+    A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
+    This method models schools using matrices and so it does not create explicit school types.
+
+    Args:
+        school_sizes (list)          : A list of school sizes.
+        uids_in_school (dict)        : A dictionary of students in school mapping ID to age.
+        uids_in_school_by_age (dict) : A dictionary of students in school mapping age to the list of IDs with that age.
+        ages_in_school_count (dict)  : A dictionary mapping age to the number of students with that age.
+        age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
+        age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
+        contact_matrix_dic (dict)    : A dictionary of age specific contact matrix for different physical contact settings.
+        verbose (bool)               : If True, print statements about the generated schools as they're being generated.
+
+    Returns:
+        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
+        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+    """
+    log.debug('send_students_to_school()')
+    syn_schools = []
+    syn_school_uids = []
+    syn_school_types = []
+
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+    left_in_bracket = spb.get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
+
+    for n, size in enumerate(school_sizes):
+
+        if len(uids_in_school) == 0:  # no more students left to send to school!
+            break
+
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        new_school = []
+        new_school_uids = []
+
+        # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+        # aindex = np.where(achoice)[0][0]
+        aindex = spsamp.fast_choice(ages_in_school_distr.values())
+        bindex = age_by_brackets_dic[aindex]
+
+        # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
+        if bindex >= 4:
+            if np.random.binomial(1, p=0.7):
+                # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
+                # aindex = np.where(achoice)[0][0]
+                aindex = spsamp.fast_choice(ages_in_school_distr.values())
+
+        uid = uids_in_school_by_age[aindex][0]
+        uids_in_school_by_age[aindex].remove(uid)
+        uids_in_school.pop(uid, None)
+        ages_in_school_count[aindex] -= 1
+        ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        new_school.append(aindex)
+        new_school_uids.append(uid)
+
+        if verbose:
+            print('reference school age', aindex, 'school size', size, 'students left', len(uids_in_school), left_in_bracket)
+
+        bindex = age_by_brackets_dic[aindex]
+        b_prob = contact_matrix_dic['S'][bindex, :]
+
+        left_in_bracket[bindex] -= 1
+
+        # fewer students than school size so everyone else is in one school
+        if len(uids_in_school) < size:
+            for uid in uids_in_school:
+                ai = uids_in_school[uid]
+                new_school.append(int(ai))
+                new_school_uids.append(uid)
+                uids_in_school_by_age[ai].remove(uid)
+                ages_in_school_count[ai] -= 1
+                left_in_bracket[age_by_brackets_dic[ai]] -= 1
+            uids_in_school = {}
+            if verbose:
+                print('last school', 'size from distribution', size, 'size generated', len(new_school))
+
+        else:
+            bi_min = max(0, bindex-1)
+            bi_max = bindex + 1
+
+            for i in range(1, size):
+                if len(uids_in_school) == 0:
+                    break
+
+                # no one left to send? should only choose other students from the mixing matrices, not teachers so don't create schools with
+                if sum([left_in_bracket[bi] for bi in range(bi_min, bi_max+1)]) == 0:
+                    break
+
+                bi = spsamp.sample_single_arr(b_prob)
+
+                while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
+                    bi = spsamp.sample_single_arr(b_prob)
+
+                ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
+                uid = uids_in_school_by_age[ai][0]  # grab the next student in line
+
+                new_school.append(ai)
+                new_school_uids.append(uid)
+
+                uids_in_school_by_age[ai].remove(uid)
+                uids_in_school.pop(uid, None)
+
+                ages_in_school_count[ai] -= 1
+                ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+                left_in_bracket[bi] -= 1
+
+        syn_schools.append(new_school)
+        syn_school_uids.append(new_school_uids)
+        syn_school_types.append('s')
+        new_school = np.array(new_school)
+        kids = new_school <= 19
+        # new_school_age_counter = Counter(new_school)
+        if verbose:
+            print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
+    if verbose:
+        print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+    return syn_schools, syn_school_uids, syn_school_types
