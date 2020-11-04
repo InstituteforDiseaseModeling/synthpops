@@ -8,6 +8,7 @@ import sciris as sc
 import numpy as np
 import networkx as nx
 import synthpops as sp
+from synthpops import schools as spsch
 
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
     """
@@ -447,10 +448,10 @@ def test_school_modules():
     # add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, school_mixing_type='clustered', verbose=False)
 
     ages_in_school_count = Counter(syn_school_ages)
-    school_types_by_age = sp.get_default_school_types_by_age()
-    school_type_age_ranges = sp.get_default_school_type_age_ranges()
-    school_size_brackets = sp.get_default_school_size_distr_brackets()
-    school_size_distr_by_type = sp.get_default_school_size_distr_by_type()
+    school_types_by_age = spsch.get_default_school_types_by_age()
+    school_type_age_ranges = spsch.get_default_school_type_age_ranges()
+    school_size_brackets = spsch.get_default_school_size_distr_brackets()
+    school_size_distr_by_type = spsch.get_default_school_size_distr_by_type()
     uids_in_school = {syn_school_uids[n]: syn_school_ages[n] for n in range(len(syn_school_uids))}
 
     uids_in_school_by_age = {}
@@ -464,7 +465,7 @@ def test_school_modules():
         if a not in ages_in_school_count:
             ages_in_school_count[a] = 0
 
-    syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school_with_school_types(school_size_distr_by_type,
+    syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type,
                                                                                                   school_size_brackets,
                                                                                                   uids_in_school,
                                                                                                   uids_in_school_by_age,
