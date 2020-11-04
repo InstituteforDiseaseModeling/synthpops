@@ -226,15 +226,8 @@ class Pop(sc.prettyobj):
         potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic)
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
-        # Removing facilities residents from potential workers
-        for nf, fc in enumerate(facilities_by_uids):
-            for uid in fc:
-                aindex = age_by_uid_dic[uid]
-                if uid in potential_worker_uids:
-                    potential_worker_uids_by_age[aindex].remove(uid)
-                    potential_worker_uids.pop(uid, None)
-                    if workers_by_age_to_assign_count[aindex] > 0:
-                        workers_by_age_to_assign_count[aindex] -= 1
+        # Get facility staff
+        facilities_staff_uids, potential_worker_uids, workers_by_age_to_assign_count = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)
 
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
@@ -249,9 +242,6 @@ class Pop(sc.prettyobj):
 
         # Assign all workers who are not staff at schools to workplaces
         syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose=verbose)
-
-        # Get facility staff
-        facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids)
 
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]

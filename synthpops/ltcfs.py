@@ -221,10 +221,10 @@ def generate_ltcfs(n, datadir, country_location, state_location, location, part,
     # build rest of the population
     n_nonltcf = n - np.sum([len(f) for f in facilities])  # remove those placed in care homes
 
-    return n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities,
+    return n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities
 
 
-def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids):
+def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic):
 
     # Assign facilities care staff from 20 to 59
     datadir = datadir + ''
@@ -269,8 +269,18 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         facilities_staff.append(new_staff)
         facilities_staff_uids.append(new_staff_uids)
 
+    # Removing facilities residents from potential workers
+    for nf, fc in enumerate(facilities_by_uids):
+        for uid in fc:
+            aindex = age_by_uid_dic[uid]
+            if uid in potential_worker_uids:
+                potential_worker_uids_by_age[aindex].remove(uid)
+                potential_worker_uids.pop(uid, None)
+                if workers_by_age_to_assign_count[aindex] > 0:
+                    workers_by_age_to_assign_count[aindex] -= 1
 
-    return facilities_staff_uids
+
+    return facilities_staff_uids, potential_worker_uids, workers_by_age_to_assign_count
 
 
 
