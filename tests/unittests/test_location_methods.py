@@ -6,13 +6,14 @@ import synthpops as sp
 import inspect
 import unittest
 import os
+
 class TestLocation(unittest.TestCase):
 
     def test_usa_path_methods(self):
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(keywords=keywords)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data")
-        sp.cfg.set_location_defaults("usa")
+        sp.config.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington", "location":"seattle_metro"}
         self.run_tests(datadir, methods, testcase)
 
@@ -22,7 +23,7 @@ class TestLocation(unittest.TestCase):
         ignored_args = ['location', 'part']
         methods = self.get_methods_to_test(keywords=keywords, target_args=args, exclude_args=ignored_args)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        sp.cfg.set_location_defaults("usa")
+        sp.config.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington"}
         self.run_tests(datadir, methods, testcase)
 
@@ -31,7 +32,7 @@ class TestLocation(unittest.TestCase):
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data")
-        sp.cfg.set_location_defaults("Senegal")
+        sp.config.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location":"Dakar"}
         self.run_tests(datadir, methods, testcase)
 
@@ -42,7 +43,7 @@ class TestLocation(unittest.TestCase):
         ignored_args = ['location', 'part']
         methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords, target_args=args, exclude_args=ignored_args)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        sp.cfg.set_location_defaults("Senegal")
+        sp.config.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar"}
         self.run_tests(datadir, methods, testcase)
 
@@ -52,7 +53,7 @@ class TestLocation(unittest.TestCase):
         for m in methods:
             print(m[0])
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        sp.cfg.set_location_defaults("usa")
+        sp.config.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase, ispath=False)
 
@@ -63,7 +64,7 @@ class TestLocation(unittest.TestCase):
         for m in methods:
             print(m[0])
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        sp.cfg.set_location_defaults("usa")
+        sp.config.set_location_defaults("usa")
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location": "Dakar"}
         self.run_tests(datadir, methods, testcase, ispath=False)
 
@@ -118,3 +119,8 @@ class TestLocation(unittest.TestCase):
                 else:
                     path_methods.append((m[0], False))
         return path_methods
+
+
+# Run unit tests if called as a script
+if __name__ == '__main__':
+    unittest.main()

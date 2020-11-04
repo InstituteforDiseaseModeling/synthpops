@@ -3,6 +3,7 @@ import shutil
 import pandas as pd
 
 import synthpops as sp
+from synthpops import data_distributions as spdd
 
 sp_datadir = sp.datadir
 
@@ -43,7 +44,7 @@ class DataFileFormatTest(unittest.TestCase):
 
     def test_csv_loads_same_as_dat(self):
 
-        headage_householdsize_distribution_path = sp.get_household_head_age_by_size_path(
+        headage_householdsize_distribution_path = spdd.get_household_head_age_by_size_path(
             datadir=sp_datadir,
             state_location="Washington",
             country_location="usa"
@@ -52,8 +53,8 @@ class DataFileFormatTest(unittest.TestCase):
         headage_distro_datfilename, headage_distro_csvfilename = self.copy_dat_and_make_csv(
             headage_householdsize_distribution_path)
 
-        headage_distro_dat_df = sp.get_household_head_age_by_size_df(datadir="", file_path=headage_distro_datfilename)
-        headage_distro_csv_df = sp.get_household_head_age_by_size_df(datadir="", file_path=headage_distro_csvfilename)
+        headage_distro_dat_df = spdd.get_household_head_age_by_size_df(datadir="", file_path=headage_distro_datfilename)
+        headage_distro_csv_df = spdd.get_household_head_age_by_size_df(datadir="", file_path=headage_distro_csvfilename)
         if self.is_debugging:
             print(headage_distro_dat_df.describe())
             print(headage_distro_dat_df.columns)
