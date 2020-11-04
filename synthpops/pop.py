@@ -2,8 +2,6 @@
 This module provides the layer for communicating with the agent-based model Covasim.
 """
 
-import os
-import numpy as np
 import sciris as sc
 from .config import logger as log
 from . import config as cfg
