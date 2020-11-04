@@ -2,7 +2,8 @@ name: Synthpops CI workflow
 on: [pull_request]
 
 jobs:
-  install_and_test:
+  
+  install:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -10,7 +11,7 @@ jobs:
       max-parallel: 8
       matrix:
         python-version: [ '3.7' ]
-    name: Install and test
+    name: Install
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
@@ -22,18 +23,42 @@ jobs:
         run: python setup.py develop
       - name: Install tests
         run: pip install -r tests/requirements_test.txt
+  
+  api_tests:
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        python-version: [ '3.7' ]
+    name: API tests
+    steps:
       - name: Run API tests
         working-directory: ./tests
         run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
+      - name: Upload report
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: report
+          path: tests/regression/report/
+
+  unit_tests:
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        python-version: [ '3.7' ]
+    name: Unit tests
+    steps:
       - name: Run unit tests
         working-directory: ./tests/unittests
         run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
-      - name: Upload test results
-        uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: test_results
-          path: tests/test-results.xml
       - name: Upload report
         uses: actions/upload-artifact@v2
         if: failure()
