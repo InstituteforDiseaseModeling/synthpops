@@ -22,8 +22,11 @@ jobs:
         run: python setup.py develop
       - name: Install tests
         run: pip install -r tests/requirements_test.txt
-      - name: Run unit and regression tests
+      - name: Run API tests
         working-directory: ./tests
+        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
+      - name: Run unit tests
+        working-directory: ./tests/unittests
         run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
       - name: Upload test results
         uses: actions/upload-artifact@v1
