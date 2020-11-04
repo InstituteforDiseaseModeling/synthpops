@@ -281,3 +281,8 @@ class Pop(sc.prettyobj):
     def to_dict(self):
         ''' Export to a dictionary '''
         return sc.dcp(self.popdict)
+
+    def save(self, filename, **kwargs):
+        ''' Simply save to an object '''
+        return sc.saveobj()
+
