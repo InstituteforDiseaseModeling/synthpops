@@ -30,7 +30,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                                               school_type_by_age=None,
                                               workplaces_by_industry_codes=None,
                                               verbose=False,
-                                              trimmed_size_dic=None):
+                                              max_contacts=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
     Each key is the ID of an individual which maps to a dictionary for that individual with attributes such as their age, household ID (hhid),
@@ -96,9 +96,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     popdict = {}
 
     # Handle trimming
-    do_trim = trimmed_size_dic is not None
-    trimmed_size_dic = sc.mergedicts({'W': 20}, trimmed_size_dic)
-    trim_keys = trimmed_size_dic.keys()
+    do_trim = max_contacts is not None
+    max_contacts = sc.mergedicts({'W': 20}, max_contacts)
+    trim_keys = max_contacts.keys()
 
     # Handle LTCF
     use_ltcf = facilities_by_uids is not None
@@ -231,7 +231,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
-        max_W_size = int(trimmed_size_dic['W']//2) # Divide by 2 since bi-directional contacts get added in later
+        max_W_size = int(max_contacts['W']//2) # Divide by 2 since bi-directional contacts get added in later
 
         # Loop over workplaces but only generate the requested contacts
         for nw, workplace in enumerate(workplaces_by_uids):

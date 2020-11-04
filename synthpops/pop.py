@@ -72,7 +72,7 @@ class Pop(sc.prettyobj):
 
 
         # Assign all the variables
-        self.school_pars = sc.mergedicts()
+        self.school_pars = sc.objdict()
         self.ltcf_pars = sc.objdict()
 
         # General parameters
@@ -109,8 +109,8 @@ class Pop(sc.prettyobj):
         self.ltcf_pars.use_default             = use_default
 
         # If any parameters are supplied as a dict to override defaults, merge them in now
-        self.school_pars = sc.mergedicts(self.school_pars, school_pars)
-        self.ltcf_pars = sc.mergedicts(self.school_pars, ltcf_pars)
+        self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
+        self.ltcf_pars = sc.objdict(sc.mergedicts(self.ltcf_pars, ltcf_pars))
 
         # Handle the seed
         if self.rand_seed is not None:
@@ -171,7 +171,7 @@ class Pop(sc.prettyobj):
         average_additional_staff_degree = self.school_pars.average_additional_staff_degree
         staff_age_min = self.school_pars.staff_age_min
         staff_age_max = self.school_pars.staff_age_max
-        trimmed_size_dic = self.trimmed_size_dic
+        max_contacts = self.max_contacts
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
@@ -274,7 +274,7 @@ class Pop(sc.prettyobj):
                                                                  average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                  average_student_all_staff_ratio=average_student_all_staff_ratio,
                                                                  average_additional_staff_degree=average_additional_staff_degree,
-                                                                 trimmed_size_dic=trimmed_size_dic)
+                                                                 max_contacts=max_contacts)
 
         # Change types
         for key, person in population.items():

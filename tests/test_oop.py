@@ -56,24 +56,34 @@ def test_basic_oop():
     return pop
 
 
-# def test_alternative_oop():
-#     ''' Alternative SynthPops test '''
-#     sp.logger.info('Testing alternative API')
+def test_alternatives():
+    ''' Alternative SynthPops test '''
+    sp.logger.info('Testing alternative API')
 
-#     pars2 = sc.dcp(pars)
-#     pars2.update(dict(
-#         with_school_types = False,
-#         school_mixing_type = 'random',
-#     ))
+    n = 2000
 
-#     pop = sp.Pop(**pars2) # Don't check that it's the same as anything, just that it works
+    ltcf_pars = dict(
+       with_facilities = True,
+       ltcf_staff_age_min = 20,
+       ltcf_staff_age_max = 65,
+    )
 
-#     return pop
+    school_pars = dict(
+       average_class_size = 20,
+       inter_grade_mixing = True,
+       average_student_teacher_ratio = 10,
+       teacher_age_min = 22,
+       teacher_age_max = 55,
+    )
+
+    pop = sp.Pop(n=n, ltcf_pars=ltcf_pars, school_pars=school_pars)
+
+    return pop
 
 
 if __name__ == '__main__':
     T = sc.tic()
-    pop = test_basic_oop()
-    # pop2 = test_alternative_oop()
+    # pop = test_basic_oop()
+    pop2 = test_alternatives()
     sc.toc(T)
     print('Done.')
