@@ -1248,3 +1248,67 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
     return size_brackets
+
+
+
+
+# # CK: NB, these two functions are taken from master rather than find-file, and it's unclear if they're needed
+
+# def get_school_sizes_path(datadir, location=None, state_location=None, country_location=None):
+#     """
+#     Get file_path for school sizes specific to the location under study.
+
+#     Args:
+#         datadir (string)          : file path to the data directory
+#         location (string)         : name of the location
+#         state_location (string)   : name of the state the location is in
+#         country_location (string) : name of the country the location is in
+
+#     Returns:
+#         A file path to school sizes.
+#     """
+
+#     if location == 'seattle_metro':
+#         location = 'Washington' # TODO: handle rename better
+
+#     levels = [location, state_location, country_location]
+#     if all(level is None for level in levels):
+#         raise NotImplementedError("Missing input strings. Try again.")
+#     elif country_location is None:
+#         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+#     elif state_location is None:
+#         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'schools', 'school_sizes.dat')
+#     elif location is None:
+#         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', 'school_sizes.dat')
+#     else:
+#         return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'schools', location + '_school_sizes.dat')
+
+
+# def get_school_sizes_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+#     """
+#     Get pandas dataframe with school enrollment sizes: depends on the country or source of contact pattern data. If use_default, then we'll first
+#     try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This may not
+#     be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+
+#     Args:
+#         datadir (string)          : file path to the data directory
+#         location (string)         : name of the location
+#         state_location (string)   : name of the state the location is in
+#         country_location (string) : name of the country the location is in
+#         file_path (string)        : file path to user specified gender by age bracket distribution data
+#         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+#     Returns:
+#         A pandas dataframe with school sizes.
+#     """
+#     if file_path is None:
+#         file_path = get_school_sizes_path(datadir, location, state_location, country_location)
+#     try:
+#         df = pd.read_csv(file_path)
+#     except:
+#         if use_default:
+#             file_path = get_school_sizes_path(datadir, location='seattle_metro', state_location='Washington', country_location='usa')
+#             df = pd.read_csv(file_path)
+#         else:
+#             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
+#     return df

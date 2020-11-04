@@ -1,6 +1,5 @@
 import sciris as sc
 import synthpops as sp
-import pytest
 
 plot = False
 verbose = False
@@ -207,6 +206,58 @@ def test_make_population_with_industry_code():
 #     return info
 
 
+
+# # Deprecated calls to e.g. make_contacts_generic()
+# def test_create_reduced_contacts_with_group_types():
+#     n = 1001
+#     average_LTCF_degree = 20
+
+#     # First create contact_networks_facilities
+#     # set write to False and instead use return_popdict = True to get a population dict
+#     popdict = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
+#                                                          n=n, school_enrollment_counts_available=True,
+#                                                          write=False, plot=False, return_popdict=True)
+
+#     # Make 2 groups of contacts
+#     # Facility contacts - use generating function so that data can be generated as needed to run this test
+#     contacts_group_1 = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
+#                                                                   n=n, plot=False, verbose=False,
+#                                                                   write=False, return_popdict=True,
+#                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
+
+#     # List of ids for group_1 facility contacts
+#     contacts_group_1_list = list(contacts_group_1.keys())
+
+#     # Home contacts
+#     network_distr_args = {'average_degree': average_LTCF_degree, 'network_type': 'poisson_degree', 'directed': True}
+#     contacts_group_2 = sp.make_contacts_generic(popdict, network_distr_args=network_distr_args)
+#     # List of ids for group_2 home contacts
+#     contacts_group_2_list = list(contacts_group_2.keys())
+
+#     # Now reduce contacts
+#     reduced_contacts = sp.create_reduced_contacts_with_group_types(popdict, contacts_group_1_list,
+#                                                                    contacts_group_2_list, 'LTCF',
+#                                                                    average_degree=average_LTCF_degree,
+#                                                                    force_cross_edges=True)
+
+#     assert len(reduced_contacts)*2 == len(contacts_group_1_list) + len(contacts_group_2_list)
+
+#     for i in popdict:
+#         person = reduced_contacts[i]
+#         if person['snf_res'] == 1:
+
+#             contacts = person['contacts']['LTCF']
+#             staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+
+#             if len(staff_contacts) == 0:
+#                 errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
+#                 raise ValueError(errormsg)
+
+#     return reduced_contacts
+
+
+
+
 def check_all_residents_are_connected_to_staff(popdict):
     flag = True
     for i in popdict:
@@ -224,6 +275,10 @@ def check_all_residents_are_connected_to_staff(popdict):
 
     if flag:
         print('All LTCF residents have at least one contact with a staff member.')
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -261,3 +316,5 @@ if __name__ == '__main__':
                                     rand_seed=rand_seed)
 
     check_all_residents_are_connected_to_staff(population)
+
+    # reduced = test_create_reduced_contacts_with_group_types()
