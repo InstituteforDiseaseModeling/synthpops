@@ -175,30 +175,20 @@ class Pop(sc.prettyobj):
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
-
         # Generate LTCFs
         n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, datadir, country_location, state_location, location, part, use_default)
 
-
-        #%% Move on
-
-
+        # Generate households
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
-
-
-
         homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
+
+        # Handle homes and facilities
         homes = facilities + homes
-
         homes_by_uids, age_by_uid_dic = sphh.assign_uids_by_homes(homes)  # include facilities to assign ids
-
         facilities_by_uids = homes_by_uids[0:len(facilities)]
-
-        # Make a dictionary listing out uids of people by their age
-        uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)
 
         # Generate school sizes
         school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
@@ -230,6 +220,7 @@ class Pop(sc.prettyobj):
         employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Find people who can be workers (removing everyone who is currently a student)
+        uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic) # Make a dictionary listing out uids of people by their age
         potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic)
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
