@@ -78,21 +78,16 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
     if state_location is None:
         location = None
 
-    sheet_name = cfg.default_sheet_name
-
     # Heavy lift 1: make the contacts and their connections
     log.debug('Generating a new population...')
-    population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, sheet_name=sheet_name,
+    pop = sp.Pop(location=location, state_location=state_location, country_location=country_location, n=n,
                                                             use_two_group_reduction=use_two_group_reduction, average_LTCF_degree=average_LTCF_degree, ltcf_staff_age_min=ltcf_staff_age_min, ltcf_staff_age_max=ltcf_staff_age_max,
                                                             with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
                                                             average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
                                                             average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                            return_popdict=True, trimmed_size_dic=max_contacts)
+                                                            max_contacts=max_contacts)
 
-    # Change types
-    for key, person in population.items():
-        for layerkey in population[key]['contacts'].keys():
-            population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
+    population = pop.to_dict()
 
     log.debug('make_population(): done.')
     return population
