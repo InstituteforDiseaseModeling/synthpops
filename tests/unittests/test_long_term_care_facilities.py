@@ -56,7 +56,7 @@ n = int(n)
 def test_generate_microstructures_with_non_teaching_staff():
     # # generate and write to file
     sp.config.set_location_defaults(country_location)
-    population1 = sp.generate_microstructure_with_facilities(datadir,
+    population1 = sp.make_population(datadir=datadir,
                                                              location=location,
                                                              state_location=state_location,
                                                              country_location=country_location,
@@ -83,7 +83,7 @@ def test_generate_microstructures_with_non_teaching_staff():
                                                              use_default=use_default)
 
     # # # read in from file
-    population2 = sp.make_contacts_with_facilities_from_microstructure(datadir,
+    population2 = sp.make_population(datadir=datadir,
                                                                        location=location,
                                                                        state_location=state_location,
                                                                        country_location=country_location,
@@ -131,7 +131,7 @@ def test_generate_microstructures_with_non_teaching_staff():
 
 # generate and write to file
 def test_generate_microstructures_with_facilities():
-    popdict = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location, n,
+    popdict = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location, n=n,
                                                          write=write, plot=False, return_popdict=return_popdict)
     assert (len(popdict) is not None)
     return popdict
@@ -139,8 +139,8 @@ def test_generate_microstructures_with_facilities():
 
 # read in from file
 def test_make_contacts_with_facilities_from_microstructure():
-    popdict = sp.make_contacts_with_facilities_from_microstructure(datadir, location, state_location, country_location,
-                                                                   n)
+    popdict = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
+                                                                   n=n)
 
     # verify these keys are either None or set to a value and LTCF contacts exist
     for i, uid in enumerate(popdict):
@@ -200,10 +200,30 @@ def test_make_population_with_industry_code():
     return popdict
 
 
-def test_make_population_with_multi_flags():
-    with pytest.raises(ValueError, match=r"Requesting both long term*") as info:
-        sp.make_population(n=n, generate=True, with_industry_code=True, with_facilities=True)
-    return info
+# Deprecated
+# def test_make_population_with_multi_flags():
+#     with pytest.raises(ValueError, match=r"Requesting both long term*") as info:
+#         sp.make_population(n=n, generate=True, with_industry_code=True, with_facilities=True)
+#     return info
+
+
+def check_all_residents_are_connected_to_staff(popdict):
+    flag = True
+    for i in popdict:
+        person = popdict[i]
+        if person['snf_res'] == 1:
+
+            contacts = person['contacts']['LTCF']
+            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+
+            if len(staff_contacts) == 0:
+                flag = False
+                print('i', person['snf_res'], [popdict[j]['snf_staff'] for j in person['contacts']['LTCF']])
+                errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
+                raise ValueError(errormsg)
+
+    if flag:
+        print('All LTCF residents have at least one contact with a staff member.')
 
 
 if __name__ == '__main__':
@@ -216,7 +236,7 @@ if __name__ == '__main__':
 
     make_popdict_with_industry = test_make_population_with_industry_code()
 
-    make_pop_with_facilities_industry_fails = test_make_population_with_multi_flags()
+    # make_pop_with_facilities_industry_fails = test_make_population_with_multi_flags()
 
     population = sp.make_population(n=n,
                                     generate=True,
@@ -240,4 +260,4 @@ if __name__ == '__main__':
                                     staff_age_max=staff_age_max,
                                     rand_seed=rand_seed)
 
-    sp.check_all_residents_are_connected_to_staff(population)
+    check_all_residents_are_connected_to_staff(population)
