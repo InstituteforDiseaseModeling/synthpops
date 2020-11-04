@@ -13,7 +13,6 @@ import sys
 import psutil
 import sciris as sc
 import logging
-import yaml
 from . import version as spv
 
 __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets',
@@ -34,7 +33,6 @@ full_data_available = False # this is likely not necessary anymore
 # Set the local data folder
 thisdir = os.path.dirname(os.path.abspath(__file__))
 #print(thisdir)
-config_file = os.path.join(thisdir, 'config_info.yaml')
 localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
@@ -100,10 +98,33 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
         output = mem_use
     return output
 
-def get_config_data(config_file):
-    with open(config_file) as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-        f.close()
+def get_config_data():
+    data = {
+        'valid_nbrackets':
+            [16, 18, 20],
+         'Senegal': {
+             'location': 'Dakar',
+              'province': 'Dakar',
+              'country': 'Senegal',
+              'sheet_name': 'Senegal',
+              'nbrackets': 18,
+              'household_size_1': True
+              },
+         'defaults': {
+             'location': 'seattle_metro',
+              'province': 'Washington',
+              'country': 'usa',
+              'sheet_name': 'United States of America',
+              'nbrackets': 20
+              },
+         'usa': {
+             'location': 'seattle_metro',
+              'province': 'Washington',
+              'country': 'usa',
+              'sheet_name': 'United States of America',
+              'nbrackets': 20
+              }
+         }
     return data
 
 #%% Functions
@@ -123,9 +144,9 @@ def set_location_defaults(country=None):
     global nbrackets
     global default_household_size_1_included
 
-    # read the yaml file
+    # read the confiuration file
     country_location = country if country is not None else 'defaults'
-    data = get_config_data(config_file)
+    data = get_config_data()
 
     if country_location in data.keys():
         loc = data[country_location]

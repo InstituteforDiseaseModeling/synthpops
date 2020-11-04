@@ -49,6 +49,5 @@ setup(
         "seaborn",
         "graphviz",
         "pydot",
-        "pyyaml"
     ],
 )
