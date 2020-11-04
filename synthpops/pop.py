@@ -250,49 +250,8 @@ class Pop(sc.prettyobj):
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                                     average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
 
-        # Assign facilities care staff from 20 to 59
-
-        datadir = datadir + ''
-        KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
-        KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
-        KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
-
-        facilities_staff = []
-        facilities_staff_uids = []
-
-        sorted_ratio_keys = sorted([k for k in KC_ratio_distr.keys()])
-        sorted_ratio_array = [KC_ratio_distr[k] for k in sorted_ratio_keys]
-
-        staff_age_range = np.arange(ltcf_staff_age_min, ltcf_staff_age_max + 1)
-        for nf, fc in enumerate(facilities):
-            n_residents = len(fc)
-
-            sb = np.random.choice(sorted_ratio_keys, p=sorted_ratio_array)
-            sb_range = KC_ratio_brackets[sb]
-            resident_staff_ratio = np.mean(sb_range)
-
-            # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
-            resident_staff_ratio = resident_staff_ratio/3.
-            # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
-
-            n_staff = int(np.ceil(n_residents/resident_staff_ratio))
-            new_staff, new_staff_uids = [], []
-
-            for i in range(n_staff):
-                a_prob = np.array([workers_by_age_to_assign_count[a] for a in staff_age_range])
-                a_prob = a_prob/np.sum(a_prob)
-                aindex = np.random.choice(a=staff_age_range, p=a_prob)
-
-                uid = potential_worker_uids_by_age[aindex][0]
-                potential_worker_uids_by_age[aindex].remove(uid)
-                potential_worker_uids.pop(uid, None)
-                workers_by_age_to_assign_count[aindex] -= 1
-
-                new_staff.append(aindex)
-                new_staff_uids.append(uid)
-
-            facilities_staff.append(new_staff)
-            facilities_staff_uids.append(new_staff_uids)
+        # Get facility staff
+        facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)
 
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)

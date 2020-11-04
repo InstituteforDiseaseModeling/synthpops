@@ -269,18 +269,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         facilities_staff.append(new_staff)
         facilities_staff_uids.append(new_staff_uids)
 
-    # Removing facilities residents from potential workers
-    for nf, fc in enumerate(facilities_by_uids):
-        for uid in fc:
-            aindex = age_by_uid_dic[uid]
-            if uid in potential_worker_uids:
-                potential_worker_uids_by_age[aindex].remove(uid)
-                potential_worker_uids.pop(uid, None)
-                if workers_by_age_to_assign_count[aindex] > 0:
-                    workers_by_age_to_assign_count[aindex] -= 1
-
-
-    return facilities_staff_uids, potential_worker_uids, workers_by_age_to_assign_count
+    return facilities_staff_uids
 
 
 
