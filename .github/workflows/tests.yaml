@@ -37,7 +37,10 @@ jobs:
     steps:
       - name: Run API tests
         working-directory: ./tests
-        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
+        run: |
+          pwd
+          ls
+          pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
       - name: Upload report
         uses: actions/upload-artifact@v2
         if: failure()
