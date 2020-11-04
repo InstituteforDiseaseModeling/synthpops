@@ -1,17 +1,12 @@
-import datetime
-import inspect
 import unittest
-import utilities
 import tempfile
 import os
-import shutil
-import sys
 import synthpops as sp
-from synthpops import cfg
+from synthpops import config as cfg
 #import sciris as sc
 import pytest
 
-
+@unittest.skip("Skip since file loading is being refactored into a DB approach")
 class TestFilePath(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -732,3 +727,5 @@ class TestFilePath(unittest.TestCase):
 
 
 
+if __name__ == "__main__":
+    unittest.main()

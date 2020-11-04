@@ -16,7 +16,7 @@ from . import workplaces as spw
 
 part = 2 # CK: not sure what this is
 
-__all__ = ['Pop', 'make_population']
+__all__ = ['Pop', 'make_population', 'generate_synthetic_population']
 
 
 class Pop(sc.prettyobj):
@@ -380,11 +380,18 @@ class Pop(sc.prettyobj):
 
 
 
-def make_population(*args, generate=True, **kwargs):
+def make_population(*args, **kwargs):
     '''
     Interface to sp.Pop().to_dict(). Included for backwards compatibility.
     '''
     log.debug('make_population()')
+
+    deprecated = ['generate', 'datadir', 'sheet_name', 'verbose', 'plot', 'write', 'return_popdict']
+    for key in list(kwargs.keys()):
+        if key in deprecated:
+            log.warn(f'You have specified parameter {key}, but this parameter is deprecated and will be ignored.')
+            kwargs.pop(key)
+
 
     # Heavy lift 1: make the contacts and their connections
     log.debug('Generating a new population...')
@@ -394,3 +401,9 @@ def make_population(*args, generate=True, **kwargs):
 
     log.debug('make_population(): done.')
     return population
+
+
+def generate_synthetic_population(*args, **kwargs):
+    ''' For backwards compatibility only. '''
+    log.warn('This function is deprecated and may be removed in future releases')
+    return make_population(*args, **kwargs)

@@ -11,7 +11,7 @@ import synthpops as sp
 import sciris as sc
 import utilities
 import utilities_dist
-from synthpops import cfg
+from synthpops import config as cfg
 
 
 class TestSchoolStaff(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestSchoolStaff(unittest.TestCase):
         cls.resultdir = tempfile.TemporaryDirectory().name
         cls.dataDir = os.path.join(cls.resultdir, "data")
         cls.subdir_level = "data/demographics/contact_matrices_152_countries"
-        cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), cls.subdir_level)
+        cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), os.pardir, cls.subdir_level)
         utilities.copy_input(cls.sourcedir, cls.resultdir, cls.subdir_level)
         cfg.set_nbrackets(20)
         cfg.set_location_defaults('defaults')
@@ -82,8 +82,8 @@ class TestSchoolStaff(unittest.TestCase):
         """
         generate a population and check if teacher/staff ratio match
         """
-        seed = 1
-        sp.set_seed(seed)
+        rand_seed = 1
+        sp.set_seed(rand_seed)
         #set param
         n = self.n
         datadir = self.dataDir
@@ -120,8 +120,8 @@ class TestSchoolStaff(unittest.TestCase):
         """
         test with long term care facilities options
         """
-        seed = 1
-        sp.set_seed(seed)
+        rand_seed = 1
+        sp.set_seed(rand_seed)
         # set param
         n = self.n
         datadir = self.dataDir
@@ -151,7 +151,7 @@ class TestSchoolStaff(unittest.TestCase):
         vals = locals()
         test_prefix = sys._getframe().f_code.co_name
         pop = utilities.runpop(resultdir=self.resultdir, testprefix=test_prefix, actual_vals=vals,
-                               method=sp.generate_microstructure_with_facilities)
+                               method=None)
         if self.do_plot:
             utilities.check_class_size(pop, average_class_size, average_student_teacher_ratio,
                                        average_student_all_staff_ratio, 1)

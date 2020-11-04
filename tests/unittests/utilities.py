@@ -37,16 +37,15 @@ def runpop(resultdir, actual_vals, testprefix, method):
     Returns:
         Population dictionary.
     """
+    print('NB: method is not used')
     os.makedirs(resultdir, exist_ok=True)
     params = {}
-    args = inspect.getfullargspec(method).args
-    for arg in args:
-        params[arg] = inspect.signature(method).parameters[arg].default
     for name in actual_vals:
-        if name in params.keys():
+        if name not in ['self', 'test_prefix']: # Remove automatically generated but invalid parameters
             params[name] = actual_vals[name]
     sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
-    pop = method(**params)
+    print(params)
+    pop = sp.make_population(**params)
     if do_save:
         sc.savejson(os.path.join(resultdir, f"{testprefix}_pop.json"), pop, indent=2)
     return pop
