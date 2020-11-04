@@ -2,10 +2,8 @@
 The module contains frequently-used functions that do not neatly fit into other areas of the code base.
 """
 
-# import sciris as sc
 import numpy as np
-from copy import deepcopy
-from . import config as cfg
+import sciris as sc
 
 
 def norm_dic(dic):
@@ -100,3 +98,100 @@ def get_ids_by_age_dic(age_by_id_dic):
     for i in age_by_id_dic:
         ids_by_age_dic[age_by_id_dic[i]].append(i)
     return ids_by_age_dic
+
+
+def get_aggregate_ages(ages, age_by_brackets_dic):
+    """
+    Create a dictionary of the count of ages by age brackets.
+
+    Args:
+        ages (dict)                : A dictionary of age count by single year.
+        age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
+
+    Returns:
+        A dictionary of aggregated age count for specified age brackets.
+
+    Example
+    =======
+
+    ::
+
+        aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
+        aggregate_matrix = symmetric_matrix.copy()
+        aggregate_matrix = sp.get_aggregate_matrix(aggregate_matrix, age_by_brackets_dic)
+    """
+    bracket_keys = set(age_by_brackets_dic.values())
+    aggregate_ages = dict.fromkeys(bracket_keys, 0)
+    for a in ages:
+        b = age_by_brackets_dic[a]
+        aggregate_ages[b] += ages[a]
+    return aggregate_ages
+
+
+def get_aggregate_matrix(matrix, age_by_brackets_dic):
+    """
+    Aggregate a symmetric matrix to fewer age brackets. Do not use for homogeneous mixing matrix.
+
+    Args:
+        matrix (np.ndarray)        : A symmetric age contact matrix.
+        age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
+
+    Returns:
+        A symmetric contact matrix (``np.ndarray``) aggregated to age brackets.
+
+    Example
+    =======
+
+    ::
+
+        age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+        aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
+        aggregate_matrix = symmetric_matrix.copy()
+        aggregate_matrix = sp.get_aggregate_matrix(aggregate_matrix, age_by_brackets_dic)
+
+        asymmetric_matrix = sp.get_asymmetric_matrix(aggregate_matrix, aggregate_age_count)
+
+   """
+    n = len(matrix)
+    num_agebrackets = len(set(age_by_brackets_dic.values()))
+    m_agg = np.zeros((num_agebrackets, num_agebrackets))
+    for i in range(n):
+        bi = age_by_brackets_dic[i]
+        for j in range(n):
+            bj = age_by_brackets_dic[j]
+            m_agg[bi][bj] += matrix[i][j]
+    return m_agg
+
+
+def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
+    """
+    Get the contact matrix for the average individual in each age bracket.
+
+    Args:
+        symmetric_matrix (np.ndarray) : A symmetric age contact matrix.
+        aggregate_ages (dict)         : A dictionary mapping single year ages to age brackets.
+
+    Returns:
+        A contact matrix (``np.ndarray``) whose elements ``M_ij`` describe the contact frequency for the average individual in age bracket ``i`` with all possible contacts in age bracket ``j``.
+
+    Example
+    =======
+
+    ::
+
+        age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
+
+        aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
+        aggregate_matrix = symmetric_matrix.copy()
+        aggregate_matrix = sp.get_aggregate_matrix(aggregate_matrix, age_by_brackets_dic)
+
+        asymmetric_matrix = sp.get_asymmetric_matrix(aggregate_matrix, aggregate_age_count)
+    """
+    M = sc.dcp(symmetric_matrix)
+    for a in aggregate_ages:
+        M[a, :] = M[a, :] / float(aggregate_ages[a])
+
+    return M

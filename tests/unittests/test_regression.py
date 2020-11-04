@@ -23,7 +23,6 @@ import tempfile
 import sciris as sc
 import synthpops as sp
 import numpy as np
-from examples import plot_age_mixing_matrices
 try:
     from fpdf import FPDF
 except Exception as E:
@@ -150,18 +149,14 @@ class TestRegression(unittest.TestCase):
             sc.savejson(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_average_contact.json"),
                         dict(enumerate(average_contacts.tolist())), indent=2)
 
-            for type in ['density', 'frequency']:
-                matrix = sp.calculate_contact_matrix(pop, type, setting_code)
+            for method in ['density', 'frequency']:
+                fig = pop.plot_contacts(method=method)
+                matrix = sp.calculate_contact_matrix(pop, method, setting_code)
                 brackets = sp.get_census_age_brackets(self.datadir, state_location, country_location)
                 ageindex = sp.get_age_by_brackets_dic(brackets)
                 agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
-                np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.csv"),
+                np.savetxt(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv"),
                            agg_matrix, delimiter=",", fmt=fmt)
-                fig = plot_age_mixing_matrices.test_plot_generated_contact_matrix(setting_code=setting_code,
-                                                                                  population=pop,
-                                                                                  title_prefix=" Expected " if self.generateBaseline else " Test ",
-                                                                                  density_or_frequency=type)
-                # fig.show()
                 fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.png"))
 
     """

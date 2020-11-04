@@ -2,9 +2,8 @@
 Uitilities for test_school_staff (and possibly other functions)
 """
 
-import synthpops as sp
+
 import sciris as sc
-import inspect
 import os
 import numpy as np
 import pandas as pd
@@ -14,6 +13,10 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from collections import Counter
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+import synthpops as sp
+from synthpops import data_distributions as spdd
+from synthpops import base as spb
 
 # set the font family if available
 mplt.rcParams['font.family'] = 'Roboto Condensed'
@@ -37,11 +40,11 @@ def runpop(resultdir, actual_vals, testprefix, method):
     Returns:
         Population dictionary.
     """
-    print('NB: method is not used')
+    print('NB: calling runpop with "method" is not used, since only make_population() is used')
     os.makedirs(resultdir, exist_ok=True)
     params = {}
     for name in actual_vals:
-        if name not in ['self', 'test_prefix']: # Remove automatically generated but invalid parameters
+        if name not in ['self', 'test_prefix', 'filename']: # Remove automatically generated but invalid parameters
             params[name] = actual_vals[name]
     sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
     print(params)
@@ -310,8 +313,8 @@ def get_average_contact_by_age(pop, datadir, state_location="Washington", countr
         numpy.ndarray: A numpy array with average contacts by age brackets.
 
     """
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
-    ageindex = sp.get_age_by_brackets_dic(brackets)
+    brackets = spdd.get_census_age_brackets(datadir, state_location, country_location)
+    ageindex = spb.get_age_by_brackets_dic(brackets)
     total = np.zeros(len(brackets))
     contacts = np.zeros(len(brackets))
     for p in pop.values():

@@ -7,16 +7,30 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from collections import Counter
+from . import config as cfg
 from . import base as spb
+from . import data_distributions as spdd
 
 
 # Pretty fonts
 try:
-    fontstyle = 'Roboto_Condensed'
-    mplt.rcParams['font.family'] = fontstyle.replace('_', ' ')
+    fontstyle = 'Roboto Condensed'
+    mplt.rcParams['font.family'] = fontstyle
 except:
     mplt.rcParams['font.family'] = 'Roboto'
 mplt.rcParams['font.size'] = 16
+
+try:
+    import cmasher
+    default_colormap = 'cmr.freeze_r'
+except:
+    print('Note: cmasher import failed; defaulting to regular colormap')
+    default_colormap = 'bone_r'
+
+
+__all__ = ['calculate_contact_matrix', 'plot_contacts']
+
 
 
 def calculate_contact_matrix(population, density_or_frequency='density', setting_code='H'):
@@ -77,7 +91,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
 
 def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
                         setting_code='H', density_or_frequency='density', logcolors_flag=False,
-                        aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50,
+                        aggregate_flag=True, cmap=default_colormap, fontsize=16, rotation=50,
                         title_prefix=None, fig=None, ax=None):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
@@ -200,3 +214,77 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     return fig
 
 
+
+
+
+def plot_contacts(population, setting_code='H',
+                aggregate_flag=True,
+                logcolors_flag=True,
+                density_or_frequency='density',
+                cmap=default_colormap,
+                fontsize=16,
+                rotation=50,
+                title_prefix=None,
+                fig=None,
+                ax=None):
+    """
+    Plot the age mixing matrix for a specific setting.
+
+    TODO: rename setting_code to layer
+
+    Args:
+        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        n (int)                          : number of people in the population
+        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        logcolors_flag (bool)            : If True, plot heatmap in logscale
+        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        with_facilities (bool)           : If True, create long term care facilities
+        cmap(str or matplotlib colormap) : colormap
+        fontsize (int)                   : base font size
+        rotation (int)                   : rotation for x axis labels
+        population(dict)                 : population to be plotted, if None, code will generate it
+        title_prefix(str)                : optional title prefix for the figure
+
+    Returns:
+        A fig object.
+
+    """
+    datadir = cfg.datadir
+
+    state_location = 'Washington'
+    country_location = 'usa'
+
+    age_brackets = spdd.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+
+    ages = []
+    # if setting_code == 'LTCF':
+    #     ltcf_ages = []
+
+    for uid in population:
+        ages.append(population[uid]['age'])
+        # if setting_code == 'LTCF':
+        #     if population[uid]['snf_res'] or population[uid]['snf_staff']:
+        #         ltcf_ages.append(population[uid]['age'])
+
+    age_count = Counter(ages)
+    aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
+
+    # if setting_code == 'LTCF':
+    #     ltcf_age_count = Counter(ltcf_ages)
+    #     aggregate_ltcf_age_count = sp.get_aggregate_ages(ltcf_age_count, age_by_brackets_dic)
+
+    matrix = calculate_contact_matrix(population, density_or_frequency, setting_code)
+
+    # if setting_code == 'LTCF':
+    #     fig = sp.plot_contact_frequency(matrix, ltcf_age_count, aggregate_ltcf_age_count, age_brackets, age_by_brackets_dic,
+    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+    # else:
+    #     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
+
+    fig = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
+                                    fig=fig, ax=ax)
+
+    return fig

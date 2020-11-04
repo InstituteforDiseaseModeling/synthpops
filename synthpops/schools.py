@@ -1122,7 +1122,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     syn_school_types = []
 
     ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-    left_in_bracket = get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
+    left_in_bracket = spb.get_aggregate_ages(ages_in_school_count, age_by_brackets_dic)
 
     for n, size in enumerate(school_sizes):
 
@@ -1217,31 +1217,3 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     if verbose:
         print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
     return syn_schools, syn_school_uids, syn_school_types
-
-
-def get_aggregate_ages(ages, age_by_brackets_dic):
-    """
-    Create a dictionary of the count of ages by age brackets.
-
-    Args:
-        ages (dict)                : A dictionary of age count by single year.
-        age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
-
-    Returns:
-        A dictionary of aggregated age count for specified age brackets.
-
-    Example
-    =======
-
-    ::
-
-        aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)
-        aggregate_matrix = symmetric_matrix.copy()
-        aggregate_matrix = sp.get_aggregate_matrix(aggregate_matrix, age_by_brackets_dic)
-    """
-    bracket_keys = set(age_by_brackets_dic.values())
-    aggregate_ages = dict.fromkeys(bracket_keys, 0)
-    for a in ages:
-        b = age_by_brackets_dic[a]
-        aggregate_ages[b] += ages[a]
-    return aggregate_ages

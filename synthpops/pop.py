@@ -13,6 +13,7 @@ from . import ltcfs as spltcf
 from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
+from . import plotting as sppl
 
 part = 2 # CK: not sure what this is
 
@@ -375,8 +376,10 @@ class Pop(sc.prettyobj):
         return fig
 
 
-    def plot_contacts(self):
-        return NotImplementedError('Need to adapt from matrix-based plotting')
+    def plot_contacts(self, *args, **kwargs):
+        ''' Plot matrices of the contacts for a given layer or layers '''
+        fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
+        return fig
 
 
 
