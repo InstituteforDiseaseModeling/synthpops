@@ -175,19 +175,26 @@ class Pop(sc.prettyobj):
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
+
         # Generate LTCFs
         n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, datadir, country_location, state_location, location, part, use_default)
 
-        # Households
+
+        #%% Move on
+
+
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
-        homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
 
-        # Households + facilities
+
+
+        homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
         homes = facilities + homes
+
         homes_by_uids, age_by_uid_dic = sphh.assign_uids_by_homes(homes)  # include facilities to assign ids
+
         facilities_by_uids = homes_by_uids[0:len(facilities)]
 
         # Make a dictionary listing out uids of people by their age
@@ -226,14 +233,66 @@ class Pop(sc.prettyobj):
         potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic)
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
-        # Get facility staff
-        facilities_staff_uids, potential_worker_uids, workers_by_age_to_assign_count = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)
+        # Removing facilities residents from potential workers
+        for nf, fc in enumerate(facilities_by_uids):
+            for uid in fc:
+                aindex = age_by_uid_dic[uid]
+                if uid in potential_worker_uids:
+                    potential_worker_uids_by_age[aindex].remove(uid)
+                    potential_worker_uids.pop(uid, None)
+                    if workers_by_age_to_assign_count[aindex] > 0:
+                        workers_by_age_to_assign_count[aindex] -= 1
 
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                                average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
+
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                                     average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
+
+        # Assign facilities care staff from 20 to 59
+
+        datadir = datadir + ''
+        KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
+        KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
+        KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
+
+        facilities_staff = []
+        facilities_staff_uids = []
+
+        sorted_ratio_keys = sorted([k for k in KC_ratio_distr.keys()])
+        sorted_ratio_array = [KC_ratio_distr[k] for k in sorted_ratio_keys]
+
+        staff_age_range = np.arange(ltcf_staff_age_min, ltcf_staff_age_max + 1)
+        for nf, fc in enumerate(facilities):
+            n_residents = len(fc)
+
+            sb = np.random.choice(sorted_ratio_keys, p=sorted_ratio_array)
+            sb_range = KC_ratio_brackets[sb]
+            resident_staff_ratio = np.mean(sb_range)
+
+            # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
+            resident_staff_ratio = resident_staff_ratio/3.
+            # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
+
+            n_staff = int(np.ceil(n_residents/resident_staff_ratio))
+            new_staff, new_staff_uids = [], []
+
+            for i in range(n_staff):
+                a_prob = np.array([workers_by_age_to_assign_count[a] for a in staff_age_range])
+                a_prob = a_prob/np.sum(a_prob)
+                aindex = np.random.choice(a=staff_age_range, p=a_prob)
+
+                uid = potential_worker_uids_by_age[aindex][0]
+                potential_worker_uids_by_age[aindex].remove(uid)
+                potential_worker_uids.pop(uid, None)
+                workers_by_age_to_assign_count[aindex] -= 1
+
+                new_staff.append(aindex)
+                new_staff_uids.append(uid)
+
+            facilities_staff.append(new_staff)
+            facilities_staff_uids.append(new_staff_uids)
 
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -246,7 +305,6 @@ class Pop(sc.prettyobj):
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
 
-        # Generate the population
         population = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                                  homes_by_uids=homes_by_uids,
                                                                  schools_by_uids=syn_school_uids,
