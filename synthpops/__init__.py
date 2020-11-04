@@ -3,9 +3,11 @@ from .config import *
 from .base import *
 from .data_distributions import *
 from .sampling import *
+from .households import *
+from .workplaces import *
+from .schools import *
+from .ltcfs import *
 from .contact_networks import *
-from .api import *
-from .long_term_care_facilities import *
-from .school_modules import *
 from .pop import *
+from .api import *
 logger.debug('Finished imports')
