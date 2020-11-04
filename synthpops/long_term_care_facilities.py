@@ -534,22 +534,7 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
 
     # remove facilities from homes to write households as a separate file
     homes_by_uids = homes_by_uids[len(facilities_by_uids):]
-    # group uids to file
-    # folder_name = 'contact_networks_facilities'
-    # if write:
-    #     args = [datadir, location, state_location, country_location, folder_name, age_by_uid_dic]
-    #     sprw.write_age_by_uid_dic(*args)
 
-    #     sprw.write_groups_by_age_and_uid(*args, 'households', homes_by_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'schools', syn_school_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'teachers', syn_teacher_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'non_teaching_staff', syn_non_teaching_staff_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'workplaces', syn_workplace_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'facilities', facilities_by_uids)
-    #     sprw.write_groups_by_age_and_uid(*args, 'facilities_staff', facilities_staff_uids)
-
-    if verbose:
-        print('facilities_staff_uids', facilities_staff_uids)
     popdict = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                              homes_by_uids=homes_by_uids,
                                                              schools_by_uids=syn_school_uids,
@@ -570,16 +555,6 @@ def generate_microstructure_with_facilities(datadir, location, state_location, c
                                                              average_additional_staff_degree=average_additional_staff_degree,
                                                              trimmed_size_dic=trimmed_size_dic)
 
-    if verbose:
-        uids = popdict.keys()
-        uids = [uid for uid in uids]
-        np.random.shuffle(uids)
-
-        for i in range(50):
-            uid = uids[i]
-            person = popdict[uid]
-            print('uid', uid, person['age'], person['contacts']['H'], person['contacts']['S'], person['contacts']['W'], person['contacts']['LTCF'])
-            print(person['snf_res'], person['snf_staff'])
 
     if return_popdict:
         return popdict

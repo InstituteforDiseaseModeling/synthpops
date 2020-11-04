@@ -80,27 +80,6 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     sheet_name = cfg.default_sheet_name
 
-    options_args = {}
-    options_args['use_microstructure'] = True
-    options_args['use_industry_code'] = with_industry_code
-    options_args['use_long_term_care_facilities'] = with_facilities
-    options_args['use_two_group_reduction'] = use_two_group_reduction
-    options_args['with_school_types'] = with_school_types
-    options_args['with_non_teaching_staff'] = with_non_teaching_staff
-
-    network_distr_args = {}
-    network_distr_args['Npop'] = int(n)
-
-    network_distr_args['average_LTCF_degree'] = average_LTCF_degree
-
-    network_distr_args['average_class_size'] = average_class_size
-    network_distr_args['average_student_teacher_ratio'] = average_student_teacher_ratio
-    network_distr_args['average_teacher_teacher_degree'] = average_teacher_teacher_degree
-    network_distr_args['inter_grade_mixing'] = inter_grade_mixing
-    network_distr_args['average_student_all_staff_ratio'] = average_student_all_staff_ratio
-    network_distr_args['average_additional_staff_degree'] = average_additional_staff_degree
-    network_distr_args['school_mixing_type'] = school_mixing_type
-
     # Heavy lift 1: make the contacts and their connections
     log.debug('Generating a new population...')
     population = sp.generate_microstructure_with_facilities(sp.datadir, location=location, state_location=state_location, country_location=country_location, n=n, sheet_name=sheet_name,
