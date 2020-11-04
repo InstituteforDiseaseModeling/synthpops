@@ -107,9 +107,9 @@ def test_api(do_plot=False):
     pop.to_json('test_api.json') # save as JSON
     popdict = pop.to_dict() # export from class to standard python object; current default synthpops output
     if do_plot:
-        # pop.plot() # do the most obvious plotting thing, whatever that may be
-        # pop.plot_people() # equivalent to cv.Sim.people.plot()
-        pop.plot_contacts() # equivalent to sp.plot_contact_matrix(popdict) perhaps?
+        # pop.plot() # do the most obvious plotting thing, whatever that may be...
+        pop.plot_people() # equivalent to cv.Sim.people.plot()
+        pop.plot_contacts() # equivalent to sp.plot_contact_matrix(popdict)
     return popdict
 
 
@@ -117,9 +117,9 @@ if __name__ == '__main__':
 
     T = sc.tic()
 
-    # default_pop = test_default()
-    # example_pop = test_example_oop()
-    # alt_pops    = test_alternatives()
+    default_pop = test_default()
+    example_pop = test_example_oop()
+    alt_pops    = test_alternatives()
     api_popdict = test_api(do_plot=True)
 
     sc.toc(T)
