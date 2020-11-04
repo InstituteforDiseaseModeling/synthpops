@@ -71,9 +71,9 @@ def test_alternatives():
     school_pars = dict(
        average_class_size = 20,
        inter_grade_mixing = True,
-       average_student_teacher_ratio = 10,
+       average_student_teacher_ratio = 20,
        teacher_age_min = 22,
-       teacher_age_max = 55,
+       teacher_age_max = 65,
     )
 
     pop = sp.Pop(n=n, ltcf_pars=ltcf_pars, school_pars=school_pars)
