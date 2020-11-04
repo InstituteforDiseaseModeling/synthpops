@@ -1,5 +1,5 @@
 #!/bin/bash
-coverage run --source=../synthpops -m pytest test_*
+coverage run --source=../synthpops -m pytest test_*.py
 
 echo 'Creating HTML report...'
 coverage html
