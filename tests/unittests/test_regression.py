@@ -87,7 +87,7 @@ class TestRegression(unittest.TestCase):
         country_location = 'usa'
         max_contacts = None
         with_industry_code = False
-        with_facilities = False
+        with_facilities = True
         use_two_group_reduction = False
         average_LTCF_degree = 20
         generate = True
