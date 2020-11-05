@@ -3,7 +3,7 @@
   "max_contacts": null,
   "generate": true,
   "with_industry_code": false,
-  "with_facilities": false,
+  "with_facilities": true,
   "use_two_group_reduction": false,
   "average_LTCF_degree": 20,
   "ltcf_staff_age_min": 20,
@@ -21,5 +21,8 @@
   "average_additional_staff_degree": 20,
   "staff_age_min": 20,
   "staff_age_max": 75,
-  "rand_seed": 1001
+  "rand_seed": 1001,
+  "country_location": "usa",
+  "state_location": "Washington",
+  "location": "seattle_metro"
 }
