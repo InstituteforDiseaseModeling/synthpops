@@ -92,6 +92,23 @@ class TestRegression(unittest.TestCase):
         average_LTCF_degree = 20
         generate = True
         #
+        # previously defaults
+        # ltcf_staff_age_min = 20
+        # ltcf_staff_age_max = 60
+        # with_school_types = False
+        # school_mixing_type = "random"
+        # average_class_size = 20
+        # inter_grade_mixing = 0.1
+        # average_student_teacher_ratio = 20
+        # average_teacher_teacher_degree = 3
+        # teacher_age_min = 25
+        # teacher_age_max = 75
+        # with_non_teaching_staff = False
+        # average_student_all_staff_ratio = 15
+        # average_additional_staff_degree = 20
+        # staff_age_min = 20
+        # staff_age_max = 75
+        #
         test_prefix = 'test_regression_make_population'
         self.reportfolder = os.path.join(self.pdfDir, test_prefix)
         os.makedirs(self.reportfolder, exist_ok=True)
@@ -159,8 +176,8 @@ class TestRegression(unittest.TestCase):
                 agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
                 textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")
                 np.savetxt(textfile, agg_matrix, delimiter=",", fmt=fmt)
-                fig = sp.plot_contacts(pop, density_or_frequency=method)
-                fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{type}_contact_matrix.png"))
+                fig = sp.plot_contacts(pop, setting_code=setting_code, density_or_frequency=method)
+                fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.png"))
 
     """
     Compare all csv, json files between actual/expected folder
