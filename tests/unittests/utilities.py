@@ -42,32 +42,7 @@ def runpop(resultdir, actual_vals, testprefix, method):
     """
     print('NB: calling runpop with "method" is not used, since only make_population() is used')
     os.makedirs(resultdir, exist_ok=True)
-    params = {'n': 20001,
-     'max_contacts': None,
-     'generate': True,
-     'with_industry_code': False,
-     'with_facilities': False,
-     'use_two_group_reduction': False,
-     'average_LTCF_degree': 20,
-     'ltcf_staff_age_min': 20,
-     'ltcf_staff_age_max': 60,
-     'with_school_types': False,
-     'school_mixing_type': 'random',
-     'average_class_size': 20,
-     'inter_grade_mixing': 0.1,
-     'average_student_teacher_ratio': 20,
-     'average_teacher_teacher_degree': 3,
-     'teacher_age_min': 25,
-     'teacher_age_max': 75,
-     'with_non_teaching_staff': False,
-     'average_student_all_staff_ratio': 15,
-     'average_additional_staff_degree': 20,
-     'staff_age_min': 20,
-     'staff_age_max': 75,
-     'rand_seed': 1001,
-     'country_location': 'usa',
-     'state_location': 'Washington',
-     'location': 'seattle_metro'}
+    params = {}
     for name in actual_vals:
         if name not in ['self', 'test_prefix', 'filename']: # Remove automatically generated but invalid parameters
             params[name] = actual_vals[name]
