@@ -74,9 +74,6 @@ def runpop(resultdir, actual_vals, testprefix, method):
     sc.savejson(os.path.join(resultdir, f"{testprefix}.config.json"), params, indent=2)
     print(params)
     pop = sp.make_population(**params)
-    print('TEMP2')
-    sc.saveobj('temp_ltcf_test.pop', pop)
-    sc.saveobj('temp_ltcf_test.pars', params)
     if do_save:
         sc.savejson(os.path.join(resultdir, f"{testprefix}_pop.json"), pop, indent=2)
     return pop
