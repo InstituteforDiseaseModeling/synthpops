@@ -10,18 +10,18 @@ def process_census_age_counts(datadir, location, state_location, country_locatio
     Process American Community Survey data for a given year to get an age count for the location binned into 18 age brackets.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        year (int)                : the year for the American Community Survey
-        acs_period (int)          : the number of years for the American Community Survey
+        datadir (str)          : file path to the data directory
+        location (str)         : name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        year (int)             : the year for the American Community Survey
+        acs_period (int)       : the number of years for the American Community Survey
 
     Returns:
         A dictionary with the binned age count and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{state_location}*'.format(acs_period=acs_period, year=year, state_location=state_location)))[0]
+    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
 
     df = pd.read_csv(file_path)
 
@@ -46,18 +46,18 @@ def process_census_age_counts_by_gender(datadir, location, state_location, count
     Process American Community Survey data for a given year to get an age count by genderfor the location binned into 18 age brackets.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        year (int)                : the year for the American Community Survey
-        acs_period (int)          : the number of years for the American Community Survey
+        datadir (str)          : file path to the data directory
+        location (str)         : name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        year (int)             : the year for the American Community Survey
+        acs_period (int)       : the number of years for the American Community Survey
 
     Returns:
         A dictionary with the binned age count by gender and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{state_location}*'.format(acs_period=acs_period, year=year, state_location=state_location)))[0]
+    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
 
     df = pd.read_csv(file_path)
 
@@ -80,24 +80,24 @@ def process_census_age_counts_by_gender(datadir, location, state_location, count
     return age_bracket_count_by_gender, age_brackets
 
 
-def write_age_bracket_distr_18(datadir, location, state_location, country_location, age_bracket_count, age_brackets):
+def write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets):
     """
     Write age bracket distribution binned to 18 age brackets.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        age_bracket_count (dict)  : dictionary of the age count given by 18 brackets
-        age_brackets (dict)       : dictionary of the age range for each bracket
+        datadir (str)            : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)     : name of the state the location is in
+        country_location (str)   : name of the country the location is in
+        age_bracket_count (dict) : dictionary of the age count given by 18 brackets
+        age_brackets (dict)      : dictionary of the age range for each bracket
 
     Returns:
         None.
     """
     age_bracket_distr = sp.norm_dic(age_bracket_count)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_name = os.path.join(file_path, location + '_age_bracket_distr_18.dat')
+    file_name = os.path.join(file_path, location_alias + '_age_bracket_distr_18.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,percent\n')
     for b in sorted(age_brackets.keys()):
@@ -107,24 +107,24 @@ def write_age_bracket_distr_18(datadir, location, state_location, country_locati
     f.close()
 
 
-def write_age_bracket_distr_16(datadir, location, state_location, country_location, age_bracket_count, age_brackets):
+def write_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets):
     """
     Write age bracket distribution binned to 16 age brackets.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        age_bracket_count (dict)  : dictionary of the age count given by 18 brackets
-        age_brackets (dict)       : dictionary of the age range for each bracket
+        datadir (str)            : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)     : name of the state the location is in
+        country_location (str)   : name of the country the location is in
+        age_bracket_count (dict) : dictionary of the age count given by 18 brackets
+        age_brackets (dict)      : dictionary of the age range for each bracket
 
     Returns:
         None.
     """
     age_bracket_distr = sp.norm_dic(age_bracket_count)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_name = os.path.join(file_path, location + '_age_bracket_distr_16.dat')
+    file_name = os.path.join(file_path, location_alias + '_age_bracket_distr_16.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,percent\n')
     for b in range(15):
@@ -135,23 +135,23 @@ def write_age_bracket_distr_16(datadir, location, state_location, country_locati
     f.close()
 
 
-def write_gender_age_bracket_distr_18(datadir, location, state_location, country_location, age_bracket_count_by_gender, age_brackets):
+def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets):
     """
     Write age bracket by gender distribution.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        age_bracket_distr (dict)  : dictionary of the age count by gender given by 18 brackets
-        age_brackets (dict)       : dictionary of the age range for each bracket
+        datadir (str)            : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)     : name of the state the location is in
+        country_location (str)   : name of the country the location is in
+        age_bracket_distr (dict) : dictionary of the age count by gender given by 18 brackets
+        age_brackets (dict)      : dictionary of the age range for each bracket
 
     Returns:
         None.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_name = os.path.join(file_path, location + '_gender_fraction_by_age_bracket_18.dat')
+    file_name = os.path.join(file_path, location_alias + '_gender_fraction_by_age_bracket_18.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,fraction_male,fraction_female\n')
     for b in sorted(age_brackets.keys()):
@@ -165,23 +165,23 @@ def write_gender_age_bracket_distr_18(datadir, location, state_location, country
     f.close()
 
 
-def write_gender_age_bracket_distr_16(datadir, location, state_location, country_location, age_bracket_count_by_gender, age_brackets):
+def write_gender_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets):
     """
     Write age bracket by gender distribution binned to 16 age brackets.
 
     Args:
-        datadir (string)          : file path to the data directory
-        location (string)         : name of the location
-        state_location (string)   : name of the state the location is in
-        country_location (string) : name of the country the location is in
-        age_bracket_distr (dict)  : dictionary of the age count by gender given by 18 brackets
-        age_brackets (dict)       : dictionary of the age range for each bracket
+        datadir (str)            : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)     : name of the state the location is in
+        country_location (str)   : name of the country the location is in
+        age_bracket_distr (dict) : dictionary of the age count by gender given by 18 brackets
+        age_brackets (dict)      : dictionary of the age range for each bracket
 
     Returns:
         None.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_name = os.path.join(file_path, location + '_gender_fraction_by_age_bracket_16.dat')
+    file_name = os.path.join(file_path, location_alias + '_gender_fraction_by_age_bracket_16.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,fraction_male,fraction_female\n')
     for b in range(15):
@@ -202,22 +202,72 @@ def write_gender_age_bracket_distr_16(datadir, location, state_location, country
     f.close()
 
 
+def read_household_size_count(datadir, location_alias, state_location, country_location):
+    """
+    Get household size count dictionary.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+
+    Returns:
+        dict: A dictionary of the household size count.
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    file_name = os.path.join(file_path, location_alias + '_household_size_count.dat')
+    df = pd.read_csv(file_name, delimiter=',')
+    return dict(zip(df.household_size, df.size_count))
+
+
+def write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count):
+    """
+    Write household size distribution.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        household_size_count (dict): dictionary of the household size count.
+
+    Returns:
+        None.
+    """
+    household_size_distr = sp.norm_dic(household_size_count)
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    file_name = os.path.join(file_path, location_alias + '_household_size_distr.dat')
+    f = open(file_name, 'w')
+    f.write('household_size,percent\n')
+    for s in sorted(household_size_count.keys()):
+        f.write('%i' % s + ',' + '%.16f' % household_size_distr[s] + '\n')
+    f.close()
+
+
 if __name__ == '__main__':
 
     datadir = sp.datadir
-    # location = 'Oregon'
-    # state_location = 'Oregon'
-    location = 'Washington'
-    state_location = 'Washington'
+
+    location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
+    location_alias = 'portland_metro'
+    state_location = 'Oregon'
+
+    # location = 'Washington'
+    # location_alias = 'Washington'
+    # state_location = 'Washington'
     country_location = 'usa'
 
     year = 2018
     acs_period = 1
 
-    # age_bracket_count, age_brackets = process_census_age_counts(datadir, location, state_location, country_location, year, acs_period)
-    # write_age_bracket_distr_18(datadir, location, state_location, country_location, age_bracket_count, age_brackets)
-    # write_age_bracket_distr_16(datadir, location, state_location, country_location, age_bracket_count, age_brackets)
+    age_bracket_count, age_brackets = process_census_age_counts(datadir, location, state_location, country_location, year, acs_period)
+    write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
+    write_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
 
     age_bracket_count_by_gender, age_brackets = process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period)
-    write_gender_age_bracket_distr_18(datadir, location, state_location, country_location, age_bracket_count_by_gender, age_brackets)
-    write_gender_age_bracket_distr_16(datadir, location, state_location, country_location, age_bracket_count_by_gender, age_brackets)
+    write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
+    write_gender_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
+
+    # household_size_count = read_household_size_count(datadir, location, state_location, country_location)
+    # write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count)
