@@ -43,7 +43,7 @@ def process_census_age_counts(datadir, location, state_location, country_locatio
 
 def process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period):
     """
-    Process American Community Survey data for a given year to get an age count by genderfor the location binned into 18 age brackets.
+    Process American Community Survey data for a given year to get an age count by gender for the location binned into 18 age brackets.
 
     Args:
         datadir (str)          : file path to the data directory
@@ -78,6 +78,34 @@ def process_census_age_counts_by_gender(datadir, location, state_location, count
         age_bracket_count_by_gender['female'][b] = fcount
 
     return age_bracket_count_by_gender, age_brackets
+
+
+def process_census_household_size_count(datadir, location, state_location, country_location, year, acs_period):
+    """
+    Process American Community Survey data for a given year to get a household size count for the location. The last bin represents households of size 7 or higher.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location (str)         : name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        year (int)             : the year for the American Community Survey
+        acs_period (int)       : the number of years for the American Community Survey
+
+    Returns:
+        A dictionary with the household size count.
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    file_path = ls(os.path.join(file_path, 'ACSDT{acs_period}Y{year}.B11016_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+
+    df = pd.read_csv(file_path)
+    columns_family = ['B11016_00' + '%i' % i + 'E' for i in range(3, 9)]
+    columns_nonfamily = ['B11016_0' + '%i' % i + 'E' for i in range(10, 17)]
+    household_size_count = dict.fromkeys(np.arange(1, 8), 0)
+    household_size_count[1] = int(df.loc[df['NAME'] == location]['B11016_010E'].values[0])
+    for s in range(2, 8):
+        household_size_count[s] = int(df.loc[df['NAME'] == location]['B11016_00' + '%i' % (s+1) + 'E'].values[0]) + int(df.loc[df['NAME'] == location]['B11016_0' + '%i' % (s+9) + 'E'].values[0])
+    return household_size_count
 
 
 def write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets):
@@ -221,6 +249,29 @@ def read_household_size_count(datadir, location_alias, state_location, country_l
     return dict(zip(df.household_size, df.size_count))
 
 
+def write_household_size_count(datadir, location_alias, state_location, country_location, household_size_count):
+    """
+    Write household size count.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)     : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        household_size_count (dict): dictionary of the household size count.
+
+    Returns:
+        None.
+    """
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    file_name = os.path.join(file_path, location_alias + '_household_size_count.dat')
+    f = open(file_name, 'w')
+    f.write('household_size,percent\n')
+    for s in sorted(household_size_count.keys()):
+        f.write('%i' % s + ',' + '%.16f' % household_size_count[s] + '\n')
+    f.close()
+
+
 def write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count):
     """
     Write household size distribution.
@@ -249,8 +300,10 @@ if __name__ == '__main__':
 
     datadir = sp.datadir
 
-    location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
-    location_alias = 'portland_metro'
+    # location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
+    # location_alias = 'portland_metro'
+    location = 'Oregon'
+    location_alias = 'Oregon'
     state_location = 'Oregon'
 
     # location = 'Washington'
@@ -261,13 +314,15 @@ if __name__ == '__main__':
     year = 2018
     acs_period = 1
 
-    age_bracket_count, age_brackets = process_census_age_counts(datadir, location, state_location, country_location, year, acs_period)
-    write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
-    write_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
+    # age_bracket_count, age_brackets = process_census_age_counts(datadir, location, state_location, country_location, year, acs_period)
+    # write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
+    # write_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
 
-    age_bracket_count_by_gender, age_brackets = process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period)
-    write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
-    write_gender_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
+    # age_bracket_count_by_gender, age_brackets = process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period)
+    # write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
+    # write_gender_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
 
     # household_size_count = read_household_size_count(datadir, location, state_location, country_location)
-    # write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count)
+    household_size_count = process_census_household_size_count(datadir, location, state_location, country_location, year, acs_period)
+    write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count)
+    write_household_size_count(datadir, location_alias, state_location, country_location, household_size_count)
