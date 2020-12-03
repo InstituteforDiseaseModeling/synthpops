@@ -1,11 +1,16 @@
+"""
+This module provides functions that process data tables from the US Census Bureau into simple distribution tables that SynthPops functions can talk to.
+"""
+
 import numpy as np
 import pandas as pd
 import synthpops as sp
+from . import base as spb
 from glob import glob as ls
 import os
 
 
-def process_census_age_counts(datadir, location, state_location, country_location, year, acs_period):
+def process_us_census_age_counts(datadir, location, state_location, country_location, year, acs_period):
     """
     Process American Community Survey data for a given year to get an age count for the location binned into 18 age brackets.
 
@@ -21,7 +26,7 @@ def process_census_age_counts(datadir, location, state_location, country_locatio
         A dictionary with the binned age count and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
 
     df = pd.read_csv(file_path)
 
@@ -41,7 +46,7 @@ def process_census_age_counts(datadir, location, state_location, country_locatio
     return age_bracket_count, age_brackets
 
 
-def process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period):
+def process_us_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period):
     """
     Process American Community Survey data for a given year to get an age count by gender for the location binned into 18 age brackets.
 
@@ -57,7 +62,7 @@ def process_census_age_counts_by_gender(datadir, location, state_location, count
         A dictionary with the binned age count by gender and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
 
     df = pd.read_csv(file_path)
 
@@ -80,7 +85,7 @@ def process_census_age_counts_by_gender(datadir, location, state_location, count
     return age_bracket_count_by_gender, age_brackets
 
 
-def process_census_household_size_count(datadir, location, state_location, country_location, year, acs_period):
+def process_us_census_household_size_count(datadir, location, state_location, country_location, year, acs_period):
     """
     Process American Community Survey data for a given year to get a household size count for the location. The last bin represents households of size 7 or higher.
 
@@ -96,7 +101,7 @@ def process_census_household_size_count(datadir, location, state_location, count
         A dictionary with the household size count.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
-    file_path = ls(os.path.join(file_path, 'ACSDT{acs_period}Y{year}.B11016_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+    file_path = os.path.join(file_path, 'ACSDT{acs_period}Y{year}.B11016_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
 
     df = pd.read_csv(file_path)
     columns_family = ['B11016_00' + '%i' % i + 'E' for i in range(3, 9)]
@@ -104,11 +109,11 @@ def process_census_household_size_count(datadir, location, state_location, count
     household_size_count = dict.fromkeys(np.arange(1, 8), 0)
     household_size_count[1] = int(df.loc[df['NAME'] == location]['B11016_010E'].values[0])
     for s in range(2, 8):
-        household_size_count[s] = int(df.loc[df['NAME'] == location]['B11016_00' + '%i' % (s+1) + 'E'].values[0]) + int(df.loc[df['NAME'] == location]['B11016_0' + '%i' % (s+9) + 'E'].values[0])
+        household_size_count[s] = int(df.loc[df['NAME'] == location]['B11016_00' + '%i' % (s + 1) + 'E'].values[0]) + int(df.loc[df['NAME'] == location]['B11016_0' + '%i' % (s + 9) + 'E'].values[0])
     return household_size_count
 
 
-def process_census_employment_rates(datadir, location, state_location, country_location, year, acs_period):
+def process_us_census_employment_rates(datadir, location, state_location, country_location, year, acs_period):
     """
     Process American Community Survey data for a given year to get employment rates by age as a fraction.
 
@@ -124,7 +129,7 @@ def process_census_employment_rates(datadir, location, state_location, country_l
         A dictionary with the employment rates by age as a fraction.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S2301_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S2301_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
 
     df = pd.read_csv(file_path)
     columns = {i: 'S2301_C03_00' + '%i' % i + 'E' for i in range(2, 10)}
@@ -145,11 +150,11 @@ def process_census_employment_rates(datadir, location, state_location, country_l
     employment_rates = dict.fromkeys(np.arange(16, 101), 0)
     for i in column_age_ranges:
         for a in column_age_ranges[i]:
-            employment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0])/100.
+            employment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0]) / 100.
     return employment_rates
 
 
-def process_census_enrollment_rates(datadir, location, state_location, country_location, year, acs_period):
+def process_us_census_enrollment_rates(datadir, location, state_location, country_location, year, acs_period):
     """
     Process American Community Survey data for a given year to get enrollment rates by age as a fraction.
 
@@ -165,7 +170,7 @@ def process_census_enrollment_rates(datadir, location, state_location, country_l
         A dictionary with the enrollment rates by age as a fraction.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment')
-    file_path = ls(os.path.join(file_path, 'ACSST{acs_period}Y{year}.S1401_data_with_overlays_{location}*'.format(acs_period=acs_period, year=year, location=location)))[0]
+    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S1401_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
 
     df = pd.read_csv(file_path)
     columns = {i: 'S1401_C02_0' + '%i' % i + 'E' for i in np.arange(14, 30, 2)}
@@ -182,7 +187,7 @@ def process_census_enrollment_rates(datadir, location, state_location, country_l
     enrollment_rates = dict.fromkeys(np.arange(101), 0)
     for i in column_age_ranges:
         for a in column_age_ranges[i]:
-            enrollment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0])/100.
+            enrollment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0]) / 100.
     return enrollment_rates
 
 
@@ -201,8 +206,9 @@ def write_age_bracket_distr_18(datadir, location_alias, state_location, country_
     Returns:
         None.
     """
-    age_bracket_distr = sp.norm_dic(age_bracket_count)
+    age_bracket_distr = spb.norm_dic(age_bracket_count)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_age_bracket_distr_18.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,percent\n')
@@ -228,8 +234,9 @@ def write_age_bracket_distr_16(datadir, location_alias, state_location, country_
     Returns:
         None.
     """
-    age_bracket_distr = sp.norm_dic(age_bracket_count)
+    age_bracket_distr = spb.norm_dic(age_bracket_count)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_age_bracket_distr_16.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,percent\n')
@@ -243,7 +250,7 @@ def write_age_bracket_distr_16(datadir, location_alias, state_location, country_
 
 def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets):
     """
-    Write age bracket by gender distribution.
+    Write age bracket by gender distribution data binned to 18 age brackets.
 
     Args:
         datadir (str)            : file path to the data directory
@@ -257,6 +264,7 @@ def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, c
         None.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_gender_fraction_by_age_bracket_18.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,fraction_male,fraction_female\n')
@@ -265,8 +273,8 @@ def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, c
         e = age_brackets[b][-1]
         mcount = age_bracket_count_by_gender['male'][b]
         fcount = age_bracket_count_by_gender['female'][b]
-        mfrac = float(mcount)/(mcount + fcount)
-        ffrac = float(fcount)/(mcount + fcount)
+        mfrac = float(mcount) / (mcount + fcount)
+        ffrac = float(fcount) / (mcount + fcount)
         f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
     f.close()
 
@@ -287,6 +295,7 @@ def write_gender_age_bracket_distr_16(datadir, location_alias, state_location, c
         None.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_gender_fraction_by_age_bracket_16.dat')
     f = open(file_name, 'w')
     f.write('age_bracket,fraction_male,fraction_female\n')
@@ -295,15 +304,15 @@ def write_gender_age_bracket_distr_16(datadir, location_alias, state_location, c
         e = age_brackets[b][-1]
         mcount = age_bracket_count_by_gender['male'][b]
         fcount = age_bracket_count_by_gender['female'][b]
-        mfrac = float(mcount)/(mcount + fcount)
-        ffrac = float(fcount)/(mcount + fcount)
+        mfrac = float(mcount) / (mcount + fcount)
+        ffrac = float(fcount) / (mcount + fcount)
         f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
     s = age_brackets[15][0]
     e = age_brackets[max(age_brackets.keys())][-1]
     mcount = np.sum([age_bracket_count_by_gender['male'][b] for b in range(15, len(age_brackets))])
     fcount = np.sum([age_bracket_count_by_gender['female'][b] for b in range(15, len(age_brackets))])
-    mfrac = float(mcount)/(mcount + fcount)
-    ffrac = float(fcount)/(mcount + fcount)
+    mfrac = float(mcount) / (mcount + fcount)
+    ffrac = float(fcount) / (mcount + fcount)
     f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
     f.close()
 
@@ -342,9 +351,10 @@ def write_household_size_count(datadir, location_alias, state_location, country_
         None.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_household_size_count.dat')
     f = open(file_name, 'w')
-    f.write('household_size,percent\n')
+    f.write('household_size,size_count\n')
     for s in sorted(household_size_count.keys()):
         f.write('%i' % s + ',' + '%.16f' % household_size_count[s] + '\n')
     f.close()
@@ -364,8 +374,9 @@ def write_household_size_distr(datadir, location_alias, state_location, country_
     Returns:
         None.
     """
-    household_size_distr = sp.norm_dic(household_size_count)
+    household_size_distr = spb.norm_dic(household_size_count)
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_household_size_distr.dat')
     f = open(file_name, 'w')
     f.write('household_size,percent\n')
@@ -388,7 +399,8 @@ def write_employment_rates(datadir, location_alias, state_location, country_loca
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment_rates')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_employment_rates_by_age.dat')
     f = open(file_name, 'w')
     f.write('Age,Percent\n')
@@ -411,48 +423,11 @@ def write_enrollment_rates(datadir, location_alias, state_location, country_loca
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment_rates')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment')
+    os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, location_alias + '_enrollment_rates_by_age.dat')
     f = open(file_name, 'w')
     f.write('Age,Percent\n')
     for a in sorted(enrollment_rates.keys()):
         f.write('%i' % a + ',' + '%.3f' % enrollment_rates[a] + '\n')
     f.close()
-
-
-if __name__ == '__main__':
-
-    datadir = sp.datadir
-
-    # location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
-    # location_alias = 'portland_metro'
-    location = 'Oregon'
-    location_alias = 'Oregon'
-    state_location = 'Oregon'
-
-    # location = 'Washington'
-    # location_alias = 'Washington'
-    # state_location = 'Washington'
-    country_location = 'usa'
-
-    year = 2019
-    acs_period = 1
-
-    # age_bracket_count, age_brackets = process_census_age_counts(datadir, location, state_location, country_location, year, acs_period)
-    # write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
-    # write_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets)
-
-    # age_bracket_count_by_gender, age_brackets = process_census_age_counts_by_gender(datadir, location, state_location, country_location, year, acs_period)
-    # write_gender_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
-    # write_gender_age_bracket_distr_16(datadir, location_alias, state_location, country_location, age_bracket_count_by_gender, age_brackets)
-
-    # household_size_count = read_household_size_count(datadir, location, state_location, country_location)
-    # household_size_count = process_census_household_size_count(datadir, location, state_location, country_location, year, acs_period)
-    # write_household_size_distr(datadir, location_alias, state_location, country_location, household_size_count)
-    # write_household_size_count(datadir, location_alias, state_location, country_location, household_size_count)
-
-    # employment_rates = process_census_employment_rates(datadir, location, state_location, country_location, year, acs_period)
-    # write_employment_rates(datadir, location_alias, state_location, country_location, employment_rates)
-
-    # enrollment_rates = process_census_enrollment_rates(datadir, location, state_location, country_location, year, acs_period)
-    # write_enrollment_rates(datadir, location_alias, state_location, country_location, enrollment_rates)

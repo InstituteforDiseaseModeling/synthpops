@@ -85,7 +85,7 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     return output
 
 
-#%% Functions
+# %% Functions
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
@@ -100,6 +100,7 @@ def set_datadir(folder):
     datadir = folder
     logger.info(f'Done: data directory set to {folder}.')
     return datadir
+
 
 def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''

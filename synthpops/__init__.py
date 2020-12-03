@@ -10,4 +10,5 @@ from .api import *
 from .long_term_care_facilities import *
 from .school_modules import *
 from .read_write import *
+from .process_us_census_bureau_data import *
 logger.debug('Finished imports')
