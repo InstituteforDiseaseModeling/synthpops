@@ -26,11 +26,11 @@ def process_us_census_age_counts(datadir, location, state_location, country_loca
         A dictionary with the binned age count and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
+    file_path = os.path.join(file_path, f'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv')
 
     df = pd.read_csv(file_path)
 
-    columns = ['S0101_C01_00' + '%i' % i + 'E' for i in range(2, 10)] + ['S0101_C01_0' + '%i' % i + 'E' for i in range(10, 20)]
+    columns = [f'S0101_C01_00{i:d}E' for i in range(2, 10)] + [f'S0101_C01_0{i:d}E' for i in range(10, 20)]
 
     age_brackets = {}
     for b in np.arange(0, len(columns) - 1):
@@ -62,12 +62,13 @@ def process_us_census_age_counts_by_gender(datadir, location, state_location, co
         A dictionary with the binned age count by gender and a dictionary with the age bracket ranges.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'age_distributions')
-    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
+    file_path = os.path.join(file_path, f'ACSST{acs_period}Y{year}.S0101_data_with_overlays_{location}.csv')
 
     df = pd.read_csv(file_path)
 
-    columns_male = ['S0101_C03_00' + '%i' % i + 'E' for i in range(2, 10)] + ['S0101_C03_0' + '%i' % i + 'E' for i in range(10, 20)]
+    columns_male = [f'S0101_C03_00{i:d}E' for i in range(2, 10)] + [f'S0101_C03_0{i:d}E' for i in range(10, 20)]
     columns_female = [col.replace('C03', 'C05') for col in columns_male]
+
     age_brackets = {}
     for b in range(0, len(columns_male) - 1):
         age_brackets[b] = np.arange(5 * b, 5 * (b + 1))
@@ -101,15 +102,15 @@ def process_us_census_household_size_count(datadir, location, state_location, co
         A dictionary with the household size count.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions')
-    file_path = os.path.join(file_path, 'ACSDT{acs_period}Y{year}.B11016_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
+    file_path = os.path.join(file_path, f'ACSDT{acs_period}Y{year}.B11016_data_with_overlays_{location}.csv')
 
     df = pd.read_csv(file_path)
-    columns_family = ['B11016_00' + '%i' % i + 'E' for i in range(3, 9)]
-    columns_nonfamily = ['B11016_0' + '%i' % i + 'E' for i in range(10, 17)]
+    # columns_family = [f'B11016_00{i:d}E' for i in range(3, 9)]
+    # columns_nonfamily = [f'B11016_0{i:d}E' for i in range(10, 17)]
     household_size_count = dict.fromkeys(np.arange(1, 8), 0)
     household_size_count[1] = int(df.loc[df['NAME'] == location]['B11016_010E'].values[0])
     for s in range(2, 8):
-        household_size_count[s] = int(df.loc[df['NAME'] == location]['B11016_00' + '%i' % (s + 1) + 'E'].values[0]) + int(df.loc[df['NAME'] == location]['B11016_0' + '%i' % (s + 9) + 'E'].values[0])
+        household_size_count[s] = int(df.loc[df['NAME'] == location][f'B11016_00{(s+1):d}E'].values[0]) + int(df.loc[df['NAME'] == location][f'B11016_0{(s+9):d}E'].values[0])
     return household_size_count
 
 
@@ -129,12 +130,12 @@ def process_us_census_employment_rates(datadir, location, state_location, countr
         A dictionary with the employment rates by age as a fraction.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'employment')
-    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S2301_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
+    file_path = os.path.join(file_path, f'ACSST{acs_period}Y{year}.S2301_data_with_overlays_{location}.csv')
 
     df = pd.read_csv(file_path)
-    columns = {i: 'S2301_C03_00' + '%i' % i + 'E' for i in range(2, 10)}
+    columns = {i: f'S2301_C03_00{i:d}E' for i in range(2, 10)}
     for i in range(10, 12):
-        columns[i] = 'S2301_C03_0' + '%i' % i + 'E'
+        columns[i] = f'S2301_C03_0{i:d}E'
     column_age_ranges = {}
     column_age_ranges[2] = np.arange(16, 20)
     column_age_ranges[3] = np.arange(20, 25)
@@ -170,10 +171,10 @@ def process_us_census_enrollment_rates(datadir, location, state_location, countr
         A dictionary with the enrollment rates by age as a fraction.
     """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'enrollment')
-    file_path = os.path.join(file_path, 'ACSST{acs_period}Y{year}.S1401_data_with_overlays_{location}.csv'.format(acs_period=acs_period, year=year, location=location))
+    file_path = os.path.join(file_path, f'ACSST{acs_period}Y{year}.S1401_data_with_overlays_{location}.csv')
 
     df = pd.read_csv(file_path)
-    columns = {i: 'S1401_C02_0' + '%i' % i + 'E' for i in np.arange(14, 30, 2)}
+    columns = {i: f'S1401_C02_0{i:d}E' for i in np.arange(14, 30, 2)}
     column_age_ranges = {}
     column_age_ranges[14] = np.arange(3, 5)
     column_age_ranges[16] = np.arange(5, 10)
@@ -215,7 +216,7 @@ def write_age_bracket_distr_18(datadir, location_alias, state_location, country_
     for b in sorted(age_brackets.keys()):
         s = age_brackets[b][0]
         e = age_brackets[b][-1]
-        f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % age_bracket_distr[b] + '\n')
+        f.write(f'{s:d}_{e:d},{age_bracket_distr[b]:.16f}\n')
     f.close()
 
 
@@ -243,8 +244,8 @@ def write_age_bracket_distr_16(datadir, location_alias, state_location, country_
     for b in range(15):
         s = age_brackets[b][0]
         e = age_brackets[b][-1]
-        f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % age_bracket_distr[b] + '\n')
-    f.write('%i' % age_brackets[15][0] + '_' + '%i' % age_brackets[max(age_brackets.keys())][-1] + ',' + '%.16f' % np.sum([age_bracket_distr[b] for b in range(15, len(age_bracket_distr))]) + '\n')
+        f.write(f'{s:d}_{e:d},{age_bracket_distr[b]:.16f}\n')
+    f.write(f'{age_brackets[15][0]:d}_{age_brackets[max(age_brackets.keys())][-1]},{np.sum([age_bracket_distr[b] for b in range(15, len(age_bracket_distr))]):.16f}\n')
     f.close()
 
 
@@ -275,7 +276,7 @@ def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, c
         fcount = age_bracket_count_by_gender['female'][b]
         mfrac = float(mcount) / (mcount + fcount)
         ffrac = float(fcount) / (mcount + fcount)
-        f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
+        f.write(f'{s:d}_{e:d},{mfrac:.16f},{ffrac:.16f}\n')
     f.close()
 
 
@@ -306,14 +307,14 @@ def write_gender_age_bracket_distr_16(datadir, location_alias, state_location, c
         fcount = age_bracket_count_by_gender['female'][b]
         mfrac = float(mcount) / (mcount + fcount)
         ffrac = float(fcount) / (mcount + fcount)
-        f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
+        f.write(f'{s:d}_{e:d},{mfrac:.16f},{ffrac:.16f}\n')
     s = age_brackets[15][0]
     e = age_brackets[max(age_brackets.keys())][-1]
     mcount = np.sum([age_bracket_count_by_gender['male'][b] for b in range(15, len(age_brackets))])
     fcount = np.sum([age_bracket_count_by_gender['female'][b] for b in range(15, len(age_brackets))])
     mfrac = float(mcount) / (mcount + fcount)
     ffrac = float(fcount) / (mcount + fcount)
-    f.write('%i' % s + '_' + '%i' % e + ',' + '%.16f' % mfrac + ',' + '%.16f' % ffrac + '\n')
+    f.write(f'{s:d}_{e:d},{mfrac:.16f},{ffrac:.16f}\n')
     f.close()
 
 
@@ -356,7 +357,7 @@ def write_household_size_count(datadir, location_alias, state_location, country_
     f = open(file_name, 'w')
     f.write('household_size,size_count\n')
     for s in sorted(household_size_count.keys()):
-        f.write('%i' % s + ',' + '%.16f' % household_size_count[s] + '\n')
+        f.write(f'{s:d},{household_size_count[s]:d}\n')
     f.close()
 
 
@@ -381,7 +382,9 @@ def write_household_size_distr(datadir, location_alias, state_location, country_
     f = open(file_name, 'w')
     f.write('household_size,percent\n')
     for s in sorted(household_size_count.keys()):
-        f.write('%i' % s + ',' + '%.16f' % household_size_distr[s] + '\n')
+        # f.write('%i' % s + ',' + '%.16f' % household_size_distr[s] + '\n')
+        f.write(f'{s:d},{household_size_distr[s]:.16f}\n')
+
     f.close()
 
 
@@ -405,7 +408,7 @@ def write_employment_rates(datadir, location_alias, state_location, country_loca
     f = open(file_name, 'w')
     f.write('Age,Percent\n')
     for a in sorted(employment_rates.keys()):
-        f.write('%i' % a + ',' + '%.3f' % employment_rates[a] + '\n')
+        f.write(f'{a:d},{employment_rates[a]:.3f}\n')
     f.close()
 
 
@@ -429,5 +432,5 @@ def write_enrollment_rates(datadir, location_alias, state_location, country_loca
     f = open(file_name, 'w')
     f.write('Age,Percent\n')
     for a in sorted(enrollment_rates.keys()):
-        f.write('%i' % a + ',' + '%.3f' % enrollment_rates[a] + '\n')
+        f.write(f'{a:d},{enrollment_rates[a]:.3f}\n')
     f.close()
