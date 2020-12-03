@@ -173,11 +173,11 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
     elif country_location is None:
         raise NotImplementedError("Mssing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household size distributions', country_location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_size_distributions', country_location + '_household_size_distr.dat')
     elif location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household size distributions', state_location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions', state_location + '_household_size_distr.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household size distributions', location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions', location + '_household_size_distr.dat')
 
 
 def get_household_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -230,9 +230,9 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household living arrangements', 'head_age_brackets.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_living_arrangements', 'head_age_brackets.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household living arrangements', 'head_age_brackets.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_living_arrangements', 'head_age_brackets.dat')
 
 
 def get_head_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -283,9 +283,9 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household living arrangements', 'household_head_age_and_size_count.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
     else:
-        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household living arrangements', 'household_head_age_and_size_count.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
 
 
 def get_household_head_age_by_size_df(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
