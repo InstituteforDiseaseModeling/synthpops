@@ -8,7 +8,7 @@ version, set regenerate = False.
 import sciris as sc
 import synthpops as sp
 
-regenerate = True
+regenerate = False
 outfile = 'basic_api.pop'
 
 
@@ -23,7 +23,7 @@ def test_example_oop():
     sp.logger.info('Testing basic API')
 
     pars = dict(
-        n                               = 20002,
+        n                               = 20001,
         rand_seed                       = 123,
         max_contacts                    = None,
 
@@ -54,14 +54,10 @@ def test_example_oop():
     pop = sp.Pop(**pars)
     popdict = pop.to_dict()
 
-    if not regenerate:
-        print('Checking...')
-        pop2 = sc.loadobj(outfile)
-        assert popdict == pop2, 'Check failed'
-        print('Check passed')
-    else:
-        print('Regenerating regression file...')
-        sc.saveobj(outfile, popdict)
+    print('Checking...')
+    pop2 = sc.loadobj(outfile)
+    assert popdict == pop2, 'Check failed'
+    print('Check passed')
 
     return pop
 
@@ -121,9 +117,9 @@ if __name__ == '__main__':
 
     T = sc.tic()
 
-    default_pop = test_default()
-    example_pop = test_example_oop()
-    alt_pops    = test_alternatives()
+    # default_pop = test_default()
+    # example_pop = test_example_oop()
+    # alt_pops    = test_alternatives()
     api_popdict = test_api(do_plot=True)
 
     sc.toc(T)
