@@ -378,7 +378,7 @@ class FilePaths:
                 else:
                     logger.warning(f'no data in directory {filedata_dir}, skipping')
         if results is None:
-            logger.warning('warning, no files found for:' + ', '.join([location, filedata_type, prefix, suffix]))
+            logger.warning('warning, no files found for:' + ', '.join([str(a) for a in [location, filedata_type, prefix, suffix]]))
         return results
 
     def _list_files(self, level, target_dir, prefix, suffix, filter_list, alt_prefix):
