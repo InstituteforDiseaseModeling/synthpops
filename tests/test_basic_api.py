@@ -1,5 +1,5 @@
 '''
-Simple benchmarking of individual functions.
+Simple run of the main API.
 
 To create the test file, set regenerate = True. To test if it matches the saved
 version, set regenerate = False.
