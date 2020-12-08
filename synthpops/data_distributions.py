@@ -133,26 +133,17 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
         A file path to the household size distribution data.
 
     """
-    """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     elif country_location is None:
         raise NotImplementedError("Mssing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'household_size_distributions', country_location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_size_distributions', country_location + '_household_size_distr.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'household_size_distributions', state_location + '_household_size_distr.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions', state_location + '_household_size_distr.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'household_size_distributions', location + '_household_size_distr.dat')
-    """
-    paths = cfg.FilePaths(location, state_location, country_location)
-    base = 'household_size_distr'
-    prefix = '{location}_' + base
-    alt_prefix = None
-
-    file = paths.get_demographic_file(location=location, filedata_type='household_size_distributions', prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
-    return file
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_size_distributions', location + '_household_size_distr.dat')
 
 
 def get_household_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -201,40 +192,15 @@ def get_head_age_brackets_path(datadir, state_location=None, country_location=No
         A file path to the age brackets for head of household distribution data.
 
     """
-    """
     levels = [state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'household_living_arrangements', 'head_age_brackets.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_living_arrangements', 'head_age_brackets.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'household_living_arrangements', 'head_age_brackets.dat')
-    """
-    paths = cfg.FilePaths(None, state_location, country_location)
-    base = 'head_age_brackets'
-    prefix = '{location}_' + base
-    alt_prefix = None
-    filedata_type = 'household_living_arrangements'
-    """
-    if country_location == 'usa':
-        prefix = base
-    """
-    if cfg.alt_location is not None:
-        alt_prefix = prefix
-    """
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-        if alt_country_location == 'usa':
-            alt_prefix = base
-    """
-
-    file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
-                                      suffix='.dat', alt_prefix=alt_prefix)
-    return file
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_living_arrangements', 'head_age_brackets.dat')
 
 
 def get_head_age_brackets(datadir, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -280,43 +246,15 @@ def get_household_head_age_by_size_path(datadir, state_location=None, country_lo
     Returns:
         A file path to the head of household age by household size count or distribution data.
     """
-    """
     levels = [state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
-    """
-    paths = cfg.FilePaths(None, state_location, country_location)
-    base = 'household_head_age_and_size_count'
-    prefix = "{location}_" + base
-    alt_prefix = None
-
-    filedata_type='household_living_arrangements'
-    """
-    if country_location == 'usa':      #-----remove
-        prefix = base
-    """
-
-    if cfg.alt_location is not None:
-        alt_prefix = prefix
-    """
-        alt_location = cfg.alt_location.location
-        alt_state_location = cfg.alt_location.state_location
-        alt_country_location = cfg.alt_location.country_location
-        alt_prefix ="{location}_" + base
-
-        if alt_country_location == 'usa':      #-----remove
-            alt_prefix = base
-    """
-
-    file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
-                                      suffix='.dat', alt_prefix=alt_prefix)
-    return file
+        return os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, 'household_living_arrangements', 'household_head_age_and_size_count.dat')
 
 
 def get_household_head_age_by_size_df(datadir, state_location=None, country_location=None, file_path=None, use_default=False):

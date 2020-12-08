@@ -127,7 +127,7 @@ def get_config_data():
          }
     return data
 
-#%% Functions
+# %% Functions
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
