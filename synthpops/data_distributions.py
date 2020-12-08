@@ -335,7 +335,7 @@ def get_census_age_brackets_path(datadir, state_location=None, country_location=
     if nbrackets is None:
         nbrackets = cfg.nbrackets
     base = f"census_age_brackets_{nbrackets}"
-    prefix = "{location}_" + base
+    prefix = base # "{location}_" + base
     alt_prefix = None
 
     """
