@@ -3,12 +3,12 @@ import synthpops as sp
 from synthpops import data_distributions as spdd
 
 datadir = sp.datadir
-# location = 'seattle_metro'
-# state_location = 'Washington'
-# country_location = 'usa'
-location = 'Dakar'
-state_location = 'Dakar'
-country_location = 'Senegal'
+location = 'seattle_metro'
+state_location = 'Washington'
+country_location = 'usa'
+# location = 'Dakar'
+# state_location = 'Dakar'
+# country_location = 'Senegal'
 
 
 # def test_get_gender_fraction_by_age_path():
