@@ -163,7 +163,6 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
         return
 
-
     def generate(self, verbose=False):
         ''' Actually generate the network '''
 
