@@ -6,7 +6,7 @@ To change the level of log messages displayed, use e.g.
     sp.logger.setLevel('CRITICAL')
 '''
 
-#%% Housekeeping
+# %% Housekeeping
 
 import os
 import sys
@@ -21,18 +21,17 @@ __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel
            'get_config_data', 'version_info']
 
 
-
 # Declaring this here makes it globally available as synthpops.datadir
 datadir = None
 alt_datadir = None
 localdatadir = None
 rel_path = ['demographics', 'contact_matrices_152_countries']
 alt_rel_path = ['demographics', 'contact_matrices_152_countries']
-full_data_available = False # this is likely not necessary anymore
+full_data_available = False  # this is likely not necessary anymore
 
 # Set the local data folder
 thisdir = os.path.dirname(os.path.abspath(__file__))
-#print(thisdir)
+
 localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
@@ -42,9 +41,9 @@ if datadir is None:
     datadir = localdatadir
 
 # Number of census age brackets to use
-valid_nbracket_ranges = [16, 18, 20] # Choose how many age bins to use -- 20 is only partially supported
+valid_nbracket_ranges = [16, 18, 20]  # Choose how many age bins to use -- 20 is only partially supported
 nbrackets = 20
-matrix_size = 16 # The dimensions of the mixing matrices -- currently only 16 is available
+matrix_size = 16  # The dimensions of the mixing matrices -- currently only 16 is available
 default_country = None
 default_state = None
 default_location = None
@@ -52,7 +51,7 @@ default_sheet_name = None
 alt_location = None
 default_household_size_1_included = False
 
-#%% Logger
+# %% Logger
 
 # Set the default logging level
 default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][0]
@@ -98,34 +97,36 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
         output = mem_use
     return output
 
+
 def get_config_data():
     data = {
         'valid_nbrackets':
             [16, 18, 20],
-         'Senegal': {
+        'Senegal': {
              'location': 'Dakar',
-              'province': 'Dakar',
-              'country': 'Senegal',
-              'sheet_name': 'Senegal',
-              'nbrackets': 18,
-              'household_size_1': True
+             'province': 'Dakar',
+             'country': 'Senegal',
+             'sheet_name': 'Senegal',
+             'nbrackets': 18,
+             'household_size_1': True
               },
-         'defaults': {
+        'defaults': {
              'location': 'seattle_metro',
-              'province': 'Washington',
-              'country': 'usa',
-              'sheet_name': 'United States of America',
-              'nbrackets': 20
+             'province': 'Washington',
+             'country': 'usa',
+             'sheet_name': 'United States of America',
+             'nbrackets': 20
               },
-         'usa': {
+        'usa': {
              'location': 'seattle_metro',
-              'province': 'Washington',
-              'country': 'usa',
-              'sheet_name': 'United States of America',
-              'nbrackets': 20
+             'province': 'Washington',
+             'country': 'usa',
+             'sheet_name': 'United States of America',
+             'nbrackets': 20
               }
          }
     return data
+
 
 # %% Functions
 def version_info():
@@ -134,6 +135,7 @@ def version_info():
     print(f'Git information:')
     sc.pp(spv.__gitinfo__)
     return
+
 
 def set_location_defaults(country=None):
     global config_file
@@ -169,7 +171,7 @@ def set_datadir(root_dir, relative_path=None):
         rel_path is a list of sub directories to the data -->
         rel_path = ['demographics', 'contact_matrices_152_countries']
         to change the location of the data the user is able to supply a new root_dir and new relative path. If the user uses a similar directory path model that we use
-        e.g. root_dir/demographic/contact... the user can change datadir without changing relitive path, by passing in relative_path = None (default)
+        e.g. root_dir/demographics/contact... the user can change datadir without changing relative path, by passing in relative_path = None (default)
         -- note, mostly deprecated.'''
     ''' user specifies complete path'''
     global datadir
@@ -205,7 +207,6 @@ def validate(verbose=True):
             raise FileNotFoundError(f'The folder "{datadir}" does not exist, as far as I can tell.')
 
 
-
 class FilePaths:
     """
     FilepPaths:
@@ -218,8 +219,7 @@ class FilePaths:
     first available data file from the data tree. Optionally, the user can provide a alternate
     location.
 
-    Note tis class assumes that the data is stored in a directory tree described above.
-
+    Note this class assumes that the data is stored in a directory tree described above.
 
 
     Initialization:
@@ -238,19 +238,19 @@ class FilePaths:
         pattern = '{prefix}_{type}.dat'
         root_dir = 'c:/documents'
         location_info = [country, province, location]
-        path_pattern = PathPattern(root_dir, pattern, relitive_dir)
+        path_pattern = PathPattern(root_dir, pattern, relative_dir)
         keys = path_pattern.get_pattern_keys() # -> returns 'variable'
         nkeys = path_pattern.get_number_pattern_keys() #-> returns 1
         time_format path_pattern_time_format(variable='airtemp') #-> returns 'airtemp%Y%j.nc'
-        file_pattern = path_pattern.get_path_pattern(variable='airtemp') # returns <root_dir>/<relitive_dir>/airtemp/%Y/airtemp%Y%j.nc
+        file_pattern = path_pattern.get_path_pattern(variable='airtemp') # returns <root_dir>/<relative_dir>/airtemp/%Y/airtemp%Y%j.nc
     """
     # note-change: add 'demographics', 'contact_matrices_152_countries' to root
 
-    def __init__(self,  location=None, province=None, country=None,  alternate_location= None,  root_dir=None, alt_rootdir=None,  use_defaults=False):
+    def __init__(self,  location=None, province=None, country=None,  alternate_location=None,  root_dir=None, alt_rootdir=None,  use_defaults=False):
         global datadir, alt_datadir, rel_path, alt_location
         base_dir = datadir
         if len(rel_path) > 0:
-            base_dir= os.path.join(datadir, *rel_path)
+            base_dir = os.path.join(datadir, *rel_path)
         self.root_dir = base_dir if root_dir is None else root_dir
 
         self.alt_root_dir = alt_datadir if alt_rootdir is None else alt_rootdir
@@ -275,11 +275,10 @@ class FilePaths:
             logger.info(f"adding config alt location")
             self.add_alternate_location(location=alt_location.location, province=alt_location.state_location, country=alt_location.country_location)
 
-
     def add_base_location(self, location=None, province=None, country=None):
 
-        levels = [location,province, country]
-        if all(level is None for level in levels) :
+        levels = [location, province, country]
+        if all(level is None for level in levels):
             raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location, state_location, and country_location strings.")
         elif country is None:
             raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
@@ -291,35 +290,34 @@ class FilePaths:
                 self.basedirs.extend(basedirs)
         self.validate_dirs()
 
-
-    def _add_dirs(self, root,location, province, country):
+    def _add_dirs(self, root, location, province, country):
         pathdirs = []
         # build alternate dirs
         pathdirs.append((country, os.path.join(root, country)))
         if province is not None:
-            pathdirs.append((province,os.path.join(root, country, province)))
+            pathdirs.append((province, os.path.join(root, country, province)))
             if location is not None:
-                pathdirs.append((location,os.path.join(root, country, province, location)))
+                pathdirs.append((location, os.path.join(root, country, province, location)))
         return pathdirs
 
     def validate_dirs(self):
         # heck directories in base list and remove missing dirs from the list
         search_list = reversed(list(enumerate(self.basedirs)))
-        for i,e in search_list:
+        for i, e in search_list:
             if not os.path.isdir(e[1]):
                 logger.warning(f"Warning: Directory {e[1]} missing for location={i}, removing.")
                 self.basedirs.pop(i)
         # make sure we have at least one directory, or through an error
         if len(self.basedirs) < 1:
-             raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {search_list}')
-             return False
+            raise FileNotFoundError(f'The location data folders do not exist, as far as I can tell. Dirs tried = {search_list}')
+            return False
         return True
 
     def get_demographic_file(self, location=None, filedata_type=None, prefix=None, suffix=None, filter_list=None, alt_prefix=None):
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements','household_size_distributions', 'schools', 'workplaces']
+        filedata_types = ['age_distributions', 'assisted_living', 'contact_networks', 'employment', 'enrollment', 'household_living_arrangements', 'household_size_distributions', 'schools', 'workplaces']
         if filedata_type is None:
             raise NotImplementedError(f"Missing filedata_type string.")
             return None
@@ -335,13 +333,13 @@ class FilePaths:
         """
         Search the base directories and return the first file found that matches the criteria
         """
-        #filedata_type = None
+        # filedata_type = None
         file = self._search_dirs(location, filedata_type, prefix, suffix, filter_list, alt_prefix)
         return file
 
     def _search_dirs(self, location, filedata_type, prefix, suffix, filter_list, alt_prefix):
         """
-        Search the directories in self.basedirs for a file matches the conditions
+        Search the directories in self.basedirs for a file matching the conditions
         Location is the state_location, province, or city level if applicable
             (e.g. for usa, Washington state).
         Prefix is the start of the file name. Examples of prefix patterns are:
@@ -351,7 +349,7 @@ class FilePaths:
         the suffix is the end of the file name. typically '.dat' for data file
         A list of matching file is returned.
         The number of files returned by prefix and suffix, can be reduced by using
-        a filter pattern. the filter patter is a regex expression.
+        a filter pattern. the filter pattern is a regex expression.
         """
         results = None
         for target in self.basedirs:
@@ -403,7 +401,7 @@ class FilePaths:
         else:
             files = [f for f in os.listdir(target_dir)]
 
-        # if if we have the file needed. if not check the alternate
+        # if we have the file needed. if not check the alternate
         if len(files) == 0 and alt_prefix_pattern is not None:
             if alt_prefix_pattern is not None and suffix_pattern is not None:
                 files = [f for f in os.listdir(target_dir) if f.startswith(alt_prefix_pattern) and f.endswith(suffix_pattern)]
