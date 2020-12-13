@@ -113,7 +113,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     sexes = np.random.randint(2, size=len(age_by_uid_dic))
 
 
-    for u,uid in enumerate(age_by_uid_dic):
+    for u, uid in enumerate(age_by_uid_dic):
         popdict[uid] = {}
         popdict[uid]['age'] = int(age_by_uid_dic[uid])
         popdict[uid]['sex'] = sexes[u]
@@ -231,14 +231,14 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
-        max_W_size = int(max_contacts['W']//2) # Divide by 2 since bi-directional contacts get added in later
+        max_W_size = int(max_contacts['W'] // 2)  # Divide by 2 since bi-directional contacts get added in later
 
         # Loop over workplaces but only generate the requested contacts
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
                 uids = set(workplace)
                 uids.remove(uid)
-                if len(uids)>max_W_size:
+                if len(uids) > max_W_size:
                     uids = np.random.choice(list(uids), size=max_W_size, replace=False)
                 popdict[uid]['contacts']['W'] = set(uids)
                 popdict[uid]['wpid'] = nw
@@ -317,8 +317,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
             # if the person's degree is too high, cut out some contacts
             if len(group_1_neighbors) > average_degree:
-                ncut = len(group_1_neighbors) - average_degree # rough number to cut
-                # ncut = spsamp.pt(ncut) # sample from poisson that number
+                ncut = len(group_1_neighbors) - average_degree  # rough number to cut
+                # ncut = spsamp.pt(ncut)  # sample from poisson that number
                 # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
