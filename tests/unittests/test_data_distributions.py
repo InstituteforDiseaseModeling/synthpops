@@ -28,7 +28,7 @@ country_location = 'usa'
 
 
 def test_get_age_bracket_distr_path():
-    dat_file = spdd.get_age_bracket_distr_path(location=location, state_location=state_location,
+    dat_file = spdd.get_age_bracket_distr_path(datadir=datadir, location=location, state_location=state_location,
                                              country_location=country_location)
     assert dat_file is not None
 
