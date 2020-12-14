@@ -569,11 +569,11 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_school_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_enrollment_by_age.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_school_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_enrollment_by_age.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_school_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_enrollment_by_age.dat')
 
     # paths = cfg.FilePaths(None, state_location, country_location)
     # base = 'school_enrollment_by_age'
@@ -1272,6 +1272,21 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, loca
         else:
             raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.bin, df.percent))
+
+
+def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the size bins for the distribution of residents to staff ratios per facility for Long Term Care Facilities.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        str: A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    """
 
 
 def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):

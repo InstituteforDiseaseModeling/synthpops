@@ -18,9 +18,9 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
     # Initialize outputs and load location age distribution
     facilities = []
-    age_distr_16 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=20)
-    age_brackets_16 = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location,  nbrackets=20)
-    age_by_brackets_dic_16 = spb.get_age_by_brackets_dic(age_brackets_16)
+    age_distr_ = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=20)
+    age_brackets_ = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location,  nbrackets=20)
+    age_by_brackets_dic_ = spb.get_age_by_brackets_dic(age_brackets_)
 
     # More initialization
     n = int(n)
@@ -91,7 +91,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         local_elderly_2018 = 0
         #for ab in range(12, 16):
         for ab in range(12, spdata.get_nbrackets()):
-            local_elderly_2018 += age_distr_16[ab] * pop
+            local_elderly_2018 += age_distr_[ab] * pop
 
         if verbose:
             print('number of local elderly', local_elderly_2018)
@@ -138,10 +138,10 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
         est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
 
-        age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_18.dat')
+        # age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_18.dat')
 
-        age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_brackets_18_fp)
-
+        # age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_brackets_18_fp)
+        age_distr_18 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=None, nbrackets=18)
         age_brackets_18 = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, nbrackets=18)
         age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
 
@@ -212,7 +212,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
     # adjust age distribution for those already created
     for a in expected_age_distr:
-        expected_age_distr[a] = age_distr_16[age_by_brackets_dic_16[a]]/len(age_brackets_16[age_by_brackets_dic_16[a]])
+        expected_age_distr[a] = age_distr_[age_by_brackets_dic_[a]]/len(age_brackets_[age_by_brackets_dic_[a]])
         expected_age_count[a] = int(n * expected_age_distr[a])
 
     ltcf_adjusted_age_count = sc.dcp(expected_age_count)
@@ -224,7 +224,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
     # build rest of the population
     n_nonltcf = int(n - sum([len(f) for f in facilities]))  # remove those placed in care homes
 
-    return n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities
+    return n_nonltcf, age_brackets_, age_by_brackets_dic_, ltcf_adjusted_age_distr, facilities
 
 
 def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic):

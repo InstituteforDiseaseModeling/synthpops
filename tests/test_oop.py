@@ -4,6 +4,7 @@ Simple run of OOP functionality.
 
 import sciris as sc
 import synthpops as sp
+# import matplotlib.pyplot as plt
 
 
 def test_default():
@@ -52,7 +53,7 @@ def test_alternatives():
 
 def test_api(do_plot=False):
     ''' More examples of basic API usage '''
-    pop = sp.Pop(n=2000) # default parameters, 5k people
+    pop = sp.Pop(n=20000) # default parameters, 5k people
     pop.save('test_api.pop') # save as pickle
     pop.to_json('test_api.json') # save as JSON
     popdict = pop.to_dict() # export from class to standard python object; current default synthpops output
@@ -73,3 +74,4 @@ if __name__ == '__main__':
 
     sc.toc(T)
     print('Done.')
+    # plt.show()
