@@ -53,7 +53,8 @@ class TestRegression(unittest.TestCase):
         cls.generateBaseline = regenerate
         cls.pdfDir = sc.thisdir(__file__, "regression", "report")
         cls.expectedDir = sc.thisdir(__file__, "regression", "expected")
-        cls.datadir = sc.thisdir(__file__, os.pardir, "data")
+        # cls.datadir = sc.thisdir(__file__, os.pardir, "data")
+        cls.datadir = sp.datadir
         shutil.rmtree(cls.pdfDir, ignore_errors=True)
         os.makedirs(cls.pdfDir, exist_ok=True)
 
@@ -86,8 +87,8 @@ class TestRegression(unittest.TestCase):
         state_location = 'Washington'
         country_location = 'usa'
         max_contacts = None
-        with_industry_code = False
-        with_facilities = True
+        with_industry_code = True
+        with_facilities = False
         use_two_group_reduction = False
         average_LTCF_degree = 20
         generate = True
@@ -171,7 +172,7 @@ class TestRegression(unittest.TestCase):
 
             for method in ['density', 'frequency']:
                 matrix = sp.calculate_contact_matrix(pop, method, setting_code)
-                brackets = spdd.get_census_age_brackets(self.datadir, state_location, country_location)
+                brackets = spdd.get_census_age_brackets(self.datadir, location, state_location, country_location)
                 ageindex = spb.get_age_by_brackets_dic(brackets)
                 agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
                 textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")

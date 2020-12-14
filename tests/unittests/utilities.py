@@ -298,7 +298,7 @@ def check_class_size(pop,
         f"expected class size: {expected_class_size} but actual class size: {actual_class_size}"
 
 
-def get_average_contact_by_age(pop, datadir, state_location="Washington", country_location="usa", setting_code="H", decimal=3):
+def get_average_contact_by_age(pop, datadir, location="seattle_metro", state_location="Washington", country_location="usa", setting_code="H", decimal=3):
     """
     Helper method to get average contacts by age brackets
     Args:
@@ -313,7 +313,7 @@ def get_average_contact_by_age(pop, datadir, state_location="Washington", countr
         numpy.ndarray: A numpy array with average contacts by age brackets.
 
     """
-    brackets = spdd.get_census_age_brackets(datadir, state_location, country_location)
+    brackets = spdd.get_census_age_brackets(datadir, location, state_location, country_location)
     ageindex = spb.get_age_by_brackets_dic(brackets)
     total = np.zeros(len(brackets))
     contacts = np.zeros(len(brackets))
@@ -324,7 +324,7 @@ def get_average_contact_by_age(pop, datadir, state_location="Washington", countr
     return average
 
 
-def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_location="usa"):
+def rebin_matrix_by_age(matrix, datadir, location="seattle_metro", state_location="Washington", country_location="usa"):
     """
     Helper method to get the average of contact matrix by age brackets
     @TODO: should we merge the functionalities with sp.get_aggregate_matrix
@@ -340,7 +340,7 @@ def rebin_matrix_by_age(matrix, datadir, state_location="Washington", country_lo
         numpy.ndarray: A matrix with desired age bracket with average values for all cells.
 
     """
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    brackets = sp.get_census_age_brackets(datadir, location, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
     agg_matrix = sp.get_aggregate_matrix(matrix, ageindex)
     counter = Counter(ageindex.values())  # number of ageindex per bracket
