@@ -32,7 +32,6 @@ except:
 __all__ = ['calculate_contact_matrix', 'plot_contacts']
 
 
-
 def calculate_contact_matrix(population, density_or_frequency='density', setting_code='H'):
     """
     Calculate the symmetric age-specific contact matrix from the connections
@@ -108,7 +107,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
         density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
         logcolors_flag (bool)            : If True, plot heatmap in logscale
-        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
         cmap(str or matplotlib colormap) : colormap
         fontsize (int)                   : base font size
         rotation (int)                   : rotation for x axis labels
@@ -217,33 +216,34 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
 
 
 
-def plot_contacts(population, setting_code='H',
-                aggregate_flag=True,
-                logcolors_flag=True,
-                density_or_frequency='density',
-                cmap=default_colormap,
-                fontsize=16,
-                rotation=50,
-                title_prefix=None,
-                fig=None,
-                ax=None):
+def plot_contacts(population,
+                  setting_code='H',
+                  aggregate_flag=True,
+                  logcolors_flag=True,
+                  density_or_frequency='density',
+                  cmap=default_colormap,
+                  fontsize=16,
+                  rotation=50,
+                  title_prefix=None,
+                  fig=None,
+                  ax=None):
     """
     Plot the age mixing matrix for a specific setting.
 
     TODO: rename setting_code to layer
 
     Args:
+        population(dict)                 : population to be plotted, if None, code will generate it
         setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
-        n (int)                          : number of people in the population
-        aggregate_flag (book)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
         logcolors_flag (bool)            : If True, plot heatmap in logscale
         density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
-        with_facilities (bool)           : If True, create long term care facilities
         cmap(str or matplotlib colormap) : colormap
         fontsize (int)                   : base font size
         rotation (int)                   : rotation for x axis labels
-        population(dict)                 : population to be plotted, if None, code will generate it
         title_prefix(str)                : optional title prefix for the figure
+        fig (Figure)                     : if supplied, use this figure instead of generating one
+        ax (Axes)                        : if supplied, use these axes instead of generating one
 
     Returns:
         A fig object.
@@ -284,7 +284,7 @@ def plot_contacts(population, setting_code='H',
     #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
 
     fig = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                    setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
-                                    fig=fig, ax=ax)
+                              setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
+                              fig=fig, ax=ax)
 
     return fig
