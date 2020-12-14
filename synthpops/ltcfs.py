@@ -232,7 +232,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
     # Assign facilities care staff from 20 to 59
     # datadir = datadir + ''
     KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
-    print(KC_ratio_distr)
+    # print(KC_ratio_distr)
     KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
     KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
     # print(KC_ratio_brackets)
@@ -245,7 +245,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
     staff_age_range = np.arange(ltcf_staff_age_min, ltcf_staff_age_max + 1)
     for nf, fc in enumerate(facilities):
         n_residents = len(fc)
-        print('n_residents', n_residents)
+        # print('n_residents', n_residents)
 
         sb = np.random.choice(sorted_ratio_keys, p=sorted_ratio_array)
         sb_range = KC_ratio_brackets[sb]
@@ -253,11 +253,11 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
 
         # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
         resident_staff_ratio = resident_staff_ratio/3.
-        print('ratio', resident_staff_ratio)
+        # print('ratio', resident_staff_ratio)
         # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
 
         n_staff = int(np.ceil(n_residents/resident_staff_ratio))
-        print('n_staff', n_staff)
+        # print('n_staff', n_staff)
         new_staff, new_staff_uids = [], []
 
         for i in range(n_staff):
