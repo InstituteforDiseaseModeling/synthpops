@@ -14,7 +14,7 @@ regenerate = False
 outfile = 'basic_api.pop'
 
 pars = dict(
-        n                               = 225001,
+        n                               = 20001,
         rand_seed                       = 123,
         max_contacts                    = None,
         # generate                        = True,
@@ -56,7 +56,7 @@ def test_basic_api():
     else:
         print('Checking...')
         pop2 = sc.loadobj(outfile)
-        # assert pop == pop2, 'Check failed'
+        assert pop == pop2, 'Check failed'
         print('Check passed')
 
     return pop
