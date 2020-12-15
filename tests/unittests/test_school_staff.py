@@ -24,8 +24,7 @@ class TestSchoolStaff(unittest.TestCase):
         cls.do_plot = False
         cls.resultdir = tempfile.TemporaryDirectory().name
         cls.dataDir = os.path.join(cls.resultdir, "data")
-        cls.subdir_level = os.path.join("data", "demographics", "contact_matrices_152_countries")
-        # cls.subdir_level = "data/demographics/contact_matrices_152_countries"
+        cls.subdir_level = os.path.join("data")
         cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), os.pardir, cls.subdir_level)
         utilities.copy_input(cls.sourcedir, cls.resultdir, cls.subdir_level)
         cfg.set_nbrackets(20)

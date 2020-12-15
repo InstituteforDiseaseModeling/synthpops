@@ -204,7 +204,6 @@ def get_head_age_brackets_path(datadir, location=None, state_location=None, coun
         A file path to the age brackets for head of household distribution data.
 
     """
-    datadir = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries')
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
@@ -284,7 +283,6 @@ def get_household_head_age_by_size_path(datadir, location=None, state_location=N
     Returns:
         A file path to the head of household age by household size count or distribution data.
     """
-    datadir = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries')
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
         raise NotImplementedError("Missing input strings. Try again.")
