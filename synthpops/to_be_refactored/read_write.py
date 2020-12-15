@@ -10,7 +10,6 @@ import pandas as pd
 from . import config as cfg
 
 
-
 def write_age_by_uid_dic(datadir, location, state_location, country_location, folder_name, age_by_uid_dic):
     """
     Write the dictionary of ID mapping to age for each individual in the population.
@@ -30,7 +29,7 @@ def write_age_by_uid_dic(datadir, location, state_location, country_location, fo
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
-    age_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_age_by_uid.dat')
+    age_by_uid_path = os.path.join(file_path, f'{location}_{len(age_by_uid_dic):d}_age_by_uid.dat')
 
     f_age_uid = open(age_by_uid_path, 'w')
 
@@ -68,7 +67,7 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
     # age_by_uid_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
-    age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
+    age_by_uid_path = os.path.join(file_path, f'{location}_{n:d}_age_by_uid.dat')
 
     df = pd.read_csv(age_by_uid_path, header=None, delimiter=' ')
     try:
@@ -99,8 +98,8 @@ def write_groups_by_age_and_uid(datadir, location, state_location, country_locat
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     os.makedirs(file_path, exist_ok=True)
 
-    groups_by_age_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_ages.dat')
-    groups_by_uid_path = os.path.join(file_path, location + '_' + str(len(age_by_uid_dic)) + '_synthetic_' + group_type + '_with_uids.dat')
+    groups_by_age_path = os.path.join(file_path, f'{location}_{len(age_by_uid_dic):d}_synthetic_{group_type}_with_ages.dat')
+    groups_by_uid_path = os.path.join(file_path, f'{location}_{len(age_by_uid_dic):d}_synthetic_{group_type}_with_uids.dat')
 
     fg_age = open(groups_by_age_path, 'w')
     fg_uid = open(groups_by_uid_path, 'w')
@@ -149,7 +148,7 @@ def read_setting_groups(datadir, location, state_location, country_location, fol
 
     # file_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
-    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_uids.dat')
+    file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, f'{location}_{n:d}_synthetic_{group_type}_with_uids.dat')
 
     if with_ages:
         file_path = file_path.replace('_uids', '_ages')
