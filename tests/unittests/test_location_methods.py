@@ -5,11 +5,13 @@ To run with better subtest logging use python -m unittest test_location_methods.
 import synthpops as sp
 import inspect
 import unittest
+import pytest
 import os
 
 
 class TestLocation(unittest.TestCase):
 
+    @pytest.mark.skip(reason='Walkback methods not yet functional')
     def test_usa_path_methods(self):
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(keywords=keywords)
@@ -28,6 +30,7 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "usa", "state_location": "Washington"}
         self.run_tests(datadir, methods, testcase)
 
+    @pytest.mark.skip(reason='Walkback methods not yet functional')
     def test_Senegal_path_methods(self):
         exclude_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
@@ -48,6 +51,7 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "Senegal", "state_location": "Dakar"}
         self.run_tests(datadir, methods, testcase)
 
+    @pytest.mark.skip(reason='Walkback methods not yet functional')
     def test_usa_data_methods(self):
         keywords = ["get", "distr"]
         methods = self.get_methods_to_test(exclude_pattern=["path"], keywords=keywords)
@@ -58,6 +62,7 @@ class TestLocation(unittest.TestCase):
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase, ispath=False)
 
+    @pytest.mark.skip(reason='Walkback methods not yet functional')
     def test_Senegal_data_methods(self):
         keywords = ["get", "distr"]
         exclude_pattern = ["get_usa", "path", "get_gender_fraction_by_age"]
