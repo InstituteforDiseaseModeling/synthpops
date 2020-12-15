@@ -1,5 +1,5 @@
 """
-Uitilities for test_school_staff (and possibly other functions)
+Utilities for test_school_staff (and possibly other functions)
 """
 
 
