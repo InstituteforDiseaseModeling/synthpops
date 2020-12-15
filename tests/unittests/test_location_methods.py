@@ -1,5 +1,5 @@
 """
-This is generic way to check for methods with "path" in name and taking localtion params
+This is a generic way to check for methods with "path" in the name and taking location parameters.
 To run with better subtest logging use python -m unittest test_location_methods.py
 """
 import synthpops as sp
@@ -7,19 +7,20 @@ import inspect
 import unittest
 import os
 
+
 class TestLocation(unittest.TestCase):
 
     def test_usa_path_methods(self):
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(keywords=keywords)
-        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data")
+        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
         sp.config.set_location_defaults("usa")
-        testcase = {"country_location": "usa", "state_location": "Washington", "location":"seattle_metro"}
+        testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase)
 
     def test_usa_state_path_methods(self):
         keywords = ["get", "path"]
-        args=['country_location', 'state_location']
+        args = ['country_location', 'state_location']
         ignored_args = ['location', 'part']
         methods = self.get_methods_to_test(keywords=keywords, target_args=args, exclude_args=ignored_args)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -28,20 +29,20 @@ class TestLocation(unittest.TestCase):
         self.run_tests(datadir, methods, testcase)
 
     def test_Senegal_path_methods(self):
-        exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
-        methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords)
-        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data")
+        methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
+        datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
         sp.config.set_location_defaults("Senegal")
-        testcase = {"country_location": "Senegal", "state_location": "Dakar", "location":"Dakar"}
+        testcase = {"country_location": "Senegal", "state_location": "Dakar", "location": "Dakar"}
         self.run_tests(datadir, methods, testcase)
 
     def test_Senegal_state_path_methods(self):
-        exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
         args = ['country_location', 'state_location']
         ignored_args = ['location', 'part']
-        methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords, target_args=args, exclude_args=ignored_args)
+        methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords, target_args=args, exclude_args=ignored_args)
         datadir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
         sp.config.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar"}

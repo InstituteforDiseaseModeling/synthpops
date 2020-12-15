@@ -54,7 +54,7 @@ n = int(n)
 
 def test_generate_microstructures_with_non_teaching_staff():
     # # generate and write to file
-    sp.config.set_location_defaults(country_location)
+
     population1 = sp.make_population(datadir=datadir,
                                                              location=location,
                                                              state_location=state_location,
@@ -283,6 +283,9 @@ def check_all_residents_are_connected_to_staff(popdict):
 
 if __name__ == '__main__':
 
+
+    test_pop1, test_pop2, test_pop3 = test_generate_microstructures_with_non_teaching_staff()
+
     generate_micro_popdict = test_generate_microstructures_with_facilities()
 
     make_contacts_popdict = test_make_contacts_with_facilities_from_microstructure()
@@ -317,4 +320,6 @@ if __name__ == '__main__':
 
     check_all_residents_are_connected_to_staff(population)
 
+    print(test_pop1[0], '\n', test_pop2[0], '\n', test_pop3[0])
     # reduced = test_create_reduced_contacts_with_group_types()
+
