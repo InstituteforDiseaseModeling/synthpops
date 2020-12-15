@@ -8,7 +8,6 @@ version, set regenerate = False.
 import os
 import sciris as sc
 import synthpops as sp
-import matplotlib.pyplot as plt
 
 regenerate = False
 outfile = 'basic_api.pop'
