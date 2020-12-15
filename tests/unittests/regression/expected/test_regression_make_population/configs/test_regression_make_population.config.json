@@ -5,8 +5,8 @@
   "state_location": "Washington",
   "country_location": "usa",
   "max_contacts": null,
-  "with_industry_code": false,
-  "with_facilities": true,
+  "with_industry_code": true,
+  "with_facilities": false,
   "use_two_group_reduction": false,
   "average_LTCF_degree": 20,
   "generate": true
