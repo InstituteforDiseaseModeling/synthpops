@@ -57,20 +57,19 @@ def read_in_age_by_uid(datadir, location, state_location, country_location, fold
 
     """
 
-    paths = cfg.FilePaths(location, state_location, country_location)
-    base = 'age_by_uid'
-    prefix =  "{location}_" + str(n) + '_' + base
-    alt_prefix = None
+    # paths = cfg.FilePaths(location, state_location, country_location)
+    # base = 'age_by_uid'
+    # prefix =  "{location}_" + str(n) + '_' + base
+    # alt_prefix = None
 
-    if cfg.alt_location is not None:
-        apt_prefix = prefix
+    # if cfg.alt_location is not None:
+    #     apt_prefix = prefix
 
-    age_by_uid_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+    # age_by_uid_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
-    """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name)
     age_by_uid_path = os.path.join(file_path, location + '_' + str(n) + '_age_by_uid.dat')
-    """
+
     df = pd.read_csv(age_by_uid_path, header=None, delimiter=' ')
     try:
         return dict(zip(df.iloc[:, 0].values.astype(int), df.iloc[:, 1].values.astype(int)))
@@ -138,24 +137,23 @@ def read_setting_groups(datadir, location, state_location, country_location, fol
         A list of lists where each sublist represents of group of individuals in the same group and thus are contacts of each other.
     """
 
-    paths = cfg.FilePaths(location, state_location, country_location)
-    base = f'{str(n)}_synthetic_{group_type}_with_uids'
-    if with_ages:
-        base = base.replace('_uids', '_ages')
-    prefix =  "{location}_" + base
-    alt_prefix = None
+    # paths = cfg.FilePaths(location, state_location, country_location)
+    # base = f'{str(n)}_synthetic_{group_type}_with_uids'
+    # if with_ages:
+    #     base = base.replace('_uids', '_ages')
+    # prefix =  "{location}_" + base
+    # alt_prefix = None
 
-    if cfg.alt_location is not None:
-        apt_prefix = prefix
+    # if cfg.alt_location is not None:
+    #     apt_prefix = prefix
 
-    file_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
+    # file_path = paths.get_data_file(location, filedata_type=folder_name, prefix=prefix, suffix='.dat', alt_prefix=alt_prefix)
 
-    """
     file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries', country_location, state_location, folder_name, location + '_' + str(n) + '_synthetic_' + group_type + '_with_uids.dat')
 
     if with_ages:
         file_path = file_path.replace('_uids', '_ages')
-    """
+
     groups = []
     foo = open(file_path, 'r')
     for c, line in enumerate(foo):

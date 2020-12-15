@@ -318,7 +318,6 @@ def get_household_head_age_by_size_path(datadir, location=None, state_location=N
 
     # file = paths.get_demographic_file(location=None, filedata_type=filedata_type, prefix=prefix,
     #                                   suffix='.dat', alt_prefix=alt_prefix)
-    # print('Ireturnedfile', file, base)
     # return file
 
 
@@ -401,7 +400,6 @@ def get_census_age_brackets_path(datadir, location=None, state_location=None, co
         A file path to the age brackets to be used with census age data in combination with the contact matrix data.
     """
     datadir = get_relative_path(datadir)
-    # datadir = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries')
     if nbrackets is None:
         nbrackets = cfg.nbrackets
     levels = [location, state_location, country_location]
@@ -1031,16 +1029,19 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
     if part != 1 and part != 2:
         raise NotImplementedError("Part must be 1 or 2. Please try again.")
     postal_code = get_state_postal_code(state_location, country_location)
-    paths = cfg.FilePaths(None, state_location, country_location)
-    base = f'LongTermCare_Table_48_Part{part}_{postal_code}_2015_2016'
-    prefix = base
-    alt_prefix = None
+    datadir = get_relative_path(datadir)
+    return os.path.join(datadir, country_location, state_location, 'assisted_living', f'LongTermCare_Table_48_Part{part}_{postal_code}_2015_2016.csv')
 
-    if cfg.alt_location is not None:
-        apt_prefix = prefix
+    # paths = cfg.FilePaths(None, state_location, country_location)
+    # base = f'LongTermCare_Table_48_Part{part}_{postal_code}_2015_2016'
+    # prefix = base
+    # alt_prefix = None
 
-    file = paths.get_data_file(None, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
-    return file
+    # if cfg.alt_location is not None:
+    #     apt_prefix = prefix
+
+    # file = paths.get_data_file(None, filedata_type='assisted_living', prefix=prefix, suffix='.csv', alt_prefix=alt_prefix)
+    # return file
 
 
 def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):

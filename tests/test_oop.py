@@ -4,7 +4,6 @@ Simple run of OOP functionality.
 
 import sciris as sc
 import synthpops as sp
-# import matplotlib.pyplot as plt
 
 
 def test_default():
@@ -74,4 +73,3 @@ if __name__ == '__main__':
 
     sc.toc(T)
     print('Done.')
-    # plt.show()

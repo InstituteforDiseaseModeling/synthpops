@@ -27,7 +27,6 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
-
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
     Identify who in the population is attending school based on enrollment rates by age.
@@ -87,7 +86,6 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
                     ages_in_school_count[a] += 1
 
     return uids_in_school, uids_in_school_by_age, ages_in_school_count
-
 
 
 def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
@@ -177,9 +175,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
     return syn_schools, syn_school_uids, syn_school_types
 
 
-
-
-
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
 def add_contacts_from_edgelist(popdict, edgelist, setting):
     """
@@ -249,7 +244,6 @@ def generate_random_contacts_for_additional_school_members(school_uids, addition
     return edges
 
 
-
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
     """
     Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
@@ -301,10 +295,11 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
             # add each edge to the overall school graph
             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
-    # print('e0', len(G.edges()))
+
     # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
     if age_groups_smaller_than_degree:
         # print('grades too small')
+
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
@@ -346,8 +341,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.add_edges_from([new_ei, new_ej])
 
     # calculate school age mixing
-    # print(syn_school_uids, 'ids')
-    # print(syn_school_ages, 'ages')
     if verbose:
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
@@ -677,7 +670,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
         return groups, teacher_groups
 
 
-
 def generate_random_contacts_across_school(all_school_uids, average_class_size):
     """
     Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
@@ -701,7 +693,6 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
         e = (node_i, node_j)
         edges.append(e)
     return edges
-
 
 
 def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
@@ -732,7 +723,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         print('Stop. school_mixing_type', school_mixing_type, 'does not exist. Please change this to one of', available_school_mixing_types)
 
     if school_mixing_type == 'random':
-        # print('random', len(syn_school_uids), len(teachers))
         school = sc.dcp(syn_school_uids)
         school += teachers
         edges = generate_random_contacts_across_school(school, average_class_size)
@@ -743,7 +733,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         edges = generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose)
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree, verbose)
         edges += teacher_edges
-        # print('rne', len(syn_school_uids), len(teachers), len(edges))
         add_contacts_from_edgelist(popdict, edges, 'S')
 
     # completely clustered into classes by age, one teacher per class at least
@@ -763,11 +752,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
             n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
             add_contacts_from_group(popdict, group, 'S')
 
-        # print('cne', len(syn_school_uids), len(teachers), n_expected_edges)
         # # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         n_expected_edges += len(teacher_edges)
-        # print('cne', len(syn_school_uids), len(teachers), n_expected_edges)
         # print(n_expected_edges_list)
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
@@ -864,9 +851,6 @@ def get_default_school_size_distr_by_type():
         school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='usa', use_default=True)
 
     return school_size_distr_by_type
-
-
-
 
 
 def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
@@ -1024,8 +1008,6 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     """
     nodes = G.nodes()
 
-    # print('before',len(G.edges()))
-
     ordered_node_ids = {node: node_id for node_id, node in enumerate(nodes)}
     ids_to_ordered_nodes = {node_id: node for node_id, node in enumerate(nodes)}
 
@@ -1064,8 +1046,7 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     return G
 
 
-
-#%% Things added to enable not-by-type and random
+# %% Things added to enable not-by-type and random
 
 def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
     """
@@ -1134,16 +1115,13 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = []
         new_school_uids = []
 
-        # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-        # aindex = np.where(achoice)[0][0]
         aindex = spsamp.fast_choice(ages_in_school_distr.values())
         bindex = age_by_brackets_dic[aindex]
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
         if bindex >= 4:
             if np.random.binomial(1, p=0.7):
-                # achoice = np.random.multinomial(1, [ages_in_school_distr[a] for a in ages_in_school_distr])
-                # aindex = np.where(achoice)[0][0]
+
                 aindex = spsamp.fast_choice(ages_in_school_distr.values())
 
         uid = uids_in_school_by_age[aindex][0]

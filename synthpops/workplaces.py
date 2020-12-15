@@ -42,9 +42,9 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
     for uid in potential_worker_uids:
         ai = potential_worker_uids[uid]
 
-        # potential_worker_uid[uid] may generate persions who are not valid working age
+        # potential_worker_uid[uid] may generate persons who are not valid working age
         # This will cause a 'key' error in potential__worker_uids_by_age
-        # Since potential_worker_uids_age keys are valid work ages,  skip invalid workers
+        # Since potential_worker_uids_age keys are valid work ages, skip invalid workers
         if ai in potential_worker_uids_by_age.keys():
             potential_worker_uids_by_age[ai].append(uid)
             potential_worker_ages_left_count[ai] += 1

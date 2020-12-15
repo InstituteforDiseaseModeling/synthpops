@@ -15,6 +15,9 @@ part = 2
 
 
 def generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, part, use_default, verbose=False):
+    """
+    TODO: Fill out docstring.
+    """
 
     # Initialize outputs and load location age distribution
     facilities = []
@@ -89,7 +92,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
         # local elderly population estimate
         local_elderly_2018 = 0
-        #for ab in range(12, 16):
+        # for ab in range(12, 16):
         for ab in range(12, spdata.get_nbrackets()):
             local_elderly_2018 += age_distr_[ab] * pop
 
@@ -279,7 +282,6 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
     return facilities_staff_uids
 
 
-
 # Customized age resampling method
 def custom_resample_age(exp_age_distr, a):
     """
@@ -353,7 +355,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
         homes[h][0] = hha
 
         b = age_by_brackets_dic[hha]
-        b = min(b, contact_matrix_dic['H'].shape[0]-1) # Ensure it doesn't go past the end of the array
+        b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
         for n in range(1, size):
