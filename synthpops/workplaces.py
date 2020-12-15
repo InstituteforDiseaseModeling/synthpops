@@ -204,9 +204,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
 
                 if np.sum(b_prob):
-                    loop_b_prob = sc.dcp(b_prob) # Make a copy to avoid overwriting the original
+                    loop_b_prob = sc.dcp(b_prob)  # Make a copy to avoid overwriting the original
                     while np.sum(workers_left_in_bracket) == 0:
-                        loop_b_prob[bi] = 0 # Don't pick the same bracket ever again
+                        loop_b_prob[bi] = 0  # Don't pick the same bracket ever again
                         bi = spsamp.fast_choice(loop_b_prob)
                         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
                     a_prob = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]

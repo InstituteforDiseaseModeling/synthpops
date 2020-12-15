@@ -24,7 +24,8 @@ class TestSchoolStaff(unittest.TestCase):
         cls.do_plot = False
         cls.resultdir = tempfile.TemporaryDirectory().name
         cls.dataDir = os.path.join(cls.resultdir, "data")
-        cls.subdir_level = "data/demographics/contact_matrices_152_countries"
+        cls.subdir_level = os.path.join("data", "demographics", "contact_matrices_152_countries")
+        # cls.subdir_level = "data/demographics/contact_matrices_152_countries"
         cls.sourcedir = os.path.join(os.path.dirname(os.path.dirname(__file__)), os.pardir, cls.subdir_level)
         utilities.copy_input(cls.sourcedir, cls.resultdir, cls.subdir_level)
         cfg.set_nbrackets(20)
@@ -43,7 +44,6 @@ class TestSchoolStaff(unittest.TestCase):
         for f in os.listdir(cls.resultdir):
             if os.path.isfile(os.path.join(cls.resultdir, f)):
                 shutil.copy(os.path.join(cls.resultdir, f), os.path.join(dirname, f))
-
 
     @unittest.skip("this long running scenario is excluded from BVT (basic verification tests)")
     def test_scale(self):
