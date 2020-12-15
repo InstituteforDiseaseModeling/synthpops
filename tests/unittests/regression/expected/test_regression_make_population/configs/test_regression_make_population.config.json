@@ -1,0 +1,13 @@
+{
+  "n": 20001,
+  "rand_seed": 1001,
+  "location": "seattle_metro",
+  "state_location": "Washington",
+  "country_location": "usa",
+  "max_contacts": null,
+  "with_industry_code": true,
+  "with_facilities": false,
+  "use_two_group_reduction": false,
+  "average_LTCF_degree": 20,
+  "generate": true
+}

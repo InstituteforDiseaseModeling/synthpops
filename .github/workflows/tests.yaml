@@ -4,6 +4,7 @@ on: [pull_request]
 jobs:
   install_and_test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -20,12 +21,13 @@ jobs:
       - name: Install synthpops
         run: python setup.py develop
       - name: Install tests
-        run: |
-          pip install pytest
-          pip install -r tests/requirements_test.txt
-      - name: Run unit and regression tests
+        run: pip install -r tests/requirements_test.txt
+      - name: Run API tests
         working-directory: ./tests
-        run: pytest test_*.py --durations=0 --junitxml=test-results.xml # Run actual tests
+        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
+      - name: Run unit tests
+        working-directory: ./tests/unittests
+        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
       - name: Upload test results
         uses: actions/upload-artifact@v1
         if: failure()
@@ -37,4 +39,4 @@ jobs:
         if: failure()
         with:
           name: report
-          path: tests/report/
+          path: tests/regression/report/
