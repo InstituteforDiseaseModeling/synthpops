@@ -24,10 +24,7 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
-      - name: Run unit tests
-        working-directory: ./tests/unittests
-        run: pytest test_*.py --workers auto --durations=0 --junitxml=test-results.xml # Run actual tests
+        run:  coverage run --source=../synthpops -m pytest -s --ignore-glob=*manual* . --junitxml=test-results.xml # Run all tests
       - name: Upload test results
         uses: actions/upload-artifact@v1
         if: failure()
@@ -39,4 +36,12 @@ jobs:
         if: failure()
         with:
           name: report
-          path: tests/regression/report/
+          path: tests/unittests/regression/report/
+      - name: cml_run
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          # Code coverage report
+          coverage report >> report.md
+          cml-send-comment report.md
