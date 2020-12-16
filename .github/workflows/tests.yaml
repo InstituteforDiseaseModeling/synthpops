@@ -38,6 +38,7 @@ jobs:
           name: report
           path: tests/unittests/regression/report/
       - name: cml_run
+        working-directory: ./tests
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
