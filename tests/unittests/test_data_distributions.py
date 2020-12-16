@@ -18,7 +18,7 @@ country_location = 'usa'
 
 
 # def test_read_gender_fraction_by_age():
-#     gender_data_file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries',
+#     gender_data_file_path = os.path.join(datadir,
 #                                          country_location, state_location, 'age_distributions',
 #                                          'seattle_metro_gender_fraction_by_age_bracket.dat')
 #     dict = spdd.read_gender_fraction_by_age_bracket(datadir, state_location=state_location,
@@ -58,7 +58,7 @@ def test_get_head_age_by_size_path():
 
 
 def test_get_school_enrollment_rates():
-    school_enrollement_file_path = os.path.join(datadir, 'demographics', 'contact_matrices_152_countries',
+    school_enrollement_file_path = os.path.join(datadir,
                                                 country_location,
                                                 state_location,
                                                 'household_head_age_and_size_count.dat')

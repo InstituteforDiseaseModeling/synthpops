@@ -25,8 +25,8 @@ __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel
 datadir = None
 alt_datadir = None
 localdatadir = None
-rel_path = ['demographics', 'contact_matrices_152_countries']
-alt_rel_path = ['demographics', 'contact_matrices_152_countries']
+rel_path = []
+alt_rel_path = []
 full_data_available = False  # this is likely not necessary anymore
 
 # Set the local data folder
@@ -169,7 +169,6 @@ def set_datadir(root_dir, relative_path=None):
         On startup, the datadir and rel_path are set to the conventions
         used to store data. datadir is the root directory to the data, and
         rel_path is a list of sub directories to the data -->
-        rel_path = ['demographics', 'contact_matrices_152_countries']
         to change the location of the data the user is able to supply a new root_dir and new relative path. If the user uses a similar directory path model that we use
         e.g. root_dir/demographics/contact... the user can change datadir without changing relative path, by passing in relative_path = None (default)
         -- note, mostly deprecated.'''
@@ -244,7 +243,6 @@ class FilePaths:
         time_format path_pattern_time_format(variable='airtemp') #-> returns 'airtemp%Y%j.nc'
         file_pattern = path_pattern.get_path_pattern(variable='airtemp') # returns <root_dir>/<relative_dir>/airtemp/%Y/airtemp%Y%j.nc
     """
-    # note-change: add 'demographics', 'contact_matrices_152_countries' to root
 
     def __init__(self,  location=None, province=None, country=None,  alternate_location=None,  root_dir=None, alt_rootdir=None,  use_defaults=False):
         global datadir, alt_datadir, rel_path, alt_location
