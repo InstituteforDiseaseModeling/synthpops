@@ -166,9 +166,9 @@ class Pop(sc.prettyobj):
     def generate(self, verbose=False):
         ''' Actually generate the network '''
 
-        log.debug('generate_microstructure_with_facilities()')
+        log.debug('generate()')
 
-        print('TEMP: unpack variables -- to be refactored to pass parameters directly')
+        # TODO: unpack variables -- to be refactored to pass parameters directly
 
         datadir = self.datadir
         location = self.location

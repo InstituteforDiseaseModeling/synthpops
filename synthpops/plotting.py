@@ -287,4 +287,6 @@ def plot_contacts(population,
                               setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
                               fig=fig, ax=ax)
 
+    plt.show()
+
     return fig
