@@ -226,7 +226,8 @@ def plot_contacts(population,
                   rotation=50,
                   title_prefix=None,
                   fig=None,
-                  ax=None):
+                  ax=None,
+                  do_show=True):
     """
     Plot the age mixing matrix for a specific setting.
 
@@ -244,6 +245,7 @@ def plot_contacts(population,
         title_prefix(str)                : optional title prefix for the figure
         fig (Figure)                     : if supplied, use this figure instead of generating one
         ax (Axes)                        : if supplied, use these axes instead of generating one
+        do_show (bool)                   : whether to show the plot
 
     Returns:
         A fig object.
@@ -286,5 +288,8 @@ def plot_contacts(population,
     fig = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
                               setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
                               fig=fig, ax=ax)
+
+    if do_show:
+        plt.show()
 
     return fig
