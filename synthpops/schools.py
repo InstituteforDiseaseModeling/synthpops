@@ -3,14 +3,14 @@ This module generates school contacts by class and grade in flexible ways.
 Contacts can be clustered into classes and also mixed across the grade and
 across the school.
 
-H. Guclu et. al (2016) shows that mixing across grades is low for public
-schools in elementary and middle schools. Mixing across grades is however
-higher in high schools.
+H. Guclu et. al (2016) shows that mixing across grades is low for public schools
+in elementary and middle schools. Mixing across grades is however higher in high
+schools.
 
-Functions in this module are flexible to allow users to specify the
-inter-grade mixing, and to choose whether contacts are clustered within a
-grade. Clustering contacts across different grades is not supported because
-there is no data to suggest that this happens commonly.
+Functions in this module are flexible to allow users to specify the inter-grade
+mixing (for 'age_clustered' school_mixing_type), and to choose whether contacts
+are clustered within a grade. Clustering contacts across different grades is not
+supported because there is no data to suggest that this happens commonly.
 """
 from collections import Counter
 from itertools import combinations
@@ -29,7 +29,8 @@ from .config import logger as log
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
-    Identify who in the population is attending school based on enrollment rates by age.
+    Identify who in the population is attending school based on enrollment rates
+    by age.
 
     Args:
         datadir (string)          : The file path to the data directory.
@@ -40,10 +41,13 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
         homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
-        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
+        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from default_location, default_state, default_country.
 
     Returns:
-        A dictionary of students in schools mapping their ID to their age, a dictionary of students in school mapping age to the list of IDs with that age, and a dictionary mapping age to the number of students with that age.
+        A dictionary of students in schools mapping their ID to their age, a
+        dictionary of students in school mapping age to the list of IDs with
+        that age, and a dictionary mapping age to the number of students with
+        that age.
     """
     uids_in_school = {}
     uids_in_school_by_age = {}
@@ -89,12 +93,19 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
 
 
 def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
-
     """
-    A method to send students to school together. This method uses the dictionaries school_types_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
-    a sampled reference student. Then the school type is used to determine the age range of the school. After that, the size of the school is then sampled conditionally on the school type and then the rest of the students
-    are chosen from the lists of students available in the dictionary uids_in_school_by_age. This method is not perfect and requires a strict definition of school type by age. For now, it is not able to model mixed school
-    types such as schools with Kindergarten through Grade 8 (K-8), or Kindergarten through Grade 12. These mixed types of schools may be common in some settings and this feature may be added later.
+    A method to send students to school together. This method uses the
+    dictionaries school_types_by_age, school_type_age_ranges, and
+    school_size_distr_by_type to first determine the type of school based on the
+    age of a sampled reference student. Then the school type is used to
+    determine the age range of the school. After that, the size of the school is
+    then sampled conditionally on the school type and then the rest of the
+    students are chosen from the lists of students available in the dictionary
+    uids_in_school_by_age. This method is not perfect and requires a strict
+    definition of school type by age. For now, it is not able to model mixed
+    school types such as schools with Kindergarten through Grade 8 (K-8), or
+    Kindergarten through Grade 12. These mixed types of schools may be common in
+    some settings and this feature may be added later.
 
     Args:
         school_size_distr_by_type (dict) : A dictionary of school size distributions binned by size groups or brackets for each school type.
@@ -107,8 +118,11 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         verbose (bool)                   : If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
-        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+        Two lists of lists and third flat list, the first where each sublist is
+        the ages of students in the same school, and the second is the same list
+        but with the IDs of each student in place of their age. The third is a
+        list of the school types for each school, where each school has a single
+        string to represent it's school type.
     """
 
     syn_schools = []
@@ -178,7 +192,9 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
 def add_contacts_from_edgelist(popdict, edgelist, setting):
     """
-    Add contacts to popdict from edges in an edgelist. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
+    Add contacts to popdict from edges in an edgelist. Note that this simply
+    adds to the contacts already in the layer and does not overwrite the
+    contacts.
 
     Args:
         popdict (dict)  : dict of people
@@ -200,7 +216,9 @@ def add_contacts_from_edgelist(popdict, edgelist, setting):
 
 def add_contacts_from_group(popdict, group, setting):
     """
-    Add contacts to popdict from fully connected group. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
+    Add contacts to popdict from fully connected group. Note that this simply
+    adds to the contacts already in the layer and does not overwrite the
+    contacts.
 
     Args:
         popdict (dict) : dict of people
@@ -220,7 +238,9 @@ def add_contacts_from_group(popdict, group, setting):
 
 def generate_random_contacts_for_additional_school_members(school_uids, additional_school_member_uids, average_additional_school_members_degree=20):
     """
-    Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.
+    Generate random contacts for additional school members. This might be people
+    like non teaching staff such as principals, administrative staff, cleaning
+    staff, or school nurses.
 
     Args:
         school_uids (list)                               : list of uids of individuals already in the school
@@ -246,7 +266,10 @@ def generate_random_contacts_for_additional_school_members(school_uids, addition
 
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
     """
-    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+    Generate edges for contacts mostly within the same age/grade. Edges are
+    randomly distributed so that clustering is roughly average_class_size/size
+    of the grade. Inter grade mixing is done by rewiring edges, specifically
+    swapping endpoints of pairs of randomly sampled edges.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -370,7 +393,9 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids,
                                                   return_edges=False,
                                                   verbose=False):
     """
-    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade.
+    Generate edges for contacts mostly within the same age/grade. Edges are
+    randomly distributed so that clustering is roughly average_class_size/size
+    of the grade.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -507,7 +532,9 @@ def generate_edges_between_teachers(teachers, average_teacher_teacher_degree):
 
 def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school. Well mixed contacts within the same age/grade, some
+    cross grade mixing. Teachers are clustered by grade mostly.
 
     Args:
         syn_school_uids (list)               : list of uids of students in the school
@@ -553,7 +580,6 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
             n_teachers_needed = n_teachers_needed - len(available_teachers)
             selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
 
-            # selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
         else:
             selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
             for t in selected_teachers:
@@ -601,7 +627,9 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
 
 def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school. Students and teachers are clustered into disjoint classes.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school. Students and teachers are clustered into disjoint
+    classes.
 
     Args:
         groups (list)                        : list of lists of students, clustered into groups mostly by grade
@@ -678,7 +706,8 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
 
 def generate_random_contacts_across_school(all_school_uids, average_class_size):
     """
-    Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
+    Generate edges for contacts in a school where everyone mixes randomly.
+    Assuming class and thus class size determines effective contacts.
 
     Args:
         all_school_uids (list)   : list of uids of individuals in the school
@@ -703,7 +732,8 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
 
 def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school.
 
     Args:
         popdict (dict)                       : dictionary of people
@@ -796,7 +826,8 @@ def get_default_school_types_by_age():
     Define and return default probabilities of school type for each age.
 
     Return:
-        A dictionary of default probabilities for the school type likely for each age.
+        A dictionary of default probabilities for the school type likely for
+        each age.
 
     """
     school_type_age_ranges = get_default_school_type_age_ranges()
@@ -814,7 +845,8 @@ def get_default_school_types_by_age():
 
 def get_default_school_types_by_age_single():
     """
-    Define and return default school type by age by assigning the school type with the highest probability.
+    Define and return default school type by age by assigning the school type
+    with the highest probability.
 
     Return:
         A dictionary of default school type by age.
@@ -845,10 +877,12 @@ def get_default_school_size_distr_brackets():
 
 def get_default_school_size_distr_by_type():
     """
-    Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
+    Define and return default school size distribution for each school type. The
+    school size distributions are binned to size groups or brackets.
 
     Return:
-        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+        A dictionary of school size distributions binned by size groups or
+        brackets for each type of default school.
 
     """
     school_size_distr_by_type = {}
@@ -863,7 +897,8 @@ def get_default_school_size_distr_by_type():
 
 def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
-    Assign teachers to each school according to the average student-teacher ratio.
+    Assign teachers to each school according to the average student-teacher
+    ratio.
 
     Args:
         syn_schools (list)                      : list of lists where each sublist is a school with the ages of the students within
@@ -879,9 +914,11 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
-        List of lists of schools with the ages of individuals in each, lists of lists of schools with the ids of individuals in each,
-        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
-        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+        List of lists of schools with the ages of individuals in each, lists of
+        lists of schools with the ids of individuals in each, dictionary of
+        potential workers mapping id to their age, dictionary mapping age to the
+        list of potential workers of that age, dictionary with the count of
+        workers left to assign for each age after teachers have been assigned.
     """
 
     log.debug('assign_teachers_to_schools()')
@@ -931,7 +968,8 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
 def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, verbose=True):
     """
-    Assign additional staff to each school according to the average student to all staff ratio.
+    Assign additional staff to each school according to the average student to
+    all staff ratio.
 
     Args:
         syn_school_uids (list)                  : list of lists where each sublist is a school with the ids of the students within
@@ -947,9 +985,11 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
-        List of lists of schools with the ids of non teaching staff for each school,
-        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
-        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+        List of lists of schools with the ids of non teaching staff for each
+        school, dictionary of potential workers mapping id to their age,
+        dictionary mapping age to the list of potential workers of that age,
+        dictionary with the count of workers left to assign for each age after
+        teachers have been assigned.
     """
     log.debug('assign_additional_staff_to_schools()')
     if average_student_all_staff_ratio is None:
@@ -1004,7 +1044,8 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
 def add_random_contacts_from_graph(G, expected_average_degree):
     """
-    Add additional edges at random to achieve the expected or desired average degree.
+    Add additional edges at random to achieve the expected or desired average
+    degree.
 
     Args:
         G (networkx Graph)            : networkx Graph object
@@ -1058,7 +1099,8 @@ def add_random_contacts_from_graph(G, expected_average_degree):
 
 def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
     """
-    Given a number of students in school, generate a list of school sizes to place everyone in a school.
+    Given a number of students in school, generate a list of school sizes to
+    place everyone in a school.
 
     Args:
         school_size_distr_by_bracket (dict) : The distribution of binned school sizes.
@@ -1088,8 +1130,10 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
 
 def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
     """
-    A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
-    This method models schools using matrices and so it does not create explicit school types.
+    A method to send students to school together. Using the matrices to
+    construct schools is not a perfect method so some things are more forced
+    than the matrix method alone would create. This method models schools using
+    matrices and so it does not create explicit school types.
 
     Args:
         school_sizes (list)          : A list of school sizes.
@@ -1102,8 +1146,11 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         verbose (bool)               : If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
-        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+        Two lists of lists and third flat list, the first where each sublist is
+        the ages of students in the same school, and the second is the same list
+        but with the IDs of each student in place of their age. The third is a
+        list of the school types for each school, where each school has a single
+        string to represent it's school type.
     """
     log.debug('send_students_to_school()')
     syn_schools = []
