@@ -742,18 +742,16 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     # return file
 
 
-def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):
+def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get distribution of school sizes by bracket. Either you have enrollments by individual school or you have school size distribution that is binned. Either way, you want to get a school size distribution.
-    If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This may not
-    be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    Get distribution of school sizes by size bracket or bin. If use_default, then we'll first try to look for location specific data and if
+    that's not available we'll use default data. This may not be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
         file_path (string)        : file path to user specified distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 

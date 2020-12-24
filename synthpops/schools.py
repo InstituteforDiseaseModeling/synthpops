@@ -255,7 +255,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         grade_age_mapping (dict)   : dict mapping grade to an age
         age_grade_mapping (dict)   : dict mapping age to a grade
         average_class_size (int)   : average class size
-        inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
+        inter_grade_mixing (float) : percent of edges that rewired to create edges across grades in schools when school_mixing_type is 'age_clustered'
         verbose (bool)             : print statements throughout
 
     Returns:
@@ -371,8 +371,6 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids,
                                                   verbose=False):
     """
     Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade.
-
-    Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -716,9 +714,10 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         grade_age_mapping (dict)             : dict mapping grade to an age
         age_grade_mapping (dict)             : dict mapping age to a grade
         average_class_size (int)             : average class size
+        inter_grade_mixing (float)           : percent of edges that rewired to create edges across grades in schools when school_mixing_type is 'age_clustered'
         average_student_teacher_ratio (int)  : average number of students per teacher
         average_teacher_teacher_degree (int) : average number of contacts with other teachers
-        school_mixing_type(str)              : 'random' for well mixed schools, 'clustered' for disjoint classes in a school
+        school_mixing_type(str)              : 'random' for well mixed schools, 'age_clustered' for well mixed within the same grade and some intermixing with other grades, 'age_and_class_clustered' for disjoint classes in a school by age or grade
         verbose (bool)                       : print statements throughout
 
     Return:
@@ -957,7 +956,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         average_student_all_staff_ratio = 0
 
     if average_student_teacher_ratio < average_student_all_staff_ratio:
-        errormsg = f'The ratio of students to all staff at school must be lower than or equal to the ratio students to teachers at school. All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school.'
+        errormsg = f"The ratio of students to all staff at school ({average_student_all_staff_ratio}) must be lower than or equal to the ratio students to teachers at school ({average_student_teacher_ratio}). All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school."
         raise ValueError(errormsg)
 
     n_students_list = [len(student_list) for student_list in syn_school_uids]  # what is the number of students in each school
@@ -972,7 +971,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
     if min_n_non_teaching_staff <= 0:
-        errormsg = f'At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio and the average_student_all_staff_ratio if you do not expect this to be the case, or some of the generated schools may have too few staff members.'
+        errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
         log.debug(errormsg)
 
         if verbose:
@@ -1201,8 +1200,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         # new_school_age_counter = Counter(new_school)
         if verbose:
             print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
-            # print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
+
     if verbose:
         print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
-        # print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+
     return syn_schools, syn_school_uids, syn_school_types
