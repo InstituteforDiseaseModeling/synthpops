@@ -106,7 +106,7 @@ class TestRegression(unittest.TestCase):
         # average_teacher_teacher_degree = 3
         # teacher_age_min = 25
         # teacher_age_max = 75
-        # with_non_teaching_staff = False
+        with_non_teaching_staff = True
         # average_student_all_staff_ratio = 15
         # average_additional_staff_degree = 20
         # staff_age_min = 20
@@ -129,6 +129,7 @@ class TestRegression(unittest.TestCase):
         teacher_age_max = 65
         staff_age_min = 18
         staff_age_max = 60
+        with_non_teaching_staff = True
         generate = True
         #
         test_prefix = 'test_regression_lower_teacher_age'
