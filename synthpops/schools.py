@@ -723,24 +723,14 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
     return edges
 
 
-def add_school_edges(popdict,
-                     syn_school_uids,
-                     syn_school_ages,
-                     teachers,
-                     non_teaching_staff,
-                     age_by_uid_dic,
-                     grade_age_mapping,
-                     age_grade_mapping,
-                     average_class_size=20,
-                     inter_grade_mixing=0.1,
-                     average_student_teacher_ratio=20,
-                     average_teacher_teacher_degree=3,
-                     average_additional_staff_degree=20,
-                     school_mixing_type='random',
-                     verbose=False):
+def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
     """
     Generate edges for teachers, including to both students and other teachers
-    at the same school.
+    at the same school. When school_mixing_type is 'age_clustered' then
+    inter_grade_mixing will rewire a fraction of the edges between students in
+    the same age or grade to be edges with any other student in the school. When
+    school_mixing_type is 'random' or 'age_and_class_clustered',
+    inter_grade_mixing has no effect.
 
     Args:
         popdict (dict)                          : dictionary of people
@@ -975,7 +965,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, verbose=True):
+def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, with_non_teaching_staff=False, verbose=True):
     """
     Assign additional staff to each school according to the average student to
     all staff ratio.
@@ -991,6 +981,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
@@ -1001,8 +992,13 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         teachers have been assigned.
     """
     log.debug('assign_additional_staff_to_schools()')
-    if average_student_all_staff_ratio is None:
-        average_student_all_staff_ratio = 0
+
+    # with_non_teaching_staff is False so this method will not select anyone to be a non teaching staff member at schools - thus return empty lists for non_teaching_staff_uids
+    if not with_non_teaching_staff:
+        if verbose:
+            print(f"with_non_teaching_staff: {with_non_teaching_staff}, so this method does not produce additional staff")
+        non_teaching_staff_uids = [[] for student_list in syn_school_uids]
+        return non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
     if average_student_teacher_ratio < average_student_all_staff_ratio:
         errormsg = f"The ratio of students to all staff at school ({average_student_all_staff_ratio}) must be lower than or equal to the ratio students to teachers at school ({average_student_teacher_ratio}). All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school."
@@ -1012,7 +1008,9 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
     n_teachers_list = [len(teacher_list) for teacher_list in syn_teacher_uids]  # what is the number of teachers in each school
 
     if average_student_all_staff_ratio == 0:
-        n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
+        raise ValueError(f"The ratio of students to all staff at school is {average_student_all_staff_ratio}. This would mean no students at the school. Try another value greater than 0 and less than the average_student_teacher_ratio: {average_student_teacher_ratio}.")
+    # if average_student_all_staff_ratio == 0:
+    #     n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
     else:
         n_all_staff_list = [max(1, int(i/average_student_all_staff_ratio)) for i in n_students_list]  # need at least one staff member
     n_non_teaching_staff_list = [n_all_staff_list[i] - n_teachers_list[i] for i in range(len(n_students_list))]

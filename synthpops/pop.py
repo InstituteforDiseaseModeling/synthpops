@@ -175,18 +175,24 @@ class Pop(sc.prettyobj):
 
         # TODO: unpack variables -- to be refactored to pass parameters directly
 
+        # General parameters
         datadir                         = self.datadir
         location                        = self.location
         state_location                  = self.state_location
         country_location                = self.country_location
         n                               = self.n
         sheet_name                      = self.sheet_name
+        max_contacts                    = self.max_contacts
+
+        # LTCF parameters
         use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
         average_LTCF_degree             = self.ltcf_pars.average_LTCF_degree
         with_facilities                 = self.ltcf_pars.with_facilities
         use_default                     = self.ltcf_pars.use_default
         ltcf_staff_age_min              = self.ltcf_pars.ltcf_staff_age_min
         ltcf_staff_age_max              = self.ltcf_pars.ltcf_staff_age_max
+
+        # School parameters
         with_school_types               = self.school_pars.with_school_types
         school_mixing_type              = self.school_pars.school_mixing_type
         average_class_size              = self.school_pars.average_class_size
@@ -195,11 +201,11 @@ class Pop(sc.prettyobj):
         average_teacher_teacher_degree  = self.school_pars.average_teacher_teacher_degree
         teacher_age_min                 = self.school_pars.teacher_age_min
         teacher_age_max                 = self.school_pars.teacher_age_max
+        with_non_teaching_staff         = self.school_pars.with_non_teaching_staff
         average_student_all_staff_ratio = self.school_pars.average_student_all_staff_ratio
         average_additional_staff_degree = self.school_pars.average_additional_staff_degree
         staff_age_min                   = self.school_pars.staff_age_min
         staff_age_max                   = self.school_pars.staff_age_max
-        max_contacts                    = self.max_contacts
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
@@ -266,9 +272,9 @@ class Pop(sc.prettyobj):
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                                average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
-
+        # Assign non teaching staff and update who's available to work at other places
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
+                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff, verbose=verbose)
 
         # Get facility staff
         facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)

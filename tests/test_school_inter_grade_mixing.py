@@ -1,6 +1,6 @@
 """
-Test that inter_grade_mixing variable is being used for specific school mixing
-types.
+Test that the inter_grade_mixing parameter is being used for specific school
+mixing types.
 
 We expect inter_grade_mixing to be used when school_mixing_type equals
 'age_clustered', and to be ignored when school_mixing_type is equal to either
@@ -49,14 +49,14 @@ def test_inter_grade_mixing(school_mixing_type='random'):
     rewire a fraction of the edges between students in the same age or grade to
     be edges with any other student in the school.
 
-    When school_mixing_type is 'random' or 'age_and_class_clustered', inter_grade_mixing
-    has no effect.
+    When school_mixing_type is 'random' or 'age_and_class_clustered',
+    inter_grade_mixing has no effect.
 
     Args:
         school_mixing_type (str): The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered'.
 
     """
-    sp.logger.info(f'Testing the effect of the variable inter_grade_mixing for school_mixing_type: {school_mixing_type}')
+    sp.logger.info(f'Testing the effect of the parameter inter_grade_mixing for school_mixing_type: {school_mixing_type}')
 
     test_pars = sc.dcp(pars)
     test_pars['school_mixing_type'] = school_mixing_type
