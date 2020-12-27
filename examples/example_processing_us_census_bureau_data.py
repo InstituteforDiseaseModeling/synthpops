@@ -1,7 +1,7 @@
 """
-An example of how to use functions in sp.process_us_census_bureau_data to
-process some data tables downloaded from the US Census Bureau into distribution
-tables that sp.data_distribution functions might expect to work with.
+An example of how to use functions in sp.process_census to process some data
+tables downloaded from the US Census Bureau into distribution tables that
+sp.data_distribution functions might expect to work with.
 """
 
 import synthpops as sp
