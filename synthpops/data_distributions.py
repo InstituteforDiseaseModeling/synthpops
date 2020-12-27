@@ -1186,7 +1186,7 @@ def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=N
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified gender by age bracket distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
@@ -1309,7 +1309,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        size_distr_file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified gender by age bracket distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
@@ -1327,3 +1327,61 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
     return size_brackets
+
+
+def get_usa_long_term_care_facility_use_rates_path(datadir, state_location=None, country_location=None):
+    """
+    Get file_path for Long Term Care Facility use rates by age for a state.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)   : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+
+    Returns:
+        str: A file path to the data on the Long Term Care Facility usage rates by age.
+
+    Note:
+        Currently only available for the United States.
+    """
+    levels = [state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    if country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'assisted_living', f'{country_location}_long_term_care_facility_use_rates_by_age.dat')
+    return os.path.join(datadir, country_location, state_location, 'assisted_living', f'{state_location}_long_term_care_facility_use_rates_by_age.dat')
+
+
+def get_usa_long_term_care_facility_use_rates(datadir, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get Long Term Care Facility use rates by age for a state.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)   : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        file_path (string)     : file path to user specified gender by age bracket distribution data
+        use_default (bool)     : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+
+    Returns:
+        dict: A dictionary of the Long Term Care Facility usage rates by age.
+
+    Note:
+        Currently only available for the United States.
+    """
+    if file_path is None:
+        file_path = get_usa_long_term_care_facility_use_rates_path(datadir, state_location, country_location)
+    try:
+        df = pd.read_csv(file_path)
+    except:
+        if use_default:
+            file_path = get_usa_long_term_care_facility_use_rates_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
+            df = pd.read_csv(file_path)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_state}, {cfg.default_country}.")
+    return dict(zip(df.Age, df.Percent))
