@@ -22,7 +22,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
     # Initialize outputs and load location age distribution
     facilities = []
     age_distr_ = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=20)
-    age_brackets_ = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location,  nbrackets=20)
+    age_brackets_ = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, nbrackets=20)
     age_by_brackets_dic_ = spb.get_age_by_brackets_dic(age_brackets_)
 
     # More initialization
@@ -70,8 +70,8 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         state_age_distr_2018['85-100'] = 1.8
 
         for a in state_age_distr_2016:
-            state_age_distr_2016[a] = state_age_distr_2016[a]/100.
-            state_age_distr_2018[a] = state_age_distr_2018[a]/100.
+            state_age_distr_2016[a] = state_age_distr_2016[a] / 100.
+            state_age_distr_2018[a] = state_age_distr_2018[a] / 100.
 
         num_state_elderly_2016 = 0
         num_state_elderly_2018 = 0
@@ -79,12 +79,12 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
             num_state_elderly_2016 += state_pop_2016 * state_age_distr_2016[a]
             num_state_elderly_2018 += state_pop_2018 * state_age_distr_2018[a]
 
-        expected_users_2018 = total_facility_users * num_state_elderly_2018/num_state_elderly_2016
+        expected_users_2018 = total_facility_users * num_state_elderly_2018 / num_state_elderly_2016
 
         if verbose:
-            print('number of elderly',num_state_elderly_2016, num_state_elderly_2018)
-            print('growth in elderly', num_state_elderly_2018/num_state_elderly_2016)
-            print('users in 2016',total_facility_users, '% of elderly', total_facility_users/num_state_elderly_2016)
+            print('number of elderly', num_state_elderly_2016, num_state_elderly_2018)
+            print('growth in elderly', num_state_elderly_2018 / num_state_elderly_2016)
+            print('users in 2016', total_facility_users, '% of elderly', total_facility_users / num_state_elderly_2016)
             print('users in 2018', expected_users_2018)
 
         # current King County population size
@@ -103,7 +103,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         # local_perc_elderly_2018 = local_elderly_2018/num_state_elderly_2018
 
         if verbose:
-            print('local users in 2018?', total_facility_users * local_elderly_2018/num_state_elderly_2018 * num_state_elderly_2018/num_state_elderly_2016)
+            print('local users in 2018?', total_facility_users * local_elderly_2018 / num_state_elderly_2018 * num_state_elderly_2018 / num_state_elderly_2016)
         # seattle_users_est_from_state = total_facility_users * local_perc_elderly_2018 * growth_since_2016
 
         est_seattle_users_2018 = dict.fromkeys(['60-64', '65-74', '75-84', '85-100'], 0)

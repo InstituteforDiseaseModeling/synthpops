@@ -1329,7 +1329,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
     return size_brackets
 
 
-def get_usa_long_term_care_facility_use_rates_path(datadir, state_location=None, country_location=None):
+def get_long_term_care_facility_use_rates_path(datadir, state_location=None, country_location=None):
     """
     Get file_path for Long Term Care Facility use rates by age for a state.
 
@@ -1355,7 +1355,7 @@ def get_usa_long_term_care_facility_use_rates_path(datadir, state_location=None,
     return os.path.join(datadir, country_location, state_location, 'assisted_living', f'{state_location}_long_term_care_facility_use_rates_by_age.dat')
 
 
-def get_usa_long_term_care_facility_use_rates(datadir, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_use_rates(datadir, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get Long Term Care Facility use rates by age for a state.
 
@@ -1375,12 +1375,12 @@ def get_usa_long_term_care_facility_use_rates(datadir, state_location=None, coun
         Currently only available for the United States.
     """
     if file_path is None:
-        file_path = get_usa_long_term_care_facility_use_rates_path(datadir, state_location, country_location)
+        file_path = get_long_term_care_facility_use_rates_path(datadir, state_location, country_location)
     try:
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_use_rates_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
+            file_path = get_long_term_care_facility_use_rates_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_state}, {cfg.default_country}.")

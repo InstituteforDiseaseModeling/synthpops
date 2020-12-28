@@ -8,8 +8,6 @@ import synthpops as sp
 
 datadir = sp.datadir
 
-# state_location = 'New_York'
-
 state_location = 'Washington'
 country_location = 'usa'
 acs_period = 1
