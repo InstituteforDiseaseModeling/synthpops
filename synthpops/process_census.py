@@ -10,10 +10,8 @@ each US state using SynthPops functions.
 
 import numpy as np
 import pandas as pd
-# import synthpops as sp
 from . import base as spb
 from . import data_distributions as spdata
-from glob import glob as ls
 import os
 
 
@@ -260,7 +258,7 @@ def process_us_census_enrollment_rates(datadir, location, state_location, countr
     return enrollment_rates
 
 
-def process_usa_long_term_care_facility_rates_by_age(datadir, state_location, country_location):
+def process_long_term_care_facility_rates_by_age(datadir, state_location, country_location):
     """
     Process the National Long Term Care Providers state data tables from 2016 to
     get the estimated user rates by age.
@@ -351,6 +349,63 @@ def process_usa_long_term_care_facility_rates_by_age(datadir, state_location, co
         ltcf_rates_by_age.pop(ab, None)
 
     return ltcf_rates_by_age
+
+
+def process_usa_ltcf_resident_to_staff_ratios(datadir, country_location, state_location, location_alias, location_list=[''], save=False):
+    """
+    Process the Kaiser Health News (KHN) dashboard data on the ratios by
+    facility to estimate the ratios for all facilities in the area.
+    from 2016 to get the estimated user rates by age. Then write to file.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        country_location (string) : name of the country
+        state_location (string)   : name of the state
+        location_alias (str)      : more commonly known name of the location
+        location_list (list)      : list of locations to include
+        save (bool)               : If True, save to file.
+
+    Returns:
+        dict: A dictionary with the probability of resident to staff ratios and the bins.
+    """
+    file_path = os.path.join(datadir, country_location, state_location, 'assisted_living',
+                             f"{state_location}_KHN_resident_to_staff_ratios.dat")
+    df = pd.read_csv(file_path)
+
+    if location_alias == state_location:
+        d = df
+    else:
+        d = df.loc[df['geography'].isin(location_list)]
+
+    keys = ['residents_per_aide_best', 'residents_per_aide_worst']
+    d.fillna(value=np.nan)
+    ratios = []
+    for k in keys:
+        ratios.extend(d[k].values.astype(float))
+    ratios = np.array(ratios)
+    mask = ratios != np.nan
+    ratios = ratios[mask]
+
+    bins = np.arange(0, max(ratios) + 1)
+    hist, bins = np.histogram(ratios, bins=bins)
+    hist_norm = {i: hist[i] / sum(hist) for i in range(len(hist))}
+
+    hist_df = pd.DataFrame.from_dict({'bin': np.arange(len(hist_norm)),
+                                      'percent': list(hist_norm.values())})
+    bins_df = pd.DataFrame.from_dict({'bin_start': bins[0: len(bins) - 1] + 1,
+                                      'bin_end': bins[0: len(bins) - 1] + 1})
+    if save:
+        if location_alias == state_location:
+            output_folder = os.path.join(datadir, country_location, state_location, 'assisted_living')
+        else:
+            output_folder = os.path.join(datadir, country_location, state_location, location_alias, 'assisted_living')
+
+        os.makedirs(output_folder, exist_ok=True)
+
+        hist_df.to_csv(os.path.join(output_folder, f"{location_alias}_aggregated_resident_to_staff_ratios_distr_alt.csv"), header=True, index=False)
+        bins_df.to_csv(os.path.join(output_folder, f"{location_alias}_aggregated_resident_to_staff_ratios_bins_alt.csv"), header=False, index=False)
+
+    return hist_df, bins_df
 
 
 def write_age_bracket_distr_18(datadir, location_alias, state_location, country_location, age_bracket_count, age_brackets):
