@@ -139,9 +139,6 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         s_range = resident_to_staff_ratio_brackets[s]
         resident_staff_ratio = s_range[spsamp.fast_choice(s_range)]
 
-        # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
-        resident_staff_ratio = resident_staff_ratio / 3
-
         n_staff = int(np.ceil(n_residents / resident_staff_ratio))
         new_staff, new_staff_uids = [], []
 
