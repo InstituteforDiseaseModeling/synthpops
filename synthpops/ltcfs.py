@@ -36,9 +36,11 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
     age_distr = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
     age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
-
     n = int(n)
     expected_users_by_age = dict.fromkeys(age_by_brackets_dic.keys(), 0)
+
+    max_age = max(age_by_brackets_dic.keys())
+
     # If not using facilities, skip everything here
     if with_facilities:
 
@@ -78,7 +80,6 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
             all_residents = all_residents[size:]
 
         # adjust age distribution
-        max_age = max(age_by_brackets_dic.keys())
 
         ltcf_adjusted_age_distr_dict = dict.fromkeys(np.arange(max_age + 1), 0)
         for a in range(max_age + 1):
@@ -89,7 +90,14 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
         n_nonltcf = int(n - sum([len(f) for f in facilities]))  # remove those placed as residents in long term care facilities
 
-        return n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr_array, facilities
+    else:
+        n_nonltcf = n
+        ltcf_adjusted_age_distr_dict = dict.fromkeys(np.arange(max_age + 1), 0)
+        for a in range(max_age + 1):
+            ltcf_adjusted_age_distr_dict[a] = age_distr[age_by_brackets_dic[a]] / len(age_brackets[age_by_brackets_dic[a]])
+        ltcf_adjusted_age_distr_array = np.array([ltcf_adjusted_age_distr_dict[a] for a in range(max_age + 1)])  # make an array of the age distribution
+
+    return n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr_array, facilities
 
 
 def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic, use_default=False):
