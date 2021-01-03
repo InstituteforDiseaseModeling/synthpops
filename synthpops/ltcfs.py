@@ -3,7 +3,6 @@ Modeling Seattle Metro Long Term Care Facilities
 
 """
 
-import os
 import numpy as np
 import sciris as sc
 from . import sampling as spsamp
@@ -11,261 +10,136 @@ from . import households as sphh
 from . import data_distributions as spdata
 from . import base as spb
 
-part = 2
 
-
-def generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, part, use_default, verbose=False):
+def generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, verbose=False):
     """
-    TODO: Fill out docstring.
-    """
+    Generate residents living in long term care facilities and their ages.
 
+    Args:
+        n (int)                   : The number of people to create.
+        with_facilities (bool)    : If True, create long term care facilities, currently only available for locations in the US.
+        datadir (string)          : The file path to the data directory.
+        country_location (string) : name of the country the location is in
+        state_location (string)   : name of the state the location is in
+        location                  : name of the location
+        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from default_location, default_state, default_country.
+
+    Returns:
+        The number of people expected to live outside long term care facilities,
+        age_brackets, age_by_brackets dictionary, age distribution adjusted for
+        long term care facility residents already sampled, and facilities with
+        people living in them.
+
+    """
     # Initialize outputs and load location age distribution
     facilities = []
-    age_distr_ = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=20)
-    age_brackets_ = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, nbrackets=20)
-    age_by_brackets_dic_ = spb.get_age_by_brackets_dic(age_brackets_)
+    age_distr = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=location)
+    age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
-    # More initialization
     n = int(n)
-    expected_users_by_age = {}
-
-    # If not using facilities, skip everything else
+    expected_users_by_age = dict.fromkeys(age_by_brackets_dic.keys(), 0)
+    # If not using facilities, skip everything here
     if with_facilities:
 
-        # Grab Long Term Care Facilities data
-        ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part)
+        # Get long term care facilities data at the state level
+        ltcf_rates_by_age = spdata.get_long_term_care_facility_use_rates(datadir, state_location=state_location, country_location=country_location)
 
-        # ltcf_df keys
-        ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']
-        facility_keys = [
-                        # 'Hospice',
-                        'Nursing home',
-                        'Residential care community'
-                        ]
+        # for the population of size n, calculate the number of people at each age expected to live in long term care facilities
+        for a in expected_users_by_age:
+            b = age_by_brackets_dic[a]
+            expected_users_by_age[a] = int(np.ceil(n * age_distr[b] / len(age_brackets[b]) * ltcf_rates_by_age[a]))
 
-        # state numbers
-        facillity_users = {}
-        for fk in facility_keys:
-            facillity_users[fk] = {}
-            facillity_users[fk]['Total'] = int(ltcf_df[ltcf_df.iloc[:, 0] == 'Number of users2, 5'][fk].values[0].replace(',', ''))
-            for ab in ltcf_age_bracket_keys:
-                facillity_users[fk][ab] = float(ltcf_df[ltcf_df.iloc[:, 0] == ab][fk].values[0].replace(',', ''))/100.
-
-        total_facility_users = np.sum([facillity_users[fk]['Total'] for fk in facillity_users])
-
-        # Census Bureau numbers 2016
-        state_pop_2016 = 7288000
-        state_age_distr_2016 = {}
-        state_age_distr_2016['60-64'] = 6.3
-        state_age_distr_2016['65-74'] = 9.0
-        state_age_distr_2016['75-84'] = 4.0
-        state_age_distr_2016['85-100'] = 1.8
-
-        # Census Bureau numbers 2018
-        state_pop_2018 = 7535591
-        state_age_distr_2018 = {}
-        state_age_distr_2018['60-64'] = 6.3
-        state_age_distr_2018['65-74'] = 9.5
-        state_age_distr_2018['75-84'] = 4.3
-        state_age_distr_2018['85-100'] = 1.8
-
-        for a in state_age_distr_2016:
-            state_age_distr_2016[a] = state_age_distr_2016[a] / 100.
-            state_age_distr_2018[a] = state_age_distr_2018[a] / 100.
-
-        num_state_elderly_2016 = 0
-        num_state_elderly_2018 = 0
-        for a in state_age_distr_2016:
-            num_state_elderly_2016 += state_pop_2016 * state_age_distr_2016[a]
-            num_state_elderly_2018 += state_pop_2018 * state_age_distr_2018[a]
-
-        expected_users_2018 = total_facility_users * num_state_elderly_2018 / num_state_elderly_2016
-
-        if verbose:
-            print('number of elderly', num_state_elderly_2016, num_state_elderly_2018)
-            print('growth in elderly', num_state_elderly_2018 / num_state_elderly_2016)
-            print('users in 2016', total_facility_users, '% of elderly', total_facility_users / num_state_elderly_2016)
-            print('users in 2018', expected_users_2018)
-
-        # current King County population size
-        pop = 2.25e6
-
-        # local elderly population estimate
-        local_elderly_2018 = 0
-        # for ab in range(12, 16):
-        for ab in range(12, spdata.get_nbrackets()):
-            local_elderly_2018 += age_distr_[ab] * pop
-
-        if verbose:
-            print('number of local elderly', local_elderly_2018)
-
-        # growth_since_2016 = num_state_elderly_2018/num_state_elderly_2016
-        # local_perc_elderly_2018 = local_elderly_2018/num_state_elderly_2018
-
-        if verbose:
-            print('local users in 2018?', total_facility_users * local_elderly_2018 / num_state_elderly_2018 * num_state_elderly_2018 / num_state_elderly_2016)
-        # seattle_users_est_from_state = total_facility_users * local_perc_elderly_2018 * growth_since_2016
-
-        est_seattle_users_2018 = dict.fromkeys(['60-64', '65-74', '75-84', '85-100'], 0)
-
-        for fk in facillity_users:
-            for ab in facillity_users[fk]:
-                if ab != 'Total':
-                    # print(fk, ab, facillity_users[fk][ab], facillity_users[fk][ab] * facillity_users[fk]['Total'], facillity_users[fk][ab] * facillity_users[fk]['Total'] * pop/state_pop_2018)
-                    if ab == 'Under 65':
-                        b = '60-64'
-                    elif ab == '65–74':
-                        b = '65-74'
-                    elif ab == '75–84':
-                        b = '75-84'
-                    elif ab == '85 and over':
-                        b = '85-100'
-                    est_seattle_users_2018[b] += facillity_users[fk][ab] * facillity_users[fk]['Total'] * pop/state_pop_2018
-
-        if verbose:
-            for ab in est_seattle_users_2018:
-                print(ab, est_seattle_users_2018[ab], est_seattle_users_2018[ab]/(state_age_distr_2018[ab] * pop))
-            print(np.sum([est_seattle_users_2018[b] for b in est_seattle_users_2018]))
-
-        # for pop of 2.25 million of Seattle
-        est_ltcf_user_by_age_brackets_perc = {}
-        for b in est_seattle_users_2018:
-            est_ltcf_user_by_age_brackets_perc[b] = est_seattle_users_2018[b]/state_age_distr_2018[b]/pop
-            # print(b,est_ltcf_user_by_age_brackets_perc[b])
-
-        est_ltcf_user_by_age_brackets_perc['65-69'] = est_ltcf_user_by_age_brackets_perc['65-74']
-        est_ltcf_user_by_age_brackets_perc['70-74'] = est_ltcf_user_by_age_brackets_perc['65-74']
-        est_ltcf_user_by_age_brackets_perc['75-79'] = est_ltcf_user_by_age_brackets_perc['75-84']
-        est_ltcf_user_by_age_brackets_perc['80-84'] = est_ltcf_user_by_age_brackets_perc['75-84']
-
-        est_ltcf_user_by_age_brackets_perc.pop('65-74', None)
-        est_ltcf_user_by_age_brackets_perc.pop('75-84', None)
-
-        # age_brackets_18_fp = os.path.join(spdata.get_relative_path(datadir),  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_18.dat')
-
-        # age_distr_18 = spdata.read_age_bracket_distr(datadir, file_path=age_brackets_18_fp)
-        age_distr_18 = spdata.read_age_bracket_distr(datadir, country_location=country_location, state_location=state_location, location=None, nbrackets=18)
-        age_brackets_18 = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location, nbrackets=18)
-        age_by_brackets_dic_18 = spb.get_age_by_brackets_dic(age_brackets_18)
-
-        for a in range(60, 101):
-            if a < 65:
-                b = age_by_brackets_dic_18[a]
-
-                expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
-                expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['60-64']
-                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
-
-            elif a < 75:
-                b = age_by_brackets_dic_18[a]
-
-                expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
-                expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['70-74']
-                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
-
-            elif a < 85:
-                b = age_by_brackets_dic_18[a]
-
-                expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
-                expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['80-84']
-                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
-
-            elif a < 101:
-                b = age_by_brackets_dic_18[a]
-
-                expected_users_by_age[a] = n * age_distr_18[b] / len(age_brackets_18[b])
-                expected_users_by_age[a] = expected_users_by_age[a] * est_ltcf_user_by_age_brackets_perc['85-100']
-                expected_users_by_age[a] = int(np.ceil(expected_users_by_age[a]))
-
-        if verbose:
-            print(np.sum([expected_users_by_age[a] for a in expected_users_by_age]))
-
-        KC_resident_size_distr = spdata.get_usa_long_term_care_facility_residents_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-        KC_resident_size_distr = spb.norm_dic(KC_resident_size_distr)
-        KC_residents_size_brackets = spdata.get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-
+        # make a list of all resident ages
         all_residents = []
         for a in expected_users_by_age:
-            all_residents += [a] * expected_users_by_age[a]
-        np.random.shuffle(all_residents)
+            all_residents.extend([a] * expected_users_by_age[a])
 
-        # place residents in facilities
-        size_bracket_keys = sorted([k for k in KC_resident_size_distr.keys()])
-        size_distr_array = [KC_resident_size_distr[k] for k in size_bracket_keys]
+        np.random.shuffle(all_residents)  # randomly shuffle ages
+
+        # how big are long term care facilities
+        resident_size_distr = spdata.get_long_term_care_facility_residents_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        resident_size_distr = spb.norm_dic(resident_size_distr)
+        resident_size_brackets = spdata.get_long_term_care_facility_residents_distr_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+
+        size_bracket_keys = sorted(resident_size_distr.keys())
+        size_distr_array = [resident_size_distr[k] for k in size_bracket_keys]
         while len(all_residents) > 0:
 
-            sb = np.random.choice(size_bracket_keys, p=size_distr_array)
-            sb_range = KC_residents_size_brackets[sb]
-            size = np.random.choice(sb_range)
+            s = spsamp.fast_choice(size_distr_array)
+            s_range = resident_size_brackets[s]
+            size = np.random.choice(s_range)
 
-            # size = int(np.random.choice(KC_ltcf_sizes))
             if size > len(all_residents):
                 size = len(all_residents)
 
-            new_facility = all_residents[0:size]
+            new_facility = all_residents[:size]
             facilities.append(new_facility)
             all_residents = all_residents[size:]
 
+        # adjust age distribution
+        max_age = max(age_by_brackets_dic.keys())
 
-    # Finalization
-    max_age = 100
+        ltcf_adjusted_age_distr_dict = dict.fromkeys(np.arange(max_age + 1), 0)
+        for a in range(max_age + 1):
+            ltcf_adjusted_age_distr_dict[a] = age_distr[age_by_brackets_dic[a]] / len(age_brackets[age_by_brackets_dic[a]])
+            ltcf_adjusted_age_distr_dict[a] -= float(expected_users_by_age[a]) / n  # remove long term care facility residents from the age distribution
 
-    expected_age_distr = dict.fromkeys(np.arange(max_age + 1), 0)
-    expected_age_count = dict.fromkeys(np.arange(max_age + 1), 0)
+        ltcf_adjusted_age_distr_array = np.array([ltcf_adjusted_age_distr_dict[a] for a in range(max_age + 1)])  # make an array of the age distribution
 
-    # adjust age distribution for those already created
-    for a in expected_age_distr:
-        expected_age_distr[a] = age_distr_[age_by_brackets_dic_[a]]/len(age_brackets_[age_by_brackets_dic_[a]])
-        expected_age_count[a] = int(n * expected_age_distr[a])
+        n_nonltcf = int(n - sum([len(f) for f in facilities]))  # remove those placed as residents in long term care facilities
 
-    ltcf_adjusted_age_count = sc.dcp(expected_age_count)
-    for a in expected_users_by_age:
-        ltcf_adjusted_age_count[a] -= expected_users_by_age[a]
-    ltcf_adjusted_age_distr_dict = spb.norm_dic(ltcf_adjusted_age_count)
-    ltcf_adjusted_age_distr = np.array([ltcf_adjusted_age_distr_dict[i] for i in range(max_age+1)])
-
-    # build rest of the population
-    n_nonltcf = int(n - sum([len(f) for f in facilities]))  # remove those placed in care homes
-
-    return n_nonltcf, age_brackets_, age_by_brackets_dic_, ltcf_adjusted_age_distr, facilities
+        return n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr_array, facilities
 
 
-def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic):
+def assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic, use_default=False):
+    """
+    Assign Long Term Care Facility staff to the generated facilities with residents.
 
-    # Assign facilities care staff from 20 to 59
-    # datadir = datadir + ''
-    KC_ratio_distr = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
-    # print(KC_ratio_distr)
-    KC_ratio_distr = spb.norm_dic(KC_ratio_distr)
-    KC_ratio_brackets = spdata.get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=True)
-    # print(KC_ratio_brackets)
+    Args:
+        datadir (string)                      : The file path to the data directory.
+        location                              : name of the location
+        state_location (string)               : name of the state the location is in
+        country_location (string)             : name of the country the location is in
+        ltcf_staff_age_min (int)              : Long term care facility staff minimum age.
+        ltcf_staff_age_max (int)              : Long term care facility staff maximum age.
+        facilities (list)                     : A list of lists where each sublist is a facility with the resident ages
+        workers_by_age_to_assign_count (dict) : A dictionary mapping age to the count of employed individuals of that age.
+        potential_worker_uids (dict)          : dictionary of potential workers mapping their id to their age
+        facilities (list)                     : A list of lists where each sublist is a facility with the resident IDs
+        age_by_uid_dic (dict)                 : dictionary mapping id to age for all individuals in the population
+        use_default (bool)                    : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from default_location, default_state, default_country.
+
+    Returns:
+        list: A list of lists with the facility staff IDs for each facility.
+    """
+    resident_to_staff_ratio_distr = spdata.get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    resident_to_staff_ratio_distr = spb.norm_dic(resident_to_staff_ratio_distr)
+    resident_to_staff_ratio_brackets = spdata.get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+
     facilities_staff = []
     facilities_staff_uids = []
 
-    sorted_ratio_keys = sorted([k for k in KC_ratio_distr.keys()])
-    sorted_ratio_array = [KC_ratio_distr[k] for k in sorted_ratio_keys]
+    sorted_ratio_keys = sorted([k for k in resident_to_staff_ratio_distr.keys()])
+    ratio_array = [resident_to_staff_ratio_distr[k] for k in sorted_ratio_keys]
 
     staff_age_range = np.arange(ltcf_staff_age_min, ltcf_staff_age_max + 1)
     for nf, fc in enumerate(facilities):
         n_residents = len(fc)
-        # print('n_residents', n_residents)
 
-        sb = np.random.choice(sorted_ratio_keys, p=sorted_ratio_array)
-        sb_range = KC_ratio_brackets[sb]
-        resident_staff_ratio = np.mean(sb_range)
+        s = spsamp.fast_choice(ratio_array)
+        s_range = resident_to_staff_ratio_brackets[s]
+        resident_staff_ratio = s_range[spsamp.fast_choice(s_range)]
 
         # if using raw staff totals in residents to staff ratios divide rato by 3 to split staff into 3 8 hour shifts at minimum
-        resident_staff_ratio = resident_staff_ratio/3.
-        # print('ratio', resident_staff_ratio)
-        # resident_staff_ratio = np.random.choice(KC_resident_staff_ratios)
+        resident_staff_ratio = resident_staff_ratio / 3
 
-        n_staff = int(np.ceil(n_residents/resident_staff_ratio))
-        # print('n_staff', n_staff)
+        n_staff = int(np.ceil(n_residents / resident_staff_ratio))
         new_staff, new_staff_uids = [], []
 
         for i in range(n_staff):
             a_prob = np.array([workers_by_age_to_assign_count[a] for a in staff_age_range])
-            a_prob = a_prob/np.sum(a_prob)
+            a_prob = a_prob / np.sum(a_prob)
             aindex = np.random.choice(a=staff_age_range, p=a_prob)
 
             uid = potential_worker_uids_by_age[aindex][0]
@@ -280,6 +154,22 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         facilities_staff_uids.append(new_staff_uids)
 
     return facilities_staff_uids
+
+
+def remove_ltcf_residents_from_potential_workers(facilities_by_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic):
+    """
+    Remove facilities residents from potential workers
+    """
+    for nf, fc in enumerate(facilities_by_uids):
+        for uid in fc:
+            aindex = age_by_uid_dic[uid]
+            if uid in potential_worker_uids:
+                potential_worker_uids_by_age[aindex].remove(uid)
+                potential_worker_uids.pop(uid, None)
+                if workers_by_age_to_assign_count[aindex] > 0:
+                    workers_by_age_to_assign_count[aindex] -= 1
+
+    return potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
 # Customized age resampling method
