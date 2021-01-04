@@ -564,11 +564,11 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_enrollment_rates_by_age.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_enrollment_rates_by_age.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_enrollment_rates_by_age.dat')
 
     # paths = cfg.FilePaths(None, state_location, country_location)
     # base = 'school_enrollment_by_age'
@@ -1133,7 +1133,7 @@ def get_long_term_care_facility_residents_distr(datadir, location=None, state_lo
             file_path = get_long_term_care_facility_residents_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=country_location)
             df = pd.read_csv(file_path, header=0)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {default_location}, {cfg.default_state}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.bin, df.percent))
 
 
