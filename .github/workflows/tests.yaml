@@ -50,7 +50,8 @@ jobs:
         run: |
 
           # Code coverage report
-          coverage report > report.md
+          coverage html
+          cat htmlcov/index.html > report.md
           cml-publish coverage-badge.svg --md >> report.md
           cml-send-comment report.md
           cml-send-github-check report.md
