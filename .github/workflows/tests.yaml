@@ -50,6 +50,7 @@ jobs:
         run: |
 
           # Code coverage report
-          coverage report >> report.txt
-          cml-send-comment report.txt
-          cml-send-github-check coverage-badge.svg
+          coverage report > report.md
+          cml-publish coverage-badge.svg --md >> report.md
+          cml-send-comment report.md
+          cml-send-github-check report.md
