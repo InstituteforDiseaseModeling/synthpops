@@ -25,6 +25,9 @@ jobs:
       - name: Run API tests
         working-directory: ./tests
         run:  coverage run --source=../synthpops -m pytest -s --ignore-glob=*manual* . --junitxml=test-results.xml # Run all tests
+      - name: Create coverage badge
+        working-directory: ./tests
+        run: coverage-badge -o coverage-badge.svg
       - name: Upload test results
         uses: actions/upload-artifact@v1
         if: failure()
@@ -49,4 +52,4 @@ jobs:
           # Code coverage report
           coverage report >> report.txt
           cml-send-comment report.txt
-          cml-send-github-check report.txt
+          cml-send-github-check coverage-badge.svg

@@ -3,3 +3,4 @@ pytest-parallel
 fpdf>=1.7.2
 covasim>=1.7.0
 coverage==5.3
+coverage-badge==1.0.1
