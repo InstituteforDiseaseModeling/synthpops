@@ -50,10 +50,15 @@ Notice:
 datadir = sp.datadir
 # location = 'Oregon'
 # location_alias = 'Oregon'
-location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
-location_alias = 'portland_metro'  # what shortened name do you want to use for this metro location
+# location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
+# location_alias = 'portland_metro'  # what shortened name do you want to use for this metro location
 
-state_location = 'Oregon'
+# state_location = 'Oregon'
+# country_location = 'usa'
+
+location = 'Spokane_County'
+location_alias = 'Spokane_County'
+state_location = 'Washington'
 country_location = 'usa'
 
 year = 2019

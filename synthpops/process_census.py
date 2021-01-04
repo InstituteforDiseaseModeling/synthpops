@@ -49,14 +49,14 @@ def process_us_census_age_counts(datadir, location, state_location, country_loca
         c = columns[b]
         try:
             try:
-                count = int(df.loc[df['NAME'] == location][c].values[0])
+                count = int(df.loc[df['NAME'].str.contains(location)][c].values[0])
             except:
-                count = int(df.loc[df['NAME'] == location.replace('_', ' ')][c].values[0])
+                count = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][c].values[0])
         except:
             try:
-                count = float(df.loc[df['NAME'] == location][c].values[0])
+                count = float(df.loc[df['NAME'].str.contains(location)][c].values[0])
             except:
-                count = float(df.loc[df['NAME'] == location.replace('_', ' ')][c].values[0])
+                count = float(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][c].values[0])
         age_bracket_count[b] = count
 
     return age_bracket_count, age_brackets
@@ -97,11 +97,11 @@ def process_us_census_age_counts_by_gender(datadir, location, state_location, co
         mc = columns_male[b]
         fc = columns_female[b]
         try:
-            mcount = int(df.loc[df['NAME'] == location][mc].values[0])
-            fcount = int(df.loc[df['NAME'] == location][fc].values[0])
+            mcount = int(df.loc[df['NAME'].str.contains(location)][mc].values[0])
+            fcount = int(df.loc[df['NAME'].str.contains(location)][fc].values[0])
         except:
-            mcount = int(df.loc[df['NAME'] == location.replace('_', ' ')][mc].values[0])
-            fcount = int(df.loc[df['NAME'] == location.replace('_', ' ')][fc].values[0])
+            mcount = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][mc].values[0])
+            fcount = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][fc].values[0])
         age_bracket_count_by_gender['male'][b] = mcount
         age_bracket_count_by_gender['female'][b] = fcount
 
@@ -130,9 +130,9 @@ def process_us_census_population_size(datadir, location, state_location, country
 
     df = pd.read_csv(file_path)
     try:
-        population_size = int(df.loc[df['NAME'] == location]['S0101_C01_001E'].values[0])
+        population_size = int(df.loc[df['NAME'].str.contains(location)]['S0101_C01_001E'].values[0])
     except:
-        population_size = int(df.loc[df['NAME'] == location.replace('_', ' ')]['S0101_C01_001E'].values[0])
+        population_size = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))]['S0101_C01_001E'].values[0])
     return population_size
 
 
@@ -160,14 +160,14 @@ def process_us_census_household_size_count(datadir, location, state_location, co
 
     household_size_count = dict.fromkeys(np.arange(1, 8), 0)
     try:
-        household_size_count[1] = int(df.loc[df['NAME'] == location]['B11016_010E'].values[0])
+        household_size_count[1] = int(df.loc[df['NAME'].str.contains(location)]['B11016_010E'].values[0])
     except:
-        household_size_count[1] = int(df.loc[df['NAME'] == location.replace('_', ' ')]['B11016_010E'].values[0])
+        household_size_count[1] = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))]['B11016_010E'].values[0])
     for s in range(2, 8):
         try:
-            household_size_count[s] = int(df.loc[df['NAME'] == location][f'B11016_00{(s+1):d}E'].values[0]) + int(df.loc[df['NAME'] == location][f'B11016_0{(s+9):d}E'].values[0])
+            household_size_count[s] = int(df.loc[df['NAME'].str.contains(location)][f'B11016_00{(s+1):d}E'].values[0]) + int(df.loc[df['NAME'].str.contains(location)][f'B11016_0{(s+9):d}E'].values[0])
         except:
-            household_size_count[s] = int(df.loc[df['NAME'] == location.replace('_', ' ')][f'B11016_00{(s+1):d}E'].values[0]) + int(df.loc[df['NAME'] == location.replace('_', ' ')][f'B11016_0{(s+9):d}E'].values[0])
+            household_size_count[s] = int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][f'B11016_00{(s+1):d}E'].values[0]) + int(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][f'B11016_0{(s+9):d}E'].values[0])
 
     return household_size_count
 
@@ -211,9 +211,9 @@ def process_us_census_employment_rates(datadir, location, state_location, countr
     for i in column_age_ranges:
         for a in column_age_ranges[i]:
             try:
-                employment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0]) / 100.
+                employment_rates[a] = float(df.loc[df['NAME'].str.contains(location)][columns[i]].values[0]) / 100.
             except:
-                employment_rates[a] = float(df.loc[df['NAME'] == location.replace('_', ' ')][columns[i]].values[0]) / 100.
+                employment_rates[a] = float(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][columns[i]].values[0]) / 100.
     return employment_rates
 
 
@@ -252,9 +252,9 @@ def process_us_census_enrollment_rates(datadir, location, state_location, countr
     for i in column_age_ranges:
         for a in column_age_ranges[i]:
             try:
-                enrollment_rates[a] = float(df.loc[df['NAME'] == location][columns[i]].values[0]) / 100.
+                enrollment_rates[a] = float(df.loc[df['NAME'].str.contains(location)][columns[i]].values[0]) / 100.
             except:
-                enrollment_rates[a] = float(df.loc[df['NAME'] == location.replace('_', ' ')][columns[i]].values[0]) / 100.
+                enrollment_rates[a] = float(df.loc[df['NAME'].str.contains(location.replace('_', ' '))][columns[i]].values[0]) / 100.
     return enrollment_rates
 
 
@@ -424,7 +424,10 @@ def write_age_bracket_distr_18(datadir, location_alias, state_location, country_
         None.
     """
     age_bracket_distr = spb.norm_dic(age_bracket_count)
-    file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'age_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_age_bracket_distr_18.dat')
     f = open(file_name, 'w')
@@ -452,7 +455,10 @@ def write_age_bracket_distr_16(datadir, location_alias, state_location, country_
         None.
     """
     age_bracket_distr = spb.norm_dic(age_bracket_count)
-    file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'age_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_age_bracket_distr_16.dat')
     f = open(file_name, 'w')
@@ -480,7 +486,10 @@ def write_gender_age_bracket_distr_18(datadir, location_alias, state_location, c
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'age_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_gender_fraction_by_age_bracket_18.dat')
     f = open(file_name, 'w')
@@ -511,7 +520,10 @@ def write_gender_age_bracket_distr_16(datadir, location_alias, state_location, c
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'age_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'age_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_gender_fraction_by_age_bracket_16.dat')
     f = open(file_name, 'w')
@@ -547,7 +559,10 @@ def read_household_size_count(datadir, location_alias, state_location, country_l
     Returns:
         dict: A dictionary of the household size count.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'household_size_distributions')
     file_name = os.path.join(file_path, f'{location_alias}_household_size_count.dat')
     df = pd.read_csv(file_name, delimiter=',')
     return dict(zip(df.household_size, df.size_count))
@@ -567,7 +582,10 @@ def write_household_size_count(datadir, location_alias, state_location, country_
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'household_size_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_household_size_count.dat')
     f = open(file_name, 'w')
@@ -592,13 +610,15 @@ def write_household_size_distr(datadir, location_alias, state_location, country_
         None.
     """
     household_size_distr = spb.norm_dic(household_size_count)
-    file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'household_size_distributions')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'household_size_distributions')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_household_size_distr.dat')
     f = open(file_name, 'w')
     f.write('household_size,percent\n')
     for s in sorted(household_size_count.keys()):
-        # f.write('%i' % s + ',' + '%.16f' % household_size_distr[s] + '\n')
         f.write(f'{s:d},{household_size_distr[s]:.16f}\n')
 
     f.close()
@@ -618,7 +638,10 @@ def write_employment_rates(datadir, location_alias, state_location, country_loca
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'employment')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'employment')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'employment')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_employment_rates_by_age.dat')
     f = open(file_name, 'w')
@@ -642,7 +665,10 @@ def write_enrollment_rates(datadir, location_alias, state_location, country_loca
     Returns:
         None.
     """
-    file_path = os.path.join(datadir, country_location, state_location, 'enrollment')
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'enrollment')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'enrollment')
     os.makedirs(file_path, exist_ok=True)
     file_name = os.path.join(file_path, f'{location_alias}_enrollment_rates_by_age.dat')
     f = open(file_name, 'w')

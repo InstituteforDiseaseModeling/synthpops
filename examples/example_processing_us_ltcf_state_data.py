@@ -59,9 +59,13 @@ print(f'Total long term care facility users for {location} with population size 
 #                  'Normandy Park', 'White Center',
 #                  ]
 
-location_alias = 'Washington'  # saving data for all locations in Washington state
-location_list = []
+# location_alias = 'Washington'  # saving data for all locations in Washington state
+# location_list = []
+
+location_alias = 'Spokane_County'
+location_list = ['Cheney', 'Spokane']
 
 hist_df, bins_df = sp.process_usa_ltcf_resident_to_staff_ratios(datadir, country_location, state_location, location_alias, location_list, save)
 print(f"Kaiser Health News resident to staff ratios for {location_alias}")
 print(hist_df)
+print(bins_df)

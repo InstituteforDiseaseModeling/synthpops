@@ -122,7 +122,6 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         list: A list of lists with the facility staff IDs for each facility.
     """
     resident_to_staff_ratio_distr = spdata.get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-    resident_to_staff_ratio_distr = spb.norm_dic(resident_to_staff_ratio_distr)
     resident_to_staff_ratio_brackets = spdata.get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     facilities_staff = []
@@ -141,7 +140,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
 
         n_staff = int(np.ceil(n_residents / resident_staff_ratio))
         new_staff, new_staff_uids = [], []
-
+        # print(nf, resident_staff_ratio, n_residents, n_staff)
         for i in range(n_staff):
             a_prob = np.array([workers_by_age_to_assign_count[a] for a in staff_age_range])
             a_prob = a_prob / np.sum(a_prob)
