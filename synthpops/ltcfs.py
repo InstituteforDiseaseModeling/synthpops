@@ -43,7 +43,7 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
     # If not using facilities, skip everything here
     if with_facilities:
-
+        print("I went here")
         # Get long term care facilities data at the state level
         ltcf_rates_by_age = spdata.get_long_term_care_facility_use_rates(datadir, state_location=state_location, country_location=country_location)
 
@@ -121,6 +121,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
     Returns:
         list: A list of lists with the facility staff IDs for each facility.
     """
+
     resident_to_staff_ratio_distr = spdata.get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
     resident_to_staff_ratio_brackets = spdata.get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
