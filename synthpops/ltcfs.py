@@ -122,6 +122,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
     """
 
     resident_to_staff_ratio_distr = spdata.get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    resident_to_staff_ratio_distr = spb.norm_dic(resident_to_staff_ratio_distr)
     resident_to_staff_ratio_brackets = spdata.get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
     facilities_staff = []
