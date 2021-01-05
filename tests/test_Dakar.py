@@ -1,20 +1,20 @@
-"""Test Spokane location works."""
+"""Test Dakar location works with basic synthpops methodology."""
 import sciris as sc
 import synthpops as sp
-import matplotlib.pyplot as plt
 
+sp.set_nbrackets(18)  # Dakar age distributions available are up to 18 age brackets
 
 pars = dict(
     n                               = 20000,
-    rand_seed                       = 123,
+    rand_seed                       = 0,
     max_contacts                    = None,
-    location                        = 'Spokane_County',
-    state_location                  = 'Washington',
-    country_location                = 'usa',
+    location                        = 'Dakar',
+    state_location                  = 'Dakar',
+    country_location                = 'Senegal',
     use_default                     = False,
 
     with_industry_code              = 0,
-    with_facilities                 = 1,
+    with_facilities                 = 0,
     with_non_teaching_staff         = 1,
     use_two_group_reduction         = 1,
     with_school_types               = 1,
@@ -41,15 +41,13 @@ pars = dict(
 """
 Notes:
 
-data missing:
-
-ltcf resident sizes -- copied facility sizes from Seattle, King County to Spokane County.
+This method does not include socioeconomic conditions that are likely
+associated with school enrollment.
 
 """
-
 
 if __name__ == '__main__':
     T = sc.tic()
     pop = sp.make_population(**pars)
     sc.toc(T)
-    print(f"Spokane County population of size {pars['n']} made.")
+    print(f"Dakar, Senegal population of size {pars['n']} made.")

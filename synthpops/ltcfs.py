@@ -43,7 +43,6 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
 
     # If not using facilities, skip everything here
     if with_facilities:
-        print("I went here")
         # Get long term care facilities data at the state level
         ltcf_rates_by_age = spdata.get_long_term_care_facility_use_rates(datadir, state_location=state_location, country_location=country_location)
 
