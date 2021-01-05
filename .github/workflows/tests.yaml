@@ -51,7 +51,7 @@ jobs:
 
           # Code coverage report
           coverage html
-          cat coverage-badge.svg > cov.md
+          cml-publish coverage-badge.svg --md >> cov.md
           cml-send-comment cov.md
           echo \<p\> > report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
