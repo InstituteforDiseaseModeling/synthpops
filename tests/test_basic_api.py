@@ -11,7 +11,7 @@ import synthpops as sp
 
 regenerate = False
 outfile = 'basic_api.pop'
-
+print(sp.config.nbrackets)
 pars = dict(
         n                               = 20001,
         rand_seed                       = 123,
