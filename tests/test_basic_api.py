@@ -19,7 +19,7 @@ pars = dict(
         # generate                        = True,
 
         with_industry_code              = 0,
-        with_facilities                 = 1,
+        with_facilities                 = 0,
         with_non_teaching_staff         = 1, # NB: has no effect
         use_two_group_reduction         = 1,
         with_school_types               = 1,
