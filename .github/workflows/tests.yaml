@@ -51,9 +51,10 @@ jobs:
 
           # Code coverage report
           coverage html
+          cat coverage-badge.svg > cov.md
+          cml-send-comment cov.md
           echo \<p\> > report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
-          cat coverage-badge.svg >> report.md
           echo \</p\> >> report.md
           cml-send-comment report.md
-          cml-send-github-check report.md
+          cml-send-github-check cov.md
