@@ -39,10 +39,21 @@ def check_work_size_distribution(pop,
 
     Plots will be save to figdir if provided
     """
-    wb = sp.get_workplace_size_brackets(datadir, location, state_location, country_location, file_path, use_default)
+    figdir = os.path.join(figdir, "work_size")
+    wb = sp.get_workplace_size_brackets(datadir=datadir,
+                                        location=location,
+                                        state_location=state_location,
+                                        country_location=country_location,
+                                        file_path=file_path,
+                                        use_default=use_default)
     ws = sp.norm_dic(
         sp.get_workplace_size_distr_by_brackets
-        (datadir, location, state_location, country_location, file_path, use_default)
+        (datadir=datadir,
+         location=location,
+         state_location=state_location,
+         country_location=country_location,
+         file_path=file_path,
+         use_default=use_default)
     )
     ws_index = sp.get_index_by_brackets_dic(wb)
     upper_bound = max(ws_index.keys())
@@ -101,10 +112,22 @@ def check_employment_age_distribution(pop,
 
     Plots will be save to figdir if provided
     """
-    er = sp.get_employment_rates(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    figdir = os.path.join(figdir, "employment")
+    er = sp.get_employment_rates(datadir=datadir,
+                                 location=location,
+                                 state_location=state_location,
+                                 country_location=country_location,
+                                 file_path=file_path, use_default=use_default)
+    brackets = sp.get_census_age_brackets(datadir=datadir,
+                                          state_location=state_location,
+                                          country_location=country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
+    age_dist = sp.read_age_bracket_distr(datadir=datadir,
+                                         location=location,
+                                         state_location=state_location,
+                                         country_location=country_location,
+                                         file_path=file_path,
+                                         use_default=use_default)
     actual_employed_age_dist, actual_unemployed_age_dist = utilities.get_ids_count_by_param(pop, 'wpid', 'age')
 
     sorted_actual_employed_rate = {}
@@ -181,7 +204,8 @@ def check_household_distribution(pop,
 
     Plots will be save to figdir if provided
     """
-    hs = sp.get_household_size_distr(datadir, location=location,
+    figdir = os.path.join(figdir, "household")
+    hs = sp.get_household_size_distr(datadir=datadir, location=location,
                                      state_location=state_location,
                                      country_location=country_location,
                                      file_path=file_path,
@@ -220,7 +244,8 @@ def check_school_size_distribution(pop,
                                    use_default=False,
                                    test_prefix="",
                                    skip_stat_check=False,
-                                   do_close=True):
+                                   do_close=True,
+                                   school_type=None):
     """
     Check the school size distribution against the reference data
 
@@ -237,39 +262,80 @@ def check_school_size_distribution(pop,
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
+        school_type      : list of school types e.g. ['pk', 'es', 'ms', 'hs', 'uv']
 
     Returns:
         None.
 
     Plots will be save to figdir if provided
     """
-    sb = sp.get_school_size_brackets(datadir,
+    figdir = os.path.join(figdir, "school_size")
+    sb = sp.get_school_size_brackets(datadir=datadir,
                                      location=location,
                                      state_location=state_location,
                                      country_location=country_location,
                                      file_path=file_path, use_default=use_default)
     sb_index = sp.get_index_by_brackets_dic(sb)
 
-    sdf = sp.get_school_sizes_df(datadir, location=location,
-                                 state_location=state_location,
-                                 country_location=country_location)
-    expected_scount = Counter(sdf.iloc[:, 0].values)
-    expected_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, expected_scount))
+
+
+    expected_school_size_by_brackets = sp.get_school_size_distr_by_brackets(datadir=datadir,
+                                                                            location=location,
+                                                                            state_location=state_location,
+                                                                            country_location=country_location)
     actual_school, actual_school_none = utilities.get_ids_count_by_param(pop, "scid")
-    actual_scount = dict(Counter(actual_school.values()))
-    actual_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, actual_scount))
-    expected_values = np.array(list(expected_school_size_by_brackets.values()))
-    actual_values = np.array(list(actual_school_size_by_brackets.values()))
-    utilities.plot_array(expected_values, actual_values, names=sb.keys(), datadir=figdir,
-                         testprefix="school size " + test_prefix, do_close=do_close)
-    if not skip_stat_check:
-        utilities.statistic_test(expected_values, actual_values, test="x",
+    actual_school_student_only, actual_school_none_student_only = utilities.get_ids_count_by_param(pop, "sc_student", "scid")
+    actual_per_school_type_dict = {}
+    actual_per_school_type_dict_student_only ={}
+    actual_per_school_type_dict["all"] = actual_school
+    actual_per_school_type_dict_student_only["all"] = actual_school_student_only
+    if school_type is not None:
+        for sc in school_type:
+            actual_per_school_type_dict[sc] = \
+                utilities.get_ids_count_by_param(pop, "sc_type", param="scid", condition_value=sc)[0]
+            actual_per_school_type_dict_student_only[sc] = \
+                utilities.get_ids_count_by_param(pop, "sc_type", param="scid", condition_value=sc, filter_expression={'sc_student':'1'})[0]
+
+    # get individual school type size distribution
+    for k in actual_per_school_type_dict:
+        actual_scount = dict(Counter(actual_per_school_type_dict[k].values()))
+        actual_scount_student_only = dict(Counter(actual_per_school_type_dict_student_only[k].values()))
+        actual_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, actual_scount))
+        expected_values = np.array(list(expected_school_size_by_brackets.values()))
+        actual_values = np.array(list(actual_school_size_by_brackets.values()))
+        utilities.plot_array(expected_values, actual_values, names=sb.keys(), datadir=figdir,
+                   testprefix="school size " + test_prefix + " " + k,
+                   do_close=do_close)
+        utilities.plot_array(actual_per_school_type_dict[k].values(), datadir=figdir,
+                             expect_label =f"school count: total {len(actual_per_school_type_dict[k])}",
+                             testprefix="school size total\n" + test_prefix + " " + k, binned=False, do_close=do_close)
+        utilities.plot_array(actual_per_school_type_dict_student_only[k].values(), datadir=figdir,
+                             expect_label=f"school count: total {len(actual_per_school_type_dict[k])}",
+                             testprefix="school size total (student only)\n" + test_prefix + " " + k,
+                             binned=False, do_close=do_close)
+        if not skip_stat_check:
+            utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="school size check")
-    # check average school size
-    expected_average_school_size = sum(sdf.iloc[:, 0].values) / len(sdf)
-    actual_average_school_size = sum([i * actual_scount[i] for i in actual_scount]) / sum(actual_scount.values())
-    utilities.check_error_percentage(n, expected_average_school_size, actual_average_school_size,
-                                     name="average school size")
+        # check average school size
+        school_size_brackets = sp.get_school_size_brackets(datadir=datadir,
+                                                           location=location,
+                                                           country_location=country_location,
+                                                           state_location=state_location)
+        # calculate the average school size per bracket
+        average_school_size_in_bracket = [sum(i)/len(i) for i in school_size_brackets.values()]
+
+        # calculate expected school size based on expected value sum(distribution * size)
+        expected_average_school_size = sum([v[1] * average_school_size_in_bracket[v[0]] for v in expected_school_size_by_brackets.items()])
+        actual_average_school_size = sum([i * actual_scount[i] for i in actual_scount]) / sum(actual_scount.values())
+        utilities.check_error_percentage(n, expected_average_school_size, actual_average_school_size,
+                                     name=f"average school size:'{k}'")
+    # check school count distribution
+    utilities.plot_array([len(actual_per_school_type_dict[i]) for i in actual_per_school_type_dict],
+                         names=list(actual_per_school_type_dict.keys()),
+                         datadir=figdir,
+                         expect_label="school count",
+                         testprefix="school count " + test_prefix,
+                         value_text=True)
 
 
 def check_enrollment_distribution(pop,
@@ -284,7 +350,8 @@ def check_enrollment_distribution(pop,
                                   test_prefix="test",
                                   skip_stat_check=False,
                                   do_close=True,
-                                  plot_only=False):
+                                  plot_only=False,
+                                  school_type=None):
     """
     Compute the statistic on expected enrollment-age distribution and compare with actual distribution
     check zero enrollment bins to make sure there is nothing generated
@@ -303,24 +370,58 @@ def check_enrollment_distribution(pop,
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
         plot_only        : plot only without doing any data checks
+        school_type      : list of school types e.g. ['pk', 'es', 'ms', 'hs', 'uv']
 
     Returns:
         None.
 
     Plots will be save to figdir if provided
     """
-    expected_dist = sp.get_school_enrollment_rates(datadir, location, state_location, country_location, file_path,
-                                                   use_default)
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    expected_dist = sp.get_school_enrollment_rates(datadir=datadir,
+                                                   location=location,
+                                                   state_location=state_location,
+                                                   country_location=country_location,
+                                                   file_path=file_path,
+                                                   use_default=use_default)
+    age_dist = sp.read_age_bracket_distr(datadir=datadir,
+                                         location=location,
+                                         state_location=state_location,
+                                         country_location=country_location,
+                                         file_path=file_path,
+                                         use_default=use_default)
+    brackets = sp.get_census_age_brackets(datadir=datadir,
+                                          state_location=state_location,
+                                          country_location=country_location)
 
+    figdir = os.path.join(figdir, "enrollment")
     # get actual school enrollment by age
+    if school_type is not None:
+        actual_per_school_type_dict = dict.fromkeys(school_type)
+        for sc in school_type:
+            actual_per_school_type_dict[sc] = dict.fromkeys(list(range(0, 101)), 0)
+    else:
+        actual_per_school_type_dict = {}
     actual_pool = []
     actual_dist = dict.fromkeys(list(range(0, 101)), 0)
     for p in pop.values():
-        if p["scid"] is not None and p["sc_student"] is not None:
-            actual_dist[p["age"]] += 1
-            actual_pool.append(p["age"])
+            if p["scid"] is not None and p["sc_student"] is not None:
+                for sc in actual_per_school_type_dict.keys():
+                    if p["sc_type"] == sc:
+                        actual_per_school_type_dict[sc][p["age"]] += 1
+                actual_dist[p["age"]] += 1
+                actual_pool.append(p["age"])
+
+    # plot total school enrollment and individual age distribution
+    actual_per_school_type_dict["all"]=actual_dist
+    if school_type is not None:
+        utilities.plot_array([sum(actual_per_school_type_dict[i].values()) for i in actual_per_school_type_dict.keys()],
+                             names=actual_per_school_type_dict.keys(), datadir=figdir,
+                             testprefix= "enrollment_by_school_type\n" + test_prefix,
+                             expect_label ="enrollment", value_text=True, do_close=do_close)
+    for k in actual_per_school_type_dict:
+        utilities.plot_array(actual_per_school_type_dict[k].values(), datadir=figdir,
+                             testprefix=f"enrollment_by_age {k}\n" + test_prefix,
+                             expect_label="enrollment by age bucket", do_close=do_close)
 
     actual_age_dist = utilities.get_age_distribution_from_pop(pop, brackets)
     # adjust expected enrollment percentage by age brackets
@@ -457,8 +558,16 @@ def check_age_distribution(pop,
 
     Plots will be save to figdir if provided
     """
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    figdir = os.path.join(figdir, "age_distribution")
+    age_dist = sp.read_age_bracket_distr(datadir=datadir,
+                                         location=location,
+                                         state_location=state_location,
+                                         country_location=country_location,
+                                         file_path =file_path,
+                                         use_default=use_default)
+    brackets = sp.get_census_age_brackets(datadir=datadir,
+                                          state_location=state_location,
+                                          country_location=country_location)
     # un-normalized data
     # expected_values = np.array(list(age_dist.values())) * n
     # actual_values = get_age_distribution_from_pop(pop, brackets, False)
@@ -502,7 +611,8 @@ def check_household_head(pop,
 
     Plots will be save to figdir if provided
     """
-    df = sp.get_household_head_age_by_size_df(datadir,
+    figdir = os.path.join(figdir, "household_head")
+    df = sp.get_household_head_age_by_size_df(datadir=datadir,
                                               state_location=state_location,
                                               country_location=country_location,
                                               file_path=file_path,

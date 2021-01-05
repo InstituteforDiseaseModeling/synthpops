@@ -5,4 +5,5 @@ from .process_census import *
 from .sampling import *
 from .plotting import *
 from .pop import *
+from .base import *
 logger.debug('Finished imports')

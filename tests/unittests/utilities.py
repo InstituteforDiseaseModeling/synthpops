@@ -148,7 +148,8 @@ def plot_array(expected,
                expect_label='Expected',
                value_text=False,
                xlabels=None,
-               xlabel_rotation=0):
+               xlabel_rotation=0,
+               binned = True):
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If actual data is not provided, plot only the expected values.
@@ -164,6 +165,7 @@ def plot_array(expected,
         expect_label    : Label to show in the plot, default to "expected"
         value_text      : display the values on top of the bar if specified
         xlabel_rotation : rotation degree for x labels if specified
+        binned          : default to True, if False, it will just plot a simple histogram for expected data
 
     Returns:
         None.
@@ -180,30 +182,35 @@ def plot_array(expected,
     ax.set_title(title)
     x = np.arange(len(expected))
     width = np.min(np.diff(x))/3
-    rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
-    # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
-    if actual is not None:
-        line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
-        # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
-    if value_text:
-        autolabel(ax, rect1, 0, 5)
-        for j, v in enumerate(actual):
-            ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
-    if names is not None:
-        if isinstance(names, dict):
-            xticks = sorted(names.keys())
-            xticklabels = [names[k] for k in xticks]
-        else:
-            xticks = np.arange(len(names))
-            xticklabels = names
-        # plt.locator_params(axis='x', nbins=len(xticks))
-        ax.set_xticks(xticks)
-        ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
-        # ax.set_xlim(left=-1)
+    if not binned:
+        ax.hist(expected, label=expect_label.title(), color='skyblue')
+    else:
+        rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
+        # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
+        if actual is not None:
+            line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
+            # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+        if value_text:
+            autolabel(ax, rect1, 0, 5)
+            if actual is not None:
+                for j, v in enumerate(actual):
+                    ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
+        if names is not None:
+            if isinstance(names, dict):
+                xticks = sorted(names.keys())
+                xticklabels = [names[k] for k in xticks]
+            else:
+                xticks = np.arange(len(names))
+                xticklabels = names
+            # plt.locator_params(axis='x', nbins=len(xticks))
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
+            # ax.set_xlim(left=-1)
     ax.legend(loc='upper right')
 
     if datadir:
-        plt.savefig(os.path.join(datadir, f"{testprefix}_graph.png"), format="png")
+        os.makedirs(datadir, exist_ok=True)
+        plt.savefig(os.path.join(datadir, f"{testprefix}_graph.png".replace('\n', '_')), format="png")
     if do_close:
         plt.close()
     else:
@@ -431,7 +438,7 @@ def sort_dict(d):
     return new_dict
 
 
-def get_ids_count_by_param(pop, condition_name, param=None):
+def get_ids_count_by_param(pop, condition_name, param=None, condition_value=None, filter_expression=None):
     """
     Helper method to count by parameter from the population dictionary
     for example get_ids_count_by_param(pop, "wpid", param="age") will count by age
@@ -441,7 +448,8 @@ def get_ids_count_by_param(pop, condition_name, param=None):
         pop            : population dictionary
         condition_name : the field to be used for filtering the target population, use param if not specified
         param          : the field to be used for counting
-
+        condition_value: the value to be used for filtering the condition_name, if set to None, all values will be considered
+        filter_expression: dictionary represent filters used to further filter the data, e,g. {sc_type:'es'}
     Returns:
         ret      : a dictionary with count by param of which condition_name exists
         ret_none : a dictionary with count by param of which condition_name not exist
@@ -456,10 +464,18 @@ def get_ids_count_by_param(pop, condition_name, param=None):
             else:
                 ret_none[p[param]] = 1
         else:
-            if p[param] in ret:
-                ret[p[param]] += 1
-            else:
-                ret[p[param]] = 1
+            if (condition_value is not None and p[condition_name] == condition_value) or (condition_value is None):
+                skip = False
+                if filter_expression is not None:
+                    for f in filter_expression:
+                        if str(p[f]) != filter_expression[f]:
+                            skip = True
+                            break
+                if not skip:
+                    if p[param] in ret:
+                        ret[p[param]] += 1
+                    else:
+                        ret[p[param]] = 1
     return ret, ret_none
 
 
@@ -481,6 +497,8 @@ def get_bucket_count(index, brackets, values):
     for i in values:
         if i < min(index):
             values_by_brackets[index[min(index)]] += values[i]
+        elif i > max(index):
+            values_by_brackets[index[max(index)]] += values[i]
         else:
             values_by_brackets[index[i]] += values[i]
     return values_by_brackets
