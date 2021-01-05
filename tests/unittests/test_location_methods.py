@@ -56,9 +56,9 @@ class TestLocation(unittest.TestCase):
     @unittest.skip("Data not available in location DAKAR")
     def test_dakar_path_methods(self):
         cfg.set_nbrackets(18)
-        exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
-        methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords)
+        methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
         datadir = sp.datadir
         # sp.cfg.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location": "Dakar"}
@@ -66,11 +66,11 @@ class TestLocation(unittest.TestCase):
 
     def test_senegal_state_path_methods(self):
         cfg.set_nbrackets(18)
-        exclde_pattern = ["get_usa", "get_gender_fraction_by_age"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age"]
         keywords = ["get", "path"]
         args = ['country_location', 'state_location']
         ignored_args = ['location', 'part']
-        methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords, target_args=args,
+        methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords, target_args=args,
                                            exclude_args=ignored_args)
         datadir = sp.datadir
         # sp.cfg.set_location_defaults("Senegal")
@@ -103,17 +103,18 @@ class TestLocation(unittest.TestCase):
 
     def run_tests(self, datadir, methods, testcase, ispath=True):
         """
-        passing testcase as input arguments to location methods
+        Passing testcase as input arguments to location methods
         and make sure either the path exists or method returns data
+
         Args:
-            datadir: the root of data directory
-            methods: list of methods to test, must be objects returned from inspect.getmembers()
-            testcase: a dictionary of input test arguments
-            ispath: default to True, if True, method is expected to return a filepath, otherwise method is expected
-            to return data.
+            datadir  : the root of data directory
+            methods  : list of methods to test, must be objects returned from inspect.getmembers()
+            testcase : a dictionary of input test arguments
+            ispath   : default to True. If True, method is expected to return a filepath, otherwise method is expected
+                       to return data.
 
         Returns:
-            None
+            None.
         """
         for m in methods:
             with self.subTest(f"{m[0]}", m=m):
@@ -150,15 +151,16 @@ class TestLocation(unittest.TestCase):
                             target_args=None,
                             exclude_args=None):
         """
-        retrieve the methods from the live synthpop object with keywords in their names
+        Retrieve the methods from the live synthpop object with keywords in their names.
+
         Args:
-            exclude_pattern: pattern to be excluded in the method name
-            keywords: used to search for matching method names
-            target_args: used to identify the methods of which the arguments match
-            exclude_args: used to exclude methods with certain arguments
+            exclude_pattern : pattern to be excluded in the method name
+            keywords        : used to search for matching method names
+            target_args     : used to identify the methods of which the arguments match
+            exclude_args    : used to exclude methods with certain arguments
 
         Returns:
-            list of methods match the search criteria
+            list: List of methods matching the search criteria.
         """
 
         # setting defaults
