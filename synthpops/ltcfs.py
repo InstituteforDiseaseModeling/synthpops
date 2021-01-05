@@ -54,7 +54,8 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         # make a list of all resident ages
         all_residents = []
         for a in expected_users_by_age:
-            all_residents.extend([a] * expected_users_by_age[a])
+            all_residents += [a] * expected_users_by_age[a]
+            # all_residents.extend([a] * expected_users_by_age[a])
 
         np.random.shuffle(all_residents)  # randomly shuffle ages
 
