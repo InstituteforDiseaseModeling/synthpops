@@ -19,7 +19,7 @@ pars = dict(
         # generate                        = True,
 
         with_industry_code              = 0,
-        with_facilities                 = 0,
+        with_facilities                 = 1,
         with_non_teaching_staff         = 1, # NB: has no effect
         use_two_group_reduction         = 1,
         with_school_types               = 1,
@@ -49,7 +49,7 @@ def test_basic_api():
 
     pop = sp.make_population(**pars)
     age_distr = sp.read_age_bracket_distr(sp.datadir, country_location='usa', state_location='Washington', location='seattle_metro')
-    assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'
+    assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
     if regenerate or not os.path.exists(outfile):
         print('Saving...')
         sc.saveobj(outfile, pop)

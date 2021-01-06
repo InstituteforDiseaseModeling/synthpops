@@ -2,6 +2,8 @@
 import sciris as sc
 import synthpops as sp
 
+
+default_nbrackets = sp.config.nbrackets
 sp.set_nbrackets(18)  # Dakar age distributions available are up to 18 age brackets
 
 pars = dict(
@@ -51,3 +53,6 @@ if __name__ == '__main__':
     pop = sp.make_population(**pars)
     sc.toc(T)
     print(f"Dakar, Senegal population of size {pars['n']} made.")
+
+    sp.set_nbrackets(default_nbrackets)  # Reset nbrackets to original default value after this test is complete.
+    print('Done.')
