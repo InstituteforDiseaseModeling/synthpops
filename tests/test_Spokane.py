@@ -45,6 +45,7 @@ def test_Spokane():
     age_distr = sp.read_age_bracket_distr(sp.datadir, country_location='usa', state_location='Washington', location='seattle_metro')
     assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
 
+    sp.set_location_defaults('defaults')  # Reset default values after this test is complete.
     return pop
 
 

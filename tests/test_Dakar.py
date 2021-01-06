@@ -46,11 +46,22 @@ def test_Dakar():
     pop = sp.make_population(**pars)
     assert len(pop) == pars['n'], 'Check failed.'
     print('Check passed')
+
+    sp.set_location_defaults('defaults')  # Reset nbrackets to original default value after this test is complete.
     return pop
 
 
 def test_reset_location_defaults():
-    assert sp.config.default_country == 'usa', f'Check failed {sp.config.default_country}'
+    """Check that default location values were reset."""
+    sp.logger.info("Test that the default country was reset.")
+    assert sp.config.default_country == 'usa', f'Check failed: default_country is {sp.config.default_country}'
+    print('Check passed')
+
+
+def test_reset_nbrackets_default():
+    """Check that default nbrackets was reset to 20."""
+    sp.logger.info(f"Test that the default nbrackets was reset to {default_nbrackets}.")
+    assert sp.config.nbrackets == default_nbrackets, f'Check failed: default nbrackets is {sp.config.nbrackets}'
     print('Check passed')
 
 
@@ -68,12 +79,6 @@ if __name__ == '__main__':
     sc.toc(T)
     print(f"Dakar, Senegal population of size {pars['n']} made.")
 
-    sp.set_location_defaults('usa')  # Reset nbrackets to original default value after this test is complete.
-    # print('Done.')
-
-
-    # assert sp.default_country == 'usa', 'Check failed.'
-    # print('Check passed')
-
     test_reset_location_defaults()
+    test_reset_nbrackets_default()
     print('Done.')
