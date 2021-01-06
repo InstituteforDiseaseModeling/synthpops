@@ -4,7 +4,6 @@ import synthpops as sp
 
 
 default_nbrackets = sp.config.nbrackets
-sp.set_nbrackets(18)  # Dakar age distributions available are up to 18 age brackets
 
 pars = dict(
     n                               = 20000,
@@ -43,6 +42,7 @@ pars = dict(
 def test_Dakar():
     """Test that a Dakar population can be created with the basic SynthPops API."""
     sp.logger.info("Test that a Dakar population can be created with the basic SynthPops API.")
+    sp.set_nbrackets(18)  # Dakar age distributions available are up to 18 age brackets
     pop = sp.make_population(**pars)
     assert len(pop) == pars['n'], 'Check failed.'
     print('Check passed')
