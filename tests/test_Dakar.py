@@ -40,6 +40,20 @@ pars = dict(
     )
 
 
+def test_Dakar():
+    """Test that a Dakar population can be created with the basic SynthPops API."""
+    sp.logger.info("Test that a Dakar population can be created with the basic SynthPops API.")
+    pop = sp.make_population(**pars)
+    assert len(pop) == pars['n'], 'Check failed.'
+    print('Check passed')
+    return pop
+
+
+def test_reset_location_defaults():
+    assert sp.config.default_country == 'usa', f'Check failed {sp.config.default_country}'
+    print('Check passed')
+
+
 """
 Notes:
 
@@ -50,9 +64,16 @@ associated with school enrollment.
 
 if __name__ == '__main__':
     T = sc.tic()
-    pop = sp.make_population(**pars)
+    pop = test_Dakar()
     sc.toc(T)
     print(f"Dakar, Senegal population of size {pars['n']} made.")
 
-    sp.set_nbrackets(default_nbrackets)  # Reset nbrackets to original default value after this test is complete.
+    sp.set_location_defaults('usa')  # Reset nbrackets to original default value after this test is complete.
+    # print('Done.')
+
+
+    # assert sp.default_country == 'usa', 'Check failed.'
+    # print('Check passed')
+
+    test_reset_location_defaults()
     print('Done.')

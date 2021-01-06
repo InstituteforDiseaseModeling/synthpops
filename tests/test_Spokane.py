@@ -38,6 +38,16 @@ pars = dict(
     )
 
 
+def test_Spokane():
+    """Test that a Dakar population can be created with the basic SynthPops API."""
+    sp.logger.info("Test that a Dakar population can be created with the basic SynthPops API.")
+    pop = sp.make_population(**pars)
+    age_distr = sp.read_age_bracket_distr(sp.datadir, country_location='usa', state_location='Washington', location='seattle_metro')
+    assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
+
+    return pop
+
+
 """
 Notes:
 
@@ -50,6 +60,6 @@ ltcf resident sizes -- copied facility sizes from Seattle, King County to Spokan
 
 if __name__ == '__main__':
     T = sc.tic()
-    pop = sp.make_population(**pars)
+    pop = test_Spokane()
     sc.toc(T)
     print(f"Spokane County population of size {pars['n']} made.")
