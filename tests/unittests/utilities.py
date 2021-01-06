@@ -203,6 +203,10 @@ def plot_array(expected,
                 xticks = np.arange(len(names))
                 xticklabels = names
             # plt.locator_params(axis='x', nbins=len(xticks))
+            # if the labels are too many it will look crowded so we only show every 10 ticks
+            if len(names) > 30:
+                xticks = xticks[0::10]
+                xticklabels = xticklabels[0::10]
             ax.set_xticks(xticks)
             ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
             # ax.set_xlim(left=-1)
@@ -457,25 +461,30 @@ def get_ids_count_by_param(pop, condition_name, param=None, condition_value=None
     ret = {}
     ret_none = {}
     param = condition_name if param is None else param
+    # allow condition_name/values to be list, note that condition should be exclusive
+    # otherwise it may count the same person twice
+    if type(condition_name) != list:
+        condition_name = [condition_name]
+    if condition_value and type(condition_value) != list:
+        condition_value = [condition_value]
     for p in pop.values():
-        if p[condition_name] is None:
-            if p[param] in ret_none:
-                ret_none[p[param]] += 1
-            else:
-                ret_none[p[param]] = 1
-        else:
-            if (condition_value is not None and p[condition_name] == condition_value) or (condition_value is None):
-                skip = False
-                if filter_expression is not None:
-                    for f in filter_expression:
-                        if str(p[f]) != filter_expression[f]:
-                            skip = True
-                            break
-                if not skip:
-                    if p[param] in ret:
+        matched = False
+        for i in range(len(condition_name)):
+            if p[condition_name[i]] is not None:
+                matched =True
+                if condition_value is None or (condition_value[i] is not None and p[condition_name[i]] == condition_value[i]):
+                    skip = False
+                    if filter_expression is not None:
+                        for f in filter_expression:
+                            if str(p[f]) != filter_expression[f]:
+                                skip = True
+                                break
+                    if not skip:
+                        ret.setdefault(p[param], 0)
                         ret[p[param]] += 1
-                    else:
-                        ret[p[param]] = 1
+        if not matched:
+            ret_none.setdefault(p[param], 0)
+            ret_none[p[param]] += 1
     return ret, ret_none
 
 
