@@ -44,6 +44,7 @@ jobs:
         with:
           version: latest 
       - name: cml_run
+        id: cv
         working-directory: ./tests
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,9 +53,39 @@ jobs:
           # Code coverage report
           coverage html
           cml-publish coverage-badge.svg --md >> cov.md
-          cml-send-comment cov.md
+          # cml-send-comment cov.md
           echo \<p\> > report.md
+          echo \<div\>\<b\> current code coverage \</b\>\</div\> >> report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
           echo \</p\> >> report.md
-          cml-send-comment report.md
+          # cml-send-comment report.md
           cml-send-github-check cov.md
+          # get rid of links as they are not available to upload
+          echo "::set-output name=covdata::$(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n')"
+      - name: find bot comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: current code coverage
+
+      - name: create bot comment
+        if: ${{ steps.fc.outputs.comment-id == 0 }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ${{ steps.cv.outputs.covdata }}
+          reactions: "rocket"
+
+      - name: update bot comment
+        if: ${{ steps.fc.outputs.comment-id != 0 }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            ${{ steps.cv.outputs.covdata }}
+          reactions: "rocket"
+          edit-mode: "replace"
+          
