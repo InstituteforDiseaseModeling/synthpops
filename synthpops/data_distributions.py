@@ -3,6 +3,7 @@ Read in data distributions.
 """
 
 import os
+import json
 import numpy as np
 import pandas as pd
 import sciris as sc
@@ -722,11 +723,11 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'schools', f'{country_location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_size_distr.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'schools', f'{state_location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_size_distr.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'schools', f'{location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_size_distr.dat')
 
     # paths = cfg.FilePaths(location, state_location, country_location)
     # base = 'school_size_distr'
@@ -774,6 +775,172 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     size_distr = spb.norm_dic(size_distr)
 
     return size_distr
+
+
+# ### Default school type data ### #
+def get_default_school_type_age_ranges():
+    """
+    Define and return default school types and the age range for each.
+
+    Return:
+        A dictionary of default school types and the age range for each.
+
+    """
+    school_type_age_ranges = {}
+    school_type_age_ranges['pk'] = np.arange(3, 6)
+    school_type_age_ranges['es'] = np.arange(6, 11)
+    school_type_age_ranges['ms'] = np.arange(11, 14)
+    school_type_age_ranges['hs'] = np.arange(14, 18)
+    school_type_age_ranges['uv'] = np.arange(18, 100)
+
+    return school_type_age_ranges
+
+
+def get_default_school_types_by_age():
+    """
+    Define and return default probabilities of school type for each age.
+
+    Return:
+        A dictionary of default probabilities for the school type likely for each age.
+
+    """
+    school_type_age_ranges = get_default_school_type_age_ranges()
+
+    school_types_by_age = {}
+    for a in range(100):
+        school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
+
+    for k in school_type_age_ranges.keys():
+        for a in school_type_age_ranges[k]:
+            school_types_by_age[a][k] = 1.
+
+    return school_types_by_age
+
+
+def get_default_school_types_by_age_single():
+    """
+    Define and return default school type by age by assigning the school type with the highest probability.
+
+    Return:
+        A dictionary of default school type by age.
+
+    """
+    school_types_by_age = get_default_school_types_by_age()
+    school_types_by_age_single = {}
+    for a in range(100):
+        values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
+        max_v = max(values_to_keys_dic.keys())
+        max_k = values_to_keys_dic[max_v]
+        school_types_by_age_single[a] = max_k
+
+    return school_types_by_age_single
+
+
+def get_default_school_size_distr_brackets():
+    """
+    Define and return default school size distribution brackets.
+
+    Return:
+        A dictionary of school size brackets.
+
+    """
+    return get_school_size_brackets(cfg.datadir, country_location='usa', use_default=True)
+
+
+def get_default_school_size_distr_by_type():
+    """
+    Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
+
+    Return:
+        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+
+    """
+    school_size_distr_by_type = {}
+
+    school_types = ['pk', 'es', 'ms', 'hs', 'uv']
+
+    for k in school_types:
+        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(cfg.datadir, country_location='usa', use_default=True)
+
+    return school_size_distr_by_type
+
+
+
+
+
+def get_school_size_distr_by_type_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the school size distribution by school type.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        str: A file path to the school size distribution data by different school types for the region specified.
+    """
+    datadir = get_relative_path(datadir)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'employment', f'{country_location}_school_size_distribution_by_type.dat')
+    elif location is None:
+        return os.path.join(datadir, country_location, state_location, 'employment', f'{state_location}_school_size_distribution_by_type.dat')
+    else:
+        return os.path.join(datadir, country_location, state_location, location, 'employment', f'{location}_school_size_distribution_by_type.dat')
+
+
+def get_school_size_distr_by_type(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get the school size distribution by school types. If use_default, then we'll try to look for location specific data first,
+    and if that's not available we'll use default data from the set default locations (see sp.config.py). This may not be appropriate
+    for the population under study so it's best to provide as much data as you can for the specific population.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which should be the 'usa'
+        file_path (string)        : file path to user specified gender by age bracket distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+    """
+
+    if file_path is None:
+        file_path = get_school_size_distr_by_type_path(datadir, location, state_location, country_location)
+
+    try:
+        f = open(file_path, 'r')
+        data = json.load(f)
+
+        # convert keys to ints for the size distribution by type
+        for i in data:
+            str_data_i = data[i].copy()
+            if isinstance(str_data_i, dict):
+                data[i] = {int(k): v for k, v in str_data_i.items()}
+    except:
+        if use_default:
+            data = get_default_school_size_distr_by_type()  # convert to a static data file and then you can move data clean up to the end of the function
+            # file_path = get_school_size_distr_by_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            # f = open(file_path, 'r')
+            # data = json.load(f)
+        else:
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.location}, {cfg.default_state}, {cfg.default_country}.")
+
+    # # convert keys to ints for the size distribution by type
+    # for i in data:
+    #     str_data_i = data[i].copy()
+    #     if isinstance(str_data_i, dict):
+    #         data[i] = {int(k): v for k, v in str_data_i.items()}
+
+    return data
 
 
 def get_employment_rates_path(datadir, location=None, state_location=None, country_location=None):
@@ -843,7 +1010,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
             file_path = get_employment_rates_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.Age, df.Percent))
 
 
