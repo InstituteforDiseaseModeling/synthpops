@@ -1,4 +1,5 @@
 import os
+import pytest
 import synthpops as sp
 from synthpops import data_distributions as spdd
 
@@ -27,10 +28,13 @@ country_location = 'usa'
 #     assert dict is not None
 
 
-def test_get_age_bracket_distr_path():
+@pytest.mark.parametrize("nbrackets", [None, "16", "18", "20"])
+def test_get_age_bracket_distr_path(nbrackets):
     dat_file = spdd.get_age_bracket_distr_path(datadir=datadir, location=location, state_location=state_location,
-                                             country_location=country_location)
+                                             country_location=country_location, nbrackets=nbrackets)
+    print(dat_file)
     assert dat_file is not None
+    assert os.path.exists(dat_file)
 
 
 def test_get_household_size_distr_path():
