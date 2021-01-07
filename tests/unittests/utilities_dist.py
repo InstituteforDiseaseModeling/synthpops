@@ -25,11 +25,12 @@ def check_work_size_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state the location is in
+        country_location : name of the country the location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -98,11 +99,12 @@ def check_employment_age_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state the location is in
+        country_location : name of the country the location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -128,7 +130,23 @@ def check_employment_age_distribution(pop,
                                          country_location=country_location,
                                          file_path=file_path,
                                          use_default=use_default)
-    actual_employed_age_dist, actual_unemployed_age_dist = utilities.get_ids_count_by_param(pop, 'wpid', 'age')
+    # counting the actual population by age with employment including teachers and staffs
+    actual_employed_age_dist, actual_unemployed_age_dist = \
+        utilities.get_ids_count_by_param(pop,
+                                         condition_name=['wpid', 'sc_teacher', 'sc_staff'],
+                                         param='age')
+    utilities.plot_array([actual_employed_age_dist[k] for k in sorted(actual_employed_age_dist)],
+                         datadir=figdir,
+                         names =[k for k in sorted(actual_employed_age_dist)],
+                         expect_label='employeed by age count',
+                         xlabel_rotation=90,
+                         testprefix="employeed count by age " + test_prefix)
+    utilities.plot_array([actual_unemployed_age_dist[k] for k in sorted(actual_unemployed_age_dist)],
+                         datadir=figdir,
+                         names=[k for k in sorted(actual_unemployed_age_dist)],
+                         expect_label='unemployeed by age count',
+                         xlabel_rotation=90,
+                         testprefix="unemployeed count by age " + test_prefix)
 
     sorted_actual_employed_rate = {}
     actual_employed_rate = utilities.calc_rate(actual_employed_age_dist, actual_unemployed_age_dist)
@@ -190,11 +208,12 @@ def check_household_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state the location is in
+        country_location : name of the country the location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -254,11 +273,12 @@ def check_school_size_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state
+        country_location : name of the country the state_location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -361,11 +381,12 @@ def check_enrollment_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state
+        country_location : name of the country the state_location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -544,11 +565,12 @@ def check_age_distribution(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        location         : location of the reference data
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        location         : name of the location
+        state_location   : name of the state the location is in
+        country_location : name of the country the location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         skip_stat_check  : skip the statistics check for distribution
         do_close         : close the image immediately if set to True
@@ -599,10 +621,11 @@ def check_household_head(pop,
         n                : population size
         datadir          : root data directory which has resides the reference data
         figdir           : directory where to result files are saved
-        state_location   : state location of the reference data
-        country_location : country location of the reference data
-        file_path        : reference data path if specified, otherwise will be inferred from locations provided or use default
-        use_default      : use default location if set to True
+        state_location   : name of the state the location is in
+        country_location : name of the country the location is in
+        file_path        : file path to user specified gender by age bracket distribution data
+        use_default      : if True, try to first use the other parameters to find data specific to the location
+                           under study, otherwise returns default data drawing from Seattle, Washington.
         test_prefix      : used for prefix of the plot title
         do_close         : close the image immediately if set to True
 
