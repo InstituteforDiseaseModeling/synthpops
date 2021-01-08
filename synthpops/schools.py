@@ -143,21 +143,29 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
         school_size_distr = school_size_distr_by_type[school_type]
 
-        # sorted_brackets = sorted(school_size_brackets.keys())
         prob_by_sorted_size_brackets = [school_size_distr[b] for b in sorted_size_brackets]
         size_bracket = np.random.choice(sorted_size_brackets, p=prob_by_sorted_size_brackets)
         size = np.random.choice(school_size_brackets[size_bracket])
         size -= 1
 
-        # print(f"school type: {school_type} size: {size} size bracket: {size_bracket} index age: {aindex}")
-        # assume ages are uniformly distributed - all grades are roughy the same size - so calculate how many are in each grade or age
-        school_age_count = np.random.multinomial(size, [1./len(school_type_age_range)] * len(school_type_age_range), size=1)[0]
-        # print(f"school age count: {school_age_count}")
+        potential_student_ages = []
+        for a in school_type_age_range:
+            potential_student_ages.extend([a] * ages_in_school_count[a])
+
+        if size >= len(potential_student_ages):
+            size = len(potential_student_ages)
+            school_age_count = {a: ages_in_school_count[a] for a in school_type_age_range}
+
+        else:
+            chosen = np.random.choice(potential_student_ages, size=size, replace=False)
+            school_age_count = Counter(chosen)
+
         for n, a in enumerate(school_type_age_range):
-            count = school_age_count[n]
-            if count > ages_in_school_count[a]:
-                count = ages_in_school_count[a]
-                count = max(0, count)
+            count = school_age_count[a]
+            # count = school_age_count[n]
+            # if count > ages_in_school_count[a]:
+            #     count = ages_in_school_count[a]
+            #     count = max(0, count)
 
             school_uids_in_age = uids_in_school_by_age[a][:count]  # assign students to the school
             uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
@@ -168,6 +176,8 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         for uid in new_school_uids:
             uids_in_school.pop(uid, None)
         ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+
+        # print(f"school type: {school_type} size: {size+1} size bracket: {size_bracket} index age: {aindex} generated size: {len(new_school)}")
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
