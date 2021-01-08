@@ -854,6 +854,45 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 #     return school_size_distr_by_type
 
 
+def get_school_types_by_age(school_type_age_ranges):
+    """
+    Define and return probabilities of school type for each age. For now assuming no overlapping of grades between school types.
+
+    Return:
+        A dictionary of default probabilities for the school type likely for each age.
+
+    """
+    school_types_by_age = {}
+    for a in range(101):
+        school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
+
+    for k in school_type_age_ranges.keys():
+        for a in school_type_age_ranges[k]:
+            school_types_by_age[a][k] = 1.
+
+    return school_types_by_age
+
+
+def get_school_types_by_age_single(school_types_by_age):
+    """
+    Define and return school type by age by assigning the school type with the highest probability.
+
+    Return:
+        A dictionary of default school type by age.
+
+    """
+    # school_types_by_age = get_default_school_types_by_age()
+    school_types_by_age_single = {}
+    for a in range(101):
+        values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
+        max_v = max(values_to_keys_dic.keys())
+        max_k = values_to_keys_dic[max_v]
+        if max_v != 0:
+            school_types_by_age_single[a] = max_k
+
+    return school_types_by_age_single
+
+
 def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.

@@ -8,6 +8,7 @@ from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
 from . import data_distributions as spdata
+# from . import scratch_school_data as spssd
 from . import contact_networks as spcnx
 from . import ltcfs as spltcf
 from . import households as sphh

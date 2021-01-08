@@ -791,7 +791,7 @@ def get_default_school_type_age_ranges():
     school_type_age_ranges['es'] = np.arange(6, 11)
     school_type_age_ranges['ms'] = np.arange(11, 14)
     school_type_age_ranges['hs'] = np.arange(14, 18)
-    school_type_age_ranges['uv'] = np.arange(18, 100)
+    school_type_age_ranges['uv'] = np.arange(18, 101)
 
     return school_type_age_ranges
 
@@ -807,7 +807,7 @@ def get_default_school_types_by_age():
     school_type_age_ranges = get_default_school_type_age_ranges()
 
     school_types_by_age = {}
-    for a in range(100):
+    for a in range(101):
         school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
 
     for k in school_type_age_ranges.keys():
@@ -827,11 +827,12 @@ def get_default_school_types_by_age_single():
     """
     school_types_by_age = get_default_school_types_by_age()
     school_types_by_age_single = {}
-    for a in range(100):
+    for a in range(101):
         values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
         max_v = max(values_to_keys_dic.keys())
         max_k = values_to_keys_dic[max_v]
-        school_types_by_age_single[a] = max_k
+        if max_v != 0:
+            school_types_by_age_single[a] = max_k
 
     return school_types_by_age_single
 
@@ -865,7 +866,80 @@ def get_default_school_size_distr_by_type():
     return school_size_distr_by_type
 
 
+def write_school_type_age_ranges(datadir, location, state_location, country_location, school_type_age_ranges):
+    """
+    Write to file the age range for each school type.
 
+    Args:
+        datadir (string)              : file path to the data directory
+        location (string)             : name of the location
+        state_location (string)       : name of the state the location is in
+        country_location (string)     : name of the country the location is in
+        school_type_age_ranges (dict) : a dictionary with the age range for each school type
+
+    Returns:
+        None.
+    """
+    school_type_age_ranges = sc.objdict(school_type_age_ranges)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise ValueError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise ValueError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        file_path = os.path.join(datadir, country_location, 'schools', f'{country_location}_school_types_by_age_range.dat')
+    elif location is None:
+        file_path = os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_types_by_age_range.dat')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_types_by_age_range.dat')
+
+    with open(file_path, 'w') as f:
+        f.write('school_type,age_range_min,age_range_max\n')
+        for n, s, v in school_type_age_ranges.enumitems():
+            f.write(f"{s},{v[0]:d},{v[-1]:d}\n")
+    f.close()
+
+
+def get_school_type_age_ranges_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the age range by school type.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to the age range for different school types.
+    """
+    datadir = get_relative_path(datadir)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_types_by_age_range.dat')
+    elif location is None:
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_types_by_age_range.dat')
+    else:
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_types_by_age_range.dat')
+
+
+def get_school_type_age_ranges(datadir, location, state_location, country_location, file_path=None, use_default=None):
+    if file_path is None:
+        file_path = get_school_type_age_ranges_path(datadir, location, state_location, country_location)
+    try:
+        df = pd.read_csv(file_path)
+    except:
+        if use_default:
+            return get_default_school_type_age_ranges()
+        else:
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
+
+    z = zip(df.age_range_min, df.age_range_max)
+    return dict(zip(df.school_type, [np.arange(i[0], i[1] + 1) for i in z]))
 
 
 def get_school_size_distr_by_type_path(datadir, location=None, state_location=None, country_location=None):
@@ -888,11 +962,11 @@ def get_school_size_distr_by_type_path(datadir, location=None, state_location=No
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir, country_location, 'employment', f'{country_location}_school_size_distribution_by_type.dat')
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_size_distribution_by_type.dat')
     elif location is None:
-        return os.path.join(datadir, country_location, state_location, 'employment', f'{state_location}_school_size_distribution_by_type.dat')
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_size_distribution_by_type.dat')
     else:
-        return os.path.join(datadir, country_location, state_location, location, 'employment', f'{location}_school_size_distribution_by_type.dat')
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_size_distribution_by_type.dat')
 
 
 def get_school_size_distr_by_type(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
@@ -915,7 +989,6 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
 
     if file_path is None:
         file_path = get_school_size_distr_by_type_path(datadir, location, state_location, country_location)
-
     try:
         f = open(file_path, 'r')
         data = json.load(f)
@@ -932,7 +1005,7 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
             # f = open(file_path, 'r')
             # data = json.load(f)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.location}, {cfg.default_state}, {cfg.default_country}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}, {cfg.default_country}.")
 
     # # convert keys to ints for the size distribution by type
     # for i in data:
