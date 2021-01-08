@@ -52,7 +52,6 @@ def test_school_sizes_by_type():
 
     expected_school_size_distr = sp.get_school_size_distr_by_type(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'])
     school_size_brackets = sp.get_school_size_brackets(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'])  # for right now the size distribution for all school types will use the same brackets or bins
-    # print(school_size_brackets)
     bins = [school_size_brackets[0][0]] + [school_size_brackets[b][-1] + 1 for b in school_size_brackets]
     print(bins)
 
@@ -69,7 +68,6 @@ def test_school_sizes_by_type():
             schools[person['scid']]['student ages'].append(person['age'])
     print()
     for i, school in schools.items():
-        # print(f"{i} sc_type: {school['sc_type']} enrolled: {school['enrolled']} age count: {Counter(school['student ages'])}")
         enrollment_by_school_type.setdefault(school['sc_type'], [])
         enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
 
