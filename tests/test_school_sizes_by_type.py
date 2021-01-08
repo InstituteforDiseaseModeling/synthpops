@@ -6,11 +6,13 @@ import os
 import sciris as sc
 import synthpops as sp
 import numpy as np
+import matplotlib as mplt
+import matplotlib.pyplot as plt
 from collections import Counter
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 100001,
+    n                               = 50e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
