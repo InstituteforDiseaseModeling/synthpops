@@ -82,14 +82,15 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     age_grade_mapping[3] = 0
     age_grade_mapping[4] = 0
 
+    # what are the school types by age
+    school_type_by_age = sc.mergedicts(spdata.get_default_school_types_by_age_single(), school_type_by_age)
+    school_types = list(set(school_type_by_age.values()))  # get the location specific school types whatever they may be
+
     # check school mixing type
     if isinstance(school_mixing_type, str):
-        school_mixing_type_dic = dict.fromkeys(['pk', 'es', 'ms', 'hs', 'uv'], school_mixing_type)
+        school_mixing_type_dic = dict.fromkeys(school_types, school_mixing_type)
     elif isinstance(school_mixing_type, dict):
         school_mixing_type_dic = sc.dcp(school_mixing_type)
-
-    # school type age ranges by default
-    school_type_by_age = sc.mergedicts(spdata.get_default_school_types_by_age_single(), school_type_by_age)
 
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]

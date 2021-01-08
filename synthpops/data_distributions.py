@@ -796,7 +796,7 @@ def get_default_school_type_age_ranges():
     return school_type_age_ranges
 
 
-def get_default_school_types_by_age():
+def get_default_school_types_distr_by_age():
     """
     Define and return default probabilities of school type for each age.
 
@@ -806,15 +806,15 @@ def get_default_school_types_by_age():
     """
     school_type_age_ranges = get_default_school_type_age_ranges()
 
-    school_types_by_age = {}
+    school_types_distr_by_age = {}
     for a in range(101):
-        school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
+        school_types_distr_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
 
     for k in school_type_age_ranges.keys():
         for a in school_type_age_ranges[k]:
-            school_types_by_age[a][k] = 1.
+            school_types_distr_by_age[a][k] = 1.
 
-    return school_types_by_age
+    return school_types_distr_by_age
 
 
 def get_default_school_types_by_age_single():
@@ -825,10 +825,10 @@ def get_default_school_types_by_age_single():
         A dictionary of default school type by age.
 
     """
-    school_types_by_age = get_default_school_types_by_age()
+    school_types_distr_by_age = get_default_school_types_distr_by_age()
     school_types_by_age_single = {}
     for a in range(101):
-        values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
+        values_to_keys_dic = {school_types_distr_by_age[a][k]: k for k in school_types_distr_by_age[a]}
         max_v = max(values_to_keys_dic.keys())
         max_k = values_to_keys_dic[max_v]
         if max_v != 0:

@@ -88,10 +88,10 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
     return uids_in_school, uids_in_school_by_age, ages_in_school_count
 
 
-def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
+def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_distr_by_age, school_type_age_ranges, verbose=False):
 
     """
-    A method to send students to school together. This method uses the dictionaries school_types_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
+    A method to send students to school together. This method uses the dictionaries school_types_distr_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
     a sampled reference student. Then the school type is used to determine the age range of the school. After that, the size of the school is then sampled conditionally on the school type and then the rest of the students
     are chosen from the lists of students available in the dictionary uids_in_school_by_age. This method is not perfect and requires a strict definition of school type by age. For now, it is not able to model mixed school
     types such as schools with Kindergarten through Grade 8 (K-8), or Kindergarten through Grade 12. These mixed types of schools may be common in some settings and this feature may be added later.
@@ -102,7 +102,7 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         uids_in_school (dict)            : A dictionary of students in school mapping ID to age.
         uids_in_school_by_age (dict)     : A dictionary of students in school mapping age to the list of IDs with that age.
         ages_in_school_count (dict)      : A dictionary mapping age to the number of students with that age.
-        school_types_by_age (dict)       : A dictionary of the school type for each age.
+        school_types_distr_by_age (dict) : A dictionary of the school type for each age.
         school_type_age_ranges (dict)    : A dictionary of the age range for each school type.
         verbose (bool)                   : If True, print statements about the generated schools as they're being generated.
 
@@ -136,8 +136,8 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         new_school.append(aindex)
         new_school_uids.append(uid)
 
-        school_types = sorted(school_types_by_age[aindex].keys())
-        prob = [school_types_by_age[aindex][s] for s in school_types]
+        school_types = sorted(school_types_distr_by_age[aindex].keys())
+        prob = [school_types_distr_by_age[aindex][s] for s in school_types]
         school_type = np.random.choice(school_types, p=prob, size=1)[0]
         school_type_age_range = school_type_age_ranges[school_type]
 
@@ -149,9 +149,10 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         size = np.random.choice(school_size_brackets[size_bracket])
         size -= 1
 
+        # print(f"school type: {school_type} size: {size} size bracket: {size_bracket} index age: {aindex}")
         # assume ages are uniformly distributed - all grades are roughy the same size - so calculate how many are in each grade or age
         school_age_count = np.random.multinomial(size, [1./len(school_type_age_range)] * len(school_type_age_range), size=1)[0]
-
+        # print(f"school age count: {school_age_count}")
         for n, a in enumerate(school_type_age_range):
             count = school_age_count[n]
             if count > ages_in_school_count[a]:
@@ -854,7 +855,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 #     return school_size_distr_by_type
 
 
-def get_school_types_by_age(school_type_age_ranges):
+def get_school_types_distr_by_age(school_type_age_ranges):
     """
     Define and return probabilities of school type for each age. For now assuming no overlapping of grades between school types.
 
@@ -862,18 +863,18 @@ def get_school_types_by_age(school_type_age_ranges):
         A dictionary of default probabilities for the school type likely for each age.
 
     """
-    school_types_by_age = {}
+    school_types_distr_by_age = {}
     for a in range(101):
-        school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
+        school_types_distr_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
 
     for k in school_type_age_ranges.keys():
         for a in school_type_age_ranges[k]:
-            school_types_by_age[a][k] = 1.
+            school_types_distr_by_age[a][k] = 1.
 
-    return school_types_by_age
+    return school_types_distr_by_age
 
 
-def get_school_types_by_age_single(school_types_by_age):
+def get_school_types_by_age_single(school_types_distr_by_age):
     """
     Define and return school type by age by assigning the school type with the highest probability.
 
@@ -881,10 +882,9 @@ def get_school_types_by_age_single(school_types_by_age):
         A dictionary of default school type by age.
 
     """
-    # school_types_by_age = get_default_school_types_by_age()
     school_types_by_age_single = {}
     for a in range(101):
-        values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
+        values_to_keys_dic = {school_types_distr_by_age[a][k]: k for k in school_types_distr_by_age[a]}
         max_v = max(values_to_keys_dic.keys())
         max_k = values_to_keys_dic[max_v]
         if max_v != 0:
@@ -916,7 +916,6 @@ def get_school_type_data(datadir, location, state_location, country_location, us
         school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
         school_size_brackets = spdata.get_default_school_size_distr_brackets()
         school_type_age_ranges = spdata.get_default_school_type_age_ranges()
-        print('return default')
 
         # if use_default:
         #     school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
