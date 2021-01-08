@@ -928,6 +928,21 @@ def get_school_type_age_ranges_path(datadir, location=None, state_location=None,
 
 
 def get_school_type_age_ranges(datadir, location, state_location, country_location, file_path=None, use_default=None):
+    """
+    Get a dictionary of the school types and the age range for each for the location specified.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        file_path (string)        : file path to user specified distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of default school types and the age range for each.
+    """
+
     if file_path is None:
         file_path = get_school_type_age_ranges_path(datadir, location, state_location, country_location)
     try:
@@ -980,7 +995,7 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:

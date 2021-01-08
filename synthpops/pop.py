@@ -8,7 +8,6 @@ from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
 from . import data_distributions as spdata
-# from . import scratch_school_data as spssd
 from . import contact_networks as spcnx
 from . import ltcfs as spltcf
 from . import households as sphh
@@ -225,11 +224,14 @@ class Pop(sc.prettyobj):
 
         if with_school_types:
 
-            school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
-            school_size_brackets = spdata.get_default_school_size_distr_brackets()
+            school_size_distr_by_type, school_size_brackets, school_type_age_ranges = spsch.get_school_type_data(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-            school_types_by_age = spdata.get_default_school_types_by_age()
-            school_type_age_ranges = spdata.get_default_school_type_age_ranges()
+            school_types_by_age = spsch.get_school_types_by_age(school_type_age_ranges)
+
+            print('school_size_distr_by_type', school_size_distr_by_type)
+            print('school_type_age_ranges', school_type_age_ranges)
+            # print('school_types_by_age', school_types_by_age)
+            # school_size_brackets = spdata.get_default_school_size_distr_brackets()
 
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,

@@ -893,6 +893,41 @@ def get_school_types_by_age_single(school_types_by_age):
     return school_types_by_age_single
 
 
+def get_school_type_data(datadir, location, state_location, country_location, use_default=False):
+    """
+    Get location specific distributions on school type data if it's available for all the distributions of interest, otherwise return default data if use_default.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        3 dictionaries necessary to generate schools by the type of school (i.e. elementary, middle, high school, etc.).
+    """
+    try:
+        school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location)
+        school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location)  # for right now the size distribution for all school types will use the same brackets or bins
+        school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location)
+
+    except:
+        school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
+        school_size_brackets = spdata.get_default_school_size_distr_brackets()
+        school_type_age_ranges = spdata.get_default_school_type_age_ranges()
+        print('return default')
+
+        # if use_default:
+        #     school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
+        #     school_size_brackets = spdata.get_default_school_size_distr_brackets()
+        #     school_type_age_ranges = spdata.get_default_school_type_age_ranges()
+        # else:
+        #     raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values.")
+
+    return school_size_distr_by_type, school_size_brackets, school_type_age_ranges
+
+
 def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
     Assign teachers to each school according to the average student-teacher ratio.
