@@ -162,10 +162,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
         for n, a in enumerate(school_type_age_range):
             count = school_age_count[a]
-            # count = school_age_count[n]
-            # if count > ages_in_school_count[a]:
-            #     count = ages_in_school_count[a]
-            #     count = max(0, count)
 
             school_uids_in_age = uids_in_school_by_age[a][:count]  # assign students to the school
             uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
@@ -774,95 +770,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
     add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
     return popdict
-
-
-# ### Moving to data_distributions.py for now ### #
-# def get_default_school_type_age_ranges():
-#     """
-#     Define and return default school types and the age range for each.
-
-#     Return:
-#         A dictionary of default school types and the age range for each.
-
-#     """
-#     school_type_age_ranges = {}
-#     school_type_age_ranges['pk'] = np.arange(3, 6)
-#     school_type_age_ranges['es'] = np.arange(6, 11)
-#     school_type_age_ranges['ms'] = np.arange(11, 14)
-#     school_type_age_ranges['hs'] = np.arange(14, 18)
-#     school_type_age_ranges['uv'] = np.arange(18, 100)
-
-#     return school_type_age_ranges
-
-
-# def get_default_school_types_by_age():
-#     """
-#     Define and return default probabilities of school type for each age.
-
-#     Return:
-#         A dictionary of default probabilities for the school type likely for each age.
-
-#     """
-#     school_type_age_ranges = get_default_school_type_age_ranges()
-
-#     school_types_by_age = {}
-#     for a in range(100):
-#         school_types_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
-
-#     for k in school_type_age_ranges.keys():
-#         for a in school_type_age_ranges[k]:
-#             school_types_by_age[a][k] = 1.
-
-#     return school_types_by_age
-
-
-# def get_default_school_types_by_age_single():
-#     """
-#     Define and return default school type by age by assigning the school type with the highest probability.
-
-#     Return:
-#         A dictionary of default school type by age.
-
-#     """
-#     school_types_by_age = get_default_school_types_by_age()
-#     # school_types_by_age_single = sc.dcp(school_types_by_age)
-#     school_types_by_age_single = {}
-#     for a in range(100):
-#         values_to_keys_dic = {school_types_by_age[a][k]: k for k in school_types_by_age[a]}
-#         max_v = max(values_to_keys_dic.keys())
-#         max_k = values_to_keys_dic[max_v]
-#         school_types_by_age_single[a] = max_k
-
-#     return school_types_by_age_single
-
-
-# def get_default_school_size_distr_brackets():
-#     """
-#     Define and return default school size distribution brackets.
-
-#     Return:
-#         A dictionary of school size brackets.
-
-#     """
-#     return spdata.get_school_size_brackets(datadir, country_location='usa', use_default=True)
-
-
-# def get_default_school_size_distr_by_type():
-#     """
-#     Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
-
-#     Return:
-#         A dictionary of school size distributions binned by size groups or brackets for each type of default school.
-
-#     """
-#     school_size_distr_by_type = {}
-
-#     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
-
-#     for k in school_types:
-#         school_size_distr_by_type[k] = spdata.get_school_size_distr_by_brackets(datadir, country_location='usa', use_default=True)
-
-#     return school_size_distr_by_type
 
 
 def get_school_types_distr_by_age(school_type_age_ranges):
