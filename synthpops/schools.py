@@ -824,22 +824,16 @@ def get_school_type_data(datadir, location, state_location, country_location, us
     Returns:
         3 dictionaries necessary to generate schools by the type of school (i.e. elementary, middle, high school, etc.).
     """
-    try:
-        school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location)
-        school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location)  # for right now the size distribution for all school types will use the same brackets or bins
-        school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location)
+    school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
+    school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-    except:
-        school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
-        school_size_brackets = spdata.get_default_school_size_distr_brackets()
-        school_type_age_ranges = spdata.get_default_school_type_age_ranges()
-
-        # if use_default:
-        #     school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
-        #     school_size_brackets = spdata.get_default_school_size_distr_brackets()
-        #     school_type_age_ranges = spdata.get_default_school_type_age_ranges()
-        # else:
-        #     raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values.")
+    #     if use_default:
+    #         school_size_distr_by_type = spdata.get_default_school_size_distr_by_type()
+    #         school_size_brackets = spdata.get_default_school_size_distr_brackets()
+    #         school_type_age_ranges = spdata.get_default_school_type_age_ranges()
+    #     else:
+    #         raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values.")
 
     return school_size_distr_by_type, school_size_brackets, school_type_age_ranges
 
