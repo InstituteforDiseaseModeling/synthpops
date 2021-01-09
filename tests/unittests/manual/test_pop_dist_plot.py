@@ -33,7 +33,7 @@ n = 20001
 location = "seattle_metro"
 state_location = "Washington"
 country_location = "usa"
-age_brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
 age_brackets_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in sorted(age_brackets.keys())]
 
 
