@@ -42,7 +42,8 @@ with_school_types = True
 school_mixing_type = 'random'
 school_type = None
 if with_school_types:
-    school_type=['pk', 'es', 'ms', 'hs', 'uv']
+    # school_type=['pk', 'es', 'ms', 'hs', 'uv']
+    school_type = ['pk-es', 'ms', 'hs', 'uv']
 
 for seed in range(1, 100, 100):
     test_prefix = f"{n}_seed{seed}"
@@ -94,7 +95,7 @@ for seed in range(1, 100, 100):
                                                 use_default=True)
 
     utilities_dist.check_school_size_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
-                                                  location="seattle_metro",
+                                                  location=location,
                                                   state_location=state_location,
                                                   country_location=country_location,
                                                   test_prefix=test_prefix,
