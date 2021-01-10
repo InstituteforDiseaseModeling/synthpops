@@ -91,6 +91,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         school_mixing_type_dic = dict.fromkeys(school_types, school_mixing_type)
     elif isinstance(school_mixing_type, dict):
         school_mixing_type_dic = sc.dcp(school_mixing_type)
+        school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
 
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]

@@ -715,6 +715,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         grade_age_mapping (dict)             : dict mapping grade to an age
         age_grade_mapping (dict)             : dict mapping age to a grade
         average_class_size (int)             : average class size
+        inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
         average_student_teacher_ratio (int)  : average number of students per teacher
         average_teacher_teacher_degree (int) : average number of contacts with other teachers
         school_mixing_type(str)              : 'random' for well mixed schools, 'clustered' for disjoint classes in a school
