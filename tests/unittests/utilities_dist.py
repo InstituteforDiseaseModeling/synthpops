@@ -102,9 +102,9 @@ def check_employment_age_distribution(pop,
     Plots will be save to figdir if provided
     """
     er = sp.get_employment_rates(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    brackets = sp.get_census_age_brackets(datadir, location, state_location, country_location)
     ageindex = sp.get_age_by_brackets_dic(brackets)
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
+    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path=file_path, use_default=use_default)
     actual_employed_age_dist, actual_unemployed_age_dist = utilities.get_ids_count_by_param(pop, 'wpid', 'age')
 
     sorted_actual_employed_rate = {}
@@ -250,11 +250,12 @@ def check_school_size_distribution(pop,
                                      file_path=file_path, use_default=use_default)
     sb_index = sp.get_index_by_brackets_dic(sb)
 
-    sdf = sp.get_school_sizes_df(datadir, location=location,
-                                 state_location=state_location,
-                                 country_location=country_location)
-    expected_scount = Counter(sdf.iloc[:, 0].values)
-    expected_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, expected_scount))
+    # sdf = sp.get_school_sizes_df(datadir, location=location,
+    #                              state_location=state_location,
+    #                              country_location=country_location)
+    # expected_scount = Counter(sdf.iloc[:, 0].values)
+    expected_school_size_by_brackets = sp.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+    # expected_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, expected_scount))
     actual_school, actual_school_none = utilities.get_ids_count_by_param(pop, "scid")
     actual_scount = dict(Counter(actual_school.values()))
     actual_school_size_by_brackets = sp.norm_dic(utilities.get_bucket_count(sb_index, sb, actual_scount))
@@ -266,7 +267,13 @@ def check_school_size_distribution(pop,
         utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="school size check")
     # check average school size
-    expected_average_school_size = sum(sdf.iloc[:, 0].values) / len(sdf)
+    # expected_average_school_size = sum(sdf.iloc[:, 0].values) / len(sdf)
+    school_size_brackets = sp.get_school_size_brackets(datadir=datadir,
+                                                       location=location,
+                                                       country_location=country_location,
+                                                       state_location=state_location)
+    average_school_size_in_bracket = [sum(i)/len(i) for i in school_size_brackets.values()]
+    expected_average_school_size = sum([v[1] * average_school_size_in_bracket[v[0]] for v in expected_school_size_by_brackets.items()])
     actual_average_school_size = sum([i * actual_scount[i] for i in actual_scount]) / sum(actual_scount.values())
     utilities.check_error_percentage(n, expected_average_school_size, actual_average_school_size,
                                      name="average school size")
@@ -311,8 +318,8 @@ def check_enrollment_distribution(pop,
     """
     expected_dist = sp.get_school_enrollment_rates(datadir, location, state_location, country_location, file_path,
                                                    use_default)
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path=file_path, use_default=use_default)
+    brackets = sp.get_census_age_brackets(datadir, location, state_location, country_location)
 
     # get actual school enrollment by age
     actual_pool = []
@@ -457,8 +464,8 @@ def check_age_distribution(pop,
 
     Plots will be save to figdir if provided
     """
-    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path, use_default)
-    brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+    age_dist = sp.read_age_bracket_distr(datadir, location, state_location, country_location, file_path=file_path, use_default=use_default)
+    brackets = sp.get_census_age_brackets(datadir, location, state_location, country_location)
     # un-normalized data
     # expected_values = np.array(list(age_dist.values())) * n
     # actual_values = get_age_distribution_from_pop(pop, brackets, False)

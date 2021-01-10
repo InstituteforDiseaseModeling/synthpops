@@ -20,7 +20,8 @@ import sys
 import shutil
 
 testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-datadir = str(pathlib.Path(testdir, "../data").absolute())
+# datadir = str(pathlib.Path(testdir, "../data").absolute())
+datadir = sp.datadir
 figdir = os.path.join(os.path.dirname(__file__), "dist_reports")
 shutil.rmtree(figdir, ignore_errors=True)
 os.makedirs(figdir, exist_ok=True)
@@ -33,7 +34,7 @@ n = 20001
 location = "seattle_metro"
 state_location = "Washington"
 country_location = "usa"
-age_brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+age_brackets = sp.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
 age_brackets_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in sorted(age_brackets.keys())]
 
 
