@@ -181,7 +181,10 @@ def plot_array(expected,
     title = testprefix if actual is None else f"Comparison for \n{testprefix}"
     ax.set_title(title)
     x = np.arange(len(expected))
-    width = np.min(np.diff(x))/3
+    if len(x) > 1:
+        width = np.min(np.diff(x))/3
+    else:
+        width = 1.
     if not binned:
         ax.hist(expected, label=expect_label.title(), color='skyblue')
     else:
@@ -270,7 +273,6 @@ def statistic_test(expected, actual, test="ks", comments=""):
         print("use Chi-square statistic")
         s, p = stats.chisquare(actual, f_exp=expected, ddof=0, axis=0)
         print(f"chi square statistics: {s} pvalue:{p}")
-
     assert p > 0.05, f"Under the null hypothesis the expected/actual distributions are identical." \
                      f" If statistics is small or the p-value is high (greater than the significance level 5%)" \
                      f", then we cannot reject the hypothesis. But we got p={p} and s={s}"

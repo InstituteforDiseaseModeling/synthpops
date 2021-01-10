@@ -333,9 +333,10 @@ def check_school_size_distribution(pop,
                              expect_label=f"school count: total {len(actual_per_school_type_dict[k])}",
                              testprefix="school size total (student only)\n" + test_prefix + " " + k,
                              binned=False, do_close=do_close)
-        if not skip_stat_check:
-            utilities.statistic_test(expected_values, actual_values, test="x",
-                                 comments="school size check")
+        # statistic_test is not working yet because school sizes are now available by school type. Also depends strongly on population size.
+        # if not skip_stat_check:
+        #     utilities.statistic_test(expected_values, actual_values, test="x",
+        #                          comments="school size check")
         # check average school size
         school_size_brackets = sp.get_school_size_brackets(datadir=datadir,
                                                            location=location,

@@ -17,7 +17,7 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 100e3,
+    n                               = 50e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
