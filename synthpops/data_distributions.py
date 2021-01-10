@@ -73,16 +73,18 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     """
     datadir = get_relative_path(datadir)
     levels = [location, state_location, country_location]
+    if nbrackets is None:
+        nbrackets = cfg.nbrackets
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'age_distributions', f'{country_location}_age_bracket_distr_{cfg.nbrackets}.dat')
+        return os.path.join(datadir,  country_location, 'age_distributions', f'{country_location}_age_bracket_distr_{nbrackets}.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_{cfg.nbrackets}.dat')
+        return os.path.join(datadir,  country_location, state_location, 'age_distributions', f'{state_location}_age_bracket_distr_{nbrackets}.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'age_distributions', f'{location}_age_bracket_distr_{cfg.nbrackets}.dat')
+        return os.path.join(datadir,  country_location, state_location, location, 'age_distributions', f'{location}_age_bracket_distr_{nbrackets}.dat')
 
     # paths = cfg.FilePaths(location, state_location, country_location)
     # if nbrackets is None:
@@ -483,8 +485,8 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
         A dictionary of the range of ages that map to each age bracket.
 
     """
-    if nbrackets is None:
-        nbrackets = cfg.nbrackets
+    # if nbrackets is None:
+    #     nbrackets = cfg.nbrackets
 
     if file_path is None:
         file_path = get_census_age_brackets_path(datadir, location, state_location, country_location, nbrackets=nbrackets)
