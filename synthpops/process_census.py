@@ -258,6 +258,78 @@ def process_us_census_enrollment_rates(datadir, location, state_location, countr
     return enrollment_rates
 
 
+def process_us_census_workplace_sizes(datadir, location, state_location, country_location, year):
+    """
+    Process American Community Survey data for a given year to get a count of
+    workplace sizes as the number of employees per establishment.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location (str)         : name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        year (int)             : the year for the American Community Survey
+
+    Returns:
+        A dictionary with the workplace or establishment size distribution
+        as a count.
+    """
+    file_path = os.path.join(datadir, country_location, state_location, 'workplaces')
+    file_path = os.path.join(file_path, f'CBP{year}.CB1800CBP_data_with_overlays_{location}.csv')
+
+    df = pd.read_csv(file_path)
+    column = 'EMPSZES_LABEL'
+    size_labels = set(df[column].values)
+    size_labels.discard('All establishments')
+    size_labels.discard('Meaning of Employment size of establishments')
+    size_label_mappings = {}
+    establishment_size_counts = {}
+
+    min_size, max_size = np.inf, -np.inf
+
+    for s in size_labels:
+        d = df
+        # if location in df['NAME']:
+        #     d = df.loc[df['NAME'].str.contains(location)]
+        # elif:
+        #     d = df.loc[df['NAME'].str.contains(location.replace('_', ' '))]
+
+        d = d.loc[(d[column] == s) & (df['NAICS2017'] == '00') & (df['LFO_LABEL'] == 'All establishments')]
+        c = [float(count) for count in d['ESTAB'].values]
+        c = np.sum(c)
+
+        establishment_size_counts[s] = c
+
+        v = s.replace('Establishments with ', '').replace('less than ', '').replace(' employees', '').replace('to', '').replace(' or more','').replace(',','').replace('  ', ' ')
+        v = v.split(' ')
+
+        if len(v) == 1:
+            v0 = int(v[0])
+            if 'less than' in s:
+                v0 -= 1
+                v0 = max(1, v0)
+            if v0 < min_size:
+                min_size = v0
+
+            if v0 > max_size:
+                max_size = v0
+            size_label_mappings[s] = [v0]
+
+        elif len(v) == 2:
+            v0, v1 = int(v[0]), int(v[1])
+            size_label_mappings[s] = [v0, v1]
+
+    for s in size_labels:
+        if len(size_label_mappings[s]) == 1 and size_label_mappings[s][0] == min_size:
+            new_mapping = [1, size_label_mappings[s][0]]
+            size_label_mappings[s] = new_mapping
+        elif len(size_label_mappings[s]) == 1 and size_label_mappings[s][0] == max_size:
+            new_mapping = [size_label_mappings[s][0], size_label_mappings[s][0] * 2 - 1]
+            size_label_mappings[s] = new_mapping
+
+    return size_label_mappings, establishment_size_counts
+
+
 def process_long_term_care_facility_rates_by_age(datadir, state_location, country_location):
     """
     Process the National Long Term Care Providers state data tables from 2016 to
@@ -701,3 +773,42 @@ def write_long_term_care_facility_use_rates(datadir, state_location, country_loc
     for a in sorted(ltcf_rates_by_age.keys()):
         f.write(f'{a:d},{ltcf_rates_by_age[a]:.8f}\n')
     f.close()
+
+
+def write_workplace_size_counts(datadir, location_alias, state_location, country_location, size_label_mappings, establishment_size_counts):
+    """
+    Write workplace or establishment size count distribution.
+
+    Args:
+        datadir (str)                    : file path to the data directory
+        location_alias (str)             : more commonly known name of the location
+        state_location (str)             : name of the state the location is in
+        country_location (str)           : name of the country the location is in
+        size_label_mappings (dict)       : dictionary of the size labels mapping to the size bin
+        establishment_size_counts (dict) : dictionary of the count of workplaces by size label
+
+    Returns:
+        None.
+    """
+    sorted_values = sorted(size_label_mappings.values())
+    bin_label_mappings = {sorted_values.index(v):k for k, v in size_label_mappings.items()}
+    bin_mappings = {sorted_values.index(v): v for k, v in size_label_mappings.items()}
+
+    if location_alias == state_location:
+        file_path = os.path.join(datadir, country_location, state_location, 'workplaces')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location_alias, 'workplaces')
+    os.makedirs(file_path, exist_ok=True)
+
+    file_name = os.path.join(file_path, f'{location_alias}_work_size_count.dat')
+    f = open(file_name, 'w')
+    f.write('work_size_bracket,size_count\n')
+    for b in sorted(bin_mappings):
+        f.write(f'{b:d},{establishment_size_counts[bin_label_mappings[b]]}\n')
+    f.close()
+
+    file_name_2 = os.path.join(file_path, f'{location_alias}_work_size_brackets.dat')
+    f2 = open(file_name_2, 'w')
+    for b in sorted(bin_mappings):
+        f2.write(f'{bin_mappings[b][0]},{bin_mappings[b][1]}\n')
+    f2.close()

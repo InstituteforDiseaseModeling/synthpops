@@ -48,17 +48,22 @@ Notice:
 """
 
 datadir = sp.datadir
-# location = 'Oregon'
-# location_alias = 'Oregon'
-# location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
-# location_alias = 'portland_metro'  # what shortened name do you want to use for this metro location
 
+
+# location, location_alias = 'Oregon', 'Oregon'
+# location, location_alias = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area', 'portland_metro'  # what shortened name do you want to use for this metro location
 # state_location = 'Oregon'
 # country_location = 'usa'
 
-location = 'Spokane_County'
-location_alias = 'Spokane_County'
+
+location, location_alias = 'King_County', 'King_County'
+# location, location_alias = 'Spokane_County', 'Spokane_County'
+# location, location_alias = 'Pierce_County', 'Pierce_County'
+# location, location_alias = 'Yakima_County', 'Yakima_County'
+
 state_location = 'Washington'
+
+
 country_location = 'usa'
 
 year = 2019
@@ -86,3 +91,7 @@ sp.write_employment_rates(datadir, location_alias, state_location, country_locat
 # process and write enrollment rates by age data
 enrollment_rates = sp.process_us_census_enrollment_rates(datadir, location, state_location, country_location, year, acs_period)
 sp.write_enrollment_rates(datadir, location_alias, state_location, country_location, enrollment_rates)
+
+# process and write count of workplace sizes by bin
+size_label_mappings, establishment_size_counts = sp.process_us_census_workplace_sizes(datadir, location, state_location, country_location, 2018)
+sp.write_workplace_size_counts(datadir, location_alias, state_location, country_location, size_label_mappings, establishment_size_counts)
