@@ -141,7 +141,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
 
         n_staff = int(np.ceil(n_residents / resident_staff_ratio))
         new_staff, new_staff_uids = [], []
-        # print(nf, resident_staff_ratio, n_residents, n_staff)
+
         for i in range(n_staff):
             a_prob = np.array([workers_by_age_to_assign_count[a] for a in staff_age_range])
             a_prob = a_prob / np.sum(a_prob)

@@ -1321,7 +1321,7 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, locat
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location, state_location, country_location)
+            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")

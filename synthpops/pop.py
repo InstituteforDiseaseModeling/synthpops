@@ -270,7 +270,7 @@ class Pop(sc.prettyobj):
 
         # Get facility staff
         if with_facilities:
-            facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)
+            facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic, use_default=use_default)
         else:
             facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
