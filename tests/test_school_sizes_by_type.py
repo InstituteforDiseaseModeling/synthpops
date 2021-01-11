@@ -36,7 +36,7 @@ pars = dict(
     ltcf_staff_age_min              = 20,
     ltcf_staff_age_max              = 60,
 
-    school_mixing_type              = 'age_and_class_clustered',
+    school_mixing_type              = {'pk-es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
     average_class_size              = 20,
     inter_grade_mixing              = 0.1,
     teacher_age_min                 = 25,
@@ -49,6 +49,39 @@ pars = dict(
     average_student_all_staff_ratio = 15,
     average_additional_staff_degree = 20,
 )
+
+
+def test_school_types_created():
+    """
+    Test that unique school types are created.
+
+    Returns:
+        A list of the school types expected for the specified location.
+    """
+    sp.logger.info(f"Test that unique school types are created for each school.\nRun this first to see what school types you are working with.")
+
+    test_pars = sc.dcp(pars)
+    test_pars['n'] = 20e3
+    pop = sp.make_population(**test_pars)
+    if pars['with_school_types']:
+        expected_school_size_distr = sp.get_school_size_distr_by_type(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'], use_default=pars['use_default'])
+        expected_school_types = list(expected_school_size_distr.keys())
+
+    else:
+        expected_school_types = [None]
+
+    schools_by_type = dict()
+    for i, person in pop.items():
+        if person['scid'] is not None:
+            schools_by_type.setdefault(person['scid'], set())
+            schools_by_type[person['scid']].add(person['sc_type'])
+
+    for s, school_type in schools_by_type.items():
+        assert len(school_type) == 1, f'Check failed. School {s} is listed as having more than one type.'
+        schools_by_type[s] = list(school_type)[0]
+    print(f"School types generated for {test_pars['location']}: {set(schools_by_type.values())}")
+
+    return list(set(schools_by_type.values()))
 
 
 @pytest.mark.parametrize("pars", [pars])
@@ -82,19 +115,18 @@ def test_school_sizes_by_type(pars):
         enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
 
     for sc_type in enrollment_by_school_type:
-        print(sc_type)
         sizes = enrollment_by_school_type[sc_type]
         hist, bins = np.histogram(sizes, bins=bins, density=0)
         gen_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in school_size_brackets}
-
-        for b in gen_school_size_distr[sc_type]:
-            if expected_school_size_distr[sc_type][b] > 0:
-                print(f"sizes: {school_size_brackets[b][0]}-{school_size_brackets[b][-1]}, expected: {expected_school_size_distr[sc_type][b]:.3f}, generated: {gen_school_size_distr[sc_type][b]:.3f}")
+        # print(sc_type)
+        # for b in gen_school_size_distr[sc_type]:
+        #     if expected_school_size_distr[sc_type][b] > 0:
+        #         print(f"sizes: {school_size_brackets[b][0]}-{school_size_brackets[b][-1]}, expected: {expected_school_size_distr[sc_type][b]:.3f}, generated: {gen_school_size_distr[sc_type][b]:.3f}")
 
     gen_school_size_distr = sc.objdict(gen_school_size_distr)
 
     width = 6
-    height = 4 * len(gen_school_size_distr)
+    height = 5 * len(gen_school_size_distr)
     hspace = 0.4
 
     cmap = cmr.get_sub_cmap('cmo.curl', 0.12, 1)
@@ -150,7 +182,7 @@ def test_separate_school_types_for_seattle_metro(pars):
 if __name__ == '__main__':
 
     sc.tic()
+    school_types = test_school_types_created()
     pop, school_types = test_school_sizes_by_type(pars)
     pop2 = test_separate_school_types_for_seattle_metro(pars)
-
     sc.toc()
