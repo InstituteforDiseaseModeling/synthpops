@@ -306,7 +306,7 @@ def check_school_size_distribution(pop,
     actual_school, actual_school_none = utilities.get_ids_count_by_param(pop, "scid")
     actual_school_student_only, actual_school_none_student_only = utilities.get_ids_count_by_param(pop, "sc_student", "scid")
     actual_per_school_type_dict = {}
-    actual_per_school_type_dict_student_only ={}
+    actual_per_school_type_dict_student_only = {}
     actual_per_school_type_dict["all"] = actual_school
     actual_per_school_type_dict_student_only["all"] = actual_school_student_only
     if school_type is not None:

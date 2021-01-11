@@ -90,7 +90,6 @@ class TestSchoolStaff(unittest.TestCase):
         state_location = 'Washington'
         country_location = 'usa'
         sheet_name = 'United States of America'
-        school_enrollment_counts_available = False
         with_school_types = False
         school_mixing_type = 'random'
         average_class_size = 20

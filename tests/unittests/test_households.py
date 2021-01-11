@@ -12,7 +12,6 @@ seapop_500 = sp.generate_synthetic_population(
     state_location='Washington',
     country_location='usa',
     sheet_name='United States of America',
-    school_enrollment_counts_available=False,
     verbose=False,
     plot=False,
     write=False,

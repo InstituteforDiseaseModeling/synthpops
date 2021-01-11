@@ -215,7 +215,7 @@ def test_make_population_with_industry_code():
 #     # First create contact_networks_facilities
 #     # set write to False and instead use return_popdict = True to get a population dict
 #     popdict = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
-#                                                          n=n, school_enrollment_counts_available=True,
+#                                                          n=n,
 #                                                          write=False, plot=False, return_popdict=True)
 
 #     # Make 2 groups of contacts
