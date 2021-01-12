@@ -5,12 +5,8 @@ This module generates the household, school, and workplace contact networks.
 import sciris as sc
 import numpy as np
 import networkx as nx
-# <<<<<<< HEAD
 from . import data_distributions as spdata
-from . import schools as spsm
-# =======
 from . import schools as spsch
-# >>>>>>> master
 from .config import logger as log, checkmem
 
 
@@ -95,13 +91,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         school_mixing_type_dic = dict.fromkeys(school_types, school_mixing_type)
     elif isinstance(school_mixing_type, dict):
         school_mixing_type_dic = sc.dcp(school_mixing_type)
-# <<<<<<< HEAD
         school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
-# =======
-
-#     # school type age ranges by default
-#     school_type_by_age = sc.mergedicts(spsch.get_default_school_types_by_age_single(), school_type_by_age)
-# >>>>>>> master
 
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
