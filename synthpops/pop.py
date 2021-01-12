@@ -35,7 +35,6 @@ class Pop(sc.prettyobj):
                  ltcf_staff_age_min=20,
                  ltcf_staff_age_max=60,
                  with_school_types=False,
-                 school_enrollment_counts_available=False,
                  school_mixing_type='random',
                  average_class_size=20,
                  inter_grade_mixing=0.1,
@@ -59,20 +58,19 @@ class Pop(sc.prettyobj):
         Args:
             n (int)                                 : The number of people to create.
             max_contacts (dict)                     : A dictionary for maximum number of contacts per layer: keys must be "W" (work).
-            ltcf_pars (dict): if supplied, replace default LTCF parameters
-            school_pars (dict): if supplied, replace default school parameters
+            ltcf_pars (dict)                        : If supplied, replace default LTCF parameters
+            school_pars (dict)                      : if supplied, replace default school parameters
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
-            use_default (bool)                      :  ?????
+            use_default (bool)                      : If True, use default data from default_location, default_state, default_country.
             use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
             average_LTCF_degree (float)             : default average degree in long term care facilities.
             ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
             ltcf_staff_age_max (int)                : Long term care facility staff maximum age.
             with_school_types (bool)                : If True, creates explicit school types.
-            school_enrollment_counts_available (bool): ????
             school_mixing_type (str or dict)        : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
             average_class_size (float)              : The average classroom size.
-            inter_grade_mixing (float)              : The average fraction of mixing between grades in the same school for clustered school mixing types.
+            inter_grade_mixing (float)              : The average fraction of edges rewired to create edges between grades in the same school when school_mixing_type is 'age_clustered'
             average_student_teacher_ratio (float)   : The average number of students per teacher.
             average_teacher_teacher_degree (float)  : The average number of contacts per teacher with other teachers.
             teacher_age_min (int)                   : The minimum age for teachers.
@@ -83,21 +81,21 @@ class Pop(sc.prettyobj):
             staff_age_min (int)                     : The minimum age for non teaching staff.
             staff_age_max (int)                     : The maximum age for non teaching staff.
             rand_seed (int)                         : Start point random sequence is generated from.
-            location                  : name of the location
-            state_location (string)   : name of the state the location is in
-            country_location (string) : name of the country the location is in
-            sheet_name                : sheet name where data is located
-            do_make (bool): whether to make the population
+            location                                : name of the location
+            state_location (string)                 : name of the state the location is in
+            country_location (string)               : name of the country the location is in
+            sheet_name                              : sheet name where data is located
+            do_make (bool)                          : whether to make the population
 
         Returns:
-            network (dict): A dictionary of the full population with ages and connections.
+            network (dict): A dictionary of the full population with ages, connections, and other attributes.
         '''
         log.debug('Pop()')
 
 
         # Assign all the variables
         self.school_pars = sc.objdict()
-        self.ltcf_pars = sc.objdict()
+        self.ltcf_pars   = sc.objdict()
 
         # General parameters
         self.n                  = int(n)
@@ -109,20 +107,19 @@ class Pop(sc.prettyobj):
         self.location           = location
 
         # School parameters
-        self.school_pars.with_school_types                  = with_school_types
-        self.school_pars.school_enrollment_counts_available = school_enrollment_counts_available
-        self.school_pars.school_mixing_type                 = school_mixing_type
-        self.school_pars.average_class_size                 = average_class_size
-        self.school_pars.inter_grade_mixing                 = inter_grade_mixing
-        self.school_pars.average_student_teacher_ratio      = average_student_teacher_ratio
-        self.school_pars.average_teacher_teacher_degree     = average_teacher_teacher_degree
-        self.school_pars.teacher_age_min                    = teacher_age_min
-        self.school_pars.teacher_age_max                    = teacher_age_max
-        self.school_pars.with_non_teaching_staff            = with_non_teaching_staff
-        self.school_pars.average_student_all_staff_ratio    = average_student_all_staff_ratio
-        self.school_pars.average_additional_staff_degree    = average_additional_staff_degree
-        self.school_pars.staff_age_min                      = staff_age_min
-        self.school_pars.staff_age_max                      = staff_age_max
+        self.school_pars.with_school_types               = with_school_types
+        self.school_pars.school_mixing_type              = school_mixing_type
+        self.school_pars.average_class_size              = average_class_size
+        self.school_pars.inter_grade_mixing              = inter_grade_mixing
+        self.school_pars.average_student_teacher_ratio   = average_student_teacher_ratio
+        self.school_pars.average_teacher_teacher_degree  = average_teacher_teacher_degree
+        self.school_pars.teacher_age_min                 = teacher_age_min
+        self.school_pars.teacher_age_max                 = teacher_age_max
+        self.school_pars.with_non_teaching_staff         = with_non_teaching_staff
+        self.school_pars.average_student_all_staff_ratio = average_student_all_staff_ratio
+        self.school_pars.average_additional_staff_degree = average_additional_staff_degree
+        self.school_pars.staff_age_min                   = staff_age_min
+        self.school_pars.staff_age_max                   = staff_age_max
 
         # LTCF parameters
         self.ltcf_pars.with_facilities         = with_facilities
@@ -134,17 +131,17 @@ class Pop(sc.prettyobj):
 
         # If any parameters are supplied as a dict to override defaults, merge them in now
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
-        self.ltcf_pars = sc.objdict(sc.mergedicts(self.ltcf_pars, ltcf_pars))
+        self.ltcf_pars   = sc.objdict(sc.mergedicts(self.ltcf_pars, ltcf_pars))
 
         # Handle the seed
         if self.rand_seed is not None:
             spsamp.set_seed(self.rand_seed)
 
         # Handle data
-        if self.country_location is None :
+        if self.country_location is None:
             self.country_location = cfg.default_country
-            self.state_location = cfg.default_state
-            self.location = cfg.default_location
+            self.state_location   = cfg.default_state
+            self.location         = cfg.default_location
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
@@ -153,7 +150,7 @@ class Pop(sc.prettyobj):
             self.location = None
 
         self.sheet_name = cfg.default_sheet_name
-        self.datadir = cfg.datadir # Assume this has been reset...
+        self.datadir = cfg.datadir  # Assume this has been reset...
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
@@ -164,38 +161,51 @@ class Pop(sc.prettyobj):
         return
 
     def generate(self, verbose=False):
-        ''' Actually generate the network '''
+        """
+        Actually generate the network.
+
+        Args:
+            verbose (bool): If True, print statements about the population and networks as they're being generated.
+
+        Returns:
+            network (dict): A dictionary of the full population with ages, connections, and other attributes.
+        """
 
         log.debug('generate()')
 
         # TODO: unpack variables -- to be refactored to pass parameters directly
 
-        datadir = self.datadir
-        location = self.location
-        state_location = self.state_location
-        country_location = self.country_location
-        n = self.n
-        sheet_name = self.sheet_name
-        use_two_group_reduction = self.ltcf_pars.use_two_group_reduction
-        average_LTCF_degree = self.ltcf_pars.average_LTCF_degree
-        with_facilities = self.ltcf_pars.with_facilities
-        use_default = self.ltcf_pars.use_default
-        ltcf_staff_age_min = self.ltcf_pars.ltcf_staff_age_min
-        ltcf_staff_age_max = self.ltcf_pars.ltcf_staff_age_max
-        school_enrollment_counts_available = self.school_pars.school_enrollment_counts_available
-        with_school_types = self.school_pars.with_school_types
-        school_mixing_type = self.school_pars.school_mixing_type
-        average_class_size = self.school_pars.average_class_size
-        inter_grade_mixing = self.school_pars.inter_grade_mixing
-        average_student_teacher_ratio = self.school_pars.average_student_teacher_ratio
-        average_teacher_teacher_degree = self.school_pars.average_teacher_teacher_degree
-        teacher_age_min = self.school_pars.teacher_age_min
-        teacher_age_max = self.school_pars.teacher_age_max
+        # General parameters
+        datadir                         = self.datadir
+        location                        = self.location
+        state_location                  = self.state_location
+        country_location                = self.country_location
+        n                               = self.n
+        sheet_name                      = self.sheet_name
+        max_contacts                    = self.max_contacts
+
+        # LTCF parameters
+        use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
+        average_LTCF_degree             = self.ltcf_pars.average_LTCF_degree
+        with_facilities                 = self.ltcf_pars.with_facilities
+        use_default                     = self.ltcf_pars.use_default
+        ltcf_staff_age_min              = self.ltcf_pars.ltcf_staff_age_min
+        ltcf_staff_age_max              = self.ltcf_pars.ltcf_staff_age_max
+
+        # School parameters
+        with_school_types               = self.school_pars.with_school_types
+        school_mixing_type              = self.school_pars.school_mixing_type
+        average_class_size              = self.school_pars.average_class_size
+        inter_grade_mixing              = self.school_pars.inter_grade_mixing
+        average_student_teacher_ratio   = self.school_pars.average_student_teacher_ratio
+        average_teacher_teacher_degree  = self.school_pars.average_teacher_teacher_degree
+        teacher_age_min                 = self.school_pars.teacher_age_min
+        teacher_age_max                 = self.school_pars.teacher_age_max
+        with_non_teaching_staff         = self.school_pars.with_non_teaching_staff
         average_student_all_staff_ratio = self.school_pars.average_student_all_staff_ratio
         average_additional_staff_degree = self.school_pars.average_additional_staff_degree
-        staff_age_min = self.school_pars.staff_age_min
-        staff_age_max = self.school_pars.staff_age_max
-        max_contacts = self.max_contacts
+        staff_age_min                   = self.school_pars.staff_age_min
+        staff_age_max                   = self.school_pars.staff_age_max
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
@@ -216,7 +226,7 @@ class Pop(sc.prettyobj):
         facilities_by_uids = homes_by_uids[0:len(facilities)]
 
         # Generate school sizes
-        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, counts_available=school_enrollment_counts_available, use_default=use_default)
+        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
         school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
@@ -265,9 +275,9 @@ class Pop(sc.prettyobj):
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
                                                                                                                                                                average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
-
+        # Assign non teaching staff and update who's available to work at other places
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, verbose=verbose)
+                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff, verbose=verbose)
 
         # Get facility staff
         facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)

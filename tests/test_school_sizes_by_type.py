@@ -65,7 +65,7 @@ def test_school_types_created():
     pop = sp.make_population(**test_pars)
     if pars['with_school_types']:
         expected_school_size_distr = sp.get_school_size_distr_by_type(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'], use_default=pars['use_default'])
-        expected_school_types = list(expected_school_size_distr.keys())
+        expected_school_types = sorted(expected_school_size_distr.keys())
 
     else:
         expected_school_types = [None]
@@ -79,6 +79,10 @@ def test_school_types_created():
     for s, school_type in schools_by_type.items():
         assert len(school_type) == 1, f'Check failed. School {s} is listed as having more than one type.'
         schools_by_type[s] = list(school_type)[0]
+
+    gen_school_types = sorted(set(schools_by_type.values()))
+    assert gen_school_types == expected_school_types, f"Check failed. generated types: {gen_school_types}, expected: {expected_school_types}"
+
     print(f"School types generated for {test_pars['location']}: {set(schools_by_type.values())}")
 
     return list(set(schools_by_type.values()))

@@ -33,7 +33,7 @@ if __name__ == '__main__':
     average_additional_staff_degree = 20
     # school_mixing_type = 'random'
     # school_mixing_type = 'clustered'
-    school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
+    school_mixing_type = {'pk': 'age_clustered', 'es': 'random', 'ms': 'age_clustered', 'hs': 'random', 'uv': 'random'}
 
     # population = sp.generate_synthetic_population(n, datadir, location=location,
     #                                               state_location=state_location,
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     sp.show_layers(population)
 
     # sp.generate_synthetic_population(n, datadir, location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America', 
-    #                               school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
+    #                               with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
     #                               average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75, 
     #                               average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75, 
     #                               verbose=False, plot=False, write=False, return_popdict=False, use_default=False)
@@ -84,10 +84,10 @@ if __name__ == '__main__':
     for i in range(3000):
         person = population[i]
         if person['sc_staff']:
-          print(i, person['sc_staff'])
-#         ha = [population[c]['age'] for c in person['contacts']['H']]
-#         # print(i, person['age'], ha, person['contacts']['H'])
-#         if len(person['contacts']['S']) > 0:
-#           sa = [population[c]['age'] for c in person['contacts']['S']]
-#           # print(i, person['age'], 'S', sa, person['contacts']['S'])
-#           print(i, person['age'], person['scid'], 'S', sa)
+            print(i, person['sc_staff'])
+#           ha = [population[c]['age'] for c in person['contacts']['H']]
+#           # print(i, person['age'], ha, person['contacts']['H'])
+#           if len(person['contacts']['S']) > 0:
+#               sa = [population[c]['age'] for c in person['contacts']['S']]
+#               # print(i, person['age'], 'S', sa, person['contacts']['S'])
+#               print(i, person['age'], person['scid'], 'S', sa)

@@ -5,8 +5,12 @@ This module generates the household, school, and workplace contact networks.
 import sciris as sc
 import numpy as np
 import networkx as nx
+# <<<<<<< HEAD
 from . import data_distributions as spdata
 from . import schools as spsm
+# =======
+from . import schools as spsch
+# >>>>>>> master
 from .config import logger as log, checkmem
 
 
@@ -91,7 +95,13 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         school_mixing_type_dic = dict.fromkeys(school_types, school_mixing_type)
     elif isinstance(school_mixing_type, dict):
         school_mixing_type_dic = sc.dcp(school_mixing_type)
+# <<<<<<< HEAD
         school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
+# =======
+
+#     # school type age ranges by default
+#     school_type_by_age = sc.mergedicts(spsch.get_default_school_types_by_age_single(), school_type_by_age)
+# >>>>>>> master
 
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
@@ -198,19 +208,17 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         if with_school_types:
             student_ages = [age_by_uid_dic[i] for i in students]
             min_age = min(student_ages)
-            # max_ages = max(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
-            # print(this_school_mixing_type)
-            spsm.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
+            spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
             if verbose:
                 if this_school_type in ['es', 'ms', 'hs']:
                     n_non_teaching_staff.append(len(non_teaching_staff))
                     n_teaching_staff.append(len(teachers))
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
-            school_edges = spsm.generate_random_contacts_across_school(school, average_class_size)
-            spsm.add_contacts_from_edgelist(popdict, school_edges, 'S')
+            school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
+            spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
 
