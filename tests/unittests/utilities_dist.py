@@ -138,15 +138,15 @@ def check_employment_age_distribution(pop,
     utilities.plot_array([actual_employed_age_dist[k] for k in sorted(actual_employed_age_dist)],
                          datadir=figdir,
                          names =[k for k in sorted(actual_employed_age_dist)],
-                         expect_label='employeed by age count',
+                         expect_label='employed by age count',
                          xlabel_rotation=90,
                          testprefix="employeed count by age " + test_prefix)
     utilities.plot_array([actual_unemployed_age_dist[k] for k in sorted(actual_unemployed_age_dist)],
                          datadir=figdir,
                          names=[k for k in sorted(actual_unemployed_age_dist)],
-                         expect_label='unemployeed by age count',
+                         expect_label='unemployed by age count',
                          xlabel_rotation=90,
-                         testprefix="unemployeed count by age " + test_prefix)
+                         testprefix="unemployed count by age " + test_prefix)
 
     sorted_actual_employed_rate = {}
     actual_employed_rate = utilities.calc_rate(actual_employed_age_dist, actual_unemployed_age_dist)

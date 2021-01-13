@@ -181,14 +181,14 @@ def plot_array(expected,
     title = testprefix if actual is None else f"Comparison for \n{testprefix}"
     ax.set_title(title)
     x = np.arange(len(expected))
-    if len(x) > 1:
-        width = np.min(np.diff(x))/3
-    else:
-        width = 1.
+    # if len(x) > 1:
+    #     width = np.min(np.diff(x))/3   # not necessary
+    # else:
+    #     width = 1.
     if not binned:
         ax.hist(expected, label=expect_label.title(), color='skyblue')
     else:
-        rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
+        rect1 = ax.bar(x, expected, label=expect_label.title(), color='mediumseagreen')
         # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
         if actual is not None:
             line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
