@@ -11,7 +11,6 @@ import unittest
 import os
 from synthpops import cfg
 
-
 class TestLocation(unittest.TestCase):
     # these methods takes "location" as arguments, however data was not available so tests will skip them
     location_ignoreArgs = [
