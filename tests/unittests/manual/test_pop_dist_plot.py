@@ -20,7 +20,7 @@ import sys
 import shutil
 
 testdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-datadir = str(pathlib.Path(testdir, "../data").absolute())
+datadir = sp.datadir
 figdir = os.path.join(os.path.dirname(__file__), "dist_reports")
 shutil.rmtree(figdir, ignore_errors=True)
 os.makedirs(figdir, exist_ok=True)
@@ -33,15 +33,26 @@ n = 20001
 location = "seattle_metro"
 state_location = "Washington"
 country_location = "usa"
-age_brackets = sp.get_census_age_brackets(datadir, state_location, country_location)
+age_brackets = sp.get_census_age_brackets(datadir=datadir,
+                                          state_location=state_location,
+                                          country_location=country_location)
 age_brackets_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in sorted(age_brackets.keys())]
-
+with_school_types = True
+school_mixing_type = 'random'
+school_type = None
+if with_school_types:
+    school_type=['pk', 'es', 'ms', 'hs', 'uv']
 
 for seed in range(1, 100, 100):
     test_prefix = f"{n}_seed{seed}"
     print("seed:", seed)  # Random seed
+    params = dict(n=n,
+                 generate=True,
+                 rand_seed=seed,
+                 with_school_types=with_school_types,
+                 school_mixing_type=school_mixing_type)
     sc.tic()
-    pop = sp.make_population(n=n, generate=True, rand_seed=seed)
+    pop = sp.make_population(**params)
     sc.toc()
 
     for setting_code in ['H', 'S', 'W']:
@@ -62,7 +73,7 @@ for seed in range(1, 100, 100):
                                                  datadir=datadir, figdir=figdir,
                                                  location=location, state_location=state_location, country_location=country_location,
                                                  test_prefix=test_prefix,
-                                                 skip_stat_check=True, plot_only=True)
+                                                 skip_stat_check=True, plot_only=True, school_type=school_type)
 
     utilities_dist.check_work_size_distribution(pop=pop, n=n, datadir=datadir, figdir=figdir,
                                                 state_location=state_location,
@@ -86,7 +97,8 @@ for seed in range(1, 100, 100):
                                                   state_location=state_location,
                                                   country_location=country_location,
                                                   test_prefix=test_prefix,
-                                                  use_default=True)
+                                                  use_default=True,
+                                                  school_type=school_type)
 
     utilities_dist.check_household_head(pop=pop, n=n, datadir=datadir,
                                         figdir=figdir,

@@ -26,7 +26,7 @@ print('Deprecated, see test_long_term_care_facilities.py instead')
 #     # First create contact_networks_facilities
 #     # set write to False and instead use return_popdict = True to get a population dict
 #     popdict = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
-#                                                          n, school_enrollment_counts_available=True,
+#                                                          n,
 #                                                          write=False, plot=False, return_popdict=True)
 
 #     # Make 2 groups of contacts

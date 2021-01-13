@@ -3,14 +3,14 @@ This module generates school contacts by class and grade in flexible ways.
 Contacts can be clustered into classes and also mixed across the grade and
 across the school.
 
-H. Guclu et. al (2016) shows that mixing across grades is low for public
-schools in elementary and middle schools. Mixing across grades is however
-higher in high schools.
+H. Guclu et. al (2016) shows that mixing across grades is low for public schools
+in elementary and middle schools. Mixing across grades is however higher in high
+schools.
 
-Functions in this module are flexible to allow users to specify the
-inter-grade mixing, and to choose whether contacts are clustered within a
-grade. Clustering contacts across different grades is not supported because
-there is no data to suggest that this happens commonly.
+Functions in this module are flexible to allow users to specify the inter-grade
+mixing (for 'age_clustered' school_mixing_type), and to choose whether contacts
+are clustered within a grade. Clustering contacts across different grades is not
+supported because there is no data to suggest that this happens commonly.
 """
 from collections import Counter
 from itertools import combinations
@@ -29,7 +29,8 @@ from .config import logger as log
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
-    Identify who in the population is attending school based on enrollment rates by age.
+    Identify who in the population is attending school based on enrollment rates
+    by age.
 
     Args:
         datadir (string)          : The file path to the data directory.
@@ -40,10 +41,13 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
         age_by_uid_dic (dict)     : A dictionary mapping ID to age for all individuals in the population.
         homes_by_uids (list)      : A list of lists where each sublist is a household and the IDs of the household members.
         folder_name (string)      : The name of the folder the location is in, e.g. 'contact_networks'
-        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
+        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from default_location, default_state, default_country.
 
     Returns:
-        A dictionary of students in schools mapping their ID to their age, a dictionary of students in school mapping age to the list of IDs with that age, and a dictionary mapping age to the number of students with that age.
+        A dictionary of students in schools mapping their ID to their age, a
+        dictionary of students in school mapping age to the list of IDs with
+        that age, and a dictionary mapping age to the number of students with
+        that age.
     """
     uids_in_school = {}
     uids_in_school_by_age = {}
@@ -89,12 +93,19 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
 
 
 def send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age, ages_in_school_count, school_types_by_age, school_type_age_ranges, verbose=False):
-
     """
-    A method to send students to school together. This method uses the dictionaries school_types_by_age, school_type_age_ranges, and school_size_distr_by_type to first determine the type of school based on the age of
-    a sampled reference student. Then the school type is used to determine the age range of the school. After that, the size of the school is then sampled conditionally on the school type and then the rest of the students
-    are chosen from the lists of students available in the dictionary uids_in_school_by_age. This method is not perfect and requires a strict definition of school type by age. For now, it is not able to model mixed school
-    types such as schools with Kindergarten through Grade 8 (K-8), or Kindergarten through Grade 12. These mixed types of schools may be common in some settings and this feature may be added later.
+    A method to send students to school together. This method uses the
+    dictionaries school_types_by_age, school_type_age_ranges, and
+    school_size_distr_by_type to first determine the type of school based on the
+    age of a sampled reference student. Then the school type is used to
+    determine the age range of the school. After that, the size of the school is
+    then sampled conditionally on the school type and then the rest of the
+    students are chosen from the lists of students available in the dictionary
+    uids_in_school_by_age. This method is not perfect and requires a strict
+    definition of school type by age. For now, it is not able to model mixed
+    school types such as schools with Kindergarten through Grade 8 (K-8), or
+    Kindergarten through Grade 12. These mixed types of schools may be common in
+    some settings and this feature may be added later.
 
     Args:
         school_size_distr_by_type (dict) : A dictionary of school size distributions binned by size groups or brackets for each school type.
@@ -107,8 +118,11 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         verbose (bool)                   : If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
-        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+        Two lists of lists and third flat list, the first where each sublist is
+        the ages of students in the same school, and the second is the same list
+        but with the IDs of each student in place of their age. The third is a
+        list of the school types for each school, where each school has a single
+        string to represent it's school type.
     """
 
     syn_schools = []
@@ -178,7 +192,9 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 # adding edges to the popdict, either from an edgelist or groups (groups are better when you have fully connected graphs - no need to enumerate for n*(n-1)/2 edges!)
 def add_contacts_from_edgelist(popdict, edgelist, setting):
     """
-    Add contacts to popdict from edges in an edgelist. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
+    Add contacts to popdict from edges in an edgelist. Note that this simply
+    adds to the contacts already in the layer and does not overwrite the
+    contacts.
 
     Args:
         popdict (dict)  : dict of people
@@ -200,7 +216,9 @@ def add_contacts_from_edgelist(popdict, edgelist, setting):
 
 def add_contacts_from_group(popdict, group, setting):
     """
-    Add contacts to popdict from fully connected group. Note that this simply adds to the contacts already in the layer and does not overwrite the contacts.
+    Add contacts to popdict from fully connected group. Note that this simply
+    adds to the contacts already in the layer and does not overwrite the
+    contacts.
 
     Args:
         popdict (dict) : dict of people
@@ -220,7 +238,9 @@ def add_contacts_from_group(popdict, group, setting):
 
 def generate_random_contacts_for_additional_school_members(school_uids, additional_school_member_uids, average_additional_school_members_degree=20):
     """
-    Generate random contacts for additional school members. This might be people like non teaching staff such as principals, cleaning staff, or school nurses.
+    Generate random contacts for additional school members. This might be people
+    like non teaching staff such as principals, administrative staff, cleaning
+    staff, or school nurses.
 
     Args:
         school_uids (list)                               : list of uids of individuals already in the school
@@ -246,7 +266,10 @@ def generate_random_contacts_for_additional_school_members(school_uids, addition
 
 def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, verbose=False):
     """
-    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+    Generate edges for contacts mostly within the same age/grade. Edges are
+    randomly distributed so that clustering is roughly average_class_size/size
+    of the grade. Inter grade mixing is done by rewiring edges, specifically
+    swapping endpoints of pairs of randomly sampled edges.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -254,8 +277,8 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         age_by_uid_dic (dict)      : dict mapping uid to age
         grade_age_mapping (dict)   : dict mapping grade to an age
         age_grade_mapping (dict)   : dict mapping age to a grade
-        average_class_size (int)   : average class size
-        inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
+        average_class_size (float) : average class size
+        inter_grade_mixing (float) : percent of edges that rewired to create edges across grades in schools when school_mixing_type is 'age_clustered'
         verbose (bool)             : print statements throughout
 
     Returns:
@@ -298,19 +321,19 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
     # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
     if age_groups_smaller_than_degree:
-        # print('grades too small')
 
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
     if verbose:
-        print('clustering within the school', nx.transitivity(G))
+        print(f"clustering within the school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
     np.random.shuffle(E)
 
     nE = int(len(E) / 2.)  # we'll loop over edges in pairs so only need to loop over half the length
+    missed_rewiring = 0
 
     for n in range(nE):
         if np.random.binomial(1, p=inter_grade_mixing):
@@ -335,6 +358,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
                 new_ej = (ei2, ej2)
 
             else:
+                missed_rewiring += 1
                 continue
 
             G.remove_edges_from([ei, ej])
@@ -342,6 +366,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
     # calculate school age mixing
     if verbose:
+        print(f"missed rewiring {missed_rewiring} edge pairs out of {nE} possible pairs.")
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
             i, j = e
@@ -354,15 +379,16 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             ecount[index_i][index_j] += 1
             ecount[index_j][index_i] += 1
 
-        print('within school age mixing matrix')
-        print(ecount)
+        print(f"within school age mixing matrix\n {ecount}")
 
     return list(G.edges())
 
 
-def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, return_edges=False, verbose=False):
+def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, return_edges=False, verbose=False):
     """
-    Generate edges for contacts mostly within the same age/grade. Edges are randomly distributed so that clustering is roughly average_class_size/size of the grade. Inter grade mixing is done by rewiring edges, specifically swapping endpoints of pairs of randomly sampled edges.
+    Generate edges for contacts mostly within the same age/grade. Edges are
+    randomly distributed so that clustering is roughly average_class_size/size
+    of the grade.
 
     Args:
         syn_school_uids (list)     : list of uids of students in the school
@@ -370,8 +396,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
         age_by_uid_dic (dict)      : dict mapping uid to age
         grade_age_mapping (dict)   : dict mapping grade to an age
         age_grade_mapping (dict)   : dict mapping age to a grade
-        average_class_size (int)   : average class size
-        inter_grade_mixing (float) : percent of within grade edges that rewired to create edges across grades
+        average_class_size (float) : average class size
         return_edges (bool)        : If True, return edges, else return two groups of contacts - students and teachers for each class
         verbose (bool)             : print statements throughout
 
@@ -459,8 +484,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
                 ecount[index_i][index_j] += 1
                 ecount[index_j][index_i] += 1
 
-            print('within school age mixing matrix')
-            print(ecount.astype(int))
+            print(f"within school age mixing matrix\n{ecount}")
 
     if return_edges:
         return list(G.edges())
@@ -501,18 +525,20 @@ def generate_edges_between_teachers(teachers, average_teacher_teacher_degree):
 
 def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school. Well mixed contacts within the same age/grade, some cross grade mixing. Teachers are clustered by grade mostly.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school. Well mixed contacts within the same age/grade, some
+    cross grade mixing. Teachers are clustered by grade mostly.
 
     Args:
-        syn_school_uids (list)               : list of uids of students in the school
-        syn_school_ages (list)               : list of the ages of the students in the school
-        teachers (list)                      : list of teachers in the school
-        age_by_uid_dic (dict)                : dict mapping uid to age
-        grade_age_mapping (dict)             : dict mapping grade to an age
-        age_grade_mapping (dict)             : dict mapping age to a grade
-        average_student_teacher_ratio (int)  : average number of students per teacher
-        average_teacher_teacher_degree (int) : average number of contacts with other teachers
-        verbose (bool)                       : print statements throughout
+        syn_school_uids (list)                 : list of uids of students in the school
+        syn_school_ages (list)                 : list of the ages of the students in the school
+        teachers (list)                        : list of teachers in the school
+        age_by_uid_dic (dict)                  : dict mapping uid to age
+        grade_age_mapping (dict)               : dict mapping grade to an age
+        age_grade_mapping (dict)               : dict mapping age to a grade
+        average_student_teacher_ratio (float)  : average number of students per teacher
+        average_teacher_teacher_degree (float) : average number of contacts with other teachers
+        verbose (bool)                         : print statements throughout
 
     Return:
         List of edges connected to teachers.
@@ -547,7 +573,6 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
             n_teachers_needed = n_teachers_needed - len(available_teachers)
             selected_teachers += list(np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed))
 
-            # selected_teachers = np.random.choice(teachers_assigned, replace=False, size=n_teachers_needed)
         else:
             selected_teachers = np.random.choice(available_teachers, replace=False, size=n_teachers_needed)
             for t in selected_teachers:
@@ -585,9 +610,9 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
         G = nx.Graph()
         G.add_edges_from(edges)
         for s in syn_school_uids:
-            print('student', s, 'contacts with teachers', G.degree(s))
+            print(f"student {s} {age_by_uid_dic[s]} contacts with teachers {G.degree(s)}")
         for t in teachers_assigned:
-            print('teacher', t, 'contacts with students', G.degree(t))
+            print(f"teacher {t} {age_by_uid_dic[t]} contacts with students {G.degree(t)}")
 
     # not returning student-student contacts
     return edges
@@ -595,15 +620,17 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
 
 def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False, verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school. Students and teachers are clustered into disjoint classes.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school. Students and teachers are clustered into disjoint
+    classes.
 
     Args:
-        groups (list)                        : list of lists of students, clustered into groups mostly by grade
-        teachers (list)                      : list of teachers in the school
-        average_student_teacher_ratio (int)  : average number of students per teacher
-        average_teacher_teacher_degree (int) : average number of contacts with other teachers
-        return_edges (bool)                  : If True, return edges, else return two groups of contacts - students and teachers for each class
-        verbose (bool)                       : print statements throughout
+        groups (list)                          : list of lists of students, clustered into groups mostly by grade
+        teachers (list)                        : list of teachers in the school
+        average_student_teacher_ratio (float)  : average number of students per teacher
+        average_teacher_teacher_degree (float) : average number of contacts with other teachers
+        return_edges (bool)                    : If True, return edges, else return two groups of contacts - students and teachers for each class
+        verbose (bool)                         : print statements throughout
 
     Return:
         List of edges connected to teachers.
@@ -672,7 +699,8 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
 
 def generate_random_contacts_across_school(all_school_uids, average_class_size):
     """
-    Generate edges for contacts in a school where everyone mixes randomly. Assuming class and thus class size determines effective contacts.
+    Generate edges for contacts in a school where everyone mixes randomly.
+    Assuming class and thus class size determines effective contacts.
 
     Args:
         all_school_uids (list)   : list of uids of individuals in the school
@@ -695,23 +723,31 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
     return edges
 
 
-def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
+def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, average_student_teacher_ratio=20, average_teacher_teacher_degree=3, average_additional_staff_degree=20, school_mixing_type='random', verbose=False):
     """
-    Generate edges for teachers, including to both students and other teachers at the same school.
+    Generate edges for teachers, including to both students and other teachers
+    at the same school. When school_mixing_type is 'age_clustered' then
+    inter_grade_mixing will rewire a fraction of the edges between students in
+    the same age or grade to be edges with any other student in the school. When
+    school_mixing_type is 'random' or 'age_and_class_clustered',
+    inter_grade_mixing has no effect.
 
     Args:
-        popdict (dict)                       : dictionary of people
-        syn_school_uids (list)               : list of uids of students in the school
-        syn_school_ages (list)               : list of the ages of the students in the school
-        teachers (list)                      : list of teachers in the school
-        age_by_uid_dic (dict)                : dict mapping uid to age
-        grade_age_mapping (dict)             : dict mapping grade to an age
-        age_grade_mapping (dict)             : dict mapping age to a grade
-        average_class_size (int)             : average class size
-        average_student_teacher_ratio (int)  : average number of students per teacher
-        average_teacher_teacher_degree (int) : average number of contacts with other teachers
-        school_mixing_type(str)              : 'random' for well mixed schools, 'clustered' for disjoint classes in a school
-        verbose (bool)                       : print statements throughout
+        popdict (dict)                          : dictionary of people
+        syn_school_uids (list)                  : list of uids of students in the school
+        syn_school_ages (list)                  : list of the ages of the students in the school
+        teachers (list)                         : list of teachers in the school
+        non_teaching_staff (list)               : list of non teaching staff in the school
+        age_by_uid_dic (dict)                   : dict mapping uid to age
+        grade_age_mapping (dict)                : dict mapping grade to an age
+        age_grade_mapping (dict)                : dict mapping age to a grade
+        average_class_size (float)              : average class size
+        inter_grade_mixing (float)              : percent of edges that rewired to create edges across grades in schools when school_mixing_type is 'age_clustered'
+        average_student_teacher_ratio (float)   : average number of students per teacher
+        average_teacher_teacher_degree (float)  : average number of contacts with other teachers
+        average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
+        school_mixing_type(str)                 : 'random' for well mixed schools, 'age_clustered' for well mixed within the same grade and some intermixing with other grades, 'age_and_class_clustered' for disjoint classes in a school by age or grade
+        verbose (bool)                          : print statements throughout
 
     Return:
         Updated popdict.
@@ -720,7 +756,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
     if school_mixing_type not in available_school_mixing_types:
-        print('Stop. school_mixing_type', school_mixing_type, 'does not exist. Please change this to one of', available_school_mixing_types)
+        print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
 
     if school_mixing_type == 'random':
         school = sc.dcp(syn_school_uids)
@@ -738,7 +774,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
 
-        student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, verbose=verbose)
+        student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, return_edges=False, verbose=verbose)
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
 
         n_expected_edges = 0
@@ -752,10 +788,11 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
             n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
             add_contacts_from_group(popdict, group, 'S')
 
-        # # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
+        # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         n_expected_edges += len(teacher_edges)
-        # print(n_expected_edges_list)
+        if verbose:
+            print(f"n_expected_edges_list: {n_expected_edges_list}")
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
@@ -788,7 +825,8 @@ def get_default_school_types_by_age():
     Define and return default probabilities of school type for each age.
 
     Return:
-        A dictionary of default probabilities for the school type likely for each age.
+        A dictionary of default probabilities for the school type likely for
+        each age.
 
     """
     school_type_age_ranges = get_default_school_type_age_ranges()
@@ -806,7 +844,8 @@ def get_default_school_types_by_age():
 
 def get_default_school_types_by_age_single():
     """
-    Define and return default school type by age by assigning the school type with the highest probability.
+    Define and return default school type by age by assigning the school type
+    with the highest probability.
 
     Return:
         A dictionary of default school type by age.
@@ -837,10 +876,12 @@ def get_default_school_size_distr_brackets():
 
 def get_default_school_size_distr_by_type():
     """
-    Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
+    Define and return default school size distribution for each school type. The
+    school size distributions are binned to size groups or brackets.
 
     Return:
-        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+        A dictionary of school size distributions binned by size groups or
+        brackets for each type of default school.
 
     """
     school_size_distr_by_type = {}
@@ -855,7 +896,8 @@ def get_default_school_size_distr_by_type():
 
 def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, teacher_age_min=25, teacher_age_max=75, verbose=False):
     """
-    Assign teachers to each school according to the average student-teacher ratio.
+    Assign teachers to each school according to the average student-teacher
+    ratio.
 
     Args:
         syn_schools (list)                      : list of lists where each sublist is a school with the ages of the students within
@@ -866,14 +908,16 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         potential_worker_uids_by_age (dict)     : dictionary mapping age to the list of worker ids with that age
         potential_worker_ages_left_count (dict) : dictionary of the count of potential workers left that can be assigned by age
         average_student_teacher_ratio (float)   : The average number of students per teacher.
-        teacher_age_min (int)                   : minimum age for teachers - should be location specific.
-        teacher_age_max (int)                   : maximum age for teachers - should be location specific.
+        teacher_age_min (int)                   : The minimum age for teachers.
+        teacher_age_max (int)                   : The maximum age for teachers.
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
-        List of lists of schools with the ages of individuals in each, lists of lists of schools with the ids of individuals in each,
-        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
-        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+        List of lists of schools with the ages of individuals in each, lists of
+        lists of schools with the ids of individuals in each, dictionary of
+        potential workers mapping id to their age, dictionary mapping age to the
+        list of potential workers of that age, dictionary with the count of
+        workers left to assign for each age after teachers have been assigned.
     """
 
     log.debug('assign_teachers_to_schools()')
@@ -891,7 +935,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
         if verbose:
-            print('nteachers', nteachers, 'student-teacher ratio', size / nteachers)
+            print(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
         teachers = []
         teacher_uids = []
 
@@ -914,16 +958,17 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         syn_teacher_uids.append(teacher_uids)
 
         if verbose:
-            print('school with teachers', sorted(school))
-            print('nkids', (np.array(school) <= 19).sum(), 'n20+', (np.array(school) > 19).sum())
-            print('kid-adult ratio', (np.array(school) <= 19).sum() / (np.array(school) > 19).sum())
+            print(f"school with teachers {sorted(school)}")
+            print(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
+            print(f"kid-adult ratio: {(np.array(school) <= 19).sum() / (np.array(school) > 19).sum()}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, verbose=True):
+def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count, average_student_teacher_ratio=20, average_student_all_staff_ratio=15, staff_age_min=20, staff_age_max=75, with_non_teaching_staff=False, verbose=True):
     """
-    Assign additional staff to each school according to the average student to all staff ratio.
+    Assign additional staff to each school according to the average student to
+    all staff ratio.
 
     Args:
         syn_school_uids (list)                  : list of lists where each sublist is a school with the ids of the students within
@@ -936,42 +981,53 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
         average_student_all_staff_ratio (float) : The average number of students per staff members at school (including both teachers and non teachers).
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
+        with_non_teaching_staff (bool)          : If True, includes non teaching staff.
         verbose (bool)                          : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
-        List of lists of schools with the ids of non teaching staff for each school,
-        dictionary of potential workers mapping id to their age, dictionary mapping age to the list of potential workers of that age,
-        dictionary with the count of workers left to assign for each age after teachers have been assigned.
+        List of lists of schools with the ids of non teaching staff for each
+        school, dictionary of potential workers mapping id to their age,
+        dictionary mapping age to the list of potential workers of that age,
+        dictionary with the count of workers left to assign for each age after
+        teachers have been assigned.
     """
     log.debug('assign_additional_staff_to_schools()')
-    if average_student_all_staff_ratio is None:
-        average_student_all_staff_ratio = 0
+
+    # with_non_teaching_staff is False so this method will not select anyone to be a non teaching staff member at schools - thus return empty lists for non_teaching_staff_uids
+    if not with_non_teaching_staff:
+        if verbose:
+            print(f"with_non_teaching_staff: {with_non_teaching_staff}, so this method does not produce additional staff")
+        non_teaching_staff_uids = [[] for student_list in syn_school_uids]
+        return non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
     if average_student_teacher_ratio < average_student_all_staff_ratio:
-        errormsg = f'The ratio of students to all staff at school must be lower than or equal to the ratio students to teachers at school. All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school.'
+        errormsg = f"The ratio of students to all staff at school ({average_student_all_staff_ratio}) must be lower than or equal to the ratio students to teachers at school ({average_student_teacher_ratio}). All staff includes both teaching and non teaching staff, so if the student to all staff ratio is greater than the student to teacher ratio then this would expect there to be more teachers than all possible staff in a school."
         raise ValueError(errormsg)
 
     n_students_list = [len(student_list) for student_list in syn_school_uids]  # what is the number of students in each school
     n_teachers_list = [len(teacher_list) for teacher_list in syn_teacher_uids]  # what is the number of teachers in each school
 
     if average_student_all_staff_ratio == 0:
-        n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
+        raise ValueError(f"The ratio of students to all staff at school is {average_student_all_staff_ratio}. This would mean no students at the school. Try another value greater than 0 and less than the average_student_teacher_ratio: {average_student_teacher_ratio}.")
+    # if average_student_all_staff_ratio == 0:
+    #     n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
     else:
         n_all_staff_list = [max(1, int(i/average_student_all_staff_ratio)) for i in n_students_list]  # need at least one staff member
     n_non_teaching_staff_list = [n_all_staff_list[i] - n_teachers_list[i] for i in range(len(n_students_list))]
 
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
-    if min_n_non_teaching_staff <= 0:
-        errormsg = f'At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio and the average_student_all_staff_ratio if you do not expect this to be the case, or some of the generated schools may have too few staff members.'
-        log.debug(errormsg)
+    if verbose:
+        print(f"list of number of students per school: {n_students_list}")
+        print(f"list of number of teachers per school: {n_teachers_list}")
+        print(f"list of number of all staff expected per school: {n_all_staff_list}")
+        print(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
 
-        if verbose:
-            print(n_students_list)
-            print(n_teachers_list)
-            print(n_all_staff_list)
-            print(n_non_teaching_staff_list)
-        n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
+        if min_n_non_teaching_staff <= 0:
+            errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
+            log.debug(errormsg)
+
+    n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
 
     non_teaching_staff_uids = []
 
@@ -996,7 +1052,8 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
 def add_random_contacts_from_graph(G, expected_average_degree):
     """
-    Add additional edges at random to achieve the expected or desired average degree.
+    Add additional edges at random to achieve the expected or desired average
+    degree.
 
     Args:
         G (networkx Graph)            : networkx Graph object
@@ -1050,7 +1107,8 @@ def add_random_contacts_from_graph(G, expected_average_degree):
 
 def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, uids_in_school):
     """
-    Given a number of students in school, generate a list of school sizes to place everyone in a school.
+    Given a number of students in school, generate a list of school sizes to
+    place everyone in a school.
 
     Args:
         school_size_distr_by_bracket (dict) : The distribution of binned school sizes.
@@ -1080,8 +1138,10 @@ def generate_school_sizes(school_size_distr_by_bracket, school_size_brackets, ui
 
 def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
     """
-    A method to send students to school together. Using the matrices to construct schools is not a perfect method so some things are more forced than the matrix method alone would create.
-    This method models schools using matrices and so it does not create explicit school types.
+    A method to send students to school together. Using the matrices to
+    construct schools is not a perfect method so some things are more forced
+    than the matrix method alone would create. This method models schools using
+    matrices and so it does not create explicit school types.
 
     Args:
         school_sizes (list)          : A list of school sizes.
@@ -1094,8 +1154,11 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         verbose (bool)               : If True, print statements about the generated schools as they're being generated.
 
     Returns:
-        Two lists of lists and third flat list, the first where each sublist is the ages of students in the same school, and the second is the same list but with the IDs of each student
-        in place of their age. The third is a list of the school types for each school, where each school has a single string to represent it's school type.
+        Two lists of lists and third flat list, the first where each sublist is
+        the ages of students in the same school, and the second is the same list
+        but with the IDs of each student in place of their age. The third is a
+        list of the school types for each school, where each school has a single
+        string to represent it's school type.
     """
     log.debug('send_students_to_school()')
     syn_schools = []
@@ -1134,7 +1197,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school_uids.append(uid)
 
         if verbose:
-            print('reference school age', aindex, 'school size', size, 'students left', len(uids_in_school), left_in_bracket)
+            print(f"reference school age {aindex}, school size {size}, students left {len(uids_in_school)}, {left_in_bracket}")
 
         bindex = age_by_brackets_dic[aindex]
         b_prob = contact_matrix_dic['S'][bindex, :]
@@ -1152,7 +1215,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 left_in_bracket[age_by_brackets_dic[ai]] -= 1
             uids_in_school = {}
             if verbose:
-                print('last school', 'size from distribution', size, 'size generated', len(new_school))
+                print(f"last school, size from distribution: {size}, size generated {len(new_school)}")
 
         else:
             bi_min = max(0, bindex-1)
@@ -1191,7 +1254,9 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         kids = new_school <= 19
         # new_school_age_counter = Counter(new_school)
         if verbose:
-            print('new school ages', len(new_school), sorted(new_school), 'nkids', kids.sum(), 'n20+', len(new_school)-kids.sum(), 'kid-adult ratio', kids.sum()/(len(new_school)-kids.sum()))
+            print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
+
     if verbose:
-        print('people in school', np.sum([len(school) for school in syn_schools]), 'left to send', len(uids_in_school))
+        print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
+
     return syn_schools, syn_school_uids, syn_school_types

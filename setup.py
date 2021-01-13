@@ -1,3 +1,9 @@
+"""
+Setup script to install SynthPops and its dependencies.
+
+Run 'python setup.py develop' to install.
+
+"""
 import os
 import runpy
 from setuptools import setup, find_packages
@@ -37,13 +43,13 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "sciris>=0.16.5",
-        "matplotlib",
+        "sciris>=1.0.0",
+        "matplotlib>=3.3.0",
         "numpy",
         "scipy",
         "pandas",
         "numba",
-        "networkx",
+        "networkx>=2.3",
         "cmocean",
         "cmasher",
         "seaborn",
