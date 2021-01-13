@@ -2,7 +2,13 @@
 An example of how to use functions in sp.process_census to process some data
 tables downloaded from the US Census Bureau into distribution tables that
 sp.data_distribution functions might expect to work with.
+
+See example_processing_us_census_bureau_data.py for further instructions.
 """
+
+# Comment out this line after downloading the data
+raise Exception('You must download the Census data (see above) before running this script')
+
 
 import synthpops as sp
 

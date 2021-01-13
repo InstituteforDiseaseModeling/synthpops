@@ -2,12 +2,7 @@
 An example of how to use functions in sp.process_census to process some data
 tables downloaded from the US Census Bureau into distribution tables that
 sp.data_distribution functions might expect to work with.
-"""
 
-import synthpops as sp
-
-
-"""
 Note: Before processing US Census Bureau data you should search for it on their
 website, download it, rename it according to the pattern specified below and,
 place it in the folder specified.
@@ -46,6 +41,12 @@ Notice:
 "This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau."
 
 """
+
+# Comment out this line after downloading the data
+raise Exception('You must download the Census data (see above) before running this script')
+
+
+import synthpops as sp
 
 datadir = sp.datadir
 
