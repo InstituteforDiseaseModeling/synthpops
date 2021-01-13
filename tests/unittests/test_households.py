@@ -12,7 +12,6 @@ seapop_500 = sp.generate_synthetic_population(
     state_location='Washington',
     country_location='usa',
     sheet_name='United States of America',
-    school_enrollment_counts_available=False,
     verbose=False,
     plot=False,
     write=False,
@@ -20,7 +19,6 @@ seapop_500 = sp.generate_synthetic_population(
     use_default=False,
 )
 
-print('Needs to be refactored')
 
 @unittest.skip('Needs to be refactored')
 class HouseholdsTest(unittest.TestCase):

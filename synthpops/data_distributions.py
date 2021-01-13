@@ -27,14 +27,19 @@ def get_age_brackets_from_df(ab_file_path):
     Create a dict of age bracket ranges from ab_file_path.
 
     Args:
-        ab_file_path (string): file path to get the ends of different age brackets from
+        ab_file_path (string): file path to get the ends of different age
+        brackets from
 
     Returns:
-        A dictionary with a np.ndarray of the age range that maps to each age bracket key.
+        A dictionary with a np.ndarray of the age range that maps to each age
+        bracket key.
 
     **Examples**::
 
-        get_age_brackets_from_df(ab_file_path) returns a dictionary age_brackets, where age_brackets[0] is the age range for the first age bracket, age_brackets[1] is the age range for the second age bracket, etc.
+        get_age_brackets_from_df(ab_file_path) returns a dictionary
+        age_brackets, where age_brackets[0] is the age range for the first age
+        bracket, age_brackets[1] is the age range for the second age bracket,
+        etc.
 
     """
     age_brackets = {}
@@ -94,19 +99,23 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=False):
     """
-    A dict of age distribution by age brackets. If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This
-    may not be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    A dict of age distribution by age brackets. If use_default, then we'll first
+    try to look for location specific data and if that's not available we'll use
+    default data from default_location, default_state, default_country. This may
+    not be appropriate for the population under study so it's best to provide as
+    much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified age bracket distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the age distribution by age bracket. Keys map to a range of ages in that age bracket.
+        A dictionary of the age distribution by age bracket. Keys map to a range
+        of ages in that age bracket.
 
     """
     if file_path is None:
@@ -161,31 +170,35 @@ def get_household_size_distr_path(datadir, location=None, state_location=None, c
 
 def get_household_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    A dictionary of the distributions of household sizes. If you don't give the file_path, then supply the location and state_location strings.
-    If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This
-    may not be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    A dictionary of the distribution of household sizes. If you don't give the
+    file_path, then supply the location, state_location, and country_location
+    strings. If use_default, then we'll first try to look for location specific
+    data and if that's not available we'll use default data from
+    default_location, default_state, default_country. This may not be
+    appropriate for the population under study so it's best to provide as much
+    data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified household size distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the household size distribution data. Keys map to the household size as an integer, values are the percent of households of that size.
+        A dictionary of the household size distribution data. Keys map to the
+        household size as an integer, values are the percent of households of
+        that size.
 
     """
     if file_path is None:
         file_path = get_household_size_distr_path(datadir, location, state_location, country_location)
     try:
-        # file_path = get_household_size_distr_path(datadir, location, state_location, country_location)
         df = pd.read_csv(file_path)
     except:
         if use_default:
             file_path = get_household_size_distr_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
-            # print("file_path: " + str(file_path))
             df = pd.read_csv(file_path)
         else:
             raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
@@ -194,7 +207,7 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
 
 def get_head_age_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
-    Get file_path for head of household age brackets. If data doesn't exist at the state level, only give the country_location.
+    Get file_path for head of household age brackets.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -242,20 +255,26 @@ def get_head_age_brackets_path(datadir, location=None, state_location=None, coun
 
 def get_head_age_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get a dictionary of head age brackets either from the file_path directly, or using the other parameters to figure out what the file_path should be.
-    If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This
-    may not be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    Get a dictionary of head age brackets either from the file_path directly, or
+    using the other parameters to figure out what the file_path should be. If
+    use_default, then we'll first try to look for location specific data and if
+    that's not available we'll use default data from default_location,
+    default_state, default_country. This may not be appropriate for the
+    population under study so it's best to provide as much data as you can for
+    the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified head age brackets data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the age brackets for head of household distribution data. Keys map to the age bracket as an integer, values are the percent of households which head of household in that age bracket.
+        A dictionary of the age brackets for head of household distribution
+        data. Keys map to the age bracket as an integer, values are the percent
+        of households which head of household in that age bracket.
 
     """
     if file_path is None:
@@ -274,7 +293,8 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
 
 def get_household_head_age_by_size_path(datadir, location=None, state_location=None, country_location=None):
     """
-    Get file_path for head of household age by size counts or distribution. If the data doesn't exist at the state level, only give the country_location.
+    Get file_path for head of household age by size counts or distribution. If
+    the data doesn't exist at the state level, only give the country_location.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -283,7 +303,8 @@ def get_household_head_age_by_size_path(datadir, location=None, state_location=N
         country_location (string) : name of the country the state_location is in
 
     Returns:
-        A file path to the head of household age by household size count or distribution data.
+        A file path to the head of household age by household size count or
+        distribution data.
     """
     levels = [location, state_location, country_location]
     if all(level is None for level in levels):
@@ -323,20 +344,24 @@ def get_household_head_age_by_size_path(datadir, location=None, state_location=N
 
 def get_household_head_age_by_size_df(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Return a pandas df of head of household age by the size of the household. If the file_path is given return from there first.
-    If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This
-    may not be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    Return a pandas df of head of household age by the size of the household. If
+    the file_path is given return from there first. If use_default, then we'll
+    first try to look for location specific data and if that's not available
+    we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified data for the age of the head of the household by household size
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
 
     Returns:
-        A file path to the head of household age by household size count or distribution data.
+        A file path to the head of household age by household size count or
+        distribution data.
     """
     if file_path is None:
         file_path = get_household_head_age_by_size_path(datadir, location=location, state_location=state_location, country_location=country_location)
@@ -353,21 +378,25 @@ def get_household_head_age_by_size_df(datadir, location=None, state_location=Non
 
 def get_head_age_by_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, household_size_1_included=False, use_default=False):
     """
-    Create an array of head of household age bracket counts (col) given by size (row). If use_default, then we'll first try to look for location
-    specific data and if that's not available we'll use default data from Seattle, WA. This may not be appropriate for the population under study
-    so it's best to provide as much data as you can for the specific population.
+    Create an array of head of household age bracket counts (column) given by
+    size (row). If use_default, then we'll first try to look for location
+    specific data and if that's not available we'll use default data from the
+    default_location, default_state, default_country. This may not be
+    appropriate for the population under study so it's best to provide as much
+    data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified age of the head of the household by household size distribution data
         household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
-        An array where each row s represents the age distribution of the head of households for households of size s-1.
+        An array where each row s represents the age distribution of the head of
+        households for households of size s-1.
 
     """
     hha_df = get_household_head_age_by_size_df(datadir, location=location, state_location=state_location, country_location=country_location, file_path=file_path, use_default=use_default)
@@ -388,7 +417,9 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
 
 def get_census_age_brackets_path(datadir, location=None, state_location=None, country_location=None, nbrackets=None):
     """
-    Get file_path for census age brackets: depends on the state or country of the source data on contact patterns.
+    Get file_path for census age brackets: will depend on the state or country
+    of the source data on the age distribution and age specific contact
+    patterns.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -397,7 +428,8 @@ def get_census_age_brackets_path(datadir, location=None, state_location=None, co
         country_location (string) : name of the country the state_location is in
 
     Returns:
-        A file path to the age brackets to be used with census age data in combination with the contact matrix data.
+        A file path to the age brackets to be used with census age data in
+        combination with the contact matrix data.
     """
     datadir = get_relative_path(datadir)
     if nbrackets is None:
@@ -434,23 +466,28 @@ def get_census_age_brackets_path(datadir, location=None, state_location=None, co
 
 def get_census_age_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False, nbrackets=None):
     """
-    Get census age brackets: depends on the country or source of contact pattern data. If use_default, then we'll
-    first try to look for location specific data and if that's not available we'll use default data from Seattle, WA.
-    This may not be appropriate for the population under study so it's best to provide as much data as you can for the
-    specific population.
+    Get census age brackets: depends on the country or source of the age
+    distribution and the contact pattern data. If use_default, then we'll first
+    try to look for location specific data and if that's not available we'll use
+    default data from default_location, default_state, default_country. This may
+    not be appropriate for the population under study so it's best to provide as
+    much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified census age brackets
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of the range of ages that map to each age bracket.
 
     """
+    # if nbrackets is None:
+    #     nbrackets = cfg.nbrackets
+
     if file_path is None:
         file_path = get_census_age_brackets_path(datadir, location, state_location, country_location, nbrackets=nbrackets)
 
@@ -467,18 +504,24 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
 
 def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, delimiter=' ', header=None):
     """
-    Get setting specific contact matrix given sheet name to use. If file_path is given, then delimiter and header should also be specified.
+    Get setting specific age contact matrix given sheet name to use. If
+    file_path is given, then delimiter and header should also be specified.
 
     Args:
         datadir (string)          : file path to the data directory
         setting_code (string)     : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified age contact matrix
         delimiter (string)        : delimter for the contact matrix file
         header (int)              : row number for the header of the file
 
     Returns:
-        Matrix of contact patterns where each row i is the average contact patterns for an individual in age bracket i and the columns represent the age brackets of their contacts. The matrix element i,j is then the contact rate, number, or frequency for the average individual in age bracket i with all of their contacts in age bracket j in that physical contact setting.
+        Matrix of contact patterns where each row i is the average contact
+        patterns for an individual in age bracket i and the columns represent
+        the age brackets of their contacts. The matrix element i,j is then the
+        contact rate, number, or frequency for the average individual in age
+        bracket i with all of their contacts in age bracket j in that physical
+        contact setting.
     """
     if file_path is None:
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
@@ -513,20 +556,24 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
 def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
     # need review for additional countries
     """
-    Create a dict of setting specific age mixing matrices. If use_default, then we'll first try to look for location specific
-    data and if that's not available we'll use default data from Seattle, WA. This may not be appropriate for the population
-    under study so it's best to provide as much data as you can for the specific population.
+    Create a dict of setting specific age contact matrices. If use_default, then
+    we'll first try to look for location specific data and if that's not
+    available we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         setting_code (string)     : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
         sheet_name (string)       : name of the sheet in the excel file with contact patterns
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path_dic (string)    : dictionary to file paths of user specified age contact matrix, where keys are "H", "S", "W", and "C".
         delimiter (string)        : delimter for the contact matrix file
         header (int)              : row number for the header of the file
 
     Returns:
-        A dictionary of the different contact matrices for each population, given by the sheet name. Keys map to the different possible physical contact settings for which data are available.
+        A dictionary of the different contact matrices for each population,
+        given by the sheet name. Keys map to the different possible physical
+        contact settings for which data are available.
 
     """
     matrix_dic = {}
@@ -597,17 +644,19 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
 
 def get_school_enrollment_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get dictionary of enrollment rates by age. If use_default, then we'll first try to look for location specific
-    data and if that's not available we'll use default data from Seattle, WA. This may not be appropriate for the population
-    under study so it's best to provide as much data as you can for the specific population.
+    Get dictionary of enrollment rates by age. If use_default, then we'll first
+    try to look for location specific data and if that's not available we'll use
+    default data from default_location, default_state, default_country. This may
+    not be appropriate for the population under study so it's best to provide as
+    much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified school enrollment by age data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of school enrollment rates by age.
@@ -671,18 +720,20 @@ def get_school_size_brackets_path(datadir, location=None, state_location=None, c
 
 def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get school size brackets: depends on the source/location of the data. If use_default, then we'll
-    first try to look for location specific data and if that's not available we'll use default data from Seattle, WA.
-    This may not be appropriate for the population under study so it's best to provide as much data as you can for the
-    specific population.
+    Get school size brackets: depends on the source/location of the data. If
+    use_default, then we'll first try to look for location specific data and if
+    that's not available we'll use default data from default_location,
+    default_state, default_country. This may not be appropriate for the
+    population under study so it's best to provide as much data as you can for
+    the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified school size brackets data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of school size brackets.
@@ -691,7 +742,6 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
         file_path = get_school_size_brackets_path(datadir, location, state_location, country_location)
     try:
         school_size_brackets = get_age_brackets_from_df(file_path)
-        # print('whatschoolsizebrackets', school_size_brackets)
     except:
         if use_default:
             file_path = get_school_size_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
@@ -741,20 +791,21 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     # return file
 
 
-def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, counts_available=False, file_path=None, use_default=False):
+def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get distribution of school sizes by bracket. Either you have enrollments by individual school or you have school size distribution that is binned. Either way, you want to get a school size distribution.
-    If use_default, then we'll first try to look for location specific data and if that's not available we'll use default data from Seattle, WA. This may not
-    be appropriate for the population under study so it's best to provide as much data as you can for the specific population.
+    Get distribution of school sizes by size bracket or bin. If use_default,
+    then we'll first try to look for location specific data and if that's not
+    available we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        counts_available (bool)   : if True, a list of school sizes is available and a count of the sizes can be constructed
-        file_path (string)        : file path to user specified distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified school size distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of the distribution of school sizes by bracket.
@@ -817,17 +868,19 @@ def get_employment_rates_path(datadir, location=None, state_location=None, count
 
 def get_employment_rates(datadir, location, state_location, country_location, file_path=None, use_default=False):
     """
-    Get employment rates by age. If use_default, then we'll first try to look for location specific data and if that's not
-    available we'll use default data from Seattle, WA. This may not be appropriate for the population under study so it's best
-    to provide as much data as you can for the specific population.
+    Get employment rates by age. If use_default, then we'll first try to look
+    for location specific data and if that's not available we'll use default
+    data from default_location, default_state, default_country. This may not be
+    appropriate for the population under study so it's best to provide as much
+    data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified employment by age data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of employment rates by age.
@@ -888,17 +941,19 @@ def get_workplace_size_brackets_path(datadir, location=None, state_location=None
 
 def get_workplace_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get workplace size brackets. If use_default, then we'll first try to look for location specific data and if that's not
-    available we'll use default data from Seattle, WA. This may not be appropriate for the population under study so it's best
-    to provide as much data as you can for the specific population.
+    Get workplace size brackets. If use_default, then we'll first try to look
+    for location specific data and if that's not available we'll use default
+    data from default_location, default_state, default_country. This may not be
+    appropriate for the population under study so it's best to provide as much
+    data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified workplace size brackets data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of workplace size brackets.
@@ -959,15 +1014,19 @@ def get_workplace_size_distr_by_brackets_path(datadir, location=None, state_loca
 
 def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
-    Get the distribution of workplace size by brackets.
+    Get the distribution of workplace size by brackets. If use_default, then
+    we'll first try to look for location specific data and if that's not
+    available we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified gender by age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+        file_path (string)        : file path to user specified workplace size distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
@@ -1007,7 +1066,8 @@ def get_state_postal_code(state_location, country_location):
 
 def get_usa_long_term_care_facility_path(datadir, state_location=None, country_location=None, part=None):
     """
-    Get file_path for state level data on Long Term Care Providers for the US from 2015-2016.
+    Get file_path for state level data on Long Term Care Providers for the US
+    from 2015-2016.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -1016,8 +1076,10 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
         part (int)                : part 1 or 2 of the table
 
     Returns:
-        str: A file path to data on Long Term Care Providers from 'Long-Term Care Providers and Services Users in the United States - State Estimates Supplement: National Study of Long-Term Care Providers, 2015-2016'.
-        Part 1 or 2 are available.
+        str: A file path to data on Long Term Care Providers from 'Long-Term
+        Care Providers and Services Users in the United States - State Estimates
+        Supplement: National Study of Long-Term Care Providers, 2015-2016'. Part
+        1 or 2 are available.
     """
     if country_location is None:
         raise NotImplementedError("Missing country_location string.")
@@ -1043,18 +1105,20 @@ def get_usa_long_term_care_facility_path(datadir, state_location=None, country_l
 
 def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
     """
-    Get state level data table from National survey on Long Term Care Providers for the US from 2015-2016.
+    Get state level data table from National survey on Long Term Care Providers
+    for the US from 2015-2016.
 
     Args:
         datadir (string)          : file path to the data directory
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         part (int)                : part 1 or 2 of the table
-        file_path (string)        : file path to user specified distribution data
+        file_path (string)        : file path to user specified LTCF distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
-        str: A file path to data on the size distribution of residents per facility for Long Term Care Facilities.
+        str: A file path to data on the size distribution of residents per
+        facility for Long Term Care Facilities.
     """
 
     if file_path is None:
@@ -1111,18 +1175,20 @@ def get_long_term_care_facility_residents_path(datadir, location=None, state_loc
 
 def get_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
-    Get size distribution of residents per facility for Long Term Care Facilities.
+    Get size distribution of residents per facility for Long Term Care
+    Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified distribution data
+        file_path (string)        : file path to user specified LTCF resident size distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
-        A dictionary of the distribution of residents per facility for Long Term Care Facilities.
+        A dictionary of the distribution of residents per facility for Long Term
+        Care Facilities.
     """
     if file_path is None:
         file_path = get_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
@@ -1139,7 +1205,8 @@ def get_long_term_care_facility_residents_distr(datadir, location=None, state_lo
 
 def get_long_term_care_facility_residents_distr_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
-    Get file_path for the size bins for the distribution of residents per facility for Long Term Care Facilities.
+    Get file_path for the size bins for the distribution of residents per
+    facility for Long Term Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -1148,7 +1215,8 @@ def get_long_term_care_facility_residents_distr_brackets_path(datadir, location=
         country_location (string) : name of the country the location is in
 
     Returns:
-        A file path to data on the size bins for the distribution of residents per facility for Long Term Care Facilities.
+        A file path to data on the size bins for the distribution of residents
+        per facility for Long Term Care Facilities.
     """
 
     # paths = cfg.FilePaths(location, state_location, country_location)
@@ -1178,14 +1246,15 @@ def get_long_term_care_facility_residents_distr_brackets_path(datadir, location=
 
 def get_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
-    Get size bins for the distribution of residents per facility for Long Term Care Facilities.
+    Get size bins for the distribution of residents per facility for Long Term
+    Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified LTCF resident size brackets data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
@@ -1207,7 +1276,8 @@ def get_long_term_care_facility_residents_distr_brackets(datadir, location=None,
 
 def get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=None, state_location=None, country_location=None):
     """
-    Get file_path for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    Get file_path for the distribution of resident to staff ratios per facility
+    for Long Term Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -1216,7 +1286,8 @@ def get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=
         country_location (string) : name of the country the location is in
 
     Returns:
-        A file path to data on the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+        A file path to data on the distribution of resident to staff ratios per
+        facility for Long Term Care Facilities.
     """
 
     # paths = cfg.FilePaths(location, state_location, country_location)
@@ -1246,18 +1317,20 @@ def get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=
 
 def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
-    Get size distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    Get size distribution of resident to staff ratios per facility for Long Term
+    Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
-        file_path (string)        : file path to user specified distribution data
+        file_path (string)        : file path to user specified resident to staff ratio distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
-        A dictionary of the distribution of residents per facility for Long Term Care Facilities.
+        A dictionary of the distribution of residents per facility for Long Term
+        Care Facilities.
     """
     if file_path is None:
         file_path = get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
@@ -1274,7 +1347,8 @@ def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location
 
 def get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
-    Get file_path for the size bins for the distribution of residents to staff ratios per facility for Long Term Care Facilities.
+    Get file_path for the size bins for the distribution of residents to staff
+    ratios per facility for Long Term Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -1283,7 +1357,8 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, 
         country_location (string) : name of the country the location is in
 
     Returns:
-        str: A file path to data on the size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+        str: A file path to data on the size bins for the distribution of
+        resident to staff ratios per facility for Long Term Care Facilities.
     """
     datadir = get_relative_path(datadir)
     levels = [location, state_location, country_location]
@@ -1301,18 +1376,20 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, 
 
 def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
-    Get size bins for the distribution of resident to staff ratios per facility for Long Term Care Facilities.
+    Get size bins for the distribution of resident to staff ratios per facility
+    for Long Term Care Facilities.
 
     Args:
         datadir (string)          : file path to the data directory
         location (string)         : name of the location
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
-        file_path (string)        : file path to user specified gender by age bracket distribution data
+        file_path (string)        : file path to user specified resident to staff ratio brackets data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
 
     Returns:
-        A dictionary of size brackets or bins for resident to staff ratios per facility.
+        A dictionary of size brackets or bins for resident to staff ratios per
+        facility.
     """
 
     if file_path is None:

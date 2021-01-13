@@ -9,7 +9,7 @@ import os
 import sciris as sc
 import synthpops as sp
 
-regenerate = False
+regenerate = True
 outfile = 'basic_api.pop'
 
 pars = dict(
@@ -20,7 +20,7 @@ pars = dict(
 
         with_industry_code              = 0,
         with_facilities                 = 1,
-        with_non_teaching_staff         = 1, # NB: has no effect
+        with_non_teaching_staff         = 1,
         use_two_group_reduction         = 1,
         with_school_types               = 1,
 
@@ -30,7 +30,7 @@ pars = dict(
 
         school_mixing_type              = 'age_and_class_clustered',
         average_class_size              = 20,
-        inter_grade_mixing              = 0.1, # NB: has no effect
+        inter_grade_mixing              = 0.1,
         teacher_age_min                 = 25,
         teacher_age_max                 = 75,
         staff_age_min                   = 20,
@@ -52,7 +52,7 @@ def test_basic_api():
     assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
     if regenerate or not os.path.exists(outfile):
         print('Saving...')
-        sc.saveobj(outfile, pop)
+        # sc.saveobj(outfile, pop)
     else:
         print('Checking...')
         pop2 = sc.loadobj(outfile)
