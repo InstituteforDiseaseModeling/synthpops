@@ -1063,14 +1063,14 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
             str_data_i = data[i].copy()
             if isinstance(str_data_i, dict):
                 data[i] = {int(k): v for k, v in str_data_i.items()}
-    except:
+    except Exception as E:
         if use_default:
             data = get_default_school_size_distr_by_type()  # convert to a static data file and then you can move data clean up to the end of the function
             # file_path = get_school_size_distr_by_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             # f = open(file_path, 'r')
             # data = json.load(f)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}, {cfg.default_country}.")
+            raise ValueError(f"Data unavailable for the location specified ({str(E)}). Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}, {cfg.default_country}.")
 
     # # convert keys to ints for the size distribution by type
     # for i in data:
