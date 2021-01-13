@@ -59,14 +59,10 @@ jobs:
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
           echo \</p\>\n >> report.md
           # get rid of links as they are not available to upload
-          echo "details=$(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n')" >> $GITHUB_ENV
-          
-      - name: send status
-        run: |
-        
-          echo $details >> cov.md
+          echo $(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n') > report_copy.md
+          cat report_copy.md >> cov.md
           cml-send-github-check cov.md
-          echo "::set-output name=covdata::$details"
+          echo "::set-output name=covdata::$(cat report_copy.md)"
         
       - name: find bot comment
         uses: peter-evans/find-comment@v1
