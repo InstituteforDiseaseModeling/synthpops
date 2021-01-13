@@ -168,7 +168,7 @@ class Pop(sc.prettyobj):
 
         log.debug('generate_microstructure_with_facilities()')
 
-        print('TEMP: unpack variables -- to be refactored to pass parameters directly')
+        # TODO: unpack variables -- to be refactored to pass parameters directly
 
         datadir = self.datadir
         location = self.location
