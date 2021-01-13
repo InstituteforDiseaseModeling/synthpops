@@ -11,6 +11,7 @@ import unittest
 import os
 from synthpops import cfg
 
+
 class TestLocation(unittest.TestCase):
     # these methods takes "location" as arguments, however data was not available so tests will skip them
     location_ignoreArgs = [
@@ -55,7 +56,9 @@ class TestLocation(unittest.TestCase):
     @unittest.skip("Data not available in location DAKAR")
     def test_dakar_path_methods(self):
         cfg.set_nbrackets(18)
-        exclude_pattern = ["get_usa", "get_gender_fraction_by_age", "get_school_size_distr_by_type", "get_school_type_age_ranges_path"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age",
+                           "get_school_size_distr_by_type", "get_school_type_age_ranges_path",
+                           "get_long_term_"]
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
         datadir = sp.datadir
@@ -65,7 +68,9 @@ class TestLocation(unittest.TestCase):
 
     def test_senegal_state_path_methods(self):
         cfg.set_nbrackets(18)
-        exclude_pattern = ["get_usa", "get_gender_fraction_by_age", "get_school_size_distr_by_type", "get_school_type_age_ranges_path"]
+        exclude_pattern = ["get_usa", "get_gender_fraction_by_age",
+                           "get_school_size_distr_by_type", "get_school_type_age_ranges_path",
+                           "get_long_term_"]
         keywords = ["get", "path"]
         args = ['country_location', 'state_location']
         ignored_args = ['location', 'part']
@@ -92,7 +97,9 @@ class TestLocation(unittest.TestCase):
     def test_dakar_data_methods(self):
         cfg.set_nbrackets(18)
         keywords = ["get", "distr"]
-        exclude_pattern = ["get_usa", "path", "get_gender_fraction_by_age", "get_age_bracket", "get_school_size_distr_by_type", "get_school_type_age_ranges_path"]
+        exclude_pattern = ["get_usa", "path", "get_gender_fraction_by_age", "get_age_bracket",
+                           "get_school_size_distr_by_type", "get_school_type_age_ranges_path",
+                           "get_long_term_"]
         methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
         for m in methods:
             print(m[0])
