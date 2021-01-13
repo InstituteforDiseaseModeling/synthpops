@@ -248,6 +248,7 @@ class Pop(sc.prettyobj):
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
 
 
+
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,
                                                                                                              school_types_distr_by_age,
@@ -315,6 +316,7 @@ class Pop(sc.prettyobj):
                                                                      average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                      average_student_all_staff_ratio=average_student_all_staff_ratio,
                                                                      average_additional_staff_degree=average_additional_staff_degree,
+                                                                     school_type_by_age=school_type_by_age,
                                                                      max_contacts=max_contacts)
 
         # Change types
