@@ -57,8 +57,9 @@ jobs:
           echo \<p\> > report.md
           echo \<div\>\<b\> current code coverage \</b\>\</div\> >> report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
-          echo \</p\> >> report.md
+          echo \</p\>\n >> report.md
           # cml-send-comment report.md
+          cat report.md >> cov.md
           cml-send-github-check cov.md
           # get rid of links as they are not available to upload
           echo "::set-output name=covdata::$(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n')"
