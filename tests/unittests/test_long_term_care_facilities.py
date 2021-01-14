@@ -53,7 +53,6 @@ n = int(n)
 
 def test_generate_microstructures_with_non_teaching_staff():
     # # generate and write to file
-    print()
     population1 = sp.make_population(datadir=datadir,
                                      location=location,
                                      state_location=state_location,
@@ -142,7 +141,6 @@ def test_make_contacts_with_facilities_from_microstructure():
 
     # verify these keys are either None or set to a value and LTCF contacts exist
     for i, uid in enumerate(popdict):
-        print(popdict[uid]['hhid'])
         if popdict[uid]['hhid'] is None:
             assert popdict[uid]['hhid'] is None
         else:
@@ -268,7 +266,6 @@ def check_all_residents_are_connected_to_staff(popdict):
 
             if len(staff_contacts) == 0:
                 flag = False
-                print('i', person['snf_res'], [popdict[j]['snf_staff'] for j in person['contacts']['LTCF']])
                 errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
                 raise ValueError(errormsg)
 
