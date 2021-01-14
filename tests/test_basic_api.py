@@ -56,6 +56,7 @@ def test_basic_api():
     else:
         print('Checking...')
         pop2 = sc.loadobj(outfile)
+        print(len(pop), len(pop2))
         assert pop == pop2, 'Check failed'
         print('Check passed')
     return pop
