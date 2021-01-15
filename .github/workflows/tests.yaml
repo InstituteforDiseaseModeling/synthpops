@@ -24,7 +24,7 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run:  coverage run --source=../synthpops --branch -m pytest -s --ignore-glob=*manual* . --junitxml=test-results.xml # Run all tests
+        run:  coverage run --source=../synthpops --branch -m pytest --durations=0 --ignore-glob=*manual* . --junitxml=test-results.xml # Run all tests
       - name: Create coverage badge
         working-directory: ./tests
         run: coverage-badge -o coverage-badge.svg
@@ -57,11 +57,13 @@ jobs:
           echo \<p\> > report.md
           echo \<div\>\<b\> current code coverage \</b\>\</div\> >> report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
-          echo \</p\> >> report.md
-          # cml-send-comment report.md
-          cml-send-github-check cov.md
+          echo \</p\>\n >> report.md
           # get rid of links as they are not available to upload
-          echo "::set-output name=covdata::$(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n')"
+          echo $(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n') > report_copy.md
+          cat report_copy.md >> cov.md
+          cml-send-github-check cov.md
+          echo "::set-output name=covdata::$(cat report_copy.md)"
+        
       - name: find bot comment
         uses: peter-evans/find-comment@v1
         id: fc
