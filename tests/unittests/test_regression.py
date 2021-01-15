@@ -163,13 +163,17 @@ class TestRegression(unittest.TestCase):
 
     def get_pop_details(self, pop, dir, title_prefix, location, state_location, country_location, decimal=3):
         os.makedirs(dir, exist_ok=True)
+        # want default age brackets and to see that they line up with the average contacts by age bracket created
+        age_brackets = spdd.get_census_age_brackets(self.datadir, location, state_location, country_location)
+        age_brackets_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in sorted(age_brackets.keys())]
         for setting_code in ['H', 'W', 'S']:
             average_contacts = utilities.get_average_contact_by_age(pop, self.datadir, setting_code=setting_code, decimal=decimal)
             fmt = f'%.{str(decimal)}f'
             # print(f"expected contacts by age for {code}:\n", average_contacts)
             utilities.plot_array(average_contacts, datadir = self.figDir,
                                  testprefix=f"{self.n}_seed_{self.seed}_{setting_code}_average_contacts",
-                                 expect_label='Expected' if self.generateBaseline else 'Test')
+                                 expect_label='Expected' if self.generateBaseline else 'Test',
+                                 names=age_brackets_labels, xlabel_rotation=50)
             sc.savejson(os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_average_contact.json"),
                         dict(enumerate(average_contacts.tolist())), indent=2)
 
@@ -180,7 +184,7 @@ class TestRegression(unittest.TestCase):
                 agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
                 textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")
                 np.savetxt(textfile, agg_matrix, delimiter=",", fmt=fmt)
-                fig = sp.plot_contacts(pop, setting_code=setting_code, density_or_frequency=method)
+                fig = sp.plot_contacts(pop, setting_code=setting_code, density_or_frequency=method, do_show=False)
                 fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.png"))
 
     """

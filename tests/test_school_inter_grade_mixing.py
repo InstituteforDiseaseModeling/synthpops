@@ -20,7 +20,7 @@ pars = dict(
 
         with_industry_code              = 0,
         with_facilities                 = 1,
-        with_non_teaching_staff         = 1,  # NB: has no effect
+        with_non_teaching_staff         = 1,
         use_two_group_reduction         = 1,
         with_school_types               = 1,
 

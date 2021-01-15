@@ -9,7 +9,7 @@ import os
 import sciris as sc
 import synthpops as sp
 
-regenerate = True
+regenerate = False
 outfile = 'basic_api.pop'
 
 pars = dict(
@@ -48,16 +48,17 @@ def test_basic_api():
     sp.logger.info('Testing basic API')
 
     pop = sp.make_population(**pars)
-
+    age_distr = sp.read_age_bracket_distr(sp.datadir, country_location='usa', state_location='Washington', location='seattle_metro')
+    assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
     if regenerate or not os.path.exists(outfile):
         print('Saving...')
-        # sc.saveobj(outfile, pop)
+        sc.saveobj(outfile, pop)
     else:
         print('Checking...')
         pop2 = sc.loadobj(outfile)
+        print(len(pop), len(pop2))
         assert pop == pop2, 'Check failed'
         print('Check passed')
-
     return pop
 
 

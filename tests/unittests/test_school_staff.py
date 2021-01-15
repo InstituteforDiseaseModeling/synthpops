@@ -32,7 +32,7 @@ class TestSchoolStaff(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.copy_output()
+        # cls.copy_output()
         shutil.rmtree(cls.resultdir, ignore_errors=True)
 
     @classmethod

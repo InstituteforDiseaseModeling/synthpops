@@ -16,10 +16,9 @@ seapop_500 = sp.generate_synthetic_population(
     plot=False,
     write=False,
     return_popdict=True,
-    use_default=False
+    use_default=False,
 )
 
-print('Needs to be refactored')
 
 @unittest.skip('Needs to be refactored')
 class HouseholdsTest(unittest.TestCase):

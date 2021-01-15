@@ -1,13 +1,8 @@
 """
-An example of how to use functions in sp.process_us_census_bureau_data to
-process some data tables downloaded from the US Census Bureau into distribution
-tables that sp.data_distribution functions might expect to work with.
-"""
+An example of how to use functions in sp.process_census to process some data
+tables downloaded from the US Census Bureau into distribution tables that
+sp.data_distribution functions might expect to work with.
 
-import synthpops as sp
-
-
-"""
 Note: Before processing US Census Bureau data you should search for it on their
 website, download it, rename it according to the pattern specified below and,
 place it in the folder specified.
@@ -47,13 +42,29 @@ Notice:
 
 """
 
-datadir = sp.datadir
-# location = 'Oregon'
-# location_alias = 'Oregon'
-location = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area'
-location_alias = 'portland_metro'  # what shortened name do you want to use for this metro location
+# Comment out this line after downloading the data
+raise Exception('You must download the Census data (see above) before running this script')
 
-state_location = 'Oregon'
+
+import synthpops as sp
+
+datadir = sp.datadir
+
+
+# location, location_alias = 'Oregon', 'Oregon'
+# location, location_alias = 'Portland-Vancouver-Hillsboro-OR-WA-Metro-Area', 'portland_metro'  # what shortened name do you want to use for this metro location
+# state_location = 'Oregon'
+# country_location = 'usa'
+
+
+location, location_alias = 'King_County', 'King_County'
+# location, location_alias = 'Spokane_County', 'Spokane_County'
+# location, location_alias = 'Pierce_County', 'Pierce_County'
+# location, location_alias = 'Yakima_County', 'Yakima_County'
+
+state_location = 'Washington'
+
+
 country_location = 'usa'
 
 year = 2019
@@ -81,3 +92,7 @@ sp.write_employment_rates(datadir, location_alias, state_location, country_locat
 # process and write enrollment rates by age data
 enrollment_rates = sp.process_us_census_enrollment_rates(datadir, location, state_location, country_location, year, acs_period)
 sp.write_enrollment_rates(datadir, location_alias, state_location, country_location, enrollment_rates)
+
+# process and write count of workplace sizes by bin
+size_label_mappings, establishment_size_counts = sp.process_us_census_workplace_sizes(datadir, location, state_location, country_location, 2018)
+sp.write_workplace_size_counts(datadir, location_alias, state_location, country_location, size_label_mappings, establishment_size_counts)
