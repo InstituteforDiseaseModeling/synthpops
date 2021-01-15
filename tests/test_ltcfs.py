@@ -10,9 +10,6 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 import pytest
 
-mplt.rcParams['font.family'] = 'Roboto Condensed'
-mplt.rcParams['font.size'] = 8
-
 
 pars = dict(n                               = 20e3,
             rand_seed                       = 0,
@@ -24,7 +21,7 @@ pars = dict(n                               = 20e3,
 
             with_industry_code              = 0,
             with_facilities                 = 1,
-            with_non_teaching_staff         = 1, # NB: has no effect
+            with_non_teaching_staff         = 1,
             use_two_group_reduction         = 1,
             with_school_types               = 0,
 
@@ -34,7 +31,7 @@ pars = dict(n                               = 20e3,
 
             school_mixing_type              = 'age_and_class_clustered',
             average_class_size              = 20,
-            inter_grade_mixing              = 0.1, # NB: has no effect
+            inter_grade_mixing              = 0.1,
             teacher_age_min                 = 25,
             teacher_age_max                 = 75,
             staff_age_min                   = 20,

@@ -6,8 +6,6 @@ import synthpops as sp
 import numpy as np
 import matplotlib as mplt
 
-# mplt.rcParams['font.family'] = 'Roboto Condensed'
-# mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
