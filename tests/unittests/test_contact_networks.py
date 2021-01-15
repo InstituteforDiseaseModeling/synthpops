@@ -33,7 +33,7 @@ if __name__ == '__main__':
     average_additional_staff_degree = 20
     # school_mixing_type = 'random'
     # school_mixing_type = 'clustered'
-    school_mixing_type = {'pk': 'clustered', 'es': 'random', 'ms': 'clustered', 'hs': 'random', 'uv': 'random'}
+    school_mixing_type = {'pk': 'age_clustered', 'es': 'random', 'ms': 'age_clustered', 'hs': 'random', 'uv': 'random'}
 
     # population = sp.generate_synthetic_population(n, datadir, location=location,
     #                                               state_location=state_location,

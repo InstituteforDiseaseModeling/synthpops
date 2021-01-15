@@ -3,6 +3,7 @@ Read in data distributions.
 """
 
 import os
+import json
 import numpy as np
 import pandas as pd
 import sciris as sc
@@ -611,11 +612,11 @@ def get_school_enrollment_rates_path(datadir, location=None, state_location=None
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, 'enrollment', f'{country_location}_enrollment_rates_by_age.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, 'enrollment', f'{state_location}_enrollment_rates_by_age.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_enrollment_by_age.dat')
+        return os.path.join(datadir,  country_location, state_location, location, 'enrollment', f'{location}_enrollment_rates_by_age.dat')
 
     # paths = cfg.FilePaths(None, state_location, country_location)
     # base = 'school_enrollment_by_age'
@@ -771,11 +772,11 @@ def get_school_size_distr_by_brackets_path(datadir, location=None, state_locatio
     elif country_location is None:
         raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
     elif state_location is None:
-        return os.path.join(datadir,  country_location, 'schools', f'{country_location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_size_distr.dat')
     elif location is None:
-        return os.path.join(datadir,  country_location, state_location, 'schools', f'{state_location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_size_distr.dat')
     else:
-        return os.path.join(datadir,  country_location, state_location, location, 'schools', f'{location}_school_size_distr.dat')
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_size_distr.dat')
 
     # paths = cfg.FilePaths(location, state_location, country_location)
     # base = 'school_size_distr'
@@ -824,6 +825,260 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     size_distr = spb.norm_dic(size_distr)
 
     return size_distr
+
+
+# ### Default school type data ### #
+def get_default_school_type_age_ranges():
+    """
+    Define and return default school types and the age range for each.
+
+    Return:
+        A dictionary of default school types and the age range for each.
+
+    """
+    school_type_age_ranges = {}
+    school_type_age_ranges['pk'] = np.arange(3, 6)
+    school_type_age_ranges['es'] = np.arange(6, 11)
+    school_type_age_ranges['ms'] = np.arange(11, 14)
+    school_type_age_ranges['hs'] = np.arange(14, 18)
+    school_type_age_ranges['uv'] = np.arange(18, 101)
+
+    return school_type_age_ranges
+
+
+def get_default_school_types_distr_by_age():
+    """
+    Define and return default probabilities of school type for each age.
+
+    Return:
+        A dictionary of default probabilities for the school type likely for each age.
+
+    """
+    school_type_age_ranges = get_default_school_type_age_ranges()
+
+    school_types_distr_by_age = {}
+    for a in range(101):
+        school_types_distr_by_age[a] = dict.fromkeys(list(school_type_age_ranges.keys()), 0.)
+
+    for k in school_type_age_ranges.keys():
+        for a in school_type_age_ranges[k]:
+            school_types_distr_by_age[a][k] = 1.
+
+    return school_types_distr_by_age
+
+
+def get_default_school_types_by_age_single():
+    """
+    Define and return default school type by age by assigning the school type with the highest probability.
+
+    Return:
+        A dictionary of default school type by age.
+
+    """
+    school_types_distr_by_age = get_default_school_types_distr_by_age()
+    school_types_by_age_single = {}
+    for a in range(101):
+        values_to_keys_dic = {school_types_distr_by_age[a][k]: k for k in school_types_distr_by_age[a]}
+        max_v = max(values_to_keys_dic.keys())
+        max_k = values_to_keys_dic[max_v]
+        if max_v != 0:
+            school_types_by_age_single[a] = max_k
+
+    return school_types_by_age_single
+
+
+def get_default_school_size_distr_brackets():
+    """
+    Define and return default school size distribution brackets.
+
+    Return:
+        A dictionary of school size brackets.
+
+    """
+    return get_school_size_brackets(cfg.datadir, country_location='usa', use_default=True)
+
+
+def get_default_school_size_distr_by_type():
+    """
+    Define and return default school size distribution for each school type. The school size distributions are binned to size groups or brackets.
+
+    Return:
+        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+
+    """
+    school_size_distr_by_type = {}
+
+    school_types = ['pk', 'es', 'ms', 'hs', 'uv']
+
+    for k in school_types:
+        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(cfg.datadir, country_location='usa', use_default=True)
+
+    return school_size_distr_by_type
+
+
+def write_school_type_age_ranges(datadir, location, state_location, country_location, school_type_age_ranges):
+    """
+    Write to file the age range for each school type.
+
+    Args:
+        datadir (string)              : file path to the data directory
+        location (string)             : name of the location
+        state_location (string)       : name of the state the location is in
+        country_location (string)     : name of the country the location is in
+        school_type_age_ranges (dict) : a dictionary with the age range for each school type
+
+    Returns:
+        None.
+    """
+    school_type_age_ranges = sc.objdict(school_type_age_ranges)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise ValueError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise ValueError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        file_path = os.path.join(datadir, country_location, 'schools', f'{country_location}_school_types_by_age_range.dat')
+    elif location is None:
+        file_path = os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_types_by_age_range.dat')
+    else:
+        file_path = os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_types_by_age_range.dat')
+
+    with open(file_path, 'w') as f:
+        f.write('school_type,age_range_min,age_range_max\n')
+        for n, s, v in school_type_age_ranges.enumitems():
+            f.write(f"{s},{v[0]:d},{v[-1]:d}\n")
+    f.close()
+
+
+def get_school_type_age_ranges_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the age range by school type.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        A file path to the age range for different school types.
+    """
+    datadir = get_relative_path(datadir)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_types_by_age_range.dat')
+    elif location is None:
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_types_by_age_range.dat')
+    else:
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_types_by_age_range.dat')
+
+
+def get_school_type_age_ranges(datadir, location, state_location, country_location, file_path=None, use_default=None):
+    """
+    Get a dictionary of the school types and the age range for each for the location specified.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        file_path (string)        : file path to user specified distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of default school types and the age range for each.
+    """
+
+    if file_path is None:
+        file_path = get_school_type_age_ranges_path(datadir, location, state_location, country_location)
+    try:
+        df = pd.read_csv(file_path)
+    except:
+        if use_default:
+            return get_default_school_type_age_ranges()
+        else:
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
+
+    z = zip(df.age_range_min, df.age_range_max)
+    return dict(zip(df.school_type, [np.arange(i[0], i[1] + 1) for i in z]))
+
+
+def get_school_size_distr_by_type_path(datadir, location=None, state_location=None, country_location=None):
+    """
+    Get file_path for the school size distribution by school type.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+
+    Returns:
+        str: A file path to the school size distribution data by different school types for the region specified.
+    """
+    datadir = get_relative_path(datadir)
+    levels = [location, state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    elif country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'schools', f'{country_location}_school_size_distribution_by_type.dat')
+    elif location is None:
+        return os.path.join(datadir, country_location, state_location, 'schools', f'{state_location}_school_size_distribution_by_type.dat')
+    else:
+        return os.path.join(datadir, country_location, state_location, location, 'schools', f'{location}_school_size_distribution_by_type.dat')
+
+
+def get_school_size_distr_by_type(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get the school size distribution by school types. If use_default, then we'll try to look for location specific data first,
+    and if that's not available we'll use default data from the set default locations (see sp.config.py). This may not be appropriate
+    for the population under study so it's best to provide as much data as you can for the specific population.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in, which should be the 'usa'
+        file_path (string)        : file path to user specified distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+    Returns:
+        A dictionary of school size distributions binned by size groups or brackets for each type of default school.
+    """
+
+    if file_path is None:
+        file_path = get_school_size_distr_by_type_path(datadir, location, state_location, country_location)
+    try:
+        f = open(file_path, 'r')
+        data = json.load(f)
+
+        # convert keys to ints for the size distribution by type
+        for i in data:
+            str_data_i = data[i].copy()
+            if isinstance(str_data_i, dict):
+                data[i] = {int(k): v for k, v in str_data_i.items()}
+    except Exception as E:
+        if use_default:
+            data = get_default_school_size_distr_by_type()  # convert to a static data file and then you can move data clean up to the end of the function
+            # file_path = get_school_size_distr_by_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            # f = open(file_path, 'r')
+            # data = json.load(f)
+        else:
+            raise ValueError(f"Data unavailable for the location specified ({str(E)}). Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}, {cfg.default_country}.")
+
+    # # convert keys to ints for the size distribution by type
+    # for i in data:
+    #     str_data_i = data[i].copy()
+    #     if isinstance(str_data_i, dict):
+    #         data[i] = {int(k): v for k, v in str_data_i.items()}
+
+    return data
 
 
 def get_employment_rates_path(datadir, location=None, state_location=None, country_location=None):
@@ -895,7 +1150,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
             file_path = get_employment_rates_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.Age, df.Percent))
 
 
@@ -1134,7 +1389,7 @@ def get_usa_long_term_care_facility_data(datadir, state_location=None, country_l
     return df
 
 
-def get_usa_long_term_care_facility_residents_path(datadir, location=None, state_location=None, country_location=None):
+def get_long_term_care_facility_residents_path(datadir, location=None, state_location=None, country_location=None):
     """
     Get file_path for the size distribution of residents per facility for Long Term Care Facilities.
 
@@ -1173,7 +1428,7 @@ def get_usa_long_term_care_facility_residents_path(datadir, location=None, state
         return os.path.join(datadir, country_location, state_location, location, 'assisted_living', f'{location}_aggregated_residents_distr.csv')
 
 
-def get_usa_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size distribution of residents per facility for Long Term Care
     Facilities.
@@ -1191,19 +1446,19 @@ def get_usa_long_term_care_facility_residents_distr(datadir, location=None, stat
         Care Facilities.
     """
     if file_path is None:
-        file_path = get_usa_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
+        file_path = get_long_term_care_facility_residents_path(datadir, location=location, state_location=state_location, country_location=country_location)
     try:
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=country_location)
+            file_path = get_long_term_care_facility_residents_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=country_location)
             df = pd.read_csv(file_path, header=0)
         else:
             raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.bin, df.percent))
 
 
-def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=None, state_location=None, country_location=None):
+def get_long_term_care_facility_residents_distr_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
     Get file_path for the size bins for the distribution of residents per
     facility for Long Term Care Facilities.
@@ -1244,7 +1499,7 @@ def get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, locat
         return os.path.join(datadir, country_location, state_location, location, 'assisted_living', f'{location}_aggregated_residents_bins.csv')
 
 
-def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size bins for the distribution of residents per facility for Long Term
     Care Facilities.
@@ -1262,19 +1517,19 @@ def get_usa_long_term_care_facility_residents_distr_brackets(datadir, location=N
     """
 
     if file_path is None:
-        file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location, state_location, country_location)
+        file_path = get_long_term_care_facility_residents_distr_brackets_path(datadir, location, state_location, country_location)
     try:
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country,)
+            file_path = get_long_term_care_facility_residents_distr_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country,)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return size_brackets
 
 
-def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=None, state_location=None, country_location=None):
+def get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=None, state_location=None, country_location=None):
     """
     Get file_path for the distribution of resident to staff ratios per facility
     for Long Term Care Facilities.
@@ -1315,7 +1570,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, locat
         return os.path.join(datadir, country_location, state_location, location, 'assisted_living', f'{location}_aggregated_resident_to_staff_ratios_distr.csv')
 
 
-def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size distribution of resident to staff ratios per facility for Long Term
     Care Facilities.
@@ -1333,19 +1588,19 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_distr(datadir, loca
         Care Facilities.
     """
     if file_path is None:
-        file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
+        file_path = get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=location, state_location=state_location, country_location=country_location)
     try:
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            file_path = get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             df = pd.read_csv(file_path, header=0)
         else:
             raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(df.bin, df.percent))
 
 
-def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=None, state_location=None, country_location=None):
+def get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=None, state_location=None, country_location=None):
     """
     Get file_path for the size bins for the distribution of residents to staff
     ratios per facility for Long Term Care Facilities.
@@ -1374,7 +1629,7 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets_path(datad
         return os.path.join(datadir, country_location, state_location, location, 'assisted_living', f'{location}_aggregated_resident_to_staff_ratios_bins.csv')
 
 
-def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size bins for the distribution of resident to staff ratios per facility
     for Long Term Care Facilities.
@@ -1393,13 +1648,71 @@ def get_usa_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, l
     """
 
     if file_path is None:
-        file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location, state_location, country_location)
+        file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location, state_location, country_location)
     try:
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_residents_distr_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
+            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
             raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
     return size_brackets
+
+
+def get_long_term_care_facility_use_rates_path(datadir, state_location=None, country_location=None):
+    """
+    Get file_path for Long Term Care Facility use rates by age for a state.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)   : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+
+    Returns:
+        str: A file path to the data on the Long Term Care Facility usage rates by age.
+
+    Note:
+        Currently only available for the United States.
+    """
+    levels = [state_location, country_location]
+    if all(level is None for level in levels):
+        raise NotImplementedError("Missing input strings. Try again.")
+    if country_location is None:
+        raise NotImplementedError("Missing country_location string. Please check that you have supplied this string.")
+    elif state_location is None:
+        return os.path.join(datadir, country_location, 'assisted_living', f'{country_location}_long_term_care_facility_use_rates_by_age.dat')
+    return os.path.join(datadir, country_location, state_location, 'assisted_living', f'{state_location}_long_term_care_facility_use_rates_by_age.dat')
+
+
+def get_long_term_care_facility_use_rates(datadir, state_location=None, country_location=None, file_path=None, use_default=None):
+    """
+    Get Long Term Care Facility use rates by age for a state.
+
+    Args:
+        datadir (str)          : file path to the data directory
+        location_alias (str)   : more commonly known name of the location
+        state_location (str)   : name of the state the location is in
+        country_location (str) : name of the country the location is in
+        file_path (string)     : file path to user specified gender by age bracket distribution data
+        use_default (bool)     : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
+
+
+    Returns:
+        dict: A dictionary of the Long Term Care Facility usage rates by age.
+
+    Note:
+        Currently only available for the United States.
+    """
+    if file_path is None:
+        file_path = get_long_term_care_facility_use_rates_path(datadir, state_location, country_location)
+    try:
+        df = pd.read_csv(file_path)
+    except:
+        if use_default:
+            file_path = get_long_term_care_facility_use_rates_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
+            df = pd.read_csv(file_path)
+        else:
+            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_state}, {cfg.default_country}.")
+    return dict(zip(df.Age, df.Percent))

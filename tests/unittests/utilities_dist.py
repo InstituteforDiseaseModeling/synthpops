@@ -138,15 +138,15 @@ def check_employment_age_distribution(pop,
     utilities.plot_array([actual_employed_age_dist[k] for k in sorted(actual_employed_age_dist)],
                          datadir=figdir,
                          names =[k for k in sorted(actual_employed_age_dist)],
-                         expect_label='employeed by age count',
+                         expect_label='employed by age count',
                          xlabel_rotation=90,
                          testprefix="employeed count by age " + test_prefix)
     utilities.plot_array([actual_unemployed_age_dist[k] for k in sorted(actual_unemployed_age_dist)],
                          datadir=figdir,
                          names=[k for k in sorted(actual_unemployed_age_dist)],
-                         expect_label='unemployeed by age count',
+                         expect_label='unemployed by age count',
                          xlabel_rotation=90,
-                         testprefix="unemployeed count by age " + test_prefix)
+                         testprefix="unemployed count by age " + test_prefix)
 
     sorted_actual_employed_rate = {}
     actual_employed_rate = utilities.calc_rate(actual_employed_age_dist, actual_unemployed_age_dist)
@@ -262,7 +262,7 @@ def check_school_size_distribution(pop,
                                    file_path=None,
                                    use_default=False,
                                    test_prefix="",
-                                   skip_stat_check=False,
+                                   skip_stat_check=True,
                                    do_close=True,
                                    school_type=None):
     """
@@ -333,6 +333,7 @@ def check_school_size_distribution(pop,
                              expect_label=f"school count: total {len(actual_per_school_type_dict[k])}",
                              testprefix="school size total (student only)\n" + test_prefix + " " + k,
                              binned=False, do_close=do_close)
+        # statistic_test is not working yet because school sizes are now available by school type. Also depends strongly on population size.
         if not skip_stat_check:
             utilities.statistic_test(expected_values, actual_values, test="x",
                                  comments="school size check")

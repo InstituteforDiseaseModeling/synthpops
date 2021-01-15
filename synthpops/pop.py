@@ -15,7 +15,6 @@ from . import schools as spsch
 from . import workplaces as spw
 from . import plotting as sppl
 
-part = 2 # CK: not sure what this is
 
 __all__ = ['Pop', 'make_population', 'generate_synthetic_population']
 
@@ -51,6 +50,7 @@ class Pop(sc.prettyobj):
                  country_location=None,
                  state_location=None,
                  location=None,
+                 sheet_name=None,
                  do_make=True):
         '''
         Make a full population network including both people (ages, sexes) and contacts. By default uses Seattle, Washington data.
@@ -81,9 +81,9 @@ class Pop(sc.prettyobj):
             staff_age_min (int)                     : The minimum age for non teaching staff.
             staff_age_max (int)                     : The maximum age for non teaching staff.
             rand_seed (int)                         : Start point random sequence is generated from.
-            location                                : name of the location
-            state_location (string)                 : name of the state the location is in
             country_location (string)               : name of the country the location is in
+            state_location (string)                 : name of the state the location is in
+            location                                : name of the location
             sheet_name                              : sheet name where data is located
             do_make (bool)                          : whether to make the population
 
@@ -210,15 +210,22 @@ class Pop(sc.prettyobj):
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
 
+        # Load age brackets, and mapping dictionary that matches contact matrices
+        contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
+        contact_matrix_row = contact_matrix_shape[0]
+
+        cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
+        cm_age_by_brackets_dic = spb.get_age_by_brackets_dic(cm_age_brackets)
+
         # Generate LTCFs
-        n_nonltcf, age_brackets_16, age_by_brackets_dic_16, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, part, use_default)
+        n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default)
 
         # Generate households
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
-        homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, ltcf_adjusted_age_distr)
+        homes_dic, homes = spltcf.custom_generate_all_households(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_distr)
 
         # Handle homes and facilities
         homes = facilities + homes
@@ -234,40 +241,40 @@ class Pop(sc.prettyobj):
 
         if with_school_types:
 
-            school_size_distr_by_type = spsch.get_default_school_size_distr_by_type()
-            school_size_brackets = spsch.get_default_school_size_distr_brackets()
+            school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+            school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
+            school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
-            school_types_by_age = spsch.get_default_school_types_by_age()
-            school_type_age_ranges = spsch.get_default_school_type_age_ranges()
+            school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
+            school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
+
+
 
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,
-                                                                                                             school_types_by_age,
+                                                                                                             school_types_distr_by_age,
                                                                                                              school_type_age_ranges,
                                                                                                              verbose=verbose)
         else:
             # Get school sizes
             syn_school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
-            # Assign students to school
-            syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose)
+            # Assign students to school using contact matrix method - generic schools
+            syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count,
+                                                                                           cm_age_brackets,
+                                                                                           cm_age_by_brackets_dic,
+                                                                                           contact_matrix_dic, verbose)
+            school_type_by_age = None
 
         # Get employment rates
         employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Find people who can be workers (removing everyone who is currently a student)
-        uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic) # Make a dictionary listing out uids of people by their age
+        uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)  # Make a dictionary listing out uids of people by their age
         potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic)
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
         # Removing facilities residents from potential workers
-        for nf, fc in enumerate(facilities_by_uids):
-            for uid in fc:
-                aindex = age_by_uid_dic[uid]
-                if uid in potential_worker_uids:
-                    potential_worker_uids_by_age[aindex].remove(uid)
-                    potential_worker_uids.pop(uid, None)
-                    if workers_by_age_to_assign_count[aindex] > 0:
-                        workers_by_age_to_assign_count[aindex] -= 1
+        potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spltcf.remove_ltcf_residents_from_potential_workers(facilities_by_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic)
 
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
@@ -277,15 +284,17 @@ class Pop(sc.prettyobj):
                                                                                                                                                                     average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff, verbose=verbose)
 
         # Get facility staff
-        facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic)
-
+        if with_facilities:
+            facilities_staff_uids = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uids, age_by_uid_dic, use_default=use_default)
+        else:
+            facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
         workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
-        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets_16, age_by_brackets_dic_16, contact_matrix_dic, verbose=verbose)
+        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
 
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
@@ -308,6 +317,7 @@ class Pop(sc.prettyobj):
                                                                      average_teacher_teacher_degree=average_teacher_teacher_degree,
                                                                      average_student_all_staff_ratio=average_student_all_staff_ratio,
                                                                      average_additional_staff_degree=average_additional_staff_degree,
+                                                                     school_type_by_age=school_type_by_age,
                                                                      max_contacts=max_contacts)
 
         # Change types
