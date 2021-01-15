@@ -1,7 +1,7 @@
 """
 This module plots the age-specific contact matrix in different settings.
 """
-
+import os
 import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -213,9 +213,6 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     return fig
 
 
-
-
-
 def plot_contacts(population,
                   setting_code='H',
                   aggregate_flag=True,
@@ -293,3 +290,116 @@ def plot_contacts(population,
         plt.show()
 
     return fig
+
+
+def plot_array(expected,
+               generated=None,
+               names=None,
+               figdir=None,
+               testprefix="test",
+               do_show=True,
+               do_save=False,
+               expect_label='Expected',
+               value_text=False,
+               xlabels=None,
+               xlabel_rotation=0,
+               binned=True):
+    """
+    Plot histogram on a sorted array based by names. If names not provided the
+    order will be used. If generate data is not provided, plot only the expected values.
+    Note this can only be used with the limitation that data that has already been binned
+
+    Args:
+        expected        : Array of expected values
+        generated       : Array of values generated using a model
+        names           : names to display on x-axis, default is set to the indexes of data
+        figdir          : directory to save the plot if provided
+        testprefix      : used to prefix the title of the plot
+        do_close        : close the plot immediately if set to True
+        expect_label    : Label to show in the plot, default to "expected"
+        value_text      : display the values on top of the bar if specified
+        xlabel_rotation : rotation degree for x labels if specified
+        binned          : default to True, if False, it will just plot a simple histogram for expected data
+
+    Returns:
+        None.
+
+    Plot will be saved in datadir if given
+    """
+    fig, ax = plt.subplots(1, 1)
+    # font = {
+    #         'size': 14
+    #         }
+    # plt.rc('font', **font)
+    mplt.rcParams['font.family'] = 'Roboto Condensed'
+    title = testprefix if generated is None else f"Comparison for {testprefix}"
+    ax.set_title(title)
+    x = np.arange(len(expected))
+
+    if not binned:
+        ax.hist(expected, label=expect_label.title(), color='mediumseagreen')
+    else:
+        rect1 = ax.bar(x, expected, label=expect_label.title(), color='mediumseagreen')
+        # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
+        if generated is not None:
+            line, = ax.plot(x, generated, color='#236a54', markeredgecolor='white', marker='o', markersize=6, label='Generated')
+            # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+        if value_text:
+            autolabel(ax, rect1, 0, 5)
+            if generated is not None:
+                for j, v in enumerate(generated):
+                    ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
+        if names is not None:
+            if isinstance(names, dict):
+                xticks = sorted(names.keys())
+                xticklabels = [names[k] for k in xticks]
+            else:
+                xticks = np.arange(len(names))
+                xticklabels = names
+            # plt.locator_params(axis='x', nbins=len(xticks))
+            # if the labels are too many it will look crowded so we only show every 10 ticks
+            if len(names) > 30:
+                xticks = xticks[0::10]
+                xticklabels = xticklabels[0::10]
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
+            # ax.set_xlim(left=-1)
+    leg = ax.legend(loc='upper right')
+    leg.draw_frame(False)
+
+    if do_save:
+        if figdir:
+            datadir = cfg.datadir
+            figdir = os.path.join(datadir, 'figures')
+            os.makedirs(figdir, exist_ok=True)
+            plt.savefig(os.path.join(figdir, f"{testprefix}.png".replace('\n', '_')), format="png")
+    if do_show:
+        plt.show()
+    # else:
+    #     plt.close()
+    return fig, ax
+
+
+def autolabel(ax, rects, h_offset=0, v_offset=0.3):
+    """
+    Attach a text label above each bar in *rects*, displaying its height.
+
+    Args:
+        ax       : matplotlib.axes figure object
+        rects    : matplotlib.container.BarContainer
+        h_offset : The position x to place the text at.
+        v_offset : The position y to place the text at.
+
+    Returns:
+        None.
+
+    Set the annotation according to the input parameters
+    """
+    for rect in rects:
+        height = rect.get_height()
+        text = ax.annotate('{}'.format(round(height, 3)),
+                           xy=(rect.get_x() + rect.get_width() / 2, height),
+                           xytext=(h_offset, v_offset),
+                           textcoords="offset points",
+                           ha='center', va='bottom')
+        text.set_fontsize(10)

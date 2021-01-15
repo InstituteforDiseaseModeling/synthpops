@@ -50,6 +50,9 @@ for seed in range(1, 100, 100):
     test_prefix = f"{n}_seed{seed}"
     print("seed:", seed)  # Random seed
     params = dict(n=n,
+                 location=location,
+                 state_location=state_location,
+                 country_location=country_location,
                  generate=True,
                  rand_seed=seed,
                  with_school_types=with_school_types,

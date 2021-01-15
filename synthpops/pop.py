@@ -50,6 +50,7 @@ class Pop(sc.prettyobj):
                  country_location=None,
                  state_location=None,
                  location=None,
+                 sheet_name=None,
                  do_make=True):
         '''
         Make a full population network including both people (ages, sexes) and contacts. By default uses Seattle, Washington data.
@@ -80,9 +81,9 @@ class Pop(sc.prettyobj):
             staff_age_min (int)                     : The minimum age for non teaching staff.
             staff_age_max (int)                     : The maximum age for non teaching staff.
             rand_seed (int)                         : Start point random sequence is generated from.
-            location                                : name of the location
-            state_location (string)                 : name of the state the location is in
             country_location (string)               : name of the country the location is in
+            state_location (string)                 : name of the state the location is in
+            location                                : name of the location
             sheet_name                              : sheet name where data is located
             do_make (bool)                          : whether to make the population
 
