@@ -44,7 +44,7 @@ pars = dict(n                               = 20e3,
 )
 
 
-def test_ltcf_resident_to_staff_ratios():
+def test_ltcf_resident_to_staff_ratios(do_show=False):
     """
     Compare the ltcf resident to staff ratios generated to the data available for the location.
     """
@@ -87,10 +87,11 @@ def test_ltcf_resident_to_staff_ratios():
     ax.set_title('Comparison of LTCF Resident to Staff Ratios')
     ax.set_ylim(0., 1.)
 
-    plt.show()
+    if do_show:
+        plt.show()
 
 
-def test_ltcf_resident_ages():
+def test_ltcf_resident_ages(do_show=False):
     """
     Compare the ltcf resident ages generated with those expected for the location.
     """
@@ -127,13 +128,14 @@ def test_ltcf_resident_ages():
     ax.set_ylim(0., 1.)
     ax.set_xlim(0., 100)
 
-    plt.show()
+    if do_show:
+        plt.show()
 
 
 if __name__ == '__main__':
 
     sc.tic()
-    test_ltcf_resident_to_staff_ratios()
-    test_ltcf_resident_ages()
+    test_ltcf_resident_to_staff_ratios(do_show=True)
+    test_ltcf_resident_ages(do_show=True)
 
     sc.toc()
