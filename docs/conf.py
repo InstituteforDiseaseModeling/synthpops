@@ -20,6 +20,7 @@ import os
 import subprocess
 import sys
 import sphinx_rtd_theme
+from datetime import datetime
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
