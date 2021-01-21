@@ -1,15 +1,19 @@
 import synthpops as sp
 
-def test_load_location():
+def nominal_test_str():
     test_str = """{
-  "data_provenance_notices": ["notice1","notice2"],
-  "reference_links": ["reference1","reference2"],
-  "citations": ["citation1","citation2"],
-  "population_age_distribution_brackets": [
-    [0,4,0.06],
-    [5,9,0.20]
-  ]
-}"""
+      "data_provenance_notices": ["notice1","notice2"],
+      "reference_links": ["reference1","reference2"],
+      "citations": ["citation1","citation2"],
+      "population_age_distribution_brackets": [
+        [0,4,0.06],
+        [5,9,0.20]
+      ]
+    }"""
+    return test_str
+
+def test_load_location():
+    test_str = nominal_test_str()
     location = sp.load_location_from_json_str(test_str)
 
     assert len(location.data_provenance_notices) == 2
