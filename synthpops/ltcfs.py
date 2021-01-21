@@ -5,6 +5,8 @@ Modeling Seattle Metro Long Term Care Facilities
 
 import numpy as np
 import sciris as sc
+from collections import Counter
+from .config import logger as log, checkmem
 from . import sampling as spsamp
 from . import households as sphh
 from . import data_distributions as spdata
@@ -219,26 +221,27 @@ def custom_resample_age(exp_age_distr, a):
 
 
 # Customized household construction methods
-def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate ages of those living in households of greater than one individual. Reference individual is sampled conditional on the household size.
     All other household members have their ages sampled conditional on the reference person's age and the age mixing contact matrix
     in households for the population under study.
 
     Args:
-        size (int)                   : The household size.
-        hh_sizes (array)             : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)          : The age brackets for the heads of household.
-        age_brackets (dict)          : A dictionary mapping age bracket keys to age bracket range.
-        age_by_brackets_dic (dict)   : A dictionary mapping age to the age bracket range it falls within.
-        contact_matrix_dic (dict)    : A dictionary of the age-specific contact matrix for different physical contact settings.
-        single_year_age_distr (dict) : The age distribution.
+        size (int)                    : The household size.
+        hh_sizes (array)              : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)           : The age brackets for the heads of household.
+        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrix_dic (dict)     : A dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict)  : The age distribution.
 
     Returns:
         An array of households for size ``size`` where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual.
     """
+    log.debug('generate_larger_households()')
     ya_coin = 0.15  # This is a placeholder value. Users will need to change to fit whatever population you are working with
 
     homes = np.zeros((hh_sizes[size-1], size), dtype=int)
@@ -249,13 +252,13 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
 
         homes[h][0] = hha
 
-        b = age_by_brackets_dic[hha]
+        b = cm_age_by_brackets_dic[hha]
         b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
         b_prob = contact_matrix_dic['H'][b, :]
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
-            ai = spsamp.sample_from_range(single_year_age_distr, age_brackets[bi][0], age_brackets[bi][-1])
+            ai = spsamp.sample_from_range(single_year_age_distr, cm_age_brackets[bi][0], cm_age_brackets[bi][-1])
 
             """ The following is an example of how you may resample from an age range that is over produced and instead
                 sample ages from an age range that is under produced in your population. This kind of customization may
@@ -282,7 +285,7 @@ def custom_generate_larger_households(size, hh_sizes, hha_by_size_counts, hha_br
     return homes
 
 
-def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
+def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
     For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
@@ -290,21 +293,21 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
     for the population under study.
 
     Args:
-        N (int)                      : The number of people in the population.
-        hh_sizes (array)             : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)          : The age brackets for the heads of household.
-        age_brackets (dict)          : The dictionary mapping age bracket keys to age bracket range.
-        age_by_brackets_dic (dict)   : The dictionary mapping age to the age bracket range it falls within.
-        contact_matrix_dic (dict)    : The dictionary of the age-specific contact matrix for different physical contact settings.
-        single_year_age_distr (dict) : The age distribution.
+        N (int)                       : The number of people in the population.
+        hh_sizes (array)              : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)           : The age brackets for the heads of household.
+        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrix_dic (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict)  : The age distribution.
 
     Returns:
         An array of all households where each household is a row and the values in the row are the ages of the household members.
         The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
     """
 
-    homes_dic = {}
+    homes_dic = dict()
     homes_dic[1] = sphh.generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr)
     # remove living alone from the distribution to choose from!
     for h in homes_dic[1]:
@@ -312,7 +315,7 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
 
     # generate larger households and the ages of people living in them
     for s in range(2, len(hh_sizes) + 1):
-        homes_dic[s] = custom_generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, age_brackets, age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
+        homes_dic[s] = custom_generate_larger_households(s, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, single_year_age_distr)
 
     homes = []
     for s in homes_dic:
@@ -320,6 +323,66 @@ def custom_generate_all_households(N, hh_sizes, hha_by_size_counts, hha_brackets
 
     np.random.shuffle(homes)
     return homes_dic, homes
+
+
+def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_distr):
+    """
+    Generate the ages of those living in households together. First create households of people living alone, then larger households.
+    For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
+    members have their ages sampled conditional on the reference person's age and the age mixing contact matrix in households
+    for the population under study. Fix the count of ages in the population before placing individuals in households.
+
+    Args:
+        n_nonltcf (int)                : The number of people in the population not living in long term care facilities.
+        hh_sizes (array)               : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)    : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)            : The age brackets for the heads of household.
+        cm_age_brackets (dict)         : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict)  : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrix_dic (dict)      : The dictionary of the age-specific contact matrix for different physical contact settings.
+        ltcf_adjusted_age_distr (dict) : The age distribution.
+
+    Returns:
+        An array of all households where each household is a row and the values in the row are the ages of the household members.
+        The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
+    """
+    nonlctf_age_distr = ltcf_adjusted_age_distr / ltcf_adjusted_age_distr.sum()  # use this to generate the rest of the ages
+    nonltcf_age_count = sphh.generate_age_count(n_nonltcf, nonlctf_age_distr)
+    homes_dic = dict()
+    homes_dic[1] = sphh.generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, nonltcf_age_count)
+
+    living_alone_ages = [homes_dic[1][h][0] for h in range(len(homes_dic[1]))]
+    living_alone_age_count = Counter(living_alone_ages)
+
+    ages_left_to_assign = dict.fromkeys(np.arange(len(ltcf_adjusted_age_distr)))
+
+    # remove those already placed in households on their own
+    for a in ages_left_to_assign:
+        ages_left_to_assign[a] = nonltcf_age_count[a] - living_alone_age_count[a]
+
+    # create array of expected household sizes  larger than out of order so that running out of individuals to place by age is not systemically as issue for larger household sizes
+
+    max_hh_size = len(hh_sizes)
+
+    larger_hh_size_array = sphh.generate_larger_household_sizes(hh_sizes)
+
+    for hs in range(2, max_hh_size + 1):
+        homes_dic[hs] = []
+
+    # go through every household and assign age of the head of the household
+    larger_hha_chosen, ages_left_to_assign = sphh.generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, ages_left_to_assign)
+    larger_hha_count = Counter(larger_hha_chosen)
+
+    # make copy of the household matrix that you can modify to help with sampling
+    household_matrix = contact_matrix_dic['H'].copy()
+
+    homes_dic, ages_left_to_assign = sphh.generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic)
+
+    homes = sphh.get_all_households(homes_dic)
+    return homes_dic, homes, ages_left_to_assign
+
+
+
 
 # """
 # Modeling Seattle Metro Long Term Care Facilities
