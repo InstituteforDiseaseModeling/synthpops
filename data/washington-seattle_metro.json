@@ -1,0 +1,9 @@
+{
+  "data_provenance_notices": ["notice1","notice2"],
+  "reference_links": ["reference1","reference2"],
+  "citations": ["citation1","citation2"],
+  "population_age_distribution_brackets": [
+    [0,4,0.06],
+    [5,9,0.20]
+  ]
+}

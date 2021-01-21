@@ -58,5 +58,6 @@ setup(
         "seaborn",
         "graphviz",
         "pydot",
+        "jsonobject"
     ],
 )
