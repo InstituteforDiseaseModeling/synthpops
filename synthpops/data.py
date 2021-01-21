@@ -7,6 +7,7 @@ class Location(JsonObject):
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
     population_age_distribution_brackets = ListProperty(ListProperty(FloatProperty))
+    employment_rates_by_age = ListProperty(ListProperty(FloatProperty))
 
 
 def load_location_from_json(json_obj):
