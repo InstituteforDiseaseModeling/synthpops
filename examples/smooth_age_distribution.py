@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import cmocean
+import pytest
 
 
 mplt.rcParams['font.family'] = 'Roboto Condensed'
@@ -23,7 +24,9 @@ pars = dict(
 )
 
 
-if __name__ == '__main__':
+@pytest.mark.parametrize("pars", [pars])
+def smooth_binned_age_distribution(pars, do_show=False):
+    sp.logger.info(f"Smoothing out age distributions with moving averages.")
 
     smoothed_age_distr, raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'])
     smoothed_age_distr_5, raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'], window_length=5)
@@ -57,4 +60,13 @@ if __name__ == '__main__':
     ax.set_ylabel('Distribution (%)')
     ax.set_title(f"Smoothing Binned Age Distribution: {pars['location'].replace('_', ' ').replace('-', ' ')}")
 
-    plt.show()
+    if do_show:
+        plt.show()
+
+    return fig, ax
+
+
+if __name__ == '__main__':
+
+    fig, ax = smooth_binned_age_distribution(pars, do_show=True)
+
