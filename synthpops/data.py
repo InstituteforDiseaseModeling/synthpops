@@ -6,7 +6,7 @@ class Location(JsonObject):
     data_provenance_notices = ListProperty(StringProperty)
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
-    population_age_distribution_brackets = ListProperty(ListProperty(FloatProperty))
+    population_age_distribution = ListProperty(ListProperty(FloatProperty))
     employment_rates_by_age = ListProperty(ListProperty(FloatProperty))
     enrollment_rates_by_age = ListProperty(ListProperty(FloatProperty))
 

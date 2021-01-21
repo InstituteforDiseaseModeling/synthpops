@@ -9,7 +9,7 @@ class TestLocation(unittest.TestCase):
           "data_provenance_notices": ["notice1","notice2"],
           "reference_links": ["reference1","reference2"],
           "citations": ["citation1","citation2"],
-          "population_age_distribution_brackets": [
+          "population_age_distribution": [
             [0,4,0.06],
             [5,9,0.20]
           ],
@@ -54,25 +54,25 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.citations[1], "citation2",
                           "Array entry incorrect")
 
-        self.assertEquals(len(location.population_age_distribution_brackets), 2,
+        self.assertEquals(len(location.population_age_distribution), 2,
                           "Array length incorrect")
 
-        self.assertEquals(len(location.population_age_distribution_brackets[0]), 3,
+        self.assertEquals(len(location.population_age_distribution[0]), 3,
                           "Array length incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[0][0], 0,
+        self.assertEquals(location.population_age_distribution[0][0], 0,
                           "Array entry incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[0][1], 4,
+        self.assertEquals(location.population_age_distribution[0][1], 4,
                           "Array entry incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[0][2], 0.06,
+        self.assertEquals(location.population_age_distribution[0][2], 0.06,
                           "Array entry incorrect")
 
-        self.assertEquals(len(location.population_age_distribution_brackets[1]), 3,
+        self.assertEquals(len(location.population_age_distribution[1]), 3,
                           "Array length incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[1][0], 5,
+        self.assertEquals(location.population_age_distribution[1][0], 5,
                           "Array entry incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[1][1], 9,
+        self.assertEquals(location.population_age_distribution[1][1], 9,
                           "Array entry incorrect")
-        self.assertEquals(location.population_age_distribution_brackets[1][2], 0.20,
+        self.assertEquals(location.population_age_distribution[1][2], 0.20,
                           "Array entry incorrect")
 
         self.assertEquals(len(location.employment_rates_by_age), 2,

@@ -2,7 +2,7 @@
   "data_provenance_notices": ["notice1","notice2"],
   "reference_links": ["reference1","reference2"],
   "citations": ["citation1","citation2"],
-  "population_age_distribution_brackets": [
+  "population_age_distribution": [
     [0,4,0.060538117352011624],
     [5,9,0.06073439672230401],
     [10,14,0.056610156965866715],
