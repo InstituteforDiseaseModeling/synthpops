@@ -16,6 +16,10 @@ class TestLocation(unittest.TestCase):
           "employment_rates_by_age": [
             [19,0.300],
             [20,0.693]
+          ],
+          "enrollment_rates_by_age": [
+            [2,0],
+            [3,0.529]
           ]
         }"""
         return test_str
@@ -87,3 +91,20 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEquals(location.employment_rates_by_age[1][1], 0.693,
                           "Array entry incorrect")
+
+        self.assertEquals(len(location.enrollment_rates_by_age), 2,
+                          "Array length incorrect")
+        self.assertEquals(len(location.enrollment_rates_by_age[0]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.enrollment_rates_by_age[0][0], 2,
+                          "Array entry incorrect")
+        self.assertEquals(location.enrollment_rates_by_age[0][1], 0,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.enrollment_rates_by_age[1]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.enrollment_rates_by_age[1][0], 3,
+                          "Array entry incorrect")
+        self.assertEquals(location.enrollment_rates_by_age[1][1], 0.529,
+                          "Array entry incorrect")
+
