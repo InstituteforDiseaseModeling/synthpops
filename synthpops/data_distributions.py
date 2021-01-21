@@ -100,11 +100,11 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=False):
     """
-    A dict of age distribution by age brackets. If use_default, then we'll first
-    try to look for location specific data and if that's not available we'll use
-    default data from default_location, default_state, default_country. This may
-    not be appropriate for the population under study so it's best to provide as
-    much data as you can for the specific population.
+    A dict of the age distribution by age brackets. If use_default, then we'll
+    first try to look for location specific data and if that's not available
+    we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
 
     Args:
         datadir (string)          : file path to the data directory
@@ -131,6 +131,51 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
         else:
             raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_location}, {cfg.default_state}.")
     return dict(zip(np.arange(len(df)), df.percent))
+
+
+def get_smoothed_single_year_age_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=None, window_length=3):
+    """
+    A smoothed dict of the age distribution by single years. If use_default,
+    then we'll first try to look for location specific data and if that's not
+    available we'll use default data from default_location, default_state,
+    default_country. This may not be appropriate for the population under study
+    so it's best to provide as much data as you can for the specific population.
+    Using moving windows to smooth out the age distribution.
+
+    Args:
+        datadir (string)          : file path to the data directory
+        location (string)         : name of the location
+        state_location (string)   : name of the state the location is in
+        country_location (string) : name of the country the location is in
+        file_path (string)        : file path to user specified age bracket distribution data
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
+
+    Returns:
+        A dictionary of the age distribution by age bracket. Keys map to a range
+        of ages in that age bracket.
+    """
+    age_bracket_distr = read_age_bracket_distr(datadir, location, state_location, country_location, nbrackets, file_path, use_default)
+    age_brackets = get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=nbrackets)
+    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+
+    raw_age_distr = dict.fromkeys(age_by_brackets_dic.keys(), 0)
+
+    for a in raw_age_distr.keys():
+        b = age_by_brackets_dic[a]
+        raw_age_distr[a] = age_bracket_distr[b] / len(age_brackets[b])
+
+    smoothed_age_distr = raw_age_distr.copy()
+
+    window_half = window_length // 2
+
+    # for a in range(101):
+    for a in range(window_half, max(smoothed_age_distr.keys()) - window_half + 1):
+
+        smoothed_age_distr[a] = np.mean([raw_age_distr[ai] for ai in range(a - window_half, a + window_half + 1)])
+
+    smoothed_age_distr = spb.norm_dic(smoothed_age_distr)
+
+    return smoothed_age_distr, raw_age_distr
 
 
 def get_household_size_distr_path(datadir, location=None, state_location=None, country_location=None):
