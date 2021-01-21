@@ -16,10 +16,8 @@ mplt.rcParams['font.size'] = 12
 pars = dict(
     country_location = 'usa',
     state_location   = 'Washington',
-    # location         = 'seattle_metro',
-    location = 'Yakima_County',
-    # location = 'Spokane_County',
-    # location = 'King_County',
+    # location       = 'seattle_metro',
+    location         = 'Spokane_County',
     use_default      = True,
 )
 
