@@ -9,6 +9,8 @@ class Location(JsonObject):
     population_age_distribution = ListProperty(ListProperty(FloatProperty))
     employment_rates_by_age = ListProperty(ListProperty(FloatProperty))
     enrollment_rates_by_age = ListProperty(ListProperty(FloatProperty))
+    household_head_age_brackets = ListProperty(ListProperty(FloatProperty))
+    household_head_age_distribution_by_family_size = ListProperty(ListProperty(FloatProperty))
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)
