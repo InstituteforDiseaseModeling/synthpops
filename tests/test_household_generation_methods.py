@@ -54,13 +54,14 @@ pars = dict(
 )
 
 
-def test_original_household_method():
+def test_original_household_method(do_show=False):
     sp.logger.info("Generating households with the infer_ages method.")
 
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'infer_ages'
     pop = sp.make_population(**test_pars)
-
+    datadir = sp.datadir
+    plot_age_dist(datadir, pop, do_show, test_pars['household_method'])
     return pop
 
 
@@ -73,9 +74,14 @@ def test_fixed_ages_household_method(do_show=False):
     pop = sp.make_population(**test_pars)
 
     datadir = sp.datadir
+    plot_age_dist(datadir, pop, do_show, test_pars['household_method'])
 
-    expected_age_bracket_distr = sp.read_age_bracket_distr(datadir, country_location=pars['country_location'], state_location=pars['state_location'], location=pars['location'])
-    age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'], state_location=pars['state_location'], location=pars['location'])
+def plot_age_dist(datadir, pop, do_show, testprefix):
+    expected_age_bracket_distr = sp.read_age_bracket_distr(datadir, country_location=pars['country_location'],
+                                                           state_location=pars['state_location'],
+                                                           location=pars['location'])
+    age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'],
+                                              state_location=pars['state_location'], location=pars['location'])
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
     expected_age_distr = dict.fromkeys(np.arange(len(age_by_brackets_dic.keys())), 0)
@@ -91,15 +97,12 @@ def test_fixed_ages_household_method(do_show=False):
 
     gen_age_distr = sp.norm_dic(gen_age_count)
 
-    fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()], generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True)
+    fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()],
+                              generated=[v * 100 for v in gen_age_distr.values()], do_show=do_show, binned=True, testprefix=testprefix)
     ax.set_xlabel('Ages')
     ax.set_title('Distribution (%)')
     ax.set_ylim(bottom=0)
     ax.set_xlim(-1., 101)
-
-    if do_show:
-        plt.show()
-
     return fig, ax
 
 
