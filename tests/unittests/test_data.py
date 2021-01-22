@@ -28,6 +28,10 @@ class TestLocation(unittest.TestCase):
           "household_head_age_distribution_by_family_size": [
             [2,163,999],
             [3,115,757]
+          ],
+          "household_size_distribution": [
+            [1,0.2781590909877753],
+            [2,0.3443313103056699]
           ]
         }"""
         return test_str
@@ -151,4 +155,21 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.household_head_age_distribution_by_family_size[1][1], 115,
                           "Array entry incorrect")
         self.assertEquals(location.household_head_age_distribution_by_family_size[1][2], 757,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.household_size_distribution), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(len(location.household_size_distribution[0]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.household_size_distribution[0][0], 1,
+                          "Array entry incorrect")
+        self.assertEquals(location.household_size_distribution[0][1], 0.2781590909877753,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.household_size_distribution[1]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.household_size_distribution[1][0], 2,
+                          "Array entry incorrect")
+        self.assertEquals(location.household_size_distribution[1][1], 0.3443313103056699,
                           "Array entry incorrect")
