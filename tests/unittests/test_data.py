@@ -40,6 +40,10 @@ class TestLocation(unittest.TestCase):
           "ltcf_num_residents_distribution": [
             [0,19,0.0],
             [20,39,0.08955223880597014]
+          ],
+          "ltcf_num_staff_distribution": [
+            [0,19,0.014925373134328358],
+            [20,39,0.07462686567164178]
           ]
         }"""
         return test_str
@@ -223,3 +227,27 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEquals(location.ltcf_num_residents_distribution[1][2], 0.08955223880597014,
                           "Array entry incorrect")
+
+        self.assertEquals(len(location.ltcf_num_staff_distribution), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(len(location.ltcf_num_staff_distribution[0]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[0][0], 0,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[0][1], 19,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[0][2], 0.014925373134328358,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.ltcf_num_staff_distribution[1]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[1][0], 20,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[1][1], 39,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_num_staff_distribution[1][2], 0.07462686567164178,
+                          "Array entry incorrect")
+
+
+
