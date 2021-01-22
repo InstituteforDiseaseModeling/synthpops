@@ -48,11 +48,21 @@ class TestLocation(unittest.TestCase):
           "school_size_distribution": [
             [20,50,0.027522935779816515],
             [51,100,0.009174311926605505]
+          ],
+          "school_types_by_age": [
+            {
+              "school_type": "pk-es",
+              "age_range": [3,10]
+            },
+            {
+              "school_type": "ms",
+              "age_range": [11,13]
+            }
           ]
         }"""
         return test_str
 
-    def test_load_location(self):
+    def test_load_minimal_location(self):
         test_str = self.minimal_test_str()
         location = sp.load_location_from_json_str(test_str)
 
@@ -272,4 +282,25 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.school_size_distribution[1][1], 100,
                           "Array entry incorrect")
         self.assertEquals(location.school_size_distribution[1][2], 0.009174311926605505,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.school_types_by_age), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(location.school_types_by_age[0].school_type, "pk-es",
+                          "School type value incorrect")
+        self.assertEquals(len(location.school_types_by_age[0].age_range), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_types_by_age[0].age_range[0], 3,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_types_by_age[0].age_range[1], 10,
+                          "Array entry incorrect")
+
+        self.assertEquals(location.school_types_by_age[1].school_type, "ms",
+                          "School type value incorrect")
+        self.assertEquals(len(location.school_types_by_age[1].age_range), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_types_by_age[1].age_range[0], 11,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_types_by_age[1].age_range[1], 13,
                           "Array entry incorrect")

@@ -2,6 +2,11 @@ import json
 from jsonobject import *
 
 
+class SchoolTypeByAge(JsonObject):
+    school_type = StringProperty()
+    age_range = ListProperty(FloatProperty)
+
+
 class Location(JsonObject):
     data_provenance_notices = ListProperty(StringProperty)
     reference_links = ListProperty(StringProperty)
@@ -16,6 +21,8 @@ class Location(JsonObject):
     ltcf_num_residents_distribution = ListProperty(ListProperty(FloatProperty))
     ltcf_num_staff_distribution = ListProperty(ListProperty(FloatProperty))
     school_size_distribution = ListProperty(ListProperty(FloatProperty))
+    # TODO school_size_distribution_by_type
+    school_types_by_age = ListProperty(SchoolTypeByAge)
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)

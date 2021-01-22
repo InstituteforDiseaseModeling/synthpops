@@ -349,5 +349,23 @@
     [1901,2100,0.0],
     [2101,2300,0.0],
     [2301,2700,0.0]
+  ],
+  "school_types_by_age": [
+    {
+      "school_type": "pk-es",
+      "age_range": [3,10]
+    },
+    {
+      "school_type": "ms",
+      "age_range": [11,13]
+    },
+    {
+      "school_type": "hs",
+      "age_range": [14,17]
+    },
+    {
+      "school_type": "uv",
+      "age_range": [18,100]
+    }
   ]
 }
