@@ -32,6 +32,10 @@ class TestLocation(unittest.TestCase):
           "household_size_distribution": [
             [1,0.2781590909877753],
             [2,0.3443313103056699]
+          ],
+          "ltcf_resident_to_staff_ratio_distribution": [
+            [1,1,0.0],
+            [2,2,5.0]
           ]
         }"""
         return test_str
@@ -172,4 +176,25 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.household_size_distribution[1][0], 2,
                           "Array entry incorrect")
         self.assertEquals(location.household_size_distribution[1][1], 0.3443313103056699,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.ltcf_resident_to_staff_ratio_distribution), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(len(location.ltcf_resident_to_staff_ratio_distribution[0]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[0][0], 1,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[0][1], 1,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[0][2], 0.0,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.ltcf_resident_to_staff_ratio_distribution[1]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[1][0], 2,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[1][1], 2,
+                          "Array entry incorrect")
+        self.assertEquals(location.ltcf_resident_to_staff_ratio_distribution[1][2], 5.0,
                           "Array entry incorrect")
