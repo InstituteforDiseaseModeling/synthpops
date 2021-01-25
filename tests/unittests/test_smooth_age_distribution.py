@@ -10,7 +10,7 @@ pars = [
         country_location = 'usa',
         state_location   = 'Washington',
         location         = 'Spokane_County',
-        use_default      = True,
+        use_default      = False,
     ),
     dict(
         country_location = 'usa',
@@ -22,7 +22,7 @@ pars = [
         country_location='usa',
         state_location='Oregon',
         location='portland_metro',
-        use_default=True,
+        use_default=False,
     ),
 ]
 
@@ -51,16 +51,13 @@ def test_smooth_binned_age_distribution(w_len):
 @pytest.mark.parametrize("w_len", [-1, 10000])
 @pytest.mark.xfail(raises=ValueError)
 def test_smooth_binned_age_distribution_invalid(w_len):
-    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
-                                                          location=pars[0]['location'],
-                                                          state_location=pars[0]['state_location'],
-                                                          country_location=pars[0]['country_location'], window_length=1)
-    smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
-                                                               location=pars[0]['location'],
-                                                               state_location=pars[0]['state_location'],
-                                                               country_location=pars[0]['country_location'],
-                                                               window_length=w_len)
-    #should return some error message(?)
+    #if invalid values provided, value error should be raised
+    with pytest.raises(ValueError, match=r".*non-negative integer value less than 10.*"):
+        smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
+                                                                   location=pars[0]['location'],
+                                                                   state_location=pars[0]['state_location'],
+                                                                   country_location=pars[0]['country_location'],
+                                                                   window_length=w_len)
 
 
 @pytest.mark.parametrize("pars", pars)
