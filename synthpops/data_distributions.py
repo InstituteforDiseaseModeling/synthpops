@@ -167,9 +167,9 @@ def get_smoothed_single_year_age_distr(datadir, location=None, state_location=No
 
     smoothed_age_distr = raw_age_distr.copy()
 
-    errormsg = f"The window_length should be a non-negative integer value. The supplied value is: {window_length}. Please try another value greater than or equal to 0."
+    errormsg = f"The window_length should be a non-negative integer value less than 10. The supplied value is: {window_length}. Please try another value between 0 and 10."
 
-    if not isinstance(window_length, (int, np.int32, np.int64)) or window_length < 0:
+    if not isinstance(window_length, (int, np.int32, np.int64)) or window_length < 0 or window_length >= 10:
         raise ValueError(errormsg)
 
     window_half = window_length // 2
