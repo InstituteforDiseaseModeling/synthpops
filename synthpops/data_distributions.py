@@ -133,7 +133,7 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
     return dict(zip(np.arange(len(df)), df.percent))
 
 
-def get_smoothed_single_year_age_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=None, window_length=3):
+def get_smoothed_single_year_age_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=None, window_length=7):
     """
     A smoothed dict of the age distribution by single years. If use_default,
     then we'll first try to look for location specific data and if that's not
@@ -149,6 +149,7 @@ def get_smoothed_single_year_age_distr(datadir, location=None, state_location=No
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified age bracket distribution data
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
+        window_length (int)       : length of window over which to average or smooth out age distribution
 
     Returns:
         A dictionary of the age distribution by age bracket. Keys map to a range
@@ -166,16 +167,26 @@ def get_smoothed_single_year_age_distr(datadir, location=None, state_location=No
 
     smoothed_age_distr = raw_age_distr.copy()
 
+    errormsg = f"The window_length should be a non-negative integer value. The supplied value is: {window_length}. Please try another value greater than or equal to 0."
+
+    if not isinstance(window_length, (int, np.int32, np.int64)) or window_length < 0:
+        raise ValueError(errormsg)
+
     window_half = window_length // 2
 
-    # for a in range(101):
     for a in range(window_half, max(smoothed_age_distr.keys()) - window_half + 1):
 
         smoothed_age_distr[a] = np.mean([raw_age_distr[ai] for ai in range(a - window_half, a + window_half + 1)])
 
+    # check all values are greater than 0
+    min_smoothed_val = min(smoothed_age_distr.values())
+    if min_smoothed_val < 0:
+        errormsg2 = f"The minimum value of the smoothed age distribution is: {min_smoothed_val}. All values of the distribution should be greater than or equal to 0. Check either the original age distribution or the window_length."
+        raise ValueError(errormsg2)
+
     smoothed_age_distr = spb.norm_dic(smoothed_age_distr)
 
-    return smoothed_age_distr, raw_age_distr
+    return smoothed_age_distr
 
 
 def get_household_size_distr_path(datadir, location=None, state_location=None, country_location=None):

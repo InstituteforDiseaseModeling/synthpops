@@ -18,7 +18,7 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 5e3,
+    n                               = 50e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -27,6 +27,7 @@ pars = dict(
     location                        = 'seattle_metro',
     use_default                     = True,
 
+    smooth_ages                     = False,
     household_method                = 'infer_age',
 
     with_industry_code              = 0,
@@ -60,8 +61,13 @@ def test_original_household_method(do_show=False):
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'infer_ages'
     pop = sp.make_population(**test_pars)
+
     datadir = sp.datadir
-    plot_age_dist(datadir, pop, do_show, test_pars['household_method'])
+    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+
+    if do_show:
+        plt.show()
+
     return pop
 
 
@@ -71,12 +77,22 @@ def test_fixed_ages_household_method(do_show=False):
     test_pars = sc.dcp(pars)
     test_pars['n'] = 50e3
     test_pars['household_method'] = 'fixed_ages'
+    test_pars['smooth_ages'] = True
+    test_pars['window_length'] = 5
     pop = sp.make_population(**test_pars)
+    print(pop[5000])
 
     datadir = sp.datadir
-    plot_age_dist(datadir, pop, do_show, test_pars['household_method'])
+    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
 
-def plot_age_dist(datadir, pop, do_show, testprefix):
+    if do_show:
+        plt.show()
+
+    return fig, ax
+
+
+def plot_age_dist(datadir, pop, pars, do_show, testprefix):
+    sp.logger.info("Plot the expected age distribution and the generated age distribution.")
     expected_age_bracket_distr = sp.read_age_bracket_distr(datadir, country_location=pars['country_location'],
                                                            state_location=pars['state_location'],
                                                            location=pars['location'])
@@ -84,11 +100,21 @@ def plot_age_dist(datadir, pop, do_show, testprefix):
                                               state_location=pars['state_location'], location=pars['location'])
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
-    expected_age_distr = dict.fromkeys(np.arange(len(age_by_brackets_dic.keys())), 0)
-    for a in expected_age_distr:
-        b = age_by_brackets_dic[a]
-        expected_age_distr[a] = expected_age_bracket_distr[b] / len(age_brackets[b])
-    expected_age_distr = sp.norm_dic(expected_age_distr)
+    # expected_age_distr = dict.fromkeys(np.arange(len(age_by_brackets_dic.keys())), 0)
+    # for a in expected_age_distr:
+    #     b = age_by_brackets_dic[a]
+    #     expected_age_distr[a] = expected_age_bracket_distr[b] / len(age_brackets[b])
+    # expected_age_distr = sp.norm_dic(expected_age_distr)
+    if pars['smooth_ages']:
+        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
+                                                                   state_location=pars['state_location'],
+                                                                   country_location=pars['country_location'],
+                                                                   window_length=pars['window_length'])
+    else:
+        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
+                                                                   state_location=pars['state_location'],
+                                                                   country_location=pars['country_location'],
+                                                                   window_length=1)
 
     gen_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
 
@@ -98,16 +124,20 @@ def plot_age_dist(datadir, pop, do_show, testprefix):
     gen_age_distr = sp.norm_dic(gen_age_count)
 
     fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()],
-                              generated=[v * 100 for v in gen_age_distr.values()], do_show=do_show, binned=True, testprefix=testprefix)
+                              generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True, testprefix=testprefix.replace('_', ' '))
     ax.set_xlabel('Ages')
-    ax.set_title('Distribution (%)')
+    ax.set_ylabel('Distribution (%)')
     ax.set_ylim(bottom=0)
-    ax.set_xlim(-1., 101)
+    ax.set_xlim(-1.5, max(age_by_brackets_dic.keys()) + 1.5)
+    ax.set_title(f"Age Distribution of {pars['location'].replace('_', ' ')}: {pars['household_method'].replace('_', ' ')} method")
+    fig.set_figheight(4)  # reset the figure size
+    fig.set_figwidth(7)
+
     return fig, ax
 
 
 if __name__ == '__main__':
 
-    pop = test_original_household_method()
+    pop = test_original_household_method(do_show=True)
 
     fig, ax = test_fixed_ages_household_method(do_show=True)
