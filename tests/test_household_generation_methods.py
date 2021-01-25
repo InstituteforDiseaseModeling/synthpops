@@ -18,7 +18,7 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 50e3,
+    n                               = 20e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -75,12 +75,9 @@ def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 50e3
+    test_pars['n'] = 20e3
     test_pars['household_method'] = 'fixed_ages'
-    test_pars['smooth_ages'] = True
-    test_pars['window_length'] = 5
     pop = sp.make_population(**test_pars)
-    print(pop[5000])
 
     datadir = sp.datadir
     fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
@@ -96,25 +93,20 @@ def plot_age_dist(datadir, pop, pars, do_show, testprefix):
     expected_age_bracket_distr = sp.read_age_bracket_distr(datadir, country_location=pars['country_location'],
                                                            state_location=pars['state_location'],
                                                            location=pars['location'])
+
     age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'],
                                               state_location=pars['state_location'], location=pars['location'])
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
-    # expected_age_distr = dict.fromkeys(np.arange(len(age_by_brackets_dic.keys())), 0)
-    # for a in expected_age_distr:
-    #     b = age_by_brackets_dic[a]
-    #     expected_age_distr[a] = expected_age_bracket_distr[b] / len(age_brackets[b])
-    # expected_age_distr = sp.norm_dic(expected_age_distr)
-    if pars['smooth_ages']:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
-                                                                   state_location=pars['state_location'],
-                                                                   country_location=pars['country_location'],
-                                                                   window_length=pars['window_length'])
-    else:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
-                                                                   state_location=pars['state_location'],
-                                                                   country_location=pars['country_location'],
-                                                                   window_length=1)
+    expected_age_distr = dict.fromkeys(age_by_brackets_dic.keys(), 0)
+    for a in expected_age_distr:
+        b = age_by_brackets_dic[a]
+        expected_age_distr[a] = expected_age_bracket_distr[b] / len(age_brackets[b])
+
+    # expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
+    #                                                            state_location=pars['state_location'],
+    #                                                            country_location=pars['country_location'],
+    #                                                            window_length=1)
 
     gen_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
 
