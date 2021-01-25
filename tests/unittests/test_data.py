@@ -58,6 +58,10 @@ class TestLocation(unittest.TestCase):
               "school_type": "ms",
               "age_range": [11,13]
             }
+          ],
+          "workplace_size_counts_by_num_personnel": [
+            [1,4,2947],
+            [5,9,992]
           ]
         }"""
         return test_str
@@ -303,4 +307,25 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.school_types_by_age[1].age_range[0], 11,
                           "Array entry incorrect")
         self.assertEquals(location.school_types_by_age[1].age_range[1], 13,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.workplace_size_counts_by_num_personnel), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(len(location.workplace_size_counts_by_num_personnel[0]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[0][0], 1,
+                          "Array entry incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[0][1], 4,
+                          "Array entry incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[0][2], 2947,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.workplace_size_counts_by_num_personnel[1]), 3,
+                          "Array length incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[1][0], 5,
+                          "Array entry incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[1][1], 9,
+                          "Array entry incorrect")
+        self.assertEquals(location.workplace_size_counts_by_num_personnel[1][2], 992,
                           "Array entry incorrect")

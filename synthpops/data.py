@@ -23,6 +23,8 @@ class Location(JsonObject):
     school_size_distribution = ListProperty(ListProperty(FloatProperty))
     # TODO school_size_distribution_by_type
     school_types_by_age = ListProperty(SchoolTypeByAge)
+    workplace_size_counts_by_num_personnel = ListProperty(ListProperty(FloatProperty))
+
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)
