@@ -40,7 +40,7 @@ pars = dict(
     ltcf_staff_age_min              = 20,
     ltcf_staff_age_max              = 60,
 
-    school_mixing_type              = {'pk-es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
     average_class_size              = 20,
     inter_grade_mixing              = 0.1,
     teacher_age_min                 = 25,
@@ -88,25 +88,43 @@ def test_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
+def test_smoothed_and_fixed_ages_household_method(do_show=False):
+    sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
+
+    test_pars = sc.dcp(pars)
+    test_pars['location'] = 'Spokane_County'
+    test_pars['household_method'] = 'fixed_ages'
+    test_pars['smooth_ages'] = True
+    test_pars['window_length'] = 7  # window for averaging the age distribution
+    pop = sp.make_population(**test_pars)
+
+    datadir = sp.datadir
+    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+
+    if do_show:
+        plt.show()
+
+    return fig, ax
+
+
 def plot_age_dist(datadir, pop, pars, do_show, testprefix):
     sp.logger.info("Plot the expected age distribution and the generated age distribution.")
-    expected_age_bracket_distr = sp.read_age_bracket_distr(datadir, country_location=pars['country_location'],
-                                                           state_location=pars['state_location'],
-                                                           location=pars['location'])
 
     age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'],
                                               state_location=pars['state_location'], location=pars['location'])
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
-    expected_age_distr = dict.fromkeys(age_by_brackets_dic.keys(), 0)
-    for a in expected_age_distr:
-        b = age_by_brackets_dic[a]
-        expected_age_distr[a] = expected_age_bracket_distr[b] / len(age_brackets[b])
+    if pars['smooth_ages']:
+        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
+                                                                   state_location=pars['state_location'],
+                                                                   country_location=pars['country_location'],
+                                                                   window_length=pars['window_length'])
 
-    # expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
-    #                                                            state_location=pars['state_location'],
-    #                                                            country_location=pars['country_location'],
-    #                                                            window_length=1)
+    else:
+        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
+                                                                   state_location=pars['state_location'],
+                                                                   country_location=pars['country_location'],
+                                                                   window_length=1)
 
     gen_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
 
@@ -133,3 +151,5 @@ if __name__ == '__main__':
     pop = test_original_household_method(do_show=True)
 
     fig, ax = test_fixed_ages_household_method(do_show=True)
+
+    fig, ax = test_smoothed_and_fixed_ages_household_method(do_show=True)

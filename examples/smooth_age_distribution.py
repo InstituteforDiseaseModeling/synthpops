@@ -16,8 +16,8 @@ mplt.rcParams['font.size'] = 12
 pars = dict(
     country_location = 'usa',
     state_location   = 'Washington',
-    # location       = 'seattle_metro',
-    location         = 'Spokane_County',
+    location       = 'seattle_metro',
+    # location         = 'Spokane_County',
     use_default      = True,
 )
 
@@ -26,7 +26,11 @@ def smooth_binned_age_distribution(pars, do_show=False):
     sp.logger.info(f"Smoothing out age distributions with moving averages.")
 
     s = dict()
-    raw_age_distr = sp.read_age_bracket_distr(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'])
+    # raw_age_bracket_distr = sp.read_age_bracket_distr(sp.datadir, location=pars['location'], state_location=pars['state_location'], country_location=pars['country_location'])
+    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir, location=pars['location'],
+                                                          state_location=pars['state_location'],
+                                                          country_location=pars['country_location'],
+                                                          window_length=1)
     age_brackets = sp.get_census_age_brackets(sp.datadir, country_location=pars['country_location'],
                                               state_location=pars['state_location'], location=pars['location'])
     max_age = age_brackets[max(age_brackets.keys())][-1]
@@ -80,4 +84,3 @@ def smooth_binned_age_distribution(pars, do_show=False):
 if __name__ == '__main__':
 
     fig, ax = smooth_binned_age_distribution(pars, do_show=True)
-

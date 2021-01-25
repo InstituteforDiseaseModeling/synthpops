@@ -1,6 +1,5 @@
 school_type,age_range_min,age_range_max
-pk,3,5
-es,6,10
+pk-es,3,10
 ms,11,13
 hs,14,17
 uv,18,100
