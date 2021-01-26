@@ -2,6 +2,11 @@ import json
 from jsonobject import *
 
 
+class SchoolSizeDistributionByType(JsonObject):
+    school_type = StringProperty()
+    size_distribution = ListProperty(FloatProperty)
+
+
 class SchoolTypeByAge(JsonObject):
     school_type = StringProperty()
     age_range = ListProperty(FloatProperty)
@@ -20,8 +25,9 @@ class Location(JsonObject):
     ltcf_resident_to_staff_ratio_distribution = ListProperty(ListProperty(FloatProperty))
     ltcf_num_residents_distribution = ListProperty(ListProperty(FloatProperty))
     ltcf_num_staff_distribution = ListProperty(ListProperty(FloatProperty))
-    school_size_distribution = ListProperty(ListProperty(FloatProperty))
-    # TODO school_size_distribution_by_type
+    school_size_brackets = ListProperty(ListProperty(FloatProperty))
+    school_size_distribution = ListProperty(FloatProperty)
+    school_size_distribution_by_type = ListProperty(SchoolSizeDistributionByType)
     school_types_by_age = ListProperty(SchoolTypeByAge)
     workplace_size_counts_by_num_personnel = ListProperty(ListProperty(FloatProperty))
 

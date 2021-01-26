@@ -45,9 +45,29 @@ class TestLocation(unittest.TestCase):
             [0,19,0.014925373134328358],
             [20,39,0.07462686567164178]
           ],
+          "school_size_brackets": [
+            [20,50],
+            [51,100]
+          ],
           "school_size_distribution": [
-            [20,50,0.027522935779816515],
-            [51,100,0.009174311926605505]
+            0.027522935779816515,
+            0.009174311926605505
+          ],
+          "school_size_distribution_by_type": [
+            {
+              "school_type": "pk-es",
+              "size_distribution": [
+                0.25,
+                0.5
+              ]
+            },
+            {
+              "school_type": "ms",
+              "size_distribution": [
+                0.35,
+                0.6
+              ]
+            }
           ],
           "school_types_by_age": [
             {
@@ -267,26 +287,52 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.ltcf_num_staff_distribution[1][2], 0.07462686567164178,
                           "Array entry incorrect")
 
+        self.assertEquals(len(location.school_size_brackets), 2,
+                          "Array length incorrect")
+
+        self.assertEquals(len(location.school_size_brackets[0]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_brackets[0][0], 20,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_brackets[0][1], 50,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.school_size_brackets[1]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_brackets[1][0], 51,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_brackets[1][1], 100,
+                          "Array entry incorrect")
+
         self.assertEquals(len(location.school_size_distribution), 2,
                           "Array length incorrect")
 
-        self.assertEquals(len(location.school_size_distribution[0]), 3,
-                          "Array length incorrect")
-        self.assertEquals(location.school_size_distribution[0][0], 20,
+        self.assertEquals(location.school_size_distribution[0], 0.027522935779816515,
                           "Array entry incorrect")
-        self.assertEquals(location.school_size_distribution[0][1], 50,
-                          "Array entry incorrect")
-        self.assertEquals(location.school_size_distribution[0][2], 0.027522935779816515,
+        self.assertEquals(location.school_size_distribution[1], 0.009174311926605505,
                           "Array entry incorrect")
 
-        self.assertEquals(len(location.school_size_distribution[1]), 3,
+        self.assertEquals(len(location.school_size_distribution_by_type), 2,
                           "Array length incorrect")
-        self.assertEquals(location.school_size_distribution[1][0], 51,
+
+        self.assertEquals(location.school_size_distribution_by_type[0].school_type, "pk-es",
+                          "school_type incorrect")
+        self.assertEquals(len(location.school_size_distribution_by_type[0].size_distribution), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_distribution_by_type[0].size_distribution[0], 0.25,
                           "Array entry incorrect")
-        self.assertEquals(location.school_size_distribution[1][1], 100,
+        self.assertEquals(location.school_size_distribution_by_type[0].size_distribution[1], 0.5,
                           "Array entry incorrect")
-        self.assertEquals(location.school_size_distribution[1][2], 0.009174311926605505,
+
+        self.assertEquals(location.school_size_distribution_by_type[1].school_type, "ms",
+                          "school_type incorrect")
+        self.assertEquals(len(location.school_size_distribution_by_type[1].size_distribution), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_distribution_by_type[1].size_distribution[0], 0.35,
                           "Array entry incorrect")
+        self.assertEquals(location.school_size_distribution_by_type[1].size_distribution[1], 0.6,
+                          "Array entry incorrect")
+
 
         self.assertEquals(len(location.school_types_by_age), 2,
                           "Array length incorrect")
