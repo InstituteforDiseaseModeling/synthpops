@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
 import json
+import collections
+import scipy
+import utilities
 import synthpops as sp
 from synthpops import households as sphh
 from synthpops import data_distributions as spdd
@@ -20,7 +23,6 @@ seapop_500 = sp.generate_synthetic_population(
 )
 
 
-@unittest.skip('Needs to be refactored')
 class HouseholdsTest(unittest.TestCase):
     def setUp(self) -> None:
         np.random.seed(0)
@@ -143,7 +145,7 @@ class HouseholdsTest(unittest.TestCase):
         if self.is_debugging:
             with open(f"DEBUG_{self._testMethodName}_age_brackets.json", "w") as outfile:
                 json.dump(age_brackets_json, outfile, indent=4)
-        age_by_brackets_dic = sphh.get_age_by_brackets_dic(
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(
             age_brackets=age_brackets
         )
         self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
@@ -169,7 +171,7 @@ class HouseholdsTest(unittest.TestCase):
             9: retirement,
             10: managed_care
         }
-        age_by_brackets_dic = sphh.get_age_by_brackets_dic(
+        age_by_brackets_dic = sp.get_age_by_brackets_dic(
             age_brackets=my_age_brackets
         )
 
@@ -196,7 +198,31 @@ class HouseholdsTest(unittest.TestCase):
         )
         return hh_distro
 
+    def verify_buckets(self, probability_buckets, count_buckets):
+        """
+        This method use chisuqare check to make sure the actual data matches the expected probability
+        Args:
+            probability_buckets: expected probablity
+            count_buckets: actual count
+
+        Returns:
+
+        """
+        expected_bucket = [i * sum(count_buckets) for i in probability_buckets]
+        utilities.statistic_test(expected=expected_bucket, actual=count_buckets, test="x")
+
     def verify_portion_honored(self, probability_buckets, count_buckets, portion=0.5):
+        """
+        This was an old verification written by cwiswell which checks if the actual probablity
+        fall within the expected quartiles
+        Args:
+            probability_buckets: expected probablity
+            count_buckets: actual count
+            portion: use to split the space, for example if portion=0.25, the space was split to 4 quartiles
+
+        Returns:
+            None
+        """
         num_portions = 1.0 / portion
         curr_portion = 1
         excess_probability = 0
@@ -279,21 +305,11 @@ class HouseholdsTest(unittest.TestCase):
                          msg="The most common household size should be the size with the highest probability")
 
         prob_bucket_list = list(hh_distro.values())
-        self.verify_portion_honored(
+        self.verify_buckets(
             probability_buckets=prob_bucket_list,
-            count_buckets=hh_size_list,
-            portion=0.25
+            count_buckets=hh_size_list
         )
-        self.verify_portion_honored(
-            probability_buckets=prob_bucket_list,
-            count_buckets=hh_size_list,
-            portion=0.2
-        )
-        self.verify_portion_honored(
-            probability_buckets=prob_bucket_list,
-            count_buckets=hh_size_list,
-            portion=0.1
-        )
+
 
     def test_custom_household_size_distro_honored(self):
         self.is_debugging = False
@@ -306,7 +322,7 @@ class HouseholdsTest(unittest.TestCase):
             6: 0.05,
             7: 0.175
         }
-        hh_sizes = sphh.generate_household_sizes(500, custom_distro)
+        hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(500, custom_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -407,6 +423,7 @@ class HouseholdsTest(unittest.TestCase):
                 print(f"total found: {tmp_bucket_count}")
         return age_bucket_counts
 
+    @unittest.skip("deprecated method get_age_sex_n")
     def test_seattle_age_sex_n(self):
         self.is_debugging = False
         sea_age_bracket_distro = self.get_seattle_age_brackets()
@@ -432,6 +449,7 @@ class HouseholdsTest(unittest.TestCase):
             portion=0.2
         )
 
+    @unittest.skip("deprecated method get_age_sex_n")
     def test_get_age_sex_n_honors_ages(self):
         self.is_debugging = False
         age_probabilities = {
@@ -481,6 +499,8 @@ class HouseholdsTest(unittest.TestCase):
         )
         pass
 
+
+    @unittest.skip("deprecated method get_age_sex_n")
     def test_get_age_sex_n_honors_sexes(self):
         self.is_debugging = False
         age_buckets = {}
@@ -529,9 +549,56 @@ class HouseholdsTest(unittest.TestCase):
             portion=0.2
         )
 
+    def test_generate_age_count(self):
+        """
+        test age count matches distribution by randomly create 5000 people
+        """
+        dist = np.random.random(20)
+        dist /= dist.sum()
+        generated = sp.generate_age_count(n=5000, age_distr=dist)
+        self.verify_buckets(dist, list(generated.values()))
 
 
+    def test_generate_larger_household_sizes(self):
+        """
+        test generate_larger_household_sizes
+        if size =1, return an empty array, otherwise array count based on hh_size
+        """
+        size1 = sp.generate_larger_household_sizes(hh_sizes=[1])
+        self.assertEqual(len(size1), 0)
+        for i in range(2, 10):
+            size = np.random.randint(low=1, high=50, size=i)
+            with self.subTest(size=size):
+                print(f"hh_size:{size}")
+                result = sp.generate_larger_household_sizes(hh_sizes=size)
+                print(f"actual hh_size:{collections.Counter(size)}")
+                self.assertEqual(sum(size[1:]), len(result))
 
+    def test_generate_household_sizes_from_fixed_pop_size(self):
+        even_dist={1:0.2,
+                   2:0.2,
+                   3:0.2,
+                   4:0.2,
+                   5:0.2}
+        # 900 is divisble by the expected value (3.0) but 901 is not
+        # this creates test cases for N_gen=N and N_gen < N condition
+        for i in [899, 900, 901]:
+            hh = sp.generate_household_sizes_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
+            #verify the total number of people matches N
+            self.assertEqual(i, sum([(n+1)*hh[n] for n in range(0, len(hh))]))
+            #verify distribution
+            self.verify_buckets(even_dist.values(), hh)
+
+        # slightly modify the distribution to create expected value = 2.91 which will round down to 2.9
+        # and create N_gen > N condition
+        uneven_dist = {1: 0.2,
+                       2: 0.2,
+                       3: 0.2,
+                       4: 0.29,
+                       5: 0.11}
+        hh2 = sp.generate_household_sizes_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
+        self.assertEqual(900, sum([(n+1)*hh2[n] for n in range(0, len(hh2))]))
+        self.verify_buckets(uneven_dist.values(), hh2)
 
 if __name__ == "__main__":
     unittest.main()
