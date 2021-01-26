@@ -1,3 +1,8 @@
+"""
+This file includes tests for the household settings,
+When investigation is needed, set the self.is_debugging = True
+
+"""
 import unittest
 import numpy as np
 import json
@@ -8,6 +13,8 @@ import synthpops as sp
 from synthpops import households as sphh
 from synthpops import data_distributions as spdd
 
+# the default test data was generated for 500 people using the below parameters
+# and each test case will validate the properties of the population named "seapop_500"
 seapop_500 = sp.generate_synthetic_population(
     n=500,
     datadir=sp.datadir,
@@ -25,6 +32,11 @@ seapop_500 = sp.generate_synthetic_population(
 
 class HouseholdsTest(unittest.TestCase):
     def setUp(self) -> None:
+        """
+        Set up class variables
+        Returns:
+            None
+        """
         np.random.seed(0)
         self.is_debugging = False
         self.d_datadir = sp.datadir
@@ -38,6 +50,14 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def remove_sets_from_contacts(self, person):
+        """
+        Helper method to remove contact attribute from the person dictionary
+        Args:
+            person: a person (item) of the pop dictionary
+
+        Returns:
+            A person (item) stripped of contacts attribute
+        """
         trim_person = {}
         for k in person:
             if k != 'contacts':
@@ -45,6 +65,14 @@ class HouseholdsTest(unittest.TestCase):
         return trim_person
 
     def test_seapop_500_every_human_one_household(self):
+        """
+        Loop over the target population and check the household layer and make sure
+        (1) All members of household has the correct hhid
+        (2) Each person should be in one household
+        if is_debugging the true, population will be saved to DEBUG_sea500_household.json
+        Returns:
+            None
+        """
         self.is_debugging = False
         # my_seapop_500 = deepcopy(seapop_500)
         my_seapop_500 = seapop_500
@@ -97,6 +125,16 @@ class HouseholdsTest(unittest.TestCase):
                              f"Population size: {len(my_seapop_500)}.")
 
     def verify_age_bracket_dictionary_correct(self, age_by_brackets_dic):
+        """
+        Validation method for the result from get_age_by_brackets_dic including:
+        (1) Each age should have a single bucket index
+        (2) Buckets index increment is 1
+        (3) There should be less buckets cardinality than age cardinality
+        Args:
+            age_by_brackets_dic: age by brackets dictionary for lookup
+        Returns:
+            None
+        """
         if self.is_debugging:
             age_bb_json = {}
             for k in age_by_brackets_dic:
@@ -132,6 +170,12 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def test_seattle_age_brackets(self):
+        """
+        Test for method get_census_age_brackets and get_age_by_brackets_dic
+        it calls helper method verify_age_bracket_dictionary_correct for verification
+        Returns:
+            None
+        """
         self.is_debugging = False
         age_brackets = spdd.get_census_age_brackets(
             datadir=sp.datadir,
@@ -151,6 +195,12 @@ class HouseholdsTest(unittest.TestCase):
         self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
 
     def test_custom_age_brackets(self):
+        """
+        Use custom age_brackets to make sure method get_age_by_brackets_dic behave correctly
+        the validation logic is in verify_age_bracket_dictionary_correct method
+        Returns:
+            None
+        """
         self.is_debugging = False
         college_years = list(range(19, 23))
         early_career = list(range(23, 30))
@@ -181,6 +231,11 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def test_contact_matrix_has_all_layers(self):
+        """
+        Test get_contact_matrix_dic method to make sure it contains all layers 'H', 'S', 'W', 'C'
+        Returns:
+            None
+        """
         contact_matrix = sp.get_contact_matrix_dic(
             datadir=sp.datadir,
             sheet_name="United States of America"
@@ -190,6 +245,11 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def get_seattle_household_size_distro(self):
+        """
+        Helper method to test get_household_size_distr
+        Returns:
+            household distribution obtained from get_household_size_distr method
+        """
         hh_distro = spdd.get_household_size_distr(
             datadir=self.d_datadir,
             location=self.d_location,
@@ -202,11 +262,11 @@ class HouseholdsTest(unittest.TestCase):
         """
         This method use chisuqare check to make sure the actual data matches the expected probability
         Args:
-            probability_buckets: expected probablity
+            probability_buckets: numpy array of expected probablity, must sum to 1
             count_buckets: actual count
 
         Returns:
-
+            None
         """
         expected_bucket = [i * sum(count_buckets) for i in probability_buckets]
         utilities.statistic_test(expected=expected_bucket, actual=count_buckets, test="x")
@@ -214,7 +274,10 @@ class HouseholdsTest(unittest.TestCase):
     def verify_portion_honored(self, probability_buckets, count_buckets, portion=0.5):
         """
         This was an old verification written by cwiswell which checks if the actual probablity
-        fall within the expected quartiles
+        fall within the expected portions (with some error tolerated)
+        for example if probability expected is [0.2, 0.3, 0.1, 0.1, 0.3] and portion = 0.2
+        then the space was split to 5 equally spaced portions and if the bucket has 100 items in total,
+        we would expect to see [20, 30, 10, 10, 30], this method checks if the actual count is off from the expectation
         Args:
             probability_buckets: expected probablity
             count_buckets: actual count
@@ -284,6 +347,14 @@ class HouseholdsTest(unittest.TestCase):
                          "Both bucket counts should have the same final index.")
 
     def test_seattle_household_size_distro_honored(self):
+        """
+        This methods checks results from generate_household_sizes_from_fixed_pop_size
+        for the seattle location, it checks against the house distribution obtained from 
+        get_seattle_household_size_distro and make sure that
+        the most common household size should be the size with the highest probability
+        Returns:
+            None
+        """
         self.is_debugging = False
         hh_distro = self.get_seattle_household_size_distro()
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(500, hh_distro)
@@ -312,6 +383,14 @@ class HouseholdsTest(unittest.TestCase):
 
 
     def test_custom_household_size_distro_honored(self):
+        """
+        This methods checks results from generate_household_sizes_from_fixed_pop_size
+        with customized distribution
+        it checks that the most common household size should be the size with the highest probability
+        and also uses verify_portion_honored method for validation logic
+        Returns:
+            None
+        """
         self.is_debugging = False
         custom_distro = {
             1: 0.25,
@@ -358,6 +437,12 @@ class HouseholdsTest(unittest.TestCase):
         )
 
     def test_household_size_distribution_adds_up(self):
+        """
+        Test the result from method get_seattle_household_size
+        it checks that the key of househould size must be 1 to 7 and the total probability distribition adds to 1
+        Returns:
+            None
+        """
         hh_distro = self.get_seattle_household_size_distro()
 
         total_sizes = sum(hh_distro.values())
@@ -375,6 +460,12 @@ class HouseholdsTest(unittest.TestCase):
             print(hh_distro)
 
     def get_seattle_gender_by_age(self):
+        """
+        Helper method for read_gender_fraction_by_age_bracket
+        but currently deprecated
+        Returns:
+            age brackets by genders
+        """
         sea_sex_age_brackets = sp.read_gender_fraction_by_age_bracket(
             datadir=sp.datadir,
             state_location=self.d_state_location,
@@ -385,6 +476,11 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def get_seattle_age_brackets(self):
+        """
+        Helper method for read_age_bracket_distr
+        Returns:
+            age distribution by brackts for location set as class variables
+        """
         sea_age_brackets = spdd.read_age_bracket_distr(
             sp.datadir,
             location=self.d_location,
@@ -395,6 +491,11 @@ class HouseholdsTest(unittest.TestCase):
         pass
 
     def get_census_age_brackets(self):
+        """
+        Helper method for get_census_age_brackets
+        Returns:
+            age brackets dictionary where keys are bracket index and values are list of ages
+        """
         census_age_brackets = sp.get_census_age_brackets(
             sp.datadir,
             state_location=self.d_state_location,
@@ -407,6 +508,15 @@ class HouseholdsTest(unittest.TestCase):
 
     def bucket_population_counts(self, age_bracket_dict,
                                  ages_array):
+        """
+
+        Args:
+            age_bracket_dict: age bracket dictionary
+            ages_array: array of ages obtained from get_age_sex_n (now deprecated)
+
+        Returns:
+            list of age counts for each bucket
+        """
         age_bucket_counts = []
         for bucket in age_bracket_dict:
             # Create a list in age_bucket_counts that is empty
@@ -552,8 +662,13 @@ class HouseholdsTest(unittest.TestCase):
 
     def test_generate_age_count(self):
         """
-        test age count matches distribution by randomly create 5000 people
+        Test generate_age_count method to Create age count from 
+        randomly generated distribution and 5000 people
+        validation logic is in verify_buckets which use chisquare test
+        Returns:
+            None
         """
+        # dist is the randomly generated distrubution with 20 brackets
         dist = np.random.random(20)
         dist /= dist.sum()
         generated = sp.generate_age_count(n=5000, age_distr=dist)
@@ -562,8 +677,11 @@ class HouseholdsTest(unittest.TestCase):
 
     def test_generate_larger_household_sizes(self):
         """
-        test generate_larger_household_sizes
-        if size =1, return an empty array, otherwise array count based on hh_size
+        Test generate_larger_household_sizes method
+        if hh_size =1, it expectes method to return an empty array,
+        otherwise an array of counts which the total should match the the hh_size[1:]
+        Returns:
+            None
         """
         size1 = sp.generate_larger_household_sizes(hh_sizes=[1])
         self.assertEqual(len(size1), 0)
@@ -576,14 +694,20 @@ class HouseholdsTest(unittest.TestCase):
                 self.assertEqual(sum(size[1:]), len(result))
 
     def test_generate_household_sizes_from_fixed_pop_size(self):
+        """
+        Test generate_household_sizes_from_fixed_pop_size
+        the test data is specifically crafted to execute all conditional branches of the method
+        Returns:
+            None
+        """
         even_dist={1:0.2,
                    2:0.2,
                    3:0.2,
                    4:0.2,
                    5:0.2}
         # 900 is divisble by the expected value (3.0) but 901 is not
-        # this creates test cases for N_gen=N and N_gen < N condition
-        for i in [899, 900, 901]:
+        # this creates test cases for N_gen = N and N_gen < N condition
+        for i in [900, 901]:
             hh = sp.generate_household_sizes_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
             #verify the total number of people matches N
             self.assertEqual(i, sum([(n+1)*hh[n] for n in range(0, len(hh))]))
