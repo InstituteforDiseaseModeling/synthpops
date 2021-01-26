@@ -148,8 +148,8 @@ def get_smoothed_single_year_age_distr(datadir, location=None, state_location=No
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
-        window_length (int)       : length of window over which to average or smooth out age distribution
+        use_default (bool)        : If True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
+        window_length (int)       : length of window, in units of years, over which to average or smooth out age distribution
 
     Returns:
         A dictionary of the age distribution by age bracket. Keys map to a range
