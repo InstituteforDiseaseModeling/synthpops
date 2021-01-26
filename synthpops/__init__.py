@@ -5,5 +5,9 @@ from .data_distributions import *
 from .process_census import *
 from .sampling import *
 from .plotting import *
+from .households import *
+from .ltcfs import *
+from .schools import *
+from .workplaces import *
 from .pop import *
 logger.debug('Finished imports')

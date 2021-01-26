@@ -17,7 +17,7 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 50e3,
+    n                               = 20e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -36,7 +36,7 @@ pars = dict(
     ltcf_staff_age_min              = 20,
     ltcf_staff_age_max              = 60,
 
-    school_mixing_type              = {'pk-es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
     average_class_size              = 20,
     inter_grade_mixing              = 0.1,
     teacher_age_min                 = 25,
@@ -46,7 +46,7 @@ pars = dict(
 
     average_student_teacher_ratio   = 20,
     average_teacher_teacher_degree  = 3,
-    average_student_all_staff_ratio = 15,
+    average_student_all_staff_ratio = 11,
     average_additional_staff_degree = 20,
 )
 
@@ -122,10 +122,6 @@ def test_school_sizes_by_type(pars, do_show=False):
         sizes = enrollment_by_school_type[sc_type]
         hist, bins = np.histogram(sizes, bins=bins, density=0)
         gen_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in school_size_brackets}
-        # print(sc_type)
-        # for b in gen_school_size_distr[sc_type]:
-        #     if expected_school_size_distr[sc_type][b] > 0:
-        #         print(f"sizes: {school_size_brackets[b][0]}-{school_size_brackets[b][-1]}, expected: {expected_school_size_distr[sc_type][b]:.3f}, generated: {gen_school_size_distr[sc_type][b]:.3f}")
 
     gen_school_size_distr = sc.objdict(gen_school_size_distr)
 
