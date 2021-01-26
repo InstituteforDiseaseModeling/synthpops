@@ -34,6 +34,7 @@ class Location(JsonObject):
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)
+    check_location_constraints_satisfied(location)
     return location
 
 
@@ -47,3 +48,45 @@ def load_location_from_filepath(filepath):
     json_obj = json.load(f)
     return load_location_from_json(json_obj)
 
+
+def check_location_constraints_satisfied(location):
+    """
+    Checks a number of constraints that need to be satisfied, above and
+    beyond the schema.
+
+    Args:
+        location:
+
+    Returns:
+        Nothing
+
+    Raises:
+        RuntimeError with a description if one of the constraints is
+        not satisfied.
+
+    """
+    [status, msg] = are_location_constraints_satisfied(location)
+    if not status:
+        raise RuntimeError(msg)
+
+
+def are_location_constraints_satisfied(location):
+    """
+    Checks a number of constraints that need to be satisfied, above and
+    beyond the schema.
+
+    Args:
+        location:
+
+    Returns:
+        [True, None] If all constraints are satisfied.
+        [False, string] If a constraint is violated.
+
+    """
+
+    # TODO complete
+    #num_household_age_brackets = len(location.household_head_age_brackets)
+    #if location.household_head_age_distribution_by_family_size is not None:
+    #    for household_head_age_distribution in location.household_head_age_distribution_by_family_size:
+
+    return [True, None]
