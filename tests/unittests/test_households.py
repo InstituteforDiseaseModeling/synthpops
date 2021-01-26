@@ -366,7 +366,8 @@ class HouseholdsTest(unittest.TestCase):
         for x in range(1, 8):
             self.assertIn(x, hh_distro,
                           msg=f"Households come in 1 to 7. Size {x} should be in here.")
-        self.assertEqual(total_sizes, 1,
+        # rounding total_size to decimal places (default 7) must be equal to 1
+        self.assertAlmostEqual(total_sizes, 1,
                          msg=f"This is a probability distribution that should add up to 1. Got "
                              f"{total_sizes} from this: {hh_distro}")
         if self.is_debugging:
