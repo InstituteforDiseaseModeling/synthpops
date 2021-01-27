@@ -4,6 +4,7 @@ import unittest
 
 class TestLocation(unittest.TestCase):
 
+
     def minimal_test_str(self):
         test_str = """{
           "data_provenance_notices": ["notice1","notice2"],
@@ -86,6 +87,21 @@ class TestLocation(unittest.TestCase):
           ]
         }"""
         return test_str
+
+
+    def test_load_empty_object_test_str(self):
+        """
+        Make sure that an empty json object populates all lists as empty, and all scalars as None.
+        Because parts of the code rely on this assumption.
+        """
+        test_str = "{}"
+        location = sp.load_location_from_json_str(test_str)
+        for collection in location.get_list_properties():
+            self.assertTrue(collection is not None and len(collection) == 0)
+
+        for scalar in location.get_scalar_properties():
+            self.assertTrue(scalar is None)
+
 
     def test_load_minimal_location(self):
         test_str = self.minimal_test_str()
@@ -379,3 +395,4 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEquals(location.workplace_size_counts_by_num_personnel[1][2], 992,
                           "Array entry incorrect")
+

@@ -87,6 +87,30 @@ class Location(JsonObject):
     )
 
 
+    def get_list_properties(self):
+        return [p for p in self if type(getattr(self,p)) is ListProperty]
+
+
+    def get_scalar_properties(self):
+        return [p for p in self
+                if
+                type(getattr(self, p)) is StringProperty
+                or
+                type(getattr(self, p)) is BooleanProperty
+                or
+                type(getattr(self, p)) is IntegerProperty
+                or
+                type(getattr(self, p)) is FloatProperty
+                or
+                type(getattr(self, p)) is DecimalProperty
+                or
+                type(getattr(self, p)) is DateProperty
+                or
+                type(getattr(self, p)) is DateTimeProperty
+                or
+                type(getattr(self, p)) is TimeProperty
+                ]
+
 def load_location_from_json(json_obj):
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
