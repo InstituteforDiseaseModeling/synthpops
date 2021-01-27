@@ -459,8 +459,8 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
         fig, ax = sp.plot_age_distribution_comparison(popdict, **pars)
     """
     default_kwargs = default_plotting_kwargs()
-    color_args = sc.objdict({'color_1': '#55afe1', 'color_2': '#0a6299'})
 
+    # TODO: consolidate the following method specific default parameters in dictionary
     default_kwargs.pop_type = sppop.Pop
     default_kwargs.color_1 = '#55afe1'
     default_kwargs.color_2 = '#0a6299'
@@ -477,25 +477,27 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     kwargs = sc.objdict(kwargs)
     kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
 
-    if 'colors' in kwargs:
-        default_kwargs.colors = sc.mergedicts(color_args, kwargs.colors)
-
-    print(kwargs)
-
-
+    # set up location parameters to grab expected data
     if isinstance(pop, (dict, cv.people.People)):
         loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
 
     # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
-
     if isinstance(pop, sppop.Pop):
         loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location, 'country_location': pop.country_location})
+        kwargs.smooth_ages = pop.smooth_ages
+        kwargs.window_length = pop.window_length
 
+    if kwargs.smooth_ages == False:
+        kwargs.window_length = 1
+
+    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+
+    if isinstance(pop, sppop.Pop):
         # get the expected age distribution
-        if pop.smooth_ages:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': pop.window_length}))
-        else:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+        # if pop.smooth_ages:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+        # else:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
 
         # get the generated age distribution
         generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
@@ -506,10 +508,10 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
 
     elif isinstance(pop, dict):
         # get the expected age distribution
-        if kwargs.smooth_ages:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-        else:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+        # if kwargs.smooth_ages:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+        # else:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
 
         # get the generated age distribution
         generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
@@ -520,10 +522,10 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
 
     elif isinstance(pop, cv.people.People):
         # get the expected age distribution
-        if kwargs.smooth_ages:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-        else:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+        # if kwargs.smooth_ages:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+        # else:
+        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
 
         generated_age_count = Counter(pop.age)
         print('generated_age_count')

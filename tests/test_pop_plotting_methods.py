@@ -89,13 +89,13 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    # fig0, ax0, sppopdict = test_plot_age_distribution_comparison(pars)
+    fig0, ax0, sppopdict = test_plot_age_distribution_comparison(pars)
 
     import covasim as cv
     from collections import Counter
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 20e3
+    test_pars['n'] = 10e3
     fig2, ax2, sppopdict2 = test_plot_age_distribution_comparison(test_pars)
 
     popdict = cv.make_synthpop(population=sc.dcp(sppopdict2), community_contacts=10)
@@ -164,11 +164,11 @@ if __name__ == '__main__':
     print(sorted(people_age_count.items(), key=lambda x: x[1], reverse=True))
 
     # check that covasim object plotting works
-    # sppl.plot_age_distribution_comparison(people, **kwargs)
+    sppl.plot_age_distribution_comparison(people, **kwargs)
 
     # check that synthpops dictionary style  object plotting works
     fig1, ax1 = sp.plot_age_distribution_comparison(sp.Pop(**pars).to_dict(), **sc.mergedicts(kwargs, {'color_2': 'indigo', 'color_1': '#ea6075'}))
 
-    plt.show()
+    # plt.show()
 
 

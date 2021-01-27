@@ -124,6 +124,8 @@ def test_school_sizes_by_type(pars, do_show=False):
         gen_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in school_size_brackets}
 
     gen_school_size_distr = sc.objdict(gen_school_size_distr)
+    print(gen_school_size_distr)
+    print(len(gen_school_size_distr))
 
     width = 6
     height = 5 * len(gen_school_size_distr)
@@ -131,6 +133,8 @@ def test_school_sizes_by_type(pars, do_show=False):
 
     cmap = cmr.get_sub_cmap('cmo.curl', 0.12, 1)
     fig, ax = plt.subplots(len(gen_school_size_distr), 1, figsize=(width, height), tight_layout=True)
+    if len(gen_school_size_distr) == 1:
+        ax = [ax]
     plt.subplots_adjust(hspace=hspace)
 
     bin_labels = [f"{school_size_brackets[b][0]}-{school_size_brackets[b][-1]}" for b in school_size_brackets]
@@ -184,7 +188,11 @@ def test_separate_school_types_for_seattle_metro(pars):
 if __name__ == '__main__':
 
     sc.tic()
-    school_types = test_school_types_created()
-    pop, school_types = test_school_sizes_by_type(pars, do_show=True)
-    pop2 = test_separate_school_types_for_seattle_metro(pars)
+    # school_types = test_school_types_created()
+    # pop, school_types = test_school_sizes_by_type(pars, do_show=True)
+    # pop2 = test_separate_school_types_for_seattle_metro(pars)
     sc.toc()
+
+    test_pars = sc.dcp(pars)
+    test_pars['with_school_types'] = False
+    test_school_sizes_by_type(test_pars, do_show=True)
