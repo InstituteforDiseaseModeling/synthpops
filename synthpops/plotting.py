@@ -41,10 +41,14 @@ def default_plotting_kwargs():
     default_kwargs.fontsize = 12
     default_kwargs.format = 'png'
     default_kwargs.rotation = 0
-    default_kwargs.subplot_height = 6
-    default_kwargs.subplot_weight = 8
+    default_kwargs.subplot_height = 6.5
+    default_kwargs.subplot_width = 8
+    default_kwargs.hspace = 0.4
+    default_kwargs.wspace = 0.3
     default_kwargs.nrows = 1
     default_kwargs.ncols = 1
+    default_kwargs.height = default_kwargs.nrows * default_kwargs.subplot_height
+    default_kwargs.width = default_kwargs.ncols * default_kwargs.subplot_width
     default_kwargs.show = 1
     default_kwargs.cmap = 'cmr.freeze_r'
 
@@ -315,14 +319,18 @@ def plot_array(expected,
                generated=None,
                names=None,
                figdir=None,
-               testprefix="test",
+               prefix="test",
                do_show=True,
                do_save=False,
                expect_label='Expected',
                value_text=False,
                xlabels=None,
                xlabel_rotation=0,
-               binned=True):
+               binned=True,
+               fig=None,
+               ax=None,
+               color_1=None,
+               color_2=None):
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If generate data is not provided, plot only the expected values.
@@ -345,23 +353,29 @@ def plot_array(expected,
 
     Plot will be saved in datadir if given
     """
-    fig, ax = plt.subplots(1, 1)
+    if fig is None:
+        fig, ax = plt.subplots(1, 1)
     # font = {
     #         'size': 14
     #         }
     # plt.rc('font', **font)
     mplt.rcParams['font.family'] = 'Roboto Condensed'
-    title = testprefix if generated is None else f"Comparison for {testprefix}"
+    if color_1 is None:
+        color_1 = 'mediumseagreen'
+    if color_2 is None:
+        color_2 = '#236a54'
+
+    title = prefix.replace('_', ' ').title() if generated is None else f"{prefix.replace('_', ' ').title()} Comparison"
     ax.set_title(title)
     x = np.arange(len(expected))
 
     if not binned:
         ax.hist(expected, label=expect_label.title(), color='mediumseagreen')
     else:
-        rect1 = ax.bar(x, expected, label=expect_label.title(), color='mediumseagreen')
+        rect1 = ax.bar(x, expected, label=expect_label.title(), color=color_1)
         # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
         if generated is not None:
-            line, = ax.plot(x, generated, color='#236a54', markeredgecolor='white', marker='o', markersize=6, label='Generated')
+            line, = ax.plot(x, generated, color=color_2, markeredgecolor='white', marker='o', markersize=6, label='Generated')
             # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
         if value_text:
             autolabel(ax, rect1, 0, 5)
@@ -385,13 +399,14 @@ def plot_array(expected,
             # ax.set_xlim(left=-1)
     leg = ax.legend(loc='upper right')
     leg.draw_frame(False)
+    ax.set_xlim(x[0] - 1, x[-1] + 1)
 
     if do_save:
         if figdir:
             datadir = cfg.datadir
             figdir = os.path.join(datadir, 'figures')
             os.makedirs(figdir, exist_ok=True)
-            plt.savefig(os.path.join(figdir, f"{testprefix}.png".replace('\n', '_')), format="png")
+            plt.savefig(os.path.join(figdir, f"{prefix}.png".replace('\n', '_')), format="png")
     if do_show:
         plt.show()
     # else:

@@ -3,6 +3,9 @@ This module provides the layer for communicating with the agent-based model Cova
 """
 
 import sciris as sc
+import matplotlib as mplt
+import matplotlib.pyplot as plt
+import collections
 from .config import logger as log
 from . import config as cfg
 from . import sampling as spsamp
@@ -54,7 +57,8 @@ class Pop(sc.prettyobj):
                  household_method='infer_ages',
                  smooth_ages=False,
                  window_length=7,
-                 do_make=True):
+                 do_make=True
+                 ):
         '''
         Make a full population network including both people (ages, sexes) and
         contacts. By default uses Seattle, Washington data. Note about the
@@ -110,7 +114,6 @@ class Pop(sc.prettyobj):
             network (dict): A dictionary of the full population with ages, connections, and other attributes.
         '''
         log.debug('Pop()')
-
 
         # Assign all the variables
         self.school_pars = sc.objdict()
@@ -196,7 +199,6 @@ class Pop(sc.prettyobj):
         Returns:
             network (dict): A dictionary of the full population with ages, connections, and other attributes.
         """
-
         log.debug('generate()')
 
         # TODO: unpack variables -- to be refactored to pass parameters directly
@@ -288,8 +290,6 @@ class Pop(sc.prettyobj):
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
 
-
-
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,
                                                                                                              school_types_distr_by_age,
@@ -367,43 +367,39 @@ class Pop(sc.prettyobj):
 
         return population
 
-
     def to_dict(self):
-        '''
-        Export to a dictionary -- official way to get the popdict
+        """
+        Export to a dictionary -- official way to get the popdict.
 
         **Example**::
 
             popdict = pop.to_dict()
-        '''
+        """
         return sc.dcp(self.popdict)
 
-
     def to_json(self, filename, indent=2, **kwargs):
-        '''
-        Export to a JSON file
+        """
+        Export to a JSON file.
 
         **Example**::
 
             pop.to_json('my-pop.json')
-        '''
+        """
         return sc.savejson(filename, self.popdict, indent=indent, **kwargs)
 
-
     def save(self, filename, **kwargs):
-        '''
-        Save population to an binary, gzipped object file
+        """
+        Save population to an binary, gzipped object file.
 
         **Example**::
 
             pop.save('my-pop.pop')
-        '''
+        """
         return sc.saveobj(filename, self, **kwargs)
-
 
     @staticmethod
     def load(filename, *args, **kwargs):
-        '''
+        """
         Load from disk from a gzipped pickle.
 
         Args:
@@ -413,33 +409,90 @@ class Pop(sc.prettyobj):
         **Example**::
 
             pop = sp.Pop.load('my-pop.pop')
-        '''
+        """
         pop = sc.loadobj(filename, *args, **kwargs)
         if not isinstance(pop, Pop):
             errormsg = f'Cannot load object of {type(pop)} as a Pop object'
             raise TypeError(errormsg)
         return pop
 
-
     def plot_people(self):
-        ''' Placeholder example of plotting the people in a population '''
-        import covasim as cv # Optional import
+        """Placeholder example of plotting the people in a population."""
+        import covasim as cv  # Optional import
         pars = dict(
             pop_size = self.n,
             pop_type = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
-            )
+        )
         sim = cv.Sim(pars, popfile=self.popdict)
         ppl = cv.make_people(sim)  # Create the corresponding population
         fig = ppl.plot()
         return fig
 
-
     def plot_contacts(self, *args, **kwargs):
-        ''' Plot matrices of the contacts for a given layer or layers '''
+        """Plot matrices of the contacts for a given layer or layers."""
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
+    def plot_age_distribution_comparison(self, *args, **kwargs):
+        """Plot a comparison of the expected and generated age distribution."""
+        default_kwargs = sppl.default_plotting_kwargs()
+        default_kwargs.pop_type = 'synthpops'
+        default_kwargs.color_1 = '#55afe1'
+        default_kwargs.color_2 = '#0a6299'
+        default_kwargs.left = 0.10
+        default_kwargs.right = 0.95
+        default_kwargs.top = 0.95
+        default_kwargs.bottom = 0.12
+        default_kwargs.figname = f"{self.location}_age_distribution_comparison"
+
+        kwargs = sc.mergedicts(default_kwargs, kwargs)
+        kwargs = sc.objdict(kwargs)
+        kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+
+        if self.smooth_ages:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(cfg.datadir,
+                                                                           location=self.location,
+                                                                           state_location=self.state_location,
+                                                                           country_location=self.country_location,
+                                                                           window_length=self.window_length)
+        else:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(cfg.datadir,
+                                                                           location=self.location,
+                                                                           state_location=self.state_location,
+                                                                           country_location=self.country_location,
+                                                                           window_length=1)
+        expected_age_distr_array = [v * 100 for v in expected_age_distr.values()]
+
+        # supporting two pop object types: synthpops dictionary and covasim array styles
+        if kwargs.pop_type != 'covasim':
+            kwargs.pop_type = 'synthpops'
+
+            generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
+            for i, person in self.popdict.items():
+                generated_age_count[person['age']] += 1
+
+            generated_age_distr = spb.norm_dic(generated_age_count)
+            generated_age_distr_array = [v * 100 for v in generated_age_distr.values()]
+
+        # else:  # not quite ready for covasim people objects
+            # generated_age_count = collections.Counter()
+
+        # print(self)
+        fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
+        fig.subplots_adjust(**kwargs.axis)
+
+        fig, ax = sppl.plot_array(expected_age_distr_array, generated_age_distr_array,
+                                  do_show=False, xlabel_rotation=kwargs.rotation,
+                                  prefix=f"{self.location}_age_distribution", binned=True,
+                                  fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2)
+
+
+
+        # ax.tick_params(labelsize=kwargs.fontsize)
+        # fig.savefig(f'{kwargs.format}_test.{kwargs.format}', format=kwargs.format)
+
+        return fig, ax
 
 
 def make_population(*args, **kwargs):
