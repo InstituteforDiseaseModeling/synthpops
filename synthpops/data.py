@@ -19,6 +19,8 @@ class Location(JsonObject):
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
 
+    parent = StringProperty()
+
     population_age_distribution = ListProperty(
         # [min_age, max_age, percentage]
         ListProperty(FloatProperty)

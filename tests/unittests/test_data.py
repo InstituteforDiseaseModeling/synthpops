@@ -9,6 +9,7 @@ class TestLocation(unittest.TestCase):
           "data_provenance_notices": ["notice1","notice2"],
           "reference_links": ["reference1","reference2"],
           "citations": ["citation1","citation2"],
+          "parent": "/path/to/parent/location/file",
           "population_age_distribution": [
             [0,4,0.06],
             [5,9,0.20]
@@ -115,6 +116,9 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEquals(location.citations[1], "citation2",
                           "Array entry incorrect")
+
+        self.assertEquals(location.parent, "/path/to/parent/location/file",
+                          "Parent location incorrect")
 
         self.assertEquals(len(location.population_age_distribution), 2,
                           "Array length incorrect")
