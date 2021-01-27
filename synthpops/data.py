@@ -1,5 +1,7 @@
 import json
 from jsonobject import *
+from jsonobject.base_properties import DefaultProperty
+from jsonobject.containers import JsonDict
 
 
 class SchoolSizeDistributionByType(JsonObject):
@@ -19,7 +21,11 @@ class Location(JsonObject):
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
 
-    parent = StringProperty()
+    # DefaultProperty handles either a scalar or json object.
+    # We allow a json object mainly for testing of inheriting from a parent specified directly
+    # in the json.
+    # The more general use case would be to use a filepath, and the parent data is parsed from the filepath.
+    parent = DefaultProperty()
 
     population_age_distribution = ListProperty(
         # [min_age, max_age, percentage]
@@ -87,32 +93,50 @@ class Location(JsonObject):
     )
 
     def get_list_properties(self):
-        return [p for p in self if type(getattr(self, p)) is ListProperty]
+        return [p for p in self if type(getattr(self, p)) is JsonArray]
 
-    def get_scalar_properties(self):
-        return [p for p in self
-                if
-                type(getattr(self, p)) is StringProperty
-                or
-                type(getattr(self, p)) is BooleanProperty
-                or
-                type(getattr(self, p)) is IntegerProperty
-                or
-                type(getattr(self, p)) is FloatProperty
-                or
-                type(getattr(self, p)) is DecimalProperty
-                or
-                type(getattr(self, p)) is DateProperty
-                or
-                type(getattr(self, p)) is DateTimeProperty
-                or
-                type(getattr(self, p)) is TimeProperty
-                ]
+
+def populate_parent_data_from_file_path(location, parent_file_path):
+    parent_obj = load_location_from_filepath(parent_file_path)
+    location = populate_parent_data_from_json_obj(location, parent_obj)
+    return location
+
+
+def populate_parent_data_from_json_obj(location, parent):
+    if parent.parent is not None:
+        parent_parent_location = Location(parent.parent)
+        populate_parent_data_from_json_obj(location, parent_parent_location)
+
+    for list_property in location.get_list_properties():
+        child_value = getattr(location, list_property)
+        if len(child_value) == 0 and str(list_property) in parent:
+            parent_value = parent[str(list_property)]
+            if len(parent_value) > 0:
+                setattr(location, list_property, parent_value)
+
+    return location
+
+
+def populate_parent_data(location):
+    if location.parent is None:
+        return location
+
+    parent = location.parent
+
+    if type(parent) is str:
+        return populate_parent_data_from_file_path(location, parent)
+
+    if type(parent) is JsonDict:
+        parent_location = Location(parent)
+        return populate_parent_data_from_json_obj(location, parent_location)
+
+    raise RuntimeError(f'Invalid type for parent field: [{type(parent)}]')
 
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
+    populate_parent_data(location)
     return location
 
 
