@@ -137,6 +137,22 @@ class TestLocation(unittest.TestCase):
         }"""
         return test_str
 
+    def minimal_location_with_parent_filepath_test_str(self):
+        test_str = """{
+          "location_name": "test_location_child",
+          "parent": "tests/unittests/test_location_A.json",
+          "employment_rates_by_age": [
+            [19,0.300],
+            [20,0.693]
+          ],
+          "school_size_distribution": [
+            0.45,
+            0.65
+          ]
+        }"""
+        return test_str
+
+
     def test_load_completely_empty_object_test_str(self):
         """
         location_name is a required field, so a completely empty object should complain about missing that.
@@ -454,11 +470,17 @@ class TestLocation(unittest.TestCase):
         self.assertEquals(location.workplace_size_counts_by_num_personnel[1][2], 992,
                           "Array entry incorrect")
 
-
     def test_load_minimal_location_with_parent(self):
         test_str = self.minimal_location_with_parent_test_str()
         location = sp.load_location_from_json_str(test_str)
+        self.check_minimal_location_with_parent(location)
 
+    def test_load_minimal_location_with_parent_filepath(self):
+        test_str = self.minimal_location_with_parent_filepath_test_str()
+        location = sp.load_location_from_json_str(test_str)
+        self.check_minimal_location_with_parent(location)
+
+    def check_minimal_location_with_parent(self, location):
         # All but the three specified lists are existing and empty...
         for list_property in location.get_list_properties():
             att = getattr(location, list_property)

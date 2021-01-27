@@ -1,0 +1,8 @@
+{
+  "location_name": "A",
+  "parent": "tests/unittests/test_location_B.json",
+  "population_age_distribution": [
+    [0,4,0.06],
+    [5,9,0.20]
+  ]
+}

@@ -106,8 +106,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
 
 def populate_parent_data_from_json_obj(location, parent):
     if parent.parent is not None:
-        parent_parent_location = Location(parent.parent)
-        populate_parent_data_from_json_obj(location, parent_parent_location)
+        populate_parent_data(parent)
 
     for list_property in location.get_list_properties():
         child_value = getattr(location, list_property)
