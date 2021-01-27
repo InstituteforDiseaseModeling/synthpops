@@ -22,10 +22,11 @@ class Location(JsonObject):
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
 
-    # DefaultProperty handles either a scalar or json object.
+    # The general use case would be to use a filepath, and the parent data is parsed from the filepath.
+    # DefaultProperty type handles either a scalar or json object.
     # We allow a json object mainly for testing of inheriting from a parent specified directly
     # in the json.
-    # The more general use case would be to use a filepath, and the parent data is parsed from the filepath.
+    # Most users will want to populate this with a relative or absolute file path.
     parent = DefaultProperty()
 
     population_age_distribution = ListProperty(
