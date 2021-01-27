@@ -86,10 +86,8 @@ class Location(JsonObject):
         ListProperty(FloatProperty)
     )
 
-
     def get_list_properties(self):
-        return [p for p in self if type(getattr(self,p)) is ListProperty]
-
+        return [p for p in self if type(getattr(self, p)) is ListProperty]
 
     def get_scalar_properties(self):
         return [p for p in self
@@ -110,6 +108,7 @@ class Location(JsonObject):
                 or
                 type(getattr(self, p)) is TimeProperty
                 ]
+
 
 def load_location_from_json(json_obj):
     location = Location(json_obj)
@@ -217,7 +216,8 @@ def check_household_head_age_distributions_by_family_size(location):
         expected_len = 1 + num_household_age_brackets
         actual_len = len(household_head_age_distribution)
         if not actual_len == expected_len:
-            return [False, f"Entry [{k}] in household_head_age_distribution_by_family_size has invalid length: [{actual_len}]; should be [{expected_len}]"]
+            return [False,
+                    f"Entry [{k}] in household_head_age_distribution_by_family_size has invalid length: [{actual_len}]; should be [{expected_len}]"]
     return [True, None]
 
 
