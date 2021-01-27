@@ -4,6 +4,7 @@ This module plots the age-specific contact matrix in different settings.
 import os
 import sciris as sc
 import numpy as np
+import covasim as cv
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -11,8 +12,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
 from . import config as cfg
 from . import base as spb
-from . import data_distributions as spdd
-
+from . import data_distributions as spdata
+from . import pop as sppop
 
 # Pretty fonts
 try:
@@ -30,7 +31,7 @@ except:
     default_colormap = 'bone_r'
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_age_distribution_comparison']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 def default_plotting_kwargs():
@@ -276,7 +277,7 @@ def plot_contacts(population,
     state_location = 'Washington'
     country_location = 'usa'
 
-    age_brackets = spdd.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     ages = []
@@ -355,10 +356,7 @@ def plot_array(expected,
     """
     if fig is None:
         fig, ax = plt.subplots(1, 1)
-    # font = {
-    #         'size': 14
-    #         }
-    # plt.rc('font', **font)
+
     mplt.rcParams['font.family'] = 'Roboto Condensed'
     if color_1 is None:
         color_1 = 'mediumseagreen'
@@ -402,15 +400,13 @@ def plot_array(expected,
     ax.set_xlim(x[0] - 1, x[-1] + 1)
 
     if do_save:
-        if figdir:
+        if figdir is None:
             datadir = cfg.datadir
-            figdir = os.path.join(datadir, 'figures')
-            os.makedirs(figdir, exist_ok=True)
-            plt.savefig(os.path.join(figdir, f"{prefix}.png".replace('\n', '_')), format="png")
+            figdir = datadir.replace('data', 'figures')
+        os.makedirs(figdir, exist_ok=True)
+        plt.savefig(os.path.join(figdir, f"{prefix}.png".replace('\n', '_')), format="png")
     if do_show:
         plt.show()
-    # else:
-    #     plt.close()
     return fig, ax
 
 
@@ -437,3 +433,107 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3):
                            textcoords="offset points",
                            ha='center', va='bottom')
         text.set_fontsize(10)
+
+
+def plot_age_distribution_comparison(pop, *args, **kwargs):
+    """
+    Plot a comparison of the expected and generated age distribution.
+
+    Args:
+        pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
+
+    Returns:
+        Matplotlib figure and ax.
+
+    Note:
+        If using pop with type covasim.people.Pop or dict, args must be supplied
+        for the location parameters to get the expected distribution.
+
+    **Example**::
+
+        pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_age_distribution_comparison()
+
+        popdict = pop.to_dict()
+        fig, ax = sp.plot_age_distribution_comparison(popdict, **pars)
+    """
+    default_kwargs = default_plotting_kwargs()
+    default_kwargs.pop_type = sppop.Pop
+    default_kwargs.color_1 = '#55afe1'
+    default_kwargs.color_2 = '#0a6299'
+    default_kwargs.left = 0.10
+    default_kwargs.right = 0.95
+    default_kwargs.top = 0.92
+    default_kwargs.bottom = 0.12
+    default_kwargs.figname = f"age_distribution_comparison"
+    default_kwargs.figdir = cfg.datadir.replace('data', 'figures')
+    default_kwargs.do_save = False
+    default_kwargs.do_show = False
+
+    kwargs = sc.mergedicts(default_kwargs, kwargs)
+    kwargs = sc.objdict(kwargs)
+    kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+
+    print(kwargs)
+
+    if isinstance(pop, (dict, cv.people.People)):
+
+        loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
+
+    if isinstance(pop, sppop.Pop):
+        loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location, 'country_location': pop.country_location})
+
+        # get the age distribution
+        if pop.smooth_ages:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': pop.window_length}))
+        else:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+
+        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
+        for i, person in pop.popdict.items():
+            generated_age_count[person['age']] += 1
+
+        generated_age_distr = spb.norm_dic(generated_age_count)
+
+    # elif isinstance(pop, dict):
+
+    # update the fig
+    expected_age_distr_array = [v * 100 for v in expected_age_distr.values()]
+
+    # supporting two pop object types: synthpops dictionary and covasim array styles
+    if kwargs.pop_type != 'covasim':
+        kwargs.pop_type = 'synthpops'
+
+        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
+        for i, person in pop.popdict.items():
+            generated_age_count[person['age']] += 1
+
+        generated_age_distr = spb.norm_dic(generated_age_count)
+        generated_age_distr_array = [v * 100 for v in generated_age_distr.values()]
+
+    # else:  # not quite ready for covasim people objects
+        # generated_age_count = collections.Counter()
+
+    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
+    fig.subplots_adjust(**kwargs.axis)
+
+    fig, ax = plot_array(expected_age_distr_array, generated_age_distr_array,
+                         do_show=False, xlabel_rotation=kwargs.rotation,
+                         prefix=f"{loc_pars.location}_age_distribution", binned=True,
+                         fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2)
+    ax.set_xlabel('Age', fontsize=kwargs.fontsize)
+    ax.set_ylabel('Distribution (%)', fontsize=kwargs.fontsize)
+    ax.set_xlim(-2, len(expected_age_distr_array) + 1.)
+
+    ax.tick_params(labelsize=kwargs.fontsize)
+
+    if kwargs.do_show:
+        plt.show()
+
+    if kwargs.do_save:
+        figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
+        fig.savefig(figpath, format=kwargs.format)
+    # fig.savefig(f'{kwargs.format}_test.{kwargs.format}', format=kwargs.format)
+
+    return fig, ax

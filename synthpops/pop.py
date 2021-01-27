@@ -435,62 +435,16 @@ class Pop(sc.prettyobj):
         return fig
 
     def plot_age_distribution_comparison(self, *args, **kwargs):
-        """Plot a comparison of the expected and generated age distribution."""
-        default_kwargs = sppl.default_plotting_kwargs()
-        default_kwargs.pop_type = 'synthpops'
-        default_kwargs.color_1 = '#55afe1'
-        default_kwargs.color_2 = '#0a6299'
-        default_kwargs.left = 0.10
-        default_kwargs.right = 0.95
-        default_kwargs.top = 0.95
-        default_kwargs.bottom = 0.12
-        default_kwargs.figname = f"{self.location}_age_distribution_comparison"
+        """
+        Plot a comparison of the expected and generated age distribution.
 
-        kwargs = sc.mergedicts(default_kwargs, kwargs)
-        kwargs = sc.objdict(kwargs)
-        kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+        **Example**::
 
-        if self.smooth_ages:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(cfg.datadir,
-                                                                           location=self.location,
-                                                                           state_location=self.state_location,
-                                                                           country_location=self.country_location,
-                                                                           window_length=self.window_length)
-        else:
-            expected_age_distr = spdata.get_smoothed_single_year_age_distr(cfg.datadir,
-                                                                           location=self.location,
-                                                                           state_location=self.state_location,
-                                                                           country_location=self.country_location,
-                                                                           window_length=1)
-        expected_age_distr_array = [v * 100 for v in expected_age_distr.values()]
-
-        # supporting two pop object types: synthpops dictionary and covasim array styles
-        if kwargs.pop_type != 'covasim':
-            kwargs.pop_type = 'synthpops'
-
-            generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
-            for i, person in self.popdict.items():
-                generated_age_count[person['age']] += 1
-
-            generated_age_distr = spb.norm_dic(generated_age_count)
-            generated_age_distr_array = [v * 100 for v in generated_age_distr.values()]
-
-        # else:  # not quite ready for covasim people objects
-            # generated_age_count = collections.Counter()
-
-        # print(self)
-        fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
-        fig.subplots_adjust(**kwargs.axis)
-
-        fig, ax = sppl.plot_array(expected_age_distr_array, generated_age_distr_array,
-                                  do_show=False, xlabel_rotation=kwargs.rotation,
-                                  prefix=f"{self.location}_age_distribution", binned=True,
-                                  fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2)
-
-
-
-        # ax.tick_params(labelsize=kwargs.fontsize)
-        # fig.savefig(f'{kwargs.format}_test.{kwargs.format}', format=kwargs.format)
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_age_distribution_comparison()
+        """
+        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
 
         return fig, ax
 
