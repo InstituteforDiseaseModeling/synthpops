@@ -2,6 +2,7 @@
 This module plots the age-specific contact matrix in different settings.
 """
 import os
+import sciris as sc
 import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
@@ -29,7 +30,25 @@ except:
     default_colormap = 'bone_r'
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts']
+__all__ = ['calculate_contact_matrix', 'plot_contacts']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+
+
+def default_plotting_kwargs():
+    """Define default plotting kwargs to be used in plotting methods."""
+
+    default_kwargs = sc.objdict()
+    default_kwargs.fontfamily = 'Roboto Condensed'
+    default_kwargs.fontsize = 12
+    default_kwargs.format = 'png'
+    default_kwargs.rotation = 0
+    default_kwargs.subplot_height = 6
+    default_kwargs.subplot_weight = 8
+    default_kwargs.nrows = 1
+    default_kwargs.ncols = 1
+    default_kwargs.show = 1
+    default_kwargs.cmap = 'cmr.freeze_r'
+
+    return default_kwargs
 
 
 def calculate_contact_matrix(population, density_or_frequency='density', setting_code='H'):
