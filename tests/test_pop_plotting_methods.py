@@ -34,7 +34,7 @@ pars = dict(
     ltcf_staff_age_min              = 20,
     ltcf_staff_age_max              = 60,
 
-    school_mixing_type              = {'pk-es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
     average_class_size              = 20,
     inter_grade_mixing              = 0.1,
     teacher_age_min                 = 25,
@@ -89,9 +89,7 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    fig0, ax0, sppopdict = test_plot_age_distribution_comparison(pars)
-
-    # plt.show()
+    # fig0, ax0, sppopdict = test_plot_age_distribution_comparison(pars)
 
     import covasim as cv
     from collections import Counter
@@ -118,7 +116,7 @@ if __name__ == '__main__':
     school_type_by_person = [None] * int(pop_size)
     schools = dict()
 
-    for uid, person in sppopdict.items():
+    for uid, person in sppopdict2.items():
         if person['scid'] is not None:
             school_ids[uid] = person['scid']
             school_type_by_person[uid] = person['sc_type']
@@ -166,10 +164,10 @@ if __name__ == '__main__':
     print(sorted(people_age_count.items(), key=lambda x: x[1], reverse=True))
 
     # check that covasim object plotting works
-    sppl.plot_age_distribution_comparison(people, **kwargs)
+    # sppl.plot_age_distribution_comparison(people, **kwargs)
 
     # check that synthpops dictionary style  object plotting works
-    fig1, ax1 = sp.plot_age_distribution_comparison(sp.Pop(**pars).to_dict(), **kwargs)
+    fig1, ax1 = sp.plot_age_distribution_comparison(sp.Pop(**pars).to_dict(), **sc.mergedicts(kwargs, {'color_2': 'indigo', 'color_1': '#ea6075'}))
 
     plt.show()
 

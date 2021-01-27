@@ -459,6 +459,8 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
         fig, ax = sp.plot_age_distribution_comparison(popdict, **pars)
     """
     default_kwargs = default_plotting_kwargs()
+    color_args = sc.objdict({'color_1': '#55afe1', 'color_2': '#0a6299'})
+
     default_kwargs.pop_type = sppop.Pop
     default_kwargs.color_1 = '#55afe1'
     default_kwargs.color_2 = '#0a6299'
@@ -474,6 +476,12 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     kwargs = sc.mergedicts(default_kwargs, kwargs)
     kwargs = sc.objdict(kwargs)
     kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+
+    if 'colors' in kwargs:
+        default_kwargs.colors = sc.mergedicts(color_args, kwargs.colors)
+
+    print(kwargs)
+
 
     if isinstance(pop, (dict, cv.people.People)):
         loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
