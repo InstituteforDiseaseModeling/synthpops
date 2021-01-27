@@ -17,6 +17,7 @@ class SchoolTypeByAge(JsonObject):
 
 
 class Location(JsonObject):
+    location_name = StringProperty()
     data_provenance_notices = ListProperty(StringProperty)
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
@@ -186,7 +187,8 @@ def are_location_constraints_satisfied(location):
 
     """
 
-    for f in [check_population_age_distribution,
+    for f in [check_location_name,
+              check_population_age_distribution,
               check_employment_rates_by_age,
               check_enrollment_rates_by_age,
               check_household_age_brackets,
@@ -215,6 +217,13 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
             return [False,
                     f"Entry [{k}] in {property_name} has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
     return [True, None]
+
+
+def check_location_name(location):
+    if location.location_name is not None and len(location.location_name) > 0:
+        return [True, ""]
+
+    return [False, "location_name must be specified"]
 
 
 def check_population_age_distribution(location):

@@ -7,6 +7,7 @@ class TestLocation(unittest.TestCase):
 
     def minimal_test_str(self):
         test_str = """{
+          "location_name": "test_location",
           "data_provenance_notices": ["notice1","notice2"],
           "reference_links": ["reference1","reference2"],
           "citations": ["citation1","citation2"],
@@ -90,8 +91,11 @@ class TestLocation(unittest.TestCase):
 
     def minimal_location_with_parent_test_str(self):
         test_str = """{
+          "location_name": "test_location_child",
           "parent": {
+              "location_name": "test_location_parent",
               "parent": {
+                  "location_name": "test_location_grandparent",
                   "school_size_distribution_by_type": [
                     {
                       "school_type": "pk-es",
@@ -107,6 +111,14 @@ class TestLocation(unittest.TestCase):
                         0.6
                       ]
                     }
+                  ],
+                  "school_size_brackets": [
+                    [20,50],
+                    [51,100]
+                  ],
+                  "school_size_distribution": [
+                    0.25,
+                    0.75
                   ]
               },
               "population_age_distribution": [
@@ -117,17 +129,32 @@ class TestLocation(unittest.TestCase):
           "employment_rates_by_age": [
             [19,0.300],
             [20,0.693]
+          ],
+          "school_size_distribution": [
+            0.45,
+            0.65
           ]
         }"""
         return test_str
 
-    def test_load_empty_object_test_str(self):
+    def test_load_completely_empty_object_test_str(self):
         """
-        Make sure that an empty json object populates all lists as empty, and all scalars as None.
-        Because parts of the code rely on this assumption.
+        location_name is a required field, so a completely empty object should complain about missing that.
         """
         test_str = "{}"
+        self.assertRaises(RuntimeError, sp.load_location_from_json_str, test_str)
+
+
+    def test_load_empty_object_test_str(self):
+        """
+        Make sure that an empty json object populates all lists as empty.
+        Because parts of the code rely on this assumption.
+        location_name is a required field so it must be present.
+        """
+        test_str = """{"location_name": "test_location"}"""
         location = sp.load_location_from_json_str(test_str)
+        self.assertEquals(location.location_name, "test_location",
+                          "location_name incorrect")
         for list_property in location.get_list_properties():
             att = getattr(location, list_property)
             self.assertTrue(att is not None and len(att) == 0)
@@ -135,6 +162,9 @@ class TestLocation(unittest.TestCase):
     def test_load_minimal_location(self):
         test_str = self.minimal_test_str()
         location = sp.load_location_from_json_str(test_str)
+
+        self.assertEquals(location.location_name, "test_location",
+                          "location_name incorrect")
 
         self.assertEquals(len(location.data_provenance_notices), 2,
                           "Array length incorrect")
@@ -429,12 +459,20 @@ class TestLocation(unittest.TestCase):
         test_str = self.minimal_location_with_parent_test_str()
         location = sp.load_location_from_json_str(test_str)
 
-        # All but the three specified lists are empty...
+        # All but the three specified lists are existing and empty...
         for list_property in location.get_list_properties():
             att = getattr(location, list_property)
-            if str(list_property) in ["employment_rates_by_age","population_age_distribution","school_size_distribution_by_type"]:
+            if str(list_property) in ["employment_rates_by_age",
+                                      "population_age_distribution",
+                                      "school_size_distribution_by_type",
+                                      "school_size_distribution",
+                                      "school_size_brackets",
+                                      ]:
                 continue
             self.assertTrue(att is not None and len(att) == 0)
+
+        self.assertEquals(location.location_name, "test_location_child",
+                          "location_name incorrect")
 
         self.assertEquals(len(location.employment_rates_by_age), 2,
                           "Array length incorrect")
@@ -453,6 +491,7 @@ class TestLocation(unittest.TestCase):
 
         self.assertEquals(len(location.population_age_distribution), 2,
                           "Array length incorrect")
+
         self.assertEquals(len(location.population_age_distribution[0]), 3,
                           "Array length incorrect")
         self.assertEquals(location.population_age_distribution[0][0], 0,
@@ -489,3 +528,23 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEquals(location.school_size_distribution_by_type[1].size_distribution[1], 0.6,
                           "Array entry incorrect")
+
+        self.assertEquals(len(location.school_size_brackets), 2,
+                          "Array length incorrect")
+        self.assertEquals(len(location.school_size_brackets[0]), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_brackets[0][0], 20,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_brackets[0][1], 50,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_brackets[1][0], 51,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_brackets[1][1], 100,
+                          "Array entry incorrect")
+
+        self.assertEquals(len(location.school_size_distribution), 2,
+                          "Array length incorrect")
+        self.assertEquals(location.school_size_distribution[0], 0.45,
+                          "Array entry incorrect")
+        self.assertEquals(location.school_size_distribution[1], 0.65,
+                          "Array entry  incorrect")
