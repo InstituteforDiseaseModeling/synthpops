@@ -2,7 +2,7 @@ import json
 from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
-
+from . import logger
 
 class SchoolSizeDistributionByType(JsonObject):
     school_type = StringProperty()
@@ -147,6 +147,7 @@ def load_location_from_json_str(json_str):
 
 
 def load_location_from_filepath(filepath):
+    logger.info(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
     return load_location_from_json(json_obj)
