@@ -175,11 +175,10 @@ def test_separate_school_types_for_seattle_metro(pars):
         separate.
     """
 
-    sp.logger.info("Creating schools where pre-k and elementary schools are separate.")
-
     test_pars = sc.dcp(pars)
     test_pars['location'] = None  # seattle_metro results with school size distribution the same for all types
-    pop, school_types = test_school_sizes_by_type(test_pars)
+    pop, school_types = test_school_sizes_by_type(test_pars, do_show=True)
+    sp.logger.info("Creating schools where pre-k and elementary schools are separate.")
 
     assert ('pk' in school_types) and ('es' in school_types), 'Check failed. pk and es school type are not separately created.'
     print('Check passed.')
@@ -191,10 +190,11 @@ def test_without_school_types():
     """
     Test that without school types, all schools are put together in one group.
     """
-    sp.logger.info("Creating schools where with_school_types is False.")
     test_pars = sc.dcp(pars)
     test_pars['with_school_types'] = None
-    pop, school_types = test_school_sizes_by_type(test_pars)
+    pop, school_types = test_school_sizes_by_type(test_pars, do_show=True)
+    sp.logger.info("Creating schools where with_school_types is False.")
+    return pop, school_types
 
 
 if __name__ == '__main__':
@@ -205,7 +205,5 @@ if __name__ == '__main__':
     school_types = test_school_types_created()
     pop, school_types = test_school_sizes_by_type(pars, do_show=True)
     pop2 = test_separate_school_types_for_seattle_metro(pars)
-    pop3, school_types_3 = test_school_sizes_by_type(sc.mergedicts(pars, {'with_school_types': False}), do_show=True)
+    pop3, school_types_3 = test_without_school_types()
     sc.toc()
-
-    plt.show()
