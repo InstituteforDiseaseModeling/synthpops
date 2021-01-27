@@ -3,7 +3,10 @@ import synthpops as sp
 import unittest
 
 class TestLocation(unittest.TestCase):
-
+    """
+    These tests need to be run from the root synthpops folder, because some of the tests involve relative
+    filepath assumptions based on that.
+    """
 
     def minimal_test_str(self):
         test_str = """{
@@ -478,6 +481,11 @@ class TestLocation(unittest.TestCase):
     def test_load_minimal_location_with_parent_filepath(self):
         test_str = self.minimal_location_with_parent_filepath_test_str()
         location = sp.load_location_from_json_str(test_str)
+        self.check_minimal_location_with_parent(location)
+
+    def test_load_minimal_location_with_parent_filepath_from_filepath(self):
+        child_filepath = "tests/unittests/test_location_child.json"
+        location = sp.load_location_from_filepath(child_filepath)
         self.check_minimal_location_with_parent(location)
 
     def check_minimal_location_with_parent(self, location):
