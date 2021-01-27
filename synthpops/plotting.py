@@ -475,45 +475,58 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     kwargs = sc.objdict(kwargs)
     kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
 
-    print(kwargs)
-
     if isinstance(pop, (dict, cv.people.People)):
-
         loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
+
+    # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
 
     if isinstance(pop, sppop.Pop):
         loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location, 'country_location': pop.country_location})
 
-        # get the age distribution
+        # get the expected age distribution
         if pop.smooth_ages:
             expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': pop.window_length}))
         else:
             expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
 
+        # get the generated age distribution
         generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
         for i, person in pop.popdict.items():
             generated_age_count[person['age']] += 1
 
         generated_age_distr = spb.norm_dic(generated_age_count)
 
-    # elif isinstance(pop, dict):
+    elif isinstance(pop, dict):
+        # get the expected age distribution
+        if kwargs.smooth_ages:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+        else:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+
+        # get the generated age distribution
+        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
+        for i, person in pop.items():
+            generated_age_count[person['age']] += 1
+
+        generated_age_distr = spb.norm_dic(generated_age_count)
+
+    elif isinstance(pop, cv.people.People):
+        # get the expected age distribution
+        if kwargs.smooth_ages:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+        else:
+            expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
+
+        generated_age_count = Counter(pop.age)
+        print('generated_age_count')
+        print(sorted(generated_age_count.items(), key=lambda x: x[1], reverse=True))
+
+
+        generated_age_distr = spb.norm_dic(generated_age_count)
 
     # update the fig
-    expected_age_distr_array = [v * 100 for v in expected_age_distr.values()]
-
-    # supporting two pop object types: synthpops dictionary and covasim array styles
-    if kwargs.pop_type != 'covasim':
-        kwargs.pop_type = 'synthpops'
-
-        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
-        for i, person in pop.popdict.items():
-            generated_age_count[person['age']] += 1
-
-        generated_age_distr = spb.norm_dic(generated_age_count)
-        generated_age_distr_array = [v * 100 for v in generated_age_distr.values()]
-
-    # else:  # not quite ready for covasim people objects
-        # generated_age_count = collections.Counter()
+    expected_age_distr_array = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
+    generated_age_distr_array = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
 
     fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
     fig.subplots_adjust(**kwargs.axis)
@@ -534,6 +547,5 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     if kwargs.do_save:
         figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
         fig.savefig(figpath, format=kwargs.format)
-    # fig.savefig(f'{kwargs.format}_test.{kwargs.format}', format=kwargs.format)
 
     return fig, ax

@@ -3,9 +3,6 @@ This module provides the layer for communicating with the agent-based model Cova
 """
 
 import sciris as sc
-import matplotlib as mplt
-import matplotlib.pyplot as plt
-import collections
 from .config import logger as log
 from . import config as cfg
 from . import sampling as spsamp
