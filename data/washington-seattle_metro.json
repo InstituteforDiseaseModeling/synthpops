@@ -1,4 +1,5 @@
 {
+  "location_name": "washington-seattle_metro",
   "data_provenance_notices": ["notice1","notice2"],
   "reference_links": ["reference1","reference2"],
   "citations": ["citation1","citation2"],
