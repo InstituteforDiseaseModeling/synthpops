@@ -421,7 +421,7 @@ class Pop(sc.prettyobj):
         return pop
 
 
-    def plot_people(self):
+    def plot_people(self, *args, **kwargs):
         ''' Placeholder example of plotting the people in a population '''
         import covasim as cv # Optional import
         pars = dict(
@@ -431,7 +431,7 @@ class Pop(sc.prettyobj):
             )
         sim = cv.Sim(pars, popfile=self.popdict)
         ppl = cv.make_people(sim)  # Create the corresponding population
-        fig = ppl.plot()
+        fig = ppl.plot(*args, **kwargs)
         return fig
 
 
