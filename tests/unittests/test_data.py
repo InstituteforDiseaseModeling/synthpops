@@ -4,7 +4,7 @@ import unittest
 
 class TestLocation(unittest.TestCase):
     """
-    These tests need to be run from the root synthpops folder, because some of the tests involve relative
+    These tests need to be run from the root synthpops/tests folder, because some of the tests involve relative
     filepath assumptions based on that.
     """
 
@@ -143,7 +143,7 @@ class TestLocation(unittest.TestCase):
     def minimal_location_with_parent_filepath_test_str(self):
         test_str = """{
           "location_name": "test_location_child",
-          "parent": "tests/unittests/test_location_A.json",
+          "parent": "unittests/test_location_A.json",
           "employment_rates_by_age": [
             [19,0.300],
             [20,0.693]
@@ -484,7 +484,7 @@ class TestLocation(unittest.TestCase):
         self.check_minimal_location_with_parent(location)
 
     def test_load_minimal_location_with_parent_filepath_from_filepath(self):
-        child_filepath = "tests/unittests/test_location_child.json"
+        child_filepath = "unittests/test_location_child.json"
         location = sp.load_location_from_filepath(child_filepath)
         self.check_minimal_location_with_parent(location)
 
