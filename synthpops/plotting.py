@@ -33,7 +33,9 @@ except:
     default_colormap = 'bone_r'
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_age_distribution_comparison']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+__all__ = ['calculate_contact_matrix', 'plot_contacts',
+           'plot_age_distribution_comparison',
+           'plot_school_sizes_by_type']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 def default_plotting_kwargs():
