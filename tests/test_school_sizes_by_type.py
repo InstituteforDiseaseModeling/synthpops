@@ -104,7 +104,7 @@ def plot_school_sizes_by_type(pop, pars, do_show=False):
     bins = [school_size_brackets[0][0]] + [school_size_brackets[b][-1] + 1 for b in school_size_brackets]
 
     schools = dict()
-    enrollment_by_school_type = {}
+    enrollment_by_school_type = dict()
     gen_school_size_distr = dict()
 
     for i, person in pop.items():
@@ -209,12 +209,11 @@ def test_separate_school_types_for_seattle_metro(pars):
         default to previous seattle metro data with pre-k and elementary kept
         separate.
     """
-
+    sp.logger.info("Creating schools where pre-k and elementary schools are separate.")
     test_pars = sc.dcp(pars)
     test_pars['location'] = None  # seattle_metro results with school size distribution the same for all types
     pop = sp.make_population(**pars)
     fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
-    sp.logger.info("Creating schools where pre-k and elementary schools are separate.")
 
     assert ('pk' in school_types) and ('es' in school_types), 'Check failed. pk and es school type are not separately created.'
     print('Check passed.')
@@ -226,11 +225,11 @@ def test_without_school_types():
     """
     Test that without school types, all schools are put together in one group.
     """
+    sp.logger.info("Creating schools where with_school_types is False.")
     test_pars = sc.dcp(pars)
     test_pars['with_school_types'] = None
     pop = sp.make_population(**test_pars)
     fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
-    sp.logger.info("Creating schools where with_school_types is False.")
     return pop, fig, ax, school_types
 
 
