@@ -456,7 +456,9 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
         fig, ax = pop.plot_age_distribution_comparison()
 
         popdict = pop.to_dict()
-        fig, ax = sp.plot_age_distribution_comparison(popdict, **pars)
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_age_distribution_comparison(popdict, **kwargs)
     """
     default_kwargs = default_plotting_kwargs()
 
@@ -541,5 +543,54 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     if kwargs.do_save:
         figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
         fig.savefig(figpath, format=kwargs.format, dpi=kwargs.dpi)
+
+    return fig, ax
+
+
+def plot_school_sizes_by_type(pop, *args, **kwargs):
+    """
+    Plot a comparison of the expected and generated school size distribution for each type of school expected.
+
+    Args:
+        pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
+
+    Returns:
+        Matplotlib figure and ax.
+
+    Note:
+        If using pop with type covasim.people.Pop or dict, args must be supplied
+        for the location parameters to get the expected distribution.
+
+    **Example**::
+
+        pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_school_sizes_by_type()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_school_sizes_by_type(popdict, **kwargs)
+    """
+    default_kwargs = default_plotting_kwargs()
+
+    # TODO: consolidate the following method specific default parameters in dictionary
+    default_kwargs.color_1 = '#55afe1'
+    default_kwargs.color_2 = '#0a6299'
+    default_kwargs.left = 0.10
+    default_kwargs.right = 0.95
+    default_kwargs.top = 0.92
+    default_kwargs.bottom = 0.12
+    default_kwargs.figname = f"age_distribution_comparison"
+    default_kwargs.figdir = cfg.datadir.replace('data', 'figures')
+    default_kwargs.do_save = False
+    default_kwargs.do_show = False
+
+    kwargs = sc.mergedicts(default_kwargs, kwargs)
+    kwargs = sc.objdict(kwargs)
+
+    # update the fig
+    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
+    fig.subplots_adjust(**kwargs.axis)
 
     return fig, ax
