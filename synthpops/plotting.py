@@ -42,7 +42,7 @@ def default_plotting_kwargs():
     default_kwargs.fontsize = 12
     default_kwargs.format = 'png'
     default_kwargs.rotation = 0
-    default_kwargs.subplot_height = 6.5
+    default_kwargs.subplot_height = 5
     default_kwargs.subplot_width = 8
     default_kwargs.hspace = 0.4
     default_kwargs.wspace = 0.3
@@ -52,6 +52,8 @@ def default_plotting_kwargs():
     default_kwargs.width = default_kwargs.ncols * default_kwargs.subplot_width
     default_kwargs.show = 1
     default_kwargs.cmap = 'cmr.freeze_r'
+    default_kwargs.markersize = 6
+    default_kwargs.dpi = 150
 
     return default_kwargs
 
@@ -331,7 +333,8 @@ def plot_array(expected,
                fig=None,
                ax=None,
                color_1=None,
-               color_2=None):
+               color_2=None,
+               markersize=6):
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If generate data is not provided, plot only the expected values.
@@ -370,11 +373,9 @@ def plot_array(expected,
     if not binned:
         ax.hist(expected, label=expect_label.title(), color='mediumseagreen')
     else:
-        rect1 = ax.bar(x, expected, label=expect_label.title(), color=color_1)
-        # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
+        rect1 = ax.bar(x, expected, label=expect_label.title(), color=color_1, zorder=0)
         if generated is not None:
-            line, = ax.plot(x, generated, color=color_2, markeredgecolor='white', marker='o', markersize=6, label='Generated')
-            # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+            line, = ax.plot(x, generated, color=color_2, markeredgecolor='white', marker='o', markersize=markersize, label='Generated', zorder=1)
         if value_text:
             autolabel(ax, rect1, 0, 5)
             if generated is not None:
@@ -387,14 +388,13 @@ def plot_array(expected,
             else:
                 xticks = np.arange(len(names))
                 xticklabels = names
-            # plt.locator_params(axis='x', nbins=len(xticks))
-            # if the labels are too many it will look crowded so we only show every 10 ticks
+            # if there are too many labels, only show every 10 ticks
             if len(names) > 30:
                 xticks = xticks[0::10]
                 xticklabels = xticklabels[0::10]
             ax.set_xticks(xticks)
             ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
-            # ax.set_xlim(left=-1)
+
     leg = ax.legend(loc='upper right')
     leg.draw_frame(False)
     ax.set_xlim(x[0] - 1, x[-1] + 1)
@@ -461,7 +461,6 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     default_kwargs = default_plotting_kwargs()
 
     # TODO: consolidate the following method specific default parameters in dictionary
-    default_kwargs.pop_type = sppop.Pop
     default_kwargs.color_1 = '#55afe1'
     default_kwargs.color_2 = '#0a6299'
     default_kwargs.left = 0.10
@@ -475,79 +474,64 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
 
     kwargs = sc.mergedicts(default_kwargs, kwargs)
     kwargs = sc.objdict(kwargs)
-    kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top, 'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+    kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right,
+                              'top': kwargs.top, 'bottom': kwargs.bottom,
+                              'hspace': kwargs.hspace, 'wspace': kwargs.wspace}
+                             )
+
+    # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
 
     # set up location parameters to grab expected data
     if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
+        loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location,
+                               'state_location': kwargs.state_location, 'country_location': kwargs.country_location})
 
-    # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
-    if isinstance(pop, sppop.Pop):
-        loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location, 'country_location': pop.country_location})
+    elif isinstance(pop, sppop.Pop):
+        loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location,
+                               'state_location': pop.state_location, 'country_location': pop.country_location})
         kwargs.smooth_ages = pop.smooth_ages
         kwargs.window_length = pop.window_length
+
+    else:
+        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     if not kwargs.smooth_ages:
         kwargs.window_length = 1
 
+    # get the expected age distribution
     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
+    generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)  # sets ordering of keys consistently
 
+    # get the generated age distribution
     if isinstance(pop, sppop.Pop):
-        # get the expected age distribution
-        # if pop.smooth_ages:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-        # else:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
-
-        # get the generated age distribution
-        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
         for i, person in pop.popdict.items():
             generated_age_count[person['age']] += 1
 
-        generated_age_distr = spb.norm_dic(generated_age_count)
-
     elif isinstance(pop, dict):
-        # get the expected age distribution
-        # if kwargs.smooth_ages:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-        # else:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
-
-        # get the generated age distribution
-        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
         for i, person in pop.items():
             generated_age_count[person['age']] += 1
 
-        generated_age_distr = spb.norm_dic(generated_age_count)
-
     elif isinstance(pop, cv.people.People):
-        # get the expected age distribution
-        # if kwargs.smooth_ages:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-        # else:
-        #     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
-
         generated_age_count = Counter(pop.age)
-        print('generated_age_count')
-        print(sorted(generated_age_count.items(), key=lambda x: x[1], reverse=True))
 
+    generated_age_distr = spb.norm_dic(generated_age_count)
 
-        generated_age_distr = spb.norm_dic(generated_age_count)
-
-    # update the fig
     expected_age_distr_array = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
     generated_age_distr_array = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
 
+    # update the fig
     fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
     fig.subplots_adjust(**kwargs.axis)
 
     fig, ax = plot_array(expected_age_distr_array, generated_age_distr_array,
                          do_show=False, xlabel_rotation=kwargs.rotation,
                          prefix=f"{loc_pars.location}_age_distribution", binned=True,
-                         fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2)
+                         fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2, markersize=kwargs.markersize)
     ax.set_xlabel('Age', fontsize=kwargs.fontsize)
     ax.set_ylabel('Distribution (%)', fontsize=kwargs.fontsize)
-    ax.set_xlim(-2, len(expected_age_distr_array) + 1.)
+    ax.set_xlim(-1., len(expected_age_distr_array) + 0.)
+    max_y = np.ceil(max(max(expected_age_distr_array), max(generated_age_distr_array)))
+    ax.set_ylim(0, max_y)
 
     ax.tick_params(labelsize=kwargs.fontsize)
 
@@ -556,6 +540,6 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
 
     if kwargs.do_save:
         figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
-        fig.savefig(figpath, format=kwargs.format)
+        fig.savefig(figpath, format=kwargs.format, dpi=kwargs.dpi)
 
     return fig, ax
