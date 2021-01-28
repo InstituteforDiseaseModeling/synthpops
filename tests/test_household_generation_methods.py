@@ -107,7 +107,7 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
-def plot_age_dist(datadir, pop, pars, do_show, testprefix):
+def plot_age_dist(datadir, pop, pars, do_show, prefix):
     sp.logger.info("Plot the expected age distribution and the generated age distribution.")
 
     age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'],
@@ -134,7 +134,7 @@ def plot_age_dist(datadir, pop, pars, do_show, testprefix):
     gen_age_distr = sp.norm_dic(gen_age_count)
 
     fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()],
-                              generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True, testprefix=testprefix.replace('_', ' '))
+                              generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True, prefix=prefix.replace('_', ' '))
     ax.set_xlabel('Ages')
     ax.set_ylabel('Distribution (%)')
     ax.set_ylim(bottom=0)
