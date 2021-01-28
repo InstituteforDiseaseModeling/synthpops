@@ -124,6 +124,7 @@ class Pop(sc.prettyobj):
         self.country_location   = country_location
         self.state_location     = state_location
         self.location           = location
+        self.use_default        = use_default
 
         # Age distribution parameters
         self.smooth_ages   = smooth_ages
@@ -153,7 +154,7 @@ class Pop(sc.prettyobj):
         self.ltcf_pars.average_LTCF_degree     = average_LTCF_degree
         self.ltcf_pars.ltcf_staff_age_min      = ltcf_staff_age_min
         self.ltcf_pars.ltcf_staff_age_max      = ltcf_staff_age_max
-        self.ltcf_pars.use_default             = use_default
+        # self.ltcf_pars.use_default             = use_default
 
         # If any parameters are supplied as a dict to override defaults, merge them in now
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
@@ -208,6 +209,7 @@ class Pop(sc.prettyobj):
         n                               = self.n
         sheet_name                      = self.sheet_name
         max_contacts                    = self.max_contacts
+        use_default                     = self.use_default
 
         # Age distribution parameters
         smooth_ages   = self.smooth_ages
@@ -220,7 +222,7 @@ class Pop(sc.prettyobj):
         use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
         average_LTCF_degree             = self.ltcf_pars.average_LTCF_degree
         with_facilities                 = self.ltcf_pars.with_facilities
-        use_default                     = self.ltcf_pars.use_default
+        # use_default                     = self.ltcf_pars.use_default
         ltcf_staff_age_min              = self.ltcf_pars.ltcf_staff_age_min
         ltcf_staff_age_max              = self.ltcf_pars.ltcf_staff_age_max
 

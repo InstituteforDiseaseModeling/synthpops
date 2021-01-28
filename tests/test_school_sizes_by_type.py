@@ -227,7 +227,7 @@ def test_without_school_types(do_show=False):
     """
     sp.logger.info("Creating schools where with_school_types is False.")
     test_pars = sc.dcp(pars)
-    test_pars['with_school_types'] = None
+    test_pars['with_school_types'] = False
     pop = sp.make_population(**test_pars)
     fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=do_show)
     return pop, fig, ax, school_types

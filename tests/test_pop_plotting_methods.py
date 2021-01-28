@@ -47,7 +47,7 @@ pars = dict(
 )
 pars = sc.objdict(pars)
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize("pars", [pars])
 def test_plot_age_distribution_comparison(pars, do_show=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
@@ -60,7 +60,7 @@ def test_plot_age_distribution_comparison(pars, do_show=False):
     fig, ax = pop.plot_age_distribution_comparison(**kwargs)
     return fig, ax, pop
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize("pars", [pars])
 def test_plot_with_popdict(pars, do_show=False):
     """
@@ -82,7 +82,7 @@ def test_plot_with_popdict(pars, do_show=False):
     fig, ax = sp.plot_age_distribution_comparison(popdict, **kwargs)
     return fig, ax, popdict
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize("pars", [pars])
 def test_plot_with_cvpeople(pars, do_show=False):
     """
@@ -111,7 +111,7 @@ def test_plot_with_cvpeople(pars, do_show=False):
     fig, ax = sp.plot_age_distribution_comparison(people, **kwargs)
     return fig, ax, people
 
-
+@pytest.mark.skip
 @pytest.mark.parametrize("pars", [pars])
 def test_update_plotting_styles(pars, do_show=False, do_save=False):
     """
@@ -130,10 +130,29 @@ def test_update_plotting_styles(pars, do_show=False, do_save=False):
     return fig, ax, pop
 
 
+@pytest.mark.skip
+@pytest.mark.parametrize("pars", [pars])
+def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False):
+    """Test that the school size distribution by type plotting method in sp.Pop class works."""
+    sp.logger.info("Test that the school size distribution by type plotting method in sp.Pop class works.")
+    pars['n'] = 100e3
+    pop = sp.Pop(**pars)
+    kwargs = sc.dcp(pars)
+    kwargs.figname = f"test_school_size_distributions_{pars['location']}"
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+    fig, ax = pop.plot_school_sizes_by_type(**kwargs)
+    return fig, ax, pop
+
+
+
+
 if __name__ == '__main__':
 
     # run as main and see the examples in action!
-    fig0, ax0, pop0 = test_plot_age_distribution_comparison(pars, do_show=True)
-    fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
-    fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True)
+    # fig0, ax0, pop0 = test_plot_age_distribution_comparison(pars, do_show=True)
+    # fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
+    # fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True)
     fig3, ax3, pop3 = test_update_plotting_styles(pars, do_show=True, do_save=True)
+    
+    fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)
