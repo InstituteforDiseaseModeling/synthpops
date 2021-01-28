@@ -126,7 +126,7 @@ def test_school_sizes_by_type(pars, do_show=False):
     gen_school_size_distr = sc.objdict(gen_school_size_distr)
 
     width = 6
-    height = 5 * len(gen_school_size_distr)
+    height = 3 * len(gen_school_size_distr)
     hspace = 0.4
 
     cmap = cmr.get_sub_cmap('cmo.curl', 0.12, 1)
@@ -137,14 +137,18 @@ def test_school_sizes_by_type(pars, do_show=False):
 
     bin_labels = [f"{school_size_brackets[b][0]}-{school_size_brackets[b][-1]}" for b in school_size_brackets]
 
-    for ns, school_type, size_distr in gen_school_size_distr.enumitems():
+    sorted_school_types = sorted(gen_school_size_distr.keys())
+
+    for ns, school_type in enumerate(sorted_school_types):
         x = np.arange(len(school_size_brackets))
 
         c = ns / len(gen_school_size_distr)
         c2 = min(c + 0.1, 1)
 
-        ax[ns].bar(x, list(expected_school_size_distr[school_type].values()), color=cmap(c), edgecolor='white', label='Expected', zorder=0)
-        ax[ns].plot(x, list(gen_school_size_distr[school_type].values()), color=cmap(c2), ls='--',
+        sorted_bins = sorted(expected_school_size_distr[school_type].keys())
+
+        ax[ns].bar(x, [expected_school_size_distr[school_type][b] for b in sorted_bins], color=cmap(c), edgecolor='white', label='Expected', zorder=0)
+        ax[ns].plot(x, [gen_school_size_distr[school_type][b] for b in sorted_bins], color=cmap(c2), ls='--',
                     marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=5, label='Simulated', zorder=1)
 
         leg = ax[ns].legend(loc=1)
