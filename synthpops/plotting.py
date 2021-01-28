@@ -487,7 +487,7 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
         kwargs.smooth_ages = pop.smooth_ages
         kwargs.window_length = pop.window_length
 
-    if kwargs.smooth_ages == False:
+    if not kwargs.smooth_ages:
         kwargs.window_length = 1
 
     expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))

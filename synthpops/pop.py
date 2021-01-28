@@ -413,9 +413,10 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
-    def plot_people(self):
+    def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
         import covasim as cv  # Optional import
+
         pars = dict(
             pop_size = self.n,
             pop_type = 'synthpops',
@@ -423,7 +424,7 @@ class Pop(sc.prettyobj):
         )
         sim = cv.Sim(pars, popfile=self.popdict)
         ppl = cv.make_people(sim)  # Create the corresponding population
-        fig = ppl.plot()
+        fig = ppl.plot(*args, **kwargs)
         return fig
 
     def plot_contacts(self, *args, **kwargs):
@@ -457,7 +458,6 @@ def make_population(*args, **kwargs):
         if key in deprecated:
             log.warning(f'You have specified parameter {key}, but this parameter is deprecated and will be ignored.')
             kwargs.pop(key)
-
 
     # Heavy lift 1: make the contacts and their connections
     log.debug('Generating a new population...')
