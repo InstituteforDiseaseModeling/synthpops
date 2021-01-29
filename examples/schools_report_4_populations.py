@@ -158,7 +158,11 @@ def make_cv_population(pop_size, rand_seed=1, max_pop_seeds=None, do_save=True, 
 if __name__ == '__main__':
 
     pop_size = 10e3
-    rand_seed = 1
-    people = make_cv_population(pop_size, rand_seed, do_save=True,
-                                popfile=f'schools_4_pop_{rand_seed}.pop',
-                                cohorting=True, community_contacts=20)
+
+    n_rand_seed = 1
+
+    # create multiple populations
+    for rand_seed in range(n_rand_seed):
+        people = make_cv_population(pop_size, rand_seed, do_save=True,
+                                    popfile=f'schools_4_pop_{rand_seed}.pop',
+                                    cohorting=True, community_contacts=20)
