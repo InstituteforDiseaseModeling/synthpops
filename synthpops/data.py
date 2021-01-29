@@ -125,6 +125,8 @@ def populate_parent_data(location):
     parent = location.parent
 
     if type(parent) is str:
+        if len(parent) == 0:
+            return location
         return populate_parent_data_from_file_path(location, parent)
 
     if type(parent) is JsonDict:
