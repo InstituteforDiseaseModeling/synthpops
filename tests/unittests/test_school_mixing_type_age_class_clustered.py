@@ -1,5 +1,5 @@
 """
-Test school mixing patterns for age_and_class_clusetred Schools
+Test school mixing patterns for age_and_class_clustered Schools
 The assumption is that one or more teachers are assigned to one class only
 Students must be assigned to only one class (class is composed of the same group of students)
 """
@@ -31,7 +31,7 @@ def test_age_and_class_clustered():
     Returns:
         None
     """
-    pop = sp.Pop(n=2e+4, **pars)
+    pop = sp.Pop(n=20000, **pars)
     # create AgeClassClusetredSchool class objects from population
     # and check if there is overlapping for teachers/students
     schools = form_classes(pop.popdict, ['pk', 'es', 'ms'])
@@ -119,8 +119,8 @@ def check_class_overlapping(schools):
             setlist_teachers = setlist_teachers + list(c.teachers)
             setlist_students = setlist_students + list(c.students)
     # check if any overlapping exists in teachers/students
-    dup_teacher = set([i for i in setlist_teachers if setlist_teachers.count(i)>1])
-    dup_student = set([i for i in setlist_students if setlist_students.count(i)>1])
+    dup_teacher = set([i for i in setlist_teachers if setlist_teachers.count(i) > 1])
+    dup_student = set([i for i in setlist_students if setlist_students.count(i) > 1])
 
     assert len(dup_teacher) == 0, f"overlapped teachers: {dup_teacher}"
     assert len(dup_student) == 0, f"overlapped student: {dup_student}"
@@ -139,7 +139,6 @@ class AgeClassClusteredSchool:
         self.scid = scid
         self.sc_type = sc_type
         self.classrooms = set()
-
 
     def print_school(self):
         """
@@ -201,7 +200,6 @@ class AgeClassClusteredClass:
             None
         """
         self.students.update(sc.promotetolist(pid))
-
 
     def print_class(self):
         """
