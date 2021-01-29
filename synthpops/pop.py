@@ -415,6 +415,16 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def get_enrollment_by_school_type(self, *args, **kwargs):
+        """
+        Get enrollment sizes by school types in popdict.
+
+        Returns:
+            list: List of generated enrollment sizes by school type.
+        """
+        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict)
+        return enrollment_by_school_type
+
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
         import covasim as cv  # Optional import
@@ -437,6 +447,19 @@ class Pop(sc.prettyobj):
     def plot_age_distribution_comparison(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
+
+        **Example**::
+
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_age_distribution_comparison()
+        """
+        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        return fig, ax
+
+    def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
+        """
+        Plot a comparison of the expected and generated enrollment rates by age.
 
         **Example**::
 

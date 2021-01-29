@@ -1245,3 +1245,29 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
     return syn_schools, syn_school_uids, syn_school_types
+
+
+def get_enrollment_by_school_type(popdict):
+    """
+    Get enrollment sizes by school types in popdict.
+
+    Args:
+        popdict (dict): population dictionary
+
+    Returns:
+        list: List of generated enrollment sizes by school type.
+    """
+    schools = dict()
+    enrollment_by_school_type = dict()
+    for i, person in popdict.items():
+        if person['scid'] is not None and person['sc_student']:
+            schools.setdefault(person['scid'], dict())
+            schools[person['scid']]['sc_type'] = person['sc_type']
+            schools[person['scid']].setdefault('enrolled', 0)
+            schools[person['scid']]['enrolled'] += 1
+
+    for i, school in schools.items():
+        enrollment_by_school_type.setdefault(school['sc_type'], [])
+        enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
+
+    return enrollment_by_school_type

@@ -134,10 +134,9 @@ def test_update_plotting_styles(pars, do_show=False, do_save=False):
 def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False):
     """Test that the school size distribution by type plotting method in sp.Pop class works."""
     sp.logger.info("Test that the school size distribution by type plotting method in sp.Pop class works.")
-    pars['n'] = 20e3
     pop = sp.Pop(**pars)
     kwargs = sc.dcp(pars)
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}"
+    kwargs.figname = f"test_school_size_distributions_{pars['location']}_1"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
     fig, ax = pop.plot_school_sizes_by_type(**kwargs)
@@ -145,7 +144,15 @@ def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False
     # works on popdict
     popdict = pop.popdict
     kwargs.datadir = sp.datadir
-    fig2, ax = sp.plot_school_sizes_by_type(popdict, **kwargs)
+    kwargs.figname = f"test_school_size_distributions_{pars['location']}_2"
+    fig2, ax2 = sp.plot_school_sizes_by_type(popdict, **kwargs)
+
+    # works on popdict
+    pars['with_school_types'] = False
+    pop3 = sp.Pop(**pars)
+    kwargs.datadir = sp.datadir
+    kwargs.figname = f"test_school_size_distributions_{pars['location']}_3"
+    fig3, ax3 = pop3.plot_school_sizes_by_type(**kwargs)
 
     return fig, ax, pop
 
