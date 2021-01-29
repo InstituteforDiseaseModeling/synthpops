@@ -58,7 +58,7 @@ def default_plotting_kwargs():
     default_kwargs.show = 1
     default_kwargs.cmap = 'cmr.freeze_r'
     default_kwargs.markersize = 6
-    default_kwargs.dpi = 150
+    default_kwargs.dpi = 100
     default_kwargs.display_dpi = 96
     default_kwargs.save_dpi = 300
     default_kwargs.screen_width = 1366
@@ -546,7 +546,7 @@ def plot_age_distribution_comparison(pop, *args, **kwargs):
     generated_age_distr_array = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
 
     # update the fig
-    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height))
+    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height), dpi=kwargs.dpi)
     fig.subplots_adjust(**kwargs.axis)
 
     fig, ax = plot_array(expected_age_distr_array, generated_age_distr_array,
@@ -674,7 +674,7 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     kwargs.display_width = np.round((kwargs.screen_width * kwargs.screen_width_factor) / kwargs.display_dpi, 2)
 
     # create fig, ax
-    fig, ax = plt.subplots(n_school_types, 1, figsize=(kwargs.display_width, kwargs.display_height))
+    fig, ax = plt.subplots(n_school_types, 1, figsize=(kwargs.display_width, kwargs.display_height), dpi=kwargs.dpi)
 
     kwargs.location_text_y = 1.17
     # readjust figure parameters
