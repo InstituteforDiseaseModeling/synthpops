@@ -52,35 +52,35 @@ def form_classes(pop, school_types):
     # loop over population, form classes first by the following logic:
     # if a teacher is found, add him to the class
     # if a student is found, check his school contacts to find the teachers and add both teacher/student to the class
-    for k, p in pop.items():
-        if p["scid"] is not None and p["sc_type"] in school_types:
+    for uid, person in pop.items():
+        if person["scid"] is not None and person["sc_type"] in school_types:
             # check if school exists by scid
-            school_scid = [s for s in schools if p["scid"] == s.scid]
-            assert len(school_scid) <= 1, f"there should only be one school with {p['scid']}"
+            school_scid = [s for s in schools if person["scid"] == s.scid]
+            assert len(school_scid) <= 1, f"there should only be one school with {person['scid']}"
             # if school does not exist, create one with scid and sc_type
             if len(school_scid) == 0:
-                schoolp = AgeClassClusteredSchool(scid=p["scid"], sc_type=p["sc_type"])
+                schoolp = AgeClassClusteredSchool(scid=person["scid"], sc_type=person["sc_type"])
                 schools.append(copy.deepcopy(schoolp))
             else:
                 # get the first element of school (should have only one school returned)
                 schoolp = school_scid[0]
-            if p["sc_teacher"] is not None:
+            if person["sc_teacher"] is not None:
                 # check all classes in the school with matching scid to see if this teacher was assigned
                 classp = None
-                for c in schoolp.get_all_classes():
-                    if k in c.teachers:
+                for c in schoolp.classrooms:
+                    if uid in c.teachers:
                         classp = c
                         break
                 # if teacher was not assigned, form a new class and add this class to the school
                 if classp is None:
                     classp = AgeClassClusteredClass()
-                    classp.add_teacher(k)
-                    schoolp.add_class(copy.deepcopy(classp))
-            if p["sc_student"] is not None:
+                    classp.add_teacher(uid)
+                    schoolp.classrooms.add(copy.deepcopy(classp))
+            if person["sc_student"] is not None:
                 # find the teachers from the student's contacts and check if they already teach a class
                 classp = None
-                teachersp = [sc for sc in p["contacts"]["S"] if pop[sc]["sc_teacher"] is not None]
-                for c in schoolp.get_all_classes():
+                teachersp = [sc for sc in person["contacts"]["S"] if pop[sc]["sc_teacher"] is not None]
+                for c in schoolp.classrooms:
                     # check all classes to see if teachers' id is in there
                     if set(teachersp).intersection(c.teachers):
                         classp = c
@@ -90,11 +90,11 @@ def form_classes(pop, school_types):
                 if classp is None:
                     classp = AgeClassClusteredClass()
                     classp.add_teacher(teachersp)
-                    classp.add_student(k)
-                    schoolp.add_class(copy.deepcopy(classp))
+                    classp.add_student(uid)
+                    schoolp.classrooms.add(copy.deepcopy(classp))
                 else:
                     # add student to the class where his teacher contact was assigned
-                    classp.add_student(k)
+                    classp.add_student(uid)
     # print school info
     for s in schools:
         s.print_school()
@@ -115,7 +115,7 @@ def check_class_overlapping(schools):
     # get teachers and students from each class to a list of items,
     # if there is overlapping an item should appear more than once
     for s in schools:
-        for c in s.get_all_classes():
+        for c in s.classrooms:
             setlist_teachers = setlist_teachers + list(c.teachers)
             setlist_students = setlist_students + list(c.students)
     # check if any overlapping exists in teachers/students
@@ -140,26 +140,6 @@ class AgeClassClusteredSchool:
         self.sc_type = sc_type
         self.classrooms = set()
 
-    def add_class(self, newclass):
-        """
-        add a new class to school
-
-        Args:
-            newclass: An AgeClassClusetredClass class object
-
-        Returns:
-            None
-        """
-        self.classrooms.add(newclass)
-
-    def get_all_classes(self):
-        """
-        get all the classes in the school
-
-        Returns:
-            A set of AgeClassClusetredClass class objects
-        """
-        return self.classrooms
 
     def print_school(self):
         """
@@ -169,8 +149,8 @@ class AgeClassClusteredSchool:
             None
         """
         print(f"\n------{self.get_type()}:{self.scid}-------")
-        print(f"\n------{len(self.get_all_classes())} classes-------")
-        for c in self.get_all_classes():
+        print(f"\n------{len(self.classrooms)} classes-------")
+        for c in self.classrooms:
             c.print_class()
 
     def get_type(self):
@@ -208,10 +188,7 @@ class AgeClassClusteredClass:
         Returns:
             None
         """
-        if type(pid) is list:
-            self.teachers.update(pid)
-        else:
-            self.teachers.add(pid)
+        self.teachers.update(sc.promotetolist(pid))
 
     def add_student(self, pid):
         """
@@ -223,10 +200,7 @@ class AgeClassClusteredClass:
         Returns:
             None
         """
-        if type(pid) is list:
-            self.students.update(pid)
-        else:
-            self.students.add(pid)
+        self.students.update(sc.promotetolist(pid))
 
 
     def print_class(self):
