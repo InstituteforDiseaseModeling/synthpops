@@ -1,5 +1,5 @@
 {
-  "location_name": "washington-seattle_metro",
+  "location_name": "usa-Washington-seattle_metro",
   "data_provenance_notices": ["notice1","notice2"],
   "reference_links": ["reference1","reference2"],
   "citations": ["citation1","citation2"],
@@ -266,7 +266,7 @@
     [0,19,0.0],
     [20,39,0.08955223880597014],
     [40,59,0.13432835820895522],
-    [60,79,,0.13432835820895522],
+    [60,79,0.13432835820895522],
     [80,99,0.19402985074626866],
     [100,119,0.1044776119402985],
     [120,139,0.11940298507462686],
