@@ -4,10 +4,9 @@ The assumption is that one or more teachers are assigned to one class only
 Students must be assigned to only one class (class is composed of the same group of students)
 """
 import copy
-import uuid
+import sciris as sc
 import synthpops as sp
 pars = dict(
-    n=2e4,
     rand_seed=1,
     max_contacts=None,
     country_location='usa',
@@ -32,17 +31,17 @@ def test_age_and_class_clustered():
     Returns:
         None
     """
-    pop = sp.generate_synthetic_population(**pars)
+    pop = sp.Pop(n=2e+4, **pars)
     # create AgeClassClusetredSchool class objects from population
     # and check if there is overlapping for teachers/students
-    schools = form_classes(pop, ['pk', 'es', 'ms'])
+    schools = form_classes(pop.popdict, ['pk', 'es', 'ms'])
     check_class_overlapping(schools)
 
 
 def form_classes(pop, school_types):
     """
     Args:
-        pop: population
+        pop: popdict of a Pop object
         school_types: a list of school type
 
     Returns:
@@ -56,25 +55,25 @@ def form_classes(pop, school_types):
     for k, p in pop.items():
         if p["scid"] is not None and p["sc_type"] in school_types:
             # check if school exists by scid
-            schoolp = [s for s in schools if p["scid"] == s.id]
-            assert len(schoolp) <= 1, f"there should only be one school with {p['scid']}"
+            school_scid = [s for s in schools if p["scid"] == s.scid]
+            assert len(school_scid) <= 1, f"there should only be one school with {p['scid']}"
             # if school does not exist, create one with scid and sc_type
-            if len(schoolp) == 0:
-                schoolp = AgeClassClusetredSchool(sc_id=p["scid"], sc_type=p["sc_type"])
+            if len(school_scid) == 0:
+                schoolp = AgeClassClusteredSchool(scid=p["scid"], sc_type=p["sc_type"])
                 schools.append(copy.deepcopy(schoolp))
             else:
                 # get the first element of school (should have only one school returned)
-                schoolp = schoolp[0]
+                schoolp = school_scid[0]
             if p["sc_teacher"] is not None:
                 # check all classes in the school with matching scid to see if this teacher was assigned
                 classp = None
                 for c in schoolp.get_all_classes():
-                    if k in c.get_teacher():
+                    if k in c.teachers:
                         classp = c
                         break
                 # if teacher was not assigned, form a new class and add this class to the school
                 if classp is None:
-                    classp = AgeClassClusetredClass()
+                    classp = AgeClassClusteredClass()
                     classp.add_teacher(k)
                     schoolp.add_class(copy.deepcopy(classp))
             if p["sc_student"] is not None:
@@ -83,13 +82,13 @@ def form_classes(pop, school_types):
                 teachersp = [sc for sc in p["contacts"]["S"] if pop[sc]["sc_teacher"] is not None]
                 for c in schoolp.get_all_classes():
                     # check all classes to see if teachers' id is in there
-                    if set(teachersp).issubset(c.get_teacher()):
+                    if set(teachersp).intersection(c.teachers):
                         classp = c
                         break
                 # if no such class is found, form the new class with all the teachers in contacts
                 # and add the student to the class
                 if classp is None:
-                    classp = AgeClassClusetredClass()
+                    classp = AgeClassClusteredClass()
                     classp.add_teacher(teachersp)
                     classp.add_student(k)
                     schoolp.add_class(copy.deepcopy(classp))
@@ -113,29 +112,31 @@ def check_class_overlapping(schools):
     """
     setlist_teachers = []
     setlist_students = []
-    # get teachers and students from each class to a list of set items
+    # get teachers and students from each class to a list of items,
+    # if there is overlapping an item should appear more than once
     for s in schools:
         for c in s.get_all_classes():
-            setlist_teachers.append(c.get_teacher())
-            setlist_students.append(c.get_student())
+            setlist_teachers = setlist_teachers + list(c.teachers)
+            setlist_students = setlist_students + list(c.students)
     # check if any overlapping exists in teachers/students
-    dup_teacher = set.intersection(*setlist_teachers)
-    dup_student = set.intersection(*setlist_students)
+    dup_teacher = set([i for i in setlist_teachers if setlist_teachers.count(i)>1])
+    dup_student = set([i for i in setlist_students if setlist_students.count(i)>1])
+
     assert len(dup_teacher) == 0, f"overlapped teachers: {dup_teacher}"
     assert len(dup_student) == 0, f"overlapped student: {dup_student}"
 
 
-class AgeClassClusetredSchool:
+class AgeClassClusteredSchool:
 
-    def __init__(self, sc_id=None, sc_type=None):
+    def __init__(self, scid, sc_type=None):
         """
         class constructor
 
         Args:
-            sc_id: school id, if not provided a random uuid will be assigned
+            scid: school id
             sc_type: school type, default to None
         """
-        self.id = uuid.uuid4() if sc_id is None else sc_id
+        self.scid = scid
         self.sc_type = sc_type
         self.classrooms = set()
 
@@ -167,7 +168,7 @@ class AgeClassClusetredSchool:
         Returns:
             None
         """
-        print(f"\n------{self.get_type()}:{self.id}-------")
+        print(f"\n------{self.get_type()}:{self.scid}-------")
         print(f"\n------{len(self.get_all_classes())} classes-------")
         for c in self.get_all_classes():
             c.print_class()
@@ -188,13 +189,13 @@ class AgeClassClusetredSchool:
         return st.get(self.sc_type)
 
 
-class AgeClassClusetredClass:
+class AgeClassClusteredClass:
 
     def __init__(self):
         """
         Constructor: create an empty class
         """
-        self.id = uuid.uuid4()
+        self.id = sc.uuid()
         self.teachers = set()
         self.students = set()
 
@@ -227,23 +228,6 @@ class AgeClassClusetredClass:
         else:
             self.students.add(pid)
 
-    def get_teacher(self):
-        """
-        get teachers in the school
-
-        Returns:
-            A set of teachers' ids
-        """
-        return self.teachers
-
-    def get_student(self):
-        """
-        get students in the school
-
-        Returns:
-            A set of students' ids
-        """
-        return self.students
 
     def print_class(self):
         """
@@ -253,6 +237,6 @@ class AgeClassClusetredClass:
             None
         """
         print(f"\n\t------Class:{self.id}-------")
-        print(f"\n\t------{len(self.get_teacher())} teachers and {len(self.get_student())} students-------")
-        print(f"\tteachers:{self.get_teacher()}")
-        print(f"\tstudents:{self.get_student()}")
+        print(f"\n\t------{len(self.teachers)} teachers and {len(self.students)} students-------")
+        print(f"\tteachers:{self.teachers}")
+        print(f"\tstudents:{self.students}")
