@@ -2,13 +2,14 @@ import synthpops.data_distributions_legacy as data_distributions_legacy
 import synthpops.data as data
 import synthpops.config as spconfig
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--datadir", type=str, default=None, required=False, help='Source data directory. If unspecified, uses whatever synthpops default is.')
 parser.add_argument("--country_location", type=str, default=None, required=True, help='Input country.')
 parser.add_argument("--state_location", type=str, default=None, required=False, help='Input state.')
 parser.add_argument("--location", type=str, default=None, required=False, help='Input location.')
-parser.add_argument("--output_folder", type=str, default=None, required=False, help="Output folder. Default is working directory.")
+parser.add_argument("--output_folder", type=str, default=".", required=False, help="Output folder. Default is working directory.")
 args = parser.parse_args()
 
 def migrate_legacy_data(datadir, country_location, state_location, location, output_folder):
@@ -45,6 +46,9 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
 
     for k, dist_percentage in legacy_age_distribution.items():
         new_location.population_age_distribution[k][2] = dist_percentage
+
+    output_filepath = os.path.join(output_folder, f"{new_location.location_name}.json")
+    data.save_location_to_filepath(new_location, output_filepath)
 
     return
 
