@@ -155,6 +155,12 @@ def load_location_from_filepath(filepath):
     return load_location_from_json(json_obj)
 
 
+def save_location_to_filepath(location, filepath):
+    logger.info(f"Saving location to filepath [{filepath}]")
+    location_json = location.to_json()
+    with open(filepath, 'w') as f:
+        json.dump(location_json, f, indent=2)
+
 def check_location_constraints_satisfied(location):
     """
     Checks a number of constraints that need to be satisfied, above and
