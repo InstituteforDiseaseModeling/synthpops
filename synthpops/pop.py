@@ -117,20 +117,20 @@ class Pop(sc.prettyobj):
         self.ltcf_pars   = sc.objdict()
 
         # General parameters
-        self.n                  = int(n)
-        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code = with_industry_code
-        self.rand_seed          = rand_seed
-        self.country_location   = country_location
-        self.state_location     = state_location
-        self.location           = location
+        self.n                                           = int(n)
+        self.max_contacts                                = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code                          = with_industry_code
+        self.rand_seed                                   = rand_seed
+        self.country_location                            = country_location
+        self.state_location                              = state_location
+        self.location                                    = location
 
         # Age distribution parameters
-        self.smooth_ages   = smooth_ages
-        self.window_length = window_length
+        self.smooth_ages                                 = smooth_ages
+        self.window_length                               = window_length
 
         # Household parameters
-        self.household_method = household_method
+        self.household_method                            = household_method
 
         # School parameters
         self.school_pars.with_school_types               = with_school_types
@@ -338,6 +338,7 @@ class Pop(sc.prettyobj):
 
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
+        homes = homes[len(facilities_by_uids):]
 
         population = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                                      homes_by_uids=homes_by_uids,
@@ -365,7 +366,17 @@ class Pop(sc.prettyobj):
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
+        self.homes = homes
+        self.homes_by_uids = homes_by_uids
+        self.age_by_uid = age_by_uid_dic
+
         return population
+
+
+    def pop_item(self, key):
+        """Pop key from self."""
+        self.__dict__.pop(key, None)  # pop checks if the key exists as an attribute and removes it in that case. Returns a default value of None if the key does not exist
+        print(self.__dict__.keys())
 
 
     def to_dict(self):
@@ -440,6 +451,11 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
+
+    def initialize_households(self):
+
+        self.households = sphh.Households()
+        return
 
 
 def make_population(*args, **kwargs):

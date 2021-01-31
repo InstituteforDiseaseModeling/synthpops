@@ -9,6 +9,106 @@ from .config import logger as log, checkmem
 from . import sampling as spsamp
 
 
+__all__ = ['Households', 'Household']
+
+
+def default_hkwargs():
+    default_hkwargs = dict(hhid=None, member_ids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_id=None, reference_age=None)
+    return default_hkwargs
+
+
+default_hkwargs = default_hkwargs()
+
+
+class Household(sc.prettyobj):
+    """
+    A class for each household and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the household
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Class constructor for empty household.
+
+        Args:
+            kwargs (dict): dictionary of household attributes, such as hhid (household id), member ids, member ages, information about the reference person, etc.
+        """
+        # set up default values
+        # default_kwargs = dict(hhid=None, member_ids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_id=None, reference_age=None)
+        kwargs = sc.mergedicts(default_hkwargs, kwargs)
+        for key, value in kwargs.items():
+            self[key] = value
+
+        return
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
+        return
+
+    def set_household(self, **kwargs):
+        """Set up the household."""
+        for key, value in kwargs.items():
+            if key in ['member_ids', 'member_ages']:
+                self[key] = sc.promotetoarray(value)
+            else:
+                self[key] = value
+        return
+
+    def get_household_size(self):
+        """Return number of household members."""
+        return len(self.member_ids)
+
+
+class Households(sc.prettyobj):
+    """
+    A class for households and methods to operate on them.
+
+    Args:
+        pars   (dict): parameter dictionary for households generation
+        kwargs (dict): additional keys for households generation
+    """
+    def __init__(self, **kwargs):
+        """."""
+        # set pars and kwargs for the households
+        self.n_households = len(kwargs['households'])
+        self.household_list = []
+        # self.cur = 0
+        return
+
+    def add_household(self, household):
+        """."""
+        self.household_list.append(household)
+        return
+
+    # def __iter__(self):
+    #     """Iterator."""
+    #     return self
+
+    # def next(self):
+    #     """Iterate through list of households."""
+    #     i = self.cur
+    #     if i >= len(self.household_list):
+    #         raise StopIteration
+    #     self.cur += 1
+    #     return self.household_list[i]
+
+    def populate_households(self, households, age_by_uid):
+        """."""
+        for nh, household in enumerate(households):
+            household_ages = [age_by_uid[i] for i in household]
+            reference_id = household[0]  # reference person from synthpops methods is always the first person placed in a home
+            hkwargs = dict(hhid=nh, member_ids=household, member_ages=household_ages, reference_id=reference_id, reference_age=age_by_uid[reference_id])
+            household = Household()
+            household.set_household(**hkwargs)
+            self.add_household(household)
+        return self
+
+    
+
+
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
