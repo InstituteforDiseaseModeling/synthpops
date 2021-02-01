@@ -32,8 +32,8 @@ def default_households_kwargs():
     Default attributes for the collection of households.
 
     """
-    default_hkwargs = dict(n_households=0, households=[])
-    return default_hkwargs
+    default_kwargs = dict(n_households=0, households=[])
+    return default_kwargs
 
 
 default_hkwargs = default_hkwargs()
@@ -102,13 +102,14 @@ class Households(sc.prettyobj):
 
         # check that either 'n_households' is in kwargs or 'households'
         kwargs = sc.mergedicts(default_households_kwargs, kwargs)
+        kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
 
         self.populated = False  # have the empty households been populated yet?
 
         for key, value in kwargs.items():
-            if key == 'n_households':
-                self[key] = max(value, len(kwargs['households']))
-            if key not in ['n_households', 'age_by_uid']:
+            # if key == 'n_households':
+            #     self[key] = max(value, len(kwargs['households']))
+            if key not in ['age_by_uid']:
                 self[key] = value
                 if key == 'households' and 'age_by_uid' in kwargs:
                     self[key] = [value]

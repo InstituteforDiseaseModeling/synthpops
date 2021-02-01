@@ -64,8 +64,17 @@ def default_sckwargs():
     return default_sckwargs
 
 
+def default_schools_kwargs():
+    """
+    Default attributes for the collection of schools.
+    """
+    default_kwargs = dict(n_schools=0, schools=[])
+    return default_kwargs
+
+
 default_clkwargs = default_clkwargs()
 default_sckwargs = default_sckwargs()
+default_schools_kwargs = default_schools_kwargs()
 
 # # # # # # # # # # # # # # # # # # #
 
@@ -214,10 +223,64 @@ class School(sc.prettyobj):
         return self.classrooms[clid]
 
 
-# class Schools(sc.prettyobj):
-#     """
-#     A class for schools
-#     """
+class Schools(sc.prettyobj):
+    """
+    A class for schools and methods to operate on them.
+
+    Args:
+        kwargs (dict): additional keys for schools generation
+    """
+    def __init__(self, **kwargs):
+        kwargs = sc.mergedicts(default_schools_kwargs, kwargs)
+        kwargs['n_schools'] = max(kwargs['n_schools'], len(kwargs['schools']))
+        for key, value in kwargs.items():
+            self[key] = value
+        if self.schools == []:
+            self.initialize_empty_schools(self.n_schools)
+
+        return
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
+        return
+
+    def initialize_empty_schools(self, n_schools=None):
+        """Array of empty schools."""
+        if n_schools is not None:
+            self.n_schools = n_schools
+        else:
+            self.n_schools = 0
+        self.schools = [School() for ns in range(self.n_schools)]
+        return
+
+    def add_school(self, school):
+        """Add a school to the list of schools."""
+        self.schools.append(school)
+        return
+
+    def populate_schools(self, schools, age_by_uid):
+        """Populate all of the schools. Store each school at the index scid."""
+        if len(self.schools) < len(schools):
+            log.debug(f"Reinitializing list of schools with {len(schools)} empty schools.")
+            self.initialize_empty_schools(len(schools))
+
+        log.debug("Populating schools.")
+
+        for ns, school in enumerate(schools):
+            reference_pid = school['students'][0]
+            sckwargs = dict(scid=ns, reference_pid=reference_pid, reference_age=age_by_uid[reference_pid],
+                            students=school['students'], teachers=school['teachers'], staff=school['staff'])
+            school = School()
+            school.set_school(**sckwargs)
+            self.schools[school.scid] = sc.dcp(school)
+        return
+
+    def get_school(self, scid):
+        """Return school with id: scid."""
+        if len(self.schools) < scid:
+            raise ValueError(f"School id (scid): {scid} out of range. There are {len(self.schools)} schools stored in this class.")
+        return self.schools[scid]
 
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
