@@ -26,7 +26,7 @@ from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
 
-__all__ = ['Classroom', 'School']
+# __all__ = ['Classroom', 'School', 'Schools']
 
 
 # # # Default default values # # #
@@ -1021,7 +1021,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
     if school_mixing_type not in available_school_mixing_types:
-        print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
+        errormsg = f"School mixing type: {school_mixing_type} not implemented. Please change to one of: {[available_school_mixing_types]}."
+        # print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
 
     if school_mixing_type == 'random':
         school = sc.dcp(syn_school_uids)
@@ -1041,7 +1042,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
-
+        # student groups are classrooms
         student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, return_edges=False, verbose=verbose)
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
 
@@ -1060,15 +1061,20 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         n_expected_edges += len(teacher_edges)
 
-        if verbose:
-            print(f"n_expected_edges_list: {n_expected_edges_list}")
+        # if verbose:
+        #     print(f"n_expected_edges_list: {n_expected_edges_list}")
+        log.debug(f"n_expected_edges_list: {n_expected_edges_list}")
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
+    else:
+        raise NotImplementedError(errormsg)
+        # raise NotImplementedError(f"School mixing type: {school_mixing_type} not implemented. Please change to one of: {[available_school_mixing_types]}.")
 
     all_school_uids = syn_school_uids.copy() + teachers.copy()
     additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
     add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
-    return popdict
+    return popdict, student_groups, teacher_groups
+    # return student_groups, teacher_groups
 
 
 def get_school_types_distr_by_age(school_type_age_ranges):

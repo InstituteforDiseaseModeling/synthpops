@@ -9,7 +9,7 @@ from .config import logger as log, checkmem
 from . import sampling as spsamp
 
 
-__all__ = ['Household', 'Households']
+# __all__ = ['Household', 'Households']
 
 
 def default_hkwargs():
@@ -128,7 +128,7 @@ class Households(sc.prettyobj):
         return
 
     def initialize_empty_households(self, n_households=None):
-        """Array of empty households"""
+        """Array of empty households."""
         if n_households is not None:
             self.n_households = n_households
         else:
@@ -145,10 +145,10 @@ class Households(sc.prettyobj):
         """Populate all of the households. Store each household at the index corresponding to it's hhid."""
         # check there are enough households
         if len(self.households) < len(households):
-            log.debug(f"Reinitializing household_list with {len(households)} empty households.")
+            log.debug(f"Reinitializing list of households with {len(households)} empty households.")
             self.initialize_empty_households(len(households))
 
-        log.debug(f"Populating households.")
+        log.debug("Populating households.")
         # now populate households
         for nh, household in enumerate(households):
             hkwargs = dict(hhid=nh, member_pids=household, member_ages=[age_by_uid[i] for i in household], reference_pid=household[0], reference_age=age_by_uid[household[0]])  # reference person in synthpops is always the first person place in a household

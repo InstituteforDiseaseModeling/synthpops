@@ -182,6 +182,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     n_non_teaching_staff = []
     n_teaching_staff = []
+    student_in_groups, teachers_in_groups = [], []
 
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
@@ -208,7 +209,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
-            spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
+            # temporary way to get groups of students by classroom and their corresponding teachers
+            # TODO: refactor into School method that creates Classrooms with the specific age/grade clustering
+            popdict, students_in_groups, teachers_in_groups = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
 
