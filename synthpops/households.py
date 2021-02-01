@@ -102,23 +102,6 @@ class Households(sc.prettyobj):
 
         # check that either 'n_households' is in kwargs or 'households'
         kwargs = sc.mergedicts(default_households_kwargs, kwargs)
-        # if len(set(['n_households', 'households']).intersection(kwargs.keys())) == 0:
-        #     print(f"Missing both n_households and households from kwargs. Setting an empty households class.")
-        #     self.n_households = 0
-        #     self.households = []
-
-        # # some logic here could be rearranged...
-        # elif 'n_households' in kwargs and 'households' not in kwargs:
-        #     self.n_households = kwargs['n_households']
-        #     self.initialize_empty_households()
-        # elif 'households' in kwargs and 'n_households' not in kwargs:
-        #     self.n_households = len(kwargs['households'])
-        #     self.initialize_empty_households()
-        # else:
-        #     if kwargs['n_households'] != len(kwargs['households']):
-        #         log.debug("Setting n_households to be the larger of 'n_households' and len(households)")
-        #         self.n_households = max(kwargs['n_households'], len(kwargs['households']))
-        #     self.initialize_empty_households()
 
         self.populated = False  # have the empty households been populated yet?
 
@@ -132,8 +115,9 @@ class Households(sc.prettyobj):
                     self.populate_households(kwargs['households'], kwargs['age_by_uid'])
                     self.n_households = len(self.households)
                     self.populated = True  # empty households populated
-                # else:
-                    # self[key] = value
+
+        if self.households == []:  # empty households array if we just know the number to create
+            self.initialize_empty_households(self.n_households)
 
         return
 
