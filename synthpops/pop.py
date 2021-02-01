@@ -366,18 +366,18 @@ class Pop(sc.prettyobj):
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
-        self.homes = homes
-        self.homes_by_uids = homes_by_uids
+        # Add layer classes
+        self.households = sphh.Households(**{'households': homes_by_uids})
+        self.households.initialize_empty_households()
+        self.households.populate_households(homes_by_uids, age_by_uid_dic)
+
         self.age_by_uid = age_by_uid_dic
 
         return population
 
-
     def pop_item(self, key):
         """Pop key from self."""
         self.__dict__.pop(key, None)  # pop checks if the key exists as an attribute and removes it in that case. Returns a default value of None if the key does not exist
-        print(self.__dict__.keys())
-
 
     def to_dict(self):
         '''
