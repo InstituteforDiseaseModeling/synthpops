@@ -9,15 +9,35 @@ from .config import logger as log, checkmem
 from . import sampling as spsamp
 
 
-__all__ = ['Households', 'Household']
+__all__ = ['Household', 'Households']
 
 
 def default_hkwargs():
+    """
+    Default household attributes.
+
+    hhid (int): household id
+    member_pids (np.ndarray): pids of household members
+    member_ages (np.ndarray): ages of household members  # maybe not needed
+    reference_pid (int): reference person used to generate the household members and their ages
+    reference_age (int): age of the reference person used to generate the household members and their ages
+
+    """
     default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
     return default_hkwargs
 
 
+def default_households_kwargs():
+    """
+    Default attributes for the collection of households.
+
+    """
+    default_hkwargs = dict(n_households=0, households=[])
+    return default_hkwargs
+
+
 default_hkwargs = default_hkwargs()
+default_households_kwargs = default_households_kwargs()
 
 
 class Household(sc.prettyobj):
@@ -48,7 +68,7 @@ class Household(sc.prettyobj):
         return
 
     def set_household(self, **kwargs):
-        """Set up the household."""
+        """Set up the household -- works for a static population."""
         for key, value in kwargs.items():
             if key in ['member_pids', 'member_ages']:
                 self[key] = sc.promotetoarray(value)  # make sure this is an array
@@ -74,47 +94,74 @@ class Households(sc.prettyobj):
     A class for households and methods to operate on them.
 
     Args:
-        pars   (dict): parameter dictionary for households generation
         kwargs (dict): additional keys for households generation
     """
     def __init__(self, **kwargs):
         """."""
-        # set pars and kwargs for the households
+        # set kwargs for the households
 
         # check that either 'n_households' is in kwargs or 'households'
-        if len(set(['n_households', 'households']).intersection(kwargs.keys())) == 0:
-            print(f"Missing both n_households and households from kwargs. Setting an empty households class.")
-            self.n_households = 0
-        elif 'n_households' in kwargs and 'households' not in kwargs:
-            self.n_households = kwargs['n_households']
-        elif 'households' in kwargs and 'n_households' not in kwargs:
-            self.n_households = len(kwargs['households'])
-        else:
-            if kwargs['n_households'] != len(kwargs['households']):
-                log.debug("Setting n_households to be the larger of 'n_households' and len(households)")
-                self.n_households = max(kwargs['n_households'], len(kwargs['households']))
+        kwargs = sc.mergedicts(default_households_kwargs, kwargs)
+        # if len(set(['n_households', 'households']).intersection(kwargs.keys())) == 0:
+        #     print(f"Missing both n_households and households from kwargs. Setting an empty households class.")
+        #     self.n_households = 0
+        #     self.households = []
 
-        self.household_list = []
+        # # some logic here could be rearranged...
+        # elif 'n_households' in kwargs and 'households' not in kwargs:
+        #     self.n_households = kwargs['n_households']
+        #     self.initialize_empty_households()
+        # elif 'households' in kwargs and 'n_households' not in kwargs:
+        #     self.n_households = len(kwargs['households'])
+        #     self.initialize_empty_households()
+        # else:
+        #     if kwargs['n_households'] != len(kwargs['households']):
+        #         log.debug("Setting n_households to be the larger of 'n_households' and len(households)")
+        #         self.n_households = max(kwargs['n_households'], len(kwargs['households']))
+        #     self.initialize_empty_households()
+
+        self.populated = False  # have the empty households been populated yet?
+
+        for key, value in kwargs.items():
+            if key == 'n_households':
+                self[key] = max(value, len(kwargs['households']))
+            if key not in ['n_households', 'age_by_uid']:
+                self[key] = value
+                if key == 'households' and 'age_by_uid' in kwargs:
+                    self[key] = [value]
+                    self.populate_households(kwargs['households'], kwargs['age_by_uid'])
+                    self.n_households = len(self.households)
+                    self.populated = True  # empty households populated
+                # else:
+                    # self[key] = value
+
+        return
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
         return
 
     def initialize_empty_households(self, n_households=None):
-        """"""
+        """Array of empty households"""
         if n_households is not None:
             self.n_households = n_households
-        self.household_list = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
+        else:
+            self.n_households = 0
+        self.households = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
         return
 
     def add_household(self, household):
         """Add a household to the list of households."""
-        self.household_list.append(household)
+        self.households.append(household)
         return
 
     def populate_households(self, households, age_by_uid):
         """Populate all of the households. Store each household at the index corresponding to it's hhid."""
         # check there are enough households
-        if len(self.household_list) < len(households):
+        if len(self.households) < len(households):
             log.debug(f"Reinitializing household_list with {len(households)} empty households.")
-            self.initialize_empty_households(self, len(households))
+            self.initialize_empty_households(len(households))
 
         log.debug(f"Populating households.")
         # now populate households
@@ -122,13 +169,14 @@ class Households(sc.prettyobj):
             hkwargs = dict(hhid=nh, member_pids=household, member_ages=[age_by_uid[i] for i in household], reference_pid=household[0], reference_age=age_by_uid[household[0]])  # reference person in synthpops is always the first person place in a household
             household = Household()
             household.set_household(**hkwargs)
-            self.household_list[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+            self.households[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
         return
 
     def get_household(self, hhid):
-        if len(self.household_list) < hhid:
-            raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.n_households)} households stored in this class.")
-        return self.household_list[hhid]
+        """Return household with id: hhid."""
+        if len(self.households) < hhid:
+            raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
+        return self.households[hhid]
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):

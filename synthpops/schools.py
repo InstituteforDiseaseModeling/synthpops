@@ -26,6 +26,199 @@ from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
 
+__all__ = ['Classroom', 'School']
+
+
+# # # Default default values # # #
+def default_clkwargs():
+    """
+    Default classroom attributes.
+
+    clid (int)            : classroom id
+    students (np.ndarray) : pids of students in the classroom
+    teachers (np.ndarray) : pids of teachers in the classroom
+    age_group (int)       : age group of students in the classroom
+    """
+    default_clkwargs = dict(clid=None, students=np.array([], dtype=np.int32), teachers=np.array([], dtype=np.int32), age_group=None)
+    return default_clkwargs
+
+
+def default_sckwargs():
+    """
+    Default school attributes.
+
+    scid (int): school id
+    reference_pid (int): reference person used to generate the school type, size, and the other schools members
+    reference_age (int): age of the reference person used to generate the school type, size, and other school members
+    students (np.ndarray): pids of students in the school
+    teachers (np.ndarray): pids of teachers in the school
+    staff (np.ndarray):  pids of non teaching staff in the school
+
+    """
+    default_sckwargs = dict(scid=None,
+                            reference_pid=None, reference_age=None,
+                            students=np.array([], dtype=np.int32),
+                            teachers=np.array([], dtype=np.int32),
+                            staff=np.array([], dtype=np.int32),
+                            n_classrooms=0, classrooms=[])
+    return default_sckwargs
+
+
+default_clkwargs = default_clkwargs()
+default_sckwargs = default_sckwargs()
+
+# # # # # # # # # # # # # # # # # # #
+
+
+class Classroom(sc.prettyobj):
+    """
+    A class for individual classrooms and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the classroom
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Class constructor for empty classroom.
+
+        Args:
+            kwargs (dict): dictionary of classroom attributes, such as clid (classroom id), students, teachers, and the age group of students in the classroom.
+        """
+        kwargs = sc.mergedicts(default_clkwargs, kwargs)
+        for key, value in kwargs.items():
+            self[key] = value
+
+        return
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
+        return
+
+    def set_classroom(self, **kwargs):
+        """Set up the classroom."""
+        for key, value in kwargs.items():
+            if key in ['students', 'teachers']:
+                self[key] = sc.promotetoarray(value)
+            elif key not in ['age_by_uid']:  # for all other keys besides students, teachers, and age_by_uid: go ahead and store them
+                self[key] = value
+
+        if set({'students', 'age_by_uid'}).intersection(kwargs.keys()):
+            student_ages = [kwargs['age_by_uid'][i] for i in self.students]
+            student_age_count = Counter(student_ages)
+            sorted_age_count = {k: v for k, v in sorted(student_age_count.items(), key=lambda x: x[1], reverse=True)}
+            self.age_group = sorted_age_count.keys()[0]  # most common student age
+
+        return
+
+    def get_classroom_size(self):
+        """Return the number of students and teachers in the classroom."""
+        return len(self.students) + len(self.teachers)
+
+    def get_students_size(self):
+        """Return the number of students in the classroom."""
+        return len(self.students)
+
+    def get_teachers_size(self):
+        """Return the number of teachers in the classroom."""
+        return len(self.teachers)
+
+
+class School(sc.prettyobj):
+    """
+    A class for individual schools and methods to operate on them.
+
+    Args:
+        kwargs (dict): data dictionary of the household.
+    """
+    def __init__(self, **kwargs):
+        """
+        Class constructor for empty school.
+
+        Args:
+            kwargs (dict): dictionary of school attributes, such as scid (school id), school_mixing_type, information about members of the school community, etc.
+        """
+        kwargs = sc.mergedicts(default_sckwargs, kwargs)  # define some basic school attributes
+        for key, value in kwargs.items():
+            # self[key] = value
+            self.set_item(key, value)
+
+        return
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
+        return
+
+    def set_item(self, key, value):
+        """How to set attribute values."""
+        if key in ['students', 'teachers', 'staff']:
+            self[key] = sc.promotetoarray(value)
+            print('herer')
+        else:
+            self[key] = value
+        return
+
+    def set_school(self, **kwargs):
+        """Set up the school."""
+        for key, value in kwargs.items():
+            self.set_item(key, value)
+
+        return
+
+    def initialize_empty_classrooms(self, n_classrooms=None):
+        """Array of empty classrooms."""
+        if n_classrooms is not None:
+            self.n_classrooms = n_classrooms
+        else:
+            self.n_classrooms = 0
+        self.classrooms = [Classroom() for nc in range(self.n_classrooms)]
+        return
+
+    def add_classroom(self, students, teachers, clid=None, age_group=None):
+        """Add a classroom."""
+        if clid is None:
+            clid = len(self.classrooms)
+        clkwargs = dict(clid=clid, students=students, teachers=teachers, age_group=age_group)
+        classroom = Classroom()
+        classroom.set_classroom(**clkwargs)
+        self.classrooms.append(classroom)
+
+        return
+
+    def populate_classrooms(self, students_in_classrooms, teachers_in_classrooms, age_by_uid):
+        """Populate classrooms."""
+        if len(self.classrooms) < len(students_in_classrooms):
+            self.initialize_empty_classrooms(len(students_in_classrooms))
+
+        for nc, students in enumerate(students_in_classrooms):
+            clid = nc
+            teachers = teachers_in_classrooms[nc]
+            student_ages = [age_by_uid[i] for i in students]
+            student_age_count = Counter(student_ages)
+            sorted_age_count = {k: v for k, v in sorted(student_age_count.items(), key=lambda x: x[1], reverse=True)}
+            age_group = sorted_age_count.keys()[0]  # most common student age
+            # self.add_classroom(students, teachers, age_group=age_group)
+            clkwargs = dict(clid=clid, students=students, teachers=teachers, age_group=age_group)
+            classroom = Classroom()
+            classroom.set_classroom(**clkwargs)
+            self.classrooms[clid] = sc.dcp(classroom)
+
+        return
+
+    def get_classroom(self, clid):
+        """Return classroom with id: clid."""
+        if len(self.classrooms) < clid:
+            raise ValueError(f"Classroom id (clid): {clid} out of range. There are {len(self.classrooms)} classrooms stored in this class.")
+        return self.classrooms[clid]
+
+
+# class Schools(sc.prettyobj):
+#     """
+#     A class for schools
+#     """
+
 
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
