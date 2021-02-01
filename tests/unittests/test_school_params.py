@@ -46,7 +46,7 @@ def test_age_bounds(tmin,tmax,smin,smax):
     pars["staff_age_min"] = smin
     pars["staff_age_max"] = smax
     print(f"teacher_age_min:{tmin}, teacher_age_max:{tmax}, staff_age_min:{smin}, staff_age_max:{smax}")
-    pop = sp.generate_synthetic_population(**pars)
+    pop = sp.make_population(**pars)
     verify_age_bounds(pop,tmin,tmax,smin,smax)
 
 
