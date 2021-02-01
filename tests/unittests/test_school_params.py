@@ -46,15 +46,15 @@ def test_age_bounds(tmin,tmax,smin,smax):
     pars["staff_age_min"] = smin
     pars["staff_age_max"] = smax
     print(f"teacher_age_min:{tmin}, teacher_age_max:{tmax}, staff_age_min:{smin}, staff_age_max:{smax}")
-    pop = sp.make_population(**pars)
-    verify_age_bounds(pop,tmin,tmax,smin,smax)
+    pop = sp.Pop(**pars)
+    verify_age_bounds(pop.popdict,tmin,tmax,smin,smax)
 
 
-def verify_age_bounds(pop,tmin,tmax,smin,smax):
+def verify_age_bounds(popdict, tmin, tmax, smin, smax):
     """
     Loop over the dictionary to check if teacher and staff age is within valid range
     Args:
-        pop: population generated
+        popdict: popdict object of population generated
         tmin: teacher_age_min
         tmax: teacher_age_max
         smin: staff_age_min
@@ -63,10 +63,10 @@ def verify_age_bounds(pop,tmin,tmax,smin,smax):
     Returns:
         None
     """
-    actual_tmin = min(d['age'] for d in pop.values() if d['sc_teacher'])
-    actual_tmax = max(d['age'] for d in pop.values() if d['sc_teacher'])
-    actual_smin = min(d['age'] for d in pop.values() if d['sc_staff'])
-    actual_smax = max(d['age'] for d in pop.values() if d['sc_staff'])
+    actual_tmin = min(d['age'] for d in popdict.values() if d['sc_teacher'])
+    actual_tmax = max(d['age'] for d in popdict.values() if d['sc_teacher'])
+    actual_smin = min(d['age'] for d in popdict.values() if d['sc_staff'])
+    actual_smax = max(d['age'] for d in popdict.values() if d['sc_staff'])
     print(f"generated teachers' age: [{actual_tmin}:{actual_tmax}]")
     print(f"generated staffs' age: [{actual_smin}:{actual_smax}]")
     assert actual_tmin >= tmin and actual_tmax <= tmax, \
