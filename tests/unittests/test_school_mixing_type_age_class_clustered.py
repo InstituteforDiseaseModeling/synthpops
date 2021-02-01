@@ -80,21 +80,24 @@ def form_classes(pop, school_types):
                 # find the teachers from the student's contacts and check if they already teach a class
                 classp = None
                 teachersp = [sc for sc in person["contacts"]["S"] if pop[sc]["sc_teacher"] is not None]
-                for c in schoolp.classrooms:
-                    # check all classes to see if teachers' id is in there
-                    if set(teachersp).intersection(c.teachers):
-                        classp = c
-                        break
+                # check all classes to see if teachers' id is in there
+                classfound = [c for c in schoolp.classrooms if set(teachersp).intersection(c.teachers)]
                 # if no such class is found, form the new class with all the teachers in contacts
                 # and add the student to the class
-                if classp is None:
+                if len(classfound) == 0:
                     classp = AgeClassClusteredClass()
                     classp.add_teacher(teachersp)
                     classp.add_student(uid)
                     schoolp.classrooms.add(copy.deepcopy(classp))
                 else:
+                    classp = classfound[0]
+                    # if more than 2 classes are found, merge the class
+                    if len(classfound) > 1:
+                        classp = schoolp.merge_classes(classfound)
                     # add student to the class where his teacher contact was assigned
+                    # also add all the teachers of this student to the same class
                     classp.add_student(uid)
+                    classp.add_teacher(teachersp)
     # print school info
     for s in schools:
         s.print_school()
@@ -147,25 +150,41 @@ class AgeClassClusteredSchool:
         Returns:
             None
         """
-        print(f"\n------{self.get_type()}:{self.scid}-------")
+        print(f"\n------{self.sc_type} SCID:{self.scid}-------")
         print(f"\n------{len(self.classrooms)} classes-------")
         for c in self.classrooms:
             c.print_class()
 
-    def get_type(self):
+    def remove_classes_by_id(self, cid):
         """
-        Get full name of school type
+        Remove the class from school by the class id
+        Args:
+            cid: class id to identify class to be removed
 
         Returns:
-            A human-readable name for school type
+            None
         """
-        st = {
-            "ms": "middle school",
-            "pk": "preschool",
-            "es": "elementary school",
-            "hs": "high school",
-            "uv": "university"}
-        return st.get(self.sc_type)
+        target = [c for c in self.classrooms if c.id == cid]
+        for t in target:
+            self.classrooms.remove(t)
+
+    def merge_classes(self, c):
+        """
+        Merge a list of classes to a new class and update the school
+        Args:
+            c: list of AgeClassClusteredClass objects to be merged
+
+        Returns:
+            A single merged AgeClassClusteredClass object
+        """
+        newc = AgeClassClusteredClass()
+        for i in c:
+            newc.teachers.update(i.teachers)
+            newc.students.update(i.students)
+            self.remove_classes_by_id(i.id)
+        newclass = copy.deepcopy(newc)
+        self.classrooms.add(newclass)
+        return newclass
 
 
 class AgeClassClusteredClass:
