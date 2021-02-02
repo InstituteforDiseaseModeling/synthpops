@@ -29,7 +29,7 @@ def report_processing_error(data_subject, e):
         e: Exception that was raised during the migration of the subject data.
 
     Returns:
-
+        Nothing.
     """
     logger.warning(f"Data for {data_subject} may be incomplete, due to error: {e}")
 
@@ -46,7 +46,7 @@ def try_migrate(data_subject, f):
         f: Bound function implementing a data migration.
 
     Returns:
-
+        Nothing.
     """
     try:
         f()
@@ -172,6 +172,69 @@ def migrate_school_size_brackets(datadir, country_location, state_location, loca
         target_entry = [bracket_min, bracket_max]
         new_location.school_size_brackets.append(target_entry)
 
+
+def migrate_school_size_distribution(datadir, country_location, state_location, location, new_location):
+
+    legacy_distribution = data_distributions_legacy.get_school_size_distr_by_brackets(datadir,
+                                                                                      location,
+                                                                                      state_location,
+                                                                                      country_location)
+    for k, percentage in legacy_distribution.items():
+        new_location.school_size_distribution.append(percentage)
+
+
+def migrate_school_size_distribution_by_type(datadir, country_location, state_location, location, new_location):
+
+    legacy_dists_by_type = data_distributions_legacy.get_school_size_distr_by_type(datadir,
+                                                                                  location,
+                                                                                  state_location,
+                                                                                  country_location)
+    for dist_type_key, dist_by_type in legacy_dists_by_type.items():
+        target_dist_by_type = data.SchoolSizeDistributionByType()
+        target_dist_by_type.school_type = dist_type_key
+        for dist_entry_key, percentage in dist_by_type.items():
+            target_dist_by_type.size_distribution.append(float(percentage))
+        new_location.school_size_distribution_by_type.append(target_dist_by_type)
+
+
+def migrate_school_types_by_age(datadir, country_location, state_location, location, new_location):
+
+    legacy_type_age_ranges = data_distributions_legacy.get_school_type_age_ranges(datadir,
+                                                                                  location,
+                                                                                  state_location,
+                                                                                  country_location)
+    for school_type, ages in legacy_type_age_ranges.items():
+        target_type_by_ages = data.SchoolTypeByAge()
+        target_type_by_ages.school_type = school_type
+        age_min = float(min(ages))
+        age_max = float(max(ages))
+        target_type_by_ages.age_range = [age_min, age_max]
+        new_location.school_types_by_age.append(target_type_by_ages)
+
+
+def migrate_workplace_size_counts_by_num_personnel(datadir, country_location, state_location, location, new_location):
+
+    legacy_brackets = data_distributions_legacy.get_workplace_size_brackets(datadir,
+                                                                            location,
+                                                                            state_location,
+                                                                            country_location)
+
+    legacy_distribution = data_distributions_legacy.get_workplace_size_distr_by_brackets(datadir,
+                                                                                         location,
+                                                                                         state_location,
+                                                                                         country_location)
+
+    if len(legacy_distribution) != len(legacy_brackets):
+        raise RuntimeError(f"Mismatched lengths for distribution and brackets for work size counts country location [{country_location}], state location [{state_location}], location [{location}]")
+
+    for k, bracket_expanded in legacy_brackets.items():
+        bracket_min = float(min(bracket_expanded))
+        bracket_max = float(max(bracket_expanded))
+        count = float(legacy_distribution[k])
+        target_entry = [bracket_min, bracket_max, count]
+        new_location.workplace_size_counts_by_num_personnel.append(target_entry)
+
+
 def migrate_legacy_data(datadir, country_location, state_location, location, output_folder):
     new_location = data.Location()
     parent = ""
@@ -191,28 +254,42 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
 
     # The key is the subject data being migrated; the value is a bound function that performs the migration.
     migration_functions = {
-        "population_age_brackets":     partial(migrate_population_age_brackets, datadir, country_location, state_location, location, new_location),
-        "population_age_distribution": partial(migrate_population_age_distribution, datadir, country_location, state_location, location, new_location),
-        "employment_rates_by_age":     partial(migrate_employment_rates_by_age, datadir, country_location, state_location, location, new_location),
-        "enrollment_rates_by_age":     partial(migrate_enrollment_rates_by_age, datadir, country_location, state_location, location, new_location),
-        "household_head_age_brackets": partial(migrate_household_head_age_brackets, datadir, country_location, state_location, location, new_location),
-        "household_head_age_distribution_by_family_size": 
-                                       partial(migrate_household_head_age_distribution_by_family_size, datadir, country_location, state_location, location, new_location),
-        "household_size_distribution": partial(migrate_household_size_distribution, datadir, country_location, state_location, location, new_location),
+        "population_age_brackets":      partial(migrate_population_age_brackets,
+                                                datadir, country_location, state_location, location, new_location),
+        "population_age_distribution":  partial(migrate_population_age_distribution,
+                                                datadir, country_location, state_location, location, new_location),
+        "employment_rates_by_age":      partial(migrate_employment_rates_by_age,
+                                                datadir, country_location, state_location, location, new_location),
+        "enrollment_rates_by_age":      partial(migrate_enrollment_rates_by_age,
+                                                datadir, country_location, state_location, location, new_location),
+        "household_head_age_brackets":  partial(migrate_household_head_age_brackets,
+                                                datadir, country_location, state_location, location, new_location),
+        "household_head_age_distribution_by_family_size":
+                                        partial(migrate_household_head_age_distribution_by_family_size,
+                                                datadir, country_location, state_location, location, new_location),
+        "household_size_distribution":  partial(migrate_household_size_distribution,
+                                                datadir, country_location, state_location, location, new_location),
         #"ltcf_resident_to_staff_ratio_distribution": TODO: not sure what to do about this one.
-        "ltcf_num_residents_distribution":  partial(migrate_ltcf_num_residents_distribution, datadir, country_location, state_location, location, new_location),
+        "ltcf_num_residents_distribution":
+                                        partial(migrate_ltcf_num_residents_distribution,
+                                                datadir, country_location, state_location, location, new_location),
         #"ltcf_num_staff_distribution": TODO: not sure what to do about this one.
-        "school_size_brackets": partial(migrate_school_size_brackets, datadir, country_location, state_location, location, new_location),
+        "school_size_brackets":         partial(migrate_school_size_brackets,
+                                                datadir, country_location, state_location, location, new_location),
+        "school_size_distribution":     partial(migrate_school_size_distribution,
+                                                datadir, country_location, state_location, location, new_location),
+        "school_size_distribution_by_type":
+                                        partial(migrate_school_size_distribution_by_type,
+                                                datadir, country_location, state_location, location, new_location),
+        "school_types_by_age":          partial(migrate_school_types_by_age,
+                                                datadir, country_location, state_location, location, new_location),
+        "workplace_size_counts_by_num_personnel":
+                                        partial(migrate_workplace_size_counts_by_num_personnel,
+                                                datadir, country_location, state_location, location, new_location),
     }
 
     for key, bound_function in migration_functions.items():
         try_migrate(key, bound_function)
-
-    #"school_size_distribution": [],
-    #"school_size_distribution_by_type": [],
-    #"school_types_by_age": [],
-    #"workplace_size_counts_by_num_personnel": []
-
 
     output_filepath = os.path.join(output_folder, f"{new_location.location_name}.json")
     data.save_location_to_filepath(new_location, output_filepath)
