@@ -3,6 +3,11 @@ import synthpops.data as data
 import synthpops.config as spconfig
 import argparse
 import os
+import logging
+import sys
+import re
+
+from functools import partial
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--datadir", type=str, default=None, required=False, help='Source data directory. If unspecified, uses whatever synthpops default is.')
@@ -11,6 +16,161 @@ parser.add_argument("--state_location", type=str, default=None, required=False, 
 parser.add_argument("--location", type=str, default=None, required=False, help='Input location.')
 parser.add_argument("--output_folder", type=str, default=".", required=False, help="Output folder. Default is working directory.")
 args = parser.parse_args()
+
+logger = logging.getLogger('migrate_legacy_data')
+
+
+def report_processing_error(data_subject, e):
+    """
+    Logs a standardized warning message for errors raised during migrating pieces of data.
+
+    Args:
+        data_subject: The subject data being migrated, will be included in standardized warning message.
+        e: Exception that was raised during the migration of the subject data.
+
+    Returns:
+
+    """
+    logger.warning(f"Data for {data_subject} may be incomplete, due to error: {e}")
+
+
+def try_migrate(data_subject, f):
+    """
+    Attempt a migration as implemented by the bound function f, and logs a standardized warning if an exception
+    is raised by f.
+
+    Args:
+        data_subject: String indicating the subject data that is being migrated, will be included in standardized
+        warning message if raised.
+
+        f: Bound function implementing a data migration.
+
+    Returns:
+
+    """
+    try:
+        f()
+    except:
+        report_processing_error(data_subject, sys.exc_info()[1])
+
+
+def migrate_population_age_brackets(datadir, country_location,  state_location, location, new_location,):
+
+    try:
+        legacy_age_brackets = data_distributions_legacy.get_census_age_brackets(datadir,
+                                                                                location,
+                                                                                state_location,
+                                                                                country_location
+                                                                                )
+        for bracket_index, age_range in legacy_age_brackets.items():
+            # Insert age bracket with 0.0 percentage for now.
+            new_location.population_age_distribution.append([float(min(age_range)), float(max(age_range)), 0.0])
+    except:
+        what = "population_age_brackets"
+        report_processing_error(what, sys.exc_info()[0])
+
+
+def migrate_population_age_distribution(datadir, country_location, state_location, location, new_location, ):
+    legacy_age_distribution = data_distributions_legacy.read_age_bracket_distr(datadir,
+                                                                               location,
+                                                                               state_location,
+                                                                               country_location)
+    for bracket_index, dist_percentage in legacy_age_distribution.items():
+        new_location.population_age_distribution[bracket_index][2] = dist_percentage
+
+
+def migrate_employment_rates_by_age(datadir, country_location, state_location, location, new_location):
+    legacy_employment_rates = data_distributions_legacy.get_employment_rates(datadir,
+                                                                             location,
+                                                                             state_location,
+                                                                             country_location)
+    for age, rate in legacy_employment_rates.items():
+        new_location.employment_rates_by_age.append([age, rate])
+
+
+def migrate_enrollment_rates_by_age(datadir, country_location, state_location, location, new_location):
+    legacy_enrollment_rates = data_distributions_legacy.get_school_enrollment_rates(datadir,
+                                                                                    location,
+                                                                                    state_location,
+                                                                                    country_location)
+    for age, rate in legacy_enrollment_rates.items():
+        new_location.enrollment_rates_by_age.append([age, rate])
+
+
+def migrate_household_head_age_brackets(datadir, country_location, state_location, location, new_location):
+
+    df = data_distributions_legacy.get_household_head_age_by_size_df(datadir,
+                                                                     location,
+                                                                     state_location,
+                                                                     country_location)
+
+    pattern = re.compile('household_head_age_([\d.]+)_([\d.]+)')
+    household_head_age_key_matches = [pattern.match(key) for key in df.keys() if pattern.match(key) is not None]
+    new_location.household_head_age_brackets = [
+                                                [float(match.group(1)), float(match.group(2))]
+                                                for match in household_head_age_key_matches
+                                               ]
+
+
+def migrate_household_head_age_distribution_by_family_size(datadir, country_location, state_location, location, new_location):
+
+    legacy_household_head_age_distribution_by_family_size = \
+        data_distributions_legacy.get_head_age_by_size_distr(datadir,
+                                                             location,
+                                                             state_location,
+                                                             country_location)
+    for [household_size_index, household_head_age_dist] in enumerate(legacy_household_head_age_distribution_by_family_size):
+        household_size = household_size_index + 1
+        target_entry = list([household_size])
+        target_entry.extend(household_head_age_dist)
+        new_location.household_head_age_distribution_by_family_size.append(target_entry)
+
+
+def migrate_household_size_distribution(datadir, country_location, state_location, location, new_location):
+
+    legacy_household_size_distr = data_distributions_legacy.get_household_size_distr(datadir,
+                                                                                     location,
+                                                                                     state_location,
+                                                                                     country_location)
+    for [size, percentage] in legacy_household_size_distr.items():
+        new_location.household_size_distribution.append([size, percentage])
+
+
+def migrate_ltcf_num_residents_distribution(datadir, country_location, state_location, location, new_location):
+
+    legacy_distribution = data_distributions_legacy.get_long_term_care_facility_residents_distr(datadir,
+                                                                                                location,
+                                                                                                state_location,
+                                                                                                country_location)
+
+    legacy_brackets = data_distributions_legacy.get_long_term_care_facility_residents_distr_brackets(datadir,
+                                                                                                     location,
+                                                                                                     state_location,
+                                                                                                     country_location)
+
+    if len(legacy_distribution) != len(legacy_brackets):
+        raise RuntimeError(f"Mismatched lengths for distribution and brackets for ltcf num residents distribution for country location [{country_location}], state location [{state_location}], location [{location}]")
+
+    for k, bracket_expanded in legacy_brackets.items():
+        bracket_min = float(min(bracket_expanded))
+        bracket_max = float(max(bracket_expanded))
+        percentage = float(legacy_distribution[k])
+        target_entry = [bracket_min, bracket_max, percentage]
+        new_location.ltcf_num_residents_distribution.append(target_entry)
+
+
+def migrate_school_size_brackets(datadir, country_location, state_location, location, new_location):
+
+    legacy_brackets = data_distributions_legacy.get_school_size_brackets(datadir,
+                                                                         location,
+                                                                         state_location,
+                                                                         country_location)
+
+    for k, bracket_expanded in legacy_brackets.items():
+        bracket_min = float(min(bracket_expanded))
+        bracket_max = float(max(bracket_expanded))
+        target_entry = [bracket_min, bracket_max]
+        new_location.school_size_brackets.append(target_entry)
 
 def migrate_legacy_data(datadir, country_location, state_location, location, output_folder):
     new_location = data.Location()
@@ -29,23 +189,30 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
 
     new_location.parent = parent
 
-    legacy_age_brackets = data_distributions_legacy.get_census_age_brackets(datadir,
-                                                                            location,
-                                                                            state_location,
-                                                                            country_location
-                                                                            )
-    for k, age_range in legacy_age_brackets.items():
-        # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution.append([float(min(age_range)), float(max(age_range)), 0.0])
+    # The key is the subject data being migrated; the value is a bound function that performs the migration.
+    migration_functions = {
+        "population_age_brackets":     partial(migrate_population_age_brackets, datadir, country_location, state_location, location, new_location),
+        "population_age_distribution": partial(migrate_population_age_distribution, datadir, country_location, state_location, location, new_location),
+        "employment_rates_by_age":     partial(migrate_employment_rates_by_age, datadir, country_location, state_location, location, new_location),
+        "enrollment_rates_by_age":     partial(migrate_enrollment_rates_by_age, datadir, country_location, state_location, location, new_location),
+        "household_head_age_brackets": partial(migrate_household_head_age_brackets, datadir, country_location, state_location, location, new_location),
+        "household_head_age_distribution_by_family_size": 
+                                       partial(migrate_household_head_age_distribution_by_family_size, datadir, country_location, state_location, location, new_location),
+        "household_size_distribution": partial(migrate_household_size_distribution, datadir, country_location, state_location, location, new_location),
+        #"ltcf_resident_to_staff_ratio_distribution": TODO: not sure what to do about this one.
+        "ltcf_num_residents_distribution":  partial(migrate_ltcf_num_residents_distribution, datadir, country_location, state_location, location, new_location),
+        #"ltcf_num_staff_distribution": TODO: not sure what to do about this one.
+        "school_size_brackets": partial(migrate_school_size_brackets, datadir, country_location, state_location, location, new_location),
+    }
 
+    for key, bound_function in migration_functions.items():
+        try_migrate(key, bound_function)
 
-    legacy_age_distribution = data_distributions_legacy.read_age_bracket_distr(datadir,
-                                                                               location,
-                                                                               state_location,
-                                                                               country_location)
+    #"school_size_distribution": [],
+    #"school_size_distribution_by_type": [],
+    #"school_types_by_age": [],
+    #"workplace_size_counts_by_num_personnel": []
 
-    for k, dist_percentage in legacy_age_distribution.items():
-        new_location.population_age_distribution[k][2] = dist_percentage
 
     output_filepath = os.path.join(output_folder, f"{new_location.location_name}.json")
     data.save_location_to_filepath(new_location, output_filepath)
