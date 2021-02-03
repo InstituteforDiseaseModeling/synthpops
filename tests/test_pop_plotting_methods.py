@@ -4,18 +4,22 @@ Compare the demographics of the generated population to the expected demographic
 import sciris as sc
 import synthpops as sp
 import covasim as cv
+import cmocean as cmo
 import pytest
 
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 10e3,
+    n                               = 15e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
     country_location                = 'usa',
     state_location                  = 'Washington',
     location                        = 'seattle_metro',
+    # location                        = 'Spokane_County',
+    # location                        = 'Pierce_County',
+    # location                        = 'Yakima_County',
     use_default                     = True,
 
     household_method                = 'fixed_ages',
@@ -57,7 +61,7 @@ def test_plot_age_distribution_comparison(pars, do_show=False):
     kwargs = sc.dcp(pars)
     kwargs.figname = f"test_pop_ages_{pars['location']}"
     kwargs.do_show = do_show
-    fig, ax = pop.plot_age_distribution_comparison(**kwargs)
+    fig, ax = pop.plot_age_comparison(**kwargs)
     return fig, ax, pop
 
 
@@ -79,12 +83,12 @@ def test_plot_with_popdict(pars, do_show=False):
     kwargs.figname = f"test_popdict_ages_{pars['location']}"
     kwargs.do_show = do_show
 
-    fig, ax = sp.plot_age_distribution_comparison(popdict, **kwargs)
+    fig, ax = sp.plot_age_comparison(popdict, **kwargs)
     return fig, ax, popdict
 
 
 @pytest.mark.parametrize("pars", [pars])
-def test_plot_with_cvpeople(pars, do_show=False):
+def test_plot_with_cvpeople(pars, do_show=False, do_save=False):
     """
     Test plotting method works on covasim.people.People object.
 
@@ -108,7 +112,8 @@ def test_plot_with_cvpeople(pars, do_show=False):
     kwargs.datadir = sp.datadir
     kwargs.figname = f"test_cvpeople_ages_{pars['location']}"
     kwargs.do_show = do_show
-    fig, ax = sp.plot_age_distribution_comparison(people, **kwargs)
+    kwargs.do_save = do_save
+    fig, ax = sp.plot_age_comparison(people, **kwargs)
     return fig, ax, people
 
 
@@ -126,7 +131,7 @@ def test_update_plotting_styles(pars, do_show=False, do_save=False):
                   # subplot_height=5, subplot_width=8,
                   figname=f"example_ages_{test_pars['location']}",
                   do_save=do_save, do_show=do_show)
-    fig, ax = pop.plot_age_distribution_comparison(**kwargs)
+    fig, ax = pop.plot_age_comparison(**kwargs)
     return fig, ax, pop
 
 
@@ -137,22 +142,33 @@ def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False
     pop = sp.Pop(**pars)
     kwargs = sc.dcp(pars)
     kwargs.figname = f"test_school_size_distributions_{pars['location']}_1"
+    # kwargs.figname = f"SchoolSizebyType_{pars['location'].replace('_', ' ').title().replace(' ','')}"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
+    kwargs.rotation = 20
+    kwargs.fontsize = 8.5
+    kwargs.save_dpi = 600
+    kwargs.screen_width_factor = 0.30
+    kwargs.screen_height_factor = 0.20
+    kwargs.hspace = 0.8
+    kwargs.bottom = 0.09
+    kwargs.location_text_y = 113
+    kwargs.cmap = cmr.get_sub_map('cmo.curl', 0.08, 1)
+    # kwargs.format = 'pdf'
     fig, ax = pop.plot_school_sizes_by_type(**kwargs)
 
-    # works on popdict
-    popdict = pop.popdict
-    kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}_2"
-    fig2, ax2 = sp.plot_school_sizes_by_type(popdict, **kwargs)
+    # # works on popdict
+    # popdict = pop.popdict
+    # kwargs.datadir = sp.datadir
+    # kwargs.figname = f"test_school_size_distributions_{pars['location']}_2"
+    # fig2, ax2 = sp.plot_school_sizes_by_type(popdict, **kwargs)
 
-    # works on popdict
-    pars['with_school_types'] = False
-    pop3 = sp.Pop(**pars)
-    kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}_3"
-    fig3, ax3 = pop3.plot_school_sizes_by_type(**kwargs)
+    # # works on popdict
+    # pars['with_school_types'] = False
+    # pop3 = sp.Pop(**pars)
+    # kwargs.datadir = sp.datadir
+    # kwargs.figname = f"test_school_size_distributions_{pars['location']}_3"
+    # fig3, ax3 = pop3.plot_school_sizes_by_type(**kwargs)
 
     return fig, ax, pop
 
@@ -160,8 +176,8 @@ def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False
 if __name__ == '__main__':
 
     # run as main and see the examples in action!
-    fig0, ax0, pop0 = test_plot_age_distribution_comparison(pars, do_show=True)
-    fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
-    fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True)
+    # fig0, ax0, pop0 = test_plot_age_distribution_comparison(pars, do_show=True)
+    # fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
+    # fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True, do_save=True)
     fig3, ax3, pop3 = test_update_plotting_styles(pars, do_show=True, do_save=True)
     fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)

@@ -27,6 +27,13 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
+def get_school_type_labels():
+    school_type_labels = {'pk': 'Pre-school', 'es': 'Elementary School',
+                          'ms': 'Middle School', 'hs': 'High School', 
+                          'uv': 'University'}
+    return school_type_labels
+
+
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
     Identify who in the population is attending school based on enrollment rates

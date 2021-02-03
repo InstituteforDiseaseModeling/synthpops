@@ -444,7 +444,7 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
-    def plot_age_distribution_comparison(self, *args, **kwargs):
+    def plot_age_comparison(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
 
@@ -454,7 +454,7 @@ class Pop(sc.prettyobj):
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_age_distribution_comparison()
         """
-        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_age_comparison(self, *args, **kwargs)
         return fig, ax
 
     def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
