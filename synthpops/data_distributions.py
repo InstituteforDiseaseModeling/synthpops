@@ -277,7 +277,7 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
         age_max = dist[1]
         age_brackets[bracket_index] = np.arange(age_min, age_max+1)
 
-
+# TODO: still open question on how to handle these.
 def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, delimiter=' ', header=None):
     """
     Get setting specific age contact matrix given sheet name to use. If
@@ -328,7 +328,7 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
         except:
             raise NotImplementedError("Contact matrix did not open. Check inputs.")
 
-
+# TODO: still open question on how to handle these.
 def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
     # need review for additional countries
     """
