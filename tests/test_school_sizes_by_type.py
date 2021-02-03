@@ -24,7 +24,7 @@ pars = dict(
     country_location                = 'usa',
     state_location                  = 'Washington',
     # location                        = 'seattle_metro',
-    location                        = 'Island_County',
+    location                        = 'Franklin_County',
     use_default                     = True,
 
     with_industry_code              = 0,
