@@ -546,7 +546,7 @@ def plot_age_comparison(pop, *args, **kwargs):
     generated_age_distr_array = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
 
     # update the fig
-    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height), dpi=kwargs.dpi)
+    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height), dpi=kwargs.display_dpi)
     fig.subplots_adjust(**kwargs.axis)
 
     fig, ax = plot_array(expected_age_distr_array, generated_age_distr_array,
@@ -567,7 +567,7 @@ def plot_age_comparison(pop, *args, **kwargs):
             figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
         else:
             figpath = f"{kwargs.figname}.{kwargs.format}"
-        fig.savefig(figpath, format=kwargs.format, dpi=kwargs.dpi)
+        fig.savefig(figpath, format=kwargs.format, dpi=kwargs.save_dpi)
 
     if kwargs.do_show:
         plt.show()
@@ -689,7 +689,7 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     kwargs.display_width = np.round((kwargs.screen_width * kwargs.screen_width_factor) / kwargs.display_dpi, 2)
 
     # create fig, ax
-    fig, ax = plt.subplots(n_school_types, 1, figsize=(kwargs.display_width, kwargs.display_height), dpi=kwargs.dpi)
+    fig, ax = plt.subplots(n_school_types, 1, figsize=(kwargs.display_width, kwargs.display_height), dpi=kwargs.display_dpi)
 
     # readjust figure parameters
     if n_school_types == 1:

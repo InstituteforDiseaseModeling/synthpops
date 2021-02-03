@@ -5,18 +5,23 @@ import sciris as sc
 import synthpops as sp
 import numpy as np
 import matplotlib as mplt
+import matplotlib.pyplot as plt
 
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 1e3,
+    n                               = 100e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
     country_location                = 'usa',
     state_location                  = 'Washington',
-    location                        = 'seattle_metro',
+    location                        = 'Island_County',
     use_default                     = True,
+
+    household_method                = 'fixed_ages',
+    smooth_ages                     = True,
+    window_length                   = 7,  # window for averaging the age distribution
 
     with_industry_code              = 0,
     with_facilities                 = 1,
@@ -118,8 +123,19 @@ def test_older_ages_have_household_contacts():
     print('Check passed.')
 
 
+def test_plot_contact_matrix():
+    """"""
+    pop = sp.Pop(**pars)
+    popdict = pop.to_dict()
+    pop.plot_contacts()
+
+    plt.show()
+
+
 if __name__ == '__main__':
 
-    pop = test_age_distribution_used()
-    test_age_brackets_used_with_contact_matrix()
-    test_older_ages_have_household_contacts()
+    # pop = test_age_distribution_used()
+    # test_age_brackets_used_with_contact_matrix()
+    # test_older_ages_have_household_contacts()
+    
+    test_plot_contact_matrix()
