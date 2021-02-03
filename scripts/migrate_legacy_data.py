@@ -290,7 +290,7 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
         new_location.location_name = f"{country_location}-{state_location}-{location}"
         parent = f"{country_location}-{state_location}"
 
-    new_location.parent = parent
+    new_location.parent = f"{parent}.json" if len(parent) > 0 else  ""
 
     # The key is the subject data being migrated; the value is a bound function that performs the migration.
     migration_functions = {
