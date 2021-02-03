@@ -13,15 +13,16 @@ from . import config as cfg
 from . import logger
 from . import data
 
+
+def get_nbrackets():
+    return cfg.nbrackets
+
+
 def get_relative_path(datadir):
     base_dir = datadir
     if len(cfg.rel_path) > 1:
         base_dir = os.path.join(datadir, *cfg.rel_path)
     return base_dir
-
-
-def get_nbrackets():
-    return cfg.nbrackets
 
 
 def sanitize_location(location):
@@ -35,16 +36,27 @@ def sanitize_location(location):
     return location
 
 
+def calculate_location_filename(location, state_location, country_location):
+    separator = "-"
+    if location != "":
+        filepath = separator.join([country_location, state_location, location])
+    elif state_location != "":
+        filepath = separator.join([country_location, state_location])
+    else:
+        filepath = country_location
+    return filepath
+
+
 def calculate_location_filepath(location, state_location, country_location):
     logger.debug(f"Calculating filepath for (location, state_location, country_location) = "
                  f"({location}, {state_location}, {country_location})")
     location = sanitize_location(location)
     state_location = sanitize_location(state_location)
     country_location = sanitize_location(country_location)
-    separator = "-"
-    filepath = separator.join([country_location, state_location, location])
-    filepath = f"{filepath}.json"
-    filepath = os.path.join(get_relative_path(cfg.datadir), filepath)
+    filename = calculate_location_filename(location, state_location, country_location)
+    filename = f"{filename}.json"
+    filepath = filename
+    logger.debug(f"Filepath = {filepath}")
     return filepath
 
 
@@ -54,10 +66,24 @@ def load_location(specific_location, state_location, country_location, revert_to
     location_filepath = calculate_location_filepath(specific_location, state_location, country_location)
     try:
         location_object = data.load_location_from_filepath(location_filepath)
+        logger.debug(f"Loaded (location, state_location, country_location) = "
+                     f"({specific_location}, {state_location}, {country_location}) "
+                     f"from [{location_filepath}]")
         return location_object
     except:
+        logger.warn(f"Failed to load location [{specific_location}], "
+                    f"state_location [{state_location}], "
+                    f"country_location [{country_location}], reverting to default.")
         if revert_to_default:
             return load_location(cfg.default_location, cfg.default_state, cfg.default_country, revert_to_default=False)
+        else:
+            msg =   f"Data unavailable for " \
+                    f"(location, state_location, country_location) = " \
+                    f"({specific_location}, {state_location}, {country_location}). " \
+                    f"Please check input strings, or set use_default to True to use the default values from " \
+                    f"(location, state_location, country_location) = " \
+                    f"({cfg.default_location}, {cfg.default_state}, {cfg.default_country}). "
+            raise NotImplementedError(msg)
 
 
 def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=False):
@@ -82,7 +108,8 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
 
     """
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
-    age_brackets = location.population_age_distribution
+    nbrackets = calculate_which_nbrackets_to_use(nbrackets)
+    age_brackets = location.get_population_age_distribution(nbrackets)
     percent = [age_bracket[2] for age_bracket in age_brackets]
     r = dict(zip(np.arange(len(age_brackets)), percent))
     return r
@@ -169,7 +196,8 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
 
     """
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
-    r = dict(location.household_size_distribution)
+    dist = [ [int(entry[0]), entry[1]] for entry in location.household_size_distribution ]
+    r = dict(dist)
     return r
 
 
@@ -200,7 +228,7 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
     age_brackets = {}
     for [bracket_index, bracket_minmax] in enumerate(location.household_head_age_brackets):
-        age_brackets[bracket_index] = np.arange(bracket_minmax[0], bracket_minmax[1] + 1)
+        age_brackets[bracket_index] = np.arange(int(bracket_minmax[0]), int(bracket_minmax[1]) + 1)
     return age_brackets
 
 
@@ -230,8 +258,14 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
     if household_size_1_included:
         raise NotImplementedError(f"Not supported: household_size_1_included = {household_size_1_included}")
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
-    dist = [d[1,:] for d in location.household_head_age_distribution_by_family_size]
-    return dist
+    dist = [d[1:] for d in location.household_head_age_distribution_by_family_size]
+    return np.array(dist)
+
+def calculate_which_nbrackets_to_use(nbrackets = None):
+    if nbrackets is None:
+        nbrackets = cfg.nbrackets
+
+    return nbrackets
 
 
 def get_census_age_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False, nbrackets=None):
@@ -255,27 +289,19 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
         A dictionary of the range of ages that map to each age bracket.
 
     """
-    if nbrackets is None:
-        nbrackets = cfg.nbrackets
-
-    if nbrackets not in [16, 18, 20]:
-        raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
 
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
 
-    dists = {
-        16: location.population_age_distribution_16,
-        18: location.population_age_distribution_18,
-        20: location.population_age_distribution_20,
-    }
+    nbrackets = calculate_which_nbrackets_to_use(nbrackets)
 
-    dist = dists[nbrackets]
+    dist = location.get_population_age_distribution(nbrackets)
 
     age_brackets = {}
     for bracket_index, dist in enumerate(dist):
-        age_min = dist[0]
-        age_max = dist[1]
-        age_brackets[bracket_index] = np.arange(age_min, age_max+1)
+        age_min = int(dist[0])
+        age_max = int(dist[1])
+        age_brackets[bracket_index] = np.arange(age_min, age_max + 1)
+    return age_brackets
 
 # TODO: still open question on how to handle these.
 def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, delimiter=' ', header=None):
@@ -387,7 +413,8 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         A dictionary of school enrollment rates by age.
     """
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
-    return dict(zip(location.enrollment_rates_by_age))
+    dist = [ [int(d[0]), d[1]] for d in location.enrollment_rates_by_age ]
+    return dict(dist)
 
 
 def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -412,9 +439,9 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
     """
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
     school_size_brackets = {}
-    for bracket_index, bracket in location.school_size_brackets:
-        size_min = bracket[0]
-        size_max = bracket[1]
+    for bracket_index, bracket in enumerate(location.school_size_brackets):
+        size_min = int(bracket[0])
+        size_max = int(bracket[1])
         school_size_brackets[bracket_index] = np.arange(size_min, size_max + 1)
     return school_size_brackets
 
@@ -627,8 +654,8 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
     workplace_size_brackets = dict()
     for bracket_index, bracket in enumerate(location.workplace_size_counts_by_num_personnel):
-        size_min = bracket[0]
-        size_max = bracket[1]
+        size_min = int(bracket[0])
+        size_max = int(bracket[1])
         workplace_size_brackets[bracket_index] = np.arange(size_min, size_max + 1)
     return workplace_size_brackets
 
@@ -752,8 +779,8 @@ def get_long_term_care_facility_residents_distr_brackets(datadir, location=None,
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
     num_residents_brackets = dict()
     for bracket_index, bracket in enumerate(location.ltcf_num_residents_distribution):
-        min_num_residents = bracket[0]
-        max_num_residents = bracket[1]
+        min_num_residents = int(bracket[0])
+        max_num_residents = int(bracket[1])
         num_residents_brackets[bracket_index] = np.arange(min_num_residents, max_num_residents + 1)
     return num_residents_brackets
 

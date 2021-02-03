@@ -2,6 +2,8 @@ import json
 from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
+import os
+from . import config as cfg
 from . import logger
 
 class SchoolSizeDistributionByType(JsonObject):
@@ -107,10 +109,28 @@ class Location(JsonObject):
     def get_list_properties(self):
         return [p for p in self if type(getattr(self, p)) is JsonArray]
 
+    def get_population_age_distribution(self, nbrackets):
+        if nbrackets not in [16, 18, 20]:
+            raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
+
+        dists = {
+            16: self.population_age_distribution_16,
+            18: self.population_age_distribution_18,
+            20: self.population_age_distribution_20,
+        }
+
+        dist = dists[nbrackets]
+        return dist
+
 
 def populate_parent_data_from_file_path(location, parent_file_path):
-    parent_obj = load_location_from_filepath(parent_file_path)
-    location = populate_parent_data_from_json_obj(location, parent_obj)
+    logger.debug(f"Loading parent location from filepath [{parent_file_path}]")
+    try:
+        parent_obj = load_location_from_filepath(parent_file_path)
+        location = populate_parent_data_from_json_obj(location, parent_obj)
+    except:
+        logger.warn(f"You may have an invalid data configuration: couldn't load parent "
+                    f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
 
@@ -158,18 +178,46 @@ def load_location_from_json_str(json_str):
     return load_location_from_json(json_obj)
 
 
-def load_location_from_filepath(filepath):
+def get_relative_path(datadir):
+    base_dir = datadir
+    if len(cfg.rel_path) > 1:
+        base_dir = os.path.join(datadir, *cfg.rel_path)
+    return base_dir
+
+
+def load_location_from_filepath(rel_filepath):
+    """
+    Loads location from provided relative filepath; relative to cfg.datadir.
+
+    Args:
+        rel_filepath:
+
+    Returns:
+
+    """
+    filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
     logger.info(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
     return load_location_from_json(json_obj)
 
 
-def save_location_to_filepath(location, filepath):
-    logger.info(f"Saving location to filepath [{filepath}]")
+def save_location_to_filepath(location, abs_filepath):
+    """
+    Saves location data to provided absolute filepath.
+
+    Args:
+        location:
+        abs_filepath:
+
+    Returns:
+
+    """
+    logger.info(f"Saving location to filepath [{abs_filepath}]")
     location_json = location.to_json()
-    with open(filepath, 'w') as f:
+    with open(abs_filepath, 'w') as f:
         json.dump(location_json, f, indent=2)
+
 
 def check_location_constraints_satisfied(location):
     """
