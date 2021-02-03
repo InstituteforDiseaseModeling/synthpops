@@ -189,7 +189,9 @@ def migrate_ltcf_num_residents_distribution(datadir, country_location, state_loc
                                                                                                      country_location)
 
     if len(legacy_distribution) != len(legacy_brackets):
-        raise RuntimeError(f"Mismatched lengths for distribution and brackets for ltcf num residents distribution for country location [{country_location}], state location [{state_location}], location [{location}]")
+        raise RuntimeError(f"Mismatched lengths for distribution and brackets for ltcf num residents distribution "
+                           f"for country location [{country_location}], state location [{state_location}], "
+                           f"location [{location}]")
 
     for k, bracket_expanded in legacy_brackets.items():
         bracket_min = float(min(bracket_expanded))
@@ -197,6 +199,46 @@ def migrate_ltcf_num_residents_distribution(datadir, country_location, state_loc
         percentage = float(legacy_distribution[k])
         target_entry = [bracket_min, bracket_max, percentage]
         new_location.ltcf_num_residents_distribution.append(target_entry)
+
+
+def migrate_ltcf_resident_to_staff_ratio_distribution(datadir, country_location, state_location, location,
+                                                      new_location):
+
+    legacy_distribution = data_distributions_legacy\
+        .get_long_term_care_facility_resident_to_staff_ratios_distr(datadir,
+                                                                    location,
+                                                                    state_location,
+                                                                    country_location)
+
+    legacy_brackets = data_distributions_legacy.\
+        get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir,
+                                                                      location,
+                                                                      state_location,
+                                                                      country_location)
+
+    if len(legacy_distribution) != len(legacy_brackets):
+        raise RuntimeError(f"Mismatched lengths for distribution and brackets for ltcf reisdent to staff ratio "
+                           f"distribution for country location [{country_location}], "
+                           f"state location [{state_location}], location [{location}]")
+
+    for k, bracket_expanded in legacy_brackets.items():
+        bracket_min = float(min(bracket_expanded))
+        bracket_max = float(max(bracket_expanded))
+        percentage = float(legacy_distribution[k])
+        target_entry = [bracket_min, bracket_max, percentage]
+        new_location.ltcf_resident_to_staff_ratio_distribution.append(target_entry)
+
+
+def migrate_ltcf_use_rate_distribution(datadir, country_location, state_location, location, new_location):
+
+    legacy_distribution = data_distributions_legacy.get_long_term_care_facility_use_rates(datadir,
+                                                                                          # This method doesn't take a location parameter.
+                                                                                          state_location,
+                                                                                          country_location)
+
+    for age, percent in legacy_distribution.items():
+        target_entry = [float(age), float(percent)]
+        new_location.ltcf_use_rate_distribution.append(target_entry)
 
 
 def migrate_school_size_brackets(datadir, country_location, state_location, location, new_location):
@@ -320,11 +362,15 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
                                                 datadir, country_location, state_location, location, new_location),
         "household_size_distribution":  partial(migrate_household_size_distribution,
                                                 datadir, country_location, state_location, location, new_location),
-        #"ltcf_resident_to_staff_ratio_distribution": TODO: no available data to test migration?
+        "ltcf_resident_to_staff_ratio_distribution":
+                                        partial(migrate_ltcf_resident_to_staff_ratio_distribution,
+                                                datadir, country_location, state_location, location, new_location),
         "ltcf_num_residents_distribution":
                                         partial(migrate_ltcf_num_residents_distribution,
                                                 datadir, country_location, state_location, location, new_location),
         #"ltcf_num_staff_distribution": TODO: no available data to test migration?
+        "ltcf_use_rate_distribution":   partial(migrate_ltcf_use_rate_distribution,
+                                                datadir, country_location, state_location, location, new_location),
         "school_size_brackets":         partial(migrate_school_size_brackets,
                                                 datadir, country_location, state_location, location, new_location),
         "school_size_distribution":     partial(migrate_school_size_distribution,
