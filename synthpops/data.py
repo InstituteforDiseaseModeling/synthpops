@@ -29,7 +29,17 @@ class Location(JsonObject):
     # Most users will want to populate this with a relative or absolute file path.
     parent = DefaultProperty()
 
-    population_age_distribution = ListProperty(
+    population_age_distribution_16 = ListProperty(
+        # [min_age, max_age, percentage]
+        ListProperty(FloatProperty)
+    )
+
+    population_age_distribution_18 = ListProperty(
+        # [min_age, max_age, percentage]
+        ListProperty(FloatProperty)
+    )
+
+    population_age_distribution_20 = ListProperty(
         # [min_age, max_age, percentage]
         ListProperty(FloatProperty)
     )
@@ -197,7 +207,7 @@ def are_location_constraints_satisfied(location):
     """
 
     for f in [check_location_name,
-              check_population_age_distribution,
+              check_population_age_distribution_16,
               check_employment_rates_by_age,
               check_enrollment_rates_by_age,
               check_household_age_brackets,
@@ -235,8 +245,31 @@ def check_location_name(location):
     return [False, "location_name must be specified"]
 
 
-def check_population_age_distribution(location):
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution')
+def check_population_age_distribution_16(location):
+    if len(location.population_age_distribution_16) == 0:
+        return [True, ""]
+    if len(location.population_age_distribution_16) != 16:
+        return [False, f"Invalid length for {location.population_age_distribution_16}: "
+                       f"{len(location.population_age_distribution_16)}"]
+    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_16')
+
+
+def check_population_age_distribution_18(location):
+    if len(location.population_age_distribution_18) == 0:
+        return [True, ""]
+    if len(location.population_age_distribution_18) != 18:
+        return [False, f"Invalid length for {location.population_age_distribution_18}: "
+                       f"{len(location.population_age_distribution_18)}"]
+    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_18')
+
+
+def check_population_age_distribution_20(location):
+    if len(location.population_age_distribution_20) == 0:
+        return [True, ""]
+    if len(location.population_age_distribution_20) != 20:
+        return [False, f"Invalid length for {location.population_age_distribution_20}: "
+                       f"{len(location.population_age_distribution_20)}"]
+    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_20')
 
 
 def check_employment_rates_by_age(location):
