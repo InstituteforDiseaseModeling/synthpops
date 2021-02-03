@@ -89,6 +89,11 @@ class Location(JsonObject):
         ListProperty(FloatProperty)
     )
 
+    ltcf_use_rate_distribution = ListProperty(
+        # [age, percentage]
+        ListProperty(FloatProperty)
+    )
+
     school_size_brackets = ListProperty(
         # [school_size_low, school_size_hi]
         ListProperty(FloatProperty)

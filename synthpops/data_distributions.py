@@ -825,23 +825,16 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, locat
         A dictionary of size brackets or bins for resident to staff ratios per
         facility.
     """
-    # TODO: need to talk w/ Dina about this one.
-    raise NotImplementedError()
-
-    if file_path is None:
-        file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location, state_location, country_location)
-    try:
-        size_brackets = get_age_brackets_from_df(file_path)
-    except:
-        if use_default:
-            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=cfg.default_location, state_location=cfg.default_state, country_location=cfg.default_country)
-            size_brackets = get_age_brackets_from_df(file_path)
-        else:
-            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from Seattle, Washington.")
-    return size_brackets
+    location = load_location(location, state_location, country_location, revert_to_default=use_default)
+    ltcf_ratio_brackets = dict()
+    for bracket_index, bracket in enumerate(location.ltcf_resident_to_staff_ratio_distribution):
+        size_min = bracket[0]
+        size_max = bracket[1]
+        ltcf_ratio_brackets[bracket_index] = np.arange(size_min, size_max + 1)
+    return ltcf_ratio_brackets
 
 
-def get_long_term_care_facility_use_rates(datadir, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_use_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get Long Term Care Facility use rates by age for a state.
 
@@ -860,17 +853,6 @@ def get_long_term_care_facility_use_rates(datadir, state_location=None, country_
     Note:
         Currently only available for the United States.
     """
-    # TODO: need to talk w/ Dina about this one.
-    raise NotImplementedError()
-
-    if file_path is None:
-        file_path = get_long_term_care_facility_use_rates_path(datadir, state_location, country_location)
-    try:
-        df = pd.read_csv(file_path)
-    except:
-        if use_default:
-            file_path = get_long_term_care_facility_use_rates_path(datadir, state_location=cfg.default_state, country_location=cfg.default_country)
-            df = pd.read_csv(file_path)
-        else:
-            raise NotImplementedError("Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {cfg.default_state}, {cfg.default_country}.")
-    return dict(zip(df.Age, df.Percent))
+    location = load_location(location, state_location, country_location, revert_to_default=use_default)
+    dist = [[int(d[0]), d[1]] for d in location.ltcf_use_rate_distribution]
+    return dict(dist)
