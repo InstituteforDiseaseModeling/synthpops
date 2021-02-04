@@ -1,6 +1,7 @@
 import synthpops.data_distributions_legacy as data_distributions_legacy
 import synthpops.data as data
 import synthpops.config as spconfig
+from synthpops import logger as logger
 import argparse
 import os
 import logging
@@ -16,8 +17,6 @@ parser.add_argument("--state_location", type=str, default=None, required=False, 
 parser.add_argument("--location", type=str, default=None, required=False, help='Input location.')
 parser.add_argument("--output_folder", type=str, default=".", required=False, help="Output folder. Default is working directory.")
 args = parser.parse_args()
-
-logger = logging.getLogger('migrate_legacy_data')
 
 
 def report_processing_error(data_subject, e):
@@ -318,6 +317,12 @@ def migrate_workplace_size_counts_by_num_personnel(datadir, country_location, st
 
 
 def migrate_legacy_data(datadir, country_location, state_location, location, output_folder):
+
+    logger.info("====================================================================")
+    logger.info(f"Migrating data for (country_location, state_location, location) = "
+                f"({country_location}, {state_location}, {location})")
+    logger.info("====================================================================")
+
     new_location = data.Location()
     parent = ""
     if country_location is None:
@@ -390,6 +395,18 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
 
     output_filepath = os.path.join(output_folder, f"{new_location.location_name}.json")
     data.save_location_to_filepath(new_location, output_filepath)
+
+    logger.info("====================================================================")
+    logger.info("--------------------------------------------------------------------")
+    logger.info("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
+    logger.info("   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  ")
+    logger.info("        - - - - - - - - - - - - - - - - - - - - - - - - - - -       ")
+    logger.info("              - - - - - - - - - - - - - - - - - - - - -             ")
+    logger.info("                    - - - - - - - - - - - - - - - -                 ")
+    logger.info("                        - - - - - - - - - - -                       ")
+    logger.info("                              - - - - -                             ")
+    logger.info("                                  -                                 ")
+    logger.info("                                                                    ")
 
     return
 
