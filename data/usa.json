@@ -202,6 +202,7 @@
   "ltcf_resident_to_staff_ratio_distribution": [],
   "ltcf_num_residents_distribution": [],
   "ltcf_num_staff_distribution": [],
+  "ltcf_use_rate_distribution": [],
   "school_size_brackets": [],
   "school_size_distribution": [],
   "school_size_distribution_by_type": [],
