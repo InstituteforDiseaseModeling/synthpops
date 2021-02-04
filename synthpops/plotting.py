@@ -18,7 +18,7 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from . import pop as sppop
 
-# Pretty fonts
+# Pretty fonts  --- move this into a class that gets called instead of directly being set
 try:
     fontstyle = 'Roboto Condensed'
     mplt.rcParams['font.family'] = fontstyle
@@ -30,12 +30,21 @@ try:
     import cmasher
     default_colormap = 'cmr.freeze_r'
 except:
-    print('Note: cmasher import failed; defaulting to regular colormap')
     default_colormap = 'bone_r'
+    print(f"Note: cmasher import failed; defaulting to regular colormap: {default_colormap}")
 
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_age_comparison',
            'plot_school_sizes_by_type']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+
+
+class plotting_kwargs(sc.prettyobj):
+    """
+    A class to set and operate on plotting kwargs throughout synthpops.
+
+    Args:
+        kwargs (dict)
+    """
 
 
 def default_plotting_kwargs():

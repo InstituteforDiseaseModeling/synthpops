@@ -222,7 +222,6 @@ class Pop(sc.prettyobj):
         use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
         average_LTCF_degree             = self.ltcf_pars.average_LTCF_degree
         with_facilities                 = self.ltcf_pars.with_facilities
-        # use_default                     = self.ltcf_pars.use_default
         ltcf_staff_age_min              = self.ltcf_pars.ltcf_staff_age_min
         ltcf_staff_age_max              = self.ltcf_pars.ltcf_staff_age_max
 

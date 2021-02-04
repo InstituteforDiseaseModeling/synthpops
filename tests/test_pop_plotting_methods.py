@@ -20,7 +20,8 @@ pars = dict(
     # location                        = 'seattle_metro',
     # location                        = 'Spokane_County',
     # location                        = 'Pierce_County',
-    location                        = 'Island_County',
+    location                          = 'Franklin_County',
+    # location                        = 'Island_County',
     use_default                     = True,
 
     household_method                = 'fixed_ages',
@@ -186,4 +187,4 @@ if __name__ == '__main__':
     # fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
     fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True, do_save=True)
     # fig3, ax3, pop3 = test_update_plotting_styles(pars, do_show=True, do_save=True)
-    fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)
+    # fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)

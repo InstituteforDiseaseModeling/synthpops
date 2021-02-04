@@ -1,5 +1,6 @@
 """
 Annotated example of plotting a multilayer network from a covasim sim object.
+Using SynthPops to generate the multilayer network.
 """
 
 import covasim as cv
