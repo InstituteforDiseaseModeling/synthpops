@@ -19,11 +19,11 @@ from . import schools as spsch
 from . import pop as sppop
 
 # Pretty fonts  --- move this into a class that gets called instead of directly being set
-try:
-    fontstyle = 'Roboto Condensed'
-    mplt.rcParams['font.family'] = fontstyle
-except:
-    mplt.rcParams['font.family'] = 'Roboto'
+# try:
+#     mplt.rcParams['font.family'] = 'Roboto Condensed'
+# except:
+#     mplt.rcParams['font.family'] = 'Roboto'
+mplt.rcParams['font.family'] = 'Roboto Condensed'
 mplt.rcParams['font.size'] = 16
 
 try:
@@ -60,10 +60,10 @@ class plotting_kwargs(sc.prettyobj):
     def default_plotting_kwargs(self):
         """Define default plotting kwrgs to be used in plotting methods."""
         default_kwargs = sc.objdict()
-        # default_kwargs.fontfamily = 'Roboto Condensed'
-        # default_kwargs.fontsize = 12
-        # default_kwargs.format = 'png'
-        # default_kwargs.rotation = 0
+        default_kwargs.fontfamily = 'Roboto Condensed'
+        default_kwargs.fontsize = 12
+        default_kwargs.format = 'png'
+        default_kwargs.rotation = 0
         default_kwargs.subplot_height = 5
         default_kwargs.subplot_width = 8
         # default_kwargs.hspace = 0.4
@@ -126,8 +126,6 @@ class plotting_kwargs(sc.prettyobj):
 
         return
 
-
-
 def default_plotting_kwargs():
     """Define default plotting kwargs to be used in plotting methods."""
 
@@ -158,7 +156,7 @@ def default_plotting_kwargs():
     default_kwargs.do_save = False
     default_kwargs.figdir = None
     # default_kwargs.figdir = cfg.datadir.replace('data', 'figures')
-    print(default_kwargs.display_dpi)
+    # print(default_kwargs.display_dpi)
     return default_kwargs
 
 
