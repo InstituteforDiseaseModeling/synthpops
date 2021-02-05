@@ -54,7 +54,7 @@ jobs:
           echo \<p\> > report.md
           echo \<div\>\<b\> current code coverage \</b\>\</div\> >> report.md
           sed -n '/<table class="index">/,/<\/table>/p'  htmlcov/index.html >> report.md
-          echo \</p\>\n >> report.md
+          echo \</p\> >> report.md
           # get rid of links as they are not available to upload
           echo $(cat report.md | sed -e 's/<a href=[^>]*>//g' | sed -e 's/<\/a>//g' | sed 's/^[[:space:]]*//g' | tr -d '\n') > report_copy.md
           cat report_copy.md >> cov.md
