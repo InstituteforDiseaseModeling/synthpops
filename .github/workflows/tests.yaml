@@ -60,8 +60,7 @@ jobs:
           cat report_copy.md >> cov.md
           # cml-send-github-check cov.md
           echo "::set-output name=covdata::$(cat report_copy.md)"
-          sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g' cov.md > cov_escape.md
-          echo "::set-output name=covdata_escape::$(cat cov_escape.md)"
+          echo "::set-output name=covdata_escape::$(sed 's/"/\\"/g' cov.md)"
           
       - name: send github check    
         uses: LouisBrunner/checks-action@v1.1.1
@@ -71,7 +70,7 @@ jobs:
           name: Code Coverage
           conclusion: success
           output: |
-            {"summary":${{ steps.cv.outputs.covdata_escape }}}  
+            {"summary": "${{ steps.cv.outputs.covdata_escape }}"}  
           
       - name: find bot comment
         uses: peter-evans/find-comment@v1
