@@ -62,7 +62,7 @@ jobs:
           echo "::set-output name=covdata::$(cat report_copy.md)"
           
       - name: send github check    
-      - uses: LouisBrunner/checks-action@v1.1.1
+        uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
             {"summary":${{ steps.cv.outputs.covdata }}}  
           
       - name: find bot comment
-      - uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v1
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
