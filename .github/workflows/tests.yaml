@@ -40,7 +40,7 @@ jobs:
         with:
           name: report
           path: tests/unittests/regression/report/
-      - uses: iterative/setup-cml@v1
+      - uses: iterative/setup-cml@v1 # <-- This is what seems to be failing
         with:
           version: latest 
       - name: cml_run
