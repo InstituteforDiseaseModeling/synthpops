@@ -1,8 +1,9 @@
 """
-Test school mixing patterns for age_and_class_clustered Schools
-The assumption is that one or more teachers are assigned to one class only
-Students must be assigned to only one class (class is composed of the same group of students)
-Noted that AgeClassClusteredClass and AgeClassClusteredSchool classes are for test use only
+Test school mixing patterns for age_and_class_clustered Schools. The assumption
+is that one or more teachers are assigned to one class only. Students must be
+assigned to only one class (class is composed of the same group of students).
+Note that AgeClassClusteredClass and AgeClassClusteredSchool classes are for
+test use only.
 
 """
 import copy
@@ -31,13 +32,14 @@ pars = dict(
 
 def test_age_and_class_clustered():
     """
-    Test case for age_and_class_clustered type
-    a population based on pars is created and the classes formed are examined against the assumptions
+    Test case for age_and_class_clustered type. A population based on pars is
+    created and the classes formed are examined against the assumptions.
+
     Returns:
         None
     """
     pop = sp.Pop(n=20000, **pars)
-    # create AgeClassClusetredSchool class objects from population
+    # create AgeClassClusteredSchool class objects from population
     # and check if there is overlapping for teachers/students
     schools = form_classes(pop.popdict, ['pk', 'es', 'ms'])
     check_class_overlapping(schools)
@@ -47,11 +49,11 @@ def test_age_and_class_clustered():
 def form_classes(popdict, school_types):
     """
     Args:
-        popdict: popdict of a Pop object
-        school_types: a list of school type
+        popdict      : popdict of a Pop object
+        school_types : a list of school type
 
     Returns:
-        An AgeClassClusetredSchool class object
+        An AgeClassClusteredSchool class object
     """
 
     # construct a list of schools which are objects of AgeClassClusteredSchool class
@@ -61,7 +63,7 @@ def form_classes(popdict, school_types):
     # if a student is found, check his school contacts to find the teachers and add both teacher/student to the class
     for uid, person in popdict.items():
         if person["scid"] is not None and person["sc_type"] in school_types:
-            # check if school exists by scid
+            # check if school exists by scid and return a list of schools
             school_scid = [s for s in schools if person["scid"] == s.scid]
 
             # throw an error if multiple schools returned as each school should have unique scid
@@ -117,9 +119,10 @@ def form_classes(popdict, school_types):
 
 def check_class_overlapping(schools):
     """
-    Verify that there is no overlapping in students and teachers
+    Verify that there is no overlapping in students and teachers.
+
     Args:
-        schools: list of AgeClassClusetredSchool class objects
+        schools: list of AgeClassClusteredSchool class objects
 
     Returns:
         None
@@ -142,10 +145,11 @@ def check_class_overlapping(schools):
 
 def check_classes_disjoint(schools, do_show=False):
     """
-    Check if schools are formed by disjoint classes component
+    Check if schools are formed by disjoint classes component.
+
     Args:
-        schools: list of AgeClassClusetredSchool class objects
-        do_show: draw the graph if set to True, default to False
+        schools : list of AgeClassClusteredSchool class objects
+        do_show : draw the graph if set to True, default to False
 
     Returns:
         None
@@ -173,8 +177,8 @@ class AgeClassClusteredSchool:
         class constructor
 
         Args:
-            scid: school id
-            sc_type: school type, default to None
+            scid    : school id
+            sc_type : school type, default to None
         """
         self.scid = scid
         self.sc_type = sc_type
@@ -194,7 +198,8 @@ class AgeClassClusteredSchool:
 
     def remove_classes_by_id(self, cid):
         """
-        Remove the class from school by the class id
+        Remove the class from school by the class id.
+
         Args:
             cid: class id to identify class to be removed
 
@@ -207,12 +212,13 @@ class AgeClassClusteredSchool:
 
     def merge_classes(self, c):
         """
-        Merge a list of classes to a new class and update the school
+        Merge a list of classes to a new class and update the school.
+
         Args:
             c: list of AgeClassClusteredClass objects to be merged
 
         Returns:
-            A single merged AgeClassClusteredClass object
+            A single merged AgeClassClusteredClass object.
         """
         newc = AgeClassClusteredClass()
         for i in c:
@@ -225,7 +231,8 @@ class AgeClassClusteredSchool:
 
     def to_graph(self):
         """
-        Generate NetworkX graph representation of the school
+        Generate NetworkX graph representation of the school.
+
         Returns:
             An undirected NetworkX graph
         """
@@ -250,7 +257,7 @@ class AgeClassClusteredClass:
 
     def add_teacher(self, pid):
         """
-        Add teacher / teachers to class
+        Add teacher / teachers to class.
 
         Args:
             pid: a teacher's id or a list of teachers' id
@@ -261,7 +268,7 @@ class AgeClassClusteredClass:
 
     def add_student(self, pid):
         """
-        Add student / students to class
+        Add student / students to class.
 
         Args:
             pid: a student's id or a list of students' id
@@ -285,7 +292,8 @@ class AgeClassClusteredClass:
 
     def to_graph(self):
         """
-        Generate NetworkX graph representation of the class
+        Generate NetworkX graph representation of the class.
+
         Returns:
             An undirected NetworkX graph
         """
