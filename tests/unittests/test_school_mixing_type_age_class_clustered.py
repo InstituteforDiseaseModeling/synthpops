@@ -30,7 +30,7 @@ pars = dict(
 )
 
 
-def test_age_and_class_clustered():
+def test_age_and_class_clustered(do_show=False):
     """
     Test case for age_and_class_clustered type. A population based on pars is
     created and the classes formed are examined against the assumptions.
@@ -43,7 +43,7 @@ def test_age_and_class_clustered():
     # and check if there is overlapping for teachers/students
     schools = form_classes(pop.popdict, ['pk', 'es', 'ms'])
     check_class_overlapping(schools)
-    check_classes_disjoint(schools)
+    check_classes_disjoint(schools, do_show=do_show)
 
 
 def form_classes(popdict, school_types):
@@ -302,5 +302,5 @@ class AgeClassClusteredClass:
             g.add_nodes_from([(t, {"position": "teacher"})])
         for s in self.students:
             g.add_nodes_from([(s, {"position": "student"})])
-        g.add_edges_from(list(itertools.product(list(self.teachers), list(self.students))))
+        g.add_edges_from(list(itertools.combinations(list(self.teachers)+list(self.students),2)))
         return g
