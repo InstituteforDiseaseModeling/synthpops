@@ -35,7 +35,7 @@ except:
 
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_age_comparison',
-           'plot_school_sizes_by_type']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+           'plot_school_sizes_by_type', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.prettyobj):
@@ -43,8 +43,89 @@ class plotting_kwargs(sc.prettyobj):
     A class to set and operate on plotting kwargs throughout synthpops.
 
     Args:
-        kwargs (dict)
+        kwargs (dict): dictionary of plotting parameters to be used.
     """
+
+    def __init__(self, **kwargs):
+        """
+        Class constructor for plotting_kwargs
+        """
+        kwargs = sc.mergedicts(self.default_plotting_kwargs(), kwargs)
+        # self.kwargs = kwargs
+        for key, value in kwargs.items():
+            self[key] = value
+
+        return
+
+    def default_plotting_kwargs(self):
+        """Define default plotting kwrgs to be used in plotting methods."""
+        default_kwargs = sc.objdict()
+        # default_kwargs.fontfamily = 'Roboto Condensed'
+        # default_kwargs.fontsize = 12
+        # default_kwargs.format = 'png'
+        # default_kwargs.rotation = 0
+        default_kwargs.subplot_height = 5
+        default_kwargs.subplot_width = 8
+        # default_kwargs.hspace = 0.4
+        # default_kwargs.wspace = 0.3
+        default_kwargs.nrows = 1
+        default_kwargs.ncols = 1
+        default_kwargs.height = default_kwargs.nrows * default_kwargs.subplot_height
+        default_kwargs.width = default_kwargs.ncols * default_kwargs.subplot_width
+        # default_kwargs.show = 1
+        # default_kwargs.cmap = 'cmr.freeze_r'
+        # default_kwargs.markersize = 6
+        default_kwargs.display_dpi = int(os.getenv('SYNTHPOPS_DPI', plt.rcParams['figure.dpi']))
+        # default_kwargs.save_dpi = 300
+        default_kwargs.screen_width = 1366
+        default_kwargs.screen_height = 768
+        default_kwargs.screen_height_factor = 0.85
+        default_kwargs.screen_width_factor = 0.3
+        # default_kwargs.do_show = False
+        # default_kwargs.do_save = False
+        # default_kwargs.figdir = None
+
+        return default_kwargs
+
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        setattr(self, key, value)
+        return
+
+    def update_kwargs(self, **kwargs):
+        # self.kwargs = sc.mergedicts(self.kwargs, kwargs)
+        for key, value in kwargs.items():
+            self[key] = value
+        return
+
+
+    def set_figure_display_size(self, **kwargs):
+        """
+        Update plotting kwargs with display sizes.
+
+        Args:
+            kwargs (sc.objdict): new values to update with
+            nrows (int): number of subplots stacked vertically
+
+        Return:
+            Updated plotting kwargs.
+        """
+        # kwargs = sc.mergedicts(self.kwargs, kwargs)
+
+        self.update_kwargs()
+
+        # for key, value in kwargs.items():
+        #     self[key] = value
+        # self.nrows = kwargs.nrows
+        # self.ncols = kwargs.ncols
+        # self.screen_height_factor = self.screen_height_factor / self.nrows
+        # screen_height_factor = kwargs.screen_height_factor / nrows
+        # self.screen_width_factor = kwargs.screen_width_factor / self.ncols
+        self.display_height = np.round(self.screen_height * self.screen_height_factor / self.display_dpi, 2)
+        self.display_width = np.round(self.screen_width * self.screen_width_factor / self.display_dpi, 2)
+
+        return
+
 
 
 def default_plotting_kwargs():
