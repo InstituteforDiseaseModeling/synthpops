@@ -14,20 +14,20 @@ import synthpops as sp
 import matplotlib.pyplot as plt
 
 pars = dict(
-    rand_seed=1,
-    max_contacts=None,
-    country_location='usa',
-    state_location='Washington',
-    location='seattle_metro',
-    use_default=True,
-    with_non_teaching_staff=1,
-    with_school_types=1,
-    school_mixing_type={'pk': 'age_and_class_clustered',
-                        'es': 'age_and_class_clustered',
-                        'ms': 'age_and_class_clustered',
-                        'hs': 'random',
-                        'uv': 'random'},
-    average_class_size=30,
+    rand_seed               = 1,
+    max_contacts            = None,
+    country_location        = 'usa',
+    state_location          = 'Washington',
+    location                = 'seattle_metro',
+    use_default             = True,
+    with_non_teaching_staff = 1,
+    with_school_types       = 1,
+    school_mixing_type      = {'pk': 'age_and_class_clustered',
+                               'es': 'age_and_class_clustered',
+                               'ms': 'age_and_class_clustered',
+                               'hs': 'random',
+                               'uv': 'random'},
+    average_class_size      = 30,
 )
 
 
@@ -128,6 +128,7 @@ def form_classes(popdict, school_types):
         s.print_school()
 
     return sc.dcp(schools)
+
 
 def check_class_overlapping(schools):
     """
@@ -242,6 +243,7 @@ class AgeClassClusteredSchool:
             self.remove_classes_by_id(i.id)
         newclass = copy.deepcopy(newc)
         self.classrooms.add(newclass)
+
         return newclass
 
     def to_graph(self):
@@ -255,6 +257,7 @@ class AgeClassClusteredSchool:
         for c in self.classrooms:
             gs.add_nodes_from(c.to_graph())
             gs.add_edges_from(c.to_graph().edges)
+
         return gs
 
 
@@ -319,4 +322,5 @@ class AgeClassClusteredClass:
         for s in self.students:
             g.add_nodes_from([(s, {"position": "student"})])
         g.add_edges_from(list(itertools.combinations(list(self.teachers)+list(self.students), 2)))
+
         return g
