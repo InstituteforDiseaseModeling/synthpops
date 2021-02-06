@@ -7,11 +7,12 @@ See example_processing_us_census_bureau_data.py for further instructions.
 """
 
 # Comment out this line after downloading the data
-raise Exception('You must download the Census data (see above) before running this script')
+# raise Exception('You must download the Census data (see above) before running this script')
 
 
 import synthpops as sp
-
+import pandas as pd
+import os
 
 datadir = sp.datadir
 
@@ -52,6 +53,11 @@ print(f'Total long term care facility users for {location} with population size 
 
 
 # use the Kaiser Health News data to estimate ratios
+
+
+cc_df = pd.read_csv(os.path.join(sp.datadir, 'usa', 'Washington', 'Washington_cities_and_counties.csv'))
+counties = set(cc_df['County'].values)
+
 # location_alias = 'seattle_metro'  # saving data only for Seattle
 # location_list = ['Seattle']
 
@@ -68,9 +74,20 @@ print(f'Total long term care facility users for {location} with population size 
 # location_alias = 'Washington'  # saving data for all locations in Washington state
 # location_list = []
 
-location_alias = 'Spokane_County'
-location_list = ['Cheney', 'Spokane']
+# location_alias = 'Spokane_County'
+# location_list = ['Cheney', 'Spokane']
 
+
+location_alias = 'Island_County'
+cities = cc_df.loc[cc_df['County'] == location_alias.replace('_County', '')]['City'].values
+print(cities)
+location_list = list(cities)
+
+if location_alias == 'Island_County':
+    location_list.extend(['Coupeville'])
+
+
+save = False
 hist_df, bins_df = sp.process_usa_ltcf_resident_to_staff_ratios(datadir, country_location, state_location, location_alias, location_list, save)
 print(f"Kaiser Health News resident to staff ratios for {location_alias}")
 print(hist_df)

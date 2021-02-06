@@ -27,6 +27,13 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
+def get_school_type_labels():
+    school_type_labels = {'pk': 'Pre-school', 'es': 'Elementary School',
+                          'ms': 'Middle School', 'hs': 'High School', 
+                          'uv': 'University'}
+    return school_type_labels
+
+
 def get_uids_in_school(datadir, n, location, state_location, country_location, age_by_uid_dic=None, homes_by_uids=None, folder_name=None, use_default=False):
     """
     Identify who in the population is attending school based on enrollment rates
@@ -1245,3 +1252,29 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
     return syn_schools, syn_school_uids, syn_school_types
+
+
+def get_enrollment_by_school_type(popdict):
+    """
+    Get enrollment sizes by school types in popdict.
+
+    Args:
+        popdict (dict): population dictionary
+
+    Returns:
+        list: List of generated enrollment sizes by school type.
+    """
+    schools = dict()
+    enrollment_by_school_type = dict()
+    for i, person in popdict.items():
+        if person['scid'] is not None and person['sc_student']:
+            schools.setdefault(person['scid'], dict())
+            schools[person['scid']]['sc_type'] = person['sc_type']
+            schools[person['scid']].setdefault('enrolled', 0)
+            schools[person['scid']]['enrolled'] += 1
+
+    for i, school in schools.items():
+        enrollment_by_school_type.setdefault(school['sc_type'], [])
+        enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
+
+    return enrollment_by_school_type

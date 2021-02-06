@@ -196,13 +196,13 @@ def test_school_sizes_by_type(pars, do_show=False):
     """
     sp.logger.info("Creating schools by school type and a visual comparison of how they match to data.")
     pop = sp.make_population(**pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, pars, do_show=do_show)
 
     return pop, fig, ax, school_types
 
 
 @pytest.mark.parametrize("pars", [pars])
-def test_separate_school_types_for_seattle_metro(pars):
+def test_separate_school_types_for_seattle_metro(pars, do_show=False):
     """
     Notes:
         By default, when no location is given and use_default is set to True,
@@ -214,7 +214,7 @@ def test_separate_school_types_for_seattle_metro(pars):
     test_pars = sc.dcp(pars)
     test_pars['location'] = None  # seattle_metro results with school size distribution the same for all types
     pop = sp.make_population(**pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=do_show)
 
     assert ('pk' in school_types) and ('es' in school_types), 'Check failed. pk and es school type are not separately created.'
     print('Check passed.')
@@ -222,15 +222,15 @@ def test_separate_school_types_for_seattle_metro(pars):
     return pop, fig, ax, school_types
 
 
-def test_without_school_types():
+def test_without_school_types(do_show=False):
     """
     Test that without school types, all schools are put together in one group.
     """
     sp.logger.info("Creating schools where with_school_types is False.")
     test_pars = sc.dcp(pars)
-    test_pars['with_school_types'] = None
+    test_pars['with_school_types'] = False
     pop = sp.make_population(**test_pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=do_show)
     return pop, fig, ax, school_types
 
 
@@ -239,10 +239,11 @@ if __name__ == '__main__':
     # run as main to see the code and figures in action!
 
     sc.tic()
+
     school_types = test_school_types_created()
-    pop, fig, ax, school_types = test_school_sizes_by_type(pars)
-    pop2, fig2, ax2, school_types2 = test_separate_school_types_for_seattle_metro(pars)
-    pop3, fig3, ax3, school_types3 = test_without_school_types()
+    pop, fig, ax, school_types = test_school_sizes_by_type(pars, do_show=True)
+    pop2, fig2, ax2, school_types2 = test_separate_school_types_for_seattle_metro(pars, do_show=True)
+    pop3, fig3, ax3, school_types3 = test_without_school_types(do_show=True)
 
     plt.show()
     sc.toc()

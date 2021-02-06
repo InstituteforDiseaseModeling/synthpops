@@ -458,9 +458,14 @@ def process_usa_ltcf_resident_to_staff_ratios(datadir, country_location, state_l
     mask = ratios != np.nan
     ratios = ratios[mask]
 
-    bins = np.arange(0, max(ratios) + 1)
-    hist, bins = np.histogram(ratios, bins=bins)
-    hist_norm = {i: hist[i] / sum(hist) for i in range(len(hist))}
+    if sum(mask):  # found at least one record
+        bins = np.arange(0, max(ratios) + 1)
+        hist, bins = np.histogram(ratios, bins=bins)
+        hist_norm = {i: hist[i] / sum(hist) for i in range(len(hist))}
+
+    else:  # masked out all of the ratios array since no centers were found
+        hist, bins = np.array([0], dtype=float), np.array([0, 1], dtype=float)
+        hist_norm = {i: hist[i] for i in range(len(hist))}
 
     hist_df = pd.DataFrame.from_dict({'bin': np.arange(len(hist_norm)),
                                       'percent': list(hist_norm.values())})
