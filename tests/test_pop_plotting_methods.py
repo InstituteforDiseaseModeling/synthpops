@@ -18,9 +18,9 @@ pars = dict(
     country_location                = 'usa',
     state_location                  = 'Washington',
     # location                        = 'seattle_metro',
-    # location                        = 'Spokane_County',
+    location                        = 'Spokane_County',
     # location                        = 'Pierce_County',
-    location                          = 'Franklin_County',
+    # location                          = 'Franklin_County',
     # location                        = 'Island_County',
     use_default                     = True,
 
@@ -113,7 +113,7 @@ def test_plot_with_cvpeople(pars, do_show=False, do_save=False):
 
     kwargs = sc.objdict(sc.dcp(pars))
     kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_cvpeople_ages_{pars['location']}"
+    kwargs.figname = f"test_cvpeople_ages_{pars['location']}_5"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
     kwargs.figdir = sp.datadir.replace('data', 'figures')
@@ -146,11 +146,11 @@ def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False
     sp.logger.info("Test that the school size distribution by type plotting method in sp.Pop class works.")
     pop = sp.Pop(**pars)
     kwargs = sc.dcp(pars)
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}_1"
-    # kwargs.figname = f"SchoolSizebyType_{pars['location'].replace('_', ' ').title().replace(' ','')}"
+    # kwargs.figname = f"test_school_size_distributions_{pars['location']}_1"
+    kwargs.figname = f"SchoolSizebyType_{pars['location'].replace('_', ' ').title().replace(' ','')}"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
-    kwargs.rotation = 20
+    kwargs.rotation = 25
     kwargs.fontsize = 8.5
     kwargs.save_dpi = 600
     kwargs.screen_width_factor = 0.30
@@ -159,7 +159,10 @@ def test_plot_school_sizes_by_type_comparison(pars, do_show=False, do_save=False
     kwargs.bottom = 0.09
     kwargs.location_text_y = 113
     kwargs.cmap = cmr.get_sub_cmap('cmo.curl', 0.08, 1)
-    kwargs.figdir = sp.datadir.replace('data', 'figures')
+    kwargs.figdir = sp.datadir.replace('data', 'examples')
+    kwargs.keys_to_exclude = ['uv']
+    import matplotlib as mplt
+    kwargs.cmap = cmr.get_sub_cmap('cmo.curl', 0.08, 1)
 
     # kwargs.format = 'pdf'
     fig, ax = pop.plot_school_sizes_by_type(**kwargs)
@@ -185,6 +188,6 @@ if __name__ == '__main__':
     # run as main and see the examples in action!
     # fig0, ax0, pop0 = test_plot_age_distribution_comparison(pars, do_show=True)
     # fig1, ax1, popdict1 = test_plot_with_popdict(pars, do_show=True)
-    fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True, do_save=True)
+    # fig2, ax2, people2 = test_plot_with_cvpeople(pars, do_show=True, do_save=True)
     # fig3, ax3, pop3 = test_update_plotting_styles(pars, do_show=True, do_save=True)
-    # fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)
+    fig4, ax4, pop4 = test_plot_school_sizes_by_type_comparison(pars, do_show=True, do_save=True)

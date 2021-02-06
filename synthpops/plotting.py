@@ -18,12 +18,7 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from . import pop as sppop
 
-# Pretty fonts  --- move this into a class that gets called instead of directly being set
-# try:
-#     mplt.rcParams['font.family'] = 'Roboto Condensed'
-# except:
-#     mplt.rcParams['font.family'] = 'Roboto'
-mplt.rcParams['font.family'] = 'Roboto Condensed'
+mplt.rcParams['font.family'] = 'Roboto Condensed'  # Pretty font being set
 mplt.rcParams['font.size'] = 16
 
 try:
@@ -51,9 +46,8 @@ class plotting_kwargs(sc.prettyobj):
         Class constructor for plotting_kwargs
         """
         kwargs = sc.mergedicts(self.default_plotting_kwargs(), kwargs)
-        # self.kwargs = kwargs
-        for key, value in kwargs.items():
-            self[key] = value
+        self.update_kwargs(**kwargs)
+        self.set_figure_display_size()
 
         return
 
@@ -66,24 +60,24 @@ class plotting_kwargs(sc.prettyobj):
         default_kwargs.rotation = 0
         default_kwargs.subplot_height = 5
         default_kwargs.subplot_width = 8
-        # default_kwargs.hspace = 0.4
-        # default_kwargs.wspace = 0.3
+        default_kwargs.hspace = 0.4
+        default_kwargs.wspace = 0.3
         default_kwargs.nrows = 1
         default_kwargs.ncols = 1
         default_kwargs.height = default_kwargs.nrows * default_kwargs.subplot_height
         default_kwargs.width = default_kwargs.ncols * default_kwargs.subplot_width
-        # default_kwargs.show = 1
-        # default_kwargs.cmap = 'cmr.freeze_r'
-        # default_kwargs.markersize = 6
+        default_kwargs.show = 1
+        default_kwargs.cmap = 'cmr.freeze_r'
+        default_kwargs.markersize = 6
         default_kwargs.display_dpi = int(os.getenv('SYNTHPOPS_DPI', plt.rcParams['figure.dpi']))
-        # default_kwargs.save_dpi = 300
+        default_kwargs.save_dpi = 300
         default_kwargs.screen_width = 1366
         default_kwargs.screen_height = 768
         default_kwargs.screen_height_factor = 0.85
         default_kwargs.screen_width_factor = 0.3
-        # default_kwargs.do_show = False
-        # default_kwargs.do_save = False
-        # default_kwargs.figdir = None
+        default_kwargs.do_show = False
+        default_kwargs.do_save = False
+        default_kwargs.figdir = None
 
         return default_kwargs
 
@@ -93,38 +87,27 @@ class plotting_kwargs(sc.prettyobj):
         return
 
     def update_kwargs(self, **kwargs):
-        # self.kwargs = sc.mergedicts(self.kwargs, kwargs)
+        """Update kwargs."""
         for key, value in kwargs.items():
             self[key] = value
         return
 
-
     def set_figure_display_size(self, **kwargs):
         """
-        Update plotting kwargs with display sizes.
+        Update plotting kwargs with new calculated display sizes.
 
         Args:
             kwargs (sc.objdict): new values to update with
-            nrows (int): number of subplots stacked vertically
 
         Return:
-            Updated plotting kwargs.
+            Updated kwargs and recalculating the display sizes.
         """
-        # kwargs = sc.mergedicts(self.kwargs, kwargs)
-
-        self.update_kwargs()
-
-        # for key, value in kwargs.items():
-        #     self[key] = value
-        # self.nrows = kwargs.nrows
-        # self.ncols = kwargs.ncols
-        # self.screen_height_factor = self.screen_height_factor / self.nrows
-        # screen_height_factor = kwargs.screen_height_factor / nrows
-        # self.screen_width_factor = kwargs.screen_width_factor / self.ncols
+        self.update_kwargs(**kwargs)
         self.display_height = np.round(self.screen_height * self.screen_height_factor / self.display_dpi, 2)
         self.display_width = np.round(self.screen_width * self.screen_width_factor / self.display_dpi, 2)
 
         return
+
 
 def default_plotting_kwargs():
     """Define default plotting kwargs to be used in plotting methods."""
@@ -145,7 +128,6 @@ def default_plotting_kwargs():
     default_kwargs.show = 1
     default_kwargs.cmap = 'cmr.freeze_r'
     default_kwargs.markersize = 6
-    # default_kwargs.dpi = int(os.getenv('COVASIM_DPI', plt.rcParams['figure.dpi']))
     default_kwargs.display_dpi = int(os.getenv('SYNTHPOPS_DPI', plt.rcParams['figure.dpi']))
     default_kwargs.save_dpi = 300
     default_kwargs.screen_width = 1366
@@ -155,7 +137,6 @@ def default_plotting_kwargs():
     default_kwargs.do_show = False
     default_kwargs.do_save = False
     default_kwargs.figdir = None
-    # default_kwargs.figdir = cfg.datadir.replace('data', 'figures')
     # print(default_kwargs.display_dpi)
     return default_kwargs
 
@@ -439,10 +420,11 @@ def plot_contacts(population,
 
 
 def plot_array(expected,
+               figname,
                generated=None,
                names=None,
                figdir=None,
-               prefix="test",
+               prefix="",
                do_show=True,
                do_save=False,
                expect_label='Expected',
@@ -481,13 +463,12 @@ def plot_array(expected,
     if fig is None:
         fig, ax = plt.subplots(1, 1)
 
-    mplt.rcParams['font.family'] = 'Roboto Condensed'
     if color_1 is None:
         color_1 = 'mediumseagreen'
     if color_2 is None:
         color_2 = '#236a54'
 
-    title = prefix.replace('_', ' ').title() if generated is None else f"{prefix.replace('_', ' ').title()} Comparison"
+    title = figname.replace('_', ' ').title() if generated is None else f"{figname.replace('_', ' ').title()} Comparison"
     ax.set_title(title, fontsize=fontsize + 2)
     x = np.arange(len(expected))
 
@@ -525,7 +506,7 @@ def plot_array(expected,
             datadir = cfg.datadir
             figdir = datadir.replace('data', 'figures')
         os.makedirs(figdir, exist_ok=True)
-        plt.savefig(os.path.join(figdir, f"{prefix}.png".replace('\n', '_')), format="png")
+        plt.savefig(os.path.join(figdir, f"{figname}.png".replace('\n', '_')), format="png")
     if do_show:
         plt.show()
     return fig, ax
@@ -643,7 +624,7 @@ def plot_age_comparison(pop, *args, **kwargs):
                          fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2, markersize=kwargs.markersize)
     ax.set_xlabel('Age', fontsize=kwargs.fontsize)
     ax.set_ylabel('Distribution (%)', fontsize=kwargs.fontsize)
-    ax.set_xlim(-1., len(expected_age_distr_array) + 0.)
+    ax.set_xlim(-1, len(expected_age_distr_array) + 1)
     max_y = np.ceil(max(max(expected_age_distr_array), max(generated_age_distr_array)))
     ax.set_ylim(0, max_y)
 
@@ -669,9 +650,26 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
 
     Args:
         pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
+        args (dict)     : arguments to pass directly
+        kwargs (dict)   : keyword arguments to pass to data methods and plotting (see below).
 
     Returns:
         Matplotlib figure and ax.
+
+    Other Parameters:
+    **kwargs:
+        left (float)   : matplotlib.figure.subplot.left
+        right (float)  : matplotlib.figure.subplot.right
+        top (float)    : matplotlib.figure.subplot.top
+        bottom (float) : matplotlib.figure.subplot.bottom
+        hspace (float) : matplotlib.figure.subplot.hspace
+        subplot_height (float): height of subplot in inches
+        subplot_width (float): width of subplot in inches
+        screen_height_factor (float): fraction of the screen height to use for display
+        location_text_y (float): height to plot location text
+        fontsize (float): matplotlib.figure.fontsize
+        rotation (float): angle for xticklabels
+        cmap (str): colormap to use
 
     Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
@@ -688,32 +686,38 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
         kwargs['datadir'] = sp.datadir
         fig, ax = sp.plot_school_sizes_by_type(popdict, **kwargs)
     """
-    default_kwargs = default_plotting_kwargs()
-    default_kwargs.school_type_labels = spsch.get_school_type_labels()
+    plkwargs = plotting_kwargs()
+    plkwargs.school_type_labels = spsch.get_school_type_labels()
 
-    # TODO: consolidate the following method specific default parameters in dictionary
-    default_kwargs = sc.mergedicts(default_kwargs, dict(left=0.11, right=0.94,
-                                   top=0.96, bottom=0.08, hspace=0.75,
-                                   subplot_height=2.8, subplot_width=4.2,
-                                   screen_height_factor=0.17, fontsize=8,
-                                   rotation=20,
-                                   cmap='cmo.curl', figname=f"school_size_distribution_by_type",
-                                   keys_to_exclude=['uv'],
-                                   location_text_y=117,
-                                   )
-                                   )
+    # method specific plotting defaults
+    method_defaults = dict(left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,  # subplot defaults
+                           subplot_height=2.8, subplot_width=4.2,  # subplot defaults
+                           screen_height_factor=0.85,  # figure defaults
+                           location_text_y=113, fontsize=8, rotation=20,  # text defaults
+                           cmap='cmo.curl',  # colormap to use
+                           with_school_types=True, keys_to_exclude='uv',  # flag to use school types and which to include
+                           figname='school_size_distribution_by_type',  # name to save to disk
+                           comparison=True,  # include comparison
+                           )
 
-    kwargs = sc.mergedicts(default_kwargs, kwargs)
-    kwargs = sc.objdict(kwargs)
-    kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right, 'top': kwargs.top,
-                              'bottom': kwargs.bottom, 'hspace': kwargs.hspace, 'wspace': kwargs.wspace})
+    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+
+    plkwargs.update_kwargs(**kwargs)
+
+    if isinstance(plkwargs.keys_to_exclude, str):
+        plkwargs.keys_to_exclude = [plkwargs.keys_to_exclude]  # ensure this is treated as a list
+
+    # make this a separate dictionary
+    plkwargs.axis = sc.objdict({'left': plkwargs.left, 'right': plkwargs.right, 'top': plkwargs.top,
+                                'bottom': plkwargs.bottom, 'hspace': plkwargs.hspace, 'wspace': plkwargs.wspace})
 
     # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
 
-    # set up location parameters to grab expected data
+    # set up location parameters to grab expected data - kwargs must include this
     if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location,
-                               'country_location': kwargs.country_location, 'use_default': kwargs.use_default})
+        loc_pars = sc.objdict({'datadir': plkwargs.datadir, 'location': plkwargs.location, 'state_location': plkwargs.state_location,
+                               'country_location': plkwargs.country_location, 'use_default': plkwargs.use_default})
+
         if isinstance(pop, dict):
             popdict = sc.dcp(pop)
         else:
@@ -722,15 +726,16 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     elif isinstance(pop, sppop.Pop):
         loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location,
                                'country_location': pop.country_location, 'use_default': pop.use_default})
-        kwargs.with_school_types = pop.school_pars.with_school_types
+        plkwargs.with_school_types = pop.school_pars.with_school_types
         popdict = sc.dcp(pop.popdict)
 
     else:
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
-    kwargs = sc.objdict(sc.mergedicts(kwargs, loc_pars))  # add all location keys to this as well
+    # kwargs = sc.objdict(sc.mergedicts(kwargs, loc_pars))  # add all location keys to this as well
+    plkwargs.update_kwargs(**loc_pars)
 
-    if kwargs.with_school_types:
+    if plkwargs.with_school_types:
         expected_school_size_distr = spdata.get_school_size_distr_by_type(**loc_pars)
     else:
         expected_school_size_distr = {None: spdata.get_school_size_distr_by_brackets(**loc_pars)}
@@ -752,45 +757,37 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
 
     generated_school_size_distr = sc.objdict(generated_school_size_distr)
 
-    for school_type in kwargs.keys_to_exclude:
+    for school_type in plkwargs.keys_to_exclude:
         enrollment_by_school_type.pop(school_type, None)
         generated_school_size_distr.pop(school_type, None)
-        kwargs.school_type_labels.pop(school_type, None)
+        plkwargs.school_type_labels.pop(school_type, None)
 
     sorted_school_types = sorted(generated_school_size_distr.keys())
     n_school_types = len(sorted_school_types)
+    plkwargs.nrows = n_school_types
 
     # location text
-    if kwargs.location is not None:
-        location_text = f"{kwargs.location.replace('_', ' ').title()}"
+    if plkwargs.location is not None:
+        location_text = f"{plkwargs.location.replace('_', ' ').title()}"
     else:
         location_text = f"{cfg.default_location.replace('_', ' ').title()}"
 
-    # cmap
-    if kwargs.cmap == 'cmo.curl':
-        cmap = cmr.get_sub_cmap(kwargs.cmap, 0.08, 1)  # remove --- users can supply their own cmaps however modified
-    else:
-        cmap = mplt.cm.get_cmap(kwargs.cmap)
-
-    # set up screen size
-    kwargs.display_height = np.round((kwargs.screen_height * kwargs.screen_height_factor) * n_school_types / kwargs.display_dpi, 2)
-    kwargs.display_width = np.round((kwargs.screen_width * kwargs.screen_width_factor) / kwargs.display_dpi, 2)
+    cmap = mplt.cm.get_cmap(plkwargs.cmap)
 
     # create fig, ax
-    fig, ax = plt.subplots(n_school_types, 1, figsize=(kwargs.display_width, kwargs.display_height), dpi=kwargs.display_dpi)
+    fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
 
     # readjust figure parameters
-    if n_school_types == 1:
+    if plkwargs.nrows == 1:
         ax = [ax]
-        fig.set_size_inches(kwargs.display_width, kwargs.display_height * 1.7)
-        kwargs.axis = sc.objdict(sc.mergedicts(kwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
-        kwargs.location_text_y = 108
+        fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 1.7)
+        plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
+        plkwargs.location_text_y = 108
 
     # update the fig
-    fig.subplots_adjust(**kwargs.axis)
+    fig.subplots_adjust(**plkwargs.axis)
 
-    # for ns, school_type in enumerate(sorted_school_types):
-    for ns, school_type in enumerate(kwargs.school_type_labels.keys()):
+    for ns, school_type in enumerate(plkwargs.school_type_labels.keys()):
         x = np.arange(len(school_size_brackets))  # potentially will use different bins for each school type so placeholder for now
         c = ns / n_school_types
         c2 = min(c + 0.1, 1)
@@ -799,45 +796,44 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
 
         ax[ns].bar(x, [expected_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor='white', label='Expected', zorder=0)
         ax[ns].plot(x, [generated_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
-                    marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=5, label='Generated', zorder=1)
+                    marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=plkwargs.markersize, label='Generated', zorder=1)
 
-        leg = ax[ns].legend(loc=1, fontsize=kwargs.fontsize)
+        leg = ax[ns].legend(loc=1, fontsize=plkwargs.fontsize)
         leg.draw_frame(False)
         ax[ns].set_xticks(x)
-        ax[ns].set_xticklabels(bin_labels, rotation=kwargs.rotation, fontsize=kwargs.fontsize,
-                               verticalalignment='center_baseline')
-        ax[ns].set_xlim(0, x[-1])
+        ax[ns].set_xticklabels(bin_labels, rotation=plkwargs.rotation, fontsize=plkwargs.fontsize, verticalalignment='center_baseline')
+        ax[ns].set_xlim(-0.6, x[-1] + 0.6)
         ax[ns].set_ylim(0, 100)
-        ax[ns].set_ylabel('%', fontsize=kwargs.fontsize + 1)
-        ax[ns].tick_params(labelsize=kwargs.fontsize - 1)
+        ax[ns].set_ylabel('%', fontsize=plkwargs.fontsize + 1)
+        ax[ns].tick_params(labelsize=plkwargs.fontsize - 1)
         if school_type is None:
             title = "without school types defined"
         else:
-            title = f"{kwargs.school_type_labels[school_type]}"
+            title = f"{plkwargs.school_type_labels[school_type]}"
         if ns == 0:
-            ax[ns].text(0., kwargs.location_text_y, location_text, horizontalalignment='left', fontsize=kwargs.fontsize + 1, verticalalignment='top')
-        ax[ns].set_title(title, fontsize=kwargs.fontsize + 1, verticalalignment='top')
-    ax[ns].set_xlabel('School size', fontsize=kwargs.fontsize + 1, verticalalignment='center_baseline')
-    # ax[ns].set_xlabel('School size', fontsize=kwargs.fontsize + 1, verticalalignment='center_baseline')
+            ax[ns].text(0., plkwargs.location_text_y, location_text, horizontalalignment='left', fontsize=plkwargs.fontsize + 1, verticalalignment='top')
+        ax[ns].set_title(title, fontsize=plkwargs.fontsize + 1, verticalalignment='top')
+    ax[ns].set_xlabel('School size', fontsize=plkwargs.fontsize + 1, verticalalignment='center_baseline')
 
-    if kwargs.do_show:
+    if plkwargs.do_show:
         plt.show()
 
     # update fig before saving to disk since display will modify things
-    if kwargs.do_save:
+    if plkwargs.do_save:
         if len(ax) == 1:
-            fig.set_size_inches(kwargs.display_width, kwargs.display_height * 1.7)  # too brittle
+            fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 1.7)
 
         else:
-            fig.set_size_inches(kwargs.display_width, kwargs.display_height)
-            kwargs.axis = sc.objdict(sc.mergedicts(kwargs.axis, {'bottom': 0.075, 'hspace': 0.52, 'left': 0.12}))  # too brittle --- can supply defaults that look nice and that's about it
+            cfg.logger.info("Setting default plotting parameters to save figure to disk. If these settings produce figures you would prefer to change, this method returns the figure and ax for you to modify and save to disk.")
+            fig.set_size_inches(plkwargs.display_width, plkwargs.display_height)
+            plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'bottom': 0.075, 'hspace': 0.52, 'left': 0.12}))
 
-        fig.subplots_adjust(**kwargs.axis)
-        if kwargs.figdir is not None:
-            os.makedirs(kwargs.figdir, exist_ok=True)
-            figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
+        fig.subplots_adjust(**plkwargs.axis)
+        if plkwargs.figdir is not None:
+            os.makedirs(plkwargs.figdir, exist_ok=True)
+            figpath = os.path.join(plkwargs.figdir, f"{plkwargs.figname}.{plkwargs.format}")
         else:
-            figpath = f"{kwargs.figname}.{kwargs.format}"
-        fig.savefig(figpath, format=kwargs.format, dpi=kwargs.save_dpi)
+            figpath = f"{plkwargs.figname}.{plkwargs.format}"
+        fig.savefig(figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
     return fig, ax

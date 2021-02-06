@@ -58,36 +58,50 @@ labels = dict(
 
 locations = ['seattle_metro', 'Spokane_County', 'Franklin_County', 'Island_County']
 
-x = np.arange(101)
+# x = np.arange(101)
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-fig.subplots_adjust(left=0.10, right=0.93, top=0.9, bottom=0.13)
+fig, ax = plt.subplots(1, 1, figsize=(10, 5.5))
+# fig.subplots_adjust(left=0.10, right=0.93, top=0.9, bottom=0.13)
+fig.subplots_adjust(left=0.06, right=0.97, top=0.92, bottom=0.15)
 
 for n, location in enumerate(locations):
-    # pars.location = location
-
+    # loc_pars = dict(location=location, state_location=pars.state_location, country_location=pars.country_location,
+    #                 datadir=sp.datadir, window_length=1)
     loc_pars = dict(location=location, state_location=pars.state_location, country_location=pars.country_location,
-                    datadir=sp.datadir, window_length=7)
+                    datadir=sp.datadir, nbrackets=18)
+    age_bracket_distr = sp.read_age_bracket_distr(**loc_pars)
+    age_brackets = sp.get_census_age_brackets(**loc_pars)
 
-    expected_age_distr = sp.get_smoothed_single_year_age_distr(**loc_pars)
+    x = np.arange(len(age_brackets))
+    y = [age_bracket_distr[b] * 100 for b in age_brackets]
+    bin_labels = [f"{age_brackets[b][0]}-{age_brackets[b][-1]}" for b in age_brackets]
+    # age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
-    y = [expected_age_distr[a] * 100 for a in x]
+    # expected_age_distr = sp.get_smoothed_single_year_age_distr(**loc_pars)
+
+    # y = [expected_age_distr[a] * 100 for a in x]
     ax.plot(x, y, color=colors[location], label=labels[location], marker='o', markerfacecolor=colors[location],
-            markeredgecolor='white', markeredgewidth=1, markersize=6,)
+            markeredgecolor='white', markeredgewidth=2, markersize=8,)
 leg = ax.legend(loc = 1)
 
-ax.set_xlim(0, 100)
-ax.set_ylim(0, 2.0)
-ax.set_xlabel('Age', fontsize=16)
+# ax.set_xlim(0, 100)
+# ax.set_ylim(0, 2.0)
+ax.set_xlim(-0.2, x[-1] + 0.2)
+ax.set_ylim(0, 10)
+# ax.set_xlabel('Age', fontsize=16)
+ax.set_xlabel('Age Group', fontsize=16)
 ax.set_ylabel('(%)', fontsize=16)
-ticks = np.arange(0, 101, 10)
-ticklabels = [str(i) for i in ticks]
+# ticks = np.arange(0, 101, 10)
+# ticklabels = [str(i) for i in ticks]
+ticks = x
+ticklabels = bin_labels
 ax.set_xticks(ticks)
-ax.set_xticklabels(ticklabels)
+ax.set_xticklabels(ticklabels, rotation=40, verticalalignment='center_baseline')
 ax.set_title('Age Distribution', fontsize=20)
 
 # ax.set_xticklabels(np.arange(0, 101, 10), [str(i) for i in np.arange(0, 101, 10)])
 ax.tick_params(labelsize=15)
 # plt.show()
-fig.savefig('schools_report_4_age_demographics.png', format='png', dpi=150)
-fig.savefig('AgeDistributionsbyLocation.png', format='png', dpi=150)
+dpi = 300
+# fig.savefig('schools_report_4_age_demographics.png', format='png', dpi=dpi)
+fig.savefig('AgeDistributionsbyLocation.png', format='png', dpi=dpi)
