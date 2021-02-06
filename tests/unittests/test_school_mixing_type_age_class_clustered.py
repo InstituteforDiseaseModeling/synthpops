@@ -12,6 +12,7 @@ import networkx as nx
 import sciris as sc
 import synthpops as sp
 import matplotlib.pyplot as plt
+
 pars = dict(
     rand_seed=1,
     max_contacts=None,
@@ -49,8 +50,8 @@ def test_age_and_class_clustered(do_show=False):
 def form_classes(popdict, school_types):
     """
     Args:
-        popdict      : popdict of a Pop object
-        school_types : a list of school type
+        popdict (dict)      : popdict of a Pop object
+        school_types (list) : a list of school type
 
     Returns:
         An AgeClassClusteredSchool class object
@@ -58,11 +59,14 @@ def form_classes(popdict, school_types):
 
     # construct a list of schools which are objects of AgeClassClusteredSchool class
     schools = []
+
     # loop over population, form classes first by the following logic:
-    # if a teacher is found, add him to the class
-    # if a student is found, check his school contacts to find the teachers and add both teacher/student to the class
+    # if a teacher is found, add them to the class
+    # if a student is found, check their school contacts to find the teachers and add both teacher/student to the class
     for uid, person in popdict.items():
+
         if person["scid"] is not None and person["sc_type"] in school_types:
+
             # check if school exists by scid and return a list of schools
             school_scid = [s for s in schools if person["scid"] == s.scid]
 
@@ -70,31 +74,37 @@ def form_classes(popdict, school_types):
             assert len(school_scid) <= 1, f"there should only be one school with {person['scid']}"
 
             # if school does not exist, create one object of AgeClassClusteredSchool with scid and sc_type
-            # and add it to the list of schools as defined in line 58
+            # and add it to the list of schools
             if len(school_scid) == 0:
                 schoolp = AgeClassClusteredSchool(scid=person["scid"], sc_type=person["sc_type"])
                 schools.append(copy.deepcopy(schoolp))
             else:
                 # get the first element of school (should have only one school returned)
                 schoolp = school_scid[0]
+
             if person["sc_teacher"] is not None:
+
                 # check all classes in the school with matching scid to see if this teacher was assigned
                 classp = None
                 for c in schoolp.classrooms:
                     if uid in c.teachers:
                         classp = c
                         break
+
                 # if teacher was not assigned, form a new class and add this class to the school
                 if classp is None:
                     classp = AgeClassClusteredClass()
                     classp.add_teacher(uid)
                     schoolp.classrooms.add(copy.deepcopy(classp))
+
             if person["sc_student"] is not None:
                 # find the teachers from the student's contacts and check if they already teach a class
                 classp = None
                 teachersp = [sc for sc in person["contacts"]["S"] if popdict[sc]["sc_teacher"] is not None]
+
                 # check all classes to see if teachers' id is in there
                 classfound = [c for c in schoolp.classrooms if set(teachersp).intersection(c.teachers)]
+
                 # if no such class is found, form the new class with all the teachers in contacts
                 # and add the student to the class
                 if len(classfound) == 0:
@@ -107,14 +117,16 @@ def form_classes(popdict, school_types):
                     # if more than 2 classes are found, merge the class
                     if len(classfound) > 1:
                         classp = schoolp.merge_classes(classfound)
+
                     # add student to the class where his teacher contact was assigned
                     # also add all the teachers of this student to the same class
                     classp.add_student(uid)
                     classp.add_teacher(teachersp)
+
     # print school info
     for s in schools:
         s.print_school()
-    return copy.deepcopy(schools)
+        return sc.dcp(schools)
 
 
 def check_class_overlapping(schools):
@@ -122,19 +134,21 @@ def check_class_overlapping(schools):
     Verify that there is no overlapping in students and teachers.
 
     Args:
-        schools: list of AgeClassClusteredSchool class objects
+        schools (list): list of AgeClassClusteredSchool class objects
 
     Returns:
         None
     """
     setlist_teachers = []
     setlist_students = []
+
     # get teachers and students from each class to a list of items,
     # if there is overlapping an item should appear more than once
     for s in schools:
         for c in s.classrooms:
             setlist_teachers = setlist_teachers + list(c.teachers)
             setlist_students = setlist_students + list(c.students)
+
     # check if any overlapping exists in teachers/students
     dup_teacher = set([i for i in setlist_teachers if setlist_teachers.count(i) > 1])
     dup_student = set([i for i in setlist_students if setlist_students.count(i) > 1])
@@ -148,8 +162,8 @@ def check_classes_disjoint(schools, do_show=False):
     Check if schools are formed by disjoint classes component.
 
     Args:
-        schools : list of AgeClassClusteredSchool class objects
-        do_show : draw the graph if set to True, default to False
+        schools (list) : list of AgeClassClusteredSchool class objects
+        do_show (bool) : If True, draw the network of classes. Default to False.
 
     Returns:
         None
@@ -160,6 +174,7 @@ def check_classes_disjoint(schools, do_show=False):
         graph_component = [g for g in nx.connected_components(s.to_graph())]
         assert len(graph_component) == len(s.classrooms), \
             f"school {str(s.scid)} has {str(len(s.classrooms))} classes but {str(len(graph_component))} components"
+
         # For union operation, graphs must be disjoint, otherwise an exception is raised.
         gschools = nx.union(gschools, s.to_graph())
     if do_show:
@@ -177,8 +192,8 @@ class AgeClassClusteredSchool:
         class constructor
 
         Args:
-            scid    : school id
-            sc_type : school type, default to None
+            scid (int)    : school id
+            sc_type (str) : school type, default to None
         """
         self.scid = scid
         self.sc_type = sc_type
@@ -186,7 +201,7 @@ class AgeClassClusteredSchool:
 
     def print_school(self):
         """
-        method to print the school info
+        Method to print the school info
 
         Returns:
             None
@@ -201,7 +216,7 @@ class AgeClassClusteredSchool:
         Remove the class from school by the class id.
 
         Args:
-            cid: class id to identify class to be removed
+            cid (uuid): class id to identify class to be removed
 
         Returns:
             None
@@ -215,7 +230,7 @@ class AgeClassClusteredSchool:
         Merge a list of classes to a new class and update the school.
 
         Args:
-            c: list of AgeClassClusteredClass objects to be merged
+            c (list): list of AgeClassClusteredClass objects to be merged
 
         Returns:
             A single merged AgeClassClusteredClass object.
@@ -245,11 +260,11 @@ class AgeClassClusteredSchool:
 
 class AgeClassClusteredClass:
     """
-        This class is used by test only
+        This class is used by test only.
     """
     def __init__(self):
         """
-        Constructor: create an empty class
+        Constructor: create an empty class.
         """
         self.id = sc.uuid()
         self.teachers = set()
@@ -260,7 +275,8 @@ class AgeClassClusteredClass:
         Add teacher / teachers to class.
 
         Args:
-            pid: a teacher's id or a list of teachers' id
+            pid (int): a teacher's id or a list of teachers' id
+
         Returns:
             None
         """
@@ -271,7 +287,7 @@ class AgeClassClusteredClass:
         Add student / students to class.
 
         Args:
-            pid: a student's id or a list of students' id
+            pid (int): a student's id or a list of students' id
 
         Returns:
             None
@@ -280,7 +296,7 @@ class AgeClassClusteredClass:
 
     def print_class(self):
         """
-        print method of class
+        Print method of class.
 
         Returns:
             None
@@ -295,12 +311,12 @@ class AgeClassClusteredClass:
         Generate NetworkX graph representation of the class.
 
         Returns:
-            An undirected NetworkX graph
+            An undirected NetworkX graph.
         """
         g = nx.Graph()
         for t in self.teachers:
             g.add_nodes_from([(t, {"position": "teacher"})])
         for s in self.students:
             g.add_nodes_from([(s, {"position": "student"})])
-        g.add_edges_from(list(itertools.combinations(list(self.teachers)+list(self.students),2)))
+        g.add_edges_from(list(itertools.combinations(list(self.teachers)+list(self.students), 2)))
         return g
