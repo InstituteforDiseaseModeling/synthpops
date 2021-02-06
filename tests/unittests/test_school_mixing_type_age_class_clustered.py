@@ -126,8 +126,8 @@ def form_classes(popdict, school_types):
     # print school info
     for s in schools:
         s.print_school()
-        return sc.dcp(schools)
 
+    return sc.dcp(schools)
 
 def check_class_overlapping(schools):
     """
