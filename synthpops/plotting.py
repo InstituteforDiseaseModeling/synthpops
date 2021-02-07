@@ -18,7 +18,7 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from . import pop as sppop
 
-mplt.rcParams['font.family'] = 'Roboto Condensed'  # Pretty font being set
+mplt.rcParams['font.family'] = 'Roboto Condensed'  # nicer font being set
 mplt.rcParams['font.size'] = 16
 
 try:
