@@ -11,7 +11,7 @@ import pytest
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 225e3,
+    n                               = 10e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -130,7 +130,7 @@ def test_update_plotting_styles(pars, do_show=False, do_save=False):
     test_pars = sc.dcp(pars)
     test_pars['location'] = 'Spokane_County'
     pop = sp.Pop(**test_pars)
-    kwargs = dict(color_1='#9966cc', color_2='indigo', markersize=4.5,
+    kwargs = sc.objdict(color_1='#9966cc', color_2='indigo', markersize=4.5,
                   # subplot_height=5, subplot_width=8,
                   figname=f"example_ages_{test_pars['location']}",
                   do_save=do_save, do_show=do_show)

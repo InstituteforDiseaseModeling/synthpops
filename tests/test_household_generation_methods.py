@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
+import settings
 
 mplt.rcParams['font.family'] = 'Roboto Condensed'
 mplt.rcParams['font.size'] = 8
@@ -18,7 +19,7 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 20e3,
+    n                               = settings.pop_sizes.small,
     rand_seed                       = 123,
     max_contacts                    = None,
 

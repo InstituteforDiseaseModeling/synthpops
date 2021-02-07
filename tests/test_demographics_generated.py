@@ -6,11 +6,12 @@ import synthpops as sp
 import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
+import settings
 
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 100e3,
+    n                               = settings.pop_sizes.medium,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -123,13 +124,13 @@ def test_older_ages_have_household_contacts():
     print('Check passed.')
 
 
-def test_plot_contact_matrix():
+def test_plot_contact_matrix(do_show=False):
     """"""
     pop = sp.Pop(**pars)
     popdict = pop.to_dict()
-    pop.plot_contacts()
+    pop.plot_contacts(do_show=do_show)
 
-    plt.show()
+    
 
 
 if __name__ == '__main__':
@@ -139,3 +140,4 @@ if __name__ == '__main__':
     # test_older_ages_have_household_contacts()
     
     test_plot_contact_matrix()
+    plt.show()
