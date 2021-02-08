@@ -1,5 +1,5 @@
 #!/bin/bash
-coverage run --source=../synthpops  --omit=*census* --branch -m pytest test_*.py
+coverage run -m pytest test_*.py --workers auto
 
 echo 'Creating HTML report...'
 coverage html

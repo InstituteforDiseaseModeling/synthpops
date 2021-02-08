@@ -196,7 +196,7 @@ def test_school_sizes_by_type(pars, do_show=False):
     """
     sp.logger.info("Creating schools by school type and a visual comparison of how they match to data.")
     pop = sp.make_population(**pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, pars, do_show=False)
 
     return pop, fig, ax, school_types
 
@@ -214,7 +214,7 @@ def test_separate_school_types_for_seattle_metro(pars):
     test_pars = sc.dcp(pars)
     test_pars['location'] = None  # seattle_metro results with school size distribution the same for all types
     pop = sp.make_population(**pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=False)
 
     assert ('pk' in school_types) and ('es' in school_types), 'Check failed. pk and es school type are not separately created.'
     print('Check passed.')
@@ -230,7 +230,7 @@ def test_without_school_types():
     test_pars = sc.dcp(pars)
     test_pars['with_school_types'] = None
     pop = sp.make_population(**test_pars)
-    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=True)
+    fig, ax, school_types = plot_school_sizes_by_type(pop, test_pars, do_show=False)
     return pop, fig, ax, school_types
 
 
