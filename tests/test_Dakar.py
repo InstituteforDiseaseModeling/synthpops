@@ -14,11 +14,7 @@ pars = dict(
     country_location                = 'Senegal',
     use_default                     = False,
 
-    with_industry_code              = 0,
-    with_facilities                 = 0,
-    with_non_teaching_staff         = 1,
-    use_two_group_reduction         = 1,
-    with_school_types               = 0,
+    # with_school_types               = 0,
     )
 
 
