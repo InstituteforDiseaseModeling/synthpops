@@ -27,6 +27,9 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
+__all__ = ['get_school_type_labels', 'get_enrollment_by_school_type', 'get_generated_school_size_distributions']
+
+
 def get_school_type_labels():
     school_type_labels = {'pk': 'Pre-school', 'es': 'Elementary School',
                           'ms': 'Middle School', 'hs': 'High School',
@@ -1244,7 +1247,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         syn_school_types.append('s')
         new_school = np.array(new_school)
         kids = new_school <= 19
-        # new_school_age_counter = Counter(new_school)
         if verbose:
             print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
 
