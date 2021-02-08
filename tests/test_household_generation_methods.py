@@ -20,8 +20,8 @@ mplt.rcParams['font.size'] = 8
 pars = dict(
     n                               = 10e3,
     rand_seed                       = 123,
-    # max_contacts                    = None,
 
+    # need location parameters
     country_location                = 'usa',
     state_location                  = 'Washington',
     location                        = 'seattle_metro',
@@ -29,30 +29,8 @@ pars = dict(
 
     smooth_ages                     = False,
     household_method                = 'infer_ages',
-
-
-    # with_industry_code              = 0,
     with_facilities                 = 1,
-    # with_non_teaching_staff         = 1,
-    # use_two_group_reduction         = 1,
-    # with_school_types               = 1,
 
-    # average_LTCF_degree             = 20,
-    # ltcf_staff_age_min              = 20,
-    # ltcf_staff_age_max              = 60,
-
-    # school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
-    # average_class_size              = 20,
-    # inter_grade_mixing              = 0.1,
-    # teacher_age_min                 = 25,
-    # teacher_age_max                 = 75,
-    # staff_age_min                   = 20,
-    # staff_age_max                   = 75,
-
-    # average_student_teacher_ratio   = 20,
-    # average_teacher_teacher_degree  = 3,
-    # average_student_all_staff_ratio = 15,
-    # average_additional_staff_degree = 20,
 )
 
 
@@ -61,7 +39,6 @@ def test_original_household_method(do_show=False):
 
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'infer_ages'
-    # pop = sp.make_population(**test_pars)
     pop = sp.Pop(**test_pars)
 
     datadir = sp.datadir
@@ -78,7 +55,6 @@ def test_fixed_ages_household_method(do_show=False):
 
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'fixed_ages'
-    # pop = sp.make_population(**test_pars)
     pop = sp.Pop(**test_pars)
 
     datadir = sp.datadir
@@ -98,7 +74,6 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     test_pars['household_method'] = 'fixed_ages'
     test_pars['smooth_ages'] = True
     test_pars['window_length'] = 7  # window for averaging the age distribution
-    # pop = sp.make_population(**test_pars)
     pop = sp.Pop(**test_pars)
 
     datadir = sp.datadir
@@ -121,7 +96,6 @@ def plot_age_dist(datadir, pop, pars, do_show, prefix):
         expected_age_distr = sp.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': pars['window_length']}))
     else:
         expected_age_distr = sp.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
-
 
     gen_age_count = pop.count_pop_ages()
     gen_age_distr = sp.norm_dic(gen_age_count)
