@@ -12,7 +12,7 @@ import pytest
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 8e3,
+    n                               = 10e3,
     rand_seed                       = 123,
 
     country_location                = 'usa',
@@ -34,7 +34,13 @@ pars = sc.objdict(pars)
 
 
 def test_plot_age_distribution_comparison(do_show=False, do_save=False):
-    """Test that the age comparison plotting method in sp.Pop class works."""
+    """
+    Test that the age comparison plotting method in sp.Pop class works.
+
+    Notes:
+        With any popdict, you will need to supply more information to
+        tell the method where to look for expected data.
+    """
     sp.logger.info("Test that the age comparison plotting method with sp.Pop object.")
     pop = sp.Pop(**pars)
     kwargs = sc.dcp(pars)
@@ -43,12 +49,22 @@ def test_plot_age_distribution_comparison(do_show=False, do_save=False):
     kwargs.do_save = do_save
     fig, ax = pop.plot_age_comparison(**kwargs)
 
-    assert isinstance(fig, mplt.figure.Figure), 'Check failed.'
-    print('Check passed. Figure made.')
+    assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
+    print('Check passed. Figure 1 made.')
 
+    popdict = pop.to_dict()
+    kwargs.datadir = sp.datadir  # extra information required
+    kwargs.figname = f"test_popdict_ages_{pars['location']}_popdict"
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+    fig2, ax2 = sp.plot_age_comparison(popdict, **kwargs)
+
+    assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
+    print('Check passed. Figure 2 made.')
     return fig, ax, pop
 
 
+@pytest.mark.skip
 def test_plot_with_popdict(do_show=False, do_save=False):
     """
     Test plotting method works on dictionary version of pop object.
@@ -134,8 +150,8 @@ def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
 
     # kwargs.format = 'pdf'
     fig, ax = pop.plot_school_sizes_by_type(**kwargs)
-    assert isinstance(fig, mplt.figure.Figure), 'Check failed.'
-    print('Check passed. Figure made.')
+    assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
+    print('Check passed. Figure 1 made.')
 
     # works on popdict
     sp.logger.info("Test school size distribution plotting method on popdict.")
@@ -144,8 +160,8 @@ def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
     kwargs.figname = f"test_school_size_distributions_{pars['location']}_popdict"
     fig2, ax2 = sp.plot_school_sizes_by_type(popdict, **kwargs)
 
-    assert isinstance(fig2, mplt.figure.Figure), 'Check failed.'
-    print('Check passed. Figure made.')
+    assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
+    print('Check passed. Figure 2 made.')
 
     # works on popdict without school types
     sp.logger.info("Test school size distribution plotting method without school types.")
@@ -159,8 +175,8 @@ def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
     kwargs.figname = f"test_all_school_size_distributions_{pars['location']}_pop"
     fig3, ax3 = pop3.plot_school_sizes_by_type(**kwargs)
 
-    assert isinstance(fig3, mplt.figure.Figure), 'Check failed.'
-    print('Check passed. Figure made.')
+    assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
+    print('Check passed. Figure 3 made.')
 
     return fig, ax, pop
 
@@ -170,6 +186,6 @@ if __name__ == '__main__':
     # run as main and see the examples in action!
 
     fig0, ax0, pop0 = test_plot_age_distribution_comparison(do_show=True)
-    fig1, ax1, popdict1 = test_plot_with_popdict(do_show=True)
+    # fig1, ax1, popdict1 = test_plot_with_popdict(do_show=True)
     fig2, ax2, people2 = test_plot_with_cvpeople(do_show=True, do_save=True)
     fig3, ax3, pop3 = test_plot_school_sizes_by_type_comparison(do_show=True, do_save=True)
