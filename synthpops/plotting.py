@@ -1,5 +1,5 @@
 """
-This module plots the age-specific contact matrix in different settings.
+This module provides plotting methods including methods to plot the age-specific contact matrix in different contact layers.
 """
 import os
 import sciris as sc
@@ -18,10 +18,10 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from . import pop as sppop
 
-mplt.rcParams['font.family'] = 'Roboto Condensed'  # nicer font being set
-mplt.rcParams['font.size'] = 16
+# # mplt.rcParams['font.family'] = 'Roboto Condensed'  # nicer font being set
+# # mplt.rcParams['font.size'] = 16
 
-try:
+try:  # no longer needed  --- cmasher made an install requirement
     import cmasher
     default_colormap = 'cmr.freeze_r'
 except:
@@ -47,7 +47,26 @@ class plotting_kwargs(sc.prettyobj):
         """
         kwargs = sc.mergedicts(self.default_plotting_kwargs(), kwargs)
         self.update_kwargs(**kwargs)
+        self.initialize()
+        # self.set_figure_display_size()
+
+        return
+
+    def initialize(self):
+        """Initialize plot settings."""
         self.set_figure_display_size()
+        self.set_font()
+
+        return
+
+    def set_font(self, **font):
+        """Set font."""
+        default_font = dict(family = self.fontfamily, style = self.fontstyle,
+                            variant = self.fontvariant, weight = self.fontweight,
+                            stretch = self.fontstretch, size = self.fontsize
+                            )
+        font = sc.mergedicts(default_font, font)
+        mplt.rc('font', **font)
 
         return
 
@@ -55,7 +74,11 @@ class plotting_kwargs(sc.prettyobj):
         """Define default plotting kwrgs to be used in plotting methods."""
         default_kwargs = sc.objdict()
         default_kwargs.fontfamily = 'Roboto Condensed'
-        default_kwargs.fontsize = 12
+        default_kwargs.fontstyle = 'normal'
+        default_kwargs.fontvariant = 'normal'
+        default_kwargs.fontweight = 400
+        default_kwargs.fontstretch = 'normal'
+        default_kwargs.fontsize = 16
         default_kwargs.format = 'png'
         default_kwargs.rotation = 0
         default_kwargs.subplot_height = 5
@@ -108,58 +131,38 @@ class plotting_kwargs(sc.prettyobj):
 
         return
 
-
-def default_plotting_kwargs():
-    """Define default plotting kwargs to be used in plotting methods."""
-
-    default_kwargs = sc.objdict()
-    default_kwargs.fontfamily = 'Roboto Condensed'
-    default_kwargs.fontsize = 12
-    default_kwargs.format = 'png'
-    default_kwargs.rotation = 0
-    default_kwargs.subplot_height = 5
-    default_kwargs.subplot_width = 8
-    default_kwargs.hspace = 0.4
-    default_kwargs.wspace = 0.3
-    default_kwargs.nrows = 1
-    default_kwargs.ncols = 1
-    default_kwargs.height = default_kwargs.nrows * default_kwargs.subplot_height
-    default_kwargs.width = default_kwargs.ncols * default_kwargs.subplot_width
-    default_kwargs.show = 1
-    default_kwargs.cmap = 'cmr.freeze_r'
-    default_kwargs.markersize = 6
-    default_kwargs.display_dpi = int(os.getenv('SYNTHPOPS_DPI', plt.rcParams['figure.dpi']))
-    default_kwargs.save_dpi = 300
-    default_kwargs.screen_width = 1366
-    default_kwargs.screen_height = 768
-    default_kwargs.screen_height_factor = 0.85
-    default_kwargs.screen_width_factor = 0.3
-    default_kwargs.do_show = False
-    default_kwargs.do_save = False
-    default_kwargs.figdir = None
-    # print(default_kwargs.display_dpi)
-    return default_kwargs
+    def set_axis_kwargs(self):
+        self.axis = sc.objdict(left=self.left, right=self.right, top=self.top, bottom=self.bottom, hspace=self.hspace, wspace=self.wspace)
+        return
 
 
-def set_figure_display_size(kwargs, nrows):
+def finalize_figure(fig, plkwargs, **new_plkwargs):
     """
-    Update plotting kwargs with display sizes.
+    Update any parameters and then return figpath.
 
     Args:
-        kwargs (sc.objdict): plotting kwargs
-        nrows (int): number of subplots stacked vertically
+        fig (matplotlib.Figure)    : figure
+        plkwargs (plotting_kwargs) : plotting kwargs class
+        new_plkwargs (dict)        : dictionary of new plotting kwargs to update with
 
-    Return:
-        Updated plotting kwargs.
+    Returns:
+        Matplotlib figure.
     """
-    screen_height_factor = kwargs.screen_height_factor / nrows
-    kwargs.display_height = np.round((kwargs.screen_height * screen_height_factor) * nrows / kwargs.display_dpi, 2)
-    kwargs.display_width = np.round((kwargs.screen_width * kwargs.screen_width_factor) / kwargs.display_dpi, 2)
+    plkwargs.update_kwargs(**new_plkwargs)
+    plkwargs.figpath = f"{plkwargs.figname}.{plkwargs.format}"
+    if plkwargs.do_save:
+        if plkwargs.figdir is not None:
+            os.makedirs(plkwargs.figdir, exist_ok=True)
+            plkwargs.figpath = os.path.join(plkwargs.figdir, plkwargs.figpath)
+        fig.savefig(plkwargs.figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
-    return kwargs
+    if plkwargs.do_show:
+        plt.show()
+
+    return fig
 
 
-def calculate_contact_matrix(population, density_or_frequency='density', setting_code='H'):
+def calculate_contact_matrix(population, density_or_frequency='density', layer='H'):
     """
     Calculate the symmetric age-specific contact matrix from the connections
     for all people in the population. density_or_frequency sets the type of
@@ -187,11 +190,10 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
     Args:
         population (dict)          : A dictionary of a population with attributes.
         density_or_frequency (str) : option for the type of contact matrix calculated.
-        setting_code (str)         : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other, and 'lTCF' for long term care facilities
+        layer (str)                : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other, and 'lTCF' for long term care facilities
 
     Returns:
-        Symmetric age specific contact matrix.
-
+        np.ndarray: Symmetric age specific contact matrix.
     """
     uids = population.keys()
     uids = [uid for uid in uids]
@@ -202,7 +204,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
 
     for n, uid in enumerate(uids):
         age = population[uid]['age']
-        contact_ages = [population[c]['age'] for c in population[uid]['contacts'][setting_code]]
+        contact_ages = [population[c]['age'] for c in population[uid]['contacts'][layer]]
         contact_ages = np.array([int(a) for a in contact_ages])
 
         if len(contact_ages) > 0:
@@ -216,7 +218,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', setting
 
 
 def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                        setting_code='H', density_or_frequency='density', logcolors_flag=False,
+                        layer='H', density_or_frequency='density', logcolors_flag=False,
                         aggregate_flag=True, cmap=default_colormap, fontsize=16, rotation=50,
                         title_prefix=None, fig=None, ax=None):
     """
@@ -231,7 +233,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
         age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
-        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
+        layer (str)               : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
         density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
         logcolors_flag (bool)            : If True, plot heatmap in logscale
         aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
@@ -246,7 +248,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         A fig object.
 
     Note:
-        For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that setting
+        For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that layer
 
     """
     cmap = mplt.cm.get_cmap(cmap)
@@ -297,7 +299,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
                 vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
                 vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
 
-        im = ax[0].imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=vbounds[setting_code]['vmin'], vmax=vbounds[setting_code]['vmax']))
+        im = ax[0].imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=vbounds[layer]['vmin'], vmax=vbounds[layer]['vmax']))
 
     else:
 
@@ -322,9 +324,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         ax[i].tick_params(labelsize=fontsize + 2)
         ax[i].set_xlabel('Age', fontsize=fontsize + 6)
         ax[i].set_ylabel('Age of Contacts', fontsize=fontsize + 6)
-        # ax[i].set_title(titles[setting_code] + ' Contact Patterns', fontsize=fontsize + 10)
         ax[i].set_title(
-            (title_prefix if title_prefix is not None else '') + titles[setting_code] + ' Age Mixing', fontsize=fontsize + 10)
+            (title_prefix if title_prefix is not None else '') + titles[layer] + ' Age Mixing', fontsize=fontsize + 10)
 
         if aggregate_flag:
             tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
@@ -337,178 +338,139 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
             ax[i].set_xticks(np.arange(0, len(age_count) + 1, 10))
             ax[i].set_yticks(np.arange(0, len(age_count) + 1, 10))
 
-    return fig
+    return fig, ax
 
 
-def plot_contacts(population,
-                  setting_code='H',
-                  aggregate_flag=True,
-                  logcolors_flag=True,
-                  density_or_frequency='density',
-                  cmap=default_colormap,
-                  fontsize=16,
-                  rotation=50,
-                  title_prefix=None,
-                  fig=None,
-                  ax=None,
-                  do_show=True):
+def plot_contacts(population, layer='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density',
+                  state_location='Washington', country_location='usa', **kwargs):
     """
-    Plot the age mixing matrix for a specific setting.
-
-    TODO: rename setting_code to layer
+    Plot the age mixing matrix for a specific contact layer.
 
     Args:
-        population(dict)                 : population to be plotted, if None, code will generate it
-        setting_code (str)               : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other
-        aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        logcolors_flag (bool)            : If True, plot heatmap in logscale
-        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
-        cmap(str or matplotlib colormap) : colormap
-        fontsize (int)                   : base font size
-        rotation (int)                   : rotation for x axis labels
-        title_prefix(str)                : optional title prefix for the figure
-        fig (Figure)                     : if supplied, use this figure instead of generating one
-        ax (Axes)                        : if supplied, use these axes instead of generating one
-        do_show (bool)                   : whether to show the plot
+        population (dict)          : population to be plotted, if None, code will generate it
+        layer (str)                : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        aggregate_flag (bool)      : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        logcolors_flag (bool)      : If True, plot heatmap in logscale
+        density_or_frequency (str) : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        state_location (string)    : name of the state the location is in
+        country_location (string)  : name of the country the location is in
+
+    Other Parameters:
+    **kwargs:
+        cmap (str or matplotlib cmap) : colormap
+        fontsize (int)                : base font size
+        rotation (int)                : rotation for x axis labels
+        title_prefix(str)             : optional title prefix for the figure
+        fig (matplotlib.figure)       : If supplied, use this figure instead of generating one
+        ax (matplotlib.axes)          : If supplied, use these axes instead of generating one
+        do_show (bool)                : whether to show the plot
 
     Returns:
-        A fig object.
-
+        Matplotlib figure.
     """
-    datadir = cfg.datadir
+    plkwargs = plotting_kwargs()
 
-    state_location = 'Washington'
-    country_location = 'usa'
+    # method specific plotting defaults
+    method_defaults = dict(cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None, fig=None, ax=None, do_show=True, state_location=state_location, country_location=country_location)
+    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+    plkwargs.update_kwargs(**kwargs)
 
-    age_brackets = spdata.get_census_age_brackets(datadir, state_location=state_location, country_location=country_location)
+    loc_pars = sc.objdict(datadir=cfg.datadir, state_location=plkwargs.state_location, country_location=plkwargs.country_location)
+
+    age_brackets = spdata.get_census_age_brackets(**loc_pars)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
-    ages = []
-    # if setting_code == 'LTCF':
-    #     ltcf_ages = []
-
-    for uid in population:
-        ages.append(population[uid]['age'])
-        # if setting_code == 'LTCF':
-        #     if population[uid]['snf_res'] or population[uid]['snf_staff']:
-        #         ltcf_ages.append(population[uid]['age'])
-
-    age_count = Counter(ages)
+    age_count = spb.count_ages(population)
     aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
 
-    # if setting_code == 'LTCF':
-    #     ltcf_age_count = Counter(ltcf_ages)
-    #     aggregate_ltcf_age_count = sp.get_aggregate_ages(ltcf_age_count, age_by_brackets_dic)
+    matrix = calculate_contact_matrix(population, density_or_frequency, layer)
 
-    matrix = calculate_contact_matrix(population, density_or_frequency, setting_code)
+    fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
+                                  layer, density_or_frequency, logcolors_flag, aggregate_flag, plkwargs.cmap, plkwargs.fontsize, plkwargs.rotation, plkwargs.title_prefix,
+                                  fig=plkwargs.fig, ax=plkwargs.ax)
 
-    # if setting_code == 'LTCF':
-    #     fig = sp.plot_contact_frequency(matrix, ltcf_age_count, aggregate_ltcf_age_count, age_brackets, age_by_brackets_dic,
-    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
-    # else:
-    #     fig = sp.plot_contact_frequency(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-    #                                     setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation)
-
-    fig = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                              setting_code, density_or_frequency, logcolors_flag, aggregate_flag, cmap, fontsize, rotation, title_prefix,
-                              fig=fig, ax=ax)
-
-    if do_show:
+    if plkwargs.do_show:
         plt.show()
 
     return fig
 
 
-def plot_array(expected,
-               figname,
-               generated=None,
-               names=None,
-               figdir=None,
-               prefix="",
-               do_show=True,
-               do_save=False,
-               expect_label='Expected',
-               value_text=False,
-               xlabels=None,
-               xlabel_rotation=0,
-               binned=True,
-               fig=None,
-               ax=None,
-               color_1=None,
-               color_2=None,
-               markersize=6,
-               fontsize=12):
+def plot_array(expected, fig=None, ax=None, **kwargs):
+
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If generate data is not provided, plot only the expected values.
-    Note this can only be used with the limitation that data that has already been binned
+    Note this can only be used with the limitation that data that has already been binned.
+    Figure will be saved in figdir if given or else working directory.
 
     Args:
-        expected        : Array of expected values
-        generated       : Array of values generated using a model
-        names           : names to display on x-axis, default is set to the indexes of data
-        figdir          : directory to save the plot if provided
-        testprefix      : used to prefix the title of the plot
-        do_close        : close the plot immediately if set to True
-        expect_label    : Label to show in the plot, default to "expected"
-        value_text      : display the values on top of the bar if specified
-        xlabel_rotation : rotation degree for x labels if specified
-        binned          : default to True, if False, it will just plot a simple histogram for expected data
+        expected (array)        : Array of expected values
+        fig (matplotlib.figure) : Matplotlib.figure object
+        ax (matplotlib.axis)    : Matplotlib.axes figure object
+
+    Other Parameters:
+    **kwargs:
+        generated (array)    : Array of values generated using a model
+        names (list or dict) : names to display on x-axis, default is set to the indexes of data
+        figname (str)        : name to save figure to disk
+        figdir (str)         : directory to save the plot if provided
+        prefix (str)         : used to prefix the title of the plot
+        fontsize (float)     : Matplotlib.figure.fontsize
+        color_1 (str)        : color for expected data
+        color_2 (str)        : color for generated data
+        expect_label (str)   : Label to show in the plot, default to "expected"
+        value_text (bool)    : If True, display the values on top of the bar if specified
+        rotation (float)     : rotation angle for xticklabels
+        binned (bool)        : If True, data are binned. Else, if False, plot a simple histogram for expected data.
 
     Returns:
-        None.
-
-    Plot will be saved in datadir if given
+        Matplotlib figure and axes.
     """
+    plkwargs = plotting_kwargs()
+
+    # method specific plotting defaults
+    method_defaults = dict(generated=None, names=None, figdir=None, prefix="", fontsize=12, color_1='mediumseagreen', color_2='#3f75a2',
+                           expect_label='Expected', value_text=False, rotation=0, binned=True, fig=fig, ax=ax, figname='test_fig')
+    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+    plkwargs.update_kwargs(**kwargs)
     if fig is None:
         fig, ax = plt.subplots(1, 1)
 
-    if color_1 is None:
-        color_1 = 'mediumseagreen'
-    if color_2 is None:
-        color_2 = '#236a54'
-
-    title = figname.replace('_', ' ').title() if generated is None else f"{figname.replace('_', ' ').title()} Comparison"
-    ax.set_title(title, fontsize=fontsize + 2)
+    title = plkwargs.prefix.replace('_', ' ').title() if plkwargs.generated is None else f"{plkwargs.prefix.replace('_', ' ').title()} Comparison"
+    ax.set_title(title, fontsize=plkwargs.fontsize + 2)
     x = np.arange(len(expected))
 
-    if not binned:
-        ax.hist(expected, label=expect_label.title(), color='mediumseagreen')
+    if not plkwargs.binned:
+        ax.hist(expected, label=plkwargs.expect_label.title(), color=plkwargs.color_1)
     else:
-        rect1 = ax.bar(x, expected, label=expect_label.title(), color=color_1, zorder=0)
-        if generated is not None:
-            line, = ax.plot(x, generated, color=color_2, markeredgecolor='white', marker='o', markersize=markersize, label='Generated', zorder=1)
-        if value_text:
+        rect1 = ax.bar(x, expected, label=plkwargs.expect_label.title(), color=plkwargs.color_1, zorder=0)
+        if plkwargs.generated is not None:
+            line, = ax.plot(x, plkwargs.generated, color=plkwargs.color_2, markeredgecolor='white', marker='o', markersize=plkwargs.markersize, label='Generated', zorder=1)
+        if plkwargs.value_text:
             autolabel(ax, rect1, 0, 5)
-            if generated is not None:
-                for j, v in enumerate(generated):
-                    ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
-        if names is not None:
-            if isinstance(names, dict):
-                xticks = sorted(names.keys())
-                xticklabels = [names[k] for k in xticks]
+            if plkwargs.generated is not None:
+                for j, v in enumerate(plkwargs.generated):
+                    ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color=plkwargs.color_2)
+        if plkwargs.names is not None:
+            if isinstance(plkwargs.names, dict):
+                xticks = sorted(plkwargs.names.keys())
+                xticklabels = [plkwargs.names[k] for k in xticks]
             else:
-                xticks = np.arange(len(names))
-                xticklabels = names
+                xticks = np.arange(len(plkwargs.names))
+                xticklabels = plkwargs.names
             # if there are too many labels, only show every 10 ticks
-            if len(names) > 30:
+            if len(plkwargs.names) > 30:
                 xticks = xticks[0::10]
                 xticklabels = xticklabels[0::10]
             ax.set_xticks(xticks)
-            ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
+            ax.set_xticklabels(xticklabels, rotation=plkwargs.rotation)
 
-    leg = ax.legend(loc='upper right', fontsize=fontsize)
+    leg = ax.legend(loc='upper right', fontsize=plkwargs.fontsize)
     leg.draw_frame(False)
     ax.set_xlim(x[0] - 1, x[-1] + 1)
 
-    if do_save:
-        if figdir is None:
-            datadir = cfg.datadir
-            figdir = datadir.replace('data', 'figures')
-        os.makedirs(figdir, exist_ok=True)
-        plt.savefig(os.path.join(figdir, f"{figname}.png".replace('\n', '_')), format="png")
-    if do_show:
-        plt.show()
+    fig = finalize_figure(fig, plkwargs)  # set figpath, and save and / or show figure
+
     return fig, ax
 
 
@@ -517,10 +479,10 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3):
     Attach a text label above each bar in *rects*, displaying its height.
 
     Args:
-        ax       : matplotlib.axes figure object
-        rects    : matplotlib.container.BarContainer
-        h_offset : The position x to place the text at.
-        v_offset : The position y to place the text at.
+        ax               : Matplotlib.axes figure object
+        rects            : Matplotlib.container.BarContainer
+        h_offset (float) : The position x to place the text at.
+        v_offset (float) : The position y to place the text at.
 
     Returns:
         None.
@@ -545,7 +507,19 @@ def plot_age_comparison(pop, *args, **kwargs):
         pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
 
     Returns:
-        Matplotlib figure and ax.
+        Matplotlib figure and axes.
+
+    Other Parameters:
+    **kwargs:
+        left (float)      : Matplotlib.figure.subplot.left
+        right (float)     : Matplotlib.figure.subplot.right
+        top (float)       : Matplotlib.figure.subplot.top
+        bottom (float)    : Matplotlib.figure.subplot.bottom
+        color_1 (str)     : color for expected data
+        color_2 (str)     : color for data from generated population
+        fontsize (float)  : Matplotlib.figure.fontsize
+        figname (str)     : name to save figure to disk
+        comparison (bool) : If True, plot comparison to the generated population
 
     Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
@@ -562,84 +536,77 @@ def plot_age_comparison(pop, *args, **kwargs):
         kwargs['datadir'] = sp.datadir
         fig, ax = sp.plot_age_distribution_comparison(popdict, **kwargs)
     """
-    default_kwargs = default_plotting_kwargs()
+    plkwargs = plotting_kwargs()
 
-    default_kwargs = sc.mergedicts(default_kwargs, dict(color_1='#55afe1', color_2='#0a6299',
-                                   left=0.10, right=0.95, top=0.90, bottom=0.10, figname=f"age_distribution_comparison"))
-
-    kwargs = sc.mergedicts(default_kwargs, kwargs)
-    kwargs = sc.objdict(kwargs)
-    kwargs.axis = sc.objdict({'left': kwargs.left, 'right': kwargs.right,
-                              'top': kwargs.top, 'bottom': kwargs.bottom,
-                              'hspace': kwargs.hspace, 'wspace': kwargs.wspace}
-                             )
-
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#55afe1', color_2='#0a6299',
+                           fontsize=12, figname='age_distribution_comparison', comparison=True)
+    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+    plkwargs.update_kwargs(**kwargs)
+    plkwargs.set_axis_kwargs()
     # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
 
     # set up location parameters to grab expected data
     if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict({'datadir': kwargs.datadir, 'location': kwargs.location, 'state_location': kwargs.state_location,
-                               'country_location': kwargs.country_location, 'use_default': kwargs.use_default})
+        loc_pars = sc.objdict({'datadir': plkwargs.datadir, 'location': plkwargs.location, 'state_location': plkwargs.state_location,
+                               'country_location': plkwargs.country_location, 'use_default': plkwargs.use_default})
 
     elif isinstance(pop, sppop.Pop):
-        loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location,
-                               'country_location': pop.country_location, 'use_default': pop.use_default})
-        kwargs.smooth_ages = pop.smooth_ages
-        kwargs.window_length = pop.window_length
+        loc_pars = pop.loc_pars
+        plkwargs.smooth_ages = pop.smooth_ages
+        plkwargs.window_length = pop.window_length
 
     else:
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
-    if not kwargs.smooth_ages:
-        kwargs.window_length = 1
+    if not plkwargs.smooth_ages:
+        plkwargs.window_length = 1
 
     # get the expected age distribution
-    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': kwargs.window_length}))
-    generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)  # sets ordering of keys consistently
+    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': plkwargs.window_length}))
+    expected_age_distr_values = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
 
-    # get the generated age distribution
-    if isinstance(pop, sppop.Pop):
-        for i, person in pop.popdict.items():
-            generated_age_count[person['age']] += 1
+    if plkwargs.comparison:
+        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)  # sets ordering of keys consistently
 
-    elif isinstance(pop, dict):
-        for i, person in pop.items():
-            generated_age_count[person['age']] += 1
+        # get the generated age distribution
+        if isinstance(pop, sppop.Pop):
+            generated_age_count = pop.count_pop_ages()
 
-    elif isinstance(pop, cv.people.People):
-        generated_age_count = Counter(pop.age)
+        elif isinstance(pop, dict):
+            for i, person in pop.items():
+                generated_age_count[person['age']] += 1
 
-    generated_age_distr = spb.norm_dic(generated_age_count)
+        elif isinstance(pop, cv.people.People):
+            generated_age_count = Counter(pop.age)
 
-    expected_age_distr_array = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
-    generated_age_distr_array = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
+        generated_age_distr = spb.norm_dic(generated_age_count)
+        generated_age_distr_values = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
+        max_y = np.ceil(max(0, max(expected_age_distr_values), max(generated_age_distr_values)))
+
+    else:
+        generated_age_distr_values = None
+        max_y = np.ceil(max(0, max(expected_age_distr_values)))
 
     # update the fig
-    fig, ax = plt.subplots(1, 1, figsize=(kwargs.width, kwargs.height), dpi=kwargs.display_dpi)
-    fig.subplots_adjust(**kwargs.axis)
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
 
-    fig, ax = plot_array(expected_age_distr_array, generated_age_distr_array,
-                         do_show=False, xlabel_rotation=kwargs.rotation,
-                         prefix=f"{loc_pars.location}_age_distribution", binned=True,
-                         fig=fig, ax=ax, color_1=kwargs.color_1, color_2=kwargs.color_2, markersize=kwargs.markersize)
-    ax.set_xlabel('Age', fontsize=kwargs.fontsize)
-    ax.set_ylabel('Distribution (%)', fontsize=kwargs.fontsize)
-    ax.set_xlim(-1, len(expected_age_distr_array) + 1)
-    max_y = np.ceil(max(max(expected_age_distr_array), max(generated_age_distr_array)))
+    fig, ax = plot_array(expected_age_distr_values, fig=fig, ax=ax,
+                         **dict(generated=generated_age_distr_values,
+                                figname=plkwargs.figname,
+                                do_show=False, do_save=False,   # will save after customizing the figure some more below
+                                xlabel_rotation=plkwargs.rotation, binned=True,
+                                prefix=f"{loc_pars.location}_age_distribution",
+                                markersize=plkwargs.markersize, color_1=plkwargs.color_1, color_2=plkwargs.color_2))
+
+    ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-1, len(expected_age_distr_values))
     ax.set_ylim(0, max_y)
+    ax.tick_params(labelsize=plkwargs.fontsize)
 
-    ax.tick_params(labelsize=kwargs.fontsize)
-
-    if kwargs.do_save:
-        if kwargs.figdir is not None:
-            os.makedirs(kwargs.figdir, exist_ok=True)
-            figpath = os.path.join(kwargs.figdir, f"{kwargs.figname}.{kwargs.format}")
-        else:
-            figpath = f"{kwargs.figname}.{kwargs.format}"
-        fig.savefig(figpath, format=kwargs.format, dpi=kwargs.save_dpi)
-
-    if kwargs.do_show:
-        plt.show()
+    fig = finalize_figure(fig, plkwargs)
 
     return fig, ax
 
@@ -650,26 +617,30 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
 
     Args:
         pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
-        args (dict)     : arguments to pass directly
+        args (list): list of arguments to pass to data methods and plotting (see below)
         kwargs (dict)   : keyword arguments to pass to data methods and plotting (see below).
 
     Returns:
-        Matplotlib figure and ax.
+        Matplotlib figure and axes.
 
     Other Parameters:
     **kwargs:
-        left (float)   : matplotlib.figure.subplot.left
-        right (float)  : matplotlib.figure.subplot.right
-        top (float)    : matplotlib.figure.subplot.top
-        bottom (float) : matplotlib.figure.subplot.bottom
-        hspace (float) : matplotlib.figure.subplot.hspace
-        subplot_height (float): height of subplot in inches
-        subplot_width (float): width of subplot in inches
-        screen_height_factor (float): fraction of the screen height to use for display
-        location_text_y (float): height to plot location text
-        fontsize (float): matplotlib.figure.fontsize
-        rotation (float): angle for xticklabels
-        cmap (str): colormap to use
+        left (float)                  : Matplotlib.figure.subplot.left
+        right (float)                 : Matplotlib.figure.subplot.right
+        top (float)                   : Matplotlib.figure.subplot.top
+        bottom (float)                : Matplotlib.figure.subplot.bottom
+        hspace (float)                : Matplotlib.figure.subplot.hspace
+        subplot_height (float)        : height of subplot in inches
+        subplot_width (float)         : width of subplot in inches
+        screen_height_factor (float)  : fraction of the screen height to use for display
+        location_text_y (float)       : height to add location text to figure
+        fontsize (float)              : Matplotlib.figure.fontsize
+        rotation (float)              : rotation angle for xticklabels
+        cmap (str)                    : colormap
+        with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
+        keys_to_exclude (str or list) : school types to exclude
+        figname (str)                 : name to save figure to disk
+        comparison (bool)             : If True, plot comparison to the generated population
 
     Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
@@ -690,33 +661,24 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     plkwargs.school_type_labels = spsch.get_school_type_labels()
 
     # method specific plotting defaults
-    method_defaults = dict(left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,  # subplot defaults
-                           subplot_height=2.8, subplot_width=4.2,  # subplot defaults
-                           screen_height_factor=0.85,  # figure defaults
-                           location_text_y=113, fontsize=8, rotation=20,  # text defaults
-                           cmap='cmo.curl',  # colormap to use
-                           with_school_types=True, keys_to_exclude='uv',  # flag to use school types and which to include
-                           figname='school_size_distribution_by_type',  # name to save to disk
-                           comparison=True,  # include comparison
+    method_defaults = dict(left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,
+                           subplot_height=2.8, subplot_width=4.2, screen_height_factor=0.85,
+                           location_text_y=113, fontsize=8, rotation=20, cmap='cmo.curl',
+                           with_school_types=True, keys_to_exclude='uv',
+                           figname='school_size_distribution_by_type', comparison=True,
                            )
 
     kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
-
     plkwargs.update_kwargs(**kwargs)
+    plkwargs.set_axis_kwargs()  # set up a separate dictionary for the axis args
 
     if isinstance(plkwargs.keys_to_exclude, str):
         plkwargs.keys_to_exclude = [plkwargs.keys_to_exclude]  # ensure this is treated as a list
 
-    # make this a separate dictionary
-    plkwargs.axis = sc.objdict({'left': plkwargs.left, 'right': plkwargs.right, 'top': plkwargs.top,
-                                'bottom': plkwargs.bottom, 'hspace': plkwargs.hspace, 'wspace': plkwargs.wspace})
-
-    # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
-
     # set up location parameters to grab expected data - kwargs must include this
     if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict({'datadir': plkwargs.datadir, 'location': plkwargs.location, 'state_location': plkwargs.state_location,
-                               'country_location': plkwargs.country_location, 'use_default': plkwargs.use_default})
+        loc_pars = sc.objdict(datadir=plkwargs.datadir, location=plkwargs.location, state_location=plkwargs.state_location,
+                              country_location=plkwargs.country_location, use_default=plkwargs.use_default)
 
         if isinstance(pop, dict):
             popdict = sc.dcp(pop)
@@ -724,45 +686,44 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
             raise NotImplementedError('This method is not yet implemented for covasim people objects.')
 
     elif isinstance(pop, sppop.Pop):
-        loc_pars = sc.objdict({'datadir': cfg.datadir, 'location': pop.location, 'state_location': pop.state_location,
-                               'country_location': pop.country_location, 'use_default': pop.use_default})
+        loc_pars = pop.loc_pars
         plkwargs.with_school_types = pop.school_pars.with_school_types
         popdict = sc.dcp(pop.popdict)
 
     else:
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
-    # kwargs = sc.objdict(sc.mergedicts(kwargs, loc_pars))  # add all location keys to this as well
     plkwargs.update_kwargs(**loc_pars)
 
     if plkwargs.with_school_types:
         expected_school_size_distr = spdata.get_school_size_distr_by_type(**loc_pars)
     else:
+        plkwargs.school_type_labels = {None: ''}
         expected_school_size_distr = {None: spdata.get_school_size_distr_by_brackets(**loc_pars)}
-    school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
 
+    school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
     bins = [school_size_brackets[0][0]] + [school_size_brackets[b][-1] + 1 for b in school_size_brackets]
     bin_labels = [f"{school_size_brackets[b][0]}-{school_size_brackets[b][-1]}" for b in school_size_brackets]
 
     # calculate how many students are in each school
+    if plkwargs.comparison:
+        generated_school_size_distr = dict()
+        if isinstance(pop, (sppop.Pop, dict)):
+            enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict)
+        else:  # cv.People option --- not yet available
+            raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another support pop type.")
 
-    generated_school_size_distr = dict()
-    if isinstance(pop, (sppop.Pop, dict)):
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict)
-
-    for sc_type in enrollment_by_school_type:
-        sizes = enrollment_by_school_type[sc_type]
-        hist, bins = np.histogram(sizes, bins=bins, density=0)
-        generated_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in school_size_brackets}
-
-    generated_school_size_distr = sc.objdict(generated_school_size_distr)
+        generated_school_size_distr = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
 
     for school_type in plkwargs.keys_to_exclude:
-        enrollment_by_school_type.pop(school_type, None)
-        generated_school_size_distr.pop(school_type, None)
+        expected_school_size_distr.pop(school_type, None)
         plkwargs.school_type_labels.pop(school_type, None)
 
-    sorted_school_types = sorted(generated_school_size_distr.keys())
+        if plkwargs.comparison:
+            enrollment_by_school_type.pop(school_type, None)
+            generated_school_size_distr.pop(school_type, None)
+
+    sorted_school_types = sorted(expected_school_size_distr.keys())
     n_school_types = len(sorted_school_types)
     plkwargs.nrows = n_school_types
 
@@ -772,17 +733,16 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     else:
         location_text = f"{cfg.default_location.replace('_', ' ').title()}"
 
-    cmap = mplt.cm.get_cmap(plkwargs.cmap)
-
-    # create fig, ax
+    # create fig, ax, set cmap
     fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
+    cmap = mplt.cm.get_cmap(plkwargs.cmap)
 
     # readjust figure parameters
     if plkwargs.nrows == 1:
         ax = [ax]
-        fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 1.7)
+        fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 0.47)
         plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
-        plkwargs.location_text_y = 108
+        plkwargs.location_text_y = 106
 
     # update the fig
     fig.subplots_adjust(**plkwargs.axis)
@@ -790,28 +750,28 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     for ns, school_type in enumerate(plkwargs.school_type_labels.keys()):
         x = np.arange(len(school_size_brackets))  # potentially will use different bins for each school type so placeholder for now
         c = ns / n_school_types
-        c2 = min(c + 0.1, 1)
+        c2 = min(c + 0.12, 1)
 
         sorted_bins = sorted(expected_school_size_distr[school_type].keys())
 
-        ax[ns].bar(x, [expected_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor='white', label='Expected', zorder=0)
-        ax[ns].plot(x, [generated_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
-                    marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=plkwargs.markersize, label='Generated', zorder=1)
-
-        leg = ax[ns].legend(loc=1, fontsize=plkwargs.fontsize)
-        leg.draw_frame(False)
+        ax[ns].bar(x, [expected_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor=cmap(c2), label='Expected', zorder=0)
+        if plkwargs.comparison:
+            ax[ns].plot(x, [generated_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
+                        marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=plkwargs.markersize, label='Generated', zorder=1)
+            leg = ax[ns].legend(loc=1, fontsize=plkwargs.fontsize)
+            leg.draw_frame(False)
         ax[ns].set_xticks(x)
         ax[ns].set_xticklabels(bin_labels, rotation=plkwargs.rotation, fontsize=plkwargs.fontsize, verticalalignment='center_baseline')
-        ax[ns].set_xlim(-0.6, x[-1] + 0.6)
+        ax[ns].set_xlim(-0.6 + x[0], x[-1] + 0.6)
         ax[ns].set_ylim(0, 100)
         ax[ns].set_ylabel('%', fontsize=plkwargs.fontsize + 1)
         ax[ns].tick_params(labelsize=plkwargs.fontsize - 1)
         if school_type is None:
-            title = "without school types defined"
+            title = "Without school types defined"
         else:
             title = f"{plkwargs.school_type_labels[school_type]}"
         if ns == 0:
-            ax[ns].text(0., plkwargs.location_text_y, location_text, horizontalalignment='left', fontsize=plkwargs.fontsize + 1, verticalalignment='top')
+            ax[ns].text(-0.6, plkwargs.location_text_y, location_text, horizontalalignment='left', fontsize=plkwargs.fontsize + 1, verticalalignment='top')
         ax[ns].set_title(title, fontsize=plkwargs.fontsize + 1, verticalalignment='top')
     ax[ns].set_xlabel('School size', fontsize=plkwargs.fontsize + 1, verticalalignment='center_baseline')
 
@@ -821,7 +781,7 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     # update fig before saving to disk since display will modify things
     if plkwargs.do_save:
         if len(ax) == 1:
-            fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 1.7)
+            fig.set_size_inches(plkwargs.width, plkwargs.height)
 
         else:
             cfg.logger.info("Setting default plotting parameters to save figure to disk. If these settings produce figures you would prefer to change, this method returns the figure and ax for you to modify and save to disk.")
@@ -829,11 +789,10 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
             plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'bottom': 0.075, 'hspace': 0.52, 'left': 0.12}))
 
         fig.subplots_adjust(**plkwargs.axis)
+        figpath = f"{plkwargs.figname}.{plkwargs.format}"
         if plkwargs.figdir is not None:
             os.makedirs(plkwargs.figdir, exist_ok=True)
-            figpath = os.path.join(plkwargs.figdir, f"{plkwargs.figname}.{plkwargs.format}")
-        else:
-            figpath = f"{plkwargs.figname}.{plkwargs.format}"
+            figpath = os.path.join(plkwargs.figdir, figpath)
         fig.savefig(figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
     return fig, ax

@@ -2,6 +2,7 @@
 This module provides the layer for communicating with the agent-based model Covasim.
 """
 
+import numpy as np
 import sciris as sc
 from .config import logger as log
 from . import config as cfg
@@ -113,25 +114,33 @@ class Pop(sc.prettyobj):
         log.debug('Pop()')
 
         # Assign all the variables
-        self.school_pars = sc.objdict()
-        self.ltcf_pars   = sc.objdict()
+        self.loc_pars                  = sc.objdict()
+        self.school_pars               = sc.objdict()
+        self.ltcf_pars                 = sc.objdict()
 
         # General parameters
-        self.n                  = int(n)
-        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code = with_industry_code
-        self.rand_seed          = rand_seed
-        self.country_location   = country_location
-        self.state_location     = state_location
-        self.location           = location
-        self.use_default        = use_default
+        self.n                         = int(n)
+        self.max_contacts              = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code        = with_industry_code
+        self.rand_seed                 = rand_seed
+        self.country_location          = country_location
+        self.state_location            = state_location
+        self.location                  = location
+        self.use_default               = use_default
+
+        # Location parameters
+        self.loc_pars.location         = location
+        self.loc_pars.state_location   = state_location
+        self.loc_pars.country_location = country_location
+        self.loc_pars.datadir          = cfg.datadir
+        self.loc_pars.use_default      = use_default
 
         # Age distribution parameters
-        self.smooth_ages   = smooth_ages
-        self.window_length = window_length
+        self.smooth_ages               = smooth_ages
+        self.window_length             = window_length
 
         # Household parameters
-        self.household_method = household_method
+        self.household_method          = household_method
 
         # School parameters
         self.school_pars.with_school_types               = with_school_types
@@ -413,6 +422,15 @@ class Pop(sc.prettyobj):
             errormsg = f'Cannot load object of {type(pop)} as a Pop object'
             raise TypeError(errormsg)
         return pop
+
+    def count_pop_ages(self, *args, **kwargs):
+        """
+        Create an age count of the generated population.
+
+        Returns:
+            dict: Dictionary of the age count of the generated population.
+        """
+        return spb.count_ages(self.popdict)
 
     def get_enrollment_by_school_type(self, *args, **kwargs):
         """
