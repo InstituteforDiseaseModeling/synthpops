@@ -6,15 +6,13 @@ import synthpops as sp
 default_nbrackets = sp.config.nbrackets
 
 pars = dict(
-    n                               = 8000,
+    n                               = 2000,
     rand_seed                       = 0,
     max_contacts                    = None,
     location                        = 'Dakar',
     state_location                  = 'Dakar',
     country_location                = 'Senegal',
     use_default                     = False,
-
-    # with_school_types               = 0,
     )
 
 

@@ -5,12 +5,14 @@ import matplotlib.pyplot as plt
 
 
 pars = dict(
-    n                               = 10e3,
+    n                               = 8e3,
     rand_seed                       = 123,
     location                        = 'Spokane_County',
     state_location                  = 'Washington',
     country_location                = 'usa',
     use_default                     = 0,  # must search for Spokane County data
+
+    household_method                = 'fixed_ages',
 
     with_facilities                 = 1,
     with_school_types               = 1,

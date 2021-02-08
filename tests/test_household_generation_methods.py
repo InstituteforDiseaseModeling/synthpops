@@ -88,7 +88,6 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
 def plot_age_dist(datadir, pop, pars, do_show, prefix):
     sp.logger.info("Plot the expected age distribution and the generated age distribution.")
     loc_pars = pop.loc_pars
-    loc_pars
     age_brackets = sp.get_census_age_brackets(**loc_pars)
     age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 

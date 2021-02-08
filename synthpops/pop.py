@@ -128,12 +128,12 @@ class Pop(sc.prettyobj):
         self.location                  = location
         self.use_default               = use_default
 
-        # Location parameters
-        self.loc_pars.location         = location
-        self.loc_pars.state_location   = state_location
-        self.loc_pars.country_location = country_location
-        self.loc_pars.datadir          = cfg.datadir
-        self.loc_pars.use_default      = use_default
+        # # Location parameters
+        # self.loc_pars.location         = location
+        # self.loc_pars.state_location   = state_location
+        # self.loc_pars.country_location = country_location
+        # self.loc_pars.datadir          = cfg.datadir
+        # self.loc_pars.use_default      = use_default
 
         # Age distribution parameters
         self.smooth_ages               = smooth_ages
@@ -163,7 +163,6 @@ class Pop(sc.prettyobj):
         self.ltcf_pars.average_LTCF_degree     = average_LTCF_degree
         self.ltcf_pars.ltcf_staff_age_min      = ltcf_staff_age_min
         self.ltcf_pars.ltcf_staff_age_max      = ltcf_staff_age_max
-        # self.ltcf_pars.use_default             = use_default
 
         # If any parameters are supplied as a dict to override defaults, merge them in now
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
@@ -187,6 +186,13 @@ class Pop(sc.prettyobj):
 
         self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
+
+        # Location parameters
+        self.loc_pars.location         = self.location
+        self.loc_pars.state_location   = self.state_location
+        self.loc_pars.country_location = self.country_location
+        self.loc_pars.datadir          = self.datadir
+        self.loc_pars.use_default      = use_default
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
