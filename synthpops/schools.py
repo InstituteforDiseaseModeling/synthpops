@@ -29,7 +29,7 @@ from .config import logger as log
 
 def get_school_type_labels():
     school_type_labels = {'pk': 'Pre-school', 'es': 'Elementary School',
-                          'ms': 'Middle School', 'hs': 'High School', 
+                          'ms': 'Middle School', 'hs': 'High School',
                           'uv': 'University'}
     return school_type_labels
 
@@ -1262,7 +1262,7 @@ def get_enrollment_by_school_type(popdict):
         popdict (dict): population dictionary
 
     Returns:
-        list: List of generated enrollment sizes by school type.
+        dict: Dictionary of generated enrollment sizes by school type.
     """
     schools = dict()
     enrollment_by_school_type = dict()
@@ -1278,3 +1278,23 @@ def get_enrollment_by_school_type(popdict):
         enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
 
     return enrollment_by_school_type
+
+
+def get_generated_school_size_distributions(enrollment_by_school_type, bins):
+    """
+    Get school size distributions by type.
+
+    Args:
+        enrollment_by_school_type_distr (dict): generated enrollment sizes by school types
+        bins (list): school size bins
+
+    Returns:
+        dict: Dictionary of generated school size distribution by school type.
+    """
+    generated_school_size_distr = dict()
+    for sc_type in enrollment_by_school_type:
+        sizes = enrollment_by_school_type[sc_type]
+        hist, bins = np.histogram(sizes, bins=bins, density=0)
+        generated_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
+
+    return generated_school_size_distr
