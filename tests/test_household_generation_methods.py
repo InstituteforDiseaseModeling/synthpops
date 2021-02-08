@@ -76,7 +76,7 @@ def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 20e3
+    test_pars['n'] = settings.pop_sizes.medium
     test_pars['household_method'] = 'fixed_ages'
     pop = sp.make_population(**test_pars)
 
@@ -93,6 +93,7 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
 
     test_pars = sc.dcp(pars)
+    test_pars['n'] = settings.pop_sizes.medium
     test_pars['location'] = 'Spokane_County'
     test_pars['household_method'] = 'fixed_ages'
     test_pars['smooth_ages'] = True
