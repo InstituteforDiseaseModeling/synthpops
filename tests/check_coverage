@@ -1,5 +1,6 @@
 #!/bin/bash
-coverage run -m pytest test_*.py --workers auto
+coverage run -m pytest --cov test_*.py --workers auto
+pytest --cov=../synthpops test_*.py --workers auto
 
 echo 'Creating HTML report...'
 coverage html
