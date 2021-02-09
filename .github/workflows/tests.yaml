@@ -24,7 +24,7 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run: pytest . --cov=../synthpops --ignore-glob=*manual* --junitxml=test-results.xml --workers auto --durations=0
+        run: pytest . --cov-config=.coveragerc --ignore-glob=*manual* --junitxml=test-results.xml --workers auto --durations=0
       - name: Create coverage badge
         working-directory: ./tests
         run: coverage-badge -o coverage-badge.svg

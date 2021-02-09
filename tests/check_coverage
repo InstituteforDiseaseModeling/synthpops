@@ -1,6 +1,6 @@
 #!/bin/bash
-coverage run -m pytest --cov test_*.py --workers auto
-pytest --cov=../synthpops test_*.py --workers auto
+echo 'Checking coverage...'
+pytest --cov-config=.coveragerc test_*.py --workers auto --durations=0
 
 echo 'Creating HTML report...'
 coverage html
