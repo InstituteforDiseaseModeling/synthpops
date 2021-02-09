@@ -173,7 +173,7 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir):
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
-                'all': len([c for c in person["contacts"]["S"] if popdict[c]['scid'] == person['scid']])
+                'all': len([c for c in person["contacts"]["S"]])
             }
             # index_switcher is a case-switch selector for the person selected by its type
             index_switcher = {
