@@ -13,7 +13,7 @@ import os
 import pytest
 import synthpops as sp
 pars = dict(
-    n=1e4,
+    n=7000,
     rand_seed=1,
     max_contacts=None,
     country_location='usa',
