@@ -4,6 +4,7 @@ average_student_teacher_ratio,
 average_teacher_teacher_degree,
 average_student_all_staff_ratio,
 average_additional_staff_degree,
+average_class_size
 """
 import collections
 import itertools
@@ -11,28 +12,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pytest
+import sys
 import synthpops as sp
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import config
 pars = dict(
-    n=7000,
+    n=10000,
     rand_seed=1,
-    max_contacts=None,
-    country_location='usa',
-    state_location='Washington',
-    location='seattle_metro',
-    use_default=True,
-    with_non_teaching_staff=1,
-    with_school_types=1,
-    school_mixing_type={'pk': 'age_and_class_clustered', 'es': 'age_clustered', 'ms': 'age_clustered', 'hs': 'random', 'uv': 'random'},
-    average_class_size=20,
-    inter_grade_mixing=0.1
+    with_non_teaching_staff=1
 )
 
-fig_dir = os.path.join(os.getcwd(), 'test_school_contact_params')
-do_show = False
-do_save = False
+fig_dir = os.path.join(config.artifact_dir, 'test_school_contact_params')
+do_show = config.do_show
+do_save = config.do_save
 
-
-@pytest.mark.parametrize("average_class_size", [50, 30, 20])
+@pytest.mark.e2etest
+@pytest.mark.parametrize("average_class_size", [10, 20, 50])
 def test_average_class_size(average_class_size):
     """
     Test case to check average_class_size by taking average of student-student contacts
@@ -52,7 +47,8 @@ def test_average_class_size(average_class_size):
                    varname="average_class_size")
 
 
-@pytest.mark.parametrize("average_additional_staff_degree", [1, 5, 10])
+@pytest.mark.e2etest
+@pytest.mark.parametrize("average_additional_staff_degree", [20, 30, 40])
 def test_average_additional_staff_degree(average_additional_staff_degree):
     """
     Test case to check average_additional_staff_degree by taking average of all contacts per staff
@@ -61,6 +57,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree):
     Returns:
         None
     """
+    #note this must be greater than default average_student_all_staff_ratio (20)
     pars["average_additional_staff_degree"] = average_additional_staff_degree
     pop = sp.Pop(**pars)
     contacts = get_contact_counts(pop.popdict,
@@ -75,6 +72,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree):
                    varname="average_additional_staff_degree")
 
 
+@pytest.mark.e2etest
 @pytest.mark.parametrize("average_student_teacher_ratio", [20, 30, 40])
 def test_average_student_teacher_ratio(average_student_teacher_ratio):
     """
@@ -96,6 +94,7 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio):
                    varname="average_student_teacher_ratio")
 
 
+@pytest.mark.e2etest
 @pytest.mark.parametrize("average_student_all_staff_ratio", [10, 15, 20])
 def test_student_all_staff_ratio(average_student_all_staff_ratio):
     """
@@ -118,6 +117,7 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio):
                    varname="average_student_all_staff_ratio")
 
 
+@pytest.mark.e2etest
 @pytest.mark.parametrize("average_teacher_teacher_degree", [1, 5, 8])
 def test_average_teacher_teacher_degree(average_teacher_teacher_degree):
     """
@@ -183,27 +183,27 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir):
             }
             for k1 in keys:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
-                if not person[k1]:
-                    continue
-                # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                for k2 in keys:
-                    index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                index_switcher.get(k1)["all_staff"].append(count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+                if person.get(k1):
+                    # store sc_teacher, sc_student, sc_staff, all_staff and all below
+                    for k2 in keys:
+                        index_switcher.get(k1)[k2].append(count_switcher.get(k2))
+                    index_switcher.get(k1)["all_staff"].append(count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     # draw a simple histogram for distribution of counts
-    fig, axes = plt.subplots(len(keys), len(categories), figsize=(30, 20))
-    fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
-    for ax, counter in zip(axes.flatten(), list(itertools.product(keys, categories))):
-        ax.hist(contact_counter[counter[0]][counter[1]])
-        ax.set(title=f'{counter[0]} to {counter[1]}')
-        # ax.set_xlabel("num_contacts")
-    if do_show:
-        plt.show()
-    if do_save:
-        os.makedirs(fig_dir, exist_ok=True)
-        plt.savefig(f"{fig_dir}/contacts_{varname}_{str(varvalue)}.png")
-    plt.close()
+    if do_show or do_save:
+        fig, axes = plt.subplots(len(keys), len(categories), figsize=(30, 20))
+        fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
+        for ax, counter in zip(axes.flatten(), list(itertools.product(keys, categories))):
+            ax.hist(contact_counter[counter[0]][counter[1]])
+            ax.set(title=f'{counter[0]} to {counter[1]}')
+            # ax.set_xlabel("num_contacts")
+        if do_show:
+            plt.show()
+        if do_save:
+            os.makedirs(fig_dir, exist_ok=True)
+            plt.savefig(os.path.join(fig_dir,f"contacts_{varname}_{str(varvalue)}.png"))
+        plt.close()
     return contact_counter
 
 
@@ -222,23 +222,23 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
     Returns:
         average and std value of the varname arg
     """
-    students = collections.defaultdict(list)
-    teachers = collections.defaultdict(list)
-    staffs = collections.defaultdict(list)
+    school_students = collections.defaultdict(list)
+    school_teachers = collections.defaultdict(list)
+    school_staffs = collections.defaultdict(list)
     # Count the students, teachers, staff group by scid
     for uid, person in popdict.items():
         if person['sc_student']:
-            students[person['scid']].append(uid)
+            school_students[person['scid']].append(uid)
         elif person['sc_teacher']:
-            teachers[person['scid']].append(uid)
+            school_teachers[person['scid']].append(uid)
         elif person['sc_staff']:
-            staffs[person['scid']].append(uid)
+            school_staffs[person['scid']].append(uid)
 
     school_view = {}
     # generate student_teacher_ratio and student_all_staff_ratio group by scid
-    for i in students.keys():
-        school_view[i] = {'student_teacher_ratio': len(students[i])/len(teachers[i]),
-                          'student_all_staff_ratio': len(students[i])/(len(staffs[i]) + len(teachers[i]))}
+    for i in school_students.keys():
+        school_view[i] = {'student_teacher_ratio': len(school_students[i])/len(school_teachers[i]),
+                          'student_all_staff_ratio': len(school_students[i])/(len(school_staffs[i]) + len(school_teachers[i]))}
 
     # based on the varname, plot and return and mean/std
     if varname == "average_student_teacher_ratio":
@@ -247,14 +247,15 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
         ratio = [v['student_all_staff_ratio'] for v in school_view.values()]
 
     # draw a simple histogram for distribution of ratio
-    plt.title(varname + "=" + str(varvalue), fontsize=14)
-    plt.hist([round(i) for i in ratio])
-    if do_show:
-        plt.show()
-    if do_save:
-        os.makedirs(fig_dir, exist_ok=True)
-        plt.savefig(f"{fig_dir}/{varname}_{str(varvalue)}.png")
-    plt.close()
+    if do_show or do_save:
+        plt.title(f"{varname} = {str(varvalue)}", fontsize=14)
+        plt.hist([round(i) for i in ratio])
+        if do_show:
+            plt.show()
+        if do_save:
+            os.makedirs(fig_dir, exist_ok=True)
+            plt.savefig(os.path.join(fig_dir, f"{varname}_{str(varvalue)}.png"))
+        plt.close()
     return np.mean(ratio), np.std(ratio)
 
 def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2):
@@ -276,9 +277,11 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     """
     print(f"expected: {varname} = {round(expected_mean, 2)}")
     print(f"actual: {varname} = {round(actual_mean, 2)}")
-    assert expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std, \
-        f"value is way off from:{np.round(expected_mean - actual_std, 2)} " \
-        f"to {np.round(expected_mean + actual_std, 2)}"
+    if expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std:
+        return
+    else:
+        print(f"value is way off from:{np.round(expected_mean - actual_std, 2)} "
+              f"to {np.round(expected_mean + actual_std, 2)}")
 
 if __name__ == "__main__":
    pytest.main(['-v', __file__])

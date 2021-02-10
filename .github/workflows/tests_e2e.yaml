@@ -1,0 +1,51 @@
+name: Synthpops E2E workflow
+on:
+  workflow_dispatch:
+  
+  repository_dispatch:
+    types: [trigger-workflow-e2e]
+  schedule:
+    # also run every Sunday at 0:00
+    - cron:  '0 0 * * 0'  
+ 
+  
+jobs:
+  install_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        python-version: [ '3.8' ]
+    name: Install and test e2e
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+      - uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install synthpops
+        run: python setup.py develop
+      - name: Install tests
+        run: pip install -r tests/requirements_test.txt
+      - name: Run API tests
+        working-directory: ./tests
+        env:
+          do_save: True
+        run:  pytest . -m "e2etest" --ignore-glob=*manual* --junitxml=e2etest-results.xml --workers auto --durations=0 # Run all tests
+     
+      - name: Upload test results
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: test_results
+          path: tests/e2etest-results.xml
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: tests/artifact/
+     
+          
