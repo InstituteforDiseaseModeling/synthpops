@@ -467,7 +467,7 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
-    def plot_age_comparison(self, *args, **kwargs):
+    def plot_ages(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
 
@@ -475,9 +475,9 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_age_distribution_comparison()
+            fig, ax = pop.plot_ages()
         """
-        fig, ax = sppl.plot_age_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
     def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
@@ -493,7 +493,7 @@ class Pop(sc.prettyobj):
         fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
         return fig, ax
 
-    def plot_school_sizes_by_type(self, *args, **kwargs):
+    def plot_school_sizes(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated school size distributions by school type.
 
@@ -501,9 +501,9 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_school_sizes_by_type()
+            fig, ax = pop.plot_school_sizes()
         """
-        fig, ax = sppl.plot_school_sizes_by_type(self, *args, **kwargs)
+        fig, ax = sppl.plot_school_sizes(self, *args, **kwargs)
         return fig, ax
 
 

@@ -1256,16 +1256,22 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     return syn_schools, syn_school_uids, syn_school_types
 
 
-def get_enrollment_by_school_type(popdict):
+def get_enrollment_by_school_type(popdict, *args, **kwargs):
     """
     Get enrollment sizes by school types in popdict.
 
     Args:
         popdict (dict): population dictionary
 
+    Other Parameters:
+    **kwargs:
+        with_school_types (bool): If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
+        keys_to_exclude (list): school types to exclude
+
     Returns:
         dict: Dictionary of generated enrollment sizes by school type.
     """
+    kwargs = sc.objdict(sc.mergedicts(dict(with_school_types=False, keys_to_exclude=[]), kwargs))
     schools = dict()
     enrollment_by_school_type = dict()
     for i, person in popdict.items():
@@ -1278,6 +1284,13 @@ def get_enrollment_by_school_type(popdict):
     for i, school in schools.items():
         enrollment_by_school_type.setdefault(school['sc_type'], [])
         enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
+
+    if not kwargs.with_school_types:
+        sc_types = set(enrollment_by_school_type.keys())
+        if None not in sc_types:
+            enrollment_by_school_type[None] = []
+            for sc_type in set(sc_types.difference(set(kwargs.keys_to_exclude))):
+                enrollment_by_school_type[None].extend(enrollment_by_school_type[sc_type])
 
     return enrollment_by_school_type
 
@@ -1297,6 +1310,8 @@ def get_generated_school_size_distributions(enrollment_by_school_type, bins):
     for sc_type in enrollment_by_school_type:
         sizes = enrollment_by_school_type[sc_type]
         hist, bins = np.histogram(sizes, bins=bins, density=0)
-        generated_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
-
+        if sum(sizes) > 0:
+            generated_school_size_distr[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
+        else:
+            generated_school_size_distr[sc_type] = {i: 0 for i in range(len(hist))}
     return generated_school_size_distr

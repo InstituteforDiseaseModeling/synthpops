@@ -29,8 +29,8 @@ except:
     print(f"Note: cmasher import failed; defaulting to regular colormap: {default_colormap}")
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_age_comparison',
-           'plot_school_sizes_by_type', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
+           'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.prettyobj):
@@ -41,14 +41,11 @@ class plotting_kwargs(sc.prettyobj):
         kwargs (dict): dictionary of plotting parameters to be used.
     """
 
-    def __init__(self, **kwargs):
-        """
-        Class constructor for plotting_kwargs
-        """
+    def __init__(self, *args, **kwargs):
+        """Class constructor for plotting_kwargs."""
         kwargs = sc.mergedicts(self.default_plotting_kwargs(), kwargs)
         self.update_kwargs(**kwargs)
         self.initialize()
-        # self.set_figure_display_size()
 
         return
 
@@ -59,11 +56,11 @@ class plotting_kwargs(sc.prettyobj):
 
         return
 
-    def set_font(self, **font):
-        """Set font."""
-        default_font = dict(family = self.fontfamily, style = self.fontstyle,
-                            variant = self.fontvariant, weight = self.fontweight,
-                            stretch = self.fontstretch, size = self.fontsize
+    def set_font(self, *args, **font):
+        """Set font styles."""
+        default_font = dict(family=self.fontfamily, style=self.fontstyle,
+                            variant=self.fontvariant, weight=self.fontweight,
+                            size=self.fontsize
                             )
         font = sc.mergedicts(default_font, font)
         mplt.rc('font', **font)
@@ -77,7 +74,6 @@ class plotting_kwargs(sc.prettyobj):
         default_kwargs.fontstyle = 'normal'
         default_kwargs.fontvariant = 'normal'
         default_kwargs.fontweight = 400
-        default_kwargs.fontstretch = 'normal'
         default_kwargs.fontsize = 16
         default_kwargs.format = 'png'
         default_kwargs.rotation = 0
@@ -109,13 +105,13 @@ class plotting_kwargs(sc.prettyobj):
         setattr(self, key, value)
         return
 
-    def update_kwargs(self, **kwargs):
+    def update_kwargs(self, *args, **kwargs):
         """Update kwargs."""
         for key, value in kwargs.items():
             self[key] = value
         return
 
-    def set_figure_display_size(self, **kwargs):
+    def set_figure_display_size(self, *args, **kwargs):
         """
         Update plotting kwargs with new calculated display sizes.
 
@@ -132,7 +128,36 @@ class plotting_kwargs(sc.prettyobj):
         return
 
     def set_axis_kwargs(self):
+        """Create a dictionary of axis settings."""
         self.axis = sc.objdict(left=self.left, right=self.right, top=self.top, bottom=self.bottom, hspace=self.hspace, wspace=self.wspace)
+        return
+
+    def restore_defaults(self):
+        """Class destructor. """
+        mplt.rcParams.update(mplt.rcParamsDefault)
+        return
+
+    def set_default_pop_pars(self):
+        """Check if method has some key pop parameters to call on data. If not, use defaults and warn user of their use and value."""
+        default_pop_pars = {'datadir': cfg.datadir, 'location': cfg.default_location, 'state_location': cfg.default_state,
+                            'country_location': cfg.default_country}
+        default_age_pars = {'smooth_ages': False, 'window_length': 7}
+
+        for k in default_pop_pars:
+            if not hasattr(self, k):
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value from config.py: {default_pop_pars[k]}.")
+                setattr(self, k, default_pop_pars[k])
+
+        self.loc_pars = sc.objdict({k: getattr(self, k) for k in default_pop_pars})
+
+        for k in default_age_pars:
+            if not hasattr(self, k):
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value from config.py: {default_age_pars[k]}.")
+                setattr(self, k, default_age_pars[k])
+
+        if not self.smooth_ages:
+            self.window_length = 1
+
         return
 
 
@@ -409,7 +434,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
     Args:
         expected (array)        : Array of expected values
         fig (matplotlib.figure) : Matplotlib.figure object
-        ax (matplotlib.axis)    : Matplotlib.axes figure object
+        ax (matplotlib.axis)    : Matplotlib.axes object
 
     Other Parameters:
     **kwargs:
@@ -418,7 +443,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         figname (str)        : name to save figure to disk
         figdir (str)         : directory to save the plot if provided
         prefix (str)         : used to prefix the title of the plot
-        fontsize (float)     : Matplotlib.figure.fontsize
+        fontsize (float)     : Default fontsize
         color_1 (str)        : color for expected data
         color_2 (str)        : color for generated data
         expect_label (str)   : Label to show in the plot, default to "expected"
@@ -433,10 +458,11 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
 
     # method specific plotting defaults
     method_defaults = dict(generated=None, names=None, figdir=None, prefix="", fontsize=12, color_1='mediumseagreen', color_2='#236a54',
-                           expect_label='Expected', value_text=False, rotation=0, binned=True, fig=fig, ax=ax, figname='test_fig')
+                           expect_label='Expected', value_text=False, rotation=0, binned=True, fig=fig, ax=ax, figname='example_figure')
     kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
     plkwargs.update_kwargs(**kwargs)
-    plkwargs.set_font()
+    plkwargs.set_font()  # font styles to be updated
+
     if fig is None:
         fig, ax = plt.subplots(1, 1)
 
@@ -455,6 +481,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
             if plkwargs.generated is not None:
                 for j, v in enumerate(plkwargs.generated):
                     ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color=plkwargs.color_2)
+
         if plkwargs.names is not None:
             if isinstance(plkwargs.names, dict):
                 xticks = sorted(plkwargs.names.keys())
@@ -462,6 +489,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
             else:
                 xticks = np.arange(len(plkwargs.names))
                 xticklabels = plkwargs.names
+
             # if there are too many labels, only show every 10 ticks
             if len(plkwargs.names) > 30:
                 xticks = xticks[0::10]
@@ -478,21 +506,28 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
     return fig, ax
 
 
-def autolabel(ax, rects, h_offset=0, v_offset=0.3):
+def autolabel(ax, rects, h_offset=0, v_offset=0.3, **kwargs):
     """
     Attach a text label above each bar in *rects*, displaying its height.
 
     Args:
-        ax               : Matplotlib.axes figure object
+        ax               : Matplotlib.axes object
         rects            : Matplotlib.container.BarContainer
         h_offset (float) : The position x to place the text at.
         v_offset (float) : The position y to place the text at.
+
+    Other Parameters:
+    **kwargs:
+        fontsize (float) : Default fontsize
 
     Returns:
         None.
 
     Set the annotation according to the input parameters
     """
+    method_defaults = dict(fontsize=10)  # in case kwargs does not have fontsize, add it
+    kwargs = sc.mergedicts(method_defaults, kwargs)  # let kwargs override method defaults
+    kwargs = sc.objdict(kwargs)
     for rect in rects:
         height = rect.get_height()
         text = ax.annotate('{}'.format(round(height, 3)),
@@ -500,10 +535,10 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3):
                            xytext=(h_offset, v_offset),
                            textcoords="offset points",
                            ha='center', va='bottom')
-        text.set_fontsize(10)
+        text.set_fontsize(kwargs.fontsize)
 
 
-def plot_age_comparison(pop, *args, **kwargs):
+def plot_ages(pop, *args, **kwargs):
     """
     Plot a comparison of the expected and generated age distribution.
 
@@ -525,7 +560,7 @@ def plot_age_comparison(pop, *args, **kwargs):
         figname (str)     : name to save figure to disk
         comparison (bool) : If True, plot comparison to the generated population
 
-    Note:
+    Notes:
         If using pop with type covasim.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
@@ -550,24 +585,19 @@ def plot_age_comparison(pop, *args, **kwargs):
     plkwargs.set_axis_kwargs()
     # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
 
-    # set up location parameters to grab expected data
-    if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict({'datadir': plkwargs.datadir, 'location': plkwargs.location, 'state_location': plkwargs.state_location,
-                               'country_location': plkwargs.country_location, 'use_default': plkwargs.use_default})
-
-    elif isinstance(pop, sppop.Pop):
-        loc_pars = pop.loc_pars
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
         plkwargs.smooth_ages = pop.smooth_ages
         plkwargs.window_length = pop.window_length
 
-    else:
+    elif not isinstance(pop, (dict, cv.people.People)):
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
-    if not plkwargs.smooth_ages:
-        plkwargs.window_length = 1
+    # now check for missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
 
     # get the expected age distribution
-    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': plkwargs.window_length}))
+    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, {'window_length': plkwargs.window_length}))
     expected_age_distr_values = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
 
     if plkwargs.comparison:
@@ -598,10 +628,10 @@ def plot_age_comparison(pop, *args, **kwargs):
 
     fig, ax = plot_array(expected_age_distr_values, fig=fig, ax=ax,
                          **dict(generated=generated_age_distr_values,
-                                figname=plkwargs.figname,
-                                do_show=False, do_save=False,   # will save after customizing the figure some more below
-                                xlabel_rotation=plkwargs.rotation, binned=True,
-                                prefix=f"{loc_pars.location}_age_distribution",
+                                figname=plkwargs.figname, binned=True,
+                                do_show=False, do_save=False,   # instead of saving now, will save after customizing the figure some more below
+                                xlabel_rotation=plkwargs.rotation,
+                                prefix=f"{plkwargs.location}_age_distribution",
                                 markersize=plkwargs.markersize, color_1=plkwargs.color_1, color_2=plkwargs.color_2))
 
     ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
@@ -615,7 +645,7 @@ def plot_age_comparison(pop, *args, **kwargs):
     return fig, ax
 
 
-def plot_school_sizes_by_type(pop, *args, **kwargs):
+def plot_school_sizes(pop, *args, **kwargs):
     """
     Plot a comparison of the expected and generated school size distribution for each type of school expected.
 
@@ -629,6 +659,8 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
 
     Other Parameters:
     **kwargs:
+        with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
+        keys_to_exclude (str or list) : school types to exclude
         left (float)                  : Matplotlib.figure.subplot.left
         right (float)                 : Matplotlib.figure.subplot.right
         top (float)                   : Matplotlib.figure.subplot.top
@@ -641,8 +673,6 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
         fontsize (float)              : Matplotlib.figure.fontsize
         rotation (float)              : rotation angle for xticklabels
         cmap (str)                    : colormap
-        with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
-        keys_to_exclude (str or list) : school types to exclude
         figname (str)                 : name to save figure to disk
         comparison (bool)             : If True, plot comparison to the generated population
 
@@ -659,16 +689,16 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_school_sizes_by_type(popdict, **kwargs)
+        fig, ax = sp.plot_school_sizes(popdict, **kwargs)
     """
     plkwargs = plotting_kwargs()
     plkwargs.school_type_labels = spsch.get_school_type_labels()
 
     # method specific plotting defaults
-    method_defaults = dict(left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,
+    method_defaults = dict(with_school_types=False, keys_to_exclude=['uv'],
+                           left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,
                            subplot_height=2.8, subplot_width=4.2, screen_height_factor=0.85,
                            location_text_y=113, fontsize=8, rotation=20, cmap='cmo.curl',
-                           with_school_types=True, keys_to_exclude='uv',
                            figname='school_size_distribution_by_type', comparison=True,
                            )
 
@@ -680,41 +710,40 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
     if isinstance(plkwargs.keys_to_exclude, str):
         plkwargs.keys_to_exclude = [plkwargs.keys_to_exclude]  # ensure this is treated as a list
 
-    # set up location parameters to grab expected data - kwargs must include this
-    if isinstance(pop, (dict, cv.people.People)):
-        loc_pars = sc.objdict(datadir=plkwargs.datadir, location=plkwargs.location, state_location=plkwargs.state_location,
-                              country_location=plkwargs.country_location, use_default=plkwargs.use_default)
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+        plkwargs.smooth_ages = pop.smooth_ages
+        plkwargs.window_length = pop.window_length
+        popdict = sc.dcp(pop.to_dict())
 
-        if isinstance(pop, dict):
-            popdict = sc.dcp(pop)
-        else:
-            raise NotImplementedError('This method is not yet implemented for covasim people objects.')
+    elif isinstance(pop, cv.people.People):
+        raise NotImplementedError("This method is not yet implemented for covasim people objects.")
 
-    elif isinstance(pop, sppop.Pop):
-        loc_pars = pop.loc_pars
-        plkwargs.with_school_types = pop.school_pars.with_school_types
-        popdict = sc.dcp(pop.popdict)
-
-    else:
+    elif not isinstance(pop, dict):
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+    else:
+        popdict = sc.dcp(pop)
 
-    plkwargs.update_kwargs(**loc_pars)
+    # now check for missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
 
     if plkwargs.with_school_types:
-        expected_school_size_distr = spdata.get_school_size_distr_by_type(**loc_pars)
+        expected_school_size_distr = spdata.get_school_size_distr_by_type(**plkwargs.loc_pars)
     else:
         plkwargs.school_type_labels = {None: ''}
-        expected_school_size_distr = {None: spdata.get_school_size_distr_by_brackets(**loc_pars)}
+        expected_school_size_distr = {None: spdata.get_school_size_distr_by_brackets(**plkwargs.loc_pars)}
 
-    school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
+    school_size_brackets = spdata.get_school_size_brackets(**plkwargs.loc_pars)
     bins = [school_size_brackets[0][0]] + [school_size_brackets[b][-1] + 1 for b in school_size_brackets]
     bin_labels = [f"{school_size_brackets[b][0]}-{school_size_brackets[b][-1]}" for b in school_size_brackets]
 
     # calculate how many students are in each school
     if plkwargs.comparison:
         generated_school_size_distr = dict()
+
         if isinstance(pop, (sppop.Pop, dict)):
-            enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict)
+            enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
+
         else:  # cv.People option --- not yet available
             raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another support pop type.")
 
@@ -747,7 +776,7 @@ def plot_school_sizes_by_type(pop, *args, **kwargs):
         ax = [ax]
         fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 0.47)
         plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
-        plkwargs.location_text_y = 106
+        plkwargs.location_text_y = 106  # looks good with defaults, user has ability to change this
 
     # update the fig
     fig.subplots_adjust(**plkwargs.axis)
