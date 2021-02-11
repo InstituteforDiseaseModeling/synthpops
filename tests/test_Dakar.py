@@ -35,7 +35,7 @@ def test_Dakar():
 
 
 """
-Notes:
+Note:
 
 This method does not include socioeconomic conditions that are likely
 associated with school enrollment.

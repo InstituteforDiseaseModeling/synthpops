@@ -1265,8 +1265,8 @@ def get_enrollment_by_school_type(popdict, *args, **kwargs):
 
     Other Parameters:
     **kwargs:
-        with_school_types (bool): If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
-        keys_to_exclude (list): school types to exclude
+        with_school_types (bool) : If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
+        keys_to_exclude (list)   : school types to exclude
 
     Returns:
         dict: Dictionary of generated enrollment sizes by school type.
@@ -1291,6 +1291,7 @@ def get_enrollment_by_school_type(popdict, *args, **kwargs):
             enrollment_by_school_type[None] = []
             for sc_type in set(sc_types.difference(set(kwargs.keys_to_exclude))):
                 enrollment_by_school_type[None].extend(enrollment_by_school_type[sc_type])
+                enrollment_by_school_type.pop(sc_type, None)
 
     return enrollment_by_school_type
 
@@ -1300,8 +1301,8 @@ def get_generated_school_size_distributions(enrollment_by_school_type, bins):
     Get school size distributions by type.
 
     Args:
-        enrollment_by_school_type_distr (dict): generated enrollment sizes by school types
-        bins (list): school size bins
+        enrollment_by_school_type_distr (dict) : generated enrollment sizes by school types
+        bins (list)                            : school size bins
 
     Returns:
         dict: Dictionary of generated school size distribution by school type.

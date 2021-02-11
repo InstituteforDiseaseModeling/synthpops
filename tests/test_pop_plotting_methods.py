@@ -12,15 +12,10 @@ import pytest
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 10e3,
+    n                               = 2e3,
     rand_seed                       = 123,
 
-    country_location                = 'usa',
-    state_location                  = 'Washington',
-    location                        = 'seattle_metro',
-    use_default                     = True,
-
-    household_method                = 'fixed_ages',
+    # household_method                = 'fixed_ages',
     smooth_ages                     = True,
     window_length                   = 7,  # window for averaging the age distribution
 
@@ -33,61 +28,35 @@ pars = dict(
 pars = sc.objdict(pars)
 
 
-def test_plot_age_distribution_comparison(do_show=False, do_save=False):
+def test_plot_ages(do_show=False, do_save=False):
     """
     Test that the age comparison plotting method in sp.Pop class works.
 
-    Notes:
+    Note:
         With any popdict, you will need to supply more information to
         tell the method where to look for expected data.
     """
     sp.logger.info("Test that the age comparison plotting method with sp.Pop object.")
     pop = sp.Pop(**pars)
-    kwargs = sc.dcp(pars)
-    kwargs.figname = f"test_pop_ages_{pars['location']}_pop"
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
+    kwargs.figname = f"test_pop_ages_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
-    fig, ax = pop.plot_age_comparison(**kwargs)
+    # fig, ax = pop.plot_ages(**kwargs)
+    fig, ax = pop.plot_ages()
 
     assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
     print('Check passed. Figure 1 made.')
 
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
-    kwargs.figname = f"test_popdict_ages_{pars['location']}_popdict"
-    kwargs.do_show = do_show
-    kwargs.do_save = do_save
-    fig2, ax2 = sp.plot_age_comparison(popdict, **kwargs)
+    kwargs.figname = f"test_popdict_ages_{kwargs.location}_popdict"
+    # fig2, ax2 = sp.plot_ages(popdict, **kwargs)
+    fig2, ax2 = sp.plot_ages(popdict)
 
     assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
     return fig, ax, pop
-
-
-@pytest.mark.skip
-def test_plot_with_popdict(do_show=False, do_save=False):
-    """
-    Test plotting method works on dictionary version of pop object.
-
-    Notes:
-        With any popdict, you will need to supply more information to
-        tell the method where to look for expected data.
-    """
-    sp.logger.info("Test that the age comparison plotting method works on popdict.")
-    pop = sp.Pop(**pars)
-    popdict = pop.to_dict()
-    kwargs = sc.dcp(pars)
-    kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_popdict_ages_{pars['location']}_popdict"
-    kwargs.do_show = do_show
-    kwargs.do_save = do_save
-
-    fig, ax = sp.plot_age_comparison(popdict, **kwargs)
-
-    assert isinstance(fig, mplt.figure.Figure), 'Check failed.'
-    print('Check passed. Figure made.')
-
-    return fig, ax, popdict
 
 
 def test_plot_with_cvpeople(do_show=False, do_save=False):
@@ -110,17 +79,18 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
         beta=1.0,  # TODO: this is required for plotting (people.plot()), but shouldn't be (in covasim)
     )
     people = cv.People(people_pars, strict=False, uid=cvpopdict['uid'], age=cvpopdict['age'], sex=cvpopdict['sex'])
-
-    kwargs = sc.objdict(sc.dcp(pars))
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_cvpeople_ages_{pars['location']}_5"
+    kwargs.figname = f"test_cvpeople_ages_{kwargs.location}_cvpeople"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
-    # modify some plotting styles too.
+
+    # modify some plotting styles
     kwargs.color_1 = '#9966cc'
     kwargs.color_2 = 'indigo'
     kwargs.markersize = 4.5
-    fig, ax = sp.plot_age_comparison(people, **kwargs)
+    # fig, ax = sp.plot_ages(people, **kwargs)
+    fig, ax = sp.plot_ages(people)
 
     assert isinstance(fig, mplt.figure.Figure), 'Check failed.'
     print('Check passed. Figure made.')
@@ -128,17 +98,29 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     return fig, ax, people
 
 
-def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
-    """Test that the school size distribution by type plotting method in sp.Pop class works."""
+@pytest.mark.skip
+def test_plot_school_sizes(do_show=False, do_save=False):
+    """
+    Test that the school size distribution by type plotting method in sp.Pop class works.
+
+    Visually show how the school size distribution generated compares to the data for
+    the location being simulated.
+
+    Notes:
+        The larger the population size, the better the generated school size
+        distributions by school type can match the expected data. If generated
+        populations are too small, larger schools will be missed and in
+        general there won't be enough schools generated to apply statistical
+        tests.
+
+    """
     sp.logger.info("Test that the school size distribution by type plotting method in sp.Pop class works.")
     pop = sp.Pop(**pars)
-    kwargs = sc.dcp(pars)
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}_pop"
-    # kwargs.figname = f"SchoolSizebyType_{pars['location'].replace('_', ' ').title().replace(' ','')}"
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
+    kwargs.figname = f"test_school_size_distributions_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
     kwargs.rotation = 25
-    kwargs.fontsize = 8.5
     kwargs.save_dpi = 300
     kwargs.screen_width_factor = 0.30
     kwargs.screen_height_factor = 0.20
@@ -148,8 +130,8 @@ def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
     kwargs.keys_to_exclude = ['uv']
     kwargs.cmap = cmr.get_sub_cmap('cmo.curl', 0.08, 1)
 
-    # kwargs.format = 'pdf'
-    fig, ax = pop.plot_school_sizes_by_type(**kwargs)
+    # fig, ax = pop.plot_school_sizes(**kwargs)
+    fig, ax = pop.plot_school_sizes()
     assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
     print('Check passed. Figure 1 made.')
 
@@ -157,26 +139,40 @@ def test_plot_school_sizes_by_type_comparison(do_show=False, do_save=False):
     sp.logger.info("Test school size distribution plotting method on popdict.")
     popdict = pop.popdict
     kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_school_size_distributions_{pars['location']}_popdict"
-    fig2, ax2 = sp.plot_school_sizes_by_type(popdict, **kwargs)
+    kwargs.figname = f"test_school_size_distributions_{kwargs.location}_popdict"
+    # fig2, ax2 = sp.plot_school_sizes(popdict, **kwargs)
+    fig2, ax2 = sp.plot_school_sizes(popdict)
 
     assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
 
-    # works on popdict without school types
-    sp.logger.info("Test school size distribution plotting method without school types.")
+    return fig, ax, pop
+
+
+@pytest.mark.skip
+def test_plot_schools_sizes_without_types(do_show=False, do_save=False):
+    """Test that without school types, all schools are put together in one group."""
+    sp.logger.info("Creating schools where school types are not specified. Test school size distribution plotting method without school types.")
     pars['with_school_types'] = False  # need to rerun the population
-    pop3 = sp.Pop(**pars)
+    pop = sp.Pop(**pars)
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.datadir
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
     kwargs.screen_width_factor = 0.30
     kwargs.screen_height_factor = 0.20
     kwargs.width = 5
     kwargs.height = 3.2
-    kwargs.figname = f"test_all_school_size_distributions_{pars['location']}_pop"
-    fig3, ax3 = pop3.plot_school_sizes_by_type(**kwargs)
+    kwargs.figname = f"test_all_school_size_distributions_{kwargs.location}_pop"
+    # fig3, ax3 = pop3.plot_school_sizes(**kwargs)
+    fig, ax = pop.plot_school_sizes()
 
-    assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
-    print('Check passed. Figure 3 made.')
+    enrollment_by_school_type = pop.get_enrollment_by_school_type()
+    school_types = list(enrollment_by_school_type.keys())
+
+    assert school_types[0] is None and len(school_types) == 1, f"Check 3 failed. School types created: {school_types}."
+    # assert isinstance(fig, mplt.figure.Figure), 'Check 3 failed.'
+    # print('Check passed. Figure 3 made.')
 
     return fig, ax, pop
 
@@ -185,7 +181,6 @@ if __name__ == '__main__':
 
     # run as main and see the examples in action!
 
-    fig0, ax0, pop0 = test_plot_age_distribution_comparison(do_show=True)
-    # fig1, ax1, popdict1 = test_plot_with_popdict(do_show=True)
-    fig2, ax2, people2 = test_plot_with_cvpeople(do_show=True, do_save=True)
-    fig3, ax3, pop3 = test_plot_school_sizes_by_type_comparison(do_show=True, do_save=True)
+    fig0, ax0, pop0 = test_plot_ages(do_show=True)
+    fig1, ax1, people1 = test_plot_with_cvpeople(do_show=True, do_save=True)
+    fig2, ax2, pop2 = test_plot_school_sizes(do_show=True, do_save=True)

@@ -19,18 +19,18 @@ def test_alternatives():
     n = 2000
 
     ltcf_pars = sc.objdict(
-       with_facilities = True,
-       ltcf_staff_age_min = 20,
-       ltcf_staff_age_max = 65,
+        with_facilities = True,
+        ltcf_staff_age_min = 20,
+        ltcf_staff_age_max = 65,
     )
 
     school_pars = sc.objdict(
-       school_mixing_type = 'random',
-       average_class_size = 20,
-       inter_grade_mixing = True,
-       average_student_teacher_ratio = 20,
-       teacher_age_min = 22,
-       teacher_age_max = 65,
+        school_mixing_type = 'random',
+        average_class_size = 20,
+        inter_grade_mixing = True,
+        average_student_teacher_ratio = 20,
+        teacher_age_min = 22,
+        teacher_age_max = 65,
     )
 
     pops = sc.objdict()
@@ -40,11 +40,11 @@ def test_alternatives():
     # Generate another population with different parameters
     ltcf_pars2 = sc.mergedicts(ltcf_pars, dict(
         with_facilities=False,
-        ))
+    ))
     school_pars2 = sc.mergedicts(school_pars, dict(
-        with_school_types = True,
-        school_mixing_type = 'age_clustered',
-        ))
+        with_school_types=True,
+        school_mixing_type='age_clustered',
+    ))
     pops.no_ltcf = sp.Pop(n=n, ltcf_pars=ltcf_pars2, school_pars=school_pars2)
 
     return pops
@@ -52,14 +52,14 @@ def test_alternatives():
 
 def test_api(do_plot=False):
     ''' More examples of basic API usage '''
-    pop = sp.Pop(n=20000) # default parameters, 5k people
-    pop.save('test_api.pop') # save as pickle
-    pop.to_json('test_api.json') # save as JSON
-    popdict = pop.to_dict() # export from class to standard python object; current default synthpops output
+    pop = sp.Pop(n=20000)  # default parameters, 5k people
+    pop.save('test_api.pop')  # save as pickle
+    pop.to_json('test_api.json')  # save as JSON
+    popdict = pop.to_dict()  # export from class to standard python object; current default synthpops output
     if do_plot:
         # pop.plot() # do the most obvious plotting thing, whatever that may be...
-        pop.plot_people() # equivalent to cv.Sim.people.plot()
-        pop.plot_contacts() # equivalent to sp.plot_contact_matrix(popdict)
+        pop.plot_people()  # equivalent to cv.Sim.people.plot()
+        pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
     return popdict
 
 

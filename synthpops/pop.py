@@ -295,7 +295,7 @@ class Pop(sc.prettyobj):
         uids_in_school, uids_in_school_by_age, ages_in_school_count = spsch.get_uids_in_school(datadir, n_nonltcf, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
         if with_school_types:
-
+            print(location, 'here')
             school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
             school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
             school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -445,7 +445,7 @@ class Pop(sc.prettyobj):
         Returns:
             list: List of generated enrollment sizes by school type.
         """
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict)
+        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
 
     def plot_people(self, *args, **kwargs):

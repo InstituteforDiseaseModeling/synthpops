@@ -18,16 +18,6 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from . import pop as sppop
 
-# # mplt.rcParams['font.family'] = 'Roboto Condensed'  # nicer font being set
-# # mplt.rcParams['font.size'] = 16
-
-try:  # no longer needed  --- cmasher made an install requirement
-    import cmasher
-    default_colormap = 'cmr.freeze_r'
-except:
-    default_colormap = 'bone_r'
-    print(f"Note: cmasher import failed; defaulting to regular colormap: {default_colormap}")
-
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
@@ -132,23 +122,24 @@ class plotting_kwargs(sc.prettyobj):
         self.axis = sc.objdict(left=self.left, right=self.right, top=self.top, bottom=self.bottom, hspace=self.hspace, wspace=self.wspace)
         return
 
-    def restore_defaults(self):
-        """Class destructor. """
-        mplt.rcParams.update(mplt.rcParamsDefault)
-        return
-
     def set_default_pop_pars(self):
         """Check if method has some key pop parameters to call on data. If not, use defaults and warn user of their use and value."""
         default_pop_pars = {'datadir': cfg.datadir, 'location': cfg.default_location, 'state_location': cfg.default_state,
-                            'country_location': cfg.default_country}
+                            'country_location': cfg.default_country,
+                            'use_default': False
+                            }
         default_age_pars = {'smooth_ages': False, 'window_length': 7}
 
+        if hasattr(self, 'loc_pars'):
+            default_pop_pars = sc.objdict(sc.mergedicts(default_pop_pars, self.loc_pars))  # update defaults if necessary
+
+        # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
         for k in default_pop_pars:
             if not hasattr(self, k):
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value from config.py: {default_pop_pars[k]}.")
                 setattr(self, k, default_pop_pars[k])
 
-        self.loc_pars = sc.objdict({k: getattr(self, k) for k in default_pop_pars})
+        if not hasattr(self, 'loc_pars'):
+            self.loc_pars = sc.objdict({k: getattr(self, k) for k in default_pop_pars})
 
         for k in default_age_pars:
             if not hasattr(self, k):
@@ -158,6 +149,11 @@ class plotting_kwargs(sc.prettyobj):
         if not self.smooth_ages:
             self.window_length = 1
 
+        return
+
+    def restore_defaults(self):
+        """Class destructor. """
+        mplt.rcParams.update(mplt.rcParamsDefault)
         return
 
 
@@ -215,10 +211,15 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
     Args:
         population (dict)          : A dictionary of a population with attributes.
         density_or_frequency (str) : option for the type of contact matrix calculated.
-        layer (str)                : name of the physial contact setting: H for households, S for schools, W for workplaces, C for community or other, and 'lTCF' for long term care facilities
+        layer (str)                : name of the physial contact setting, see notes.
 
     Returns:
         np.ndarray: Symmetric age specific contact matrix.
+
+    Note:
+
+        H for households, S for schools, W for workplaces, C for community or
+        other, and 'LTCF' for long term care facilities.
     """
     uids = population.keys()
     uids = [uid for uid in uids]
@@ -244,8 +245,8 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
 
 def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
                         layer='H', density_or_frequency='density', logcolors_flag=False,
-                        aggregate_flag=True, cmap=default_colormap, fontsize=16, rotation=50,
-                        title_prefix=None, fig=None, ax=None):
+                        aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50,
+                        title_prefix=None, fig=None, ax=None, titles=None):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
     for the average individual in age group i with all of their contacts in age group j. Can either be density
@@ -260,8 +261,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
         age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
-        layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
-        density_or_frequency (str)       : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        density_or_frequency (str)       : Default value is 'density', see notes for more details.
         logcolors_flag (bool)            : If True, plot heatmap in logscale
         aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
         cmap(str or matplotlib colormap) : colormap
@@ -270,13 +271,32 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         title_prefix(str)                : optional title prefix for the figure
         fig (Figure)                     : if supplied, use this figure instead of generating one
         ax (Axes)                        : if supplied, use these axes instead of generating one
+        titles (dict)                    : dictionary of titles to be used for different layers
 
     Returns:
         Matplotlib figure and axes.
 
     Note:
-        For the long term care facilities you may want the age count and the aggregate age count to only consider those who live or work in long term care facilities because otherwise this will be the whole population wide average mixing in that layer
+        For the long term care facilities layer you may want the age count and
+        the aggregate age count to only consider those who live or work in long
+        term care facilities. Otherwise, without counting these individuals
+        separately, this matrix calculation and figure will be representative of
+        the average mixing in the long term care facilities layer across the
+        entire population. What will be produced is a matrix that shows little
+        mixing between individuals in this layer as it is a representation of
+        the average mixing and not just those present in this layer.
 
+        The argument density_or_frequency (str) has two values : 'density' or
+        'frequency'. See the description of sp.calculate_contact_matrix for more
+        details. In brief,  'density' means that each contact counts for
+        1/(group_size -1) of a person's contact in a group and 'frequency'
+        counts each contact as 1. This means that in the 'frequency'
+        description, the more people in a group or in contact with someone, the
+        more higher rates of contact/exposure. In some disease contexts, this is
+        the right description of contact/exposure. In others, a 'density'
+        description is more appropriate. As always, how to define contact is
+        disease specific and we suggest you look to literature on the specific
+        disease you are modeling to decide which is best for your use.
     """
     cmap = mplt.cm.get_cmap(cmap)
 
@@ -290,7 +310,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     cbar = []
     implot = []
 
-    titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facilities'}
+    if titles is None:
+        titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facilities'}
 
     if aggregate_flag:
         aggregate_M = spb.get_aggregate_matrix(matrix, age_by_brackets_dic)
@@ -368,29 +389,29 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     return fig, ax
 
 
-def plot_contacts(population, layer='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density',
-                  state_location='Washington', country_location='usa', **kwargs):
+def plot_contacts(population, **kwargs):
     """
     Plot the age mixing matrix for a specific contact layer.
 
     Args:
         population (dict)          : population to be plotted, if None, code will generate it
-        layer (str)                : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
-        aggregate_flag (bool)      : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        logcolors_flag (bool)      : If True, plot heatmap in logscale
-        density_or_frequency (str) : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
-        state_location (string)    : name of the state the location is in
-        country_location (string)  : name of the country the location is in
 
     Other Parameters:
     **kwargs:
+        layer (str)                   : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        aggregate_flag (bool)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        logcolors_flag (bool)         : If True, plot heatmap in logscale
+        density_or_frequency (str)    : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        state_location (string)       : name of the state the location is in
+        country_location (string)     : name of the country the location is in
         cmap (str or matplotlib cmap) : colormap
         fontsize (int)                : base font size
         rotation (int)                : rotation for x axis labels
         title_prefix(str)             : optional title prefix for the figure
         fig (matplotlib.figure)       : If supplied, use this figure instead of generating one
         ax (matplotlib.axes)          : If supplied, use these axes instead of generating one
-        do_show (bool)                : whether to show the plot
+        do_show (bool)                : If True, show the plot
+        do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure.
@@ -398,27 +419,33 @@ def plot_contacts(population, layer='H', aggregate_flag=True, logcolors_flag=Tru
     plkwargs = plotting_kwargs()
 
     # method specific plotting defaults
-    method_defaults = dict(cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None, fig=None, ax=None, do_show=False,
-                           state_location=state_location, country_location=country_location)
+    method_defaults = sc.objdict(layer='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density',
+                                 cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None,
+                                 fig=None, ax=None, do_show=False, do_save=False,
+                                 state_location=cfg.default_state, country_location=cfg.default_country)
+    method_defaults.figname = f"contact_matrix_{method_defaults.layer}"  # by defining this here, we can at least ensure that default names connect to the layer being modeled
     kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+
     plkwargs.update_kwargs(**kwargs)
+    plkwargs.set_default_pop_pars()
 
-    loc_pars = sc.objdict(datadir=cfg.datadir, state_location=plkwargs.state_location, country_location=plkwargs.country_location)
-
-    age_brackets = spdata.get_census_age_brackets(**loc_pars)
+    age_brackets = spdata.get_census_age_brackets(**plkwargs.loc_pars)
     age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
 
     age_count = spb.count_ages(population)
     aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
 
-    matrix = calculate_contact_matrix(population, density_or_frequency, layer)
+    matrix = calculate_contact_matrix(population, plkwargs.density_or_frequency, plkwargs.layer)
 
+    # Todo: update plot_contact_matrix to inherit plkwargs class...
     fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                  layer, density_or_frequency, logcolors_flag, aggregate_flag, plkwargs.cmap, plkwargs.fontsize, plkwargs.rotation, plkwargs.title_prefix,
-                                  fig=plkwargs.fig, ax=plkwargs.ax)
+                                  plkwargs.layer, plkwargs.density_or_frequency, plkwargs.logcolors_flag,
+                                  plkwargs.aggregate_flag, plkwargs.cmap,
+                                  plkwargs.fontsize, plkwargs.rotation, plkwargs.title_prefix,
+                                  fig=plkwargs.fig, ax=plkwargs.ax,
+                                  )
 
-    if plkwargs.do_show:
-        plt.show()
+    finalize_figure(fig, plkwargs)  # set figpath, and save and / or show figure
 
     return fig
 
@@ -443,7 +470,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         figname (str)        : name to save figure to disk
         figdir (str)         : directory to save the plot if provided
         prefix (str)         : used to prefix the title of the plot
-        fontsize (float)     : Default fontsize
+        fontsize (float)     : default fontsize
         color_1 (str)        : color for expected data
         color_2 (str)        : color for generated data
         expect_label (str)   : Label to show in the plot, default to "expected"
@@ -560,7 +587,7 @@ def plot_ages(pop, *args, **kwargs):
         figname (str)     : name to save figure to disk
         comparison (bool) : If True, plot comparison to the generated population
 
-    Notes:
+    Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
@@ -626,6 +653,7 @@ def plot_ages(pop, *args, **kwargs):
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
 
+    # Todo: update plot_array to inherit plkwargs class...
     fig, ax = plot_array(expected_age_distr_values, fig=fig, ax=ax,
                          **dict(generated=generated_age_distr_values,
                                 figname=plkwargs.figname, binned=True,
@@ -698,7 +726,7 @@ def plot_school_sizes(pop, *args, **kwargs):
     method_defaults = dict(with_school_types=False, keys_to_exclude=['uv'],
                            left=0.11, right=0.94, top=0.96, bottom=0.08, hspace=0.75,
                            subplot_height=2.8, subplot_width=4.2, screen_height_factor=0.85,
-                           location_text_y=113, fontsize=8, rotation=20, cmap='cmo.curl',
+                           location_text_y=113, fontsize=8, rotation=25, cmap='cmo.curl',
                            figname='school_size_distribution_by_type', comparison=True,
                            )
 
