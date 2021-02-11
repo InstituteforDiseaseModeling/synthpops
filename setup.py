@@ -26,18 +26,19 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry",
+    author="Dina Mistry, Cliff Kerr, Meikang Wu, and Mary Fisher on behalf of the IDM COVID-19 Response Team",
     author_email="covid@idmod.org",
     description="Synthetic contact network generation",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='http://synthpops.org',
-    keywords=['human contact networks', 'synthetic population', 'census', 'demography'],
+    keywords=["human contact networks", "synthetic population", "age mixing patterns", "census", "demography"],
     platforms=["OS Independent"],
     classifiers=CLASSIFIERS,
     packages=find_packages(),
