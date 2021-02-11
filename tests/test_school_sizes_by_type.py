@@ -94,13 +94,9 @@ def test_plot_school_sizes(do_show=False, do_save=False):
     kwargs.figname = f"test_school_size_distributions_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
-    kwargs.rotation = 25
-    kwargs.save_dpi = 300
-    kwargs.screen_width_factor = 0.30
     kwargs.screen_height_factor = 0.20
     kwargs.hspace = 0.8
     kwargs.bottom = 0.09
-    kwargs.location_text_y = 113
     kwargs.keys_to_exclude = ['uv']
     kwargs.cmap = cmr.get_sub_cmap('cmo.curl', 0.08, 1)
 

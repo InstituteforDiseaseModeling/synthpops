@@ -668,7 +668,7 @@ def plot_ages(pop, *args, **kwargs):
     ax.set_ylim(0, max_y)
     ax.tick_params(labelsize=plkwargs.fontsize)
 
-    fig = finalize_figure(fig, plkwargs)
+    fig = finalize_figure(fig, plkwargs)  # set figpath, and save and / or show figure
 
     return fig, ax
 

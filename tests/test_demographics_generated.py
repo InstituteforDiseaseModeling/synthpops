@@ -4,8 +4,6 @@ Compare the demographics of the generated population to the expected demographic
 import sciris as sc
 import synthpops as sp
 import numpy as np
-import matplotlib as mplt
-import matplotlib.pyplot as plt
 import settings
 
 

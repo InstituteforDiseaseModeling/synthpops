@@ -5,6 +5,7 @@ import sciris as sc
 import synthpops as sp
 import covasim as cv
 import matplotlib as mplt
+import matplotlib.pyplot as plt
 import cmocean as cmo
 import cmasher as cmr
 import pytest
@@ -49,9 +50,11 @@ def test_plot_ages(do_show=False, do_save=False):
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
     kwargs.figname = f"test_popdict_ages_{kwargs.location}_popdict"
+    kwargs.do_show = False
     fig2, ax2 = sp.plot_ages(popdict, **kwargs)
     # fig2, ax2 = sp.plot_ages(popdict)  # to plot without extra information
-
+    if not kwargs.do_show:
+        plt.close()
     assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
     return fig, ax, pop

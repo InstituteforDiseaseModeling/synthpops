@@ -128,13 +128,6 @@ class Pop(sc.prettyobj):
         self.location                  = location
         self.use_default               = use_default
 
-        # # Location parameters
-        # self.loc_pars.location         = location
-        # self.loc_pars.state_location   = state_location
-        # self.loc_pars.country_location = country_location
-        # self.loc_pars.datadir          = cfg.datadir
-        # self.loc_pars.use_default      = use_default
-
         # Age distribution parameters
         self.smooth_ages               = smooth_ages
         self.window_length             = window_length
