@@ -8,20 +8,12 @@ version, set regenerate = False.
 import os
 import sciris as sc
 import synthpops as sp
+import settings
 
 regenerate = False
 outfile = 'basic_api.pop'
 
-pars = dict(
-        n                               = 20001,
-        rand_seed                       = 123,
-
-        with_facilities                 = 1,
-        with_non_teaching_staff         = 1,
-
-        with_school_types               = 1,
-        school_mixing_type              = 'age_and_class_clustered',
-)
+pars = settings.get_full_feature_pars()
 
 
 def test_basic_api():

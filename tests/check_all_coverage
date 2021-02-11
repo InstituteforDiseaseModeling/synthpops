@@ -1,5 +1,5 @@
 #!/bin/bash
-coverage run --source=../../synthpops --omit=*census* -m pytest test_*.py
+coverage run --source=../synthpops  --omit=*census* --branch -m pytest test_*.py unittests/test_*.py
 
 echo 'Creating HTML report...'
 coverage html

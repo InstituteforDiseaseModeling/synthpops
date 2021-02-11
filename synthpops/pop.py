@@ -479,6 +479,7 @@ class Pop(sc.prettyobj):
         fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
+    # Todo: placeholder for enrollment rates by age
     def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated enrollment rates by age.

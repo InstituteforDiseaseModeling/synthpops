@@ -1,12 +1,13 @@
 """Test Dakar location works with basic synthpops methodology."""
 import sciris as sc
 import synthpops as sp
+import settings
 
 
 default_nbrackets = sp.config.nbrackets
 
 pars = dict(
-    n                               = 2000,
+    n                               = settings.pop_sizes.small,
     rand_seed                       = 0,
     max_contacts                    = None,
     location                        = 'Dakar',

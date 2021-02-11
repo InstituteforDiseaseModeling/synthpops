@@ -23,10 +23,11 @@ pars = dict(
 def test_Spokane():
     """Test that a Dakar population can be created with the basic SynthPops API."""
     sp.logger.info("Test that a Spokane population can be created with the basic SynthPops API.")
+
     pop = sp.Pop(**pars)
     loc_pars = pop.loc_pars
-    age_distr = sp.read_age_bracket_distr(**loc_pars)
-    assert len(age_distr) == 20, f'Check failed, len(age_distr): {len(age_distr)}'  # will remove if this passes in github actions test
+    age_dist = sp.read_age_bracket_distr(**loc_pars)
+    assert len(age_dist) == 20, f'Check failed, len(age_dist): {len(age_dist)}'  # will remove if this passes in github actions test
 
     sp.set_location_defaults('defaults')  # Reset default values after this test is complete.
     return pop

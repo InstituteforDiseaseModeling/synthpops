@@ -6,27 +6,30 @@ import synthpops as sp
 import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
+import settings
 
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 8e3,
-    rand_seed                       = 123,
-    max_contacts                    = None,
+    n                  = 8e3,
+    rand_seed          = 123,
 
-    country_location                = 'usa',
-    state_location                  = 'Washington',
-    location                        = 'Island_County',
-    use_default                     = 1,
+    country_location   = 'usa',
+    state_location     = 'Washington',
+    location           = 'Island_County',
+    use_default        = 1,
 
-    household_method                = 'fixed_ages',
-    smooth_ages                     = 1,
-    window_length                   = 7,  # window for averaging the age distribution
+    household_method   = 'fixed_ages',
+    smooth_ages        = 1,
 
-    with_facilities                 = 1,
-    with_school_types               = 1,
+    with_facilities    = 1,
+    with_school_types  = 1,
 
-    school_mixing_type              = {'pk-es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type = {'pk': 'age_and_class_clustered',
+                          'es': 'age_and_class_clustered',
+                          'ms': 'age_and_class_clustered',
+                          'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+
 )
 
 
@@ -35,11 +38,12 @@ def test_age_distribution_used():
     Test that the age distribution used in sp.Pop.generate() is the expected one for the location specified.
     """
     sp.logger.info("Test that the age distribution used in sp.Pop.generate() are the expected age distributions. \nThis should be binned to the default number of age brackets (cfg.nbrackets).")
+
     pop = sp.Pop(**pars)
     loc_pars = pop.loc_pars
-    age_distr = sp.read_age_bracket_distr(**loc_pars)
-    assert len(age_distr) == sp.config.nbrackets, f'Check failed, len(age_distr_1): {len(age_distr)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
-    print(f'Check passed, len(age_distr_1): {len(age_distr)} == sp.config.nbrackets: {sp.config.nbrackets}.')
+    age_dist = sp.read_age_bracket_distr(**loc_pars)
+    assert len(age_dist) == sp.config.nbrackets, f'Check failed, len(age_dist): {len(age_dist)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
+    print(f'Check passed, len(age_dist): {len(age_dist)} == sp.config.nbrackets: {sp.config.nbrackets}.')
 
     return pop
 
@@ -78,6 +82,7 @@ def test_older_ages_have_household_contacts():
     household contact matrix would have us expect otherwise.)
     """
     test_pars = sc.dcp(pars)
+
     test_pars['n'] = 12e3  # decent size to check older populations in households
 
     pop = sp.Pop(**test_pars)
@@ -106,10 +111,10 @@ def test_older_ages_have_household_contacts():
     print('Check passed.')
 
 
-def test_plot_contact_matrix():
+def test_plot_contact_matrix(do_show=False):
     """"""
     pop = sp.Pop(**pars)
-    pop.plot_contacts()
+    pop.plot_contacts(do_show=do_show)
 
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
+import settings
 
 mplt.rcParams['font.family'] = 'Roboto Condensed'
 mplt.rcParams['font.size'] = 8
@@ -18,22 +19,24 @@ mplt.rcParams['font.size'] = 8
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 10e3,
-    rand_seed                       = 123,
+    n                = settings.pop_sizes.medium,
+    rand_seed        = 123,
 
     # need location parameters
-    country_location                = 'usa',
-    state_location                  = 'Washington',
-    location                        = 'seattle_metro',
-    use_default                     = True,
+    country_location = 'usa',
+    state_location   = 'Washington',
+    location         = 'seattle_metro',
+    use_default      = True,
 
-    smooth_ages                     = False,
-    household_method                = 'infer_ages',
-    with_facilities                 = 1,
+    smooth_ages      = False,
+    household_method = 'infer_ages',
+
+    with_facilities  = 1,
 
 )
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_original_household_method(do_show=False):
     sp.logger.info("Generating households with the infer_ages method.")
 
@@ -50,6 +53,7 @@ def test_original_household_method(do_show=False):
     return pop
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
@@ -66,10 +70,12 @@ def test_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_smoothed_and_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
 
     test_pars = sc.dcp(pars)
+    test_pars['n'] = 8e3
     test_pars['location'] = 'Spokane_County'
     test_pars['household_method'] = 'fixed_ages'
     test_pars['smooth_ages'] = True
@@ -85,6 +91,7 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
+# duplicate / early version of plotting method now available
 def plot_age_dist(datadir, pop, pars, do_show, prefix):
     sp.logger.info("Plot the expected age distribution and the generated age distribution.")
     loc_pars = pop.loc_pars
