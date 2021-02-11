@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       max-parallel: 8
       matrix:
-        python-version: [ '3.7' ]
+        python-version: [ '3.8' ]
     name: Install and test
     steps:
       - name: Checkout sources
@@ -24,7 +24,7 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run:  coverage run --source=../synthpops --omit=*census* --branch -m pytest --durations=0 --ignore-glob=*manual* . --junitxml=test-results.xml # Run all tests
+        run: pytest . --cov-config=.coveragerc --cov=../synthpops --ignore-glob=*manual* --junitxml=test-results.xml --workers auto --durations=0
       - name: Create coverage badge
         working-directory: ./tests
         run: coverage-badge -o coverage-badge.svg
