@@ -113,6 +113,7 @@ class Pop(sc.prettyobj):
         log.debug('Pop()')
 
         # Assign all the variables
+        self.loc_pars    = sc.objdict()
         self.school_pars = sc.objdict()
         self.ltcf_pars   = sc.objdict()
 
@@ -178,6 +179,13 @@ class Pop(sc.prettyobj):
 
         self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
+
+        # Location parameters
+        self.loc_pars.location         = self.location
+        self.loc_pars.state_location   = self.state_location
+        self.loc_pars.country_location = self.country_location
+        self.loc_pars.datadir          = self.datadir
+        self.loc_pars.use_default      = use_default
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')

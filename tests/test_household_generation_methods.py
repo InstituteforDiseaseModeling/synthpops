@@ -21,7 +21,6 @@ mplt.rcParams['font.size'] = 8
 pars = dict(
     n                               = settings.pop_sizes.small,
     rand_seed                       = 123,
-    max_contacts                    = None,
 
     country_location                = 'usa',
     state_location                  = 'Washington',
@@ -29,42 +28,28 @@ pars = dict(
     use_default                     = True,
 
     smooth_ages                     = False,
-    household_method                = 'infer_age',
+    household_method                = 'infer_ages',
 
-    with_industry_code              = 0,
     with_facilities                 = 1,
     with_non_teaching_staff         = 1,
-    use_two_group_reduction         = 1,
     with_school_types               = 1,
 
-    average_LTCF_degree             = 20,
-    ltcf_staff_age_min              = 20,
-    ltcf_staff_age_max              = 60,
-
     school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
-    average_class_size              = 20,
-    inter_grade_mixing              = 0.1,
-    teacher_age_min                 = 25,
-    teacher_age_max                 = 75,
-    staff_age_min                   = 20,
-    staff_age_max                   = 75,
 
-    average_student_teacher_ratio   = 20,
-    average_teacher_teacher_degree  = 3,
-    average_student_all_staff_ratio = 15,
-    average_additional_staff_degree = 20,
 )
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_original_household_method(do_show=False):
     sp.logger.info("Generating households with the infer_ages method.")
 
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'infer_ages'
-    pop = sp.make_population(**test_pars)
+    pop = sp.Pop(**test_pars)
+    popdict = pop.to_dict()
 
     datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    fig, ax = plot_age_dist(datadir, popdict, test_pars, do_show, test_pars['household_method'])
 
     if do_show:
         plt.show()
@@ -72,16 +57,18 @@ def test_original_household_method(do_show=False):
     return pop
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = settings.pop_sizes.medium
+    test_pars['n'] = settings.pop_sizes.large
     test_pars['household_method'] = 'fixed_ages'
-    pop = sp.make_population(**test_pars)
+    pop = sp.Pop(**test_pars)
+    popdict = pop.to_dict()
 
     datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    fig, ax = plot_age_dist(datadir, popdict, test_pars, do_show, test_pars['household_method'])
 
     if do_show:
         plt.show()
@@ -89,19 +76,21 @@ def test_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
+# Todo: pull in new plotting methods directly on pop object
 def test_smoothed_and_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = settings.pop_sizes.medium
+    test_pars['n'] = settings.pop_sizes.large
     test_pars['location'] = 'Spokane_County'
     test_pars['household_method'] = 'fixed_ages'
     test_pars['smooth_ages'] = True
     test_pars['window_length'] = 7  # window for averaging the age distribution
-    pop = sp.make_population(**test_pars)
+    pop = sp.Pop(**test_pars)
+    popdict = pop.to_dict()
 
     datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    fig, ax = plot_age_dist(datadir, popdict, test_pars, do_show, test_pars['household_method'])
 
     if do_show:
         plt.show()
@@ -109,6 +98,7 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     return fig, ax
 
 
+# duplicate / early version of plotting method now available
 def plot_age_dist(datadir, pop, pars, do_show, prefix):
     sp.logger.info("Plot the expected age distribution and the generated age distribution.")
 
