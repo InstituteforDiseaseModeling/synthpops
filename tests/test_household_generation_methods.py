@@ -43,7 +43,6 @@ def test_original_household_method(do_show=False):
     test_pars = sc.dcp(pars)
     test_pars['household_method'] = 'infer_ages'
     pop = sp.Pop(**test_pars)
-    popdict = pop.to_dict()
 
     datadir = sp.datadir
     fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
@@ -59,10 +58,8 @@ def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = settings.pop_sizes.medium
     test_pars['household_method'] = 'fixed_ages'
     pop = sp.Pop(**test_pars)
-    popdict = pop.to_dict()
 
     datadir = sp.datadir
     fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
