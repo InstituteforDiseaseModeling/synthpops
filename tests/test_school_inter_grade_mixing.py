@@ -14,32 +14,16 @@ import numpy as np
 
 # parameters to generate a test population
 pars = dict(
-        n                               = 20001,
+        n                               = 5001,
         rand_seed                       = 123,
-        max_contacts                    = None,
 
-        with_industry_code              = 0,
         with_facilities                 = 1,
         with_non_teaching_staff         = 1,
-        use_two_group_reduction         = 1,
         with_school_types               = 1,
 
-        average_LTCF_degree             = 20,
-        ltcf_staff_age_min              = 20,
-        ltcf_staff_age_max              = 60,
-
         school_mixing_type              = 'age_clustered',
-        average_class_size              = 20,
         inter_grade_mixing              = 0.1,
-        teacher_age_min                 = 25,
-        teacher_age_max                 = 75,
-        staff_age_min                   = 20,
-        staff_age_max                   = 75,
 
-        average_student_teacher_ratio   = 20,
-        average_teacher_teacher_degree  = 3,
-        average_student_all_staff_ratio = 15,
-        average_additional_staff_degree = 20,
 )
 
 
@@ -61,35 +45,38 @@ def test_inter_grade_mixing(school_mixing_type='random'):
     test_pars = sc.dcp(pars)
     test_pars['school_mixing_type'] = school_mixing_type
 
-    pop_1 = sp.make_population(**test_pars)
+    pop_1 = sp.Pop(**test_pars)
+    popdict_1 = pop_1.to_dict()
+
     test_pars['inter_grade_mixing'] = 0.3
-    pop_2 = sp.make_population(**test_pars)
+    pop_2 = sp.Pop(**test_pars)
+    popdict_2 = pop_2.to_dict()
 
     # make an adjacency matrix of edges between students
     adjm_1 = np.zeros((101, 101))
     adjm_2 = np.zeros((101, 101))
 
     student_ids = set()
-    for i, person in pop_1.items():
+    for i, person in popdict_1.items():
         if person['sc_student']:
             student_ids.add(i)
 
     for ni, i in enumerate(student_ids):
 
-        contacts_1 = pop_1[i]['contacts']['S']
-        contacts_2 = pop_2[i]['contacts']['S']
+        contacts_1 = popdict_1[i]['contacts']['S']
+        contacts_2 = popdict_2[i]['contacts']['S']
 
         student_contacts_1 = list(set(contacts_1).intersection(student_ids))
         student_contacts_2 = list(set(contacts_2).intersection(student_ids))
 
-        age_i = pop_1[i]['age']
+        age_i = popdict_1[i]['age']
 
         for nj, j in enumerate(student_contacts_1):
-            age_j = pop_1[j]['age']
+            age_j = popdict_1[j]['age']
             adjm_1[age_i][age_j] += 1
 
         for nj, j in enumerate(student_contacts_2):
-            age_j = pop_2[j]['age']
+            age_j = popdict_2[j]['age']
             adjm_2[age_i][age_j] += 1
 
     if school_mixing_type in ['random', 'age_and_class_clustered']:

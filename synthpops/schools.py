@@ -27,9 +27,14 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
+__all__ = ['get_school_type_labels', 'get_enrollment_by_school_type', 'get_generated_school_size_distributions',
+           'get_bin_edges', 'get_bin_labels',
+           ]
+
+
 def get_school_type_labels():
     school_type_labels = {'pk': 'Pre-school', 'es': 'Elementary School',
-                          'ms': 'Middle School', 'hs': 'High School', 
+                          'ms': 'Middle School', 'hs': 'High School',
                           'uv': 'University'}
     return school_type_labels
 
@@ -64,25 +69,6 @@ def get_uids_in_school(datadir, n, location, state_location, country_location, a
 
     for a in np.arange(101):
         uids_in_school_by_age[a] = []
-
-    # if age_by_uid_dic is None:
-    #     age_by_uid_dic = sprw.read_in_age_by_uid(datadir, location, state_location, country_location, folder_name, n)
-
-    # if homes_by_uids is None:
-    #     try:
-    #         homes_by_uids = sprw.read_setting_groups(datadir, location, state_location, country_location, folder_name, 'households', n, with_ages=False)
-    #     except:
-    #         raise NotImplementedError('No households to bring in. Create people through those first.')
-
-    # # go through all people at random and make a list of uids going to school as students
-    # for uid in age_by_uid_dic:
-    #     a = age_by_uid_dic[uid]
-    #     if a <= 50:
-    #         b = np.random.binomial(1,rates[a])
-    #         if b:
-    #             uids_in_school[uid] = a
-    #             uids_in_school_by_age[a].append(uid)
-    #             ages_in_school_count[a] += 1
 
     # go through homes and make a list of uids going to school as students, this should preserve ordering of students by homes and so create schools with siblings going to the same school
     for home in homes_by_uids:
@@ -194,8 +180,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         for uid in new_school_uids:
             uids_in_school.pop(uid, None)
         ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-
-        # print(f"school type: {school_type} size: {size+1} size bracket: {size_bracket} index age: {aindex} generated size: {len(new_school)}")
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
@@ -1001,8 +985,7 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
     if average_student_all_staff_ratio == 0:
         raise ValueError(f"The ratio of students to all staff at school is {average_student_all_staff_ratio}. This would mean no students at the school. Try another value greater than 0 and less than the average_student_teacher_ratio: {average_student_teacher_ratio}.")
-    # if average_student_all_staff_ratio == 0:
-    #     n_all_staff_list = [0 for i in n_students_list]  # use this to say no staff beyond teachers at all
+
     else:
         n_all_staff_list = [max(1, int(i/average_student_all_staff_ratio)) for i in n_students_list]  # need at least one staff member
     n_non_teaching_staff_list = [n_all_staff_list[i] - n_teachers_list[i] for i in range(len(n_students_list))]
@@ -1244,7 +1227,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         syn_school_types.append('s')
         new_school = np.array(new_school)
         kids = new_school <= 19
-        # new_school_age_counter = Counter(new_school)
         if verbose:
             print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
 
@@ -1254,16 +1236,22 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     return syn_schools, syn_school_uids, syn_school_types
 
 
-def get_enrollment_by_school_type(popdict):
+def get_enrollment_by_school_type(popdict, *args, **kwargs):
     """
     Get enrollment sizes by school types in popdict.
 
     Args:
         popdict (dict): population dictionary
 
+    Other Parameters:
+    **kwargs:
+        with_school_types (bool) : If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
+        keys_to_exclude (list)   : school types to exclude
+
     Returns:
-        list: List of generated enrollment sizes by school type.
+        dict: Dictionary of generated enrollment sizes by school type.
     """
+    kwargs = sc.objdict(sc.mergedicts(dict(with_school_types=False, keys_to_exclude=[]), kwargs))
     schools = dict()
     enrollment_by_school_type = dict()
     for i, person in popdict.items():
@@ -1277,4 +1265,61 @@ def get_enrollment_by_school_type(popdict):
         enrollment_by_school_type.setdefault(school['sc_type'], [])
         enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
 
+    if not kwargs.with_school_types:
+        sc_types = set(enrollment_by_school_type.keys())
+        if None not in sc_types:
+            enrollment_by_school_type[None] = []
+            for sc_type in set(sc_types.difference(set(kwargs.keys_to_exclude))):
+                enrollment_by_school_type[None].extend(enrollment_by_school_type[sc_type])
+                enrollment_by_school_type.pop(sc_type, None)
+
     return enrollment_by_school_type
+
+
+def get_generated_school_size_distributions(enrollment_by_school_type, bins):
+    """
+    Get school size distributions by type.
+
+    Args:
+        enrollment_by_school_type (dict) : generated enrollment sizes by school types
+        bins (list)                      : school size bins
+
+    Returns:
+        dict: Dictionary of generated school size distribution by school type.
+    """
+    generated_school_size_dist = dict()
+    for sc_type in enrollment_by_school_type:
+        sizes = enrollment_by_school_type[sc_type]
+        hist, bins = np.histogram(sizes, bins=bins, density=0)
+        if sum(sizes) > 0:
+            generated_school_size_dist[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
+        else:
+            generated_school_size_dist[sc_type] = {i: 0 for i in range(len(hist))}
+    return generated_school_size_dist
+
+
+def get_bin_edges(size_brackets):
+    """
+    Get the bin edges for size brackets.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        An array of the bin edges.
+    """
+
+    return np.array([size_brackets[0][0]] + [size_brackets[b][-1] + 1 for b in sorted(size_brackets.keys())])
+
+
+def get_bin_labels(size_brackets):
+    """
+    Get the bin labels from the values contained within each bracket or bin.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        A list of bin labels.
+    """
+    return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]

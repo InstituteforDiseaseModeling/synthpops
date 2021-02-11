@@ -2,6 +2,7 @@
 This module provides the layer for communicating with the agent-based model Covasim.
 """
 
+import numpy as np
 import sciris as sc
 from .config import logger as log
 from . import config as cfg
@@ -113,26 +114,33 @@ class Pop(sc.prettyobj):
         log.debug('Pop()')
 
         # Assign all the variables
-        self.loc_pars    = sc.objdict()
-        self.school_pars = sc.objdict()
-        self.ltcf_pars   = sc.objdict()
+        self.loc_pars                  = sc.objdict()
+        self.school_pars               = sc.objdict()
+        self.ltcf_pars                 = sc.objdict()
 
         # General parameters
-        self.n                  = int(n)
-        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code = with_industry_code
-        self.rand_seed          = rand_seed
-        self.country_location   = country_location
-        self.state_location     = state_location
-        self.location           = location
-        self.use_default        = use_default
+        self.n                         = int(n)
+        self.max_contacts              = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code        = with_industry_code
+        self.rand_seed                 = rand_seed
+        self.country_location          = country_location
+        self.state_location            = state_location
+        self.location                  = location
+        self.use_default               = use_default
+
+        # # Location parameters
+        # self.loc_pars.location         = location
+        # self.loc_pars.state_location   = state_location
+        # self.loc_pars.country_location = country_location
+        # self.loc_pars.datadir          = cfg.datadir
+        # self.loc_pars.use_default      = use_default
 
         # Age distribution parameters
-        self.smooth_ages   = smooth_ages
-        self.window_length = window_length
+        self.smooth_ages               = smooth_ages
+        self.window_length             = window_length
 
         # Household parameters
-        self.household_method = household_method
+        self.household_method          = household_method
 
         # School parameters
         self.school_pars.with_school_types               = with_school_types
@@ -155,7 +163,6 @@ class Pop(sc.prettyobj):
         self.ltcf_pars.average_LTCF_degree     = average_LTCF_degree
         self.ltcf_pars.ltcf_staff_age_min      = ltcf_staff_age_min
         self.ltcf_pars.ltcf_staff_age_max      = ltcf_staff_age_max
-        # self.ltcf_pars.use_default             = use_default
 
         # If any parameters are supplied as a dict to override defaults, merge them in now
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
@@ -230,7 +237,6 @@ class Pop(sc.prettyobj):
         use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
         average_LTCF_degree             = self.ltcf_pars.average_LTCF_degree
         with_facilities                 = self.ltcf_pars.with_facilities
-        # use_default                     = self.ltcf_pars.use_default
         ltcf_staff_age_min              = self.ltcf_pars.ltcf_staff_age_min
         ltcf_staff_age_max              = self.ltcf_pars.ltcf_staff_age_max
 
@@ -289,7 +295,6 @@ class Pop(sc.prettyobj):
         uids_in_school, uids_in_school_by_age, ages_in_school_count = spsch.get_uids_in_school(datadir, n_nonltcf, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
         if with_school_types:
-
             school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
             school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
             school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
@@ -423,6 +428,15 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def count_pop_ages(self, *args, **kwargs):
+        """
+        Create an age count of the generated population.
+
+        Returns:
+            dict: Dictionary of the age count of the generated population.
+        """
+        return spb.count_ages(self.popdict)
+
     def get_enrollment_by_school_type(self, *args, **kwargs):
         """
         Get enrollment sizes by school types in popdict.
@@ -430,7 +444,7 @@ class Pop(sc.prettyobj):
         Returns:
             list: List of generated enrollment sizes by school type.
         """
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict)
+        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
 
     def plot_people(self, *args, **kwargs):
@@ -452,7 +466,7 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
-    def plot_age_comparison(self, *args, **kwargs):
+    def plot_ages(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
 
@@ -460,11 +474,12 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_age_distribution_comparison()
+            fig, ax = pop.plot_ages()
         """
-        fig, ax = sppl.plot_age_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
+    # Todo: placeholder for enrollment rates by age
     def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated enrollment rates by age.
@@ -478,7 +493,7 @@ class Pop(sc.prettyobj):
         fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
         return fig, ax
 
-    def plot_school_sizes_by_type(self, *args, **kwargs):
+    def plot_school_sizes(self, *args, **kwargs):
         """
         Plot a comparison of the expected and generated school size distributions by school type.
 
@@ -486,9 +501,9 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_school_sizes_by_type()
+            fig, ax = pop.plot_school_sizes()
         """
-        fig, ax = sppl.plot_school_sizes_by_type(self, *args, **kwargs)
+        fig, ax = sppl.plot_school_sizes(self, *args, **kwargs)
         return fig, ax
 
 

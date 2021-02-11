@@ -14,7 +14,6 @@ pars = dict(
     state_location                  = 'Dakar',
     country_location                = 'Senegal',
     use_default                     = False,
-
     )
 
 

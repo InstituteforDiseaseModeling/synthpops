@@ -11,7 +11,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                  = settings.pop_sizes.large,
+    n                  = 8e3,
     rand_seed          = 123,
 
     country_location   = 'usa',
@@ -29,6 +29,7 @@ pars = dict(
                           'es': 'age_and_class_clustered',
                           'ms': 'age_and_class_clustered',
                           'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+
 )
 
 
@@ -38,7 +39,6 @@ def test_age_distribution_used():
     """
     sp.logger.info("Test that the age distribution used in sp.Pop.generate() are the expected age distributions. \nThis should be binned to the default number of age brackets (cfg.nbrackets).")
 
-    # pop = sp.make_population(**pars)
     pop = sp.Pop(**pars)
     loc_pars = pop.loc_pars
     age_dist = sp.read_age_bracket_distr(**loc_pars)
@@ -82,7 +82,8 @@ def test_older_ages_have_household_contacts():
     household contact matrix would have us expect otherwise.)
     """
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 10e3
+
+    test_pars['n'] = 12e3  # decent size to check older populations in households
 
     pop = sp.Pop(**test_pars)
     pop_dict = pop.to_dict()
@@ -99,7 +100,7 @@ def test_older_ages_have_household_contacts():
 
     expected_older_contact = np.sum(contact_matrix_dic['H'][age_threshold_bracket:, age_threshold_bracket:])
 
-    matrix = sp.calculate_contact_matrix(pop_dict, setting_code='H')
+    matrix = sp.calculate_contact_matrix(pop_dict, layer='H')
 
     gen_older_age_contacts = np.sum(matrix[age_threshold:, age_threshold:])
     if expected_older_contact != 0:
@@ -121,6 +122,4 @@ if __name__ == '__main__':
     pop = test_age_distribution_used()
     test_age_brackets_used_with_contact_matrix()
     test_older_ages_have_household_contacts()
-
     test_plot_contact_matrix()
-    plt.show()

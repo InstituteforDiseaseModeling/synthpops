@@ -100,6 +100,22 @@ def get_ids_by_age_dic(age_by_id_dic):
     return ids_by_age_dic
 
 
+def count_ages(popdict):
+    """
+    Create an age count from a population dictionary.
+
+    Args:
+        popdict (dict): dictionary defining population
+
+    Returns:
+        dict: Dictionary of the age count of the population.
+    """
+    age_count = dict.fromkeys(np.arange(0, 101), 0)
+    for i, person in popdict.items():
+        age_count[person['age']] += 1
+    return age_count
+
+
 def get_aggregate_ages(ages, age_by_brackets_dic):
     """
     Create a dictionary of the count of ages by age brackets.
