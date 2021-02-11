@@ -217,7 +217,6 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
         np.ndarray: Symmetric age specific contact matrix.
 
     Note:
-
         H for households, S for schools, W for workplaces, C for community or
         other, and 'LTCF' for long term care facilities.
     """
@@ -248,10 +247,11 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
                         aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50,
                         title_prefix=None, fig=None, ax=None, titles=None):
     """
-    Plots the age specific contact matrix where the matrix element matrix_ij is the contact rate or frequency
-    for the average individual in age group i with all of their contacts in age group j. Can either be density
-    or frequency definition, as well as a single year age contact matrix or a contact matrix for aggregated
-    age brackets.
+    Plots the age specific contact matrix where the matrix element matrix_ij is
+    the contact rate or frequency for the average individual in age group i with
+    all of their contacts in age group j. Can either be density or frequency
+    definition, as well as a single year age contact matrix or a contact matrix
+    for aggregated age brackets.
 
     TODO: Refactor to use plotting_kwargs class.
 
@@ -394,7 +394,7 @@ def plot_contacts(population, **kwargs):
     Plot the age mixing matrix for a specific contact layer.
 
     Args:
-        population (dict)          : population to be plotted, if None, code will generate it
+        population (dict) : population to be plotted, if None, code will generate it
 
     Other Parameters:
     **kwargs:
@@ -454,9 +454,10 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
 
     """
     Plot histogram on a sorted array based by names. If names not provided the
-    order will be used. If generate data is not provided, plot only the expected values.
-    Note this can only be used with the limitation that data that has already been binned.
-    Figure will be saved in figdir if given or else working directory.
+    order will be used. If generate data is not provided, plot only the expected
+    values. Note this can only be used with the limitation that data that has
+    already been binned. Figure will be saved in figdir if given or else working
+    directory.
 
     Args:
         expected (array)        : Array of expected values
@@ -624,11 +625,11 @@ def plot_ages(pop, *args, **kwargs):
     plkwargs.set_default_pop_pars()
 
     # get the expected age distribution
-    expected_age_distr = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, {'window_length': plkwargs.window_length}))
-    expected_age_distr_values = [expected_age_distr[k] * 100 for k in sorted(expected_age_distr.keys())]
+    expected_age_dist = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, {'window_length': plkwargs.window_length}))
+    expected_age_dist_values = [expected_age_dist[k] * 100 for k in sorted(expected_age_dist.keys())]
 
     if plkwargs.comparison:
-        generated_age_count = dict.fromkeys(expected_age_distr.keys(), 0)  # sets ordering of keys consistently
+        generated_age_count = dict.fromkeys(expected_age_dist.keys(), 0)  # sets ordering of keys consistently
 
         # get the generated age distribution
         if isinstance(pop, sppop.Pop):
@@ -641,30 +642,29 @@ def plot_ages(pop, *args, **kwargs):
         elif isinstance(pop, cv.people.People):
             generated_age_count = Counter(pop.age)
 
-        generated_age_distr = spb.norm_dic(generated_age_count)
-        generated_age_distr_values = [generated_age_distr[k] * 100 for k in sorted(generated_age_distr.keys())]
-        max_y = np.ceil(max(0, max(expected_age_distr_values), max(generated_age_distr_values)))
+        generated_age_dist = spb.norm_dic(generated_age_count)
+        generated_age_dist_values = [generated_age_dist[k] * 100 for k in sorted(generated_age_dist.keys())]
+        max_y = np.ceil(max(0, max(expected_age_dist_values), max(generated_age_dist_values)))
 
     else:
-        generated_age_distr_values = None
-        max_y = np.ceil(max(0, max(expected_age_distr_values)))
+        generated_age_dist_values = None
+        max_y = np.ceil(max(0, max(expected_age_dist_values)))
 
     # update the fig
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
 
     # Todo: update plot_array to inherit plkwargs class...
-    fig, ax = plot_array(expected_age_distr_values, fig=fig, ax=ax,
-                         **dict(generated=generated_age_distr_values,
-                                figname=plkwargs.figname, binned=True,
+    fig, ax = plot_array(expected_age_dist_values, fig=fig, ax=ax,
+                         **dict(generated=generated_age_dist_values, binned=True,
+                                figname=plkwargs.figname, xlabel_rotation=plkwargs.rotation,
                                 do_show=False, do_save=False,   # instead of saving now, will save after customizing the figure some more below
-                                xlabel_rotation=plkwargs.rotation,
                                 prefix=f"{plkwargs.location}_age_distribution",
                                 markersize=plkwargs.markersize, color_1=plkwargs.color_1, color_2=plkwargs.color_2))
 
     ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
     ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
-    ax.set_xlim(-1, len(expected_age_distr_values))
+    ax.set_xlim(-1, len(expected_age_dist_values))
     ax.set_ylim(0, max_y)
     ax.tick_params(labelsize=plkwargs.fontsize)
 
@@ -675,10 +675,11 @@ def plot_ages(pop, *args, **kwargs):
 
 def plot_school_sizes(pop, *args, **kwargs):
     """
-    Plot a comparison of the expected and generated school size distribution for each type of school expected.
+    Plot a comparison of the expected and generated school size distribution for
+    each type of school expected.
 
     Args:
-        pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
+        pop (pop object): population, either synthpops.pop.Pop, or dict
         args (list): list of arguments to pass to data methods and plotting (see below)
         kwargs (dict)   : keyword arguments to pass to data methods and plotting (see below).
 
@@ -744,48 +745,35 @@ def plot_school_sizes(pop, *args, **kwargs):
         plkwargs.window_length = pop.window_length
         popdict = sc.dcp(pop.to_dict())
 
-    elif isinstance(pop, cv.people.People):
-        raise NotImplementedError("This method is not yet implemented for covasim people objects.")
-
-    elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
-    else:
+    elif isinstance(pop, dict):
         popdict = sc.dcp(pop)
+
+    else:
+        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
 
     if plkwargs.with_school_types:
-        expected_school_size_distr = spdata.get_school_size_distr_by_type(**plkwargs.loc_pars)
+        expected_school_size_dist = spdata.get_school_size_distr_by_type(**plkwargs.loc_pars)
     else:
         plkwargs.school_type_labels = {None: ''}
-        expected_school_size_distr = {None: spdata.get_school_size_distr_by_brackets(**plkwargs.loc_pars)}
+        expected_school_size_dist = {None: spdata.get_school_size_distr_by_brackets(**plkwargs.loc_pars)}
 
     school_size_brackets = spdata.get_school_size_brackets(**plkwargs.loc_pars)
-    bins = [school_size_brackets[0][0]] + [school_size_brackets[b][-1] + 1 for b in school_size_brackets]
-    bin_labels = [f"{school_size_brackets[b][0]}-{school_size_brackets[b][-1]}" for b in school_size_brackets]
+    bins = spsch.get_bin_edges(school_size_brackets)
+    bin_labels = spsch.get_bin_labels(school_size_brackets)
 
     # calculate how many students are in each school
     if plkwargs.comparison:
-        generated_school_size_distr = dict()
-
-        if isinstance(pop, (sppop.Pop, dict)):
-            enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
-
-        else:  # cv.People option --- not yet available
-            raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another support pop type.")
-
-        generated_school_size_distr = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
+        enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
+        generated_school_size_dist = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
 
     for school_type in plkwargs.keys_to_exclude:
-        expected_school_size_distr.pop(school_type, None)
+        expected_school_size_dist.pop(school_type, None)
         plkwargs.school_type_labels.pop(school_type, None)
 
-        if plkwargs.comparison:
-            enrollment_by_school_type.pop(school_type, None)
-            generated_school_size_distr.pop(school_type, None)
-
-    sorted_school_types = sorted(expected_school_size_distr.keys())
+    sorted_school_types = sorted(expected_school_size_dist.keys())
     n_school_types = len(sorted_school_types)
     plkwargs.nrows = n_school_types
 
@@ -804,7 +792,7 @@ def plot_school_sizes(pop, *args, **kwargs):
         ax = [ax]
         fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 0.47)
         plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
-        plkwargs.location_text_y = 106  # looks good with defaults, user has ability to change this
+        plkwargs.location_text_y = 106  # default value for singular school type -- you have the ability to change this by supplying the kwarg location_text_y
 
     # update the fig
     fig.subplots_adjust(**plkwargs.axis)
@@ -814,11 +802,11 @@ def plot_school_sizes(pop, *args, **kwargs):
         c = ns / n_school_types
         c2 = min(c + 0.12, 1)
 
-        sorted_bins = sorted(expected_school_size_distr[school_type].keys())
+        sorted_bins = sorted(expected_school_size_dist[school_type].keys())
 
-        ax[ns].bar(x, [expected_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor=cmap(c2), label='Expected', zorder=0)
+        ax[ns].bar(x, [expected_school_size_dist[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor=cmap(c2), label='Expected', zorder=0)
         if plkwargs.comparison:
-            ax[ns].plot(x, [generated_school_size_distr[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
+            ax[ns].plot(x, [generated_school_size_dist[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
                         marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=plkwargs.markersize, label='Generated', zorder=1)
             leg = ax[ns].legend(loc=1, fontsize=plkwargs.fontsize)
             leg.draw_frame(False)
@@ -837,6 +825,7 @@ def plot_school_sizes(pop, *args, **kwargs):
         ax[ns].set_title(title, fontsize=plkwargs.fontsize + 1, verticalalignment='top')
     ax[ns].set_xlabel('School size', fontsize=plkwargs.fontsize + 1, verticalalignment='center_baseline')
 
+    # for multipanel figures, first display then re-adjust it and save to disk
     if plkwargs.do_show:
         plt.show()
 
