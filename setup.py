@@ -32,7 +32,7 @@ CLASSIFIERS = [
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry, Cliff Kerr, Meikang Wu, and Mary Fisher on behalf of the IDM COVID-19 Response Team",
+    author="Dina Mistry, Cliff Kerr, Meikang Wu, Mary Fisher, and Daniel Klein on behalf of the IDM COVID-19 Response Team",
     author_email="covid@idmod.org",
     description="Synthetic contact network generation",
     long_description=long_description,
