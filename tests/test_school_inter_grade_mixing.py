@@ -11,10 +11,11 @@ import os
 import sciris as sc
 import synthpops as sp
 import numpy as np
+import settings
 
 # parameters to generate a test population
 pars = dict(
-        n                               = 5001,
+        n                               = settings.pop_sizes.small_medium,
         rand_seed                       = 123,
 
         with_facilities                 = 1,

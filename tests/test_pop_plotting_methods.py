@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 import cmocean as cmo
 import cmasher as cmr
 import pytest
+import settings
 
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 1e3,
+    n                               = settings.pop_sizes.small,
     rand_seed                       = 123,
 
     smooth_ages                     = True,

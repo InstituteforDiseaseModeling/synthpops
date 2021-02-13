@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
+import settings
 
 mplt.rcParams['font.family'] = 'Roboto Condensed'
 mplt.rcParams['font.size'] = 7
@@ -17,7 +18,7 @@ mplt.rcParams['font.size'] = 7
 
 # parameters to generate a test population
 pars = sc.objdict(
-    n                               = 5e3,
+    n                               = settings.pop_sizes.small_medium,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -43,7 +44,7 @@ def test_school_types_created():
     """
     sp.logger.info(f"Test that unique school types are created for each school.\nRun this first to see what school types you are working with.")
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 2e3
+    test_pars['n'] = settings.pop_sizes.small
     pop = sp.Pop(**pars)
     popdict = pop.to_dict()
     loc_pars = pop.loc_pars
@@ -119,7 +120,7 @@ def test_plot_school_sizes(do_show=False, do_save=False):
     return fig, ax, pop
 
 
-def test_separate_school_types_for_seattle_metro(do_show=False):
+def test_separate_school_types_for_seattle_metro(do_show=False, do_save=False):
     """
     Notes:
         By default, when no location is given and use_default is set to True,
@@ -133,6 +134,7 @@ def test_separate_school_types_for_seattle_metro(do_show=False):
     pop = sp.Pop(**test_pars)
     kwargs = sc.objdict(sc.dcp(test_pars))
     kwargs.do_show = do_show
+    kwargs.do_save = do_save
     fig, ax = pop.plot_school_sizes(**kwargs)
 
     enrollment_by_school_type = pop.get_enrollment_by_school_type(**test_pars)
@@ -174,8 +176,8 @@ if __name__ == '__main__':
     sc.tic()
 
     school_types = test_school_types_created()
-    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True)
-    fig1, ax1, pop1, school_types1 = test_separate_school_types_for_seattle_metro(do_show=True)
-    fig2, ax2, pop2 = test_plot_schools_sizes_without_types(do_show=True)
+    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True, do_save=True)
+    fig1, ax1, pop1, school_types1 = test_separate_school_types_for_seattle_metro(do_show=True, do_save=True)
+    fig2, ax2, pop2 = test_plot_schools_sizes_without_types(do_show=True, do_save=True)
 
     sc.toc()

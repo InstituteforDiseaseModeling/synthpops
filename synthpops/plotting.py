@@ -23,7 +23,7 @@ __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
-class plotting_kwargs(sc.prettyobj):
+class plotting_kwargs(sc.objdict):
     """
     A class to set and operate on plotting kwargs throughout synthpops.
 
@@ -34,10 +34,16 @@ class plotting_kwargs(sc.prettyobj):
     def __init__(self, *args, **kwargs):
         """Class constructor for plotting_kwargs."""
         kwargs = sc.mergedicts(self.default_plotting_kwargs(), kwargs)
-        self.update_kwargs(**kwargs)
+
+        self.update(kwargs)
         self.initialize()
 
         return
+
+    def __repr__(self):
+        output = sc.objrepr(self)
+        output += sc.objdict.__repr__(self)
+        return output
 
     def initialize(self):
         """Initialize plot settings."""
@@ -64,7 +70,7 @@ class plotting_kwargs(sc.prettyobj):
         default_kwargs.fontstyle = 'normal'
         default_kwargs.fontvariant = 'normal'
         default_kwargs.fontweight = 400
-        default_kwargs.fontsize = 16
+        default_kwargs.fontsize = 8
         default_kwargs.format = 'png'
         default_kwargs.rotation = 0
         default_kwargs.subplot_height = 5
@@ -90,17 +96,6 @@ class plotting_kwargs(sc.prettyobj):
 
         return default_kwargs
 
-    def __setitem__(self, key, value):
-        """Set attribute values by key."""
-        setattr(self, key, value)
-        return
-
-    def update_kwargs(self, *args, **kwargs):
-        """Update kwargs."""
-        for key, value in kwargs.items():
-            self[key] = value
-        return
-
     def set_figure_display_size(self, *args, **kwargs):
         """
         Update plotting kwargs with new calculated display sizes.
@@ -111,40 +106,28 @@ class plotting_kwargs(sc.prettyobj):
         Return:
             Updated kwargs and recalculating the display sizes.
         """
-        self.update_kwargs(**kwargs)
+        self.update(kwargs)
         self.display_height = np.round(self.screen_height * self.screen_height_factor / self.display_dpi, 2)
         self.display_width = np.round(self.screen_width * self.screen_width_factor / self.display_dpi, 2)
 
         return
 
-    def set_axis_kwargs(self):
-        """Create a dictionary of axis settings."""
-        self.axis = sc.objdict(left=self.left, right=self.right, top=self.top, bottom=self.bottom, hspace=self.hspace, wspace=self.wspace)
-        return
-
     def set_default_pop_pars(self):
         """Check if method has some key pop parameters to call on data. If not, use defaults and warn user of their use and value."""
-        default_pop_pars = {'datadir': cfg.datadir, 'location': cfg.default_location, 'state_location': cfg.default_state,
-                            'country_location': cfg.default_country,
-                            'use_default': False
-                            }
-        default_age_pars = {'smooth_ages': False, 'window_length': 7}
+        default_pop_pars = sc.objdict(datadir=cfg.datadir, location=cfg.default_location, state_location=cfg.default_state,
+                                      country_location=cfg.default_country, use_default=False)
+        default_age_pars = sc.objdict(smooth_ages=False, window_length=7)
 
-        if hasattr(self, 'loc_pars'):
-            default_pop_pars = sc.objdict(sc.mergedicts(default_pop_pars, self.loc_pars))  # update defaults if necessary
+        if 'loc_pars' in self:
+            default_pop_pars.update(self['loc_pars'])
 
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
-        for k in default_pop_pars:
-            if not hasattr(self, k):
-                setattr(self, k, default_pop_pars[k])
+        self.update(default_pop_pars)
 
-        if not hasattr(self, 'loc_pars'):
-            self.loc_pars = sc.objdict({k: getattr(self, k) for k in default_pop_pars})
+        if 'loc_pars' not in self:
+            self['loc_pars'] = sc.dcp(default_pop_pars)
 
-        for k in default_age_pars:
-            if not hasattr(self, k):
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value from config.py: {default_age_pars[k]}.")
-                setattr(self, k, default_age_pars[k])
+        self.update(default_age_pars)
 
         if not self.smooth_ages:
             self.window_length = 1
@@ -155,6 +138,18 @@ class plotting_kwargs(sc.prettyobj):
         """Class destructor. """
         mplt.rcParams.update(mplt.rcParamsDefault)
         return
+
+    def update_defaults(self, method_defaults, kwargs):
+        """Update defaults with method defaults and kwargs."""
+        kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
+        self.update(kwargs)
+
+        return
+
+    @property
+    def axis(self):
+        """ Dictionary of axis settings."""
+        return sc.objdict({k: self[k] for k in ['left', 'right', 'top', 'bottom', 'hspace', 'wspace']})
 
 
 def finalize_figure(fig, plkwargs, **new_plkwargs):
@@ -169,18 +164,35 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
     Returns:
         Matplotlib figure.
     """
-    plkwargs.update_kwargs(**new_plkwargs)
-    plkwargs.figpath = f"{plkwargs.figname}.{plkwargs.format}"
+    plkwargs = sc.dcp(plkwargs)
+    plkwargs.update(new_plkwargs)
     if plkwargs.do_save:
-        if plkwargs.figdir is not None:
-            os.makedirs(plkwargs.figdir, exist_ok=True)
-            plkwargs.figpath = os.path.join(plkwargs.figdir, plkwargs.figpath)
+        plkwargs.figpath = sc.makefilepath(filename=plkwargs.figname, folder=plkwargs.figdir, ext=plkwargs.format)
         fig.savefig(plkwargs.figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
     if plkwargs.do_show:
         plt.show()
 
     return fig
+
+
+def get_plkwargs(pop):
+    """
+    Check if pop has plkwargs and return a copy of it. Otherwise, create a new instance and return that.
+
+    Args:
+        pop (dict or sp.Pop): population object, either a dictionary or a synthpops.pop.Pop object
+    """
+    if isinstance(pop, sppop.Pop):
+        if pop.plkwargs is None:
+            plkwargs = plotting_kwargs()
+            pop.plkwargs = sc.dcp(plkwargs)
+        else:
+            plkwargs = sc.dcp(pop.plkwargs)  # grab a copy so you don't modify the version pop has
+    else:
+        plkwargs = plotting_kwargs()
+
+    return plkwargs
 
 
 def calculate_contact_matrix(population, density_or_frequency='density', layer='H'):
@@ -243,9 +255,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
 
 
 def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                        layer='H', density_or_frequency='density', logcolors_flag=False,
-                        aggregate_flag=True, cmap='cmr.freeze_r', fontsize=16, rotation=50,
-                        title_prefix=None, fig=None, ax=None, titles=None):
+                        **kwargs):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is
     the contact rate or frequency for the average individual in age group i with
@@ -298,32 +308,46 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         disease specific and we suggest you look to literature on the specific
         disease you are modeling to decide which is best for your use.
     """
-    cmap = mplt.cm.get_cmap(cmap)
+    plkwargs = plotting_kwargs()
+    # method specific plotting defaults
+    method_defaults = sc.objdict(layer='H', density_or_frequency='density',
+                                 logcolors_flag=False, aggregate_flag=True,
+                                 cmap='cmr.freeze_r', fontsize=16, rotation=50,
+                                 title_prefix=None, fig=None, ax=None, titles=None)
+    method_defaults.figname = f"contact_matrix_{method_defaults.layer}"  # by defining this here, we can at least ensure that default names connect to the layer being modeled
 
-    if fig is None:
+    plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.set_default_pop_pars()
+
+    cmap = mplt.cm.get_cmap(plkwargs.cmap)
+
+    if plkwargs.fig is None:
         fig = plt.figure(figsize=(10, 10), tight_layout=True)
-    if ax is None:
+    else:
+        fig = plkwargs.fig
+    if plkwargs.ax is None:
         ax = [fig.add_subplot(1, 1, 1)]
     else:
-        ax = [ax]
+        ax = [plkwargs.ax]
     cax = []
     cbar = []
     implot = []
 
-    if titles is None:
-        titles = {'H': 'Household', 'S': 'School', 'W': 'Work', 'LTCF': 'Long Term Care Facilities'}
+    if plkwargs.titles is None:
+        plkwargs.titles = sc.objdict(H='Household', S='School',
+                                     W='Work', LTCF='Long Term Care Facilities')
 
-    if aggregate_flag:
+    if plkwargs.aggregate_flag:
         aggregate_M = spb.get_aggregate_matrix(matrix, age_by_brackets_dic)
         asymmetric_M = spb.get_asymmetric_matrix(aggregate_M, aggregate_age_count)
     else:
         asymmetric_M = spb.get_asymmetric_matrix(matrix, age_count)
 
-    if logcolors_flag:
+    if plkwargs.logcolors_flag:
 
         vbounds = {}
-        if density_or_frequency == 'frequency':
-            if aggregate_flag:
+        if plkwargs.density_or_frequency == 'frequency':
+            if plkwargs.aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e-0}
                 vbounds['S'] = {'vmin': 1e-3, 'vmax': 1e-0}
                 vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-0}
@@ -334,8 +358,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
                 vbounds['W'] = {'vmin': 1e-3, 'vmax': 1e-1}
                 vbounds['LTCF'] = {'vmin': 1e-3, 'vmax': 1e-0}
 
-        elif density_or_frequency == 'density':
-            if aggregate_flag:
+        elif plkwargs.density_or_frequency == 'density':
+            if plkwargs.aggregate_flag:
                 vbounds['H'] = {'vmin': 1e-2, 'vmax': 1e0}
                 vbounds['S'] = {'vmin': 1e-2, 'vmax': 1e1}
                 vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e1}
@@ -347,7 +371,10 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
                 vbounds['W'] = {'vmin': 1e-2, 'vmax': 1e0}
                 vbounds['LTCF'] = {'vmin': 1e-2, 'vmax': 1e-0}
 
-        im = ax[0].imshow(asymmetric_M.T, origin='lower', interpolation='nearest', cmap=cmap, norm=LogNorm(vmin=vbounds[layer]['vmin'], vmax=vbounds[layer]['vmax']))
+        im = ax[0].imshow(asymmetric_M.T, origin='lower',
+                          interpolation='nearest', cmap=cmap,
+                          norm=LogNorm(vmin=vbounds[plkwargs.layer]['vmin'],
+                                       vmax=vbounds[plkwargs.layer]['vmax']))
 
     else:
 
@@ -355,8 +382,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
 
     implot.append(im)
 
-    if fontsize > 20:
-        rotation = 90
+    if plkwargs.fontsize > 20:
+        plkwargs.rotation = 90
 
     for i in range(len(ax)):
         divider = make_axes_locatable(ax[i])
@@ -364,24 +391,24 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
 
         fig.add_axes(cax[i])
         cbar.append(fig.colorbar(implot[i], cax=cax[i]))
-        cbar[i].ax.tick_params(axis='y', labelsize=fontsize + 4)
-        if density_or_frequency == 'frequency':
-            cbar[i].ax.set_ylabel('Frequency of Contacts', fontsize=fontsize + 2)
+        cbar[i].ax.tick_params(axis='y', labelsize=plkwargs.fontsize + 4)
+        if plkwargs.density_or_frequency == 'frequency':
+            cbar[i].ax.set_ylabel('Frequency of Contacts', fontsize=plkwargs.fontsize + 2)
         else:
-            cbar[i].ax.set_ylabel('Density of Contacts', fontsize=fontsize + 2)
-        ax[i].tick_params(labelsize=fontsize + 2)
-        ax[i].set_xlabel('Age', fontsize=fontsize + 6)
-        ax[i].set_ylabel('Age of Contacts', fontsize=fontsize + 6)
+            cbar[i].ax.set_ylabel('Density of Contacts', fontsize=plkwargs.fontsize + 2)
+        ax[i].tick_params(labelsize=plkwargs.fontsize + 2)
+        ax[i].set_xlabel('Age', fontsize=plkwargs.fontsize + 6)
+        ax[i].set_ylabel('Age of Contacts', fontsize=plkwargs.fontsize + 6)
         ax[i].set_title(
-            (title_prefix if title_prefix is not None else '') + titles[layer] + ' Age Mixing', fontsize=fontsize + 10)
+            (plkwargs.title_prefix if plkwargs.title_prefix is not None else '') + plkwargs.titles[plkwargs.layer] + ' Age Mixing', fontsize=plkwargs.fontsize + 10)
 
-        if aggregate_flag:
+        if plkwargs.aggregate_flag:
             tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
             ax[i].set_xticks(np.arange(len(tick_labels)))
-            ax[i].set_xticklabels(tick_labels, fontsize=fontsize)
-            ax[i].set_xticklabels(tick_labels, fontsize=fontsize, rotation=rotation)
+            ax[i].set_xticklabels(tick_labels, fontsize=plkwargs.fontsize)
+            ax[i].set_xticklabels(tick_labels, fontsize=plkwargs.fontsize, rotation=plkwargs.rotation)
             ax[i].set_yticks(np.arange(len(tick_labels)))
-            ax[i].set_yticklabels(tick_labels, fontsize=fontsize)
+            ax[i].set_yticklabels(tick_labels, fontsize=plkwargs.fontsize)
         else:
             ax[i].set_xticks(np.arange(0, len(age_count) + 1, 10))
             ax[i].set_yticks(np.arange(0, len(age_count) + 1, 10))
@@ -389,12 +416,13 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     return fig, ax
 
 
-def plot_contacts(population, **kwargs):
+# def plot_contacts(population, **kwargs):
+def plot_contacts(pop, **kwargs):
     """
     Plot the age mixing matrix for a specific contact layer.
 
     Args:
-        population (dict) : population to be plotted, if None, code will generate it
+        pop (pop object): population, either synthpops.pop.Pop or dict
 
     Other Parameters:
     **kwargs:
@@ -416,34 +444,41 @@ def plot_contacts(population, **kwargs):
     Returns:
         Matplotlib figure.
     """
-    plkwargs = plotting_kwargs()
+    plkwargs = get_plkwargs(pop)
 
     # method specific plotting defaults
-    method_defaults = sc.objdict(layer='H', aggregate_flag=True, logcolors_flag=True, density_or_frequency='density',
-                                 cmap='cmr.freeze_r', fontsize=16, rotation=50, title_prefix=None,
-                                 fig=None, ax=None, do_show=False, do_save=False,
-                                 state_location=cfg.default_state, country_location=cfg.default_country)
+    method_defaults = sc.objdict(layer='H', density_or_frequency='density',
+                                 aggregate_flag=True, logcolors_flag=True,
+                                 cmap='cmr.freeze_r', fontsize=16, rotation=50,
+                                 title_prefix=None, fig=None, ax=None, do_show=False, do_save=False,
+                                 state_location=cfg.default_state, country_location=cfg.default_country
+                                 )
     method_defaults.figname = f"contact_matrix_{method_defaults.layer}"  # by defining this here, we can at least ensure that default names connect to the layer being modeled
-    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
 
-    plkwargs.update_kwargs(**kwargs)
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # now knowing the kwargs, update the location kwargs stored
     plkwargs.set_default_pop_pars()
 
-    age_brackets = spdata.get_census_age_brackets(**plkwargs.loc_pars)
-    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+    if isinstance(pop, sppop.Pop):
+        population = pop.to_dict()
+        age_brackets = pop.age_brackets
+        age_by_brackets_dic = pop.age_by_brackets_dic
+        age_count = pop.age_count
 
-    age_count = spb.count_ages(population)
+    elif isinstance(pop, dict):
+        population = sc.dcp(pop)
+        age_count = spb.count_ages(population)
+        age_brackets = spdata.get_census_age_brackets(**plkwargs.loc_pars)
+        age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+
+    else:
+        raise NotImplementedError(f"This method is not yet implemented for pop type: {type(pop)}")
+
     aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
-
     matrix = calculate_contact_matrix(population, plkwargs.density_or_frequency, plkwargs.layer)
 
-    # Todo: update plot_contact_matrix to inherit plkwargs class...
-    fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                                  plkwargs.layer, plkwargs.density_or_frequency, plkwargs.logcolors_flag,
-                                  plkwargs.aggregate_flag, plkwargs.cmap,
-                                  plkwargs.fontsize, plkwargs.rotation, plkwargs.title_prefix,
-                                  fig=plkwargs.fig, ax=plkwargs.ax,
-                                  )
+    fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, **plkwargs)
 
     finalize_figure(fig, plkwargs)  # set figpath, and save and / or show figure
 
@@ -485,16 +520,19 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
     plkwargs = plotting_kwargs()
 
     # method specific plotting defaults
-    method_defaults = dict(generated=None, names=None, figdir=None, prefix="", fontsize=12, color_1='mediumseagreen', color_2='#236a54',
-                           expect_label='Expected', value_text=False, rotation=0, binned=True, fig=fig, ax=ax, figname='example_figure')
-    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
-    plkwargs.update_kwargs(**kwargs)
+    method_defaults = dict(generated=None, names=None, figdir=None, title_prefix="",
+                           fontsize=12, color_1='mediumseagreen', color_2='#236a54',
+                           expect_label='Expected', value_text=False, rotation=0,
+                           tick_interval=10, tick_threshold=30, binned=True,
+                           fig=fig, ax=ax, figname='example_figure')
+
+    plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.set_font()  # font styles to be updated
 
     if fig is None:
         fig, ax = plt.subplots(1, 1)
 
-    title = plkwargs.prefix.replace('_', ' ').title() if plkwargs.generated is None else f"{plkwargs.prefix.replace('_', ' ').title()} Comparison"
+    title = plkwargs.title_prefix.replace('_', ' ').title() if plkwargs.generated is None else f"{plkwargs.title_prefix.replace('_', ' ').title()} Comparison"
     ax.set_title(title, fontsize=plkwargs.fontsize + 2)
     x = np.arange(len(expected))
 
@@ -518,10 +556,10 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
                 xticks = np.arange(len(plkwargs.names))
                 xticklabels = plkwargs.names
 
-            # if there are too many labels, only show every 10 ticks
-            if len(plkwargs.names) > 30:
-                xticks = xticks[0::10]
-                xticklabels = xticklabels[0::10]
+            # if there are too many labels, only show every interval of ticks
+            if len(plkwargs.names) > plkwargs.tick_threshold:
+                xticks = xticks[0::plkwargs.tick_interval]
+                xticklabels = xticklabels[0::plkwargs.tick_interval]
             ax.set_xticks(xticks)
             ax.set_xticklabels(xticklabels, rotation=plkwargs.rotation)
 
@@ -603,16 +641,15 @@ def plot_ages(pop, *args, **kwargs):
         kwargs['datadir'] = sp.datadir
         fig, ax = sp.plot_age_distribution_comparison(popdict, **kwargs)
     """
-    plkwargs = plotting_kwargs()
+    plkwargs = get_plkwargs(pop)
 
     # method specific plotting defaults
     method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#55afe1', color_2='#0a6299',
-                           fontsize=12, figname='age_distribution_comparison', comparison=True)
-    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
-    plkwargs.update_kwargs(**kwargs)
-    plkwargs.set_axis_kwargs()
-    # supporting three pop object types: synthpops.pop.Pop class, covasim.people.People class, and dictionaries (generated from or in the style of synthpops.pop.Pop.to_dict())
+                           fontsize=12, figname='age_distribution_comparison', comparison=True, binned=True)
 
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs gets updated
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
         plkwargs.smooth_ages = pop.smooth_ages
@@ -623,9 +660,11 @@ def plot_ages(pop, *args, **kwargs):
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_age_distribution"
 
     # get the expected age distribution
-    expected_age_dist = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, {'window_length': plkwargs.window_length}))
+    expected_age_dist = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, dict(window_length= plkwargs.window_length)))
     expected_age_dist_values = [expected_age_dist[k] * 100 for k in sorted(expected_age_dist.keys())]
 
     if plkwargs.comparison:
@@ -633,7 +672,7 @@ def plot_ages(pop, *args, **kwargs):
 
         # get the generated age distribution
         if isinstance(pop, sppop.Pop):
-            generated_age_count = pop.count_pop_ages()
+            generated_age_count = pop.age_count
 
         elif isinstance(pop, dict):
             for i, person in pop.items():
@@ -654,13 +693,8 @@ def plot_ages(pop, *args, **kwargs):
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
 
-    # Todo: update plot_array to inherit plkwargs class...
-    fig, ax = plot_array(expected_age_dist_values, fig=fig, ax=ax,
-                         **dict(generated=generated_age_dist_values, binned=True,
-                                figname=plkwargs.figname, xlabel_rotation=plkwargs.rotation,
-                                do_show=False, do_save=False,   # instead of saving now, will save after customizing the figure some more below
-                                prefix=f"{plkwargs.location}_age_distribution",
-                                markersize=plkwargs.markersize, color_1=plkwargs.color_1, color_2=plkwargs.color_2))
+    fig, ax = plot_array(expected_age_dist_values, fig=fig, ax=ax, generated=generated_age_dist_values,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))  # instead of saving now, will save after customizing the figure some more below
 
     ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
     ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
@@ -720,8 +754,7 @@ def plot_school_sizes(pop, *args, **kwargs):
         kwargs['datadir'] = sp.datadir
         fig, ax = sp.plot_school_sizes(popdict, **kwargs)
     """
-    plkwargs = plotting_kwargs()
-    plkwargs.school_type_labels = spsch.get_school_type_labels()
+    plkwargs = get_plkwargs(pop)
 
     # method specific plotting defaults
     method_defaults = dict(with_school_types=False, keys_to_exclude=['uv'],
@@ -729,16 +762,16 @@ def plot_school_sizes(pop, *args, **kwargs):
                            subplot_height=2.8, subplot_width=4.2, screen_height_factor=0.85,
                            location_text_y=113, fontsize=8, rotation=25, cmap='cmo.curl',
                            figname='school_size_distribution_by_type', comparison=True,
+                           school_type_labels = spsch.get_school_type_labels(),
                            )
 
-    kwargs = sc.objdict(sc.mergedicts(method_defaults, kwargs))
-    plkwargs.update_kwargs(**kwargs)
+    plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.set_font()
-    plkwargs.set_axis_kwargs()  # set up a separate dictionary for the axis args
 
     if isinstance(plkwargs.keys_to_exclude, str):
         plkwargs.keys_to_exclude = [plkwargs.keys_to_exclude]  # ensure this is treated as a list
 
+    # define after plkwargs gets updated
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
         plkwargs.smooth_ages = pop.smooth_ages
@@ -791,8 +824,8 @@ def plot_school_sizes(pop, *args, **kwargs):
     if plkwargs.nrows == 1:
         ax = [ax]
         fig.set_size_inches(plkwargs.display_width, plkwargs.display_height * 0.47)
-        plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'top': 0.88, 'bottom': 0.18, 'left': 0.12}))
-        plkwargs.location_text_y = 106  # default value for singular school type -- you have the ability to change this by supplying the kwarg location_text_y
+        plkwargs.update(dict(top=0.88, bottom=0.18, left=0.12))
+        plkwargs.location_text_y = 105.5  # default value for singular school type -- you have the ability to change this by supplying the kwarg location_text_y
 
     # update the fig
     fig.subplots_adjust(**plkwargs.axis)
@@ -837,13 +870,11 @@ def plot_school_sizes(pop, *args, **kwargs):
         else:
             cfg.logger.info("Setting default plotting parameters to save figure to disk. If these settings produce figures you would prefer to change, this method returns the figure and ax for you to modify and save to disk.")
             fig.set_size_inches(plkwargs.display_width, plkwargs.display_height)
-            plkwargs.axis = sc.objdict(sc.mergedicts(plkwargs.axis, {'bottom': 0.075, 'hspace': 0.52, 'left': 0.12}))
+            plkwargs.update(dict(bottom=0.075, hspace=0.52, left=0.12))
 
         fig.subplots_adjust(**plkwargs.axis)
-        figpath = f"{plkwargs.figname}.{plkwargs.format}"
-        if plkwargs.figdir is not None:
-            os.makedirs(plkwargs.figdir, exist_ok=True)
-            figpath = os.path.join(plkwargs.figdir, figpath)
-        fig.savefig(figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
+
+        plkwargs.figpath = sc.makefilepath(filename=plkwargs.figname, folder=plkwargs.figdir, ext=plkwargs.format)
+        fig.savefig(plkwargs.figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
     return fig, ax

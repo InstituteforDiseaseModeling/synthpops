@@ -4,11 +4,12 @@ Simple run of OOP functionality.
 
 import sciris as sc
 import synthpops as sp
+import settings
 
 
 def test_default():
     ''' Simplest possible usage '''
-    pop = sp.Pop(n=1000)
+    pop = sp.Pop(n=settings.pop_sizes.small)
     return pop
 
 
@@ -16,21 +17,21 @@ def test_alternatives():
     ''' Alternative OOP test with different options to test different code paths '''
     sp.logger.info('Testing alternative API')
 
-    n = 2000
+    n = 2 * settings.pop_sizes.small
 
     ltcf_pars = sc.objdict(
-        with_facilities = True,
+        with_facilities    = True,
         ltcf_staff_age_min = 20,
         ltcf_staff_age_max = 65,
     )
 
     school_pars = sc.objdict(
-        school_mixing_type = 'random',
-        average_class_size = 20,
-        inter_grade_mixing = True,
+        school_mixing_type            = 'random',
+        average_class_size            = 20,
+        inter_grade_mixing            = 0.1,
         average_student_teacher_ratio = 20,
-        teacher_age_min = 22,
-        teacher_age_max = 65,
+        teacher_age_min               = 22,
+        teacher_age_max               = 65,
     )
 
     pops = sc.objdict()
@@ -39,11 +40,11 @@ def test_alternatives():
 
     # Generate another population with different parameters
     ltcf_pars2 = sc.mergedicts(ltcf_pars, dict(
-        with_facilities=False,
+        with_facilities = False,
     ))
     school_pars2 = sc.mergedicts(school_pars, dict(
-        with_school_types=True,
-        school_mixing_type='age_clustered',
+        with_school_types  = True,
+        school_mixing_type = 'age_clustered',
     ))
     pops.no_ltcf = sp.Pop(n=n, ltcf_pars=ltcf_pars2, school_pars=school_pars2)
 
@@ -52,7 +53,7 @@ def test_alternatives():
 
 def test_api(do_plot=False):
     ''' More examples of basic API usage '''
-    pop = sp.Pop(n=20000)  # default parameters, 5k people
+    pop = sp.Pop(n=settings.pop_sizes.medium)  # default parameters, 8k people
     pop.save('test_api.pop')  # save as pickle
     pop.to_json('test_api.json')  # save as JSON
     popdict = pop.to_dict()  # export from class to standard python object; current default synthpops output

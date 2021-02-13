@@ -9,10 +9,11 @@ import synthpops.plotting as sppl
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import pytest
+import settings
 
 
 pars = dict(
-            n                       = 10e3,
+            n                       = settings.pop_sizes.medium_large,
             rand_seed               = 123,
 
             with_facilities         = 1,
@@ -80,7 +81,7 @@ def test_ltcf_resident_ages(do_show=False):
 
     # to actually match decently, you need to model a higher population size, but for regular
     # test purposes, large sizes will be quite a lot to test on every merge
-    test_pars['n'] = 20e3
+    test_pars['n'] = settings.pop_sizes.large
     pop = sp.Pop(**test_pars)
     pop_dict = pop.to_dict()
 

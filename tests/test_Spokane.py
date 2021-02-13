@@ -2,10 +2,11 @@
 import sciris as sc
 import synthpops as sp
 import matplotlib.pyplot as plt
+import settings
 
 
 pars = dict(
-    n                               = 8e3,
+    n                               = settings.pop_sizes.medium,
     rand_seed                       = 123,
     location                        = 'Spokane_County',
     state_location                  = 'Washington',

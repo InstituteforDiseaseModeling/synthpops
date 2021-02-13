@@ -1,14 +1,16 @@
 import sciris as sc
 
 pop_sizes = sc.objdict(
-    small  = 1e3,
-    medium = 5e3,
-    large  = 20e3,
+    small        = 1e3,
+    small_medium = 5e3,
+    medium       = 8e3,
+    medium_large = 12e3,
+    large        = 20e3,
 )
 
 def get_full_feature_pars():
     pars = dict(
-        n                               = pop_sizes.medium,
+        n                               = pop_sizes.small_medium,
         rand_seed                       = 123,
         max_contacts                    = None,
 

@@ -18,8 +18,8 @@ mplt.rcParams['font.size'] = 8
 
 
 # parameters to generate a test population
-pars = dict(
-    n                = settings.pop_sizes.medium,
+pars = sc.objdict(
+    n                = settings.pop_sizes.small_medium,
     rand_seed        = 123,
 
     # need location parameters
@@ -35,87 +35,63 @@ pars = dict(
 
 )
 
+kwargs = sc.objdict(
+    color_1  = 'mediumseagreen',
+    color_2  = '#236a54',
+    height   = 4,
+    width    = 7,
+    fontsize = 9
+    )
 
-# Todo: pull in new plotting methods directly on pop object
+
 def test_original_household_method(do_show=False):
     sp.logger.info("Generating households with the infer_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['household_method'] = 'infer_ages'
+    test_pars.household_method = 'infer_ages'
     pop = sp.Pop(**test_pars)
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    if do_show:
-        plt.show()
+    fig, ax = pop.plot_ages(**kwargs)
 
     return pop
 
 
-# Todo: pull in new plotting methods directly on pop object
 def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['household_method'] = 'fixed_ages'
+    test_pars.household_method = 'fixed_ages'
     pop = sp.Pop(**test_pars)
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    if do_show:
-        plt.show()
+    fig, ax = pop.plot_ages(**kwargs)
 
     return fig, ax
 
 
-# Todo: pull in new plotting methods directly on pop object
 def test_smoothed_and_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 8e3
-    test_pars['location'] = 'Spokane_County'
-    test_pars['household_method'] = 'fixed_ages'
-    test_pars['smooth_ages'] = True
-    test_pars['window_length'] = 7  # window for averaging the age distribution
+    test_pars.n = settings.pop_sizes.medium
+    test_pars.location = 'Spokane_County'
+    test_pars.household_method = 'fixed_ages'
+    test_pars.smooth_ages = True
+
     pop = sp.Pop(**test_pars)
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Smoothed Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    if do_show:
-        plt.show()
-
-    return fig, ax
-
-
-# duplicate / early version of plotting method now available
-def plot_age_dist(datadir, pop, pars, do_show, prefix):
-    sp.logger.info("Plot the expected age distribution and the generated age distribution.")
-    loc_pars = pop.loc_pars
-    age_brackets = sp.get_census_age_brackets(**loc_pars)
-    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
-
-    if pars['smooth_ages']:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': pars['window_length']}))
-    else:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(**sc.mergedicts(loc_pars, {'window_length': 1}))
-
-    gen_age_count = pop.count_pop_ages()
-    gen_age_distr = sp.norm_dic(gen_age_count)
-
-    fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()], figname='age_comparison',
-                              generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True, prefix=prefix.replace('_', ' '))
-    ax.set_xlabel('Ages')
-    ax.set_ylabel('Distribution (%)')
-    ax.set_ylim(bottom=0)
-    ax.set_xlim(-1.5, max(age_by_brackets_dic.keys()) + 1.5)
-    ax.set_title(f"Age Distribution of {pars['location'].replace('_', ' ')}: {pars['household_method'].replace('_', ' ')} method")
-    fig.set_figheight(4)  # reset the figure size
-    fig.set_figwidth(7)
-
+    fig, ax = pop.plot_ages(**kwargs)
     return fig, ax
 
 

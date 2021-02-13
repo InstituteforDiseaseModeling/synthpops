@@ -9,7 +9,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                  = 8e3,
+    n                  = settings.pop_sizes.medium_large,
     rand_seed          = 123,
 
     country_location   = 'usa',
@@ -81,7 +81,7 @@ def test_older_ages_have_household_contacts():
     """
     test_pars = sc.dcp(pars)
 
-    test_pars['n'] = 12e3  # decent size to check older populations in households
+    test_pars['n'] = settings.pop_sizes.medium_large  # decent size to check older populations in households
 
     pop = sp.Pop(**test_pars)
     pop_dict = pop.to_dict()

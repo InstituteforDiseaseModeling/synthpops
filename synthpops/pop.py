@@ -193,6 +193,13 @@ class Pop(sc.prettyobj):
 
         self.popdict = population
         log.debug('Pop(): done.')
+
+        # Add summaries
+        self.age_count = self.count_pop_ages()
+
+        # Plotting defaults
+        self.plkwargs = sppl.plotting_kwargs()
+
         return
 
     def generate(self, verbose=False):
@@ -260,6 +267,10 @@ class Pop(sc.prettyobj):
 
         # Generate LTCFs
         n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)
+
+        # Store expected age data
+        self.age_brackets = age_brackets
+        self.age_by_brackets_dic = age_by_brackets_dic
 
         # Generate households
         household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
@@ -370,6 +381,11 @@ class Pop(sc.prettyobj):
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
+
+        # Add summaries
+        # self.age_count = self.count_pop_ages()
+
+
         return population
 
     def to_dict(self):
@@ -421,7 +437,7 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
-    def count_pop_ages(self, *args, **kwargs):
+    def count_pop_ages(self):
         """
         Create an age count of the generated population.
 
