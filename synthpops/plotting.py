@@ -118,16 +118,23 @@ class plotting_kwargs(sc.objdict):
                                       country_location=cfg.default_country, use_default=False)
         default_age_pars = sc.objdict(smooth_ages=False, window_length=7)
 
+        # if loc_pars exists, then update the default_pop_pars with that information
         if 'loc_pars' in self:
             default_pop_pars.update(self['loc_pars'])
 
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
-        self.update(default_pop_pars)
+        for k in default_pop_pars:
+            if k not in self:
+                self[k] = default_pop_pars[k]
+            else:
+                default_pop_pars[k] = self[k]
+        for k in default_age_pars:
+            if k not in self:
+                self[k] = default_age_pars[k]
 
+        # loc_pars not in self yet
         if 'loc_pars' not in self:
             self['loc_pars'] = sc.dcp(default_pop_pars)
-
-        self.update(default_age_pars)
 
         if not self.smooth_ages:
             self.window_length = 1

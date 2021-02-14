@@ -196,6 +196,7 @@ class Pop(sc.prettyobj):
 
         # Add summaries
         self.age_count = self.count_pop_ages()
+        self.enrollment_by_school_type = self.get_enrollment_by_school_type()  # includes all school types
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -227,11 +228,11 @@ class Pop(sc.prettyobj):
         use_default                     = self.use_default
 
         # Age distribution parameters
-        smooth_ages   = self.smooth_ages
-        window_length = self.window_length
+        smooth_ages                     = self.smooth_ages
+        window_length                   = self.window_length
 
         # Household parameters
-        household_method = self.household_method
+        household_method                = self.household_method
 
         # LTCF parameters
         use_two_group_reduction         = self.ltcf_pars.use_two_group_reduction
@@ -380,11 +381,6 @@ class Pop(sc.prettyobj):
         for key, person in population.items():
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
-
-
-        # Add summaries
-        # self.age_count = self.count_pop_ages()
-
 
         return population
 

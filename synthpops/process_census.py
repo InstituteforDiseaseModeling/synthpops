@@ -455,7 +455,7 @@ def process_usa_ltcf_resident_to_staff_ratios(datadir, country_location, state_l
     for k in keys:
         ratios.extend(d[k].values.astype(float))
     ratios = np.array(ratios)
-    mask = ratios != np.nan
+    mask = ~np.isnan(ratios)
     ratios = ratios[mask]
 
     if sum(mask):  # found at least one record
