@@ -125,11 +125,14 @@ class plotting_kwargs(sc.objdict):
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
         for k in default_pop_pars:
             if k not in self:
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
                 self[k] = default_pop_pars[k]
             else:
                 default_pop_pars[k] = self[k]
+
         for k in default_age_pars:
             if k not in self:
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
                 self[k] = default_age_pars[k]
 
         # loc_pars not in self yet
