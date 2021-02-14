@@ -18,7 +18,7 @@ from . import version as spv
 __all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets',
            'validate', 'set_location_defaults', 'default_country', 'default_state',
            'default_location', 'default_sheet_name', 'alt_location', 'default_household_size_1_included',
-           'get_config_data', 'version_info']
+           'get_config_data', 'version_info', 'max_age']
 
 
 # Declaring this here makes it globally available as synthpops.datadir
@@ -41,6 +41,7 @@ if datadir is None:
     datadir = localdatadir
 
 # Number of census age brackets to use
+max_age = 101
 valid_nbracket_ranges = [16, 18, 20]  # Choose how many age bins to use -- 20 is only partially supported
 nbrackets = 20
 matrix_size = 16  # The dimensions of the mixing matrices -- currently only 16 is available

@@ -51,7 +51,7 @@ for a in sorted(ltcf_rates_by_age.keys()):
 print(f'Total long term care facility users for {location} with population size {local_population_size:.0f} is: {sum(local_users.values()):.0f}.')
 
 
-# use the Kaiser Health News data to estimate ratios
+# # use the Kaiser Health News data to estimate ratios
 # location_alias = 'seattle_metro'  # saving data only for Seattle
 # location_list = ['Seattle']
 
