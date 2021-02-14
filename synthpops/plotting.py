@@ -135,7 +135,7 @@ class plotting_kwargs(sc.objdict):
         return
 
     def restore_defaults(self):
-        """Class destructor. """
+        """Reset matplotlib defaults. """
         mplt.rcParams.update(mplt.rcParamsDefault)
         return
 
@@ -182,6 +182,9 @@ def get_plkwargs(pop):
 
     Args:
         pop (dict or sp.Pop): population object, either a dictionary or a synthpops.pop.Pop object
+
+    Returns:
+        plotting_kwargs object
     """
     if isinstance(pop, sppop.Pop):
         if pop.plkwargs is None:
@@ -254,8 +257,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
     return M
 
 
-def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic,
-                        **kwargs):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, **kwargs):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is
     the contact rate or frequency for the average individual in age group i with
@@ -263,14 +265,15 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     definition, as well as a single year age contact matrix or a contact matrix
     for aggregated age brackets.
 
-    TODO: Refactor to use plotting_kwargs class.
-
     Args:
         matrix (np.array)                : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
         age_count (dict)                 : dictionary with the count of individuals in the population for each age
         aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
         age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
+
+    Other Parameters:
+    **kwargs:
         layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
         density_or_frequency (str)       : Default value is 'density', see notes for more details.
         logcolors_flag (bool)            : If True, plot heatmap in logscale
@@ -416,7 +419,6 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     return fig, ax
 
 
-# def plot_contacts(population, **kwargs):
 def plot_contacts(pop, **kwargs):
     """
     Plot the age mixing matrix for a specific contact layer.

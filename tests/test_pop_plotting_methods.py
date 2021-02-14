@@ -14,16 +14,19 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                               = settings.pop_sizes.small,
-    rand_seed                       = 123,
+    n                       = settings.pop_sizes.small,
+    rand_seed               = 123,
 
-    smooth_ages                     = True,
+    smooth_ages             = True,
 
-    with_facilities                 = 1,
-    with_non_teaching_staff         = 1,
-    with_school_types               = 1,
+    with_facilities         = 1,
+    with_non_teaching_staff = 1,
+    with_school_types       = 1,
 
-    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type      = {'pk': 'age_and_class_clustered',
+                               'es': 'age_and_class_clustered',
+                               'ms': 'age_and_class_clustered',
+                               'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 pars = sc.objdict(pars)
 

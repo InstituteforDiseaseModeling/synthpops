@@ -71,7 +71,7 @@ def test_age_brackets_used_with_contact_matrix():
 
 def test_older_ages_have_household_contacts():
     """
-    Test that older age groups (85+) have at least some household contacts with
+    Test that older age groups (80+) have at least some household contacts with
     other older individuals if expected. Together, if sp.Pop.generate() uses the
     incorrect number of age brackets with the contact matrices, older age groups
     will not be generated as household contacts for each other (when we look at
