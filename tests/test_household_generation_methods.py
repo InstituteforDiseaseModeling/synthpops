@@ -11,62 +11,51 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
+import settings
 
 mplt.rcParams['font.family'] = 'Roboto Condensed'
 mplt.rcParams['font.size'] = 8
 
 
 # parameters to generate a test population
-pars = dict(
-    n                               = 20e3,
-    rand_seed                       = 123,
-    max_contacts                    = None,
+pars = sc.objdict(
+    n                = settings.pop_sizes.small_medium,
+    rand_seed        = 123,
 
-    country_location                = 'usa',
-    state_location                  = 'Washington',
-    location                        = 'seattle_metro',
-    use_default                     = True,
+    # need location parameters
+    country_location = 'usa',
+    state_location   = 'Washington',
+    location         = 'seattle_metro',
+    use_default      = True,
 
-    smooth_ages                     = False,
-    household_method                = 'infer_age',
+    smooth_ages      = False,
+    household_method = 'infer_ages',
 
-    with_industry_code              = 0,
-    with_facilities                 = 1,
-    with_non_teaching_staff         = 1,
-    use_two_group_reduction         = 1,
-    with_school_types               = 1,
+    with_facilities  = 1,
 
-    average_LTCF_degree             = 20,
-    ltcf_staff_age_min              = 20,
-    ltcf_staff_age_max              = 60,
-
-    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
-    average_class_size              = 20,
-    inter_grade_mixing              = 0.1,
-    teacher_age_min                 = 25,
-    teacher_age_max                 = 75,
-    staff_age_min                   = 20,
-    staff_age_max                   = 75,
-
-    average_student_teacher_ratio   = 20,
-    average_teacher_teacher_degree  = 3,
-    average_student_all_staff_ratio = 15,
-    average_additional_staff_degree = 20,
 )
+
+kwargs = sc.objdict(
+    color_1  = 'mediumseagreen',
+    color_2  = '#236a54',
+    height   = 4,
+    width    = 7,
+    fontsize = 9
+    )
 
 
 def test_original_household_method(do_show=False):
     sp.logger.info("Generating households with the infer_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['household_method'] = 'infer_ages'
-    pop = sp.make_population(**test_pars)
+    test_pars.household_method = 'infer_ages'
+    pop = sp.Pop(**test_pars)
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    if do_show:
-        plt.show()
+    fig, ax = pop.plot_ages(**kwargs)
 
     return pop
 
@@ -75,15 +64,14 @@ def test_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages method.")
 
     test_pars = sc.dcp(pars)
-    test_pars['n'] = 20e3
-    test_pars['household_method'] = 'fixed_ages'
-    pop = sp.make_population(**test_pars)
+    test_pars.household_method = 'fixed_ages'
+    pop = sp.Pop(**test_pars)
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    if do_show:
-        plt.show()
+    fig, ax = pop.plot_ages(**kwargs)
 
     return fig, ax
 
@@ -92,57 +80,18 @@ def test_smoothed_and_fixed_ages_household_method(do_show=False):
     sp.logger.info("Generating households with the fixed_ages and smoothed_ages methods.")
 
     test_pars = sc.dcp(pars)
-    test_pars['location'] = 'Spokane_County'
-    test_pars['household_method'] = 'fixed_ages'
-    test_pars['smooth_ages'] = True
-    test_pars['window_length'] = 7  # window for averaging the age distribution
-    pop = sp.make_population(**test_pars)
+    test_pars.n = settings.pop_sizes.medium
+    test_pars.location = 'Spokane_County'
+    test_pars.household_method = 'fixed_ages'
+    test_pars.smooth_ages = True
 
-    datadir = sp.datadir
-    fig, ax = plot_age_dist(datadir, pop, test_pars, do_show, test_pars['household_method'])
+    pop = sp.Pop(**test_pars)
 
-    if do_show:
-        plt.show()
+    kwargs.update(test_pars)
+    kwargs.do_show = do_show
+    kwargs.title_prefix = f"Smoothed Age Distribution of {kwargs.location.replace('_', ' ')}: {kwargs.household_method.replace('_', ' ')} method"
 
-    return fig, ax
-
-
-def plot_age_dist(datadir, pop, pars, do_show, testprefix):
-    sp.logger.info("Plot the expected age distribution and the generated age distribution.")
-
-    age_brackets = sp.get_census_age_brackets(datadir, country_location=pars['country_location'],
-                                              state_location=pars['state_location'], location=pars['location'])
-    age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
-
-    if pars['smooth_ages']:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
-                                                                   state_location=pars['state_location'],
-                                                                   country_location=pars['country_location'],
-                                                                   window_length=pars['window_length'])
-
-    else:
-        expected_age_distr = sp.get_smoothed_single_year_age_distr(datadir, location=pars['location'],
-                                                                   state_location=pars['state_location'],
-                                                                   country_location=pars['country_location'],
-                                                                   window_length=1)
-
-    gen_age_count = dict.fromkeys(expected_age_distr.keys(), 0)
-
-    for i, person in pop.items():
-        gen_age_count[person['age']] += 1
-
-    gen_age_distr = sp.norm_dic(gen_age_count)
-
-    fig, ax = sppl.plot_array([v * 100 for v in expected_age_distr.values()],
-                              generated=[v * 100 for v in gen_age_distr.values()], do_show=False, binned=True, testprefix=testprefix.replace('_', ' '))
-    ax.set_xlabel('Ages')
-    ax.set_ylabel('Distribution (%)')
-    ax.set_ylim(bottom=0)
-    ax.set_xlim(-1.5, max(age_by_brackets_dic.keys()) + 1.5)
-    ax.set_title(f"Age Distribution of {pars['location'].replace('_', ' ')}: {pars['household_method'].replace('_', ' ')} method")
-    fig.set_figheight(4)  # reset the figure size
-    fig.set_figwidth(7)
-
+    fig, ax = pop.plot_ages(**kwargs)
     return fig, ax
 
 
