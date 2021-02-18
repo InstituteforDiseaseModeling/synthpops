@@ -1,5 +1,5 @@
 #!/bin/bash
-coverage run --source=../../synthpops --omit=*census* -m pytest test_*.py
+pytest test_*.py unittests/test_*.py --cov-config=.coveragerc --cov=../synthpops --workers auto --durations=0
 
 echo 'Creating HTML report...'
 coverage html

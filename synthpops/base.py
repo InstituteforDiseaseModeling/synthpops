@@ -4,6 +4,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 
 import numpy as np
 import sciris as sc
+from . import config as cfg
 
 
 def norm_dic(dic):
@@ -98,6 +99,22 @@ def get_ids_by_age_dic(age_by_id_dic):
     for i in age_by_id_dic:
         ids_by_age_dic[age_by_id_dic[i]].append(i)
     return ids_by_age_dic
+
+
+def count_ages(popdict):
+    """
+    Create an age count from a population dictionary.
+
+    Args:
+        popdict (dict): dictionary defining population
+
+    Returns:
+        dict: Dictionary of the age count of the population.
+    """
+    age_count = dict.fromkeys(np.arange(0, cfg.max_age), 0)
+    for i, person in popdict.items():
+        age_count[person['age']] += 1
+    return age_count
 
 
 def get_aggregate_ages(ages, age_by_brackets_dic):
