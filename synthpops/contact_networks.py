@@ -73,6 +73,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     Notes:
         Methods to trim large groups of contacts down to better approximate a sense of close contacts (such as classroom sizes or
         smaller work groups are available via sp.trim_contacts() or sp.create_reduced_contacts_with_group_types(): see these methods for more details).
+
+        If with_school_types==False, completely random schools will be generated with respect to the average_class_size,
+        but other parameters such as average_additional_staff_degree will not be used
     """
     log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}

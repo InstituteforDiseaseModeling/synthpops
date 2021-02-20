@@ -13,7 +13,10 @@ import numpy as np
 import os
 import pytest
 import sys
+import warnings
 import synthpops as sp
+
+# import tests/config.py for test related settings
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import config
 pars = dict(
@@ -59,6 +62,8 @@ def test_average_additional_staff_degree(average_additional_staff_degree):
     """
     #note this must be greater than default average_student_all_staff_ratio (20)
     pars["average_additional_staff_degree"] = average_additional_staff_degree
+    pars["with_school_types"] = 1
+   
     pop = sp.Pop(**pars)
     contacts = get_contact_counts(pop.popdict,
                                   "average_additional_staff_degree",
@@ -128,6 +133,12 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree):
         None
     """
     pars["average_teacher_teacher_degree"] = average_teacher_teacher_degree
+    pars["with_school_types"] = 1
+    # average_teacher_teacher_degree will not be used in school_mixing_type == 'random' scenario
+    pars["school_mixing_type"] = {'pk': 'age_and_class_clustered',
+                                  'es': 'age_and_class_clustered',
+                                  'ms': 'age_and_class_clustered',
+                                  'hs': 'age_clustered', 'uv': 'age_clustered'}
     pop = sp.Pop(**pars)
     contacts = get_contact_counts(pop.popdict,
                                   "average_teacher_teacher_degree",
@@ -141,7 +152,8 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree):
                    varname="average_teacher_teacher_degree")
 
 
-def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir):
+def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
+                       people_types=['sc_teacher', 'sc_student', 'sc_staff']):
     """
     Helper method to get contact counts for teachers, students and staffs in the popdict
     Args:
@@ -151,20 +163,21 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir):
         do_show: whether to plot the count distribution or not
         do_save: whether to save the plot or not
         fig_dir: subfolder name (under current run directory) for saving the plots
+        people_types: a list of possible people types (such as sc_student, sc_teacher, sc_staff, snf_staff, snf_res)
 
     Returns:
-        A dictionary with keys = ['sc_teacher', 'sc_student', 'sc_staff']
-        and each value is a dictionary of categories which stores the count representing these 5 categories of contacts:
-        ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+        A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
+        and each value is a dictionary which stores the list of counts for each type of contacts:
+        default to ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+        for example: contact_counter['sc_teacher']['sc_teacher'] store the counts of each teacher's "teacher" contact
     """
-    keys = ['sc_teacher', 'sc_student', 'sc_staff']
-    categories = ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+    contact_types = people_types + ['all_staff', 'all']
     # initialize the contact_counter dictionary, the keys are used to identify the teacher, student and staff
     # the categories are used to store the count by contacts type where all means all contacts and all_staff means
     # sc_teacher + sc_staff
-    contact_counter = dict.fromkeys(keys)
+    contact_counter = dict.fromkeys(people_types)
     for key in contact_counter:
-        contact_counter[key] = dict(zip(categories, ([] for _ in categories)))
+        contact_counter[key] = dict(zip(contact_types, ([] for _ in contact_types)))
 
     for uid, person in popdict.items():
         if person['scid']:
@@ -181,23 +194,24 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir):
                 'sc_student': contact_counter['sc_student'],
                 'sc_staff': contact_counter['sc_staff']
             }
-            for k1 in keys:
+            for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
                 if person.get(k1):
                     # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                    for k2 in keys:
+                    for k2 in people_types:
                         index_switcher.get(k1)[k2].append(count_switcher.get(k2))
                     index_switcher.get(k1)["all_staff"].append(count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     # draw a simple histogram for distribution of counts
     if do_show or do_save:
-        fig, axes = plt.subplots(len(keys), len(categories), figsize=(30, 20))
+        fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(30, 20))
         fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
-        for ax, counter in zip(axes.flatten(), list(itertools.product(keys, categories))):
+        for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
             ax.hist(contact_counter[counter[0]][counter[1]])
-            ax.set(title=f'{counter[0]} to {counter[1]}')
-            # ax.set_xlabel("num_contacts")
+            ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': 20})
+            ax.tick_params(axis='both', which='major', labelsize=20)
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         if do_show:
             plt.show()
         if do_save:
@@ -280,8 +294,10 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     if expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std:
         return
     else:
-        print(f"value is way off from:{np.round(expected_mean - actual_std, 2)} "
-              f"to {np.round(expected_mean + actual_std, 2)}")
+        warnings.warn(f"{varname}: actual value is {round(actual_mean, 2)}"
+                      f" but expected value is  {round(expected_mean, 2)}\n"
+                      f" acceptable range should be from:{np.round(expected_mean - actual_std, 2)}"
+                      f" to {np.round(expected_mean + actual_std, 2)}", category=UserWarning)
 
 if __name__ == "__main__":
    pytest.main(['-v', __file__])

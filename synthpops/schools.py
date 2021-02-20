@@ -751,6 +751,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     Return:
         Updated popdict.
 
+    Notes:
+        average_teacher_teacher_degree will not be used in school_mixing_type == 'random' scenario
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']

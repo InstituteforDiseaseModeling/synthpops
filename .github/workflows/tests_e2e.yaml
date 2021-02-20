@@ -12,7 +12,7 @@ on:
 jobs:
   install_and_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -34,14 +34,13 @@ jobs:
         working-directory: ./tests
         env:
           do_save: True
-        run:  pytest . -m "e2etest" --ignore-glob=*manual* --junitxml=e2etest-results.xml --workers auto --durations=0 # Run all tests
+        run:  pytest . -m "e2etest" --ignore-glob=*manual* --workers auto > e2etest-results.txt # Run e2e tests
      
       - name: Upload test results
         uses: actions/upload-artifact@v1
-        if: failure()
         with:
           name: test_results
-          path: tests/e2etest-results.xml
+          path: tests/e2etest-results.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
