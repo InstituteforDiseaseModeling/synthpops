@@ -279,20 +279,17 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
         age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
-
-    Other Parameters:
-    **kwargs:
-        layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
-        density_or_frequency (str)       : Default value is 'density', see notes for more details.
-        logcolors_flag (bool)            : If True, plot heatmap in logscale
-        aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        cmap(str or matplotlib colormap) : colormap
-        fontsize (int)                   : base font size
-        rotation (int)                   : rotation for x axis labels
-        title_prefix(str)                : optional title prefix for the figure
-        fig (Figure)                     : if supplied, use this figure instead of generating one
-        ax (Axes)                        : if supplied, use these axes instead of generating one
-        titles (dict)                    : dictionary of titles to be used for different layers
+        **layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        **density_or_frequency (str)       : Default value is 'density', see notes for more details.
+        **logcolors_flag (bool)            : If True, plot heatmap in logscale
+        **aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        **cmap(str or matplotlib colormap) : colormap
+        **fontsize (int)                   : base font size
+        **rotation (int)                   : rotation for x axis labels
+        **title_prefix(str)                : optional title prefix for the figure
+        **fig (Figure)                     : if supplied, use this figure instead of generating one
+        **ax (Axes)                        : if supplied, use these axes instead of generating one
+        **titles (dict)                    : dictionary of titles to be used for different layers
 
     Returns:
         Matplotlib figure and axes.
@@ -433,23 +430,20 @@ def plot_contacts(pop, **kwargs):
 
     Args:
         pop (pop object): population, either synthpops.pop.Pop or dict
-
-    Other Parameters:
-    **kwargs:
-        layer (str)                   : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
-        aggregate_flag (bool)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        logcolors_flag (bool)         : If True, plot heatmap in logscale
-        density_or_frequency (str)    : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
-        state_location (string)       : name of the state the location is in
-        country_location (string)     : name of the country the location is in
-        cmap (str or matplotlib cmap) : colormap
-        fontsize (int)                : base font size
-        rotation (int)                : rotation for x axis labels
-        title_prefix(str)             : optional title prefix for the figure
-        fig (matplotlib.figure)       : If supplied, use this figure instead of generating one
-        ax (matplotlib.axes)          : If supplied, use these axes instead of generating one
-        do_show (bool)                : If True, show the plot
-        do_save (bool)                : If True, save the plot to disk
+        **layer (str)                   : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        **aggregate_flag (bool)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
+        **logcolors_flag (bool)         : If True, plot heatmap in logscale
+        **density_or_frequency (str)    : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
+        **state_location (string)       : name of the state the location is in
+        **country_location (string)     : name of the country the location is in
+        **cmap (str or matplotlib cmap) : colormap
+        **fontsize (int)                : base font size
+        **rotation (int)                : rotation for x axis labels
+        **title_prefix(str)             : optional title prefix for the figure
+        **fig (matplotlib.figure)       : If supplied, use this figure instead of generating one
+        **ax (matplotlib.axes)          : If supplied, use these axes instead of generating one
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure.
@@ -608,21 +602,21 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3, **kwargs):
         text.set_fontsize(kwargs.fontsize)
 
 
-def plot_ages(pop, *args, **kwargs):
+def plot_ages(pop, **kwargs):
     """
     Plot a comparison of the expected and generated age distribution.
 
     Args:
         pop (pop object)  : population, either synthpops.pop.Pop, covasim.people.People, or dict
-        left (float)      : Matplotlib.figure.subplot.left
-        right (float)     : Matplotlib.figure.subplot.right
-        top (float)       : Matplotlib.figure.subplot.top
-        bottom (float)    : Matplotlib.figure.subplot.bottom
-        color_1 (str)     : color for expected data
-        color_2 (str)     : color for data from generated population
-        fontsize (float)  : Matplotlib.figure.fontsize
-        figname (str)     : name to save figure to disk
-        comparison (bool) : If True, plot comparison to the generated population
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
 
     Returns:
         Matplotlib figure and axes.
@@ -708,31 +702,29 @@ def plot_ages(pop, *args, **kwargs):
     return fig, ax
 
 
-def plot_school_sizes(pop, *args, **kwargs):
+def plot_school_sizes(pop, **kwargs):
     """
     Plot a comparison of the expected and generated school size distribution for
     each type of school expected.
 
     Args:
         pop (pop object)              : population, either synthpops.pop.Pop, or dict
-        args (list)                   : list of arguments to pass to data methods and plotting (see below)
-        kwargs (dict)                 : keyword arguments to pass to data methods and plotting (see below).
-        with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
-        keys_to_exclude (str or list) : school types to exclude
-        left (float)                  : Matplotlib.figure.subplot.left
-        right (float)                 : Matplotlib.figure.subplot.right
-        top (float)                   : Matplotlib.figure.subplot.top
-        bottom (float)                : Matplotlib.figure.subplot.bottom
-        hspace (float)                : Matplotlib.figure.subplot.hspace
-        subplot_height (float)        : height of subplot in inches
-        subplot_width (float)         : width of subplot in inches
-        screen_height_factor (float)  : fraction of the screen height to use for display
-        location_text_y (float)       : height to add location text to figure
-        fontsize (float)              : Matplotlib.figure.fontsize
-        rotation (float)              : rotation angle for xticklabels
-        cmap (str)                    : colormap
-        figname (str)                 : name to save figure to disk
-        comparison (bool)             : If True, plot comparison to the generated population
+        **with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
+        **keys_to_exclude (str or list) : school types to exclude
+        **left (float)                  : Matplotlib.figure.subplot.left
+        **right (float)                 : Matplotlib.figure.subplot.right
+        **top (float)                   : Matplotlib.figure.subplot.top
+        **bottom (float)                : Matplotlib.figure.subplot.bottom
+        **hspace (float)                : Matplotlib.figure.subplot.hspace
+        **subplot_height (float)        : height of subplot in inches
+        **subplot_width (float)         : width of subplot in inches
+        **screen_height_factor (float)  : fraction of the screen height to use for display
+        **location_text_y (float)       : height to add location text to figure
+        **fontsize (float)              : Matplotlib.figure.fontsize
+        **rotation (float)              : rotation angle for xticklabels
+        **cmap (str)                    : colormap
+        **figname (str)                 : name to save figure to disk
+        **comparison (bool)             : If True, plot comparison to the generated population
 
     Returns:
         Matplotlib figure and axes.
