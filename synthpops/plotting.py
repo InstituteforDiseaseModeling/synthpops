@@ -508,21 +508,18 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         expected (array)        : Array of expected values
         fig (matplotlib.figure) : Matplotlib.figure object
         ax (matplotlib.axis)    : Matplotlib.axes object
-
-    Other Parameters:
-    **kwargs:
-        generated (array)    : Array of values generated using a model
-        names (list or dict) : names to display on x-axis, default is set to the indexes of data
-        figname (str)        : name to save figure to disk
-        figdir (str)         : directory to save the plot if provided
-        prefix (str)         : used to prefix the title of the plot
-        fontsize (float)     : default fontsize
-        color_1 (str)        : color for expected data
-        color_2 (str)        : color for generated data
-        expect_label (str)   : Label to show in the plot, default to "expected"
-        value_text (bool)    : If True, display the values on top of the bar if specified
-        rotation (float)     : rotation angle for xticklabels
-        binned (bool)        : If True, data are binned. Else, if False, plot a simple histogram for expected data.
+        **generated (array)     : Array of values generated using a model
+        **names (list or dict)  : names to display on x-axis, default is set to the indexes of data
+        **figname (str)         : name to save figure to disk
+        **figdir (str)          : directory to save the plot if provided
+        **prefix (str)          : used to prefix the title of the plot
+        **fontsize (float)      : default fontsize
+        **color_1 (str)         : color for expected data
+        **color_2 (str)         : color for generated data
+        **expect_label (str)    : Label to show in the plot, default to "expected"
+        **value_text (bool)     : If True, display the values on top of the bar if specified
+        **rotation (float)      : rotation angle for xticklabels
+        **binned (bool)         : If True, data are binned. Else, if False, plot a simple histogram for expected data.
 
     Returns:
         Matplotlib figure and axes.
@@ -587,14 +584,11 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3, **kwargs):
     Attach a text label above each bar in *rects*, displaying its height.
 
     Args:
-        ax               : Matplotlib.axes object
-        rects            : Matplotlib.container.BarContainer
-        h_offset (float) : The position x to place the text at.
-        v_offset (float) : The position y to place the text at.
-
-    Other Parameters:
-    **kwargs:
-        fontsize (float) : Default fontsize
+        ax                 : Matplotlib.axes object
+        rects              : Matplotlib.container.BarContainer
+        h_offset (float)   : The position x to place the text at.
+        v_offset (float)   : The position y to place the text at.
+        **fontsize (float) : Default fontsize
 
     Returns:
         None.
@@ -619,13 +613,7 @@ def plot_ages(pop, *args, **kwargs):
     Plot a comparison of the expected and generated age distribution.
 
     Args:
-        pop (pop object): population, either synthpops.pop.Pop, covasim.people.People, or dict
-
-    Returns:
-        Matplotlib figure and axes.
-
-    Other Parameters:
-    **kwargs:
+        pop (pop object)  : population, either synthpops.pop.Pop, covasim.people.People, or dict
         left (float)      : Matplotlib.figure.subplot.left
         right (float)     : Matplotlib.figure.subplot.right
         top (float)       : Matplotlib.figure.subplot.top
@@ -635,6 +623,9 @@ def plot_ages(pop, *args, **kwargs):
         fontsize (float)  : Matplotlib.figure.fontsize
         figname (str)     : name to save figure to disk
         comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
 
     Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
@@ -723,15 +714,9 @@ def plot_school_sizes(pop, *args, **kwargs):
     each type of school expected.
 
     Args:
-        pop (pop object): population, either synthpops.pop.Pop, or dict
-        args (list): list of arguments to pass to data methods and plotting (see below)
-        kwargs (dict)   : keyword arguments to pass to data methods and plotting (see below).
-
-    Returns:
-        Matplotlib figure and axes.
-
-    Other Parameters:
-    **kwargs:
+        pop (pop object)              : population, either synthpops.pop.Pop, or dict
+        args (list)                   : list of arguments to pass to data methods and plotting (see below)
+        kwargs (dict)                 : keyword arguments to pass to data methods and plotting (see below).
         with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
         keys_to_exclude (str or list) : school types to exclude
         left (float)                  : Matplotlib.figure.subplot.left
@@ -748,6 +733,9 @@ def plot_school_sizes(pop, *args, **kwargs):
         cmap (str)                    : colormap
         figname (str)                 : name to save figure to disk
         comparison (bool)             : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
 
     Note:
         If using pop with type covasim.people.Pop or dict, args must be supplied
