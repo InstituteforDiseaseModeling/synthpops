@@ -274,11 +274,11 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     for aggregated age brackets.
 
     Args:
-        matrix (np.array)                : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
-        age_count (dict)                 : dictionary with the count of individuals in the population for each age
-        aggregate_age_count (dict)       : dictionary with the count of individuals in the population in each age bracket
-        age_brackets (dict)              : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)       : dictionary mapping age to the age bracket range it falls in
+        matrix (np.array)                  : symmetric contact matrix, element ij is the contact for an average individual in age group i with all of their contacts in age group j
+        age_count (dict)                   : dictionary with the count of individuals in the population for each age
+        aggregate_age_count (dict)         : dictionary with the count of individuals in the population in each age bracket
+        age_brackets (dict)                : dictionary mapping age bracket keys to age bracket range
+        age_by_brackets_dic (dict)         : dictionary mapping age to the age bracket range it falls in
         **layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
         **density_or_frequency (str)       : Default value is 'density', see notes for more details.
         **logcolors_flag (bool)            : If True, plot heatmap in logscale
@@ -429,7 +429,7 @@ def plot_contacts(pop, **kwargs):
     Plot the age mixing matrix for a specific contact layer.
 
     Args:
-        pop (pop object): population, either synthpops.pop.Pop or dict
+        pop (pop object)                : population, either synthpops.pop.Pop or dict
         **layer (str)                   : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
         **aggregate_flag (bool)         : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
         **logcolors_flag (bool)         : If True, plot heatmap in logscale
@@ -607,7 +607,7 @@ def plot_ages(pop, **kwargs):
     Plot a comparison of the expected and generated age distribution.
 
     Args:
-        pop (pop object)  : population, either synthpops.pop.Pop, covasim.people.People, or dict
+        pop (pop object)    : population, either synthpops.pop.Pop, covasim.people.People, or dict
         **left (float)      : Matplotlib.figure.subplot.left
         **right (float)     : Matplotlib.figure.subplot.right
         **top (float)       : Matplotlib.figure.subplot.top
@@ -708,7 +708,7 @@ def plot_school_sizes(pop, **kwargs):
     each type of school expected.
 
     Args:
-        pop (pop object)              : population, either synthpops.pop.Pop, or dict
+        pop (pop object)                : population, either synthpops.pop.Pop, or dict
         **with_school_types (type)      : If True, plot school size distributions by type, else plot overall school size distributions
         **keys_to_exclude (str or list) : school types to exclude
         **left (float)                  : Matplotlib.figure.subplot.left
