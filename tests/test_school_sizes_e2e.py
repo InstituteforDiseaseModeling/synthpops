@@ -34,8 +34,8 @@ pars = sc.objdict(
     school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
-
-def test_plot_school_sizes(do_show=False, do_save=False):
+@pytest.mark.e2etest
+def test_plot_school_sizes(do_show, do_save, artifact_dir):
     """
     Test that the school size distribution by type plotting method in sp.Pop
     class works for a large population. This will be a longer test that is
@@ -58,6 +58,8 @@ def test_plot_school_sizes(do_show=False, do_save=False):
     kwargs.figname = f"test_school_size_distributions_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
+    if artifact_dir:
+        kwargs.figdir = artifact_dir
     kwargs.screen_height_factor = 0.20
     kwargs.hspace = 0.8
     kwargs.bottom = 0.09
