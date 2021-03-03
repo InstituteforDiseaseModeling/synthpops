@@ -1238,17 +1238,14 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     return syn_schools, syn_school_uids, syn_school_types
 
 
-def get_enrollment_by_school_type(popdict, *args, **kwargs):
+def get_enrollment_by_school_type(popdict, **kwargs):
     """
     Get enrollment sizes by school types in popdict.
 
     Args:
-        popdict (dict): population dictionary
-
-    Other Parameters:
-    **kwargs:
-        with_school_types (bool) : If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
-        keys_to_exclude (list)   : school types to exclude
+        popdict (dict)             : population dictionary
+        **with_school_types (bool) : If True, return enrollment by school types as defined in the popdict. Otherwise, combine all enrollment sizes for a school type of None.
+        **keys_to_exclude (list)   : school types to exclude
 
     Returns:
         dict: Dictionary of generated enrollment sizes by school type.
