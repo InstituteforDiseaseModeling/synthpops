@@ -1,5 +1,5 @@
 #!/bin/bash
-pytest test_*.py unittests/test_*.py --cov-config=.coveragerc --cov=../synthpops --workers auto --durations=0
+pytest test_*.py unittests/test_*.py -m "not e2etest" --ignore-glob=*manual* --cov-config=.coveragerc --cov=../synthpops --workers auto --durations=0
 
 echo 'Creating HTML report...'
 coverage html
