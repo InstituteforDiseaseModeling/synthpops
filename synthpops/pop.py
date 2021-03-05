@@ -126,6 +126,7 @@ class Pop(sc.prettyobj):
         self.country_location                            = country_location
         self.state_location                              = state_location
         self.location                                    = location
+        self.use_default                                 = use_default
 
         # Age distribution parameters
         self.smooth_ages                                 = smooth_ages

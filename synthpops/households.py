@@ -86,7 +86,7 @@ class Household(sc.prettyobj):
 
     def get_reference_age(self):
         """Return the age of the reference person used to generate the household member's ages."""
-        return self.reference_ages
+        return self.reference_age
 
 
 class Households(sc.prettyobj):
