@@ -19,7 +19,8 @@ from . import schools as spsch
 from . import pop as sppop
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
+__all__ = ['calculate_contact_matrix', 'plot_contacts',
+           'plot_ages', 'plot_enrollment_rates',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
@@ -748,7 +749,31 @@ def plot_enrollment_rates(pop, **kwargs):
                            fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
 
     plkwargs.update_defaults(method_defaults, kwargs)
-    
+
+    # define after plkwargs get updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, (dict, cv.people.People)):
+        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_enrollment_rates_by_age"
+
+    # get the expected enrollment rates
+    expected_enrollment_rates = spdata.get_school_enrollment_rates(**plkwargs.loc_pars)
+    expected_enrollment_rates_values = [expected_enrollment_rates[k] * 100 for k in sorted(expected_enrollment_rates.keys())]
+
+    # if plkwargs.comparison:
+        # generated_enrollment_rates
+
+
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
 
 
 def plot_school_sizes(pop, **kwargs):

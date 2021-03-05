@@ -1237,7 +1237,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
     return syn_schools, syn_school_uids, syn_school_types
 
 
-def get_enrollment_count_by_age(popdict):
+def count_enrollment_by_age(popdict):
     """
     Get enrollment count by age for students in the popdict.
 
