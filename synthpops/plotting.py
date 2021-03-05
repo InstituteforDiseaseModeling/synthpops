@@ -64,7 +64,7 @@ class plotting_kwargs(sc.objdict):
         return
 
     def default_plotting_kwargs(self):
-        """Define default plotting kwrgs to be used in plotting methods."""
+        """Define default plotting kwargs to be used in plotting methods."""
         default_kwargs = sc.objdict()
         default_kwargs.fontfamily = 'Roboto Condensed'
         default_kwargs.fontstyle = 'normal'
@@ -113,7 +113,10 @@ class plotting_kwargs(sc.objdict):
         return
 
     def set_default_pop_pars(self):
-        """Check if method has some key pop parameters to call on data. If not, use defaults and warn user of their use and value."""
+        """
+        Check if method has some key pop parameters to call on data. If not, use
+        defaults and warn user of their use and value.
+        """
         default_pop_pars = sc.objdict(datadir=cfg.datadir, location=cfg.default_location, state_location=cfg.default_state,
                                       country_location=cfg.default_country, use_default=False)
         default_age_pars = sc.objdict(smooth_ages=False, window_length=7)
@@ -143,7 +146,7 @@ class plotting_kwargs(sc.objdict):
         return
 
     def restore_defaults(self):
-        """Reset matplotlib defaults. """
+        """Reset matplotlib defaults."""
         mplt.rcParams.update(mplt.rcParamsDefault)
         return
 
@@ -186,7 +189,8 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
 
 def get_plkwargs(pop):
     """
-    Check if pop has plkwargs and return a copy of it. Otherwise, create a new instance and return that.
+    Check if pop has plkwargs and return a copy of it. Otherwise, create a new
+    instance and return that.
 
     Args:
         pop (dict or sp.Pop): population object, either a dictionary or a synthpops.pop.Pop object
@@ -586,9 +590,9 @@ def autolabel(ax, rects, h_offset=0, v_offset=0.3, **kwargs):
 
     Returns:
         None.
-
-    Set the annotation according to the input parameters
     """
+
+    # Set the annotation according to the input parameters
     method_defaults = dict(fontsize=10)  # in case kwargs does not have fontsize, add it
     kwargs = sc.mergedicts(method_defaults, kwargs)  # let kwargs override method defaults
     kwargs = sc.objdict(kwargs)
@@ -627,7 +631,7 @@ def plot_ages(pop, **kwargs):
 
     **Example**::
 
-        pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
         pop = sp.Pop(**pars)
         fig, ax = pop.plot_age_distribution_comparison()
 
@@ -702,6 +706,51 @@ def plot_ages(pop, **kwargs):
     return fig, ax
 
 
+def plot_enrollment_rates(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated school enrollment rates by
+    age.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop, covasim.people.People, or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type covasim.people.Pop or dict, args must be supplied
+        for the location parameter to get the expected rates.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_enrollment_rates()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_enrollment_rates(popdit, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#55afe1', color_2='#0a6299',
+                           fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+    
+
+
 def plot_school_sizes(pop, **kwargs):
     """
     Plot a comparison of the expected and generated school size distribution for
@@ -735,7 +784,7 @@ def plot_school_sizes(pop, **kwargs):
 
     **Example**::
 
-        pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+        pars = {'n': 10e3, 'location'='seattle_metro', 'state_location'='Washington', 'country_location'='usa'}
         pop = sp.Pop(**pars)
         fig, ax = pop.plot_school_sizes_by_type()
 
@@ -752,7 +801,7 @@ def plot_school_sizes(pop, **kwargs):
                            subplot_height=2.8, subplot_width=4.2, screen_height_factor=0.85,
                            location_text_y=113, fontsize=8, rotation=25, cmap='cmo.curl',
                            figname='school_size_distribution_by_type', comparison=True,
-                           school_type_labels = spsch.get_school_type_labels(),
+                           school_type_labels=spsch.get_school_type_labels(),
                            )
 
     plkwargs.update_defaults(method_defaults, kwargs)

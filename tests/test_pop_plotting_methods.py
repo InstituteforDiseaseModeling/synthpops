@@ -42,7 +42,7 @@ def test_plot_ages(do_show=False, do_save=False):
     sp.logger.info("Test that the age comparison plotting method with sp.Pop object.")
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.figname = f"test_pop_ages_{kwargs.location}_pop"
+    kwargs.figname = f"test_ages_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
     fig, ax = pop.plot_ages(**kwargs)
@@ -53,7 +53,7 @@ def test_plot_ages(do_show=False, do_save=False):
 
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
-    kwargs.figname = f"test_popdict_ages_{kwargs.location}_popdict"
+    kwargs.figname = f"test_ages_{kwargs.location}_popdict"
     kwargs.do_show = False
     fig2, ax2 = sp.plot_ages(popdict, **kwargs)
     # fig2, ax2 = sp.plot_ages(popdict)  # to plot without extra information
@@ -86,7 +86,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     people = cv.People(people_pars, strict=False, uid=cvpopdict['uid'], age=cvpopdict['age'], sex=cvpopdict['sex'])
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.datadir
-    kwargs.figname = f"test_cvpeople_ages_{kwargs.location}_cvpeople"
+    kwargs.figname = f"test_ages_{kwargs.location}_cvpeople"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
 
