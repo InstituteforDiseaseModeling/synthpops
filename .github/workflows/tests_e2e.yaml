@@ -32,7 +32,7 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run: pytest -rfp -s e2etests --do_save --artifact_dir=artifact --workers auto > e2etest-results.txt # Run e2e tests and spit out all stdout with short summary
+        run: pytest -rfp -s e2etests --do-save --artifact-dir=artifact --workers auto > e2etest-results.txt # Run e2e tests and spit out all stdout with short summary
      
       - name: Upload test results
         uses: actions/upload-artifact@v1

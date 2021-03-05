@@ -3,14 +3,14 @@
 import pytest
 
 def pytest_addoption(parser):
-    parser.addoption("--do_save", action="store_true", help="save all images produced by tests")
-    parser.addoption("--do_show", action="store_true", help="show all images produced by tests")
-    parser.addoption("--artifact_dir", action="store", help="set directory for test artifacts")
+    parser.addoption("--do-save", action="store_true", help="save all images produced by tests")
+    parser.addoption("--do-show", action="store_true", help="show all images produced by tests")
+    parser.addoption("--artifact-dir", action="store", help="set directory for test artifacts")
 
 
 @pytest.fixture(scope='session')
 def do_save(request):
-    if request.config.getoption("--do_save"):
+    if request.config.getoption("--do-save"):
         return True
     else:
         return False
@@ -18,7 +18,7 @@ def do_save(request):
 
 @pytest.fixture(scope='session')
 def do_show(request):
-    if request.config.getoption("--do_show"):
+    if request.config.getoption("--do-show"):
         return True
     else:
         return False
@@ -26,8 +26,8 @@ def do_show(request):
 
 @pytest.fixture(scope='session')
 def artifact_dir(request):
-    if request.config.getoption("--artifact_dir"):
-        return request.config.getoption("--artifact_dir")
+    if request.config.getoption("--artifact-dir"):
+        return request.config.getoption("--artifact-dir")
     else:
         return None
 
