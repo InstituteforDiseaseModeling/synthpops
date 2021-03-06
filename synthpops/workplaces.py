@@ -141,13 +141,18 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
     worker_age_keys = workers_by_age_to_assign_count.keys()
     sorted_worker_age_keys = sorted(worker_age_keys)
 
+    # make a copy of the workplace matrix to sample from and modify as people get placed into workplaces and removed from the pool of potential workers
+    w_contact_matrix = contact_matrix_dic['W'].copy()
+
     # off turn likelihood to meet those unemployed in the workplace because the matrices are not an exact match for the population under study
     for b in age_brackets:
         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[b]]
         number_of_workers_left_in_bracket = np.sum(workers_left_in_bracket)
         if number_of_workers_left_in_bracket == 0:
-            b = min(b, contact_matrix_dic['W'].shape[1] - 1)  # Ensure it doesn't go past the end of the array
-            contact_matrix_dic['W'][:, b] = 0
+            # b = min(b, contact_matrix_dic['W'].shape[1] - 1)  # Ensure it doesn't go past the end of the array
+            # contact_matrix_dic['W'][:, b] = 0
+            b = min(b, w_contact_matrix.shape[1] - 1)  # Ensure it doesn't go past the end of the array
+            w_contact_matrix[:, b] = 0
 
     for n, size in enumerate(workplace_sizes):
         workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
@@ -173,8 +178,10 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         new_work_uids.append(uid)
 
         bindex = age_by_brackets_dic[aindex]
-        bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
-        b_prob = contact_matrix_dic['W'][bindex, :]
+        # bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
+        # b_prob = contact_matrix_dic['W'][bindex, :]
+        bindex = min(bindex, w_contact_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array
+        b_prob = w_contact_matrix[bindex, :]
         sum_b_prob = np.sum(b_prob)
         if sum_b_prob > 0:
             b_prob = b_prob / sum_b_prob
@@ -223,9 +230,11 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
                 if np.sum(workers_left_in_bracket) == 0:
-                    contact_matrix_dic['W'][:, bi] = 0.
+                    # contact_matrix_dic['W'][:, bi] = 0.
+                    w_contact_matrix[:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
-                    b_prob = contact_matrix_dic['W'][bindex, :]
+                    # b_prob = contact_matrix_dic['W'][bindex, :]
+                    b_prob = w_contact_matrix[bindex, :]
                     if np.sum(b_prob) > 0:
                         b_prob = b_prob / np.sum(b_prob)
 

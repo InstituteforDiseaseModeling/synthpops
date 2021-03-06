@@ -42,9 +42,27 @@ def test_summary_in_generation():
     print(f"Age count summary exists and is a dictionary. The age range is from {min(pop.age_count.keys())} to {max(pop.age_count.keys())} years old.")
 
 
+def test_contact_matrices_used():
+    """
+    Test that the contact matrices used in generation are left unmodified. The
+    workplaces module instead should modify a copy of the workplace contact
+    matrix and leave the original contact matrix as is. This means the matrices
+    added to the pop object as a summary should match expected data.
+    """
+    sp.logger.info("Test that the contact matrices used in generation match the expected data.")
+    pop = sp.Pop(**pars)
+
+    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.datadir, sheet_name=pop.sheet_name)
+    for k in expected_contact_matrix_dic.keys():
+        err_msg = f"Check failed for contact setting {k}."
+        np.testing.assert_array_equal(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k], err_msg=err_msg)
+
+    print("Contact matrices check passed.")
+
+
 def test_change_sheet_name():
     """
-    Test that parameters can be changed from defaults.
+    Test that the sheet_name parameter can be changed from defaults.
     """
     sp.logger.info("Test that parameters can be changed from defaults and used.")
     test_pars = sc.dcp(pars)
@@ -52,23 +70,17 @@ def test_change_sheet_name():
     pop = sp.Pop(**test_pars)
 
     expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.datadir, sheet_name=test_pars.sheet_name)
-    r, c = expected_contact_matrix_dic['H'].shape
 
     # check that the correct contact matrices are used in population generation
     for k in expected_contact_matrix_dic.keys():
-        print(pop.contact_matrix_dic[k][0, 0], expected_contact_matrix_dic[k][0, 0])
-        print(type(pop.contact_matrix_dic[k]), type(expected_contact_matrix_dic[k]))
+        err_msg = f"Check failed for contact setting {k}."
+        np.testing.assert_array_equal(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k], err_msg=err_msg)
 
-        for ri in range(r):
-            for ci in range(c):
-                np.testing.assert_array_equal([pop.contact_matrix_dic[k][ri, ci]], [expected_contact_matrix_dic[k][ri, ci]], err_msg=f"{ri, ci, pop.contact_matrix_dic[k][ri, ci], expected_contact_matrix_dic[k][ri, ci], k}")
-
-        # np.testing.assert_allclose(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k])
-        # assert pop.contact_matrix_dic[k].all() == expected_contact_matrix_dic[k].all(), f"Check failed, contact matrices used in population generation don't match the ones expected from {test_pars.sheet_name}."
     print(f"Check passed. {test_pars.sheet_name} contact matrices used in population generation.")
 
 
 if __name__ == '__main__':
 
-    # test_summary_in_generation()
+    test_summary_in_generation()
+    test_contact_matrices_used()
     test_change_sheet_name()
