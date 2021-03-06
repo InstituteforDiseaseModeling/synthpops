@@ -199,6 +199,7 @@ class Pop(sc.prettyobj):
 
         # Add summaries
         self.age_count = self.count_pop_ages()
+        self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
 
         # Plotting defaults
@@ -456,6 +457,15 @@ class Pop(sc.prettyobj):
         """
         return spsch.count_enrollment_by_age(self.popdict)
 
+    @property
+    def enrollment_rates(self):
+        """
+        Enrollment rates by age for students in the generated population.
+
+        Returns:
+            dict: Dictionary of the enrollment rates by age for students in the generated population.
+        """
+        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(0, 101)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """

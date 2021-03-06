@@ -12,7 +12,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                       = settings.pop_sizes.small,
+    n                       = settings.pop_sizes.medium,
     rand_seed               = 123,
 
     smooth_ages             = True,
@@ -38,8 +38,15 @@ def test_summary_in_generation():
 
     pop = sp.Pop(**pars)
 
-    assert isinstance(pop.age_count, dict), 'Check failed'
+    assert isinstance(pop.age_count, dict), "Check failed"
     print(f"Age count summary exists and is a dictionary. The age range is from {min(pop.age_count.keys())} to {max(pop.age_count.keys())} years old.")
+
+    assert sum(pop.enrollment_by_age.values()) > 0, "Check failed. Student enrollment is not greater than 0."
+    print("Student enrollment count by age exists and is greater than 0.")
+
+    enrollment_rates = pop.enrollment_rates  # a property rather than stored data
+    assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is not greater than 0."
+    print(f"Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.")
 
 
 def test_contact_matrices_used():
