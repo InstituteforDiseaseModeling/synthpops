@@ -44,10 +44,10 @@ jobs:
         if: failure()
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.token }}
           repository: ${{ github.repository }}
           event-type: trigger-workflow-e2e
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "GITHUB_REF": "${{ github.ref }}", "GITHUB_SHA": "${{ github.sha }}"}'
       - name: Create coverage report
         id: cv
         working-directory: ./tests
