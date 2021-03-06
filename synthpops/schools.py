@@ -28,8 +28,8 @@ from . import sampling as spsamp
 from .config import logger as log
 
 
-__all__ = ['get_school_type_labels', 'get_enrollment_by_school_type', 'get_generated_school_size_distributions',
-           'count_enrollment_by_age',
+__all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
+           'get_generated_school_size_distributions', 'count_enrollment_by_age',
            'get_bin_edges', 'get_bin_labels',
            ]
 
