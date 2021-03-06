@@ -261,6 +261,8 @@ class Pop(sc.prettyobj):
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+        # Store expected contact matrices
+        self.contact_matrix_dic = contact_matrix_dic
 
         # Load age brackets, and mapping dictionary that matches contact matrices
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
