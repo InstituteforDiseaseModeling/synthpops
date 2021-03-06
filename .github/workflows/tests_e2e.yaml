@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
+        with:
+          ref: ${{ github.event.client_payload.ref }}
+      - run: echo ${{ github.event.client_payload.sha }}    
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
