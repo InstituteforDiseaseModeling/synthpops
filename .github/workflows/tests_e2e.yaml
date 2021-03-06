@@ -48,4 +48,10 @@ jobs:
           name: artifact
           path: tests/artifact/
      
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: E2E Tests
+          conclusion: ${{ job.status }}
           
