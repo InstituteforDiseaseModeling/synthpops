@@ -197,10 +197,11 @@ class Pop(sc.prettyobj):
         self.popdict = population
         log.debug('Pop(): done.')
 
-        # Add summaries
+        # Add summaries post hoc
         self.age_count = self.count_pop_ages()
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
+        self.employment_by_age = self.count_employment_by_age()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -465,7 +466,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(0, 101)}
+        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -476,6 +477,25 @@ class Pop(sc.prettyobj):
         """
         enrollment_by_school_type = spsch.count_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
+
+    def count_employment_by_age(self):
+        """
+        Create employment count by age for workers in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of the count of employed workers by age in the generated population.
+        """
+        return spw.count_employment_by_age(self.popdict)
+
+    @property
+    def employment_rates(self):
+        """
+        Employment rates by age for workers in the generated population.
+
+        Returns:
+            dict: Dictionary of the employment rates by age for workers in the generated population.
+        """
+        return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""

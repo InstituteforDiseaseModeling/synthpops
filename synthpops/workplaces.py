@@ -5,6 +5,10 @@ import numpy as np
 from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
+from .config import max_age
+
+
+__all__ = ['count_employment_by_age']
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
@@ -237,3 +241,29 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+
+
+def count_employment_by_age(popdict):
+    """
+    Get employment count by age for workers in the popdict. Workers can be in
+    different possible layers: as staff in long term care facilities (LTCF),
+    as teachers or staff in schools (S), or as workers in other workplaces (W).
+
+    Args:
+        popdict (dict)         : population dictionary
+
+    Returns:
+        dict: Dictionary of the count of employed people by age in popdict.
+    """
+    employment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
+    for i, person in popdict.items():
+        if person['snf_staff']:
+            employment_count_by_age[person['age']] += 1
+        elif person['sc_teacher']:
+            employment_count_by_age[person['age']] += 1
+        elif person['sc_staff']:
+            employment_count_by_age[person['age']] += 1
+        elif person['wpid']:
+            employment_count_by_age[person['age']] += 1
+
+    return employment_count_by_age

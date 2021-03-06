@@ -48,6 +48,27 @@ def test_summary_in_generation():
     assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is not greater than 0."
     print(f"Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.")
 
+    # print(pop.employment_by_age)
+    employment_rates = pop.employment_rates
+    assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is not greater than 0."
+    print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
+
+    # for i, person in pop.popdict.items():
+    #     if i % 2 == 0:
+    #         # if person['snf_res']:
+    #             # print(i, person['age'], 'snf_res')
+    #         if person['snf_staff']:
+    #             print(i, person['age'], 'snf_staff')
+    #         elif person['sc_teacher']:
+    #             print(i, person['age'], 'sc_teacher')
+    #         elif person['sc_staff']:
+    #             print(i, person['age'], 'sc_staff')
+    #         elif person['wpid']:
+    #             print(i, person['age'], 'wpid')
+
+    #     if i > 500:
+    #         break
+
 
 def test_contact_matrices_used():
     """
