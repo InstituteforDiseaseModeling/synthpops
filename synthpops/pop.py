@@ -126,6 +126,7 @@ class Pop(sc.prettyobj):
         self.country_location          = country_location
         self.state_location            = state_location
         self.location                  = location
+        self.sheet_name                = sheet_name
         self.use_default               = use_default
 
         # Age distribution parameters
@@ -177,7 +178,9 @@ class Pop(sc.prettyobj):
         if self.state_location is None:
             self.location = None
 
-        self.sheet_name = cfg.default_sheet_name
+        # if sheet name is not specified, use the default
+        if self.sheet_name is None:
+            self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
 
         # Location parameters
