@@ -126,6 +126,7 @@ class Pop(sc.prettyobj):
         self.country_location          = country_location
         self.state_location            = state_location
         self.location                  = location
+        self.sheet_name                = sheet_name
         self.use_default               = use_default
 
         # Age distribution parameters
@@ -177,7 +178,9 @@ class Pop(sc.prettyobj):
         if self.state_location is None:
             self.location = None
 
-        self.sheet_name = cfg.default_sheet_name
+        # if sheet name is not specified, use the default
+        if self.sheet_name is None:
+            self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
 
         # Location parameters
@@ -258,6 +261,8 @@ class Pop(sc.prettyobj):
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+        # Store expected contact matrices
+        self.contact_matrix_dic = contact_matrix_dic
 
         # Load age brackets, and mapping dictionary that matches contact matrices
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape

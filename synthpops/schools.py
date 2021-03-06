@@ -21,6 +21,7 @@ import networkx as nx
 
 from . import data_distributions as spdata
 from .config import datadir
+from .config import max_age
 
 from . import base as spb
 from . import sampling as spsamp
@@ -28,6 +29,7 @@ from .config import logger as log
 
 
 __all__ = ['get_school_type_labels', 'get_enrollment_by_school_type', 'get_generated_school_size_distributions',
+           'count_enrollment_by_age',
            'get_bin_edges', 'get_bin_labels',
            ]
 
@@ -1234,6 +1236,24 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
     return syn_schools, syn_school_uids, syn_school_types
+
+
+def count_enrollment_by_age(popdict):
+    """
+    Get enrollment count by age for students in the popdict.
+
+    Args:
+        popdict (dict): population dictionary
+
+    Returns:
+        dict: Dictionary of the count of enrolled students by age in popdict.
+    """
+    enrollment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
+    for i, person in popdict.items():
+        if person['scid'] is not None and person['sc_student']:
+            enrollment_count_by_age[person['age']] += 1
+
+    return enrollment_count_by_age
 
 
 def get_enrollment_by_school_type(popdict, **kwargs):
