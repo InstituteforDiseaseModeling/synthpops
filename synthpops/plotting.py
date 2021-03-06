@@ -789,7 +789,7 @@ def plot_school_sizes(pop, **kwargs):
 
     # calculate how many students are in each school
     if plkwargs.comparison:
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
+        enrollment_by_school_type = spsch.count_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
         generated_school_size_dist = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
 
     for school_type in plkwargs.keys_to_exclude:

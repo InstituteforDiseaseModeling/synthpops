@@ -1256,7 +1256,7 @@ def count_enrollment_by_age(popdict):
     return enrollment_count_by_age
 
 
-def get_enrollment_by_school_type(popdict, **kwargs):
+def count_enrollment_by_school_type(popdict, **kwargs):
     """
     Get enrollment sizes by school types in popdict.
 
