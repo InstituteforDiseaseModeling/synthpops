@@ -8,7 +8,7 @@ from .config import logger as log
 from .config import max_age
 
 
-__all__ = ['count_employment_by_age', 'count_workplace_size_by_id',
+__all__ = ['count_employment_by_age', 'get_workplace_sizes',
            'get_generated_workplace_size_distribution',
            ]
 
@@ -265,7 +265,7 @@ def count_employment_by_age(popdict):
     return employment_count_by_age
 
 
-def count_workplace_size_by_id(popdict):
+def get_workplace_sizes(popdict):
     """
     Get workplace sizes of regular workplaces in popdict. This only includes
     workplaces that are not long term care facilities (LTCF) or schools (S).

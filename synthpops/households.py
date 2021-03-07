@@ -324,7 +324,7 @@ def get_all_households(homes_dic):
     return homes
 
 
-def count_household_size_by_id(popdict):
+def get_household_sizes(popdict):
     """
     Get household sizes for each household in the popdict.
 

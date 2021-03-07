@@ -200,14 +200,14 @@ class Pop(sc.prettyobj):
         # Add summaries post hoc
         self.age_count = self.count_pop_ages()
 
-        self.household_size_by_id = self.count_household_size_by_id()  # could be reorganized into class property with people array
+        self.household_sizes = self.get_household_size()  # could be reorganized into class property with people array
         self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
 
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
 
         self.employment_by_age = self.count_employment_by_age()
-        self.workplace_size_by_id = self.count_workplace_size_by_id()  # could be reorganized into class property with people array
+        self.workplace_sizes = self.get_workplace_size()  # could be reorganized into class property with people array
         self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
         # Plotting defaults
@@ -505,38 +505,84 @@ class Pop(sc.prettyobj):
         return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
     # convert to work on array
-    def count_workplace_size_by_id(self):
+    def get_workplace_sizes(self):
         """
         Create workplace sizes in the generated population post generation.
 
         Returns:
             dict: Dictionary of workplace size by workplace id (wpid).
         """
-        return spw.count_workplace_size_by_id(self.popdict)
+        return spw.get_workplace_sizes(self.popdict)
 
     # convert to work on array
     def count_workplace_sizes(self):
         """
         Count of workplace sizes in the generated population.
+
+        Returns:
+            dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_sizes(self.workplace_size_by_id)
+        return spb.count_sizes(self.workplace_sizes)
 
     # convert to work on array
-    def count_household_size_by_id(self):
+    def get_household_sizes(self):
         """
         Create household sizes in the generated population post generation.
 
         Returns:
             dict: Dictionary of household size by household id (hhid).
         """
-        return sphh.count_household_size_by_id(self.popdict)
+        return sphh.get_household_sizes(self.popdict)
 
     # convert to work on array
     def count_household_sizes(self):
         """
         Count of household sizes in the generated population.
+
+        Returns:
+            dict: Dictionary of the count of household sizes.
         """
-        return spb.count_sizes(self.household_size_by_id)
+        return spb.count_sizes(self.household_sizes)
+
+    # convert to work on array
+    def get_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Create long term care facility sizes in the generated population post generation.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the size for each long term care facility generated.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spltcf.get_ltcf_sizes(self.popdict, keys_to_exclude)
+
+    # convert to work on array
+    def count_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Count of long term care facility sizes in the generated population.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the count of long term care facility sizes.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spb.count_sizes(self.get_ltcf_sizes(keys_to_exclude))
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
