@@ -766,8 +766,7 @@ def plot_enrollment_rates(pop, **kwargs):
     expected_enrollment_rates_values = [expected_enrollment_rates[k] * 100 for k in sorted(expected_enrollment_rates.keys())]
 
     # if plkwargs.comparison:
-        # generated_enrollment_rates
-
+    #     generated_enrollment_rates
 
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
 
@@ -858,12 +857,12 @@ def plot_school_sizes(pop, **kwargs):
         expected_school_size_dist = {None: spdata.get_school_size_distr_by_brackets(**plkwargs.loc_pars)}
 
     school_size_brackets = spdata.get_school_size_brackets(**plkwargs.loc_pars)
-    bins = spsch.get_bin_edges(school_size_brackets)
-    bin_labels = spsch.get_bin_labels(school_size_brackets)
+    bins = spb.get_bin_edges(school_size_brackets)
+    bin_labels = spb.get_bin_labels(school_size_brackets)
 
     # calculate how many students are in each school
     if plkwargs.comparison:
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
+        enrollment_by_school_type = spsch.count_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
         generated_school_size_dist = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
 
     for school_type in plkwargs.keys_to_exclude:

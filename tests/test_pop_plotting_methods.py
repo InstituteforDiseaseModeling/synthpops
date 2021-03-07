@@ -103,9 +103,29 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     return fig, ax, people
 
 
+def test_restoring_matplotlib_defaults():
+    """
+    Test that matplotlib defaults can be restored after plotting_kwargs changes
+    them. For example, plotting_kwargs changes the font properties used.
+    """
+    sp.logger.info("Test that matplotlib defaults can be restored.")
+    plkwargs = sp.plotting_kwargs()
+
+    assert mplt.rcParams['font.family'][0] == plkwargs.fontfamily, "Check failed. Instantiating plotting_kwargs did not update the font family for matplotlib.rcParams."
+    print("Check passed. matplotlib.rcParams updated font.family to the default fontfamily set in the plotting_kwargs class.")
+    assert mplt.rcParams != mplt.rcParamsDefault, "Check failed. matplotlib.rcParams is still the same as matplotlib.rcParamsDefault."
+    print("Check passed. matplotlib.rcParams is different from matplotlib.rcParamsDefault.")
+
+    # reset to original matplotlib defaults
+    plkwargs.restore_defaults()
+    assert mplt.rcParams == mplt.rcParamsDefault, "Check failed. matplotlib.rcParams is not restored to matplotlib.rcParamsDefault."
+    print("Check passed. matplotlib.rcParams restored to default matplotlib library values.")
+
+
 if __name__ == '__main__':
 
     # run as main and see the examples in action!
 
     fig0, ax0, pop0 = test_plot_ages(do_show=True)
     fig1, ax1, people1 = test_plot_with_cvpeople(do_show=True, do_save=True)
+    test_restoring_matplotlib_defaults()

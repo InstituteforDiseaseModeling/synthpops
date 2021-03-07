@@ -137,7 +137,7 @@ def test_separate_school_types_for_seattle_metro(do_show=False, do_save=False):
     kwargs.do_save = do_save
     fig, ax = pop.plot_school_sizes(**kwargs)
 
-    enrollment_by_school_type = pop.get_enrollment_by_school_type(**test_pars)
+    enrollment_by_school_type = pop.count_enrollment_by_school_type(**test_pars)
     school_types = enrollment_by_school_type.keys()
 
     assert ('pk' in school_types) and ('es' in school_types), 'Check failed. pk and es school type are not separately created.'
@@ -162,7 +162,7 @@ def test_plot_schools_sizes_without_types(do_show=False, do_save=False):
     kwargs.figname = f"test_all_school_size_distributions_{kwargs.location}_pop"
     fig, ax = pop.plot_school_sizes(**kwargs)
 
-    enrollment_by_school_type = pop.get_enrollment_by_school_type()
+    enrollment_by_school_type = pop.count_enrollment_by_school_type()
     school_types = list(enrollment_by_school_type.keys())
 
     assert school_types[0] is None and len(school_types) == 1, f"Check 3 failed. School types created: {school_types}."

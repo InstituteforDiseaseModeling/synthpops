@@ -126,6 +126,7 @@ class Pop(sc.prettyobj):
         self.country_location          = country_location
         self.state_location            = state_location
         self.location                  = location
+        self.sheet_name                = sheet_name
         self.use_default               = use_default
 
         # Age distribution parameters
@@ -177,7 +178,9 @@ class Pop(sc.prettyobj):
         if self.state_location is None:
             self.location = None
 
-        self.sheet_name = cfg.default_sheet_name
+        # if sheet name is not specified, use the default
+        if self.sheet_name is None:
+            self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
 
         # Location parameters
@@ -194,9 +197,25 @@ class Pop(sc.prettyobj):
         self.popdict = population
         log.debug('Pop(): done.')
 
-        # Add summaries
+        # Add summaries post hoc  --- TBD: summaries during generation
         self.age_count = self.count_pop_ages()
-        self.enrollment_by_school_type = self.get_enrollment_by_school_type()  # includes all school types
+
+        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
+        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+
+        self.household_heads = self.get_household_heads()
+        self.household_head_ages = self.get_household_head_ages()
+        self.household_head_age_count = self.count_household_head_ages()
+
+        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
+        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
+
+        self.enrollment_by_age = self.count_enrollment_by_age()
+        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
+
+        self.employment_by_age = self.count_employment_by_age()
+        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
+        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -258,6 +277,8 @@ class Pop(sc.prettyobj):
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+        # Store expected contact matrices
+        self.contact_matrix_dic = contact_matrix_dic
 
         # Load age brackets, and mapping dictionary that matches contact matrices
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
@@ -435,30 +456,174 @@ class Pop(sc.prettyobj):
 
     def count_pop_ages(self):
         """
-        Create an age count of the generated population.
+        Create an age count of the generated population post generation.
 
         Returns:
             dict: Dictionary of the age count of the generated population.
         """
         return spb.count_ages(self.popdict)
 
-    def get_enrollment_by_school_type(self, *args, **kwargs):
+    # convert to work on array
+    def get_household_sizes(self):
         """
-        Get enrollment sizes by school types in popdict.
+        Create household sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of household size by household id (hhid).
+        """
+        return sphh.get_household_sizes(self.popdict)
+
+    # convert to work on array
+    def count_household_sizes(self):
+        """
+        Count of household sizes in the generated population.
+
+        Returns:
+            dict: Dictionary of the count of household sizes.
+        """
+        return spb.count_values(self.household_sizes)
+
+    # convert to work on array
+    def get_household_heads(self):
+        """Get the ids of the head of households in the generated population post generation."""
+        return sphh.get_household_heads(self.popdict)
+
+    def get_household_head_ages(self):
+        """Get the age of the head of each household in the generated population post generation."""
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.household_heads.items()}
+
+    def count_household_head_ages(self, bins=None):
+        """
+        Count of household head ages in the generated population.
+
+        Args:
+            bins (array) : If supplied, use this to create a binned count of the household head ages. Otherwise, count discrete household head ages.
+
+        Returns:
+            dict: Dictionary of the count of household head ages.
+        """
+        if bins is None:
+            return spb.count_values(self.household_head_ages)
+        else:
+            head_ages = list(self.household_head_ages.values())
+            hist, bins = np.histogram(head_ages, bins=bins, density=0)
+            return {i: hist[i] for i in range(len(hist))}
+
+    # convert to work on array
+    def get_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Create long term care facility sizes in the generated population post generation.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the size for each long term care facility generated.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spltcf.get_ltcf_sizes(self.popdict, keys_to_exclude)
+
+    # convert to work on array
+    def count_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Count of long term care facility sizes in the generated population.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the count of long term care facility sizes.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spb.count_values(self.get_ltcf_sizes(keys_to_exclude))
+
+    def count_enrollment_by_age(self):
+        """
+        Create enrollment count by age for students in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of the count of enrolled students by age in the generated population.
+        """
+        return spsch.count_enrollment_by_age(self.popdict)
+
+    @property
+    def enrollment_rates(self):
+        """
+        Enrollment rates by age for students in the generated population.
+
+        Returns:
+            dict: Dictionary of the enrollment rates by age for students in the generated population.
+        """
+        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+
+    def count_enrollment_by_school_type(self, *args, **kwargs):
+        """
+        Create enrollment sizes by school types in the generated population post generation.
 
         Returns:
             list: List of generated enrollment sizes by school type.
         """
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict, *args, **kwargs)
+        enrollment_by_school_type = spsch.count_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
+
+    def count_employment_by_age(self):
+        """
+        Create employment count by age for workers in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of the count of employed workers by age in the generated population.
+        """
+        return spw.count_employment_by_age(self.popdict)
+
+    @property
+    def employment_rates(self):
+        """
+        Employment rates by age for workers in the generated population.
+
+        Returns:
+            dict: Dictionary of the employment rates by age for workers in the generated population.
+        """
+        return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+
+    # convert to work on array
+    def get_workplace_sizes(self):
+        """
+        Create workplace sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of workplace size by workplace id (wpid).
+        """
+        return spw.get_workplace_sizes(self.popdict)
+
+    # convert to work on array
+    def count_workplace_sizes(self):
+        """
+        Count of workplace sizes in the generated population.
+
+        Returns:
+            dict:Dictionary of the count of workplace sizes.
+        """
+        return spb.count_values(self.workplace_sizes)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
         import covasim as cv  # Optional import
 
         pars = dict(
-            pop_size = self.n,
-            pop_type = 'synthpops',
+            pop_size   = self.n,
+            pop_type   = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
         )
         sim = cv.Sim(pars, popfile=self.popdict)

@@ -4,6 +4,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 
 import numpy as np
 import sciris as sc
+from collections import Counter
 from . import config as cfg
 
 
@@ -212,3 +213,44 @@ def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
         M[a, :] = M[a, :] / float(aggregate_ages[a])
 
     return M
+
+
+def get_bin_edges(size_brackets):
+    """
+    Get the bin edges for size brackets.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        An array of the bin edges.
+    """
+
+    return np.array([size_brackets[0][0]] + [size_brackets[b][-1] + 1 for b in sorted(size_brackets.keys())])
+
+
+def get_bin_labels(size_brackets):
+    """
+    Get the bin labels from the values contained within each bracket or bin.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        A list of bin labels.
+    """
+    return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]
+
+
+def count_values(dic):
+    """
+    Counter of values in the dictionary. Keys in the returned dictionary are values from the input dictionary.
+
+    Args:
+        dic (dict) : dictionary with sortable keys
+
+    Returns:
+        dict: Dictionary of the count of values.
+    """
+    value_count = Counter(dic.values())
+    return {k: value_count[k] for k in sorted(value_count.keys())}

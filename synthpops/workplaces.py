@@ -5,6 +5,12 @@ import numpy as np
 from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
+from .config import max_age
+
+
+__all__ = ['count_employment_by_age', 'get_workplace_sizes',
+           'get_generated_workplace_size_distribution',
+           ]
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
@@ -141,13 +147,16 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
     worker_age_keys = workers_by_age_to_assign_count.keys()
     sorted_worker_age_keys = sorted(worker_age_keys)
 
+    # make a copy of the workplace matrix to sample from and modify as people get placed into workplaces and removed from the pool of potential workers
+    w_contact_matrix = contact_matrix_dic['W'].copy()
+
     # off turn likelihood to meet those unemployed in the workplace because the matrices are not an exact match for the population under study
     for b in age_brackets:
         workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[b]]
         number_of_workers_left_in_bracket = np.sum(workers_left_in_bracket)
         if number_of_workers_left_in_bracket == 0:
-            b = min(b, contact_matrix_dic['W'].shape[1] - 1)  # Ensure it doesn't go past the end of the array
-            contact_matrix_dic['W'][:, b] = 0
+            b = min(b, w_contact_matrix.shape[1] - 1)  # Ensure it doesn't go past the end of the array
+            w_contact_matrix[:, b] = 0
 
     for n, size in enumerate(workplace_sizes):
         workers_by_age_to_assign_distr = spb.norm_dic(workers_by_age_to_assign_count)
@@ -173,8 +182,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         new_work_uids.append(uid)
 
         bindex = age_by_brackets_dic[aindex]
-        bindex = min(bindex, contact_matrix_dic['W'].shape[0] - 1)  # Ensure it doesn't go past the end of the array
-        b_prob = contact_matrix_dic['W'][bindex, :]
+        bindex = min(bindex, w_contact_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array
+        b_prob = w_contact_matrix[bindex, :]
         sum_b_prob = np.sum(b_prob)
         if sum_b_prob > 0:
             b_prob = b_prob / sum_b_prob
@@ -223,9 +232,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                 # if there's no one left in the bracket, then you should turn this bracket off in the contact matrix
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi]]
                 if np.sum(workers_left_in_bracket) == 0:
-                    contact_matrix_dic['W'][:, bi] = 0.
+                    w_contact_matrix[:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
-                    b_prob = contact_matrix_dic['W'][bindex, :]
+                    b_prob = w_contact_matrix[bindex, :]
                     if np.sum(b_prob) > 0:
                         b_prob = b_prob / np.sum(b_prob)
 
@@ -234,3 +243,67 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+
+
+def count_employment_by_age(popdict):
+    """
+    Get employment count by age for workers in the popdict. Workers can be in
+    different possible layers: as staff in long term care facilities (LTCF),
+    as teachers or staff in schools (S), or as workers in other workplaces (W).
+
+    Args:
+        popdict (dict) : population dictionary
+
+    Returns:
+        dict: Dictionary of the count of employed people by age in popdict.
+    """
+    employment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
+    for i, person in popdict.items():
+        if person['snf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
+            employment_count_by_age[person['age']] += 1
+
+    return employment_count_by_age
+
+
+def get_workplace_sizes(popdict):
+    """
+    Get workplace sizes of regular workplaces in popdict. This only includes
+    workplaces that are not long term care facilities (LTCF) or schools (S).
+
+    Args:
+        popdict (dict) : population dictionary
+
+    Returns:
+        dict: Dictionary of the generated workplace sizes for each regular workplace.
+    """
+    workplace_sizes = dict()
+    for i, person in popdict.items():
+        if person['wpid'] is not None:
+            workplace_sizes.setdefault(person['wpid'], 0)
+            workplace_sizes[person['wpid']] += 1
+            # workplace_sizes.setdefault(person['wpid'], dict())  # use when workplace types by industry are included
+            # workplace_sizes[person['wpid']].setdefault('employed', 0)
+            # workplace_sizes[person['wpid']]['employed'] += 1
+
+    return workplace_sizes
+
+
+def get_generated_workplace_size_distribution(workplace_sizes, bins):
+    """
+    Get workplace size distribution.
+
+    Args:
+        workplace_sizes (dict): generated workplace sizes by workplace id (wpid)
+        bins (list) : workplace size bins
+
+    Returns:
+        dict: Dictionary of generated workplace size distribution.
+    """
+    generated_workplace_sizes = list(workplace_sizes.values())
+    hist, bins = np.histogram(generated_workplace_sizes, bins=bins, density=0)
+    if sum(generated_workplace_sizes) > 0:
+        generated_workplace_size_dist = {i: hist[i] / sum(hist) for i in range(len(hist))}
+    else:
+        generated_workplace_size_dist = {i: hist[i] for i in range(len(hist))}
+
+    return generated_workplace_size_dist
