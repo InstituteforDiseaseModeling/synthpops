@@ -200,14 +200,17 @@ class Pop(sc.prettyobj):
         # Add summaries post hoc
         self.age_count = self.count_pop_ages()
 
-        self.household_sizes = self.get_household_size()  # could be reorganized into class property with people array
+        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
         self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+
+        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
+        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
 
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
 
         self.employment_by_age = self.count_employment_by_age()
-        self.workplace_sizes = self.get_workplace_size()  # could be reorganized into class property with people array
+        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
         self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
         # Plotting defaults

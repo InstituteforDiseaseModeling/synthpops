@@ -419,8 +419,8 @@ def get_ltcf_sizes(popdict, keys_to_exclude=[]):
     Get long term care facility sizes, including both residents and staff.
 
     Args:
-        popdict (dict) : population dictionary
-        keys_to_exclude (list): possible keys to exclude for roles in long term care facilities. See notes.
+        popdict (dict)         : population dictionary
+        keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
 
     Returns:
         dict: Dictionary of the size for each long term care facility generated.

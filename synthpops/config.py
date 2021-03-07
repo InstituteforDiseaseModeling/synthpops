@@ -15,8 +15,8 @@ import sciris as sc
 import logging
 from . import version as spv
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets',
-           'validate', 'set_location_defaults', 'default_country', 'default_state',
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets', 'set_datadir',
+           'validate_datadir', 'set_location_defaults', 'default_country', 'default_state',
            'default_location', 'default_sheet_name', 'alt_location', 'default_household_size_1_included',
            'get_config_data', 'version_info', 'max_age']
 
@@ -195,7 +195,7 @@ def set_nbrackets(n):
     return nbrackets
 
 
-def validate(verbose=True):
+def validate_datadir(verbose=True):
     ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
         if verbose:
@@ -204,4 +204,4 @@ def validate(verbose=True):
         if datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')
         else:
-            raise FileNotFoundError(f'The folder "{datadir}" does not exist, as far as I can tell.')
+            raise FileNotFoundError(f'The folder "{datadir}" does not exist.')

@@ -12,7 +12,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                       = 100e3,
+    n                       = settings.pop_sizes.medium_large,
     rand_seed               = 123,
 
     smooth_ages             = True,
@@ -35,6 +35,7 @@ def test_summary_in_generation():
     populations.
     """
     sp.logger.info("Test summaries are produced when populations are generated.")
+    sp.logger.info("Temporary basic tests.")
 
     pop = sp.Pop(**pars)
 
@@ -52,20 +53,51 @@ def test_summary_in_generation():
     assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is less than or equal to 0."
     print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
 
-    workplace_size_by_id = pop.workplace_size_by_id
-    assert sum(workplace_size_by_id.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
+    workplace_sizes = pop.workplace_sizes
+    assert sum(workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
     print("Workplace sizes exists in pop object and is a dictionary by workplace id (wpid).")
 
     workplace_size_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
     workplace_size_bins = sp.get_bin_edges(workplace_size_brackets)
     workplace_size_bin_labels = sp.get_bin_labels(workplace_size_brackets)
-    print(workplace_size_bins)
-    print(workplace_size_bin_labels)
+    # print(workplace_size_bins)
+    # print(workplace_size_bin_labels)
 
-    workplace_size_dist = sp.get_generated_workplace_size_distribution(workplace_size_by_id, workplace_size_bins)
-    print(workplace_size_dist)
+    workplace_size_dist = sp.get_generated_workplace_size_distribution(workplace_sizes, workplace_size_bins)
+    # print(workplace_size_dist)
     expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.datadir, state_location=pop.state_location, country_location=pop.country_location))
-    print(expected_workplace_size_dist)
+    # print(expected_workplace_size_dist)
+
+    household_sizes = pop.household_sizes
+    household_size_count = pop.household_size_count
+
+    assert sum(household_size_count.values()) > 0, "Check failed. No people placed into unique households."
+    print("Household sizes exist in pop object and is a dictionary by household id (hhid).")
+
+    assert sum(household_sizes.values()) == sum([household_size_count[k] * k for k in household_size_count]), f"Household sizes summary check failed."
+    print("Household sizes created.")
+
+    ltcf_sizes = pop.ltcf_sizes
+    ltcf_size_count = pop.ltcf_size_count
+
+    assert sum(ltcf_sizes.values()) > 0, "Check failed. No people placed in ltcfs."
+    print("Ltcfs created.")
+
+    ltcf_sizes_res = pop.get_ltcf_sizes(keys_to_exclude=['snf_staff'])
+    assert sum(ltcf_sizes_res.values()) < sum(ltcf_sizes.values()), "Check failed. Ltcf residents is greater than or equal to all people in ltcfs."
+    print("Ltcf residents created separately.")
+
+
+    assert sum(household_sizes.values()) + sum(ltcf_sizes_res.values()) == pop.n, f"Check failed. Population size is {pop.n} and the sum of people generated living in households and ltcfs is {sum(household_sizes.values()) + sum(ltcf_sizes_res.values())}."
+    print("Check passed. Everyone lives either in a household or ltcf.")
+
+
+    ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['snf_res'])
+    assert sum(ltcf_sizes_res.values()) + sum(ltcf_sizes_staff.values()) == sum(ltcf_sizes.values()), "Check failed. The sum of ltcf residets and staff counted separately does not equal the count of them together."
+    print("Ltcf staff created separately.")
+
+
+
 
 
 def test_contact_matrices_used():
