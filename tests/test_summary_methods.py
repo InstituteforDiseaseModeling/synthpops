@@ -35,7 +35,7 @@ def test_summary_in_generation():
     populations.
     """
     sp.logger.info("Test summaries are produced when populations are generated.")
-    sp.logger.info("Temporary basic tests.\n")
+    sp.logger.info("Temporary basic tests. To be reorganized and converted to plotting based tests.\n")
 
     pop = sp.Pop(**pars)
 
