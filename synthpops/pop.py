@@ -456,6 +456,66 @@ class Pop(sc.prettyobj):
         """
         return spb.count_ages(self.popdict)
 
+    # convert to work on array
+    def get_household_sizes(self):
+        """
+        Create household sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of household size by household id (hhid).
+        """
+        return sphh.get_household_sizes(self.popdict)
+
+    # convert to work on array
+    def count_household_sizes(self):
+        """
+        Count of household sizes in the generated population.
+
+        Returns:
+            dict: Dictionary of the count of household sizes.
+        """
+        return spb.count_sizes(self.household_sizes)
+
+    # convert to work on array
+    def get_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Create long term care facility sizes in the generated population post generation.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the size for each long term care facility generated.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spltcf.get_ltcf_sizes(self.popdict, keys_to_exclude)
+
+    # convert to work on array
+    def count_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Count of long term care facility sizes in the generated population.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the count of long term care facility sizes.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spb.count_sizes(self.get_ltcf_sizes(keys_to_exclude))
+
     def count_enrollment_by_age(self):
         """
         Create enrollment count by age for students in the generated population post generation.
@@ -523,66 +583,6 @@ class Pop(sc.prettyobj):
             dict:Dictionary of the count of workplace sizes.
         """
         return spb.count_sizes(self.workplace_sizes)
-
-    # convert to work on array
-    def get_household_sizes(self):
-        """
-        Create household sizes in the generated population post generation.
-
-        Returns:
-            dict: Dictionary of household size by household id (hhid).
-        """
-        return sphh.get_household_sizes(self.popdict)
-
-    # convert to work on array
-    def count_household_sizes(self):
-        """
-        Count of household sizes in the generated population.
-
-        Returns:
-            dict: Dictionary of the count of household sizes.
-        """
-        return spb.count_sizes(self.household_sizes)
-
-    # convert to work on array
-    def get_ltcf_sizes(self, keys_to_exclude=[]):
-        """
-        Create long term care facility sizes in the generated population post generation.
-
-        Args:
-            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
-
-        Returns:
-            dict: Dictionary of the size for each long term care facility generated.
-
-        Notes:
-            keys_to_exclude is an empty list by default, but can contain the
-            different long term care facility roles: 'snf_res' for residents and
-            'snf_staff' for staff. If either role is included in the parameter
-            keys_to_exclude, then individuals with that value equal to 1 will not
-            be counted.
-        """
-        return spltcf.get_ltcf_sizes(self.popdict, keys_to_exclude)
-
-    # convert to work on array
-    def count_ltcf_sizes(self, keys_to_exclude=[]):
-        """
-        Count of long term care facility sizes in the generated population.
-
-        Args:
-            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
-
-        Returns:
-            dict: Dictionary of the count of long term care facility sizes.
-
-        Notes:
-            keys_to_exclude is an empty list by default, but can contain the
-            different long term care facility roles: 'snf_res' for residents and
-            'snf_staff' for staff. If either role is included in the parameter
-            keys_to_exclude, then individuals with that value equal to 1 will not
-            be counted.
-        """
-        return spb.count_sizes(self.get_ltcf_sizes(keys_to_exclude))
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
