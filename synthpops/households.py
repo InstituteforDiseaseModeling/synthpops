@@ -343,17 +343,26 @@ def get_household_sizes(popdict):
     return household_sizes
 
 
-# def count_household_sizes(household_sizes):
-#     """
-#     Count household sizes.
+def get_household_heads(popdict):
+    """
+    Get the id of the head of each household.
 
-#     Args:
-#         household_sizes (dict) : dictionary of household size by household id (hhid)
+    Args:
+        popdict (dict) : population dictionary
 
-#     Returns:
-#         dict: Dictionary of the count of household sizes.
-#     """
-#     return spb.count_sizes(household_sizes)
+    Returns:
+        dict: Dictionary of the id of the head of the household for each household.
+    """
+    household_heads = dict()
+    for i, person in popdict.items():
+        if person['hhid'] is not None:
+            # household_heads.setdefault(person['hhid'], [])
+            # household_heads[person['hhid']].append(i)
+            household_heads.setdefault(person['hhid'], np.inf)
+            if i < household_heads[person['hhid']]:
+                household_heads[person['hhid']] = i  # update the minimum id; synthpops creates the head of the household first for each household so they will have the smallest id of all members in their household
+
+    return household_heads
 
 
 def get_generated_household_size_distribution(household_size_by_hhid):

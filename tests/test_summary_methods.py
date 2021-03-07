@@ -12,7 +12,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                       = settings.pop_sizes.medium_large,
+    n                       = settings.pop_sizes.small,
     rand_seed               = 123,
 
     smooth_ages             = True,
@@ -87,17 +87,16 @@ def test_summary_in_generation():
     assert sum(ltcf_sizes_res.values()) < sum(ltcf_sizes.values()), "Check failed. Ltcf residents is greater than or equal to all people in ltcfs."
     print("Ltcf residents created separately.")
 
-
     assert sum(household_sizes.values()) + sum(ltcf_sizes_res.values()) == pop.n, f"Check failed. Population size is {pop.n} and the sum of people generated living in households and ltcfs is {sum(household_sizes.values()) + sum(ltcf_sizes_res.values())}."
     print("Check passed. Everyone lives either in a household or ltcf.")
-
 
     ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['snf_res'])
     assert sum(ltcf_sizes_res.values()) + sum(ltcf_sizes_staff.values()) == sum(ltcf_sizes.values()), "Check failed. The sum of ltcf residets and staff counted separately does not equal the count of them together."
     print("Ltcf staff created separately.")
 
-
-
+    head_ages = pop.get_household_head_ages()
+    assert min(head_ages.values()) >= 18, "Check failed. Min head age is younger than 18 years old."
+    print("Check passed. All heads of households are at least 18 years old.")
 
 
 def test_contact_matrices_used():

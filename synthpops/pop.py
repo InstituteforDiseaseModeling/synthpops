@@ -203,6 +203,9 @@ class Pop(sc.prettyobj):
         self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
         self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
 
+        self.household_heads = self.get_household_heads()
+        # self.household_head_ages = 
+
         self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
         self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
 
@@ -478,6 +481,15 @@ class Pop(sc.prettyobj):
             dict: Dictionary of the count of household sizes.
         """
         return spb.count_sizes(self.household_sizes)
+
+    # convert to work on array
+    def get_household_heads(self):
+        """Get the ids of the head of households in the generated population post generation."""
+        return sphh.get_household_heads(self.popdict)
+
+    def get_household_head_ages(self):
+        """Get the age of the head of each household in the generated population post generation."""
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.household_heads.items()}
 
     # convert to work on array
     def get_ltcf_sizes(self, keys_to_exclude=[]):
