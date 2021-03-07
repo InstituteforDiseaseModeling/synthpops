@@ -133,8 +133,8 @@ def get_config_data():
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
-    print(f'Git information:')
-    sc.pp(spv.__gitinfo__)
+    # print(f'Git information:')
+    # sc.pp(spv.__gitinfo__)  # not yet set
     return
 
 
@@ -190,7 +190,7 @@ def set_nbrackets(n):
     logger.info(f"set_nbrackets n = {n}")
     nbrackets = n
     if nbrackets not in valid_nbracket_ranges:
-        logger.warningnt(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
+        logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
     logger.info(f'Done: number of brackets is set to {n}.')
     return nbrackets
 
