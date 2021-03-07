@@ -8,7 +8,9 @@ from .config import logger as log
 from .config import max_age
 
 
-__all__ = ['count_employment_by_age']
+__all__ = ['count_employment_by_age', 'count_workplace_sizes', 
+            # 'get_generated_workplace_size_distributions'
+            ]
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
@@ -250,20 +252,30 @@ def count_employment_by_age(popdict):
     as teachers or staff in schools (S), or as workers in other workplaces (W).
 
     Args:
-        popdict (dict)         : population dictionary
+        popdict (dict) : population dictionary
 
     Returns:
         dict: Dictionary of the count of employed people by age in popdict.
     """
     employment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
     for i, person in popdict.items():
-        if person['snf_staff']:
-            employment_count_by_age[person['age']] += 1
-        elif person['sc_teacher']:
-            employment_count_by_age[person['age']] += 1
-        elif person['sc_staff']:
-            employment_count_by_age[person['age']] += 1
-        elif person['wpid']:
+        if person['snf_staff'] or person['sc_teacher'] or person['sc_staff'] or person['wpid']:
             employment_count_by_age[person['age']] += 1
 
     return employment_count_by_age
+
+
+def count_workplace_sizes(popdict):
+    """
+    Get workplace sizes of regular workplaces in popdict. This means workplaces
+    that are not long term care facilities (LTCF) or schools (S).
+
+    Args:
+        popdict (dict) : population dictionary
+
+    Returns:
+        dict: Dictionary of the generated workplace sizes for regular workplaces.
+    """
+    workplaces = dict()
+    # for i, person in popdict.items():
+        # if person['wpid'] is not None:
