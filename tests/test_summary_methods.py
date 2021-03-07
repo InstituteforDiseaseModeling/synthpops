@@ -12,7 +12,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                       = settings.pop_sizes.medium_large,
+    n                       = 100e3,
     rand_seed               = 123,
 
     smooth_ages             = True,
@@ -66,8 +66,6 @@ def test_summary_in_generation():
     print(workplace_size_dist)
     expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.datadir, state_location=pop.state_location, country_location=pop.country_location))
     print(expected_workplace_size_dist)
-
-
 
 
 def test_contact_matrices_used():

@@ -199,14 +199,16 @@ class Pop(sc.prettyobj):
 
         # Add summaries post hoc
         self.age_count = self.count_pop_ages()
+
+        self.household_size_by_id = self.count_household_size_by_id()  # could be reorganized into class property with people array
+        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
-        self.employment_by_age = self.count_employment_by_age()
-        self.workplace_size_by_id = self.count_workplace_size_by_id()  # could be reorganized and stored in people array
-        self.workplace_size_count = self.count_workplace_sizes()
 
-        self.household_size_by_id = self.count_household_size_by_id()  # could be reorganized and stored in people array
-        self.household_size_count = self.count_household_sizes()
+        self.employment_by_age = self.count_employment_by_age()
+        self.workplace_size_by_id = self.count_workplace_size_by_id()  # could be reorganized into class property with people array
+        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -502,7 +504,7 @@ class Pop(sc.prettyobj):
         """
         return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
-    # if we use an array for people/pop, this can turn into a property instead
+    # convert to work on array
     def count_workplace_size_by_id(self):
         """
         Create workplace sizes in the generated population post generation.
@@ -512,13 +514,14 @@ class Pop(sc.prettyobj):
         """
         return spw.count_workplace_size_by_id(self.popdict)
 
+    # convert to work on array
     def count_workplace_sizes(self):
         """
         Count of workplace sizes in the generated population.
         """
         return spb.count_sizes(self.workplace_size_by_id)
 
-    # if we use an array for people/pop, this can turn into a property instead
+    # convert to work on array
     def count_household_size_by_id(self):
         """
         Create household sizes in the generated population post generation.
@@ -528,6 +531,7 @@ class Pop(sc.prettyobj):
         """
         return sphh.count_household_size_by_id(self.popdict)
 
+    # convert to work on array
     def count_household_sizes(self):
         """
         Count of household sizes in the generated population.
