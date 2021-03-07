@@ -41,33 +41,35 @@ def test_summary_in_generation():
     assert isinstance(pop.age_count, dict), "Check failed"
     print(f"Age count summary exists and is a dictionary. The age range is from {min(pop.age_count.keys())} to {max(pop.age_count.keys())} years old.")
 
-    assert sum(pop.enrollment_by_age.values()) > 0, "Check failed. Student enrollment is not greater than 0."
+    assert sum(pop.enrollment_by_age.values()) > 0, "Check failed. Student enrollment is less than or equal to 0."
     print("Student enrollment count by age exists and is greater than 0.")
 
     enrollment_rates = pop.enrollment_rates  # a property rather than stored data
-    assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is not greater than 0."
+    assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is less than or equal to 0."
     print(f"Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.")
 
     # print(pop.employment_by_age)
     employment_rates = pop.employment_rates
-    assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is not greater than 0."
+    assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is less than or equal to 0."
     print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
 
-    # for i, person in pop.popdict.items():
-    #     if i % 2 == 0:
-    #         # if person['snf_res']:
-    #             # print(i, person['age'], 'snf_res')
-    #         if person['snf_staff']:
-    #             print(i, person['age'], 'snf_staff')
-    #         elif person['sc_teacher']:
-    #             print(i, person['age'], 'sc_teacher')
-    #         elif person['sc_staff']:
-    #             print(i, person['age'], 'sc_staff')
-    #         elif person['wpid']:
-    #             print(i, person['age'], 'wpid')
+    workplace_sizes = pop.workplace_sizes
+    assert sum(workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
+    print("Workplace sizes exists in pop object and is a dictionary by workplace id (wpid).")
 
-    #     if i > 500:
-    #         break
+    workplace_size_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
+    workplace_size_bins = [workplace_size_brackets[b][0] for b in workplace_size_brackets.keys()]
+    print(workplace_size_bins)
+
+    w = sp.get_bin_edges(workplace_size_brackets)
+    wl = sp.get_bin_labels(workplace_size_brackets)
+    print(w)
+    print(wl)
+
+    # print([0] + [workplace_size_bins[b][-1] for b in workplace_size_brackets.keys()])
+
+    # print(sp.get_generated_workplace_size_distributions)
+
 
 
 def test_contact_matrices_used():

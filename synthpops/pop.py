@@ -202,6 +202,7 @@ class Pop(sc.prettyobj):
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
         self.employment_by_age = self.count_employment_by_age()
+        self.workplace_sizes = self.count_workplace_sizes()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -497,13 +498,22 @@ class Pop(sc.prettyobj):
         """
         return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
+    def count_workplace_sizes(self):
+        """
+        Create workplace sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of workplace sizes.
+        """
+        return spw.count_workplace_sizes(self.popdict)
+
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
         import covasim as cv  # Optional import
 
         pars = dict(
-            pop_size = self.n,
-            pop_type = 'synthpops',
+            pop_size   = self.n,
+            pop_type   = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
         )
         sim = cv.Sim(pars, popfile=self.popdict)

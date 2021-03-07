@@ -1311,7 +1311,8 @@ def get_generated_school_size_distributions(enrollment_by_school_type, bins):
         if sum(sizes) > 0:
             generated_school_size_dist[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
         else:
-            generated_school_size_dist[sc_type] = {i: 0 for i in range(len(hist))}
+            generated_school_size_dist[sc_type] = {i: hist[i] for i in range(len(hist))}
+
     return generated_school_size_dist
 
 

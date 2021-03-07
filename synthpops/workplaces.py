@@ -259,7 +259,7 @@ def count_employment_by_age(popdict):
     """
     employment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
     for i, person in popdict.items():
-        if person['snf_staff'] or person['sc_teacher'] or person['sc_staff'] or person['wpid']:
+        if person['snf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
             employment_count_by_age[person['age']] += 1
 
     return employment_count_by_age
@@ -276,6 +276,34 @@ def count_workplace_sizes(popdict):
     Returns:
         dict: Dictionary of the generated workplace sizes for regular workplaces.
     """
-    workplaces = dict()
-    # for i, person in popdict.items():
-        # if person['wpid'] is not None:
+    workplace_sizes = dict()
+    for i, person in popdict.items():
+        if person['wpid'] is not None:
+            workplace_sizes.setdefault(person['wpid'], 0)
+            workplace_sizes[person['wpid']] += 1
+            # workplace_sizes.setdefault(person['wpid'], dict())  # use when workplace types by industry are included
+            # workplace_sizes[person['wpid']].setdefault('employed', 0)
+            # workplace_sizes[person['wpid']]['employed'] += 1
+
+    return workplace_sizes
+
+
+def get_generated_workplace_size_distributions(workplace_sizes, bins):
+    """
+    Get workplace size distribution.
+
+    Args:
+        workplace_sizes (dict): generated workplace sizes
+        bins (list) : workplace size bins
+
+    Returns:
+        dict: Dictionary of generated workplace size distribution.
+    """
+    generated_workplace_sizes = list(workplace_sizes.values())
+    hist, bins = np.histogram(generated_workplace_sizes, bins=bins, density=0)
+    if sum(generated_workplace_sizes) > 0:
+        generated_workplace_size_dist = {i: hist[i] / sum(hist) for i in range(len(hist))}
+    else:
+        generated_workplace_size_dist = {i: hist[i] for i in range(len(hist))}
+
+    return generated_workplace_size_dist
