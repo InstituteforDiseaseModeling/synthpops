@@ -52,8 +52,8 @@ def test_summary_in_generation():
     assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is less than or equal to 0."
     print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
 
-    workplace_sizes = pop.workplace_sizes
-    assert sum(workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
+    workplace_size_by_id = pop.workplace_size_by_id
+    assert sum(workplace_size_by_id.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
     print("Workplace sizes exists in pop object and is a dictionary by workplace id (wpid).")
 
     workplace_size_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
@@ -62,10 +62,12 @@ def test_summary_in_generation():
     print(workplace_size_bins)
     print(workplace_size_bin_labels)
 
-    workplace_size_dist = sp.get_generated_workplace_size_distributions(workplace_sizes, workplace_size_bins)
+    workplace_size_dist = sp.get_generated_workplace_size_distribution(workplace_size_by_id, workplace_size_bins)
     print(workplace_size_dist)
     expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.datadir, state_location=pop.state_location, country_location=pop.country_location))
     print(expected_workplace_size_dist)
+
+
 
 
 def test_contact_matrices_used():

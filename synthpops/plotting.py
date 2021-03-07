@@ -784,8 +784,8 @@ def plot_school_sizes(pop, **kwargs):
         expected_school_size_dist = {None: spdata.get_school_size_distr_by_brackets(**plkwargs.loc_pars)}
 
     school_size_brackets = spdata.get_school_size_brackets(**plkwargs.loc_pars)
-    bins = spsch.get_bin_edges(school_size_brackets)
-    bin_labels = spsch.get_bin_labels(school_size_brackets)
+    bins = spb.get_bin_edges(school_size_brackets)
+    bin_labels = spb.get_bin_labels(school_size_brackets)
 
     # calculate how many students are in each school
     if plkwargs.comparison:

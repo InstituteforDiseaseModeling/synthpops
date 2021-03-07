@@ -8,9 +8,9 @@ from .config import logger as log
 from .config import max_age
 
 
-__all__ = ['count_employment_by_age', 'count_workplace_sizes', 
-            'get_generated_workplace_size_distributions',
-            ]
+__all__ = ['count_employment_by_age', 'count_workplace_size_by_id',
+           'get_generated_workplace_size_distribution',
+           ]
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
@@ -265,16 +265,16 @@ def count_employment_by_age(popdict):
     return employment_count_by_age
 
 
-def count_workplace_sizes(popdict):
+def count_workplace_size_by_id(popdict):
     """
-    Get workplace sizes of regular workplaces in popdict. This means workplaces
-    that are not long term care facilities (LTCF) or schools (S).
+    Get workplace sizes of regular workplaces in popdict. This only includes
+    workplaces that are not long term care facilities (LTCF) or schools (S).
 
     Args:
         popdict (dict) : population dictionary
 
     Returns:
-        dict: Dictionary of the generated workplace sizes for regular workplaces.
+        dict: Dictionary of the generated workplace sizes for each regular workplace.
     """
     workplace_sizes = dict()
     for i, person in popdict.items():
@@ -288,12 +288,12 @@ def count_workplace_sizes(popdict):
     return workplace_sizes
 
 
-def get_generated_workplace_size_distributions(workplace_sizes, bins):
+def get_generated_workplace_size_distribution(workplace_sizes, bins):
     """
     Get workplace size distribution.
 
     Args:
-        workplace_sizes (dict): generated workplace sizes
+        workplace_sizes (dict): generated workplace sizes by workplace id (wpid)
         bins (list) : workplace size bins
 
     Returns:

@@ -6,6 +6,7 @@ import sciris as sc
 import numpy as np
 from collections import Counter
 from .config import logger as log, checkmem
+from . import base as spb
 from . import sampling as spsamp
 
 
@@ -321,3 +322,50 @@ def get_all_households(homes_dic):
 
     np.random.shuffle(homes)
     return homes
+
+
+def count_household_size_by_id(popdict):
+    """
+    Get household sizes for each household in the popdict.
+
+    Args:
+        popdict (dict) : population dictionary
+
+    Returns:
+        dict: Dictionary of the generated household size for each household.
+    """
+    household_sizes = dict()
+    for i, person in popdict.items():
+        if person['hhid'] is not None:
+            household_sizes.setdefault(person['hhid'], 0)
+            household_sizes[person['hhid']] += 1
+
+    return household_sizes
+
+
+# def count_household_sizes(household_sizes):
+#     """
+#     Count household sizes.
+
+#     Args:
+#         household_sizes (dict) : dictionary of household size by household id (hhid)
+
+#     Returns:
+#         dict: Dictionary of the count of household sizes.
+#     """
+#     return spb.count_sizes(household_sizes)
+
+
+def get_generated_household_size_distribution(household_size_by_hhid):
+    """
+    Get household size distribution.
+
+    Args:
+        household_sizes (dict): size of each generated household
+
+    Returns:
+        dict: Dictionary of the generated household size distribution.
+    """
+    household_size_count = Counter(household_size_by_hhid.values())
+    household_size_dist = spb.norm_dic(household_size_count)
+    return {k: household_size_dist[k] for k in sorted(household_size_dist.keys())}

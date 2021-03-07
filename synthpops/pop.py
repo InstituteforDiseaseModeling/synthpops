@@ -202,7 +202,11 @@ class Pop(sc.prettyobj):
         self.enrollment_by_age = self.count_enrollment_by_age()
         self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
         self.employment_by_age = self.count_employment_by_age()
-        self.workplace_sizes = self.count_workplace_sizes()
+        self.workplace_size_by_id = self.count_workplace_size_by_id()
+        self.workplace_size_count = self.count_workplace_sizes()
+
+        self.household_size_by_id = self.count_household_size_by_id()
+        self.household_size_count = self.count_household_sizes()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -498,14 +502,35 @@ class Pop(sc.prettyobj):
         """
         return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
 
-    def count_workplace_sizes(self):
+    def count_workplace_size_by_id(self):
         """
         Create workplace sizes in the generated population post generation.
 
         Returns:
-            dict: Dictionary of workplace sizes.
+            dict: Dictionary of workplace size by workplace id (wpid).
         """
-        return spw.count_workplace_sizes(self.popdict)
+        return spw.count_workplace_size_by_id(self.popdict)
+
+    def count_workplace_sizes(self):
+        """
+        Count of workplace sizes in the generated population.
+        """
+        return spb.count_sizes(self.workplace_size_by_id)
+
+    def count_household_size_by_id(self):
+        """
+        Create household sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of household size by household id (hhid).
+        """
+        return sphh.count_household_size_by_id(self.popdict)
+
+    def count_household_sizes(self):
+        """
+        Count of household sizes in the generated population.
+        """
+        return spb.count_sizes(self.household_size_by_id)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
