@@ -9,7 +9,7 @@ from .config import max_age
 
 
 __all__ = ['count_employment_by_age', 'count_workplace_sizes', 
-            # 'get_generated_workplace_size_distributions'
+            'get_generated_workplace_size_distributions',
             ]
 
 

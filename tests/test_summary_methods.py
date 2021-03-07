@@ -12,7 +12,7 @@ import settings
 
 # parameters to generate a test population
 pars = dict(
-    n                       = settings.pop_sizes.medium,
+    n                       = settings.pop_sizes.medium_large,
     rand_seed               = 123,
 
     smooth_ages             = True,
@@ -48,7 +48,6 @@ def test_summary_in_generation():
     assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is less than or equal to 0."
     print(f"Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.")
 
-    # print(pop.employment_by_age)
     employment_rates = pop.employment_rates
     assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is less than or equal to 0."
     print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
@@ -58,18 +57,15 @@ def test_summary_in_generation():
     print("Workplace sizes exists in pop object and is a dictionary by workplace id (wpid).")
 
     workplace_size_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
-    workplace_size_bins = [workplace_size_brackets[b][0] for b in workplace_size_brackets.keys()]
+    workplace_size_bins = sp.get_bin_edges(workplace_size_brackets)
+    workplace_size_bin_labels = sp.get_bin_labels(workplace_size_brackets)
     print(workplace_size_bins)
+    print(workplace_size_bin_labels)
 
-    w = sp.get_bin_edges(workplace_size_brackets)
-    wl = sp.get_bin_labels(workplace_size_brackets)
-    print(w)
-    print(wl)
-
-    # print([0] + [workplace_size_bins[b][-1] for b in workplace_size_brackets.keys()])
-
-    # print(sp.get_generated_workplace_size_distributions)
-
+    workplace_size_dist = sp.get_generated_workplace_size_distributions(workplace_sizes, workplace_size_bins)
+    print(workplace_size_dist)
+    expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.datadir, state_location=pop.state_location, country_location=pop.country_location))
+    print(expected_workplace_size_dist)
 
 
 def test_contact_matrices_used():
