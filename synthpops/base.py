@@ -242,12 +242,15 @@ def get_bin_labels(size_brackets):
     return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]
 
 
-def count_sizes(size_by_group_id):
+def count_values(dic):
     """
-    Counter of sizes.
+    Counter of values in the dictionary. Keys in the returned dictionary are values from the input dictionary.
 
     Args:
-        size_by_group_id (dict) : dictionary of group size by group id
+        dic (dict) : dictionary with sortable keys
+
+    Returns:
+        dict: Dictionary of the count of values.
     """
-    size_count = Counter(size_by_group_id.values())
-    return {k: size_count[k] for k in sorted(size_count.keys())}
+    value_count = Counter(dic.values())
+    return {k: value_count[k] for k in sorted(value_count.keys())}

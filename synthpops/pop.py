@@ -197,14 +197,15 @@ class Pop(sc.prettyobj):
         self.popdict = population
         log.debug('Pop(): done.')
 
-        # Add summaries post hoc
+        # Add summaries post hoc  --- TBD: summaries during generation
         self.age_count = self.count_pop_ages()
 
         self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
         self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
 
         self.household_heads = self.get_household_heads()
-        # self.household_head_ages = 
+        self.household_head_ages = self.get_household_head_ages()
+        self.household_head_age_count = self.count_household_head_ages()
 
         self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
         self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
@@ -480,7 +481,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the count of household sizes.
         """
-        return spb.count_sizes(self.household_sizes)
+        return spb.count_values(self.household_sizes)
 
     # convert to work on array
     def get_household_heads(self):
@@ -490,6 +491,23 @@ class Pop(sc.prettyobj):
     def get_household_head_ages(self):
         """Get the age of the head of each household in the generated population post generation."""
         return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.household_heads.items()}
+
+    def count_household_head_ages(self, bins=None):
+        """
+        Count of household head ages in the generated population.
+
+        Args:
+            bins (array) : If supplied, use this to create a binned count of the household head ages. Otherwise, count discrete household head ages.
+
+        Returns:
+            dict: Dictionary of the count of household head ages.
+        """
+        if bins is None:
+            return spb.count_values(self.household_head_ages)
+        else:
+            head_ages = list(self.household_head_ages.values())
+            hist, bins = np.histogram(head_ages, bins=bins, density=0)
+            return {i: hist[i] for i in range(len(hist))}
 
     # convert to work on array
     def get_ltcf_sizes(self, keys_to_exclude=[]):
@@ -529,7 +547,7 @@ class Pop(sc.prettyobj):
             keys_to_exclude, then individuals with that value equal to 1 will not
             be counted.
         """
-        return spb.count_sizes(self.get_ltcf_sizes(keys_to_exclude))
+        return spb.count_values(self.get_ltcf_sizes(keys_to_exclude))
 
     def count_enrollment_by_age(self):
         """
@@ -597,7 +615,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_sizes(self.workplace_sizes)
+        return spb.count_values(self.workplace_sizes)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""

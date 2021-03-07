@@ -1314,30 +1314,3 @@ def get_generated_school_size_distributions(enrollment_by_school_type, bins):
             generated_school_size_dist[sc_type] = {i: hist[i] for i in range(len(hist))}
 
     return generated_school_size_dist
-
-
-# def get_bin_edges(size_brackets):
-#     """
-#     Get the bin edges for size brackets.
-
-#     Args:
-#         size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
-
-#     Returns:
-#         An array of the bin edges.
-#     """
-
-#     return np.array([size_brackets[0][0]] + [size_brackets[b][-1] + 1 for b in sorted(size_brackets.keys())])
-
-
-# def get_bin_labels(size_brackets):
-#     """
-#     Get the bin labels from the values contained within each bracket or bin.
-
-#     Args:
-#         size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
-
-#     Returns:
-#         A list of bin labels.
-#     """
-#     return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]
