@@ -31,72 +31,101 @@ pars = sc.objdict(pars)
 
 def test_summary_in_generation():
     """
-    Test that summaries are produced produced when synthpops generates
+    Basic tests that summaries are produced produced when synthpops generates
     populations.
     """
     sp.logger.info("Test summaries are produced when populations are generated.")
-    sp.logger.info("Temporary basic tests.")
+    sp.logger.info("Temporary basic tests.\n")
 
     pop = sp.Pop(**pars)
 
+    # check age_count summary
     assert isinstance(pop.age_count, dict), "Check failed"
-    print(f"Age count summary exists and is a dictionary. The age range is from {min(pop.age_count.keys())} to {max(pop.age_count.keys())} years old.")
+    print(f"Check passed. Age count summary exists and is a dictionary. The age range is from {min(pop.age_count.keys())} to {max(pop.age_count.keys())} years old.")
 
-    assert sum(pop.enrollment_by_age.values()) > 0, "Check failed. Student enrollment is less than or equal to 0."
-    print("Student enrollment count by age exists and is greater than 0.")
+    assert sum(pop.age_count.values()) == pop.n, f"Check failed. The sum of pop.age_count ({sum(pop.age_count.values())}) does not equal the population size ({pop.n})."
+    print(f"Check passed. Age count summary of the generated population matches the expected size ({pop.n}).\n")
 
-    enrollment_rates = pop.enrollment_rates  # a property rather than stored data
-    assert 0 < enrollment_rates[10] <= 1., "Check failed. Enrollment rate for age 10 is less than or equal to 0."
-    print(f"Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.")
+    # check household size summary
+    assert sum(pop.household_size_count.values()) > 0, "Check failed. No people placed into unique households."
+    print("Check passed. Household sizes exist in pop object and is a dictionary by household id (hhid).")
 
-    employment_rates = pop.employment_rates
-    assert 0 < employment_rates[25] <= 1., "Check failed. Employment rate for age 25 is less than or equal to 0."
-    print(f"Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
+    assert sum(pop.household_sizes.values()) == sum([pop.household_size_count[k] * k for k in pop.household_size_count]), "Household sizes summary check failed."
+    print("Check passed. Household sizes summary check passed.\n")
 
-    workplace_sizes = pop.workplace_sizes
-    assert sum(workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
+    # check household size distribution
+    household_size_dist = sp.get_generated_household_size_distribution(pop.household_sizes)
+    expected_household_size_dist = sp.get_household_size_distr(**pop.loc_pars)
+    if expected_household_size_dist[1] > 0:
+        assert household_size_dist[1] > 0, "Check failed. No one lives alone even though the expected household size distribution says otherwise."
+        print("Check passed. At least some people live alone as expected from the household size distribution.")
+
+    # check household head summary
+    assert min(pop.household_head_ages.values()) >= 18, "Check failed. Min head of household age is younger than 18 years old."
+    print("Check passed. All heads of households are at least 18 years old.")
+
+    # check household head age count summary
+    assert sum(pop.household_head_age_count.values()) == len(pop.household_sizes), "Check on count of household head ages failed."
+    print("Check passed. The count of household head ages matches the number of households created.\n")
+
+    # check ltcf summary
+    assert sum(pop.ltcf_sizes.values()) > 0, "Check failed. No people placed in ltcfs."
+    print("Check passed. Ltcfs created.")
+
+    # count only LTCF residents
+    ltcf_sizes_res = pop.get_ltcf_sizes(keys_to_exclude=['snf_staff'])
+    assert sum(ltcf_sizes_res.values()) < sum(pop.ltcf_sizes.values()), "Check failed. Ltcf residents is greater than or equal to all people in ltcfs."
+    print("Check passed. Ltcf residents created separately.")
+
+    # check that those living in households or LTCFs account for the entire expected population
+    assert sum(pop.household_sizes.values()) + sum(ltcf_sizes_res.values()) == pop.n, f"Check failed. Population size is {pop.n} and the sum of people generated living in households and ltcfs is {sum(pop.household_sizes.values()) + sum(ltcf_sizes_res.values())}."
+    print("Check passed. Everyone lives either in a household or ltcf.")
+
+    # count only LTCF staff
+    ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['snf_res'])
+    assert sum(ltcf_sizes_res.values()) + sum(ltcf_sizes_staff.values()) == sum(pop.ltcf_sizes.values()), "Check failed. The sum of ltcf residets and staff counted separately does not equal the count of them together."
+    print("Check passed. Ltcf staff created separately.\n")
+
+    # check enrollment count by age
+    assert sum(pop.enrollment_by_age.values()) > 0, f"Check failed. Student enrollment is less than or equal to 0 ({sum(pop.enrollment_by_age.values())})."
+    print("Check passed. Student enrollment count by age exists and is greater than 0.")
+
+    # check enrollment rates by age
+    enrollment_rates = pop.enrollment_rates  # a property rather than stored data so make a copy here
+    assert 0 < enrollment_rates[10] <= 1., f"Check failed. Enrollment rate for age 10 is less than or equal to 0 ({enrollment_rates[10]}."
+    print(f"Check passed. Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.\n")
+
+    # check employment rates by age
+    employment_rates = pop.employment_rates  # a property rather than stored data so make a copy here
+    assert 0 < employment_rates[25] <= 1., f"Check failed. Employment rate for age 25 is less than or equal to 0 ({employment_rates[25]})."
+    print(f"Check passed. Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
+
+    # check workplace sizes
+    assert sum(pop.workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
     print("Workplace sizes exists in pop object and is a dictionary by workplace id (wpid).")
 
     workplace_size_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
+
+    # check that bins and bin labels can be made
     workplace_size_bins = sp.get_bin_edges(workplace_size_brackets)
+    assert len(workplace_size_bins) >= 2, "Check failed. workplace size bins contains the limits for less than one bin."
+    print(f"Check passed. There are {len(workplace_size_bins) - 1} workplace size bins.")
+
+    # check that bin labels are all strings
     workplace_size_bin_labels = sp.get_bin_labels(workplace_size_brackets)
-    # print(workplace_size_bins)
-    # print(workplace_size_bin_labels)
+    label_types = list(set([type(bl) for bl in workplace_size_bin_labels]))
 
-    workplace_size_dist = sp.get_generated_workplace_size_distribution(workplace_sizes, workplace_size_bins)
-    # print(workplace_size_dist)
+    assert len(label_types) == 1, f"Check failed. There is more than one type for the workplace size bin labels generated."
+    print("Check passed. There is only one type for workplace size bin labels generated.")
+
+    assert isinstance(workplace_size_bin_labels[0], str), f"Check failed. Bin labels are not strings."
+    print("Check passed. Bin labels are strings.")
+
+    workplace_size_dist = sp.get_generated_workplace_size_distribution(pop.workplace_sizes, workplace_size_bins)
     expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.datadir, state_location=pop.state_location, country_location=pop.country_location))
-    # print(expected_workplace_size_dist)
-
-    household_sizes = pop.household_sizes
-    household_size_count = pop.household_size_count
-
-    assert sum(household_size_count.values()) > 0, "Check failed. No people placed into unique households."
-    print("Household sizes exist in pop object and is a dictionary by household id (hhid).")
-
-    assert sum(household_sizes.values()) == sum([household_size_count[k] * k for k in household_size_count]), f"Household sizes summary check failed."
-    print("Household sizes created.")
-
-    ltcf_sizes = pop.ltcf_sizes
-    ltcf_size_count = pop.ltcf_size_count
-
-    assert sum(ltcf_sizes.values()) > 0, "Check failed. No people placed in ltcfs."
-    print("Ltcfs created.")
-
-    ltcf_sizes_res = pop.get_ltcf_sizes(keys_to_exclude=['snf_staff'])
-    assert sum(ltcf_sizes_res.values()) < sum(ltcf_sizes.values()), "Check failed. Ltcf residents is greater than or equal to all people in ltcfs."
-    print("Ltcf residents created separately.")
-
-    assert sum(household_sizes.values()) + sum(ltcf_sizes_res.values()) == pop.n, f"Check failed. Population size is {pop.n} and the sum of people generated living in households and ltcfs is {sum(household_sizes.values()) + sum(ltcf_sizes_res.values())}."
-    print("Check passed. Everyone lives either in a household or ltcf.")
-
-    ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['snf_res'])
-    assert sum(ltcf_sizes_res.values()) + sum(ltcf_sizes_staff.values()) == sum(ltcf_sizes.values()), "Check failed. The sum of ltcf residets and staff counted separately does not equal the count of them together."
-    print("Ltcf staff created separately.")
-
-    head_ages = pop.get_household_head_ages()
-    assert min(head_ages.values()) >= 18, "Check failed. Min head age is younger than 18 years old."
-    print("Check passed. All heads of households are at least 18 years old.")
+    if expected_workplace_size_dist[0] > 0:
+        assert workplace_size_dist[0] > 0, f"Check failed. Expected some workplaces to be created in the smallest bin size but there are none in this bin."
+        print("Check passed for workplaces in the smallest bin.")
 
 
 def test_contact_matrices_used():
