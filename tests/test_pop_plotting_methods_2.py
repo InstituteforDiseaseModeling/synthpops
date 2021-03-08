@@ -31,6 +31,40 @@ pars = dict(
 pars = sc.objdict(pars)
 
 
+def test_plot_household_sizes_dist(do_show=False, do_save=False):
+    """
+    Test that the household sizes comparison plotting method in sp.Pop class works.
+
+    Note:
+        With any popdict, you will need to supply more information to
+        tell the method where to look for expected data.
+    """
+    sp.logger.info("Test that the household sizes comparison plotting method with sp.Pop object.")
+    pop = sp.Pop(**pars)
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
+    kwargs.figname = f"test_household_sizes_{kwargs.location}_pop"
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+
+    fig, ax = pop.plot_household_sizes_dist(**kwargs)
+    # fig, ax = pop.plot_household_sizes_dist()  # to plot without extra information
+
+    assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
+    print('Check passed. Figure 1 made.')
+
+    popdict = pop.to_dict()
+    kwargs.datadir = sp.datadir  # extra information required
+    kwargs.figname = f"test_household_sizes_{kwargs.location}_popdict"
+    kwargs.do_show = False
+    fig2, ax2 = sp.plot_household_sizes_dist(popdict, **kwargs)
+    # fig2, ax2 = sp.plot_household_sizes_dist(popdict)  # to plot without extra information
+    if not kwargs.do_show:
+        plt.close()
+    assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
+    print('Check passed. Figure 2 made.')
+    return fig, ax, pop
+
+
 def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
     """
     Test that the enrollment rates comparison plotting method in sp.Pop class works.
@@ -42,7 +76,7 @@ def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
     sp.logger.info("Test that the enrollment rates comparison plotting method with sp.Pop object.")
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.figname = f"test_pop_ages_{kwargs.location}_pop"
+    kwargs.figname = f"test_enrollment_rates_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
 
@@ -54,7 +88,7 @@ def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
 
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
-    kwargs.figname = f"test_popdict_enrollment_rates_{kwargs.location}_popdict"
+    kwargs.figname = f"test_enrollment_rates_{kwargs.location}_popdict"
     kwargs.do_show = False
     fig2, ax2 = sp.plot_enrollment_rates_by_age(popdict, **kwargs)
     # fig2, ax2 = sp.plot_enrollment_rates_by_age(popdict)  # to plot without extra information
@@ -76,7 +110,7 @@ def test_plot_employment_rates_by_age(do_show=False, do_save=False):
     sp.logger.info("Test that the employment rates comparison plotting method with sp.Pop object.")
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.figname = f"test_pop_ages_{kwargs.location}_pop"
+    kwargs.figname = f"test_employment_rates_{kwargs.location}_pop"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
 
@@ -88,7 +122,7 @@ def test_plot_employment_rates_by_age(do_show=False, do_save=False):
 
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
-    kwargs.figname = f"test_popdict_enrollment_rates_{kwargs.location}_popdict"
+    kwargs.figname = f"test_employment_rates_{kwargs.location}_popdict"
     kwargs.do_show = False
     fig2, ax2 = sp.plot_employment_rates_by_age(popdict, **kwargs)
     # fig2, ax2 = sp.plot_employment_rates_by_age(popdict)  # to plot without extra information
@@ -103,5 +137,6 @@ if __name__ == '__main__':
 
     # run as main and see the examples in action!
 
-    fig0, ax0, pop0 = test_plot_enrollment_rates_by_age(do_show=True)
-    fig1, ax1, pop1 = test_plot_employment_rates_by_age(do_show=True)
+    fig0, ax0, pop0 = test_plot_household_sizes_dist(do_show=True)
+    # fig1, ax1, pop1 = test_plot_enrollment_rates_by_age(do_show=True)
+    # fig2, ax2, pop2 = test_plot_employment_rates_by_age(do_show=True)

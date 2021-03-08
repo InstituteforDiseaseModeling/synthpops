@@ -659,6 +659,7 @@ class Pop(sc.prettyobj):
             fig, ax = pop.plot_household_sizes_dist(**kwargs)
         """
         fig, ax = sppl.plot_household_sizes_dist(self, **kwargs)
+        return fig, ax
 
     def plot_enrollment_rates_by_age(self, **kwargs):
         """

@@ -749,8 +749,8 @@ def plot_household_sizes_dist(pop, **kwargs):
     plkwargs = get_plkwargs(pop)
 
     # method specific plotting defaults
-    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#bbbbbb', color_2='#666666',
-                           fontsize=12, figname='age_distribution_comparison', comparison=True, binned=True)
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#888888', color_2='#333333',
+                           markersize=7, fontsize=12, figname='age_distribution_comparison', comparison=True, binned=True)
 
     plkwargs.update_defaults(method_defaults, kwargs)
 
@@ -792,11 +792,12 @@ def plot_household_sizes_dist(pop, **kwargs):
     fig.subplots_adjust(**plkwargs.axis)
 
     fig, ax = plot_array(expected_household_size_dist_values, fig=fig, ax=ax, generated=generated_household_size_dist_values,
+                         names=sorted(expected_household_size_dist.keys()),
                          **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))  # instead of saving now, will save after customizing the figure some more below
 
     ax.set_xlabel('Household Size', fontsize=plkwargs.fontsize)
     ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
-    ax.set_xlim(-1, len(expected_household_size_dist_values))
+    ax.set_xlim(-0.8, len(expected_household_size_dist_values) - 0.2)
     ax.set_ylim(0, max_y)
     ax.tick_params(labelsize=plkwargs.fontsize)
 
