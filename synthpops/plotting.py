@@ -13,15 +13,18 @@ from collections import Counter
 import cmasher as cmr
 import cmocean as cmo
 import seaborn as sns
+
 from . import config as cfg
 from . import base as spb
 from . import data_distributions as spdata
+from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
 from . import pop as sppop
 
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
+           'plot_household_sizes_dist',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
@@ -741,8 +744,65 @@ def plot_household_sizes_dist(pop, **kwargs):
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_enrollment_rates_by_age(popdit, **kwargs)
+        fig, ax = sp.plot_household_sizes_dist(popdit, **kwargs)
     """
+    plkwargs = get_plkwargs(pop)
+
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#bbbbbb', color_2='#666666',
+                           fontsize=12, figname='age_distribution_comparison', comparison=True, binned=True)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs gets updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, dict):
+        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_household_sizes"
+
+    # get the expected household size distribution
+    expected_household_size_dist = spdata.get_household_size_distr(**plkwargs.loc_pars)
+    expected_household_size_dist_values = [expected_household_size_dist[k] * 100 for k in sorted(expected_household_size_dist.keys())]
+
+    if plkwargs.comparison:
+        generated_household_size_count = dict.fromkeys(expected_household_size_dist.keys(), 0)
+
+        if isinstance(pop, sppop.Pop):
+            generated_household_size_count = pop.household_size_count
+
+        elif isinstance(pop, dict):
+            generated_household_sizes = sphh.get_household_sizes(pop)
+            generated_household_size_count = spb.count_values(generated_household_sizes)
+
+        generated_household_size_dist = spb.norm_dic(generated_household_size_count)
+        generated_household_size_dist_values = [generated_household_size_dist[k] * 100 for k in sorted(expected_household_size_dist.keys())]
+        max_y = np.ceil(max(0, max(expected_household_size_dist_values), max(generated_household_size_dist_values)))
+
+    else:
+        generated_household_size_dist_values = None
+        max_y = np.ceil(max(0, max(expected_household_size_dist_values)))
+
+    # update the fig
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig, ax = plot_array(expected_household_size_dist_values, fig=fig, ax=ax, generated=generated_household_size_dist_values,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))  # instead of saving now, will save after customizing the figure some more below
+
+    ax.set_xlabel('Household Size', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-1, len(expected_household_size_dist_values))
+    ax.set_ylim(0, max_y)
+    ax.tick_params(labelsize=plkwargs.fontsize)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
 
 
 def plot_enrollment_rates_by_age(pop, **kwargs):
@@ -793,7 +853,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -891,7 +951,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
     if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
         plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
 
-    # get the expected enrollment rates
+    # get the expected employment rates
     expected_employment_rates_by_age = dict.fromkeys(np.arange(cfg.max_age), 0)
     expected_employment_rates_by_age = sc.mergedicts(expected_employment_rates_by_age, spdata.get_employment_rates(**plkwargs.loc_pars))
     expected_employment_rates_by_age_values = [expected_employment_rates_by_age[a] * 100 for a in sorted(expected_employment_rates_by_age.keys())]
