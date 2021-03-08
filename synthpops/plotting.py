@@ -17,6 +17,7 @@ import seaborn as sns
 from . import config as cfg
 from . import base as spb
 from . import data_distributions as spdata
+from . import ltcfs as spltcf
 from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
@@ -24,7 +25,9 @@ from . import pop as sppop
 
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
-           'plot_household_sizes_dist',
+           'plot_household_sizes', 'plot_household_head_ages',
+           'plot_household_head_ages_by_household_size',
+           'plot_ltcf_resident_sizes',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
@@ -711,7 +714,7 @@ def plot_ages(pop, **kwargs):
     return fig, ax
 
 
-def plot_household_sizes_dist(pop, **kwargs):
+def plot_household_sizes(pop, **kwargs):
     """
     Plot a comparison of the expected and generated household size distribution.
 
@@ -739,12 +742,12 @@ def plot_household_sizes_dist(pop, **kwargs):
 
         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
         pop = sp.Pop(**pars)
-        fig, ax = pop.plot_household_sizes_dist()
+        fig, ax = pop.plot_household_sizes()
 
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_household_sizes_dist(popdit, **kwargs)
+        fig, ax = sp.plot_household_sizes(popdict, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
 
@@ -806,6 +809,229 @@ def plot_household_sizes_dist(pop, **kwargs):
     return fig, ax
 
 
+# TBC: placeholder for now
+def plot_household_head_ages(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated head of household ages.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_household_head_ages()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_household_head_ages(popdict, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+    cmap = plt.get_cmap('rocket')
+
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
+                           fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs gets updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, dict):
+        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_household_head_ages_by_household_size"
+
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
+def plot_household_head_ages_by_household_size(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated head of household ages by
+    the household size.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_household_head_ages_by_household_size()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_household_head_ages_by_household_size(popdict, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+    cmap = plt.get_cmap('rocket')
+
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
+                           fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs gets updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, dict):
+        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_household_head_ages_by_household_size"
+
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
+def plot_ltcf_resident_sizes(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated ltcf resident sizes.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_ltcf_resident_sizes()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_ltcf_resident_sizes(popdict, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+    cmap = plt.get_cmap('rocket')
+    # method specific plotting defaults
+    method_defaults = dict(left=0.09, right=0.95, top=0.90, bottom=0.18, color_1=cmap(0.48), color_2=cmap(0.35),
+                           fontsize=12, figname='ltcf_resident_sizes', comparison=True, binned=True,
+                           rotation=40, tick_threshold=50)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs get updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, dict):
+        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_ltcf_resident_sizes"
+
+    # get the expected ltcf resident sizes
+    expected_ltcf_resident_sizes_binned = spdata.get_long_term_care_facility_residents_distr(**plkwargs.loc_pars)
+    expected_ltcf_resident_sizes_binned_values = [expected_ltcf_resident_sizes_binned[k] * 100 for k in sorted(expected_ltcf_resident_sizes_binned.keys())]
+    ltcf_resident_size_brackets = spdata.get_long_term_care_facility_residents_distr_brackets(**plkwargs.loc_pars)
+    bins = spb.get_bin_edges(ltcf_resident_size_brackets)
+    bin_labels = spb.get_bin_labels(ltcf_resident_size_brackets)
+
+    if plkwargs.comparison:
+        generated_ltcf_resident_sizes_binned = dict.fromkeys(expected_ltcf_resident_sizes_binned.values(), 0)
+
+        if isinstance(pop, sppop.Pop):
+            generated_ltcf_resident_sizes = pop.get_ltcf_sizes(keys_to_exclude=['snf_staff'])
+
+        elif isinstance(pop, dict):
+            generated_ltcf_resident_sizes = spltcf.get_ltcf_sizes(pop, keys_to_exclude=['snf_staff'])
+
+        generated_ltcf_resident_sizes_binned = spb.binned_values_dist(generated_ltcf_resident_sizes, bins)
+        generated_ltcf_resident_sizes_binned_values = [generated_ltcf_resident_sizes_binned[k] * 100 for k in sorted(expected_ltcf_resident_sizes_binned.keys())]
+
+    else:
+        generated_ltcf_resident_sizes_binned_values = None
+
+    # update the fig
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig, ax = plot_array(expected_ltcf_resident_sizes_binned_values, fig=fig, ax=ax, generated=generated_ltcf_resident_sizes_binned_values,
+                         names=bin_labels,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))
+
+    ax.set_xlabel('Long Term Care Facility Size', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-1, len(expected_ltcf_resident_sizes_binned_values))
+    ax.set_ylim(0, 100)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
 def plot_enrollment_rates_by_age(pop, **kwargs):
     """
     Plot a comparison of the expected and generated school enrollment rates by
@@ -840,7 +1066,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_enrollment_rates_by_age(popdit, **kwargs)
+        fig, ax = sp.plot_enrollment_rates_by_age(popdict, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
     cmap = plt.get_cmap('rocket')
@@ -931,7 +1157,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_employment_rates_by_age(popdit, **kwargs)
+        fig, ax = sp.plot_employment_rates_by_age(popdict, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
     cmap = plt.get_cmap('cmr.rainforest')

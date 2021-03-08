@@ -247,10 +247,45 @@ def count_values(dic):
     Counter of values in the dictionary. Keys in the returned dictionary are values from the input dictionary.
 
     Args:
-        dic (dict) : dictionary with sortable keys
+        dic (dict) : dictionary with sortable values
 
     Returns:
         dict: Dictionary of the count of values.
     """
     value_count = Counter(dic.values())
     return {k: value_count[k] for k in sorted(value_count.keys())}
+
+
+def count_binned_values(dic, bins=None):
+    """
+    Binned counter of values in the dictionary. Indices are the bin indices from the input bins.
+
+    Args:
+        dic (dict)   : dictionary with sortable and binnable values
+        bins (array) : array of bin edges
+
+    Returns:
+        array: Array of the count of values binned
+    """
+    values = list(dic.values())
+    hist, bins = np.histogram(values, bins=bins, density=0)
+    return hist, bins
+
+
+def binned_values_dist(dic, bins=None):
+    """
+    Binned distribution of values in the dictionary. Indices are the bin indices from the input bins.
+
+    Args:
+        dic (dict)   : dictionary with sortable and binnable values
+        bins (array) : array of bin edges
+
+    Returns:
+        array: Array of the binned distribution of values.
+    """
+    hist, bins = count_binned_values(dic, bins)
+    if sum(hist) > 0:
+        dist = hist / sum(hist)
+    else:
+        dist = hist
+    return dist

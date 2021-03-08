@@ -644,21 +644,60 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_ages(**kwargs)
+            fig, ax = pop.plot_ages()
         """
         fig, ax = sppl.plot_ages(self, **kwargs)
         return fig, ax
 
-    def plot_household_sizes_dist(self, **kwargs):
+    def plot_household_sizes(self, **kwargs):
         """
         Plot a comparison of the expected and generated household size distribution.
 
         **Example**::
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_household_sizes_dist(**kwargs)
+            fig, ax = pop.plot_household_sizes()
         """
-        fig, ax = sppl.plot_household_sizes_dist(self, **kwargs)
+        fig, ax = sppl.plot_household_sizes(self, **kwargs)
+        return fig, ax
+
+    # TBC: placeholder for now
+    def plot_household_head_ages_by_household_size(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated head of household ages.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_household_head_ages()
+        """
+        fig, ax = sppl.plot_household_head_ages(self, **kwargs)
+        return fig, ax
+
+    # TBC: placeholder for now
+    def plot_household_head_ages_by_household_size(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated head of household ages
+        by the household size.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_household_head_ages_by_household_size()
+        """
+        fig, ax = sppl.plot_household_head_ages_by_household_size(self, **kwargs)
+        return fig, ax
+
+    def plot_ltcf_resident_sizes(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated ltcf resident sizes.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_ltcf_resident_sizes()
+        """
+        fig, ax = sppl.plot_ltcf_resident_sizes(self, **kwargs)
         return fig, ax
 
     def plot_enrollment_rates_by_age(self, **kwargs):
@@ -669,7 +708,7 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_enrollment_rates_by_age(**kwargs)
+            fig, ax = pop.plot_enrollment_rates_by_age()
         """
         fig, ax = sppl.plot_enrollment_rates_by_age(self, **kwargs)
         return fig, ax
@@ -682,7 +721,7 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_employment_rates_by_age(**kwargs)
+            fig, ax = pop.plot_employment_rates_by_age()
         """
         fig, ax = sppl.plot_employment_rates_by_age(self, **kwargs)
         return fig, ax
@@ -695,7 +734,7 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_school_sizes(*args, **kwargs)
+            fig, ax = pop.plot_school_sizes()
         """
         fig, ax = sppl.plot_school_sizes(self, *args, **kwargs)
         return fig, ax
