@@ -657,9 +657,22 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_enrollment_rates()
+            fig, ax = pop.plot_enrollment_rates_by_age()
         """
         fig, ax = sppl.plot_enrollment_rates_by_age(self, **kwargs)
+        return fig, ax
+
+    def plot_employment_rates_by_age(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated employment rates by age.
+
+        **Example**::
+
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_employment_rates_by_age()
+        """
+        fig, ax = sppl.plot_employment_rates_by_age(self, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):

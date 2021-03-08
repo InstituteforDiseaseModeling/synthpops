@@ -12,15 +12,17 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
 import cmasher as cmr
 import cmocean as cmo
+import seaborn as sns
 from . import config as cfg
 from . import base as spb
 from . import data_distributions as spdata
 from . import schools as spsch
+from . import workplaces as spw
 from . import pop as sppop
 
 
 __all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
-           'plot_enrollment_rates_by_age',
+           'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
@@ -735,17 +737,17 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
 
         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
         pop = sp.Pop(**pars)
-        fig, ax = pop.plot_enrollment_rates()
+        fig, ax = pop.plot_enrollment_rates_by_age()
 
         popdict = pop.to_dict()
         kwargs = pars.copy()
         kwargs['datadir'] = sp.datadir
-        fig, ax = sp.plot_enrollment_rates(popdit, **kwargs)
+        fig, ax = sp.plot_enrollment_rates_by_age(popdit, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
-
+    cmap = plt.get_cmap('rocket')
     # method specific plotting defaults
-    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1='#55afe1', color_2='#0a6299',
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
                            fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
 
     plkwargs.update_defaults(method_defaults, kwargs)
@@ -791,6 +793,98 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
     ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
     ax.set_ylabel('Enrollment Rate (%)', fontsize=plkwargs.fontsize)
     ax.set_xlim(-1, len(expected_enrollment_rates_by_age_values))
+    ax.set_ylim(0, 100)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
+def plot_employment_rates_by_age(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated employment rates by age.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_employment_rates_by_age()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_employment_rates_by_age(popdit, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+    cmap = plt.get_cmap('cmr.rainforest')
+    # method specific plotting defaults
+    method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
+                           fontsize=12, figname='employment_rates_by_age', comparison=True, binned=True)
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    # define after plkwargs get updated
+    if isinstance(pop, sppop.Pop):
+        plkwargs.loc_pars = pop.loc_pars
+    elif not isinstance(pop, dict):
+        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+
+    # now check for the missing plkwargs and use default values if not found
+    plkwargs.set_default_pop_pars()
+    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+        plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
+
+    # get the expected enrollment rates
+    expected_employment_rates_by_age = dict.fromkeys(np.arange(cfg.max_age), 0)
+    expected_employment_rates_by_age = sc.mergedicts(expected_employment_rates_by_age, spdata.get_employment_rates(**plkwargs.loc_pars))
+    expected_employment_rates_by_age_values = [expected_employment_rates_by_age[a] * 100 for a in sorted(expected_employment_rates_by_age.keys())]
+
+    if plkwargs.comparison:
+        generated_employment_rates_by_age = dict.fromkeys(expected_employment_rates_by_age.keys(), 0)
+
+        if isinstance(pop, sppop.Pop):
+            generated_employment_rates_by_age = pop.employment_rates_by_age
+
+        elif isinstance(pop, dict):
+            generated_employment_count_by_age = spw.count_employment_by_age(pop)
+            generated_age_count = spb.count_ages(pop)
+            generated_employment_rates_by_age = spw.get_employment_rates_by_age(generated_employment_count_by_age, generated_age_count)
+
+        generated_employment_rates_by_age_values = [generated_employment_rates_by_age[a] * 100 for a in sorted(expected_employment_rates_by_age.keys())]
+
+    else:
+        generated_employment_rates_by_age_values = None
+
+    # update the fig
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig, ax = plot_array(expected_employment_rates_by_age_values, fig=fig, ax=ax, generated=generated_employment_rates_by_age_values,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))  # instead of saving now, will save after customizing the figure some more below
+
+    ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Employment Rate (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-1, len(expected_employment_rates_by_age_values))
     ax.set_ylim(0, 100)
 
     fig = finalize_figure(fig, plkwargs)

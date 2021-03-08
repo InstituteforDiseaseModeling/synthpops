@@ -9,6 +9,7 @@ from .config import max_age
 
 
 __all__ = ['count_employment_by_age', 'get_workplace_sizes',
+           'get_employment_rates_by_age',
            'get_generated_workplace_size_distribution',
            ]
 
@@ -263,6 +264,20 @@ def count_employment_by_age(popdict):
             employment_count_by_age[person['age']] += 1
 
     return employment_count_by_age
+
+
+def get_employment_rates_by_age(employment_count_by_age, age_count):
+    """
+    Get employment rates by age.
+
+    Args:
+        employment_count_by_age (dict) : dictionary of the count of employed people
+        age_count (dict)               : dictionary of the age count
+
+    Returns:
+        dict: Dictionary of the employment rates by age.
+    """
+    return {a: employment_count_by_age[a] / age_count[a] for a in sorted(age_count.keys())}
 
 
 def get_workplace_sizes(popdict):

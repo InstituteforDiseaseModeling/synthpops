@@ -1267,7 +1267,7 @@ def get_enrollment_rates_by_age(enrollment_count_by_age, age_count):
     Returns:
         dict: Dictionary of the enrollment rates by age.
     """
-    return {k: enrollment_count_by_age[k] / age_count[k] for k in sorted(age_count.keys())}
+    return {a: enrollment_count_by_age[a] / age_count[a] for a in sorted(age_count.keys())}
 
 
 def count_enrollment_by_school_type(popdict, **kwargs):
