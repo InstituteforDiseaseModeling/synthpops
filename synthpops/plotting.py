@@ -708,6 +708,43 @@ def plot_ages(pop, **kwargs):
     return fig, ax
 
 
+def plot_household_sizes_dist(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated household size distribution.
+
+    Args:
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
+        **left (float)      : Matplotlib.figure.subplot.left
+        **right (float)     : Matplotlib.figure.subplot.right
+        **top (float)       : Matplotlib.figure.subplot.top
+        **bottom (float)    : Matplotlib.figure.subplot.bottom
+        **color_1 (str)     : color for expected data
+        **color_2 (str)     : color for data from generated population
+        **fontsize (float)  : Matplotlib.figure.fontsize
+        **figname (str)     : name to save figure to disk
+        **comparison (bool) : If True, plot comparison to the generated population
+
+    Returns:
+        Matplotlib figure and axes.
+
+    Note:
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = pop.plot_household_sizes_dist()
+
+        popdict = pop.to_dict()
+        kwargs = pars.copy()
+        kwargs['datadir'] = sp.datadir
+        fig, ax = sp.plot_enrollment_rates_by_age(popdit, **kwargs)
+    """
+
+
 def plot_enrollment_rates_by_age(pop, **kwargs):
     """
     Plot a comparison of the expected and generated school enrollment rates by
