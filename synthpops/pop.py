@@ -196,7 +196,7 @@ class Pop(sc.prettyobj):
 
         # Add summaries
         self.age_count = self.count_pop_ages()
-        self.enrollment_by_school_type = self.get_enrollment_by_school_type()  # includes all school types
+        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -457,14 +457,14 @@ class Pop(sc.prettyobj):
         """
         return spb.count_ages(self.popdict)
 
-    def get_enrollment_by_school_type(self, *args, **kwargs):
+    def count_enrollment_by_school_type(self, *args, **kwargs):
         """
-        Get enrollment sizes by school types in popdict.
+        Create enrollment sizes by school types in popdict.
 
         Returns:
             list: List of generated enrollment sizes by school type.
         """
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict, *args, **kwargs)
+        enrollment_by_school_type = spsch.count_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
 
     def plot_people(self, *args, **kwargs):

@@ -202,16 +202,18 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
             spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
-            if verbose:
-                if this_school_type in ['es', 'ms', 'hs']:
-                    n_non_teaching_staff.append(len(non_teaching_staff))
-                    n_teaching_staff.append(len(teachers))
+            # if verbose:
+            #     if this_school_type in ['es', 'ms', 'hs']:
+            #         n_non_teaching_staff.append(len(non_teaching_staff))
+            #         n_teaching_staff.append(len(teachers))
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
             # temporary way to get groups of students by classroom and their corresponding teachers
             # TODO: refactor into School method that creates Classrooms with the specific age/grade clustering
-            popdict, students_in_groups, teachers_in_groups = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
+            # popdict, students_in_groups, teachers_in_groups = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
+            popdict = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
+
 
         for uid in students:
 
