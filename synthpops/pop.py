@@ -349,9 +349,6 @@ class Pop(sc.prettyobj):
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(**loc_pars)
         workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(**loc_pars)
-
-        # workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-        # workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
