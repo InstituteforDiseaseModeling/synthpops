@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
     # run as main and see the examples in action!
 
-    # fig0, ax0, pop0 = test_plot_household_sizes_dist(do_show=True)
+    fig0, ax0, pop0 = test_plot_household_sizes_dist(do_show=True)
     fig1, ax1, pop1 = test_plot_ltcf_resident_sizes(do_show=True)
-    # fig2, ax2, pop2 = test_plot_enrollment_rates_by_age(do_show=True)
-    # fig3, ax3, pop3 = test_plot_employment_rates_by_age(do_show=True)
+    fig2, ax2, pop2 = test_plot_enrollment_rates_by_age(do_show=True)
+    fig3, ax3, pop3 = test_plot_employment_rates_by_age(do_show=True)
