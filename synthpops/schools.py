@@ -30,7 +30,7 @@ from .config import logger as log
 
 __all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
            'get_generated_school_size_distributions', 'count_enrollment_by_age',
-           # 'get_bin_edges', 'get_bin_labels',
+           'get_enrollment_rates_by_age',
            ]
 
 
@@ -1254,6 +1254,20 @@ def count_enrollment_by_age(popdict):
             enrollment_count_by_age[person['age']] += 1
 
     return enrollment_count_by_age
+
+
+def get_enrollment_rates_by_age(enrollment_count_by_age, age_count):
+    """
+    Get enrollment rates by age.
+
+    Args:
+        enrollment_count_by_age (dict) : dictionary of the count of enrolled students
+        age_count (dict)               : dictionary of the age count
+
+    Returns:
+        dict: Dictionary of the enrollment rates by age.
+    """
+    return {k: enrollment_count_by_age[k] / age_count[k] for k in sorted(age_count.keys())}
 
 
 def count_enrollment_by_school_type(popdict, **kwargs):

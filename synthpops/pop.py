@@ -559,7 +559,7 @@ class Pop(sc.prettyobj):
         return spsch.count_enrollment_by_age(self.popdict)
 
     @property
-    def enrollment_rates(self):
+    def enrollment_rates_by_age(self):
         """
         Enrollment rates by age for students in the generated population.
 
@@ -588,7 +588,7 @@ class Pop(sc.prettyobj):
         return spw.count_employment_by_age(self.popdict)
 
     @property
-    def employment_rates(self):
+    def employment_rates_by_age(self):
         """
         Employment rates by age for workers in the generated population.
 
@@ -636,7 +636,7 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
-    def plot_ages(self, *args, **kwargs):
+    def plot_ages(self, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
 
@@ -646,11 +646,10 @@ class Pop(sc.prettyobj):
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_ages()
         """
-        fig, ax = sppl.plot_ages(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, **kwargs)
         return fig, ax
 
-    # Todo: placeholder for enrollment rates by age
-    def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
+    def plot_enrollment_rates_by_age(self, **kwargs):
         """
         Plot a comparison of the expected and generated enrollment rates by age.
 
@@ -658,9 +657,9 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_age_distribution_comparison()
+            fig, ax = pop.plot_enrollment_rates()
         """
-        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_enrollment_rates_by_age(self, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):

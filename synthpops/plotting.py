@@ -19,8 +19,8 @@ from . import schools as spsch
 from . import pop as sppop
 
 
-__all__ = ['calculate_contact_matrix', 'plot_contacts',
-           'plot_ages', 'plot_enrollment_rates',
+__all__ = ['calculate_contact_matrix', 'plot_contacts', 'plot_ages',
+           'plot_enrollment_rates_by_age',
            'plot_school_sizes', 'plotting_kwargs']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
@@ -675,8 +675,7 @@ def plot_ages(pop, **kwargs):
             generated_age_count = pop.age_count
 
         elif isinstance(pop, dict):
-            for i, person in pop.items():
-                generated_age_count[person['age']] += 1
+            generated_age_count = spb.count_ages(pop)
 
         elif isinstance(pop, cv.people.People):
             generated_age_count = Counter(pop.age)
@@ -707,13 +706,13 @@ def plot_ages(pop, **kwargs):
     return fig, ax
 
 
-def plot_enrollment_rates(pop, **kwargs):
+def plot_enrollment_rates_by_age(pop, **kwargs):
     """
     Plot a comparison of the expected and generated school enrollment rates by
     age.
 
     Args:
-        pop (pop object)    : population, either synthpops.pop.Pop, covasim.people.People, or dict
+        pop (pop object)    : population, either synthpops.pop.Pop or dict
         **left (float)      : Matplotlib.figure.subplot.left
         **right (float)     : Matplotlib.figure.subplot.right
         **top (float)       : Matplotlib.figure.subplot.top
@@ -728,8 +727,9 @@ def plot_enrollment_rates(pop, **kwargs):
         Matplotlib figure and axes.
 
     Note:
-        If using pop with type covasim.people.Pop or dict, args must be supplied
-        for the location parameter to get the expected rates.
+        If using pop with type dict, args must be supplied for the location
+        parameter to get the expected rates. Covasim.people.People pop type
+        not yet supported.
 
     **Example**::
 
@@ -753,7 +753,7 @@ def plot_enrollment_rates(pop, **kwargs):
     # define after plkwargs get updated
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
-    elif not isinstance(pop, (dict, cv.people.People)):
+    elif not isinstance(pop, dict):
         raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
@@ -762,13 +762,36 @@ def plot_enrollment_rates(pop, **kwargs):
         plkwargs.title_prefix = f"{plkwargs.location}_enrollment_rates_by_age"
 
     # get the expected enrollment rates
-    expected_enrollment_rates = spdata.get_school_enrollment_rates(**plkwargs.loc_pars)
-    expected_enrollment_rates_values = [expected_enrollment_rates[k] * 100 for k in sorted(expected_enrollment_rates.keys())]
+    expected_enrollment_rates_by_age = spdata.get_school_enrollment_rates(**plkwargs.loc_pars)
+    expected_enrollment_rates_by_age_values = [expected_enrollment_rates_by_age[a] * 100 for a in sorted(expected_enrollment_rates_by_age.keys())]
 
-    # if plkwargs.comparison:
-    #     generated_enrollment_rates
+    if plkwargs.comparison:
+        generated_enrollment_rates_by_age = dict.fromkeys(expected_enrollment_rates_by_age.keys(), 0)
 
+        if isinstance(pop, sppop.Pop):
+            generated_enrollment_rates_by_age = pop.enrollment_rates_by_age
+
+        elif isinstance(pop, dict):
+            generated_enrollment_count_by_age = spsch.count_enrollment_by_age(pop)
+            generated_age_count = spb.count_ages(pop)
+            generated_enrollment_rates_by_age = spsch.get_enrollment_rates_by_age(generated_enrollment_count_by_age, generated_age_count)
+
+        generated_enrollment_rates_by_age_values = [generated_enrollment_rates_by_age[a] * 100 for a in sorted(expected_enrollment_rates_by_age.keys())]
+
+    else:
+        generated_enrollment_rates_by_age_values = None
+
+    # update the fig
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig, ax = plot_array(expected_enrollment_rates_by_age_values, fig=fig, ax=ax, generated=generated_enrollment_rates_by_age_values,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))  # instead of saving now, will save after customizing the figure some more below
+
+    ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Enrollment Rate (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-1, len(expected_enrollment_rates_by_age_values))
+    ax.set_ylim(0, 100)
 
     fig = finalize_figure(fig, plkwargs)
 

@@ -91,14 +91,14 @@ def test_summary_in_generation():
     print("Check passed. Student enrollment count by age exists and is greater than 0.")
 
     # check enrollment rates by age
-    enrollment_rates = pop.enrollment_rates  # a property rather than stored data so make a copy here
-    assert 0 < enrollment_rates[10] <= 1., f"Check failed. Enrollment rate for age 10 is less than or equal to 0 ({enrollment_rates[10]}."
-    print(f"Check passed. Enrollment rate for age 10 is {enrollment_rates[10] * 100:.2f}%.\n")
+    enrollment_rates_by_age = pop.enrollment_rates_by_age  # a property rather than stored data so make a copy here
+    assert 0 < enrollment_rates_by_age[10] <= 1., f"Check failed. Enrollment rate for age 10 is less than or equal to 0 ({enrollment_rates_by_age[10]}."
+    print(f"Check passed. Enrollment rate for age 10 is {enrollment_rates_by_age[10] * 100:.2f}%.\n")
 
     # check employment rates by age
-    employment_rates = pop.employment_rates  # a property rather than stored data so make a copy here
-    assert 0 < employment_rates[25] <= 1., f"Check failed. Employment rate for age 25 is less than or equal to 0 ({employment_rates[25]})."
-    print(f"Check passed. Employment rate for age 25 is {employment_rates[25] * 100:.2f}%.")
+    employment_rates_by_age = pop.employment_rates_by_age  # a property rather than stored data so make a copy here
+    assert 0 < employment_rates_by_age[25] <= 1., f"Check failed. Employment rate for age 25 is less than or equal to 0 ({employment_rates_by_age[25]})."
+    print(f"Check passed. Employment rate for age 25 is {employment_rates_by_age[25] * 100:.2f}%.")
 
     # check workplace sizes
     assert sum(pop.workplace_sizes.values()) > 0, "Check failed. Sum of workplace sizes is less than or equal to 0."
