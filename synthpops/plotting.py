@@ -1070,6 +1070,8 @@ def plot_ltcf_resident_staff_ratios(pop, **kwargs):
         kwargs['datadir'] = sp.datadir
         fig, ax = sp.plot_ltcf_resident_staff_ratios(popdict, **kwargs)
     """
+    plkwargs = get_plkwargs(pop)
+
     # update the fig
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
@@ -1468,11 +1470,11 @@ def plot_workplace_sizes(pop, **kwargs):
         fig, ax = sp.plot_workplace_sizes(popdict, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
-    cmap = plt.get_cmap('magma')
+    cmap = plt.get_cmap('cmr.freeze')
     # method specific plotting defaults
-    method_defaults = dict(left=0.09, right=0.95, top=0.90, bottom=0.18, color_1=cmap(0.48), color_2=cmap(0.32),
+    method_defaults = dict(left=0.09, right=0.95, top=0.90, bottom=0.22, color_1=cmap(0.48), color_2=cmap(0.30),
                            fontsize=12, figname='workplace_sizes', comparison=True, binned=True,
-                           rotation=40, tick_threshold=50)
+                           rotation=30, tick_threshold=50)
 
     plkwargs.update_defaults(method_defaults, kwargs)
 
@@ -1488,5 +1490,49 @@ def plot_workplace_sizes(pop, **kwargs):
         plkwargs.title_prefix = f"{plkwargs.location}_workplace_sizes"
 
     # get the expected workplace sizes
-    workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(**plkwargs.loc_pars)
-    workplace_size_brackets = spdata.get_workplace_size_brackets(**plkwargs.loc_pars)
+    temp_loc_pars = sc.dcp(plkwargs.loc_pars)  # to be removed once data for location is merged
+    temp_loc_pars.location = None
+    expected_work_sizes_binned = spb.norm_dic(spdata.get_workplace_size_distr_by_brackets(**temp_loc_pars))
+    expected_work_sizes_binned_values = [expected_work_sizes_binned[k] * 100 for k in sorted(expected_work_sizes_binned.keys())]
+    work_size_brackets = spdata.get_workplace_size_brackets(**temp_loc_pars)
+    bins = spb.get_bin_edges(work_size_brackets)
+    bin_labels = spb.get_bin_labels(work_size_brackets)
+
+    if plkwargs.comparison:
+        generated_work_sizes_binned = dict.fromkeys(expected_work_sizes_binned.keys())
+
+        if isinstance(pop, sppop.Pop):
+            generated_work_sizes = pop.workplace_sizes
+
+        elif isinstance(pop, dict):
+            generated_work_sizes = spw.get_workplace_sizes(pop)
+
+        generated_work_sizes_binned = spb.binned_values_dist(generated_work_sizes, bins)
+        generated_work_sizes_binned_values = [generated_work_sizes_binned[k] * 100 for k in sorted(expected_work_sizes_binned.keys())]
+        max_y = np.ceil(max(0, max(expected_work_sizes_binned_values), max(generated_work_sizes_binned_values)))
+
+    else:
+        generated_work_sizes_binned_values = None
+        max_y = np.ceil(max(0, max(expected_work_sizes_binned_values)))
+
+    if max_y < 100:
+        max_y += 1
+
+    # update the fig
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    fig, ax = plot_array(expected_work_sizes_binned_values, fig=fig, ax=ax, generated=generated_work_sizes_binned_values,
+                         names=bin_labels,
+                         **sc.mergedicts(plkwargs, sc.objdict(do_show=False, do_save=False)))
+
+    ax.set_xlabel('Workplace Size', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Distribution (%)', fontsize=plkwargs.fontsize)
+    ax.set_xlim(-0.8, len(expected_work_sizes_binned) - 0.2)
+    ax.set_ylim(0, max_y)
+
+    ax.tick_params(labelsize=plkwargs.fontsize)
+
+    fig = finalize_figure(fig, plkwargs)
+
+    return fig, ax

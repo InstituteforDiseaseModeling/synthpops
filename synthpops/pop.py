@@ -368,7 +368,7 @@ class Pop(sc.prettyobj):
             facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
         workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
@@ -750,6 +750,19 @@ class Pop(sc.prettyobj):
             fig, ax = pop.plot_school_sizes()
         """
         fig, ax = sppl.plot_school_sizes(self, *args, **kwargs)
+        return fig, ax
+
+    def plot_workplace_sizes(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated workplace sizes for
+        workplaces that are not schools or long term care facilities.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_ltcf_resident_sizes()
+        """
+        fig, ax = sppl.plot_workplace_sizes(self, **kwargs)
         return fig, ax
 
 
