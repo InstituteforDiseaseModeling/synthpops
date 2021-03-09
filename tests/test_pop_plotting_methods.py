@@ -1,6 +1,7 @@
 """
 Compare the demographics of the generated population to the expected demographic distributions.
 """
+import numpy as np
 import sciris as sc
 import synthpops as sp
 import covasim as cv
@@ -60,12 +61,14 @@ def test_plot_ages(do_show=False, do_save=False):
     # fig2, ax2 = sp.plot_ages(popdict)  # to plot without extra information
     if not kwargs.do_show:
         plt.close()
-    assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
+    assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
 
     sp.logger.info("Test age plotting method without comparison.")
     kwargs.comparison = False
     fig3, ax3 = pop.plot_ages(**kwargs)
+    assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
+    print('Check passed. Plotting without comparison.')
 
     return fig, ax, pop
 
@@ -152,6 +155,29 @@ def test_pop_without_plkwargs():
     print('Check passed. Figure 1 made.')
 
 
+def test_plot_array():
+    """
+    Test sp.plot_array() options.
+    """
+    sp.logger.info("Test sp.plot_array() binned = False option")
+    x = np.random.randint(20, size=200)
+    kwargs = sc.objdict(binned=False)
+
+    fig, ax = sp.plot_array(x, **kwargs)
+    assert isinstance(fig, mplt.figure.Figure), 'Check sp.plot_array with binned = False failed.'
+    print('Check passed. Figure made with sp.plot_array() with unbinned data.')
+
+    hist, bins = np.histogram(x, density=0)
+    kwargs.binned = True
+    kwargs.generated = hist
+    kwargs.value_text = 'hello'
+    kwargs.names = {k: k for k in range(20)}
+    kwargs.tick_threshold = 5
+    fig2, ax2 = sp.plot_array(hist, **kwargs)
+    assert isinstance(fig2, mplt.figure.Figure), 'Check sp.plot_array() with other options failed.'
+    print('Check passed. Figure made with sp.plot_array() with other options.')
+
+
 if __name__ == '__main__':
 
     # run as main and see the examples in action!
@@ -160,3 +186,4 @@ if __name__ == '__main__':
     fig1, ax1, people1 = test_plot_with_cvpeople(do_show=True, do_save=True)
     test_restoring_matplotlib_defaults()
     test_pop_without_plkwargs()
+    test_plot_array()

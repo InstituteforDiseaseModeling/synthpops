@@ -24,9 +24,9 @@ from . import workplaces as spw
 from . import pop as sppop
 
 
-__all__ = ['plotting_kwargs', 'calculate_contact_matrix',
-           'plot_contacts', 'plot_ages',
-           'plot_household_sizes', 
+__all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
+           'plot_array', 'plot_ages',
+           'plot_household_sizes',
            # 'plot_household_head_ages',
            # 'plot_household_head_ages_by_household_size',
            'plot_ltcf_resident_sizes', 

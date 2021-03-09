@@ -237,7 +237,7 @@ def test_plot_workplace_sizes(do_show=False, do_save=False):
 
     sp.logger.info("Test the workplace sizes plotting method without comparison.")
     kwargs.comparison = False
-    fig3, ax3 = pop.plot_ages(**kwargs)
+    fig3, ax3 = pop.plot_workplace_sizes(**kwargs)
     assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
     print('Check passed. Plotting without comparison.')
 
