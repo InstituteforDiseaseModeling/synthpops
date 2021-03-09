@@ -198,24 +198,8 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.age_count = self.count_pop_ages()
-
-        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
-        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
-
-        self.household_heads = self.get_household_heads()
-        self.household_head_ages = self.get_household_head_ages()
-        self.household_head_age_count = self.count_household_head_ages()
-
-        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
-        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
-
-        self.enrollment_by_age = self.count_enrollment_by_age()
-        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
-
-        self.employment_by_age = self.count_employment_by_age()
-        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
-        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
+        self.add_summaries()
+        self.summarize()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -454,6 +438,38 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def add_summaries(self):
+        """Add summaries to pop object post generation."""
+        self.age_count = self.count_pop_ages()
+
+        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
+        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+
+        self.household_heads = self.get_household_heads()
+        self.household_head_ages = self.get_household_head_ages()
+        self.household_head_age_count = self.count_household_head_ages()
+
+        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
+        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
+
+        self.enrollment_by_age = self.count_enrollment_by_age()
+        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
+
+        self.employment_by_age = self.count_employment_by_age()
+        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
+        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
+
+    def summarize(self):
+        """
+        Print summary method. Displays the number of people, average age, total
+        number of edges per layer.
+
+        Returns:
+            None
+        """
+        mean_age = spb.calculate_average_from_count(self.age_count)
+        print(mean_age)
+
     def count_pop_ages(self):
         """
         Create an age count of the generated population post generation.
@@ -616,6 +632,29 @@ class Pop(sc.prettyobj):
             dict:Dictionary of the count of workplace sizes.
         """
         return spb.count_values(self.workplace_sizes)
+
+    @property
+    def count_layer_degree(self, **kwargs):
+        """
+        Create a count of the connections or degree in a layer. Can specify the
+        people to include in the count.
+
+        Args:
+            **nodes (int, or list or array of ints) : ids of people to count connections for
+            **layers (string or list of strings) : layers to count connections over
+
+        Returns:
+            dict: A dictionary of the number of edges or connections per person
+            or node specified
+
+        **Example**::
+            pars = {'n': 5e3}
+            pop = sp.Pop(**pars)
+            layer_degree = pop.count_layer_degree(nodes=0, layers='H')  # get household degree for person 0
+            layer_degree = pop.count_layer_degree(nodes=[5, 8, 20], layers=['S', 'W'])  # get combined degree in school and work for persons with ids 5, 8, and 20
+            degree = pop.count_layer()  # get degrees for everyone in all layers
+        """
+        return
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
