@@ -39,7 +39,7 @@ def test_plot_ages(do_show=False, do_save=False):
         With any popdict, you will need to supply more information to
         tell the method where to look for expected data.
     """
-    sp.logger.info("Test that the age comparison plotting method with sp.Pop object.")
+    sp.logger.info("Test that the age comparison plotting method works with sp.Pop object.")
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.figname = f"test_ages_{kwargs.location}_pop"
@@ -51,6 +51,7 @@ def test_plot_ages(do_show=False, do_save=False):
     assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
     print('Check passed. Figure 1 made.')
 
+    sp.logger.info("Test that the age comparison plotting method works with a population dictionary.")
     popdict = pop.to_dict()
     kwargs.datadir = sp.datadir  # extra information required
     kwargs.figname = f"test_ages_{kwargs.location}_popdict"
@@ -61,6 +62,11 @@ def test_plot_ages(do_show=False, do_save=False):
         plt.close()
     assert isinstance(fig, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
+
+    sp.logger.info("Test age plotting method without comparison.")
+    kwargs.comparison = False
+    fig3, ax3 = pop.plot_ages(**kwargs)
+
     return fig, ax, pop
 
 
@@ -122,6 +128,30 @@ def test_restoring_matplotlib_defaults():
     print("Check passed. matplotlib.rcParams restored to default matplotlib library values.")
 
 
+def test_pop_without_plkwargs():
+    """
+    Test that plotting_kwargs will be added to sp.Pop class objects if it does
+    not have it already.
+
+    Note:
+        With any popdict, you will need to supply more information to
+        tell the method where to look for expected data.
+    """
+    sp.logger.info("Test that plotting_kwargs will be added to sp.Pop object if it does not have it already.")
+    pop = sp.Pop(**pars)
+
+    # reset plkwargs to None
+    pop.plkwargs = None
+
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
+    kwargs.figname = f"test_ages_{kwargs.location}_pop"
+    fig, ax = pop.plot_ages(**kwargs)
+    # fig, ax = pop.plot_ages()  # to plot without extra information
+
+    assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
+    print('Check passed. Figure 1 made.')
+
+
 if __name__ == '__main__':
 
     # run as main and see the examples in action!
@@ -129,3 +159,4 @@ if __name__ == '__main__':
     fig0, ax0, pop0 = test_plot_ages(do_show=True)
     fig1, ax1, people1 = test_plot_with_cvpeople(do_show=True, do_save=True)
     test_restoring_matplotlib_defaults()
+    test_pop_without_plkwargs()

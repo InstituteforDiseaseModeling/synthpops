@@ -117,6 +117,13 @@ def test_plot_school_sizes(do_show=False, do_save=False):
     assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
     print('Check passed. Figure 2 made.')
 
+    sp.logger.info("Test school size distribution plotting method with keys_to_exclude as a string and without comparison.")
+    kwargs.keys_to_exclude = 'uv'
+    kwargs.comparison = False
+    fig3, ax3 = pop.plot_school_sizes(**kwargs)
+    assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
+    print('Check passed. Figure 3 made with keys_to_exclude as a string and without comparison.')
+
     return fig, ax, pop
 
 

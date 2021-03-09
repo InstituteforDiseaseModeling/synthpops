@@ -61,6 +61,7 @@ def test_api(do_plot=False):
         # pop.plot() # do the most obvious plotting thing, whatever that may be...
         pop.plot_people()  # equivalent to cv.Sim.people.plot()
         pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
+        pop.plot_contacts(**sc.objdict(density_or_frequency='frequency', logcolors_flag=False, aggregate_flag=False))  # test other options
     return popdict
 
 
