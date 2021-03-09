@@ -495,7 +495,7 @@ class Pop(sc.prettyobj):
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_age_distribution_comparison()
         """
-        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):

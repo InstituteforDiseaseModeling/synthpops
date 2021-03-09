@@ -229,8 +229,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     if np.sum(b_prob) > 0:
                         b_prob = b_prob / np.sum(b_prob)
 
-        if verbose: # CK: I know, overkill to have both
-            log.debug(f'  Progress: {n}, {Counter(new_work)}')
+        # if verbose: # CK: I know, overkill to have both
+        log.debug(f'  Progress: {n}, {Counter(new_work)}')
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count

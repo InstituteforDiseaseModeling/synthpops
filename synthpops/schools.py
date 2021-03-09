@@ -324,8 +324,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
-    if verbose:
-        print(f"clustering within the school: {nx.transitivity(G)}")
+    log.debug(f"clustering within the school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
@@ -605,13 +604,13 @@ def generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ag
     teacher_teacher_edges = generate_edges_between_teachers(teachers_assigned, average_teacher_teacher_degree)
     edges += teacher_teacher_edges
 
-    if verbose:
-        G = nx.Graph()
-        G.add_edges_from(edges)
-        for s in syn_school_uids:
-            print(f"student {s} {age_by_uid_dic[s]} contacts with teachers {G.degree(s)}")
-        for t in teachers_assigned:
-            print(f"teacher {t} {age_by_uid_dic[t]} contacts with students {G.degree(t)}")
+    G = nx.Graph()
+    G.add_edges_from(edges)
+
+    for s in syn_school_uids:
+        log.debug(f"student {s} {age_by_uid_dic[s]} contacts with teachers {G.degree(s)}")
+    for t in teachers_assigned:
+        log.debug(f"teacher {t} {age_by_uid_dic[t]} contacts with students {G.degree(t)}")
 
     # not returning student-student contacts
     return edges
@@ -790,8 +789,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         n_expected_edges += len(teacher_edges)
-        if verbose:
-            print(f"n_expected_edges_list: {n_expected_edges_list}")
+        log.debug(f"n_expected_edges_list: {n_expected_edges_list}")
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
@@ -910,8 +908,9 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         size = len(school)
         nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
-        if verbose:
-            print(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+
+        log.debug(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+
         teachers = []
         teacher_uids = []
 
@@ -933,10 +932,9 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         syn_teachers.append(teachers)
         syn_teacher_uids.append(teacher_uids)
 
-        if verbose:
-            print(f"school with teachers {sorted(school)}")
-            print(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
-            print(f"kid-adult ratio: {(np.array(school) <= 19).sum() / (np.array(school) > 19).sum()}")
+        log.debug(f"school with teachers {sorted(school)}")
+        log.debug(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
+        log.debug(f"kid-adult ratio: {(np.array(school) <= 19).sum() / (np.array(school) > 19).sum()}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -971,8 +969,8 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
     # with_non_teaching_staff is False so this method will not select anyone to be a non teaching staff member at schools - thus return empty lists for non_teaching_staff_uids
     if not with_non_teaching_staff:
-        if verbose:
-            print(f"with_non_teaching_staff: {with_non_teaching_staff}, so this method does not produce additional staff")
+        log.debug(f"with_non_teaching_staff: {with_non_teaching_staff}, so this method does not produce additional staff")
+
         non_teaching_staff_uids = [[] for student_list in syn_school_uids]
         return non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -992,15 +990,13 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
-    if verbose:
-        print(f"list of number of students per school: {n_students_list}")
-        print(f"list of number of teachers per school: {n_teachers_list}")
-        print(f"list of number of all staff expected per school: {n_all_staff_list}")
-        print(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
-
-        if min_n_non_teaching_staff <= 0:
-            errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
-            log.debug(errormsg)
+    log.debug(f"list of number of students per school: {n_students_list}")
+    log.debug(f"list of number of teachers per school: {n_teachers_list}")
+    log.debug(f"list of number of all staff expected per school: {n_all_staff_list}")
+    log.debug(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
+    if min_n_non_teaching_staff <= 0:
+        errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
+        log.debug(errormsg)
 
     n_non_teaching_staff_list = [i if i > 0 else 1 for i in n_non_teaching_staff_list]  # force one extra staff member beyond teachers
 
@@ -1171,8 +1167,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school.append(aindex)
         new_school_uids.append(uid)
 
-        if verbose:
-            print(f"reference school age {aindex}, school size {size}, students left {len(uids_in_school)}, {left_in_bracket}")
+        log.debug(f"reference school age {aindex}, school size {size}, students left {len(uids_in_school)}, {left_in_bracket}")
 
         bindex = age_by_brackets_dic[aindex]
         b_prob = contact_matrix_dic['S'][bindex, :]
@@ -1189,8 +1184,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 ages_in_school_count[ai] -= 1
                 left_in_bracket[age_by_brackets_dic[ai]] -= 1
             uids_in_school = {}
-            if verbose:
-                print(f"last school, size from distribution: {size}, size generated {len(new_school)}")
+
+            log.debug(f"last school, size from distribution: {size}, size generated {len(new_school)}")
 
         else:
             bi_min = max(0, bindex-1)
@@ -1227,11 +1222,10 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         syn_school_types.append('s')
         new_school = np.array(new_school)
         kids = new_school <= 19
-        if verbose:
-            print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
 
-    if verbose:
-        print(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
+        log.debug(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
+
+    log.debug(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
     return syn_schools, syn_school_uids, syn_school_types
 
