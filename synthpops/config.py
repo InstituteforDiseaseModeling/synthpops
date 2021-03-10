@@ -134,7 +134,7 @@ def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
     print(f'Git information:')
-    sc.pp(spv.__gitinfo__)
+    sc.pp(sc.gitinfo(__file__))
     return
 
 def set_metadata(obj):
