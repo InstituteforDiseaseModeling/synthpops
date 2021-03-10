@@ -10,8 +10,13 @@ Legend for changelog
 ====================
 
 "Feature": a new feature previously unavailable.
+
 "Efficiency Refactor": a refactor of a previous method to make the calculation faster or require less memory.
+
 "OOP Refactor": a refactor of a previous method to make it a class method.
+
 "Fix": a fix to a bug in the code base where a method either did not work under certain conditions or results were not as expected.
+
 "API": updates to methods that require you to change your code building off of SynthPops.
+
 "Deprecated": a method or feature that has been removed or support will be removed for in the future.
