@@ -23,7 +23,7 @@ Legend for changelog
 
 - "Deprecated": a method or feature that has been removed or support will be removed for in the future.
 
-- "Github Information": the associated PR to any changes.
+- "Github Information": the associated PRs to any changes.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
