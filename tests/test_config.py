@@ -3,6 +3,7 @@
 Test config methods.
 """
 import synthpops as sp
+import sciris as sc
 
 
 def test_version():
@@ -10,5 +11,11 @@ def test_version():
     sp.version_info()
 
 
+def test_metadata():
+    pop = sp.Pop(n=100)
+    assert sc.compareversions(pop.version, '1.0.0') == 1 # to check that the version of synthpops is higher than 1.0.0
+
+
 if __name__ == '__main__':
     test_version()
+    test_metadata()
