@@ -53,4 +53,4 @@ jobs:
           name: E2E Tests
           conclusion: ${{ job.status }}
           output: |
-          {"summary":${{ steps.test.outputs.summary }}}
+            {"summary":${{ steps.test.outputs.summary }}}
