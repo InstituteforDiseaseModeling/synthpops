@@ -31,7 +31,7 @@ Latest versions (1.5.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.5.2 (2021-03-03)
+Version 1.5.2 (2021-03-09)
 --------------------------
 - *Feature*: Added metadata to pop objects.
 - *Docs*: Updated installation instructions and reference citation.
