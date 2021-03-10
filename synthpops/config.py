@@ -137,6 +137,13 @@ def version_info():
     sc.pp(spv.__gitinfo__)
     return
 
+def set_metadata(obj):
+    ''' Set standard metadata for an object '''
+    obj.version = spv.__version__
+    obj.created = sc.now()
+    obj.git_info = sc.gitinfo(__file__)
+    return
+
 
 def set_location_defaults(country=None):
     global config_file
