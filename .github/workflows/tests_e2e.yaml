@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version: [ '3.8' ]
     name: Install and test e2e
-    if: ${{ github.event.pull_request.merged }} || ${{ github.event_name == 'workflow_dispatch' }}
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
