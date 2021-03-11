@@ -52,5 +52,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: E2E Tests
           conclusion: ${{ job.status }}
-          output: |
-            {"summary":${{ steps.test.outputs.summary }}}
+
