@@ -384,6 +384,9 @@ def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brack
     """
     nonlctf_age_distr = ltcf_adjusted_age_distr / ltcf_adjusted_age_distr.sum()  # use this to generate the rest of the ages
     nonltcf_age_count = sphh.generate_age_count(n_nonltcf, nonlctf_age_distr)
+    print('nonltcf_age_count', nonltcf_age_count)
+    print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
+
     homes_dic = dict()
     homes_dic[1] = sphh.generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, nonltcf_age_count)
 

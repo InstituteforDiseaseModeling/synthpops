@@ -301,7 +301,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
     for hs in homes_dic:
         homes_dic[hs] = np.array(homes_dic[hs]).astype(int)
 
-    assert sum(ages_left_to_assign.values()) == 0, 'Check failed: generating larger households method 2.'  # at this point everyone should have been placed into a home
+    assert sum(ages_left_to_assign.values()) == 0, f'Check failed: generating larger households method 2. {sum(ages_left_to_assign.values())} and {ages_left_to_assign}.'  # at this point everyone should have been placed into a home
     return homes_dic, ages_left_to_assign
 
 
