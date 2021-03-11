@@ -17,10 +17,11 @@ import warnings
 import synthpops as sp
 
 pars = dict(
-    n=30000,
+    n=20000,
     rand_seed=1,
     with_non_teaching_staff=1
 )
+
 
 @pytest.fixture
 def get_fig_dir(request, artifact_dir):
@@ -292,13 +293,14 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     print(f"expected: {varname} = {round(expected_mean, 2)}")
     print(f"actual: {varname} = {round(actual_mean, 2)}")
     print("-------------------")
+
     if expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std:
         return
     else:
         warnings.warn(f"{varname}: actual value is {round(actual_mean, 2)}"
                       f" but expected value is  {round(expected_mean, 2)}\n"
-                      f" acceptable range should be from:{np.round(expected_mean - actual_std, 2)}"
-                      f" to {np.round(expected_mean + actual_std, 2)}", category=UserWarning)
+                      f" acceptable range should be from:{np.round(expected_mean - threshold * actual_std, 2)}"
+                      f" to {np.round(expected_mean + threshold * actual_std, 2)}", category=UserWarning)
 
 
 if __name__ == "__main__":
