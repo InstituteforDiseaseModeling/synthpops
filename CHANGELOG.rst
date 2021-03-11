@@ -17,6 +17,8 @@ Legend for changelog
 
 - "Deprecated": a method or feature that has been removed or support will be removed for in the future.
 
+- "Regression Information": a change to the model or update to data resulted in a change to regression results.
+
 - "Github Information": the associated PRs to any changes.
 
 
