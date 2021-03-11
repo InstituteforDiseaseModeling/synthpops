@@ -19,6 +19,8 @@ jobs:
     name: Install and test e2e
     if: ${{ github.event.pull_request.merged && github.event.action == 'closed' || github.event_name == 'workflow_dispatch' }}
     steps:
+      - name: Echo github obj
+        run: echo ${{ toJson(github) }}   
       - name: Checkout sources
         uses: actions/checkout@v1
       - uses: actions/setup-python@master
