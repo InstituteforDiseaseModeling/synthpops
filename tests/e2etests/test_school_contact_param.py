@@ -17,9 +17,9 @@ import warnings
 import synthpops as sp
 
 pars = dict(
-    n=20000,
-    rand_seed=1,
-    with_non_teaching_staff=1
+    n                       = 15e3,
+    rand_seed               = 1,
+    with_non_teaching_staff = 1
 )
 
 
@@ -31,12 +31,14 @@ def get_fig_dir(request, artifact_dir):
     return fig_dir
 
 
-@pytest.mark.parametrize("average_class_size", [10, 20, 50])
-def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir):
+@pytest.mark.parametrize("average_class_size", [10, 50])
+def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, threshold=2):
     """
     Test case to check average_class_size by taking average of student-student contacts
+
     Args:
         average_class_size: The average classroom size.
+
     Returns:
         None
     """
@@ -48,15 +50,18 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir):
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_class_size,
                    actual_std=actual_std,
-                   varname="average_class_size")
+                   varname="average_class_size",
+                   threshold=threshold)
 
 
-@pytest.mark.parametrize("average_additional_staff_degree", [20, 30, 40])
-def test_average_additional_staff_degree(average_additional_staff_degree, do_show, do_save, get_fig_dir):
+@pytest.mark.parametrize("average_additional_staff_degree", [20, 40])
+def test_average_additional_staff_degree(average_additional_staff_degree, do_show, do_save, get_fig_dir, threshold=2):
     """
     Test case to check average_additional_staff_degree by taking average of all contacts per staff
+
     Args:
         average_additional_staff_degree: The average number of contacts per additional non teaching staff in schools
+
     Returns:
         None
     """
@@ -74,15 +79,18 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_additional_staff_degree,
                    actual_std=actual_std,
-                   varname="average_additional_staff_degree")
+                   varname="average_additional_staff_degree",
+                   threshold=threshold)
 
 
-@pytest.mark.parametrize("average_student_teacher_ratio", [20, 30, 40])
-def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, do_save, get_fig_dir):
+@pytest.mark.parametrize("average_student_teacher_ratio", [20, 40])
+def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, do_save, get_fig_dir, threshold=2):
     """
     Test case for average_student_teacher_ratio by taking average of student contacts per teacher
+
     Args:
         average_student_teacher_ratio: The average number of students per teacher
+
     Returns:
         None
     """
@@ -95,16 +103,19 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, d
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_student_teacher_ratio,
                    actual_std=actual_std,
-                   varname="average_student_teacher_ratio")
+                   varname="average_student_teacher_ratio",
+                   threshold=threshold)
 
 
-@pytest.mark.parametrize("average_student_all_staff_ratio", [10, 15, 20])
-def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_save, get_fig_dir):
+@pytest.mark.parametrize("average_student_all_staff_ratio", [10, 20])
+def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_save, get_fig_dir, threshold=2):
     """
     Test case to check average_student_all_staff_ratio by taking average of students contacts from teachers and staff
+
     Args:
         average_student_all_staff_ratio: The average number of students per staff members at school
         (including both teachers and non teachers)
+
     Returns:
         None
     """
@@ -117,15 +128,18 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_sa
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_student_all_staff_ratio,
                    actual_std=actual_std,
-                   varname="average_student_all_staff_ratio")
+                   varname="average_student_all_staff_ratio",
+                   threshold=threshold)
 
 
-@pytest.mark.parametrize("average_teacher_teacher_degree", [1, 5, 8])
-def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show, do_save, get_fig_dir):
+@pytest.mark.parametrize("average_teacher_teacher_degree", [1, 8])
+def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show, do_save, get_fig_dir, threshold=2):
     """
     Test case for average_teacher_teacher_degree by taking average of teachers' contacts per teacher
+
     Args:
         average_teacher_teacher_degree: The average number of contacts per teacher with other teachers
+
     Returns:
         None
     """
@@ -146,21 +160,23 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show,
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_teacher_teacher_degree,
                    actual_std=actual_std,
-                   varname="average_teacher_teacher_degree")
+                   varname="average_teacher_teacher_degree",
+                   threshold=threshold)
 
 
 def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
                        people_types=['sc_teacher', 'sc_student', 'sc_staff']):
     """
     Helper method to get contact counts for teachers, students and staffs in the popdict
+
     Args:
-        popdict: popdict of a Pop object
-        varname: variable name used for plotting to identify the test cases
-        varvalue: variable value used for plotting to identify the test cases
-        do_show: whether to plot the count distribution or not
-        do_save: whether to save the plot or not
-        fig_dir: subfolder name (under current run directory) for saving the plots
-        people_types: a list of possible people types (such as sc_student, sc_teacher, sc_staff, snf_staff, snf_res)
+        popdict      : popdict of a Pop object
+        varname      : variable name used for plotting to identify the test cases
+        varvalue     : variable value used for plotting to identify the test cases
+        do_show      : whether to plot the count distribution or not
+        do_save      : whether to save the plot or not
+        fig_dir      : subfolder name (under current run directory) for saving the plots
+        people_types : a list of possible people types (such as sc_student, sc_teacher, sc_staff, snf_staff, snf_res)
 
     Returns:
         A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
@@ -221,15 +237,16 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
 
 def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_dir):
     """
-    method to generate the student_teacher and student_all_staff ratio from popdict
+    Method to generate the student_teacher and student_all_staff ratio from popdict
+
     Args:
-        popdict: popdict of a Pop object
-        varname: variable name used for identifying the test cases, must be
+        popdict  : popdict of a Pop object
+        varname  : variable name used for identifying the test cases, must be
                  average_student_teacher_ratio or average_student_all_staff_ratio
-        varvalue: variable value used for plotting to identify the test cases
-        do_show: whether to plot the count distribution or not
-        do_save: whether to save the plot or not
-        fig_dir: subfolder name (under current run directory) for saving the plots
+        varvalue : variable value used for plotting to identify the test cases
+        do_show  : whether to plot the count distribution or not
+        do_save  : whether to save the plot or not
+        fig_dir  : subfolder name (under current run directory) for saving the plots
 
     Returns:
         average and std value of the varname arg
@@ -278,13 +295,14 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     If a value is a certain number of standard deviations away from the expected_mean,
     that data point is identified as an outlier.
     The specified number of standard deviations is called the threshold and default value is 2.
-    Hoever, this method may fail to detect outliers because the outliers increase the standard deviation.
+    However, this method may fail to detect outliers because the outliers increase the standard deviation.
+
     Args:
-        actual_mean: the actual mean
-        expected_mean: the expected mean
-        actual_std: the actual std
-        varname: the name of the variable
-        threshold: specified number of standard deviations
+        actual_mean   : the actual mean
+        expected_mean : the expected mean
+        actual_std    : the actual std
+        varname       : the name of the variable
+        threshold     : specified number of standard deviations
 
     Returns:
         None
@@ -292,6 +310,7 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     print("-------------------")
     print(f"expected: {varname} = {round(expected_mean, 2)}")
     print(f"actual: {varname} = {round(actual_mean, 2)}")
+    print(f"acceptable range should be from: {expected_mean - threshold * actual_std:.2f} to {expected_mean + threshold * actual_std:.2f}")
     print("-------------------")
 
     if expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std:
@@ -299,8 +318,8 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     else:
         warnings.warn(f"{varname}: actual value is {round(actual_mean, 2)}"
                       f" but expected value is  {round(expected_mean, 2)}\n"
-                      f" acceptable range should be from:{np.round(expected_mean - threshold * actual_std, 2)}"
-                      f" to {np.round(expected_mean + threshold * actual_std, 2)}", category=UserWarning)
+                      f" acceptable range should be from:{expected_mean - threshold * actual_std:.2f}"
+                      f" to {expected_mean + threshold * actual_std:.2f}", category=UserWarning)
 
 
 if __name__ == "__main__":
