@@ -67,7 +67,8 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         for a in expected_users_by_age:
             b = age_by_brackets_dic[a]
             expected_users_by_age[a] = int(np.ceil(n * expected_age_distr[a] * ltcf_rates_by_age[a]))
-            print(a, expected_users_by_age[a])
+            if a >= 60:
+                print(a, expected_users_by_age[a], n, expected_age_distr[a], ltcf_rates_by_age[a], n * expected_age_distr[a] * ltcf_rates_by_age[a], n * expected_age_distr[a])
         # make a list of all resident ages
         all_residents = []
         for a in expected_users_by_age:
@@ -114,7 +115,8 @@ def generate_ltcfs(n, with_facilities, datadir, country_location, state_location
         ltcf_adjusted_age_distr_array = np.array([ltcf_adjusted_age_distr_dict[a] for a in range(max_age + 1)])  # make an array of the age distribution
 
     for a in ltcf_adjusted_age_distr_dict:
-        print(a, ltcf_adjusted_age_distr_dict[a])
+        if a >= 60:
+            print(a, ltcf_adjusted_age_distr_dict[a])
     return n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr_array, facilities
 
 
