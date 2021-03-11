@@ -9,7 +9,7 @@ More extensive installation and usage instructions are in the [SynthPops documen
 
 ## Installation
 
-Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
+Python >=3.7, <3.9 is required. Python 2 is not supported. Virtual environments are strongly recommended but not required.
 
 To install, first clone the GitHub repository:
 
@@ -19,18 +19,25 @@ Then install via:
 
 `python setup.py develop`
 
-Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended.
+Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended. We recommend using Python virtual environments managed with [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#) to help with installation. Currently, our recommended installation steps are:
+
+1. Install Anaconda. 
+
+2. Working either in an existing conda environment or creating a new environment with Anaconda, install synthpops by navigating to the directory for this package and running `python setup.py develop` via terminal.
+
 
 ## Quick Start
 
-The following code creates and plots a synthetic population (using defaults for Seattle, Washington):
+The following code creates and plots a the household layer of a synthetic population (using defaults for Seattle, Washington):
 
 ```python
 import synthpops as sp
+import matplotlib.pyplot as plt
 
 n = 10000 # how many people in your population
 pop = sp.Pop(n) # create the population
 pop.plot_contacts() # plot the contact matrix
+plt.show() # display contact matrix to screen
 ```
 
 ## Usage

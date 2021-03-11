@@ -31,6 +31,6 @@ household layer, there are a low number of expected contacts with the 15-19 year
 .. _Mossong et al. 2008: https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0050074
 .. _Fumanelli et al. 2012: https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002673
 .. _Prem et al. 2017: https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005697
-.. _Mistry et al. 2020: https://arxiv.org/abs/2003.01214
+.. _Mistry et al. 2020: https://www.nature.com/articles/s41467-020-20544-y
 
 

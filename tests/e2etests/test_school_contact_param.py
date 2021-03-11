@@ -12,26 +12,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pytest
-import sys
+import pathlib
 import warnings
 import synthpops as sp
 
-# import tests/config.py for test related settings
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import config
 pars = dict(
-    n=10000,
+    n=30000,
     rand_seed=1,
     with_non_teaching_staff=1
 )
 
-fig_dir = os.path.join(config.artifact_dir, 'test_school_contact_params')
-do_show = config.do_show
-do_save = config.do_save
+@pytest.fixture
+def get_fig_dir(request, artifact_dir):
+    testname = request.node.originalname
+    fig_dir = pathlib.Path(artifact_dir, testname)
+    os.makedirs(fig_dir, exist_ok=True)
+    return fig_dir
 
-@pytest.mark.e2etest
+
 @pytest.mark.parametrize("average_class_size", [10, 20, 50])
-def test_average_class_size(average_class_size):
+def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir):
     """
     Test case to check average_class_size by taking average of student-student contacts
     Args:
@@ -41,7 +41,7 @@ def test_average_class_size(average_class_size):
     """
     pars["average_class_size"] = average_class_size
     pop = sp.Pop(**pars)
-    contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, fig_dir)
+    contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
     actual_mean = np.average(contacts['sc_student']['sc_student'])
     actual_std = np.std(contacts['sc_student']['sc_student'])
     assert_outlier(actual_mean=actual_mean,
@@ -50,9 +50,8 @@ def test_average_class_size(average_class_size):
                    varname="average_class_size")
 
 
-@pytest.mark.e2etest
 @pytest.mark.parametrize("average_additional_staff_degree", [20, 30, 40])
-def test_average_additional_staff_degree(average_additional_staff_degree):
+def test_average_additional_staff_degree(average_additional_staff_degree, do_show, do_save, get_fig_dir):
     """
     Test case to check average_additional_staff_degree by taking average of all contacts per staff
     Args:
@@ -60,15 +59,15 @@ def test_average_additional_staff_degree(average_additional_staff_degree):
     Returns:
         None
     """
-    #note this must be greater than default average_student_all_staff_ratio (20)
+    # note this must be greater than default average_student_all_staff_ratio (20)
     pars["average_additional_staff_degree"] = average_additional_staff_degree
     pars["with_school_types"] = 1
-   
+
     pop = sp.Pop(**pars)
     contacts = get_contact_counts(pop.popdict,
                                   "average_additional_staff_degree",
                                   average_additional_staff_degree,
-                                  do_show, do_save, fig_dir)
+                                  do_show, do_save, get_fig_dir)
     actual_mean = np.average(contacts['sc_staff']['all'])
     actual_std = np.std(contacts['sc_staff']['all'])
     assert_outlier(actual_mean=actual_mean,
@@ -77,9 +76,8 @@ def test_average_additional_staff_degree(average_additional_staff_degree):
                    varname="average_additional_staff_degree")
 
 
-@pytest.mark.e2etest
 @pytest.mark.parametrize("average_student_teacher_ratio", [20, 30, 40])
-def test_average_student_teacher_ratio(average_student_teacher_ratio):
+def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, do_save, get_fig_dir):
     """
     Test case for average_student_teacher_ratio by taking average of student contacts per teacher
     Args:
@@ -92,16 +90,15 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio):
     actual_mean, actual_std = get_teacher_staff_ratio(pop.popdict,
                                                       "average_student_teacher_ratio",
                                                       average_student_teacher_ratio,
-                                                      do_show, do_save, fig_dir)
+                                                      do_show, do_save, get_fig_dir)
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_student_teacher_ratio,
                    actual_std=actual_std,
                    varname="average_student_teacher_ratio")
 
 
-@pytest.mark.e2etest
 @pytest.mark.parametrize("average_student_all_staff_ratio", [10, 15, 20])
-def test_student_all_staff_ratio(average_student_all_staff_ratio):
+def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_save, get_fig_dir):
     """
     Test case to check average_student_all_staff_ratio by taking average of students contacts from teachers and staff
     Args:
@@ -115,16 +112,15 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio):
     actual_mean, actual_std = get_teacher_staff_ratio(pop.popdict,
                                                       "average_student_all_staff_ratio",
                                                       average_student_all_staff_ratio,
-                                                      do_show, do_save, fig_dir)
+                                                      do_show, do_save, get_fig_dir)
     assert_outlier(actual_mean=actual_mean,
                    expected_mean=average_student_all_staff_ratio,
                    actual_std=actual_std,
                    varname="average_student_all_staff_ratio")
 
 
-@pytest.mark.e2etest
 @pytest.mark.parametrize("average_teacher_teacher_degree", [1, 5, 8])
-def test_average_teacher_teacher_degree(average_teacher_teacher_degree):
+def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show, do_save, get_fig_dir):
     """
     Test case for average_teacher_teacher_degree by taking average of teachers' contacts per teacher
     Args:
@@ -143,7 +139,7 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree):
     contacts = get_contact_counts(pop.popdict,
                                   "average_teacher_teacher_degree",
                                   average_teacher_teacher_degree,
-                                  do_show, do_save, fig_dir)
+                                  do_show, do_save, get_fig_dir)
     actual_mean = np.average(contacts['sc_teacher']['sc_teacher'])
     actual_std = np.std(contacts['sc_teacher']['sc_teacher'])
     assert_outlier(actual_mean=actual_mean,
@@ -200,7 +196,8 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
                     # store sc_teacher, sc_student, sc_staff, all_staff and all below
                     for k2 in people_types:
                         index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                    index_switcher.get(k1)["all_staff"].append(count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                    index_switcher.get(k1)["all_staff"].append(
+                        count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     # draw a simple histogram for distribution of counts
@@ -216,7 +213,7 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
             plt.show()
         if do_save:
             os.makedirs(fig_dir, exist_ok=True)
-            plt.savefig(os.path.join(fig_dir,f"contacts_{varname}_{str(varvalue)}.png"))
+            plt.savefig(os.path.join(fig_dir, f"contacts_{varname}_{str(varvalue)}.png"))
         plt.close()
     return contact_counter
 
@@ -251,8 +248,9 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
     school_view = {}
     # generate student_teacher_ratio and student_all_staff_ratio group by scid
     for i in school_students.keys():
-        school_view[i] = {'student_teacher_ratio': len(school_students[i])/len(school_teachers[i]),
-                          'student_all_staff_ratio': len(school_students[i])/(len(school_staffs[i]) + len(school_teachers[i]))}
+        school_view[i] = {'student_teacher_ratio': len(school_students[i]) / len(school_teachers[i]),
+                          'student_all_staff_ratio': len(school_students[i]) / (
+                                      len(school_staffs[i]) + len(school_teachers[i]))}
 
     # based on the varname, plot and return and mean/std
     if varname == "average_student_teacher_ratio":
@@ -272,6 +270,7 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
         plt.close()
     return np.mean(ratio), np.std(ratio)
 
+
 def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2):
     """
     The method raise an error for actual_mean outside of expected_mean range
@@ -289,8 +288,10 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
     Returns:
         None
     """
+    print("-------------------")
     print(f"expected: {varname} = {round(expected_mean, 2)}")
     print(f"actual: {varname} = {round(actual_mean, 2)}")
+    print("-------------------")
     if expected_mean - threshold * actual_std <= actual_mean <= expected_mean + threshold * actual_std:
         return
     else:
@@ -299,5 +300,6 @@ def assert_outlier(actual_mean, expected_mean, actual_std, varname, threshold=2)
                       f" acceptable range should be from:{np.round(expected_mean - actual_std, 2)}"
                       f" to {np.round(expected_mean + actual_std, 2)}", category=UserWarning)
 
+
 if __name__ == "__main__":
-   pytest.main(['-v', __file__])
+    pytest.main(['-v', __file__])
