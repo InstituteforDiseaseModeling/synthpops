@@ -11,15 +11,9 @@ Legend for changelog
 
 - "Feature": a new feature previously unavailable.
 
-- "Efficiency Refactor": a refactor of a previous method to make the calculation faster or require less memory.
-
-- "OOP Refactor": a refactor of a previous method to make it a class method.
+- "Efficiency": a refactor of a previous method to make the calculation faster or require less memory.
 
 - "Fix": a fix to a bug in the code base where a method either did not work under certain conditions or results were not as expected.
-
-- "Docs": updates to the rest of the documentation, including more information about the model, links to scientific articles about the model and methodology, scientific articles using SynthPops or referenced in SynthPops, tutorials to use SynthPops, etc.
-
-- "API": updates to methods that require you to change your code building off of SynthPops.
 
 - "Deprecated": a method or feature that has been removed or support will be removed for in the future.
 
@@ -34,7 +28,7 @@ Latest versions (1.5.x)
 Version 1.5.2 (2021-03-09)
 --------------------------
 - *Feature*: Added metadata to pop objects.
-- *Docs*: Updated installation instructions and reference citation.
+- Updated installation instructions and reference citation.
 - *Github Info*: PR `365 <https://github.com/amath-idm/synthpops/pull/365>`__, `351 <https://github.com/amath-idm/synthpops/pull/351>`__
 
 
