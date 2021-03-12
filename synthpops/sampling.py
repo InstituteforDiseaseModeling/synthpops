@@ -199,20 +199,18 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
     n_samples = len(actual) if is_dist else 1
     eps = 1.0/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
     quintiles = [eps, 0.25, 0.5, 0.75, 1-eps]
-    obvs_quin = np.quantile(actual, quintiles) if is_dist else sc.promotetoarray(actual)
+    obvs_quin = np.quantile(actual, quintiles) if is_dist else actual
     expect_quin = truedist.ppf(quintiles)
 
     # If null hypothesis is rejected, print a warning or error
     if not null:
-        expstr = ', '.join([f'{v:.3}' if isinstance(v, float) else f'{v}' for v in expect_quin])
-        obsstr = ', '.join([f'{v:.3}' if isinstance(v, float) else f'{v}' for v in obvs_quin])
         msg = f''''
 Variable{label} with n={n_samples} samples is out of range using the distribution:
     {dist}({args}) →
-    p={pvalue:.3} < α={alpha}
-Expected quintiles are: {expstr}
-Observed quintiles are: {obsstr}
-Observed median is in quantile: {quantile:.3}'''
+    p={pvalue} < α={alpha}
+Expected quintiles are: {expect_quin}
+Observed quintiles are: {obvs_quin}
+Observed median is in quantile: {quantile}'''
         if die:
             raise ValueError(msg)
         elif verbose:
