@@ -46,7 +46,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     pop = sp.Pop(**pars, **testpars)
     contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
     counts = contacts['sc_student']['sc_student']
-    sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size')
+    sp.check_normal(actual=counts, expected=average_class_size, label='average_class_size', check='mean')
     return
 
 
@@ -72,7 +72,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
                                   average_additional_staff_degree,
                                   do_show, do_save, get_fig_dir)
     counts = contacts['sc_staff']['all']
-    sp.check_poisson(actual=counts, expected=average_additional_staff_degree, label='staff degree')
+    sp.check_normal(actual=counts, expected=average_additional_staff_degree, label='staff degree', check='mean')
     return
 
 
@@ -95,7 +95,7 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, d
                                     "average_student_teacher_ratio",
                                     average_student_teacher_ratio,
                                     do_show, do_save, get_fig_dir)
-    sp.check_normal(actual=ratios, expected=average_student_teacher_ratio)
+    sp.check_normal(actual=ratios, expected=average_student_teacher_ratio, label='average_student_teacher_ratio', check='mean')
     return
 
 
@@ -119,7 +119,7 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_sa
                                     "average_student_all_staff_ratio",
                                     average_student_all_staff_ratio,
                                     do_show, do_save, get_fig_dir)
-    sp.check_normal(actual=ratios, expected=average_student_all_staff_ratio)
+    sp.check_normal(actual=ratios, expected=average_student_all_staff_ratio, label='average_student_all_staff_ratio', check='mean')
     return
 
 
@@ -148,7 +148,7 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show,
                                   average_teacher_teacher_degree,
                                   do_show, do_save, get_fig_dir)
     counts = contacts['sc_teacher']['sc_teacher']
-    sp.check_poisson(actual=counts, expected=average_teacher_teacher_degree, label='teacher degree')
+    sp.check_normal(actual=counts, expected=average_teacher_teacher_degree, label='teacher degree', check='mean')
     return
 
 

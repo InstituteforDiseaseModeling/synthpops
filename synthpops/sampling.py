@@ -123,7 +123,7 @@ def sample_from_range(distr, min_val, max_val):
     return sample_single_dict(distr_keys, distr_vals)
 
 
-def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.05, verbose=True, die=False, stats=False):
+def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None, alpha=0.05, verbose=True, die=False, stats=False):
     '''
     Check whether counts match the expected distribution. The distribution can be
     any listed in scipy.stats. The parameters for the distribution should be supplied
@@ -133,10 +133,12 @@ def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.0
     Args:
         actual (int, float, or array): the observed value, or distribution of values
         expected (int, float, tuple): the expected value; or, a tuple of arguments
-        std (float): the standard deviation of the expected value (taken from data if not supplied)
+        std (float): for normal distributions, the standard deviation of the expected value (taken from data if not supplied)
+        dist (str): the type of distribution to use
+        check (str): what to check: 'dist' = entire distribution (default), 'mean' (equivalent to supplying np.mean(actual)), or 'median'
         label (str): the name of the variable being tested
         alpha (float): the significance level at which to reject the null hypothesis
-        dist (str): the type of distribution to use
+
         verbose (bool): print a warning if the null hypothesis is rejected
         die (bool): raise an exception if the null hypothesis is rejected
         stats (bool): whether to return statistics
@@ -147,14 +149,15 @@ def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.0
         sp.check_dist(actual=[0.14, -3.37,  0.59, -0.07], expected=0, std=1.0, dist='norm')
         sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm')
     '''
+    # Handle inputs
     label = f' "{label}"' if label else ''
     is_dist = sc.isiterable(actual)
 
     # Set distribution
-    if dist == 'poisson':
+    if dist.lower() == 'poisson':
         args = (expected,)
         truedist = scipy.stats.poisson(expected)
-    elif dist == 'norm':
+    elif dist.lower() in ['norm', 'normal', 'gaussian']:
         if std is None:
             if is_dist:
                 std = np.std(actual) # Get standard deviation from the data
@@ -175,31 +178,41 @@ def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.0
             raise NotImplementedError(errormsg) from E
 
     # Calculate stats
-    if is_dist:
-        n_samples = len(actual)
+    if is_dist and check == 'dist':
+        quantile = truedist.cdf(np.median(actual))
         teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args) # Use the K-S test to see if came from the same distribution
-        null = pvalue>alpha
+        null = pvalue > alpha
     else:
-        n_samples = 1
-        quantile = truedist.cdf(actual) # If it's a single value, see where it lands on the Poisson CDF
+        if check == 'mean':
+            value = np.mean(actual)
+        elif check == 'median':
+            value = np.median(actual)
+        else:
+            value = actual
+        quantile = truedist.cdf(value) # If it's a single value, see where it lands on the Poisson CDF
         pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
         minquant = alpha/2 # e.g., 0.025 for alpha=0.05
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
         null = minquant <= quantile <= maxquant # True if above minimum and below maximum
 
+    # Additional stats
+    n_samples = len(actual) if is_dist else 1
+    eps = 1.0/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
+    quintiles = [eps, 0.25, 0.5, 0.75, 1-eps]
+    obvs_quin = np.quantile(actual, quintiles) if is_dist else sc.promotetoarray(actual)
+    expect_quin = truedist.ppf(quintiles)
+
     # If null hypothesis is rejected, print a warning or error
     if not null:
-        quantile = truedist.cdf(np.median(actual))
-        eps = 1/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
-        quintiles = [eps, 0.25, 0.5, 0.75, 1-eps]
-        obvs_quin = np.quantile(actual, quintiles) if is_dist else actual
-        expect_quin = truedist.ppf(quintiles)
+        expstr = ', '.join([f'{v:.3}' if isinstance(v, float) else f'{v}' for v in expect_quin])
+        obsstr = ', '.join([f'{v:.3}' if isinstance(v, float) else f'{v}' for v in obvs_quin])
         msg = f''''
-Variable{label} with n={n_samples} samples is out of range using {dist} distribution:
-    p={pvalue} < α={alpha}
-Expected quintiles are: {expect_quin}
-Observed quintiles are: {obvs_quin}
-Observed median is in quantile: {quantile}'''
+Variable{label} with n={n_samples} samples is out of range using the distribution:
+    {dist}({args}) →
+    p={pvalue:.3} < α={alpha}
+Expected quintiles are: {expstr}
+Observed quintiles are: {obsstr}
+Observed median is in quantile: {quantile:.3}'''
         if die:
             raise ValueError(msg)
         elif verbose:
