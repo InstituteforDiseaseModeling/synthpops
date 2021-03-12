@@ -2,9 +2,12 @@
 
 import numpy as np
 import numba as nb
+import sciris as sc
 import random
 import itertools
 import bisect
+import scipy
+import warnings
 from . import base as spb
 
 
@@ -118,3 +121,98 @@ def sample_from_range(distr, min_val, max_val):
     distr_keys = np.array(list(new_distr.keys()), dtype=np.int64)
     distr_vals = np.array(list(new_distr.values()), dtype=np.float64)
     return sample_single_dict(distr_keys, distr_vals)
+
+
+def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.05, verbose=True, die=False, stats=False):
+    '''
+    Check whether counts match the expected distribution.
+
+    Args:
+        actual (int, float, or array): the observed value, or distribution of values
+        expected (int, float): the expected value
+        std (float): the standard deviation of the expected value (taken from data if not supplied)
+        label (str): the name of the variable being tested
+        alpha (float): the significance level at which to reject the null hypothesis
+        dist (str): the type of distribution to use
+        verbose (bool): print a warning if the null hypothesis is rejected
+        die (bool): raise an exception if the null hypothesis is rejected
+        stats (bool): whether to return statistics
+
+    **Examples**::
+
+        sp.check_dist(actual=[3,4,4,2,3], expected=3, dist='poisson')
+        sp.check_dist(actual=[0.14, -3.37,  0.59, -0.07], expected=0, std=1.0, dist='norm')
+    '''
+    label = f' "{label}"' if label else ''
+    is_dist = sc.isiterable(actual)
+
+    # Set distribution
+    if dist == 'poisson':
+        args = (expected,)
+        truedist = scipy.stats.poisson(expected)
+    elif dist == 'norm':
+        if std is None:
+            if is_dist:
+                std = np.std(actual) # Get standard deviation from the data
+            else:
+                std = 1.0
+        args = (expected, std)
+        truedist = scipy.stats.norm(expected, std)
+    else:
+        errormsg = f'Distribution "{dist}" not supported'
+        raise NotImplementedError(errormsg)
+
+    # Calculate stats
+    if is_dist:
+        n_samples = len(actual)
+        teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args) # Use the K-S test to see if came from the same distribution
+        null = pvalue>alpha
+    else:
+        n_samples = 1
+        quantile = truedist.cdf(actual) # If it's a single value, see where it lands on the Poisson CDF
+        pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
+        minquant = alpha/2 # e.g., 0.025 for alpha=0.05
+        maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
+        null = minquant <= quantile <= maxquant # True if above minimum and below maximum
+
+    # If null hypothesis is rejected, print a warning or error
+    if not null:
+        quantile = truedist.cdf(np.median(actual))
+        eps = 1/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
+        quintiles = [eps, 0.25, 0.5, 0.75, 1-eps]
+        obvs_quin = np.quantile(actual, quintiles) if is_dist else actual
+        expect_quin = truedist.ppf(quintiles)
+        msg = f''''
+Variable{label} with n={n_samples} samples is out of range using {dist} distribution:
+    p={pvalue} < α={alpha}
+Expected quintiles are: {expect_quin}
+Observed quintiles are: {obvs_quin}
+Observed median is in quantile: {quantile}'''
+        if die:
+            raise ValueError(msg)
+        elif verbose:
+            warnings.warn(msg)
+
+    if not stats:
+        return null
+    else:
+        s = sc.objdict()
+        s.null = null
+        s.pvalue = pvalue
+        s.n_samples = n_samples
+        s.expected_quintiles = expect_quin
+        s.observed_quintiles = obvs_quin
+        s.observed_quantile = quantile
+        return s
+
+
+def check_normal(*args, **kwargs):
+    ''' Alias to check_dist(dist='normal') '''
+    dist = kwargs.pop('dist', 'norm')
+    return check_dist(*args, **kwargs, dist=dist)
+
+
+def check_poisson(*args, **kwargs):
+    ''' Alias to check_dist(dist='poisson') '''
+    dist = kwargs.pop('dist', 'poisson')
+    return check_dist(*args, **kwargs, dist=dist)
