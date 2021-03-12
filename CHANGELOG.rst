@@ -27,6 +27,12 @@ Latest versions (1.5.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.5.3 (2021-03-11)
+--------------------------
+- *Feature*: Added new methods, ``sp.check_dist()`` and aliases ``sp.check_normal()`` and ``sp.check_poisson()``, to check whether the observed distribution matches the expected distribution.
+- *Github Info*: PR `373 <https://github.com/amath-idm/synthpops/pull/373>`__
+
+
 Version 1.5.2 (2021-03-09)
 --------------------------
 - *Feature*: Added metadata to pop objects.
