@@ -125,11 +125,14 @@ def sample_from_range(distr, min_val, max_val):
 
 def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.05, verbose=True, die=False, stats=False):
     '''
-    Check whether counts match the expected distribution.
+    Check whether counts match the expected distribution. The distribution can be
+    any listed in scipy.stats. The parameters for the distribution should be supplied
+    via the "expected" argument. The standard deviation for a normal distribution is
+    a special case; it can be supplied separately or calculated from the (actual) data.
 
     Args:
         actual (int, float, or array): the observed value, or distribution of values
-        expected (int, float): the expected value
+        expected (int, float, tuple): the expected value; or, a tuple of arguments
         std (float): the standard deviation of the expected value (taken from data if not supplied)
         label (str): the name of the variable being tested
         alpha (float): the significance level at which to reject the null hypothesis
@@ -142,6 +145,7 @@ def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.0
 
         sp.check_dist(actual=[3,4,4,2,3], expected=3, dist='poisson')
         sp.check_dist(actual=[0.14, -3.37,  0.59, -0.07], expected=0, std=1.0, dist='norm')
+        sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm')
     '''
     label = f' "{label}"' if label else ''
     is_dist = sc.isiterable(actual)
@@ -159,8 +163,16 @@ def check_dist(actual, expected, std=None, dist='poisson', label=None, alpha=0.0
         args = (expected, std)
         truedist = scipy.stats.norm(expected, std)
     else:
-        errormsg = f'Distribution "{dist}" not supported'
-        raise NotImplementedError(errormsg)
+        try:
+            if sc.isnumber(expected):
+                args = (expected, )
+            else:
+                args = tuple(expected)
+            scipydist = getattr(scipy.stats, dist)
+            truedist = scipydist(*args)
+        except Exception as E:
+            errormsg = f'Distribution "{dist}" not supported with the expected values supplied; valid distributions are those in scipy.stats'
+            raise NotImplementedError(errormsg) from E
 
     # Calculate stats
     if is_dist:
