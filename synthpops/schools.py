@@ -711,6 +711,7 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
 
     """
     edges = []
+    print('generating here')
     p = average_class_size / len(all_school_uids)
     G = nx.erdos_renyi_graph(len(all_school_uids), p)
     for n, e in enumerate(G.edges()):
@@ -719,6 +720,8 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
         node_j = all_school_uids[j]
         e = (node_i, node_j)
         edges.append(e)
+    degree = [G.degree(i) for i in G.nodes()]
+    print(Counter(degree))
     return edges
 
 

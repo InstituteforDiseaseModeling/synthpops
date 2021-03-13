@@ -6,6 +6,8 @@ average_student_all_staff_ratio,
 average_additional_staff_degree,
 average_class_size
 """
+from scipy import stats
+import numpy as np
 import collections
 import itertools
 import matplotlib.pyplot as plt
@@ -29,7 +31,7 @@ def get_fig_dir(request, artifact_dir):
     return fig_dir
 
 
-@pytest.mark.parametrize("average_class_size", [10, 50])
+@pytest.mark.parametrize("average_class_size", [2, ])
 def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, quantiles=None):
     """
     Test case to check average_class_size by taking average of student-student contacts
@@ -50,8 +52,13 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_student']['all'])
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
-    # counts = contacts['sc_student']['sc_student']
-    sp.check_normal(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
+        # counts = contacts['sc_student']['sc_student']
+        print(min(counts), max(counts), np.median(counts), np.mean(counts))
+    sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
+    # check 2 with scipy.stats.probplot
+    fig, ax = plt.subplots(1, 1)
+    res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
+    plt.show()
     return
 
 @pytest.mark.skip
