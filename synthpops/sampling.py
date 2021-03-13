@@ -154,10 +154,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
     is_dist = sc.isiterable(actual)
 
     # Set distribution
-    if dist.lower() == 'poisson':
-        args = (expected,)
-        truedist = scipy.stats.poisson(expected)
-    elif dist.lower() in ['norm', 'normal', 'gaussian']:
+    if dist.lower() in ['norm', 'normal', 'gaussian']:
         if std is None:
             if is_dist:
                 std = np.std(actual) # Get standard deviation from the data
