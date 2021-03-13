@@ -5,6 +5,7 @@ This module provides the layer for communicating with the agent-based model Cova
 import numpy as np
 import sciris as sc
 from .config import logger as log
+from . import version as spv
 from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
@@ -203,6 +204,9 @@ class Pop(sc.prettyobj):
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
+
+        # Set metadata -- version etc.
+        cfg.set_metadata(self)
 
         return
 
@@ -459,6 +463,7 @@ class Pop(sc.prettyobj):
         self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
         self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
+    # TBC: will add print statements for the number of edges per layer, average degree, etc.
     def summarize(self):
         """
         Print summary method. Displays the number of people, average age, total
@@ -468,7 +473,7 @@ class Pop(sc.prettyobj):
             None
         """
         mean_age = spb.calculate_average_from_count(self.age_count)
-        print(mean_age)
+        print(f"The average age is {mean_age:.2f}.")
 
     def count_pop_ages(self):
         """
@@ -633,6 +638,7 @@ class Pop(sc.prettyobj):
         """
         return spb.count_values(self.workplace_sizes)
 
+    # TBC: not done yet
     @property
     def count_layer_degree(self, **kwargs):
         """

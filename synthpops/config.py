@@ -133,8 +133,15 @@ def get_config_data():
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
-    # print(f'Git information:')
-    # sc.pp(spv.__gitinfo__)  # not yet set
+    print(f'Git information:')
+    sc.pp(sc.gitinfo(__file__))
+    return
+
+def set_metadata(obj):
+    ''' Set standard metadata for an object '''
+    obj.version = spv.__version__
+    obj.created = sc.now()
+    obj.git_info = sc.gitinfo(__file__)
     return
 
 
