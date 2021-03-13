@@ -52,6 +52,9 @@ def test_check_dist():
     print('↓ Should print some warnings')
     sp.check_poisson(actual=actual_valid, expected=expected, die=True) # Should pass
     sp.check_poisson(actual=actual_invalid, expected=expected, verbose=False) # Shouldn't pass, but not die
+
+    # test poisson for rate = 0, seems to fail and return the max value for the quantile instead of the min value
+    sp.check_poisson(actual=0, expected=0, verbose=True, check='mean')
     stats = sp.check_poisson(actual=invalid_data, expected=expected, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
 
     with pytest.raises(ValueError):
