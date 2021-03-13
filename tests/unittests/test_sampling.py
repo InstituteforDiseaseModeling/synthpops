@@ -6,7 +6,7 @@ import sciris as sc
 import synthpops as sp
 import numpy as np
 import pytest
-
+import scipy
 
 def test_fast_choice(do_plot=False, sigma=5):
     sc.heading('Testing fast_choice()...')
@@ -76,6 +76,14 @@ def test_check_dist():
     sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm', die=True)
     with pytest.raises(NotImplementedError):
         sp.check_dist(actual=1, expected=1, dist='not a distribution')
+
+    # Check dist test: binomial, should work but doesn't... seems like there's a problem with the dist option
+    n = 300
+    p = 0.06
+    size = 300
+    expected = (n, p)  # n, p
+    actual = scipy.stats.binom.rvs(n, p, size=size)
+    sp.check_dist(actual=actual, expected=expected, dist='binom', check='dist', verbose=True)
 
     return stats
 
