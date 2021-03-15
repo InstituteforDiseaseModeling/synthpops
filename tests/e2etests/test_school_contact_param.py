@@ -22,7 +22,7 @@ pars = dict(
     with_non_teaching_staff = 1
 )
 
-@pytest.mark.skip
+
 @pytest.fixture
 def get_fig_dir(request, artifact_dir):
     testname = request.node.originalname
@@ -31,7 +31,7 @@ def get_fig_dir(request, artifact_dir):
     return fig_dir
 
 
-@pytest.mark.parametrize("average_class_size", [2, ])
+@pytest.mark.parametrize("average_class_size", [20])
 def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, quantiles=None):
     """
     Test case to check average_class_size by taking average of student-student contacts
@@ -44,6 +44,10 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     """
     testpars = dict(
         average_class_size = average_class_size,
+        average_student_teacher_ratio = average_class_size,
+        average_student_all_staff_ratio = 2,
+        with_school_types = 1,
+        school_mixing_type = 'age_and_class_clustered'
     )
     pop = sp.Pop(**pars, **testpars)
     contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
@@ -52,10 +56,23 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_student']['all'])
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
-        # counts = contacts['sc_student']['sc_student']
-        print(min(counts), max(counts), np.median(counts), np.mean(counts))
+    elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
+        
+        counts.extend(contacts['sc_student']['sc_student'])
+        students = set()
+        for i, person in pop.popdict.items():
+            if person['sc_student']:
+                students.add(i)
+        for i, person in pop.popdict.items():
+            if person['sc_student']:
+                contacts = person['contacts']['S']
+                student_contacts = set(contacts).intersection(students)
+                # print(i, person['age'], len(student_contacts))
+        print(collections.Counter(counts))
+
+    # print(counts)
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
-    # check 2 with scipy.stats.probplot
+    # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution
     fig, ax = plt.subplots(1, 1)
     res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
     plt.show()
