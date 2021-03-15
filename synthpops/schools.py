@@ -345,7 +345,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
             ei1, ei2 = ei
             ej1, ej2 = ej
-
+            # print(n, ei, ej)
             # try to switch from ei1-ei2, ej1-ej2 to ei1-ej2, ej1-ei2
             if ei1 != ej1 and ei2 != ej2 and ei1 != ej2 and ej1 != ei2:
                 new_ei = (ei1, ej2)
@@ -380,6 +380,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
         print(f"within school age mixing matrix\n {ecount}")
 
+    # print(missed_rewiring, nE)
     return list(G.edges())
 
 
@@ -796,7 +797,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         print('1 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
         print('2 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
-        print('3 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
+        print('3 student_group sizes', [len(student_groups_2[ng]) for group in student_groups], sum([len(group) for group in student_groups]))
 
         n_expected_edges = 0
         n_expected_edges_list = []
