@@ -77,7 +77,7 @@ def test_change_sheet_name():
 
     print(f"Check passed. {test_pars.sheet_name} contact matrices used in population generation.")
 
-@pytest.mark.skip("check if this test does not work")
+    
 def test_get_get_contact_matrix_error_handling():
     with pytest.raises(RuntimeError) as excinfo:
         sp.get_contact_matrix_dic(sp.datadir, sheet_name="notexist")
