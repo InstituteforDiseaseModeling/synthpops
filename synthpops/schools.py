@@ -797,7 +797,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         print('1 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
         print('2 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
-        print('3 student_group sizes', [len(student_groups_2[ng]) for group in student_groups], sum([len(group) for group in student_groups]))
+        print('3 student_group sizes', [len(student_groups[ng]) - len(student_groups_2[ng]) for ng in range(len(student_groups))], sum([len(group) for group in student_groups]))
 
         n_expected_edges = 0
         n_expected_edges_list = []
