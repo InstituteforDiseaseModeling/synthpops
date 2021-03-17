@@ -31,7 +31,7 @@ def get_fig_dir(request, artifact_dir):
     return fig_dir
 
 
-@pytest.mark.parametrize("average_class_size", [12, 50])
+@pytest.mark.parametrize("average_class_size", [10, 50])
 def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, quantiles=None):
     """
     Test case to check average_class_size by taking average of student-student contacts
