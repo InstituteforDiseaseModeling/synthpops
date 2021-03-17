@@ -202,11 +202,11 @@ def set_nbrackets(n):
     return nbrackets
 
 
-def validate(verbose=True):
+def validate():
     ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
-        if verbose:
-            logger.debug(f'The data folder {datadir} was found.')
+        logger.info(f"The data folder {datadir} was found.")
+
     else:
         if datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')

@@ -118,7 +118,6 @@ def test_school_modules():
                                                                                                       ages_in_school_count,
                                                                                                       school_types_distr_by_age,
                                                                                                       school_type_age_ranges,
-                                                                                                      # verbose=False
                                                                                                       )
 
     for ns in range(len(syn_schools)):
