@@ -207,12 +207,9 @@ class Pop(sc.prettyobj):
 
         return
 
-    def generate(self, verbose=False):
+    def generate(self):
         """
         Actually generate the network.
-
-        Args:
-            verbose (bool): If True, print statements about the population and networks as they're being generated.
 
         Returns:
             network (dict): A dictionary of the full population with ages, connections, and other attributes.

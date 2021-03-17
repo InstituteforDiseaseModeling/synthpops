@@ -18,6 +18,7 @@ from itertools import combinations
 import sciris as sc
 import numpy as np
 import networkx as nx
+import logging
 
 from . import data_distributions as spdata
 from .config import datadir
@@ -361,7 +362,8 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.add_edges_from([new_ei, new_ej])
 
     # calculate school age mixing
-    if verbose:
+    # if verbose:
+    if logging.getLevelName(log.level)=='INFO':
         print(f"missed rewiring {missed_rewiring} edge pairs out of {nE} possible pairs.")
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
