@@ -345,7 +345,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
             ei1, ei2 = ei
             ej1, ej2 = ej
-            # print(n, ei, ej)
+
             # try to switch from ei1-ei2, ej1-ej2 to ei1-ej2, ej1-ei2
             if ei1 != ej1 and ei2 != ej2 and ei1 != ej2 and ej1 != ei2:
                 new_ei = (ei1, ej2)
@@ -380,7 +380,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
 
         print(f"within school age mixing matrix\n {ecount}")
 
-    # print(missed_rewiring, nE)
     return list(G.edges())
 
 
@@ -408,7 +407,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
     age_counter = Counter(syn_school_ages)
     age_keys = sorted(age_counter.keys())
     age_keys_indices = {a: i for i, a in enumerate(age_keys)}
-    print('age_counter', age_counter)
+
     # create a dictionary with the list of uids for each age/grade
     uids_in_school_by_age = {}
     for a in age_keys:
@@ -429,10 +428,8 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
 
         while len(nodes) > 0:
             cluster_size = np.random.poisson(average_class_size)
-            # print('a', a, 'cluster_size', cluster_size, len(nodes))
 
             if cluster_size > len(nodes):
-                print('a', a, 'cluster_size', cluster_size, len(nodes))
                 nodes_left += list(nodes)
                 break
 
@@ -442,34 +439,25 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
             nodes = nodes[cluster_size:]
 
     np.random.shuffle(nodes_left)
-    print('number of groups', len(groups))
-    print('nodes_left', len(nodes_left))
-    # if len(groups) == 0:
-    #     groups.append(nodes_left)
-    #     nodes_left = []
+
+    if len(groups) == 0:
+        groups.append(nodes_left)
+        nodes_left = []
 
     while len(nodes_left) > 0:
         cluster_size = np.random.poisson(average_class_size)
 
-        # if cluster_size > len(nodes_left):
-        #     break
-        # if cluster_size > len(nodes_left) and len(groups) > 0:
-        print('cluster_size', cluster_size)
         if cluster_size > len(nodes_left):
-            cluster_size = len(nodes_left)
-            print('new cluster_size', cluster_size)
+            break
 
         group = nodes_left[:cluster_size]
         if cluster_size > 0:
             groups.append(group)
         nodes_left = nodes_left[cluster_size:]
 
-    print('nodes_left', len(nodes_left))
-    # for i in nodes_left:
-    #     ng = np.random.choice(a=np.arange(len(groups)))  # choose one of the other classes to add to
-    #     print('i', i, 'chose', ng, len(groups[ng]))
-    #     groups[ng].append(i)
-    #     print('now', len(groups[ng]))
+    for i in nodes_left:
+        ng = np.random.choice(a=np.arange(len(groups)))  # choose one of the other classes to add to
+        groups[ng].append(i)
 
     if return_edges:
         for ng in range(len(groups)):
@@ -480,9 +468,6 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
                 node_i = group[i]
                 node_j = group[j]
                 G.add_edge(node_i, node_j)
-    # for ng in range(len(groups)):
-        # print(ng, len(groups[ng]), len(syn_school_uids))
-    print([len(group) for group in groups])
 
     if verbose:
         if return_edges:
@@ -652,8 +637,7 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teachers, average_s
     """
     edges = []
     teacher_groups = []
-    print('groups', [len(group) for group in groups])
-    print(len(teachers))
+
     np.random.shuffle(groups)  # shuffle the clustered groups of students / classes so that the classes aren't ordered from youngest to oldest
 
     available_teachers = sc.dcp(teachers)
@@ -772,7 +756,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
-    print(school_mixing_type)
     if school_mixing_type not in available_school_mixing_types:
         print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
 
@@ -792,12 +775,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
 
-        student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=average_class_size, return_edges=False, verbose=verbose)
-        student_groups_2 = sc.dcp(student_groups)
-        print('1 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
+        student_groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, return_edges=False, verbose=verbose)
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teachers, average_student_teacher_ratio, average_teacher_teacher_degree, verbose=verbose)
-        print('2 student_group sizes', [len(group) for group in student_groups], sum([len(group) for group in student_groups]))
-        print('3 student_group sizes', [len(student_groups[ng]) - len(student_groups_2[ng]) for ng in range(len(student_groups))], sum([len(group) for group in student_groups]))
 
         n_expected_edges = 0
         n_expected_edges_list = []
@@ -809,7 +788,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
             n_expected_edges += len(group) * (len(group) - 1) / 2
             n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
             add_contacts_from_group(popdict, group, 'S')
-        print('average_class_size', average_class_size, 'class_group sizes', [len(group) for group in student_groups])
+
         # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
         n_expected_edges += len(teacher_edges)
