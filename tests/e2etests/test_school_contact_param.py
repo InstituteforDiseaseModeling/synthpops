@@ -31,7 +31,7 @@ def get_fig_dir(request, artifact_dir):
     return fig_dir
 
 
-@pytest.mark.parametrize("average_class_size", [20])
+@pytest.mark.parametrize("average_class_size", [12, 50])
 def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, quantiles=None):
     """
     Test case to check average_class_size by taking average of student-student contacts
@@ -45,9 +45,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     testpars = dict(
         average_class_size = average_class_size,
         average_student_teacher_ratio = average_class_size,
-        average_student_all_staff_ratio = 2,
-        with_school_types = 1,
-        school_mixing_type = 'age_and_class_clustered'
+        average_student_all_staff_ratio = 11,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
     )
     pop = sp.Pop(**pars, **testpars)
     contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
@@ -56,6 +54,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_student']['all'])
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
+
     elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
         
         counts.extend(contacts['sc_student']['sc_student'])
@@ -67,7 +66,6 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
             if person['sc_student']:
                 contacts = person['contacts']['S']
                 student_contacts = set(contacts).intersection(students)
-                # print(i, person['age'], len(student_contacts))
         print(collections.Counter(counts))
 
     # print(counts)
@@ -78,7 +76,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     plt.show()
     return
 
-@pytest.mark.skip
+
 @pytest.mark.parametrize("average_additional_staff_degree", [20, 40])
 def test_average_additional_staff_degree(average_additional_staff_degree, do_show, do_save, get_fig_dir, threshold=2):
     """
@@ -104,7 +102,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
     sp.check_normal(actual=counts, expected=average_additional_staff_degree, label='staff degree', check='mean')
     return
 
-@pytest.mark.skip
+
 @pytest.mark.parametrize("average_student_teacher_ratio", [20, 40])
 def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, do_save, get_fig_dir, threshold=2):
     """
@@ -127,7 +125,7 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, d
     sp.check_normal(actual=ratios, expected=average_student_teacher_ratio, label='average_student_teacher_ratio', check='mean')
     return
 
-@pytest.mark.skip
+
 @pytest.mark.parametrize("average_student_all_staff_ratio", [10, 20])
 def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_save, get_fig_dir, threshold=2):
     """
@@ -151,7 +149,7 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_sa
     sp.check_normal(actual=ratios, expected=average_student_all_staff_ratio, label='average_student_all_staff_ratio', check='mean')
     return
 
-@pytest.mark.skip
+
 @pytest.mark.parametrize("average_teacher_teacher_degree", [1, 8])
 def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show, do_save, get_fig_dir, threshold=2):
     """
