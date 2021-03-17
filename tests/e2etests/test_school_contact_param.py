@@ -65,9 +65,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
             if person['sc_student']:
                 contacts = person['contacts']['S']
                 student_contacts = set(contacts).intersection(students)
-        print(collections.Counter(counts))
 
-    # print(counts)
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
     # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution
     fig, ax = plt.subplots(1, 1)
