@@ -89,7 +89,7 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     mapping = {'b': 1, 'kb': 1e3, 'mb': 1e6, 'gb': 1e9}
     try:
         factor = mapping[unit.lower()]
-    except KeyError:
+    except KeyError: # pragma: no cover
         raise sc.KeyNotFoundError(f'Unit {unit} not found')
     mem_use = process.memory_info().rss / factor - start
     if to_string:
