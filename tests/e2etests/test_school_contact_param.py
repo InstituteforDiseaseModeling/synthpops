@@ -44,8 +44,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     """
     testpars = dict(
         average_class_size = average_class_size,
-        average_student_teacher_ratio = average_class_size,
-        average_student_all_staff_ratio = 11,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
+        # average_student_teacher_ratio = average_class_size,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
     )
     pop = sp.Pop(**pars, **testpars)
     contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
