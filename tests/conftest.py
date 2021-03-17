@@ -29,7 +29,8 @@ def artifact_dir(request):
     if request.config.getoption("--artifact-dir"):
         return request.config.getoption("--artifact-dir")
     else:
-        return None
+        # set default to avoid None Type exceptions
+        return "artifact"
 
 # this is another way to set parameter for pytest but seems to work with str only
 # def pytest_generate_tests(metafunc):

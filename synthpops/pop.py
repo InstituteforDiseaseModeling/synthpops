@@ -5,6 +5,7 @@ This module provides the layer for communicating with the agent-based model Cova
 import numpy as np
 import sciris as sc
 from .config import logger as log
+from . import version as spv
 from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
@@ -200,6 +201,9 @@ class Pop(sc.prettyobj):
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
+
+        # Set metadata -- version etc.
+        cfg.set_metadata(self)
 
         return
 
