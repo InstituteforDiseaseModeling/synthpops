@@ -11,7 +11,7 @@ import settings
 
 
 # parameters to generate a test population
-pars = dict(
+pars = sc.objdict(
     n                       = settings.pop_sizes.small,
     rand_seed               = 123,
 
@@ -26,7 +26,6 @@ pars = dict(
                                'ms': 'age_and_class_clustered',
                                'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
-pars = sc.objdict(pars)
 
 
 def test_summary_in_generation():
@@ -78,9 +77,19 @@ def test_change_sheet_name():
     print(f"Check passed. {test_pars.sheet_name} contact matrices used in population generation.")
 
 
+def test_get_contact_matrix_dic_error_handling():
+    """Test error handling for sp.get_contact_matrix_dic()."""
+    with pytest.raises(RuntimeError) as excinfo:
+        sp.get_contact_matrix_dic(sp.datadir, sheet_name="notexist")
+    assert "Data unavailable for the location specified" in str(excinfo.value), \
+        "Error message for non existent sheet should be meaningful"
+
+
+
 if __name__ == '__main__':
 
     test_summary_in_generation()
     test_contact_matrices_used()
     test_change_sheet_name()
+    test_get_contact_matrix_dic_error_handling()
 
