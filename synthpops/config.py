@@ -59,7 +59,7 @@ default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
 
 logger = logging.getLogger('synthpops')
 
-if not logger.hasHandlers():
+if not logger.hasHandlers(): # pragma: no cover
     # Only add handlers if they don't already exist in the module-level logger
     # This means that it's possible for the user to completely customize *a* logger called 'synthpops'
     # prior to importing SynthPops, and the user's custom logger won't be overwritten as long as it has
