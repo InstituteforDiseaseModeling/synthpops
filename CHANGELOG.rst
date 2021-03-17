@@ -27,6 +27,12 @@ Latest versions (1.5.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.5.3 (2021-03-16)
+--------------------------
+- Changing many of the verbose statements to use logger.debug() instead and removing the verbose parameter where deprecated.
+- *Github Info*: PR `363 <https://github.com/amath-idm/synthpops/pull/363>`__
+
+
 Version 1.5.2 (2021-03-09)
 --------------------------
 - *Feature*: Added metadata to pop objects.
