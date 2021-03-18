@@ -59,7 +59,7 @@ default_log_level = ['DEBUG', 'INFO', 'WARNING', 'CRITICAL'][1]
 
 logger = logging.getLogger('synthpops')
 
-if not logger.hasHandlers():
+if not logger.hasHandlers(): # pragma: no cover
     # Only add handlers if they don't already exist in the module-level logger
     # This means that it's possible for the user to completely customize *a* logger called 'synthpops'
     # prior to importing SynthPops, and the user's custom logger won't be overwritten as long as it has
@@ -89,7 +89,7 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     mapping = {'b': 1, 'kb': 1e3, 'mb': 1e6, 'gb': 1e9}
     try:
         factor = mapping[unit.lower()]
-    except KeyError:
+    except KeyError: # pragma: no cover
         raise sc.KeyNotFoundError(f'Unit {unit} not found')
     mem_use = process.memory_info().rss / factor - start
     if to_string:
@@ -133,8 +133,15 @@ def get_config_data():
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
     print(f'Data folder: {datadir}')
-    # print(f'Git information:')
-    # sc.pp(spv.__gitinfo__)  # not yet set
+    print(f'Git information:')
+    sc.pp(sc.gitinfo(__file__))
+    return
+
+def set_metadata(obj):
+    ''' Set standard metadata for an object '''
+    obj.version = spv.__version__
+    obj.created = sc.now()
+    obj.git_info = sc.gitinfo(__file__)
     return
 
 
@@ -198,8 +205,8 @@ def set_nbrackets(n):
 def validate_datadir(verbose=True):
     ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
-        if verbose:
-            logger.debug(f'The data folder {datadir} was found.')
+        logger.info(f"The data folder {datadir} was found.")
+
     else:
         if datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')

@@ -121,7 +121,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic, verbose=False):
+def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic):
     """
     Assign the rest of the workers to non-school workplaces.
 
@@ -134,7 +134,6 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         age_brackets (dict)                   : dictionary mapping age bracket keys to age bracket range
         age_by_brackets_dic (dict)            : dictionary mapping age to the age bracket range it falls in
         contact_matrix_dic (dict)             : dictionary of age specific contact matrix for different physical contact settings
-        verbose (bool)                        : If True, print statements about the generated schools as teachers are being added to each school.
 
     Returns:
         List of lists where each sublist is a workplace with the ages of workers, list of lists where each sublist is a workplace with the ids of workers,
@@ -238,8 +237,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     if np.sum(b_prob) > 0:
                         b_prob = b_prob / np.sum(b_prob)
 
-        if verbose: # CK: I know, overkill to have both
-            log.debug(f'  Progress: {n}, {Counter(new_work)}')
+        log.debug(f'  Progress: {n}, {Counter(new_work)}')
         syn_workplaces.append(new_work)
         syn_workplace_uids.append(new_work_uids)
     return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count

@@ -2,6 +2,7 @@
 Test config methods.
 """
 import synthpops as sp
+import sciris as sc
 
 
 def test_version():
@@ -9,6 +10,7 @@ def test_version():
     sp.version_info()
 
 
+# <<<<<<< HEAD
 def test_nbrackets():
     sp.logger.info("Testing that nbrackets can be set outside of the recommended range and warning message returned.")
     nbrackets = max(min(sp.config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
@@ -32,9 +34,24 @@ def test_set_datadir():
     print("datadir reset to synthpops default.")
 
 
+def test_metadata():
+    sp.logger.info("Testing that the version is greater than 1.5.0")
+    pop = sp.Pop(n=100)
+    assert sc.compareversions(pop.version, '1.5.0') == 1 # to check that the version of synthpops is higher than 1.5.0
+
+
 if __name__ == '__main__':
 
     test_version()
     test_nbrackets()
     test_validate_datadir()
     test_set_datadir()
+    test_metadata()
+
+# =======
+
+
+# if __name__ == '__main__':
+#     test_version()
+#     test_metadata()
+# >>>>>>> csopy-contact-matrices
