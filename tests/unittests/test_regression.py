@@ -79,7 +79,7 @@ class TestRegression(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         if cls.generateBaseline:
-            print(f"Generated baseline files without comparison.\n please review at {cls.pdfDir} and copy them to {cls.expectedDir}.")
+            print(f"Generated baseline files without comparison.\n please review at {os.path.join(cls.pdfDir, 'test_results')} and copy them to {cls.expectedDir}.")
 
     def test_regression_make_population(self):
         # set params, make sure name is identical to param names

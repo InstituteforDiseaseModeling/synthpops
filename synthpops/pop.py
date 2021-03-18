@@ -189,7 +189,7 @@ class Pop(sc.prettyobj):
         self.loc_pars.state_location   = self.state_location
         self.loc_pars.country_location = self.country_location
         self.loc_pars.datadir          = self.datadir
-        self.loc_pars.use_default      = use_default
+        self.loc_pars.use_default      = self.use_default
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
@@ -233,6 +233,7 @@ class Pop(sc.prettyobj):
         sheet_name                      = self.sheet_name
         max_contacts                    = self.max_contacts
         use_default                     = self.use_default
+        loc_pars                        = self.loc_pars
 
         # Age distribution parameters
         smooth_ages                     = self.smooth_ages
@@ -356,8 +357,8 @@ class Pop(sc.prettyobj):
         else:
             facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
-        workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+        workplace_size_brackets = spdata.get_workplace_size_brackets(**loc_pars)
+        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(**loc_pars)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
