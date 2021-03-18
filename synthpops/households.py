@@ -273,7 +273,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         for nj in range(1, hs):
 
             # can no longer place anyone in households where b is the age bracket of the head since those people are no longer available
-            if np.sum(household_matrix[b, :]) == 0: # oragma: no cover
+            if np.sum(household_matrix[b, :]) == 0: # pragma: no cover
                 break
 
             bi = spsamp.fast_choice(household_matrix[b, :])

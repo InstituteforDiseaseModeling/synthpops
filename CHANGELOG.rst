@@ -38,7 +38,7 @@ Version 1.6.0 (2021-03-18)
 
 Version 1.5.3 (2021-03-16)
 --------------------------
-- Removing use of verbose parameter to print statements to use logger.debug() instead and removing the verbose parameter where deprecated.
+- *Deprecated*: Removing use of verbose parameter to print statements to use logger.debug() instead and removing the verbose parameter where deprecated.
 - *Github Info*: PR `363 <https://github.com/amath-idm/synthpops/pull/363>`__
 
 
