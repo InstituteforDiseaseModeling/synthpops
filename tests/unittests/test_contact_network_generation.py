@@ -11,8 +11,6 @@ if __name__ == '__main__':
     sheet_name = 'United States of America'
 
     n = 2000
-    verbose = True
-    verbose = False
     plot = True
     # plot = False
     use_default = False
@@ -23,4 +21,4 @@ if __name__ == '__main__':
                                      state_location=state_location,
                                      country_location=country_location,
                                      sheet_name=sheet_name,
-                                     verbose=verbose, plot=plot, use_default=use_default)
+                                     plot=plot, use_default=use_default)
