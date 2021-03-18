@@ -27,12 +27,13 @@ Latest versions (1.6.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.6.0 (2021-03-17)
+Version 1.6.0 (2021-03-18)
 --------------------------
 - *Feature*: Adding summary methods for SynthPops pop objects accesible as pop.summary and computed using pop.compute_summary()
 - Updating synthpops.workplaces.assign_rest_of_workers() to work off a copy of the workplace age mixing matrix so that the copy stored in SynthPops pop objects is not modified during generation.
 - More tests for summary methods and methods in config.py
-- *Github Info*: PR `356 <https://github.com/amath-idm/synthpops/pull/356>`__, `357 <https://github/com/amath-idm/synthpops/pull/357>`__
+- *Regression Information*: Adding new workplace size data specific for the Seattle metro area which changes the regression results. The previous data from the Washington state level and the new data for the metropolitan statistical area (MSA) of Seattle for the 2019 year are very similar, however the use of this data with random number generators does result in slight stochastic differences in the populations generated. Comparisons of the two distributions can be found [here](https:://github.com/amath-idm/synthpops/figures)
+- *Github Info*: PR `360 <https://github.com/amath-idm/synthpops/pull/360>`__, `356 <https://github.com/amath-idm/synthpops/pull/356>`__, `357 <https://github/com/amath-idm/synthpops/pull/357>`__
 
 
 Version 1.5.3 (2021-03-16)
