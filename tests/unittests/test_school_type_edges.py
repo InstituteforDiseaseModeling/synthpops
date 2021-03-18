@@ -2,7 +2,6 @@ import synthpops as sp
 import numpy as np
 
 do_plot = False
-verbose = False
 # write = True
 write = False
 return_popdict = True
