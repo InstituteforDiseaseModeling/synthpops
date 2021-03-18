@@ -28,3 +28,4 @@ if __name__ == '__main__':
     # sp.generate_synthetic_population(n,datadir,location=location,state_location=state_location,country_location=country_location,sheet_name=sheet_name,level=level,plot=plot)
     # sp.get_employment_rates(datadir,location,state_location,country_location)
     # sp.generate_household_sizes(n,hh_size_distr)
+    sp.logger.setLevel("INFO")
