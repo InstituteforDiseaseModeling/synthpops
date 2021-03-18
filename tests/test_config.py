@@ -10,12 +10,12 @@ def test_version():
     sp.version_info()
 
 
-# <<<<<<< HEAD
 def test_nbrackets():
     sp.logger.info("Testing that nbrackets can be set outside of the recommended range and warning message returned.")
+    
     nbrackets = max(min(sp.config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
     sp.set_nbrackets(n=nbrackets - 1)  # testing a valid outside the range currently supported.
-
+    sp.set_nbrackets(n=nbrackets)  # resetting to the default value
 
 def test_validate_datadir():
     sp.logger.info("Testing that synthpops.datadir can be found.")
@@ -47,11 +47,3 @@ if __name__ == '__main__':
     test_validate_datadir()
     test_set_datadir()
     test_metadata()
-
-# =======
-
-
-# if __name__ == '__main__':
-#     test_version()
-#     test_metadata()
-# >>>>>>> csopy-contact-matrices
