@@ -5,6 +5,7 @@ Simple run of OOP functionality.
 import sciris as sc
 import synthpops as sp
 import settings
+import pytest
 
 
 def test_default():
@@ -56,6 +57,14 @@ def test_api(do_plot=False):
     pop = sp.Pop(n=settings.pop_sizes.medium)  # default parameters, 8k people
     pop.save('test_api.pop')  # save as pickle
     pop.to_json('test_api.json')  # save as JSON
+
+    pop2 = sc.dcp(pop)
+    pop2.load('test_api.pop')
+
+    sc.saveobj('test_not_pop.obj', [])
+    with pytest.raises(TypeError):
+        pop2.load('test_not_pop.obj')
+
     popdict = pop.to_dict()  # export from class to standard python object; current default synthpops output
     if do_plot:
         # pop.plot() # do the most obvious plotting thing, whatever that may be...

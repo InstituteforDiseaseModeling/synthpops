@@ -5,6 +5,7 @@ This module provides the layer for communicating with the agent-based model Cova
 import numpy as np
 import sciris as sc
 from .config import logger as log
+from . import version as spv
 from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
@@ -204,6 +205,9 @@ class Pop(sc.prettyobj):
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
 
+        # Set metadata -- version etc.
+        cfg.set_metadata(self)
+
         return
 
     def generate(self, verbose=False):
@@ -315,8 +319,8 @@ class Pop(sc.prettyobj):
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,
                                                                                                              school_types_distr_by_age,
-                                                                                                             school_type_age_ranges,
-                                                                                                             verbose=verbose)
+                                                                                                             school_type_age_ranges)
+
         else:
             # Get school sizes
             syn_school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
@@ -324,7 +328,8 @@ class Pop(sc.prettyobj):
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count,
                                                                                            cm_age_brackets,
                                                                                            cm_age_by_brackets_dic,
-                                                                                           contact_matrix_dic, verbose)
+                                                                                           contact_matrix_dic)
+
             school_type_by_age = None
 
         # Get employment rates
@@ -340,10 +345,10 @@ class Pop(sc.prettyobj):
 
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                               average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
+                                                                                                                                                               average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max)
         # Assign non teaching staff and update who's available to work at other places
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff, verbose=verbose)
+                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff)
 
         # Get facility staff
         if with_facilities:
@@ -356,7 +361,7 @@ class Pop(sc.prettyobj):
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
-        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
+        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic)
 
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
@@ -500,7 +505,7 @@ class Pop(sc.prettyobj):
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_age_distribution_comparison()
         """
-        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):
