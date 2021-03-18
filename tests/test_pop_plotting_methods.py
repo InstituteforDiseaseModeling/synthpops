@@ -13,7 +13,7 @@ import settings
 
 
 # parameters to generate a test population
-pars = dict(
+pars = sc.objdict(
     n                       = settings.pop_sizes.small,
     rand_seed               = 123,
 
@@ -28,7 +28,6 @@ pars = dict(
                                'ms': 'age_and_class_clustered',
                                'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
-pars = sc.objdict(pars)
 
 
 def test_plot_ages(do_show=False, do_save=False):

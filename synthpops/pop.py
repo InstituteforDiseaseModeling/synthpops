@@ -5,6 +5,7 @@ This module provides the layer for communicating with the agent-based model Cova
 import numpy as np
 import sciris as sc
 from .config import logger as log
+from . import version as spv
 from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
@@ -198,27 +199,31 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.age_count = self.count_pop_ages()
+        self.compute_summary()
+        # self.age_count = self.count_pop_ages()
 
-        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
-        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+        # self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
+        # self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
 
-        self.household_heads = self.get_household_heads()
-        self.household_head_ages = self.get_household_head_ages()
-        self.household_head_age_count = self.count_household_head_ages()
+        # self.household_heads = self.get_household_heads()
+        # self.household_head_ages = self.get_household_head_ages()
+        # self.household_head_age_count = self.count_household_head_ages()
 
-        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
-        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
+        # self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
+        # self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
 
-        self.enrollment_by_age = self.count_enrollment_by_age()
-        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
+        # self.enrollment_by_age = self.count_enrollment_by_age()
+        # self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
 
-        self.employment_by_age = self.count_employment_by_age()
-        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
-        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
+        # self.employment_by_age = self.count_employment_by_age()
+        # self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
+        # self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
+
+        # Set metadata -- version etc.
+        # cfg.set_metadata(self)
 
         return
 
@@ -454,6 +459,28 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def compute_summary(self):
+        """Compute summaries and add to pop post generation."""
+        self.summary = sc.objdict()
+        self.summary.age_count = self.count_pop_ages()
+
+        self.summary.household_sizes = self.get_household_sizes()
+        self.summary.household_size_count = self.count_household_sizes()
+
+        self.summary.household_heads = self.get_household_heads()
+        self.summary.household_head_ages = self.get_household_head_ages()
+        self.summary.household_head_age_count = self.count_household_head_ages()
+
+        self.summary.ltcf_sizes = self.get_ltcf_sizes()
+        self.summary.ltcf_size_count = self.count_ltcf_sizes()
+
+        self.summary.enrollment_by_age = self.count_enrollment_by_age()
+        self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
+
+        self.summary.employment_by_age = self.count_employment_by_age()
+        self.summary.workplace_sizes = self.get_workplace_sizes()
+        self.workplace_size_count = self.count_workplace_sizes()
+
     def count_pop_ages(self):
         """
         Create an age count of the generated population post generation.
@@ -481,7 +508,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the count of household sizes.
         """
-        return spb.count_values(self.household_sizes)
+        return spb.count_values(self.summary.household_sizes)
 
     # convert to work on array
     def get_household_heads(self):
@@ -490,7 +517,7 @@ class Pop(sc.prettyobj):
 
     def get_household_head_ages(self):
         """Get the age of the head of each household in the generated population post generation."""
-        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.household_heads.items()}
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.summary.household_heads.items()}
 
     def count_household_head_ages(self, bins=None):
         """
@@ -503,9 +530,9 @@ class Pop(sc.prettyobj):
             dict: Dictionary of the count of household head ages.
         """
         if bins is None:
-            return spb.count_values(self.household_head_ages)
+            return spb.count_values(self.summary.household_head_ages)
         else:
-            head_ages = list(self.household_head_ages.values())
+            head_ages = list(self.summary.household_head_ages.values())
             hist, bins = np.histogram(head_ages, bins=bins, density=0)
             return {i: hist[i] for i in range(len(hist))}
 
@@ -559,14 +586,14 @@ class Pop(sc.prettyobj):
         return spsch.count_enrollment_by_age(self.popdict)
 
     @property
-    def enrollment_rates(self):
+    def enrollment_rates_by_age(self):
         """
         Enrollment rates by age for students in the generated population.
 
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -588,14 +615,14 @@ class Pop(sc.prettyobj):
         return spw.count_employment_by_age(self.popdict)
 
     @property
-    def employment_rates(self):
+    def employment_rates_by_age(self):
         """
         Employment rates by age for workers in the generated population.
 
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
@@ -615,7 +642,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_values(self.workplace_sizes)
+        return spb.count_values(self.summary.workplace_sizes)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
@@ -658,9 +685,9 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_age_distribution_comparison()
+            fig, ax = pop.plot_ages()
         """
-        fig, ax = sppl.plot_age_distribution_comparison(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, *args, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):
