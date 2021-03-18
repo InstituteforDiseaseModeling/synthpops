@@ -30,6 +30,7 @@ def add_contacts_from_groups(popdict, groups, setting):
     return popdict
 
 
+# DM: note to self, the 'test' below is not an actual test and should be cleaned up/modified
 def test_school_modules():
 
     grade_age_mapping = {i: i + 5 for i in range(13)}
@@ -86,7 +87,7 @@ def test_school_modules():
                            average_student_teacher_ratio,
                            average_teacher_teacher_degree,
                            average_additional_staff_degree,
-                           school_mixing_type='random', verbose=False)
+                           school_mixing_type='random')
 
     # test clustered
     # groups = generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size=20, inter_grade_mixing=0.1, return_edges=True, verbose=True)
@@ -126,5 +127,29 @@ def test_school_modules():
     return syn_schools, syn_school_uids, syn_school_types
 
 
+def test_debug_log_for_school_methods():
+  """Test that setting logger level to DEBUG prints statements for different school mixing methods"""
+  sp.logger.setLevel('DEBUG')
+  
+  # without school mixing types defined
+  pars = sc.objdict(n=1e3, with_school_types=0, school_mixing_type='random')
+  pop = sp.Pop(**pars)
+
+  # school types defined, mixing type set to random
+  pars.with_school_types = 1
+  pars.school_mixing_type = 'random'
+  pop = sp.Pop(**pars)
+
+  # school types defined, mixing type set to age_clustered
+  pars.school_mixing_type = 'age_clustered'
+  pop = sp.Pop(**pars)
+
+  # school types defined, mixing type set to age_and_class_clustered
+  pars.school_mixing_type = 'age_and_class_clustered'
+  pop = sp.Pop(**pars)
+  sp.logger.setLevel('INFO')  # need to reset logger level - this changes a synthpops setting
+
+
 if __name__ == '__main__':
     syn_schools, syn_school_uids, syn_school_types = test_school_modules()
+    test_debug_log_for_school_methods()
