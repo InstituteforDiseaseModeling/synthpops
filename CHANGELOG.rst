@@ -23,8 +23,14 @@ Legend for changelog
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-Latest versions (1.5.x)
+Latest versions (1.6.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.6.0 (2021-03-18)
+--------------------------
+- *Regression Information*: Adding new workplace size data specific for the Seattle metro area which changes the regression results. The previous data from the Washington state level and the new data for the metropolitan statistical area (MSA) of Seattle for the 2019 year are very similar, however the use of this data with random number generators does result in slight stochastic differences in the populations generated. Comparisons of the two distributions can be found [here](<https:://github.com/amath-idm/synthpops/figures/>)
+- *Github Info*: PR `360 <https://github.com/amath-idm/synthpops/pull/360>`__
 
 
 Version 1.5.3 (2021-03-16)
