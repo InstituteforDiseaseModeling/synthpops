@@ -14,7 +14,7 @@ import pytest
 
 # parameters to generate a test population
 pars = sc.objdict(
-    n                               = 10e3,
+    n                               = 160e3,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -75,6 +75,6 @@ if __name__ == '__main__':
     # run as main to see the code and figures in action!
     sc.tic()
 
-    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True, do_save=True, artifact_dir='artifact')
+    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True, do_save=True)
 
     sc.toc()

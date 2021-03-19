@@ -322,7 +322,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
-    log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)} with density: {average_class_size/len(syn_school_uids) * len(uids_in_school_by_age):.2f}")
+    log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
