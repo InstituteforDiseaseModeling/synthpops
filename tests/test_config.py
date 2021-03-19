@@ -3,6 +3,7 @@ Test config methods.
 """
 import synthpops as sp
 import sciris as sc
+import settings
 
 
 def test_version():
@@ -46,6 +47,14 @@ def test_set_datadir():
     print("datadir reset to synthpops default.")
 
 
+def test_log_level():
+    """Test resetting the log level"""
+    sp.logger.setLevel('DEBUG')
+    pars = sc.objdict(n=settings.pop_sizes.small)
+    pop = sp.Pop(**pars)
+    sp.logger.setLevel('INFO')  # need to reset logger level - this changes a synthpops setting
+
+
 if __name__ == '__main__':
 
     test_version()
@@ -53,3 +62,4 @@ if __name__ == '__main__':
     test_nbrackets()
     test_validate_datadir()
     test_set_datadir()
+    test_log_level()

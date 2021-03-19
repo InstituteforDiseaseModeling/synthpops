@@ -20,7 +20,6 @@ if __name__ == '__main__':
 
     n = 10000
     n = int(n)
-    verbose = False
     plot = False
     write = True
     return_popdict = True
@@ -47,7 +46,6 @@ if __name__ == '__main__':
     #                                               average_teacher_teacher_degree=average_teacher_teacher_degree,
     #                                               average_student_all_staff_ratio=average_student_all_staff_ratio,
     #                                               average_additional_staff_degree=average_additional_staff_degree,
-    #                                               verbose=verbose,
     #                                               plot=plot,
     #                                               write=write,
     #                                               return_popdict=return_popdict)
@@ -74,7 +72,7 @@ if __name__ == '__main__':
     #                               with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1, 
     #                               average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75, 
     #                               average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75, 
-    #                               verbose=False, plot=False, write=False, return_popdict=False, use_default=False)
+    #                               plot=False, write=False, return_popdict=False, use_default=False)
 
     # population = sp.make_population(n,
     #                                 generate=True,
