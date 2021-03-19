@@ -230,7 +230,7 @@ def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_
         hbi = spsamp.fast_choice(hs_distr)
         hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
 
-        while sum(hbi_distr) == 0:
+        while sum(hbi_distr) == 0: # pragma: no cover
             hbi = spsamp.fast_choice(hs_distr)
             hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
 

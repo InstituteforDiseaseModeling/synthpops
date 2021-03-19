@@ -185,7 +185,7 @@ def remove_ltcf_residents_from_potential_workers(facilities_by_uids, potential_w
     for nf, fc in enumerate(facilities_by_uids):
         for uid in fc:
             aindex = age_by_uid_dic[uid]
-            if uid in potential_worker_uids:
+            if uid in potential_worker_uids: # pragma: no cover
                 potential_worker_uids_by_age[aindex].remove(uid)
                 potential_worker_uids.pop(uid, None)
                 if workers_by_age_to_assign_count[aindex] > 0:

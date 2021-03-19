@@ -36,7 +36,7 @@ localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
 # Replace with local data dir if Dropbox folder is not found
-if datadir is None:
+if datadir is None: # pragma: no cover
     full_data_available = True
     datadir = localdatadir
 

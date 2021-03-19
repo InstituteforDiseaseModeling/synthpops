@@ -185,10 +185,10 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         bindex = min(bindex, w_contact_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array
         b_prob = w_contact_matrix[bindex, :]
         sum_b_prob = np.sum(b_prob)
-        if sum_b_prob > 0:
+        if sum_b_prob > 0: # pragma: no cover
             b_prob = b_prob / sum_b_prob
 
-        if size > len(potential_worker_uids) - 1:
+        if size > len(potential_worker_uids) - 1: # pragma: no cover
             size = len(potential_worker_uids) - 1
         workers_left_count = np.sum([workers_by_age_to_assign_count[a] for a in workers_by_age_to_assign_count])
         if size > workers_left_count:
@@ -212,7 +212,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
 
                 workers_left_in_bracket = [workers_by_age_to_assign_count[a] for a in age_brackets[bi] if len(potential_worker_uids_by_age[a]) > 0]
 
-                if np.sum(b_prob):
+                if np.sum(b_prob): # pragma: no cover
                     loop_b_prob = sc.dcp(b_prob)  # Make a copy to avoid overwriting the original
                     while np.sum(workers_left_in_bracket) == 0:
                         loop_b_prob[bi] = 0  # Don't pick the same bracket ever again
@@ -235,7 +235,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                     w_contact_matrix[:, bi] = 0.
                     # since the matrix was modified, calculate the bracket probabilities again
                     b_prob = w_contact_matrix[bindex, :]
-                    if np.sum(b_prob) > 0:
+                    if np.sum(b_prob) > 0: # pragma: no cover
                         b_prob = b_prob / np.sum(b_prob)
 
         log.debug(f'  Progress: {n}, {Counter(new_work)}')
