@@ -10,10 +10,6 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
-import settings
-
-mplt.rcParams['font.family'] = 'Roboto Condensed'
-mplt.rcParams['font.size'] = 7
 
 
 # parameters to generate a test population
@@ -31,7 +27,10 @@ pars = sc.objdict(
     with_non_teaching_staff         = 1,
     with_school_types               = 1,
 
-    school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
+    school_mixing_type              = {'pk': 'age_clustered',
+                                       'es': 'age_and_class_clustered',
+                                       'ms': 'age_and_class_clustered',
+                                       'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
 def test_plot_school_sizes(do_show, do_save, artifact_dir):
@@ -49,7 +48,6 @@ def test_plot_school_sizes(do_show, do_save, artifact_dir):
         populations are too small, larger schools will be missed and in
         general there won't be enough schools generated to apply statistical
         tests.
-
     """
     sp.logger.info("Test that the school size distribution by type plotting method in sp.Pop class works. Note: For small population sizes, the expected and generated size distributions may not match very well given that the model is stochastic and demographics are based on much larger populations.")
     pop = sp.Pop(**pars)
