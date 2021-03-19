@@ -44,7 +44,7 @@ def test_school_types_created():
     """
     sp.logger.info(f"Test that unique school types are created for each school.\nRun this first to see what school types you are working with.")
     test_pars = sc.dcp(pars)
-    test_pars['n'] = settings.pop_sizes.small
+    test_pars.n = settings.pop_sizes.small
     pop = sp.Pop(**pars)
     popdict = pop.to_dict()
     loc_pars = pop.loc_pars
@@ -130,7 +130,7 @@ def test_separate_school_types_for_seattle_metro(do_show=False, do_save=False):
     """
     sp.logger.info("Creating schools where pre-k and elementary schools are separate and school sizes are the same for all school types. Note: For small population sizes, the expected and generated size distributions may not match very well given that the model is stochastic and demographics are based on much larger populations.")
     test_pars = sc.dcp(pars)
-    test_pars['location'] = None  # seattle_metro results with school size distribution the same for all types
+    test_pars.location = None  # seattle_metro results with school size distribution the same for all types
     pop = sp.Pop(**test_pars)
     kwargs = sc.objdict(sc.dcp(test_pars))
     kwargs.do_show = do_show
@@ -149,7 +149,7 @@ def test_separate_school_types_for_seattle_metro(do_show=False, do_save=False):
 def test_plot_schools_sizes_without_types(do_show=False, do_save=False):
     """Test that without school types, all schools are put together in one group."""
     sp.logger.info("Creating schools where school types are not specified. Test school size distribution plotting method without school types. Note: For small population sizes, the expected and generated size distributions may not match very well given that the model is stochastic and demographics are based on much larger populations.")
-    pars['with_school_types'] = False  # need to rerun the population
+    pars.with_school_types = False  # need to rerun the population
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.datadir
