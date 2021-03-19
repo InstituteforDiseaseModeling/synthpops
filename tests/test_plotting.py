@@ -217,95 +217,10 @@ def summary_plotting_test(pars, plotting_method_name='plot_ages', do_show=False,
     return fig, ax, pop
 
 
-def summary_plotting_test_2(pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
-    """
-    Generic function to set up test data and logic for different plotting methods.
-    
-    Args:
-        pars (sc.objdict)          : a dictionary of parameters, modified from default values, to generation the test population
-        plotting_method_name (str) : name of the plotting method to test
-        do_show (bool)             : If True, show the plot
-        do_save (bool)             : If True, save the plot to disk
-
-    Returns:
-        A matplotlib figure, matplotlib axes, and a sp.Pop object.
-
-    Note:
-        With any popdict, you will need to supply more information to tell the
-        method where to look for expected data. Take a look at the second figure
-        example to see how to do this.
-    """
-    # sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with sp.Pop object.")
-    # pop = sp.Pop(**pars)
-    # kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.figname = f"test_{plotting_method_name}_{kwargs.location}_pop"
-    kwargs.do_show = do_show
-    kwargs.do_save = do_save
-
-    # pop.plotting_method = getattr(pop, plotting_method_name)  # collect the plotting method from pop
-    # fig, ax = pop.plotting_method(**kwargs)
-    # fig, ax = pop.plotting_method()  # to plot without extra information
-
-    # assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
-    # print('Check passed. Figure 1 made.')
-
-    # sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with a population dictionary.")
-    # popdict = pop.to_dict()
-    kwargs_2 = sc.dcp(kwargs)
-    kwargs_2.datadir = sp.datadir  # extra information required
-    kwargs_2.figname = f"test_{plotting_method_name}_{kwargs_2.location}_popdict"
-    kwargs_2.do_show = False
-
-    # plotting_method = getattr(sp.plotting, plotting_method_name)  # collect the plotting method from sp.plotting
-    # fig2, ax2 = plotting_method(popdict, **kwargs)
-    # fig2, ax2 = plotting_method(popdict)  # to plot without extra information
-    # if not kwargs_2.do_show:
-        # plt.close()
-    # assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
-    # print('Check passed. Figure 2 made.')
-
-    # sp.logger.info(f"Test plotting method: {plotting_method_name} without comparison.")
-    kwargs_3 = sc.dcp(kwargs)
-    kwargs_3.comparison = False
-    kwargs_3.figname = f"test_{plotting_method_name}_{kwargs_3.location}_without_comparison"
-    kwargs_3.do_show = True
-    # fig3, ax3 = pop.plotting_method(**kwargs)
-    # assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
-    # print('Check passed. Plotting without comparison.')
-
-    # return fig, ax, pop
-    # return pop, popdict, plotting_method, kwargs, kwargs_2, kwargs_3
-    return pop, popdict, kwargs, kwargs_2, kwargs_3
-
-
 # @pytest.mark.skip
 def test_plot_ages(do_show=False, do_save=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
-    # plotting_method_name = 'plot_ages'
-    # # pop, popdict, plotting_method, kwargs, kwargs_2, kwargs_3 = summary_plotting_test_2(pars, plotting_method_name=plotting_method_name, do_show=do_show, do_save=do_save)
-    # pop, popdict, kwargs, kwargs_2, kwargs_3 = summary_plotting_test_2(pars, plotting_method_name=plotting_method_name, do_show=do_show, do_save=do_save)
-
-    # sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with sp.Pop object.")
-    # # fig, ax = pop.plotting_method(**kwargs)
-    # # fig, ax = pop.plotting_method()  # to plot without extra information
-
-    # assert isinstance(fig, mplt.figure.Figure), 'Check 1 failed.'
-    # print('Check passed. Figure 1 made.')
-
-    # sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with a population dictionary.")
-    # # fig2, ax2 = plotting_method(popdict, **kwargs_2)
-    # # fig2, ax2 = plotting_method(popdict)  # to plot with extra information
-    # if not kwargs_2.do_show:
-    #     plt.close()
-    # assert isinstance(fig2, mplt.figure.Figure), 'Check 2 failed.'
-    # print('Check passed. Figure 2 made.')
-
-    # sp.logger.info(f"Test plotting method: {plotting_method_name} without comparison.")
-    # fig3, ax3 = pop.plotting_method(**kwargs_3)
-    # assert isinstance(fig3, mplt.figure.Figure), 'Check 3 failed.'
-    # print('Check passed. Figure 3 made.')
-
     return fig, ax, pop
 
 @pytest.mark.skip
