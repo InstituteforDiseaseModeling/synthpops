@@ -463,18 +463,6 @@ class Pop(sc.prettyobj):
         self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
         self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
 
-    # TBC: will add print statements for the number of edges per layer, average degree, etc.
-    def summarize(self):
-        """
-        Print summary method. Displays the number of people, average age, total
-        number of edges per layer.
-
-        Returns:
-            None
-        """
-        mean_age = spb.calculate_average_from_count(self.age_count)
-        print(f"The average age is {mean_age:.2f}.")
-
     def count_pop_ages(self):
         """
         Create an age count of the generated population post generation.
@@ -638,29 +626,6 @@ class Pop(sc.prettyobj):
         """
         return spb.count_values(self.workplace_sizes)
 
-    # TBC: not done yet
-    @property
-    def count_layer_degree(self, **kwargs):
-        """
-        Create a count of the connections or degree in a layer. Can specify the
-        people to include in the count.
-
-        Args:
-            **nodes (int, or list or array of ints) : ids of people to count connections for
-            **layers (string or list of strings) : layers to count connections over
-
-        Returns:
-            dict: A dictionary of the number of edges or connections per person
-            or node specified
-
-        **Example**::
-            pars = {'n': 5e3}
-            pop = sp.Pop(**pars)
-            layer_degree = pop.count_layer_degree(nodes=0, layers='H')  # get household degree for person 0
-            layer_degree = pop.count_layer_degree(nodes=[5, 8, 20], layers=['S', 'W'])  # get combined degree in school and work for persons with ids 5, 8, and 20
-            degree = pop.count_layer()  # get degrees for everyone in all layers
-        """
-        return
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
