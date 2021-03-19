@@ -15,15 +15,23 @@ from synthpops import cfg
 class TestLocation(unittest.TestCase):
     # these methods takes "location" as arguments, however data was not available so tests will skip them
     location_ignoreArgs = [
-        "get_workplace_size_brackets_path",
-        "get_workplace_size_distr_by_brackets_path",
-        "get_workplace_size_distr_by_brackets"
+
     ]
+
+    def test_spokane_path_methods(self):
+        cfg.set_nbrackets(20)
+        keywords = ["get", "path"]
+        exclude_pattern = ["household_head_age_by_size", "head_age_brackets"]
+        methods = self.get_methods_to_test(keywords=keywords, exclude_pattern=exclude_pattern)
+        datadir = sp.datadir
+        # sp.cfg.set_location_defaults("usa")
+        testcase = {"country_location": "usa", "state_location": "Washington", "location": "Spokane_County"}
+        self.run_tests(datadir, methods, testcase)
 
     def test_seattle_path_methods(self):
         cfg.set_nbrackets(20)
         keywords = ["get", "path"]
-        exclude_pattern = ["household_head_age_by_size", "workplace_size"]
+        exclude_pattern = ["household_head_age_by_size"]
         methods = self.get_methods_to_test(keywords=keywords, exclude_pattern=exclude_pattern)
         datadir = sp.datadir
         # sp.cfg.set_location_defaults("usa")

@@ -273,7 +273,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         for nj in range(1, hs):
 
             # can no longer place anyone in households where b is the age bracket of the head since those people are no longer available
-            if np.sum(household_matrix[b, :]) == 0:
+            if np.sum(household_matrix[b, :]) == 0: # pragma: no cover
                 break
 
             bi = spsamp.fast_choice(household_matrix[b, :])
@@ -283,14 +283,16 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
                 household_matrix[:, bi] = 0  # turn off this part of the matrix
 
             # entire matrix has been turned off, can no longer select anyone
-            if np.sum(household_matrix) == 0:
+            if np.sum(household_matrix) == 0: # pragma: no cover
                 break
 
-            while np.sum(a_prob) == 0:  # must check if all zeros since sp.fast_choice will not check
+            # must check if all zeros since sp.fast_choice will not check
+            while np.sum(a_prob) == 0: # pragma: no cover
                 bi = spsamp.fast_choice(household_matrix[b, :])
                 a_prob = np.array([ages_left_to_assign[a] for a in cm_age_brackets[bi]])
 
-                if np.sum(a_prob) == 0:  # must check if all zeros sine sp.fast_choice will not check
+                # must check if all zeros sine sp.fast_choice will not check
+                if np.sum(a_prob) == 0: # pragma: no cover
                     household_matrix[:, bi] = 0
 
             aj = cm_age_brackets[bi][spsamp.fast_choice(a_prob)]

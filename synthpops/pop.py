@@ -189,7 +189,7 @@ class Pop(sc.prettyobj):
         self.loc_pars.state_location   = self.state_location
         self.loc_pars.country_location = self.country_location
         self.loc_pars.datadir          = self.datadir
-        self.loc_pars.use_default      = use_default
+        self.loc_pars.use_default      = self.use_default
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
@@ -199,8 +199,7 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.add_summaries()
-        self.summarize()
+        self.compute_summary()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -233,6 +232,7 @@ class Pop(sc.prettyobj):
         sheet_name                      = self.sheet_name
         max_contacts                    = self.max_contacts
         use_default                     = self.use_default
+        loc_pars                        = self.loc_pars
 
         # Age distribution parameters
         smooth_ages                     = self.smooth_ages
@@ -272,7 +272,8 @@ class Pop(sc.prettyobj):
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
         contact_matrix_row = contact_matrix_shape[0]
 
-        cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
+        cm_age_brackets = spdata.get_census_age_brackets(**sc.mergedicts(loc_pars, dict(nbrackets=contact_matrix_row)))
+        # cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
         cm_age_by_brackets_dic = spb.get_age_by_brackets_dic(cm_age_brackets)
 
         # Generate LTCFs
@@ -283,7 +284,8 @@ class Pop(sc.prettyobj):
         self.age_by_brackets_dic = age_by_brackets_dic
 
         # Generate households
-        household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
+        household_size_distr = spdata.get_household_size_distr(**loc_pars)
+        # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
@@ -319,8 +321,8 @@ class Pop(sc.prettyobj):
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
                                                                                                              ages_in_school_count,
                                                                                                              school_types_distr_by_age,
-                                                                                                             school_type_age_ranges,
-                                                                                                             verbose=verbose)
+                                                                                                             school_type_age_ranges)
+
         else:
             # Get school sizes
             syn_school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
@@ -328,7 +330,8 @@ class Pop(sc.prettyobj):
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count,
                                                                                            cm_age_brackets,
                                                                                            cm_age_by_brackets_dic,
-                                                                                           contact_matrix_dic, verbose)
+                                                                                           contact_matrix_dic)
+
             school_type_by_age = None
 
         # Get employment rates
@@ -344,10 +347,10 @@ class Pop(sc.prettyobj):
 
         # Assign teachers and update school lists
         syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                               average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max, verbose=verbose)
+                                                                                                                                                               average_student_teacher_ratio=average_student_teacher_ratio, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max)
         # Assign non teaching staff and update who's available to work at other places
         syn_non_teaching_staff_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, workers_by_age_to_assign_count, potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count,
-                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff, verbose=verbose)
+                                                                                                                                                                    average_student_teacher_ratio=average_student_teacher_ratio, average_student_all_staff_ratio=average_student_all_staff_ratio, staff_age_min=staff_age_min, staff_age_max=staff_age_max, with_non_teaching_staff=with_non_teaching_staff)
 
         # Get facility staff
         if with_facilities:
@@ -355,12 +358,12 @@ class Pop(sc.prettyobj):
         else:
             facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
-        workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+        workplace_size_brackets = spdata.get_workplace_size_brackets(**loc_pars)
+        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(**loc_pars)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
-        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, verbose=verbose)
+        syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic)
 
         # remove facilities from homes to write households as a separate file
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
@@ -442,26 +445,27 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
-    def add_summaries(self):
-        """Add summaries to pop object post generation."""
-        self.age_count = self.count_pop_ages()
+    def compute_summary(self):
+        """Compute summaries and add to pop post generation."""
+        self.summary = sc.objdict()
+        self.summary.age_count = self.count_pop_ages()
 
-        self.household_sizes = self.get_household_sizes()  # could be reorganized into class property with people array
-        self.household_size_count = self.count_household_sizes()  # with people array, this can become a property instead
+        self.summary.household_sizes = self.get_household_sizes()
+        self.summary.household_size_count = self.count_household_sizes()
 
-        self.household_heads = self.get_household_heads()
-        self.household_head_ages = self.get_household_head_ages()
-        self.household_head_age_count = self.count_household_head_ages()
+        self.summary.household_heads = self.get_household_heads()
+        self.summary.household_head_ages = self.get_household_head_ages()
+        self.summary.household_head_age_count = self.count_household_head_ages()
 
-        self.ltcf_sizes = self.get_ltcf_sizes()  # could be reorganized into class property with people array
-        self.ltcf_size_count = self.count_ltcf_sizes()  # with people array, this can become a property instead
+        self.summary.ltcf_sizes = self.get_ltcf_sizes()
+        self.summary.ltcf_size_count = self.count_ltcf_sizes()
 
-        self.enrollment_by_age = self.count_enrollment_by_age()
-        self.enrollment_by_school_type = self.count_enrollment_by_school_type()  # includes all school types
+        self.summary.enrollment_by_age = self.count_enrollment_by_age()
+        self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
 
-        self.employment_by_age = self.count_employment_by_age()
-        self.workplace_sizes = self.get_workplace_sizes()  # could be reorganized into class property with people array
-        self.workplace_size_count = self.count_workplace_sizes()  # with people array, this can become a property instead
+        self.summary.employment_by_age = self.count_employment_by_age()
+        self.summary.workplace_sizes = self.get_workplace_sizes()
+        self.summary.workplace_size_count = self.count_workplace_sizes()
 
     def count_pop_ages(self):
         """
@@ -490,7 +494,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the count of household sizes.
         """
-        return spb.count_values(self.household_sizes)
+        return spb.count_values(self.summary.household_sizes)
 
     # convert to work on array
     def get_household_heads(self):
@@ -499,7 +503,7 @@ class Pop(sc.prettyobj):
 
     def get_household_head_ages(self):
         """Get the age of the head of each household in the generated population post generation."""
-        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.household_heads.items()}
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.summary.household_heads.items()}
 
     def count_household_head_ages(self, bins=None):
         """
@@ -512,9 +516,9 @@ class Pop(sc.prettyobj):
             dict: Dictionary of the count of household head ages.
         """
         if bins is None:
-            return spb.count_values(self.household_head_ages)
+            return spb.count_values(self.summary.household_head_ages)
         else:
-            head_ages = list(self.household_head_ages.values())
+            head_ages = list(self.summary.household_head_ages.values())
             hist, bins = np.histogram(head_ages, bins=bins, density=0)
             return {i: hist[i] for i in range(len(hist))}
 
@@ -575,7 +579,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.enrollment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -604,7 +608,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.employment_by_age[k]/self.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
@@ -624,7 +628,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_values(self.workplace_sizes)
+        return spb.count_values(self.summary.workplace_sizes)
 
 
     def plot_people(self, *args, **kwargs):
@@ -728,7 +732,6 @@ class Pop(sc.prettyobj):
         Plot a comparison of the expected and generated enrollment rates by age.
 
         **Example**::
-
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_enrollment_rates_by_age()

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import settings
 
 
-pars = dict(
+pars = sc.objdict(
     n                               = settings.pop_sizes.medium,
     rand_seed                       = 123,
     location                        = 'Spokane_County',
@@ -47,4 +47,4 @@ if __name__ == '__main__':
     T = sc.tic()
     pop = test_Spokane()
     sc.toc(T)
-    print(f"Spokane County population of size {pars['n']} made.")
+    print(f"Spokane County population of size {pars.n} made.")

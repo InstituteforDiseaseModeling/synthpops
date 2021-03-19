@@ -193,7 +193,7 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
         plkwargs.figpath = sc.makefilepath(filename=plkwargs.figname, folder=plkwargs.figdir, ext=plkwargs.format)
         fig.savefig(plkwargs.figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
-    if plkwargs.do_show:
+    if plkwargs.do_show: # pragma: no cover
         plt.show()
 
     return fig
@@ -276,7 +276,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
             if density_or_frequency == 'frequency':
                 for ca in contact_ages:
                     M[age, ca] += 1.0 / len(contact_ages)
-            elif density_or_frequency == 'density':
+            elif density_or_frequency == 'density': # pragma: no cover
                 for ca in contact_ages:
                     M[age, ca] += 1.0
     return M
@@ -485,7 +485,7 @@ def plot_contacts(pop, **kwargs):
         population = pop.to_dict()
         age_brackets = pop.age_brackets
         age_by_brackets_dic = pop.age_by_brackets_dic
-        age_count = pop.age_count
+        age_count = pop.summary.age_count
 
     elif isinstance(pop, dict):
         population = sc.dcp(pop)
@@ -684,7 +684,7 @@ def plot_ages(pop, **kwargs):
 
         # get the generated age distribution
         if isinstance(pop, sppop.Pop):
-            generated_age_count = pop.age_count
+            generated_age_count = pop.summary.age_count
 
         elif isinstance(pop, dict):
             generated_age_count = spb.count_ages(pop)
@@ -780,7 +780,7 @@ def plot_household_sizes(pop, **kwargs):
         generated_household_size_count = dict.fromkeys(expected_household_size_dist.keys(), 0)
 
         if isinstance(pop, sppop.Pop):
-            generated_household_size_count = pop.household_size_count
+            generated_household_size_count = pop.summary.household_size_count
 
         elif isinstance(pop, dict):
             generated_household_sizes = sphh.get_household_sizes(pop)
@@ -1354,7 +1354,7 @@ def plot_school_sizes(pop, **kwargs):
     bin_labels = spb.get_bin_labels(school_size_brackets)
 
     # calculate how many students are in each school
-    if plkwargs.comparison:
+    if plkwargs.comparison: # pragma: no cover
         enrollment_by_school_type = spsch.count_enrollment_by_school_type(popdict, **dict(with_school_types=plkwargs.with_school_types, keys_to_exclude=plkwargs.keys_to_exclude))
         generated_school_size_dist = sc.objdict(spsch.get_generated_school_size_distributions(enrollment_by_school_type, bins))
 
@@ -1394,7 +1394,7 @@ def plot_school_sizes(pop, **kwargs):
         sorted_bins = sorted(expected_school_size_dist[school_type].keys())
 
         ax[ns].bar(x, [expected_school_size_dist[school_type][b] * 100 for b in sorted_bins], color=cmap(c), edgecolor=cmap(c2), label='Expected', zorder=0)
-        if plkwargs.comparison:
+        if plkwargs.comparison: # pragma: no cover
             ax[ns].plot(x, [generated_school_size_dist[school_type][b] * 100 for b in sorted_bins], color=cmap(c2), ls='--',
                         marker='o', markerfacecolor=cmap(c2), markeredgecolor='white', markeredgewidth=.5, markersize=plkwargs.markersize, label='Generated', zorder=1)
             leg = ax[ns].legend(loc=1, fontsize=plkwargs.fontsize)
@@ -1415,11 +1415,11 @@ def plot_school_sizes(pop, **kwargs):
     ax[ns].set_xlabel('School size', fontsize=plkwargs.fontsize + 1, verticalalignment='center_baseline')
 
     # for multipanel figures, first display then re-adjust it and save to disk
-    if plkwargs.do_show:
+    if plkwargs.do_show: # pragma: no cover
         plt.show()
 
     # update fig before saving to disk since display will modify things
-    if plkwargs.do_save:
+    if plkwargs.do_save: # pragma: no cover
         if len(ax) == 1:
             fig.set_size_inches(plkwargs.width, plkwargs.height)
 
@@ -1505,7 +1505,7 @@ def plot_workplace_sizes(pop, **kwargs):
         generated_work_sizes_binned = dict.fromkeys(expected_work_sizes_binned.keys())
 
         if isinstance(pop, sppop.Pop):
-            generated_work_sizes = pop.workplace_sizes
+            generated_work_sizes = pop.summary.workplace_sizes
 
         elif isinstance(pop, dict):
             generated_work_sizes = spw.get_workplace_sizes(pop)
