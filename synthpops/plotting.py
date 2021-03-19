@@ -668,7 +668,7 @@ def plot_ages(pop, **kwargs):
         plkwargs.window_length = pop.window_length
 
     elif not isinstance(pop, (dict, cv.people.People)):
-        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -765,7 +765,7 @@ def plot_household_sizes(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -989,7 +989,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -1132,7 +1132,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -1223,7 +1223,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -1338,7 +1338,7 @@ def plot_school_sizes(pop, **kwargs):
         popdict = sc.dcp(pop)
 
     else:
-        raise ValueError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
@@ -1485,7 +1485,7 @@ def plot_workplace_sizes(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         plkwargs.loc_pars = pop.loc_pars
     elif not isinstance(pop, dict):
-        raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
+        raise NotImplementedError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
