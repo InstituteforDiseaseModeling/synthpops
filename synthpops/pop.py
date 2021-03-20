@@ -127,6 +127,7 @@ class Pop(sc.prettyobj):
         self.country_location          = country_location
         self.state_location            = state_location
         self.location                  = location
+        self.sheet_name                = sheet_name
         self.use_default               = use_default
 
         # Age distribution parameters
@@ -178,7 +179,9 @@ class Pop(sc.prettyobj):
         if self.state_location is None:
             self.location = None
 
-        self.sheet_name = cfg.default_sheet_name
+        # if sheet name is not specified, use the default
+        if self.sheet_name is None:
+            self.sheet_name = cfg.default_sheet_name
         self.datadir = cfg.datadir  # Assume this has been reset...
 
         # Location parameters
@@ -186,7 +189,7 @@ class Pop(sc.prettyobj):
         self.loc_pars.state_location   = self.state_location
         self.loc_pars.country_location = self.country_location
         self.loc_pars.datadir          = self.datadir
-        self.loc_pars.use_default      = use_default
+        self.loc_pars.use_default      = self.use_default
 
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
@@ -195,9 +198,8 @@ class Pop(sc.prettyobj):
         self.popdict = population
         log.debug('Pop(): done.')
 
-        # Add summaries
-        self.age_count = self.count_pop_ages()
-        self.enrollment_by_school_type = self.get_enrollment_by_school_type()  # includes all school types
+        # Add summaries post hoc  --- TBD: summaries during generation
+        self.compute_summary()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -227,6 +229,7 @@ class Pop(sc.prettyobj):
         sheet_name                      = self.sheet_name
         max_contacts                    = self.max_contacts
         use_default                     = self.use_default
+        loc_pars                        = self.loc_pars
 
         # Age distribution parameters
         smooth_ages                     = self.smooth_ages
@@ -259,12 +262,15 @@ class Pop(sc.prettyobj):
 
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+        # Store expected contact matrices
+        self.contact_matrix_dic = contact_matrix_dic
 
         # Load age brackets, and mapping dictionary that matches contact matrices
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
         contact_matrix_row = contact_matrix_shape[0]
 
-        cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
+        cm_age_brackets = spdata.get_census_age_brackets(**sc.mergedicts(loc_pars, dict(nbrackets=contact_matrix_row)))
+        # cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
         cm_age_by_brackets_dic = spb.get_age_by_brackets_dic(cm_age_brackets)
 
         # Generate LTCFs
@@ -275,7 +281,8 @@ class Pop(sc.prettyobj):
         self.age_by_brackets_dic = age_by_brackets_dic
 
         # Generate households
-        household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
+        household_size_distr = spdata.get_household_size_distr(**loc_pars)
+        # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
@@ -348,8 +355,8 @@ class Pop(sc.prettyobj):
         else:
             facilities_staff_uids = []
         # Generate non-school workplace sizes needed to send everyone to work
-        workplace_size_brackets = spdata.get_workplace_size_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
-        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(datadir, state_location=state_location, country_location=country_location, use_default=use_default)
+        workplace_size_brackets = spdata.get_workplace_size_brackets(**loc_pars)
+        workplace_size_distr_by_brackets = spdata.get_workplace_size_distr_by_brackets(**loc_pars)
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
@@ -435,32 +442,199 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def compute_summary(self):
+        """Compute summaries and add to pop post generation."""
+        self.summary = sc.objdict()
+        self.summary.age_count = self.count_pop_ages()
+
+        self.summary.household_sizes = self.get_household_sizes()
+        self.summary.household_size_count = self.count_household_sizes()
+
+        self.summary.household_heads = self.get_household_heads()
+        self.summary.household_head_ages = self.get_household_head_ages()
+        self.summary.household_head_age_count = self.count_household_head_ages()
+
+        self.summary.ltcf_sizes = self.get_ltcf_sizes()
+        self.summary.ltcf_size_count = self.count_ltcf_sizes()
+
+        self.summary.enrollment_by_age = self.count_enrollment_by_age()
+        self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
+
+        self.summary.employment_by_age = self.count_employment_by_age()
+        self.summary.workplace_sizes = self.get_workplace_sizes()
+        self.summary.workplace_size_count = self.count_workplace_sizes()
+
     def count_pop_ages(self):
         """
-        Create an age count of the generated population.
+        Create an age count of the generated population post generation.
 
         Returns:
             dict: Dictionary of the age count of the generated population.
         """
         return spb.count_ages(self.popdict)
 
-    def get_enrollment_by_school_type(self, *args, **kwargs):
+    # convert to work on array
+    def get_household_sizes(self):
         """
-        Get enrollment sizes by school types in popdict.
+        Create household sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of household size by household id (hhid).
+        """
+        return sphh.get_household_sizes(self.popdict)
+
+    # convert to work on array
+    def count_household_sizes(self):
+        """
+        Count of household sizes in the generated population.
+
+        Returns:
+            dict: Dictionary of the count of household sizes.
+        """
+        return spb.count_values(self.summary.household_sizes)
+
+    # convert to work on array
+    def get_household_heads(self):
+        """Get the ids of the head of households in the generated population post generation."""
+        return sphh.get_household_heads(self.popdict)
+
+    def get_household_head_ages(self):
+        """Get the age of the head of each household in the generated population post generation."""
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.summary.household_heads.items()}
+
+    def count_household_head_ages(self, bins=None):
+        """
+        Count of household head ages in the generated population.
+
+        Args:
+            bins (array) : If supplied, use this to create a binned count of the household head ages. Otherwise, count discrete household head ages.
+
+        Returns:
+            dict: Dictionary of the count of household head ages.
+        """
+        if bins is None:
+            return spb.count_values(self.summary.household_head_ages)
+        else:
+            head_ages = list(self.summary.household_head_ages.values())
+            hist, bins = np.histogram(head_ages, bins=bins, density=0)
+            return {i: hist[i] for i in range(len(hist))}
+
+    # convert to work on array
+    def get_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Create long term care facility sizes in the generated population post generation.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the size for each long term care facility generated.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spltcf.get_ltcf_sizes(self.popdict, keys_to_exclude)
+
+    # convert to work on array
+    def count_ltcf_sizes(self, keys_to_exclude=[]):
+        """
+        Count of long term care facility sizes in the generated population.
+
+        Args:
+            keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+        Returns:
+            dict: Dictionary of the count of long term care facility sizes.
+
+        Notes:
+            keys_to_exclude is an empty list by default, but can contain the
+            different long term care facility roles: 'snf_res' for residents and
+            'snf_staff' for staff. If either role is included in the parameter
+            keys_to_exclude, then individuals with that value equal to 1 will not
+            be counted.
+        """
+        return spb.count_values(self.get_ltcf_sizes(keys_to_exclude))
+
+    def count_enrollment_by_age(self):
+        """
+        Create enrollment count by age for students in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of the count of enrolled students by age in the generated population.
+        """
+        return spsch.count_enrollment_by_age(self.popdict)
+
+    @property
+    def enrollment_rates_by_age(self):
+        """
+        Enrollment rates by age for students in the generated population.
+
+        Returns:
+            dict: Dictionary of the enrollment rates by age for students in the generated population.
+        """
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+
+    def count_enrollment_by_school_type(self, *args, **kwargs):
+        """
+        Create enrollment sizes by school types in the generated population post generation.
 
         Returns:
             list: List of generated enrollment sizes by school type.
         """
-        enrollment_by_school_type = spsch.get_enrollment_by_school_type(self.popdict, *args, **kwargs)
+        enrollment_by_school_type = spsch.count_enrollment_by_school_type(self.popdict, *args, **kwargs)
         return enrollment_by_school_type
+
+    def count_employment_by_age(self):
+        """
+        Create employment count by age for workers in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of the count of employed workers by age in the generated population.
+        """
+        return spw.count_employment_by_age(self.popdict)
+
+    @property
+    def employment_rates_by_age(self):
+        """
+        Employment rates by age for workers in the generated population.
+
+        Returns:
+            dict: Dictionary of the employment rates by age for workers in the generated population.
+        """
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+
+    # convert to work on array
+    def get_workplace_sizes(self):
+        """
+        Create workplace sizes in the generated population post generation.
+
+        Returns:
+            dict: Dictionary of workplace size by workplace id (wpid).
+        """
+        return spw.get_workplace_sizes(self.popdict)
+
+    # convert to work on array
+    def count_workplace_sizes(self):
+        """
+        Count of workplace sizes in the generated population.
+
+        Returns:
+            dict:Dictionary of the count of workplace sizes.
+        """
+        return spb.count_values(self.summary.workplace_sizes)
+
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
         import covasim as cv  # Optional import
 
         pars = dict(
-            pop_size = self.n,
-            pop_type = 'synthpops',
+            pop_size   = self.n,
+            pop_type   = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
         )
         sim = cv.Sim(pars, popfile=self.popdict)
@@ -473,7 +647,7 @@ class Pop(sc.prettyobj):
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
 
-    def plot_ages(self, *args, **kwargs):
+    def plot_ages(self, **kwargs):
         """
         Plot a comparison of the expected and generated age distribution.
 
@@ -483,21 +657,96 @@ class Pop(sc.prettyobj):
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_ages()
         """
-        fig, ax = sppl.plot_ages(self, *args, **kwargs)
+        fig, ax = sppl.plot_ages(self, **kwargs)
         return fig, ax
 
-    # Todo: placeholder for enrollment rates by age
-    def plot_enrollment_rates_by_age_comparison(self, *args, **kwargs):
+    def plot_household_sizes(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated household size distribution.
+
+        **Example**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_household_sizes()
+        """
+        fig, ax = sppl.plot_household_sizes(self, **kwargs)
+        return fig, ax
+
+    # # TBC: placeholder for now
+    # def plot_household_head_ages(self, **kwargs):
+    #     """
+    #     Plot a comparison of the expected and generated head of household ages.
+
+    #     **Examples**::
+    #         pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+    #         pop = sp.Pop(**pars)
+    #         fig, ax = pop.plot_household_head_ages()
+    #     """
+    #     fig, ax = sppl.plot_household_head_ages(self, **kwargs)
+    #     return fig, ax
+
+    # # TBC: placeholder for now
+    # def plot_household_head_ages_by_household_size(self, **kwargs):
+    #     """
+    #     Plot a comparison of the expected and generated head of household ages
+    #     by the household size.
+
+    #     **Examples**::
+    #         pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+    #         pop = sp.Pop(**pars)
+    #         fig, ax = pop.plot_household_head_ages_by_household_size()
+    #     """
+    #     fig, ax = sppl.plot_household_head_ages_by_household_size(self, **kwargs)
+    #     return fig, ax
+
+    def plot_ltcf_resident_sizes(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated ltcf resident sizes.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_ltcf_resident_sizes()
+        """
+        fig, ax = sppl.plot_ltcf_resident_sizes(self, **kwargs)
+        return fig, ax
+
+    # def plot_ltcf_resident_staff_ratios(self, **kwargs):
+    #     """
+    #     Plot a comparison of the expected and generated ltcf resident to staff
+    #     ratios.
+
+    #     **Examples**::
+    #         pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+    #         pop = sp.Pop(**pars)
+    #         fig, ax = pop.plot_ltcf_resident_staff_ratios()
+    #     """
+    #     fig, ax = sppl.plot_ltcf_resident_staff_ratios(self, **kwargs)
+    #     return fig, ax
+
+    def plot_enrollment_rates_by_age(self, **kwargs):
         """
         Plot a comparison of the expected and generated enrollment rates by age.
+
+        **Example**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_enrollment_rates_by_age()
+        """
+        fig, ax = sppl.plot_enrollment_rates_by_age(self, **kwargs)
+        return fig, ax
+
+    def plot_employment_rates_by_age(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated employment rates by age.
 
         **Example**::
 
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_age_distribution_comparison()
+            fig, ax = pop.plot_employment_rates_by_age()
         """
-        fig, ax = sppl.plot_ages(self, *args, **kwargs)
+        fig, ax = sppl.plot_employment_rates_by_age(self, **kwargs)
         return fig, ax
 
     def plot_school_sizes(self, *args, **kwargs):
@@ -511,6 +760,19 @@ class Pop(sc.prettyobj):
             fig, ax = pop.plot_school_sizes()
         """
         fig, ax = sppl.plot_school_sizes(self, *args, **kwargs)
+        return fig, ax
+
+    def plot_workplace_sizes(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated workplace sizes for
+        workplaces that are not schools or long term care facilities.
+
+        **Examples**::
+            pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_ltcf_resident_sizes()
+        """
+        fig, ax = sppl.plot_workplace_sizes(self, **kwargs)
         return fig, ax
 
 

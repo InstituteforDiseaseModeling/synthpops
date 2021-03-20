@@ -185,7 +185,7 @@ def remove_ltcf_residents_from_potential_workers(facilities_by_uids, potential_w
     for nf, fc in enumerate(facilities_by_uids):
         for uid in fc:
             aindex = age_by_uid_dic[uid]
-            if uid in potential_worker_uids:
+            if uid in potential_worker_uids: # pragma: no cover
                 potential_worker_uids_by_age[aindex].remove(uid)
                 potential_worker_uids.pop(uid, None)
                 if workers_by_age_to_assign_count[aindex] > 0:
@@ -412,3 +412,36 @@ def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brack
 
     homes = sphh.get_all_households(homes_dic)
     return homes_dic, homes
+
+
+def get_ltcf_sizes(popdict, keys_to_exclude=[]):
+    """
+    Get long term care facility sizes, including both residents and staff.
+
+    Args:
+        popdict (dict)         : population dictionary
+        keys_to_exclude (list) : possible keys to exclude for roles in long term care facilities. See notes.
+
+    Returns:
+        dict: Dictionary of the size for each long term care facility generated.
+
+    Notes:
+        keys_to_exclude is an empty list by default, but can contain the
+        different long term care facility roles: 'snf_res' for residents and
+        'snf_staff' for staff. If either role is included in the parameter
+        keys_to_exclude, then individuals with that value equal to 1 will not
+        be counted.
+    """
+    ltcf_sizes = dict()
+    for i, person in popdict.items():
+        if person['snfid'] is not None:
+            ltcf_sizes.setdefault(person['snfid'], 0)
+
+            # include facility residents
+            if person['snf_res'] is not None and 'snf_res' not in keys_to_exclude:
+                ltcf_sizes[person['snfid']] += 1
+            # include facility staff
+            elif person['snf_staff'] is not None and 'snf_staff' not in keys_to_exclude:
+                ltcf_sizes[person['snfid']] += 1
+
+    return ltcf_sizes

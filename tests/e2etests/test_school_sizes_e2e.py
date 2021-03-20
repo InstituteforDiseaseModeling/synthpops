@@ -33,6 +33,7 @@ pars = sc.objdict(
                                        'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
+
 def test_plot_school_sizes(do_show, do_save, artifact_dir):
     """
     Test that the school size distribution by type plotting method in sp.Pop

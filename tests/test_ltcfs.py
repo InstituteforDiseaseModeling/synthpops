@@ -12,7 +12,7 @@ import pytest
 import settings
 
 
-pars = dict(
+pars = sc.objdict(
             n                       = settings.pop_sizes.medium_large,
             rand_seed               = 123,
 
@@ -21,7 +21,6 @@ pars = dict(
 
             school_mixing_type      = 'age_and_class_clustered',
 )
-pars = sc.objdict(pars)
 
 
 def test_ltcf_resident_to_staff_ratios(do_show=False):

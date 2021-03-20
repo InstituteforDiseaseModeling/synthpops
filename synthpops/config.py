@@ -15,8 +15,8 @@ import sciris as sc
 import logging
 from . import version as spv
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets',
-           'validate', 'set_location_defaults', 'default_country', 'default_state',
+__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets', 'set_datadir',
+           'validate_datadir', 'set_location_defaults', 'default_country', 'default_state',
            'default_location', 'default_sheet_name', 'alt_location', 'default_household_size_1_included',
            'get_config_data', 'version_info', 'max_age']
 
@@ -36,7 +36,7 @@ localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
 # Replace with local data dir if Dropbox folder is not found
-if datadir is None:
+if datadir is None: # pragma: no cover
     full_data_available = True
     datadir = localdatadir
 
@@ -197,12 +197,12 @@ def set_nbrackets(n):
     logger.info(f"set_nbrackets n = {n}")
     nbrackets = n
     if nbrackets not in valid_nbracket_ranges:
-        logger.warningnt(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
+        logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
     logger.info(f'Done: number of brackets is set to {n}.')
     return nbrackets
 
 
-def validate():
+def validate_datadir(verbose=True):
     ''' Check that the data folder can be found. '''
     if os.path.isdir(datadir):
         logger.info(f"The data folder {datadir} was found.")
@@ -211,4 +211,4 @@ def validate():
         if datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')
         else:
-            raise FileNotFoundError(f'The folder "{datadir}" does not exist, as far as I can tell.')
+            raise FileNotFoundError(f'The folder "{datadir}" does not exist.')

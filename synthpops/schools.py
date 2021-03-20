@@ -22,14 +22,16 @@ import logging
 
 from . import data_distributions as spdata
 from .config import datadir
+from .config import max_age
 
 from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
 
 
-__all__ = ['get_school_type_labels', 'get_enrollment_by_school_type', 'get_generated_school_size_distributions',
-           'get_bin_edges', 'get_bin_labels',
+__all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
+           'get_generated_school_size_distributions', 'count_enrollment_by_age',
+           'get_enrollment_rates_by_age',
            ]
 
 
@@ -322,7 +324,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
-    log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
+    # log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
@@ -360,8 +362,9 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.remove_edges_from([ei, ej])
             G.add_edges_from([new_ei, new_ej])
 
-    # calculate school age mixing
+    # calculate school age mixing and print some debugging statements
     if logging.getLevelName(log.level)=='DEBUG':
+        print(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
         print(f"missed rewiring {missed_rewiring} edge pairs out of {nE} possible pairs.")
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
@@ -903,7 +906,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
 
-        log.debug(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+        # log.debug(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
 
         teachers = []
         teacher_uids = []
@@ -926,9 +929,11 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         syn_teachers.append(teachers)
         syn_teacher_uids.append(teacher_uids)
 
-        log.debug(f"school with teachers {sorted(school)}")
-        log.debug(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
-        log.debug(f"kid-adult ratio: {(np.array(school) <= 19).sum() / (np.array(school) > 19).sum()}")
+        if logging.getLevelName(log.level)=='DEBUG':
+            print(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+            print(f"school with teachers {sorted(school)}")
+            print(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
+            print(f"kid-adult ratio: {np.divide((np.array(school) <= 19).sum() , (np.array(school) > 19).sum())}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -1215,14 +1220,47 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = np.array(new_school)
         kids = new_school <= 19
 
-        log.debug(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
+        if logging.getLevelName(log.level)=='DEBUG':
+            print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {np.divide(kids.sum() , (len(new_school) - kids.sum()) )}")
 
     log.debug(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
     return syn_schools, syn_school_uids, syn_school_types
 
 
-def get_enrollment_by_school_type(popdict, **kwargs):
+def count_enrollment_by_age(popdict):
+    """
+    Get enrollment count by age for students in the popdict.
+
+    Args:
+        popdict (dict): population dictionary
+
+    Returns:
+        dict: Dictionary of the count of enrolled students by age in popdict.
+    """
+    enrollment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
+    for i, person in popdict.items():
+        if person['scid'] is not None and person['sc_student']:
+            enrollment_count_by_age[person['age']] += 1
+
+    return enrollment_count_by_age
+
+
+def get_enrollment_rates_by_age(enrollment_count_by_age, age_count):
+    """
+    Get enrollment rates by age.
+
+    Args:
+        enrollment_count_by_age (dict) : dictionary of the count of enrolled students
+        age_count (dict)               : dictionary of the age count
+
+    Returns:
+        dict: Dictionary of the enrollment rates by age.
+    """
+    return {a: enrollment_count_by_age[a] / age_count[a] for a in sorted(age_count.keys())}
+
+
+def count_enrollment_by_school_type(popdict, **kwargs):
     """
     Get enrollment sizes by school types in popdict.
 
@@ -1277,32 +1315,6 @@ def get_generated_school_size_distributions(enrollment_by_school_type, bins):
         if sum(sizes) > 0:
             generated_school_size_dist[sc_type] = {i: hist[i] / sum(hist) for i in range(len(hist))}
         else:
-            generated_school_size_dist[sc_type] = {i: 0 for i in range(len(hist))}
+            generated_school_size_dist[sc_type] = {i: hist[i] for i in range(len(hist))}
+
     return generated_school_size_dist
-
-
-def get_bin_edges(size_brackets):
-    """
-    Get the bin edges for size brackets.
-
-    Args:
-        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
-
-    Returns:
-        An array of the bin edges.
-    """
-
-    return np.array([size_brackets[0][0]] + [size_brackets[b][-1] + 1 for b in sorted(size_brackets.keys())])
-
-
-def get_bin_labels(size_brackets):
-    """
-    Get the bin labels from the values contained within each bracket or bin.
-
-    Args:
-        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
-
-    Returns:
-        A list of bin labels.
-    """
-    return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]

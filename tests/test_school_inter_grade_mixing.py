@@ -14,7 +14,7 @@ import numpy as np
 import settings
 
 # parameters to generate a test population
-pars = dict(
+pars = sc.objdict(
         n                               = settings.pop_sizes.small_medium,
         rand_seed                       = 123,
 
@@ -44,12 +44,12 @@ def test_inter_grade_mixing(school_mixing_type='random'):
     sp.logger.info(f'Testing the effect of the parameter inter_grade_mixing for school_mixing_type: {school_mixing_type}')
 
     test_pars = sc.dcp(pars)
-    test_pars['school_mixing_type'] = school_mixing_type
+    test_pars.school_mixing_type = school_mixing_type
 
     pop_1 = sp.Pop(**test_pars)
     popdict_1 = pop_1.to_dict()
 
-    test_pars['inter_grade_mixing'] = 0.3
+    test_pars.inter_grade_mixing = 0.3
     pop_2 = sp.Pop(**test_pars)
     popdict_2 = pop_2.to_dict()
 

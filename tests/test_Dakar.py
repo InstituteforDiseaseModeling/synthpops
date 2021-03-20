@@ -6,7 +6,7 @@ import settings
 
 default_nbrackets = sp.config.nbrackets
 
-pars = dict(
+pars = sc.objdict(
     n                               = settings.pop_sizes.small,
     rand_seed                       = 0,
     max_contacts                    = None,
@@ -23,7 +23,7 @@ def test_Dakar():
     sp.set_nbrackets(18)  # Dakar age distributions available are up to 18 age brackets
     pop = sp.Pop(**pars)
     popdict = pop.to_dict()
-    assert len(popdict) == pars['n'], 'Check failed.'
+    assert len(popdict) == pars.n, 'Check failed.'
     print('Check passed')
 
     sp.set_location_defaults('defaults')  # Reset default values after this test is complete.
