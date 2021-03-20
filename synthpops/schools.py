@@ -930,7 +930,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
         log.debug(f"school with teachers {sorted(school)}")
         log.debug(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
-        log.debug(f"kid-adult ratio: {(np.array(school) <= 19).sum() / (np.array(school) > 19).sum()}")
+        log.debug(f"kid-adult ratio: {np.divide((np.array(school) <= 19).sum() , (np.array(school) > 19).sum())}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -1217,7 +1217,7 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = np.array(new_school)
         kids = new_school <= 19
 
-        log.debug(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {kids.sum() / (len(new_school) - kids.sum())}")
+        log.debug(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {np.divide(kids.sum() , (len(new_school) - kids.sum()) )}")
 
     log.debug(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 

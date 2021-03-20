@@ -2,7 +2,6 @@
 Test plotting functions
 '''
 import numpy as np
-import pylab as pl
 import sciris as sc
 import synthpops as sp
 import covasim as cv
@@ -36,7 +35,7 @@ pars = sc.objdict(
 def test_plots(do_plot=False):
     ''' Basic plots '''
     if not do_plot:
-        pl.switch_backend('agg')  # Plot but don't show
+        plt.switch_backend('agg')  # Plot but don't show
     pop = sp.Pop(n=settings.pop_sizes.small_medium)  # default parameters, 5k people
     fig1 = pop.plot_people()  # equivalent to cv.Sim.people.plot()
     fig2 = pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)

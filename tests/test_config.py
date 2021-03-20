@@ -3,7 +3,6 @@ Test config methods.
 """
 import synthpops as sp
 import sciris as sc
-import settings
 
 
 def test_version():
@@ -19,7 +18,7 @@ def test_metadata():
 
 def test_nbrackets():
     sp.logger.info("Testing that nbrackets can be set outside of the recommended range and warning message returned.")
-    
+
     nbrackets = max(min(sp.config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
     sp.set_nbrackets(n=nbrackets - 1)  # testing a valid outside the range currently supported.
     assert nbrackets - 1 == sp.config.nbrackets,f'Check failed. sp.config.nbrackets not set to {nbrackets-1} outside of the official supported range.'
@@ -50,7 +49,7 @@ def test_set_datadir():
 def test_log_level():
     """Test resetting the log level"""
     sp.logger.setLevel('DEBUG')
-    pars = sc.objdict(n=settings.pop_sizes.small)
+    pars = sc.objdict(n=100)
     pop = sp.Pop(**pars)
     sp.logger.setLevel('INFO')  # need to reset logger level - this changes a synthpops setting
 
