@@ -324,7 +324,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
 
-    log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
+    # log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
@@ -362,8 +362,9 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             G.remove_edges_from([ei, ej])
             G.add_edges_from([new_ei, new_ej])
 
-    # calculate school age mixing
+    # calculate school age mixing and print some debugging statements
     if logging.getLevelName(log.level)=='DEBUG':
+        print(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
         print(f"missed rewiring {missed_rewiring} edge pairs out of {nE} possible pairs.")
         ecount = np.zeros((len(age_keys), len(age_keys)))
         for e in G.edges():
@@ -905,7 +906,7 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
 
-        log.debug(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+        # log.debug(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
 
         teachers = []
         teacher_uids = []
@@ -928,9 +929,11 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
         syn_teachers.append(teachers)
         syn_teacher_uids.append(teacher_uids)
 
-        log.debug(f"school with teachers {sorted(school)}")
-        log.debug(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
-        log.debug(f"kid-adult ratio: {np.divide((np.array(school) <= 19).sum() , (np.array(school) > 19).sum())}")
+        if logging.getLevelName(log.level)=='DEBUG':
+            print(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
+            print(f"school with teachers {sorted(school)}")
+            print(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
+            print(f"kid-adult ratio: {np.divide((np.array(school) <= 19).sum() , (np.array(school) > 19).sum())}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -1217,7 +1220,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school = np.array(new_school)
         kids = new_school <= 19
 
-        log.debug(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {np.divide(kids.sum() , (len(new_school) - kids.sum()) )}")
+        if logging.getLevelName(log.level)=='DEBUG':
+            print(f"new school size {len(new_school)}, ages: {sorted(new_school)}, nkids: {kids.sum()}, n20=>: {len(new_school) - kids.sum()}, kid-adult ratio: {np.divide(kids.sum() , (len(new_school) - kids.sum()) )}")
 
     log.debug(f"people in school {np.sum([len(school) for school in syn_schools])}, left to send: {len(uids_in_school)}")
 
