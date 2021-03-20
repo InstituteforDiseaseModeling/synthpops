@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import settings
 import pytest
 
+mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
+mplt.use('Agg')
+
 
 # parameters to generate a test population
 pars = sc.objdict(
@@ -73,6 +76,25 @@ def test_catch_pop_type_errors():
         sp.plot_school_sizes(pop)
     with pytest.raises(NotImplementedError):
         sp.plot_workplace_sizes(pop)
+
+
+def test_restoring_matplotlib_defaults():
+    """
+    Test that matplotlib defaults can be restored after plotting_kwargs changes
+    them. For example, plotting_kwargs changes the font properties used.
+    """
+    sp.logger.info("Test that matplotlib defaults can be restored.")
+    plkwargs = sp.plotting_kwargs()
+
+    assert mplt.rcParams['font.family'][0] == plkwargs.fontfamily, "Check failed. Instantiating plotting_kwargs did not update the font family for matplotlib.rcParams."
+    print("Check passed. matplotlib.rcParams updated font.family to the default fontfamily set in the plotting_kwargs class.")
+    assert mplt.rcParams != mplt.rcParamsDefault, "Check failed. matplotlib.rcParams is still the same as matplotlib.rcParamsDefault."
+    print("Check passed. matplotlib.rcParams is different from matplotlib.rcParamsDefault.")
+
+    # reset to original matplotlib defaults
+    plkwargs.restore_defaults()
+    assert mplt.rcParams == mplt.rcParamsDefault, "Check failed. matplotlib.rcParams is not restored to matplotlib.rcParamsDefault."
+    print("Check passed. matplotlib.rcParams restored to default matplotlib library values.")
 
 
 def test_plot_array():
@@ -186,6 +208,9 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
     kwargs.do_show = do_show
     kwargs.do_save = do_save
 
+    if kwargs.do_show:
+        plt.switch_backend(mplt_org_backend)
+
     pop.plotting_method = getattr(pop, plotting_method_name)  # collect the plotting method from pop
     fig, ax = pop.plotting_method(**kwargs)
     # fig, ax = pop.plotting_method()  # to plot without extra information
@@ -217,19 +242,18 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
     return fig, ax, pop
 
 
-# @pytest.mark.skip
 def test_plot_ages(do_show=False, do_save=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-# @pytest.mark.skip
+
 def test_plot_household_sizes_dist(do_show=False, do_save=False):
     """Test that the household sizes comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-# @pytest.mark.skip
+
 def test_plot_ltcf_resident_sizes(do_show=False, do_save=False):
     """Test that the long term care facility resident sizes comparison plotting method in sp.Pop class works."""
     test_pars = sc.dcp(pars)
@@ -237,19 +261,19 @@ def test_plot_ltcf_resident_sizes(do_show=False, do_save=False):
     fig, ax, pop = summary_plotting_helper(test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-# @pytest.mark.skip
+
 def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
     """Test that the enrollment rates comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-# @pytest.mark.skip
+
 def test_plot_employment_rates_by_age(do_show=False, do_save=False):
     """Test that the employment rates comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-# @pytest.mark.skip
+
 def test_plot_workplace_sizes(do_show=False, do_save=False):
     """Test that the workplace sizes comparison plotting method in sp.Pop class works."""
     fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
@@ -263,6 +287,7 @@ if __name__ == '__main__':
     figs = test_plots(do_plot=True)
     test_calculate_contact_matrix_errors()
     test_catch_pop_type_errors()
+    test_restoring_matplotlib_defaults()
     test_plot_array()
     test_pop_without_plkwargs()
     fig0, ax0, pop0 = test_plot_ages(do_show=True)

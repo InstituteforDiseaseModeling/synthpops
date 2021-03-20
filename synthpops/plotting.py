@@ -189,7 +189,7 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
     """
     plkwargs = sc.dcp(plkwargs)
     plkwargs.update(new_plkwargs)
-    if plkwargs.do_save:
+    if plkwargs.do_save: # pragma: no cover
         plkwargs.figpath = sc.makefilepath(filename=plkwargs.figname, folder=plkwargs.figdir, ext=plkwargs.format)
         fig.savefig(plkwargs.figpath, format=plkwargs.format, dpi=plkwargs.save_dpi)
 
