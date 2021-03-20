@@ -161,10 +161,10 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     return fig, ax, people
 
 
-def summary_plotting_test(pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
+def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
     """
     Generic function to set up test data and logic for different plotting methods.
-    
+
     Args:
         pars (sc.objdict)          : a dictionary of parameters, modified from default values, to generation the test population
         plotting_method_name (str) : name of the plotting method to test
@@ -220,39 +220,39 @@ def summary_plotting_test(pars, plotting_method_name='plot_ages', do_show=False,
 # @pytest.mark.skip
 def test_plot_ages(do_show=False, do_save=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_household_sizes_dist(do_show=False, do_save=False):
     """Test that the household sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_ltcf_resident_sizes(do_show=False, do_save=False):
     """Test that the long term care facility resident sizes comparison plotting method in sp.Pop class works."""
     test_pars = sc.dcp(pars)
     test_pars.n = settings.pop_sizes.large
-    fig, ax, pop = summary_plotting_test(test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
     """Test that the enrollment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_employment_rates_by_age(do_show=False, do_save=False):
     """Test that the employment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_workplace_sizes(do_show=False, do_save=False):
     """Test that the workplace sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_test(pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
