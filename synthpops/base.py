@@ -4,6 +4,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 
 import numpy as np
 import sciris as sc
+from collections import Counter
 from . import config as cfg
 
 
@@ -212,3 +213,79 @@ def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
         M[a, :] = M[a, :] / float(aggregate_ages[a])
 
     return M
+
+
+def get_bin_edges(size_brackets):
+    """
+    Get the bin edges for size brackets.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        An array of the bin edges.
+    """
+
+    return np.array([size_brackets[0][0]] + [size_brackets[b][-1] + 1 for b in sorted(size_brackets.keys())])
+
+
+def get_bin_labels(size_brackets):
+    """
+    Get the bin labels from the values contained within each bracket or bin.
+
+    Args:
+        size_brackets (dict): dictionary mapping bracket or bin number to an array of the range of sizes
+
+    Returns:
+        A list of bin labels.
+    """
+    return [f"{size_brackets[b][0]}-{size_brackets[b][-1]}" for b in size_brackets]
+
+
+def count_values(dic):
+    """
+    Counter of values in the dictionary. Keys in the returned dictionary are values from the input dictionary.
+
+    Args:
+        dic (dict) : dictionary with sortable values
+
+    Returns:
+        dict: Dictionary of the count of values.
+    """
+    value_count = Counter(dic.values())
+    return {k: value_count[k] for k in sorted(value_count.keys())}
+
+
+def count_binned_values(dic, bins=None):
+    """
+    Binned counter of values in the dictionary. Indices are the bin indices from the input bins.
+
+    Args:
+        dic (dict)   : dictionary with sortable and binnable values
+        bins (array) : array of bin edges
+
+    Returns:
+        array: Array of the count of values binned
+    """
+    values = list(dic.values())
+    hist, bins = np.histogram(values, bins=bins, density=0)
+    return hist, bins
+
+
+def binned_values_dist(dic, bins=None):
+    """
+    Binned distribution of values in the dictionary. Indices are the bin indices from the input bins.
+
+    Args:
+        dic (dict)   : dictionary with sortable and binnable values
+        bins (array) : array of bin edges
+
+    Returns:
+        array: Array of the binned distribution of values.
+    """
+    hist, bins = count_binned_values(dic, bins)
+    if sum(hist) > 0:
+        dist = hist / sum(hist)
+    else:
+        dist = hist
+    return dist

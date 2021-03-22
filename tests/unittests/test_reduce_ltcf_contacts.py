@@ -32,7 +32,7 @@ print('Deprecated, see test_long_term_care_facilities.py instead')
 #     # Make 2 groups of contacts
 #     # Facility contacts - use generating function so that data can be generated as needed to run this test
 #     contacts_group_1 = sp.generate_microstructure_with_facilities(datadir, location, state_location, country_location,
-#                                                                   n, plot=False, verbose=False,
+#                                                                   n, plot=False,
 #                                                                   write=False, return_popdict=True,
 #                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
 

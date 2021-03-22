@@ -12,7 +12,7 @@ import pytest
 import settings
 
 
-pars = dict(
+pars = sc.objdict(
             n                       = settings.pop_sizes.medium_large,
             rand_seed               = 123,
 
@@ -107,6 +107,20 @@ def test_ltcf_resident_ages(do_show=False):
 
     if do_show:
         plt.show()
+
+
+def test_ltcf_two_group_reduction_off():
+    """
+    Test that populations can be created with ltcfs that don't split people
+    into two groups (residents and staff) to create edges based on role.
+    """
+    sp.logger.info("Testing population generation with ltcf connections created randomly instead of based on role. This means there is no guarantee that every resident is connected with a staff member. ")
+    test_pars = sc.dcp(pars)
+    test_pars.use_two_group_reduction = False
+    pop = sp.Pop(**test_pars)
+
+    assert len(pop.popdict) == test_pars.n, 'Check failed. Did not generate the right number of people.'
+    print('Check passed.')
 
 
 if __name__ == '__main__':
