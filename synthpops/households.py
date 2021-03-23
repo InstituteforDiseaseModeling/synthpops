@@ -161,6 +161,23 @@ def generate_age_count(n, age_distr):
     return age_count
 
 
+def generate_age_count_multinomial(n, age_distr):
+    """
+    Generate a stochastic count of people for each age given the age
+    distribution (age_distr) and number of people to generate (n).
+
+    Args:
+        n (int)                        : number of people to generate
+        age_distr (list or np.ndarray) : single year age distribution
+
+    Returns:
+        dict: A dictionary with the count of people to generate for each age
+        given an age distribution and the number of people to generate.
+    """
+    age_count = np.random.multinomial(n, age_distr)
+    return dict(zip(range(len(age_distr)), age_count))
+
+
 def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
     """
     Generate the ages of those living alone.
