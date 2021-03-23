@@ -260,6 +260,14 @@ class Pop(sc.prettyobj):
         staff_age_min                   = self.school_pars.staff_age_min
         staff_age_max                   = self.school_pars.staff_age_max
 
+        # Load and store the expected age distribution of the population
+        age_brackets = spdata.read_age_bracket_distr(**loc_pars)
+        self.age_brackets = age_brackets
+
+        # Load and store the age brackets
+        age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+        self.age_by_brackets_dic = age_by_brackets_dic
+
         # Load the contact matrix
         contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
         # Store expected contact matrices
@@ -277,8 +285,8 @@ class Pop(sc.prettyobj):
         n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)
 
         # Store expected age data
-        self.age_brackets = age_brackets
-        self.age_by_brackets_dic = age_by_brackets_dic
+        # self.age_brackets = age_brackets
+        # self.age_by_brackets_dic = age_by_brackets_dic
 
         # Generate households
         household_size_distr = spdata.get_household_size_distr(**loc_pars)

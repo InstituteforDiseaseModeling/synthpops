@@ -178,6 +178,13 @@ def generate_age_count_multinomial(n, age_distr):
     return dict(zip(range(len(age_distr)), age_count))
 
 
+def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, age_count_left_to_place):
+    """."""
+    print(sum(age_count_left_to_place.values()))
+    print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
+
+
+
 def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
     """
     Generate the ages of those living alone.
