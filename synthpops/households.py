@@ -181,7 +181,56 @@ def generate_age_count_multinomial(n, age_distr):
 def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, age_count_left_to_place):
     """."""
     print(sum(age_count_left_to_place.values()))
+    print(hh_sizes)
     print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
+    # print(hha_brackets)
+    homes_dic = dict()
+
+    homes_dic[1] = generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
+
+    print(homes_dic[1])
+    living_alone_ages = [homes_dic[1][h][0] for h in range(len(homes_dic[1]))]
+
+    living_alone_age_count = Counter(living_alone_ages)
+    new_ages_left_to_assign = dict.fromkeys(np.arange(len(age_count_left_to_place)))
+
+    # remove those already placed in households on their own
+    for a in new_ages_left_to_assign:
+        new_ages_left_to_assign[a] = age_count_left_to_place[a] - living_alone_age_count[a]
+        # print(a, new_ages_left_to_assign[a])
+
+    print(len(homes_dic[1]))
+    print(sum(living_alone_age_count.values()))
+    print(sum(new_ages_left_to_assign.values()))
+
+    # create array of expected household sizes  larger than out of order so that running out of individuals to place by age is not systemically as issue for larger household sizes
+
+    max_hh_size = len(hh_sizes)
+    larger_hh_size_array = generate_larger_household_sizes(hh_sizes)
+
+    for hs in range(2, max_hh_size + 1):
+        homes_dic[hs] = []
+
+    # go through every household and assign age of the head of the household
+    larger_hha_chosen, new_ages_left_to_assign = generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, new_ages_left_to_assign)
+    larger_hha_count = Counter(larger_hha_chosen)
+    # for a in new_ages_left_to_assign:
+    #     print(a, new_ages_left_to_assign[a])
+
+    print(n_remaining)
+    print(n_remaining - hh_sizes[0])
+    print(hh_sizes[0])
+    # print(n_remaining - hh_sizes[0] - hh_sizes[1:].sum())
+    print(sum(new_ages_left_to_assign.values()))
+    # # make copy of the household matrix that you can modify to help with sampling
+    # household_matrix = contact_matrices['H'].copy()
+    # homes_dic, new_ages_left_to_assign = generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, new_ages_left_to_assign, homes_dic)
+    # homes = get_all_households(homes_dic)
+
+    # print(sum(new_ages_left_to_assign.values()))
+
+
+    # return homes_dic, homes
 
 
 
@@ -199,21 +248,34 @@ def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_coun
         An array of households of size 1 where each household is a row and the
         value in the row is the age of the household member.
     """
+    print(age_count)
     distr = hha_by_size[0, :]
     distr = distr / np.sum(distr)
-
+    print(distr)
+    print('how many?', hh_sizes[0])
     h1_count = hh_sizes[0]
+    print(h1_count)
     hha_b = np.random.choice(range(len(distr)), size=h1_count, p=distr)
 
+    print(hha_b, len(hha_b))
+
     hha_b_count = Counter(hha_b)
+    print(hha_b_count)
     hha_living_alone = []
     for hha_bi in hha_brackets:
+        print(hha_bi)
         possible_hha_bi_ages = []
         for a in hha_brackets[hha_bi]:
             possible_hha_bi_ages.extend([a] * age_count[a])
+
+        print(possible_hha_bi_ages)
         np.random.shuffle(possible_hha_bi_ages)
-        chosen_hha = possible_hha_bi_ages[0:hha_b_count[hha_bi]]
-        hha_living_alone.extend(chosen_hha)
+        if len(possible_hha_bi_ages) >= hha_b_count[hha_bi]:
+            chosen_hha = possible_hha_bi_ages[0:hha_b_count[hha_bi]]
+            hha_living_alone.extend(chosen_hha)
+        else:
+            print('cannot choose hha in ', hha_brackets[hha_bi])
+        # hha_living_alone.extend(chosen_hha)
     np.random.shuffle(hha_living_alone)
 
     homes = np.array(hha_living_alone).astype(int).reshape((len(hha_living_alone), 1))
