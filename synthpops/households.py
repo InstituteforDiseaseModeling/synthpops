@@ -229,62 +229,91 @@ def generate_household_head_ages_draft(n_remaining, hh_sizes, hha_by_size, hha_b
     return household_head_ages, household_sizes
 
 
-def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, age_count_left_to_place):
+def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, ages_left_to_assign):
     """."""
-    print(sum(age_count_left_to_place.values()))
-    print(hh_sizes)
-    print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
-    # print(hha_brackets)
+
+    household_sizes = generate_household_sizes(hh_sizes)
+
+    # generate the ages for heads of households or reference persons conditional on the household size and the age distribution
+    household_head_ages, ages_left_to_assign = generate_household_head_ages(household_sizes, hha_by_size, hha_brackets, ages_left_to_assign)
+
     homes_dic = dict()
 
-    homes_dic[1] = generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
+    # find all of the people living alone and their ages
+    living_alone = list(household_head_ages[household_sizes == 1])
+    homes_dic[1] = np.array(living_alone).astype(int).reshape((len(living_alone), 1))  # make an array of each individual home
 
-    print(homes_dic[1])
-    living_alone_ages = [homes_dic[1][h][0] for h in range(len(homes_dic[1]))]
+    # arrays of the larger household sizes and the ages of the heads or reference persons for each (reference person ages generated conditional on household size and age distribution)
+    larger_household_sizes = household_sizes[household_sizes > 1]
+    heads_of_larger_households = household_head_ages[household_sizes > 1]
 
-    living_alone_age_count = Counter(living_alone_ages)
-    new_ages_left_to_assign = dict.fromkeys(np.arange(len(age_count_left_to_place)))
+    for size in range(2, len(hh_sizes) + 1):
+        homes_dic[size] = []
 
-    # remove those already placed in households on their own
-    for a in new_ages_left_to_assign:
-        new_ages_left_to_assign[a] = age_count_left_to_place[a] - living_alone_age_count[a]
-        # print(a, new_ages_left_to_assign[a])
+    # work off a copy of the household mixing matrix
+    household_matrix = sc.dcp(contact_matrices['H'])
 
-    print(len(homes_dic[1]))
-    print(sum(living_alone_age_count.values()))
-    print(sum(new_ages_left_to_assign.values()))
+    homes_dic, ages_left_to_assign = generate_larger_households_method_2(larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic)
+    homes = get_all_households(homes_dic)
 
-    # create array of expected household sizes  larger than out of order so that running out of individuals to place by age is not systemically as issue for larger household sizes
-    max_hh_size = len(hh_sizes)
-    larger_hh_size_array = generate_larger_household_sizes(hh_sizes)
-    print(larger_hh_size_array)
-    for hs in range(2, max_hh_size + 1):
-        homes_dic[hs] = []
+    return homes_dic, homes
 
-    # go through every household and assign age of the head of the household
-    # need to check and make sure this isn't biased towards smaller households because of ordering
-    larger_hha_chosen, new_ages_left_to_assign = generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, new_ages_left_to_assign)
-    larger_hha_count = Counter(larger_hha_chosen)
-    # print(larger_hha_chosen)
-    # print(larger_hha_count)
+
+    # # print(sum(age_count_left_to_place.values()))
+    # # print(hh_sizes)
+    # # print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
+    # # print(hha_brackets)
+    # # homes_dic = dict()
+
+    # homes_dic[1] = generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
+
+    # print(homes_dic[1])
+    # living_alone_ages = [homes_dic[1][h][0] for h in range(len(homes_dic[1]))]
+
+    # living_alone_age_count = Counter(living_alone_ages)
+    # new_ages_left_to_assign = dict.fromkeys(np.arange(len(age_count_left_to_place)))
+
+    # # remove those already placed in households on their own
     # for a in new_ages_left_to_assign:
-    #     print(a, new_ages_left_to_assign[a])
+    #     new_ages_left_to_assign[a] = age_count_left_to_place[a] - living_alone_age_count[a]
+    #     # print(a, new_ages_left_to_assign[a])
 
-    print(n_remaining)
-    print(n_remaining - hh_sizes[0])
-    print(hh_sizes[0])
-    # print(n_remaining - hh_sizes[0] - hh_sizes[1:].sum())
-    print(sum(new_ages_left_to_assign.values()))
-    # # make copy of the household matrix that you can modify to help with sampling
-    # household_matrix = contact_matrices['H'].copy()
-    # homes_dic, new_ages_left_to_assign = generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, new_ages_left_to_assign, homes_dic)
-    # homes = get_all_households(homes_dic)
-
+    # print(len(homes_dic[1]))
+    # print(sum(living_alone_age_count.values()))
     # print(sum(new_ages_left_to_assign.values()))
 
-    # return homes_dic, homes
+    # # create array of expected household sizes  larger than out of order so that running out of individuals to place by age is not systemically as issue for larger household sizes
+    # max_hh_size = len(hh_sizes)
+    # larger_hh_size_array = generate_larger_household_sizes(hh_sizes)
+    # print(larger_hh_size_array)
+    # for hs in range(2, max_hh_size + 1):
+    #     homes_dic[hs] = []
+
+    # # go through every household and assign age of the head of the household
+    # # need to check and make sure this isn't biased towards smaller households because of ordering
+    # larger_hha_chosen, new_ages_left_to_assign = generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, new_ages_left_to_assign)
+    # larger_hha_count = Counter(larger_hha_chosen)
+    # # print(larger_hha_chosen)
+    # # print(larger_hha_count)
+    # # for a in new_ages_left_to_assign:
+    # #     print(a, new_ages_left_to_assign[a])
+
+    # print(n_remaining)
+    # print(n_remaining - hh_sizes[0])
+    # print(hh_sizes[0])
+    # # print(n_remaining - hh_sizes[0] - hh_sizes[1:].sum())
+    # print(sum(new_ages_left_to_assign.values()))
+    # # # make copy of the household matrix that you can modify to help with sampling
+    # # household_matrix = contact_matrices['H'].copy()
+    # # homes_dic, new_ages_left_to_assign = generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, new_ages_left_to_assign, homes_dic)
+    # # homes = get_all_households(homes_dic)
+
+    # # print(sum(new_ages_left_to_assign.values()))
+
+    # # return homes_dic, homes
 
 
+# to be removed/refactored
 def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
     """
     Generate the ages of those living alone.
@@ -411,7 +440,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         cm_age_brackets (dict)        : The age brackets for the contact matrix.
         cm_age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
         household_matrix (dict)       : The age-specific contact matrix for the household ontact setting.
-        larger_homes_age_count (dict) : Age count of people left to place in households larger than one person.
+        ages_left_to_assign (dict) : Age count of people left to place in households larger than one person.
 
     Returns:
         dict: A dictionary of households by age indexed by household size.

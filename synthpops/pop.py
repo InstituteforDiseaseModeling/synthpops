@@ -290,17 +290,21 @@ class Pop(sc.prettyobj):
         # Generate an age count for the population --- this will get passed around to methods generating the different layers where people live: long term care facilities, households, agricultural living quarters, other group living arrangements
         age_count = sphh.generate_age_count_multinomial(n, expected_age_dist)
 
+        # Ages left to assign to a residence
+        ages_left_to_assign = sc.dcp(age_count)
+
         # Generate LTCFs
-        n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)
+        n_nonltcf, ltcf_adjusted_age_dist, ltcf_adjusted_age_dist_values, ages_left_to_assign, facilities = spltcf.generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to_assign)
+        # n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)
 
         # Store expected age data
         # self.age_brackets = age_brackets
         # self.age_by_brackets_dic = age_by_brackets_dic
 
         # Generate households
-        household_size_distr = spdata.get_household_size_distr(**loc_pars)
+        household_size_dist = spdata.get_household_size_distr(**loc_pars)
         # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
-        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(n_nonltcf, household_size_distr)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(n_nonltcf, household_size_dist)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 

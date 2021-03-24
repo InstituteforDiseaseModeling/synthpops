@@ -13,8 +13,64 @@ from . import data_distributions as spdata
 from . import base as spb
 
 
-def generate_ltcfs():
+def generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to_assign):
     """."""
+    # initialize an empty list for facilities
+    facilities = []
+
+    # if not using facilities, skip everything here
+    if with_facilities:
+
+        # what the ltcf user rates by age?
+        ltcf_rates_by_age = spdata.get_long_term_care_facility_use_rates(loc_pars.datadir, country_location=loc_pars.country_location, state_location=loc_pars.state_location)
+
+        # generate the count of ltcf users by age and make a list of all users represented by their age
+        expected_users_by_age = dict.fromkeys(expected_age_dist.keys(), 0)
+
+        # make a list of all the users by their age
+        all_residents = []
+        for a in expected_users_by_age:
+            expected_users_by_age[a] = np.random.binomial(ages_left_to_assign[a], ltcf_rates_by_age[a])
+            all_residents.extend([a] * expected_users_by_age[a])
+
+        # shuffle resident ages
+        np.random.shuffle(all_residents)
+
+        # how big are long term care facilities
+        resident_size_dist = spb.norm_dic(spdata.get_long_term_care_facility_residents_distr(**loc_pars))
+        resident_size_brackets = spdata.get_long_term_care_facility_residents_distr_brackets(**loc_pars)
+
+        size_bracket_keys = sorted(resident_size_dist.keys())
+        size_dist = [resident_size_dist[k] for k in size_bracket_keys]
+
+        # create facilities
+        while len(all_residents) > 0:
+
+            b = spsamp.fast_choice(size_dist)
+            size = np.random.choice(resident_size_brackets[b])
+
+            if size > len(all_residents):
+                size = len(all_residents)
+            new_facility = all_residents[:size]
+            facilities.append(new_facility)
+            all_residents = all_residents[size:]
+
+        # what's the age distribution and count of people left to place in a residence?
+        ltcf_adjusted_age_dist = sc.dcp(expected_age_dist)
+        for a in ltcf_adjusted_age_dist:
+            ltcf_adjusted_age_dist[a] -= expected_users_by_age[a] / n
+            ltcf_adjusted_age_dist[a] = max(ltcf_adjusted_age_dist[a], 0)
+            ages_left_to_assign[a] -= expected_users_by_age[a]
+        ltcf_adjusted_age_dist_values = np.array([ltcf_adjusted_age_dist[a] for a in ltcf_adjusted_age_dist.keys()])
+
+        n_nonltcf = int(n - sum([len(facililty) for facililty in facilities]))
+
+    else:
+        n_nonltcf = n
+        ltcf_adjusted_age_dist = sc.dcp(expected_age_dist)
+        ltcf_adjusted_age_dist_values = np.array([ltcf_adjusted_age_dist[a] for a in ltcf_adjusted_age_dist])
+
+    return n_nonltcf, ltcf_adjusted_age_dist, ltcf_adjusted_age_dist_values, ages_left_to_assign, facilities
 
 
 def generate_ltcfs_old(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length):
@@ -364,6 +420,7 @@ def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_bracke
     return homes_dic, homes
 
 
+# to be removed/refactored
 def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
