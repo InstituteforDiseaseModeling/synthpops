@@ -3,6 +3,7 @@ This file includes tests for the household settings,
 When investigation is needed, set the self.is_debugging = True
 
 """
+import pytest
 import unittest
 import numpy as np
 import json
@@ -703,6 +704,7 @@ class HouseholdsTest(unittest.TestCase):
         generated = sp.generate_age_count(n=5000, age_distr=dist)
         self.verify_buckets(dist, list(generated.values()))
 
+    @pytest.mark.skip  # separate method for households larger than 1 is deprecated and will be removed soon
     def test_generate_larger_household_sizes(self):
         """
         Test generate_larger_household_sizes method if hh_size =1, it expectes
@@ -721,6 +723,25 @@ class HouseholdsTest(unittest.TestCase):
                 result = sp.generate_larger_household_sizes(hh_sizes=size)
                 print(f"actual hh_size:{collections.Counter(size)}")
                 self.assertEqual(sum(size[1:]), len(result))
+
+    def test_generate_household_sizes(self):
+        """
+        Test generate_larger_household_sizes method if hh_size =1, it expectes
+        method to return an empty array, otherwise an array of counts which the
+        total should match the the hh_size[1:].
+
+        Returns:
+            None
+        """
+        size1 = sp.generate_household_sizes(hh_sizes=[])
+        self.assertEqual(len(size1), 0)
+        for i in range(2, 10):
+            size = np.random.randint(low=1, high=50, size=i)
+            with self.subTest(size=size):
+                print(f"hh_size:{size}")
+                result = sp.generate_household_sizes(hh_sizes=size)
+                print(f"actual hh_size:{collections.Counter(size)}")
+                self.assertEqual(sum(size), len(result))
 
     def test_generate_household_sizes_from_fixed_pop_size(self):
         """

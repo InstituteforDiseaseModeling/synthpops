@@ -22,7 +22,7 @@ def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
     Returns:
         An array with the count of households of size s at index s-1.
     """
-
+    log.debug('generate_household_size_count_from_fixed_pop_size()')
     # Quickly produce number of expected households for a population of size N
     ss = np.sum([hh_size_distr[s] * s for s in hh_size_distr])
     f = N / np.round(ss, 1)
@@ -65,50 +65,51 @@ def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
     hh_sizes = hh_sizes.astype(int)
     return hh_sizes
 
+# # potenitally to be removed
+# def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_size, single_year_age_distr):
+#     """
+#     Generate the age of the head of the household, also known as the reference person of the household,
+#     conditional on the size of the household.
 
-def generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, hh_size, single_year_age_distr):
-    """
-    Generate the age of the head of the household, also known as the reference person of the household,
-    conditional on the size of the household.
+#     Args:
+#         hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+#         hha_brackets (dict)          : The age brackets for the heads of household.
+#         hh_size (int)                : The household size.
+#         single_year_age_distr (dict) : The age distribution.
 
-    Args:
-        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)          : The age brackets for the heads of household.
-        hh_size (int)                : The household size.
-        single_year_age_distr (dict) : The age distribution.
+#     Returns:
+#         Age of the head of the household or reference person.
+#     """
+#     log.debug('generate_household_head_age_by_size()')
+#     distr = hha_by_size_counts[hh_size-1, :]
+#     b = spsamp.sample_single_arr(distr)
+#     hha = spsamp.sample_from_range(single_year_age_distr, hha_brackets[b][0], hha_brackets[b][-1])
 
-    Returns:
-        Age of the head of the household or reference person.
-    """
-    distr = hha_by_size_counts[hh_size-1, :]
-    b = spsamp.sample_single_arr(distr)
-    hha = spsamp.sample_from_range(single_year_age_distr, hha_brackets[b][0], hha_brackets[b][-1])
+#     return hha
 
-    return hha
+# # potentially to be removed
+# def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr):
+#     """
+#     Generate the ages of those living alone.
 
-# potentially to be removed
-def generate_living_alone(hh_sizes, hha_by_size_counts, hha_brackets, single_year_age_distr):
-    """
-    Generate the ages of those living alone.
+#     Args:
+#         hh_sizes (array)             : The count of household size s at index s-1.
+#         hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+#         hha_brackets (dict)          : The age brackets for the heads of household.
+#         single_year_age_distr (dict) : The age distribution.
 
-    Args:
-        hh_sizes (array)             : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)          : The age brackets for the heads of household.
-        single_year_age_distr (dict) : The age distribution.
+#     Returns:
+#         An array of households of size 1 where each household is a row and the value in the row is the age of the household member.
+#     """
+#     log.debug('generate_living_alone()')
+#     size = 1
+#     homes = np.zeros((hh_sizes[size-1], 1), dtype=int)
 
-    Returns:
-        An array of households of size 1 where each household is a row and the value in the row is the age of the household member.
-    """
+#     for h in range(hh_sizes[size-1]):
+#         hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
+#         homes[h][0] = int(hha)
 
-    size = 1
-    homes = np.zeros((hh_sizes[size-1], 1), dtype=int)
-
-    for h in range(hh_sizes[size-1]):
-        hha = generate_household_head_age_by_size(hha_by_size_counts, hha_brackets, size, single_year_age_distr)
-        homes[h][0] = int(hha)
-
-    return homes
+#     return homes
 
 
 def assign_uids_by_homes(homes, id_len=16, use_int=True):
@@ -123,6 +124,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
+    log.debug('assign_uids_by_homes()')
     age_by_uid_dic = dict()
     homes_by_uids = []
 
@@ -155,6 +157,7 @@ def generate_age_count(n, age_distr):
         dict: A dictionary with the count of people to generate for each age
         given an age distribution and the number of people to generate.
     """
+    log.debug('generate_age_count()')
     age_range = np.arange(0, len(age_distr))
     chosen = np.random.choice(age_range, size=n, p=age_distr)
     age_count = Counter(chosen)
@@ -175,24 +178,35 @@ def generate_age_count_multinomial(n, age_distr):
         dict: A dictionary with the count of people to generate for each age
         given an age distribution and the number of people to generate.
     """
+    log.debug('generate_age_count_multinomial()')
     age_count = np.random.multinomial(n, age_distr)
     return dict(zip(range(len(age_distr)), age_count))
 
 # keep: more general method
 def generate_household_head_ages(household_sizes, hha_by_size, hha_brackets, ages_left_to_assign):
     """
-    Generate the ages of the heads of households for households.
+    Generate the head of household ages conditional on household size and the
+    expected ages of people in the population.
+
+    Args:
+        household_sizes (np.array) : Array of household sizes to be generated
+        hha_by_size (matrix)       : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)        : The age brackets for the heads of household.
+        ages_left_to_assign (dic)  : The counter of ages for the generated population left to place in a residence
+
+    Returns:
+        An array of head of household ages, updated counter of the ages in the
+        population left to place in a residence.
     """
     household_head_ages = []
-
-    # go through every household and choose the head age
+    # Notes on method for later parallelization/optimization:
     # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
     # any optimized method will also need to avoid ordering bias, e.g., we could count the number of households of each size, then use the
     # conditional probability of household head age by household size in a multinomial draw to sample the ages of household heads for each size.
     # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
     # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
     # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
-    # then sampling each household head or reference person's age from the conditional probability distribution and the
+    # then sampling each household head's age from the conditional probability distribution and the overall age distribution expected.
 
     for nh, hs in enumerate(household_sizes):
         hs_distr = hha_by_size[hs - 1, :]
@@ -211,89 +225,79 @@ def generate_household_head_ages(household_sizes, hha_by_size, hha_brackets, age
 
     return household_head_ages, ages_left_to_assign
 
-# Is this needed?
-def generate_household_head_ages_draft(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, age_count_left_to_place):
-    """."""
-    household_head_ages = []
-    household_sizes = []
+# # Is this needed?
+# def generate_household_head_ages_draft(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, age_count_left_to_place):
+#     """."""
+#     household_head_ages = []
+#     household_sizes = []
 
-    for hs in range(1, len(hh_sizes) + 1):
-        household_sizes.extend([hs] * hh_sizes[hs - 1])
-    household_sizes = np.array(household_sizes)
-    np.random.shuffle(household_sizes)
+#     for hs in range(1, len(hh_sizes) + 1):
+#         household_sizes.extend([hs] * hh_sizes[hs - 1])
+#     household_sizes = np.array(household_sizes)
+#     np.random.shuffle(household_sizes)
 
-    # go through every household and choose the head age
-    # a parallelized method
-    household_head_ages, age_count_left_to_place = generate_larger_households_head_ages(household_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
+#     # go through every household and choose the head age
+#     # a parallelized method
+#     household_head_ages, age_count_left_to_place = generate_larger_households_head_ages(household_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
 
-    print(household_sizes, household_head_ages)
-    return household_head_ages, household_sizes
+#     print(household_sizes, household_head_ages)
+#     return household_head_ages, household_sizes
 
 
-# to be removed/refactored
-def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
-    """
-    Generate the ages of those living alone.
+# # to be removed/refactored
+# def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
+#     """
+#     Generate the ages of those living alone.
 
-    Args:
-        hh_sizes (array)     : The count of household size s at index s-1.
-        hha_by_size (matrix) : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)  : The age brackets for the heads of household.
-        age_distr (dict)     : The age distribution.
+#     Args:
+#         hh_sizes (array)     : The count of household size s at index s-1.
+#         hha_by_size (matrix) : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+#         hha_brackets (dict)  : The age brackets for the heads of household.
+#         age_distr (dict)     : The age distribution.
 
-    Returns:
-        An array of households of size 1 where each household is a row and the
-        value in the row is the age of the household member.
-    """
-    print(age_count)
-    distr = hha_by_size[0, :]
-    distr = distr / np.sum(distr)
-    print(distr)
-    print('how many?', hh_sizes[0])
-    h1_count = hh_sizes[0]
-    print(h1_count)
-    hha_b = np.random.choice(range(len(distr)), size=h1_count, p=distr)
-    print(hha_b, len(hha_b))
+#     Returns:
+#         An array of households of size 1 where each household is a row and the
+#         value in the row is the age of the household member.
+#     """
+#     print(age_count)
+#     distr = hha_by_size[0, :]
+#     distr = distr / np.sum(distr)
+#     print(distr)
+#     print('how many?', hh_sizes[0])
+#     h1_count = hh_sizes[0]
+#     print(h1_count)
+#     hha_b = np.random.choice(range(len(distr)), size=h1_count, p=distr)
+#     print(hha_b, len(hha_b))
 
-    hha_b_count = Counter(hha_b)
-    print(hha_b_count)
-    hha_living_alone = []
+#     hha_b_count = Counter(hha_b)
+#     print(hha_b_count)
+#     hha_living_alone = []
 
-    all_possible_hha = []
+#     all_possible_hha = []
 
-    for hha_bi in hha_brackets:
-        print(hha_bi)
-        possible_hha_bi_ages = []
-        for a in hha_brackets[hha_bi]:
-            possible_hha_bi_ages.extend([a] * age_count[a])
-        print(possible_hha_bi_ages)
-        np.random.shuffle(possible_hha_bi_ages)
-        if len(possible_hha_bi_ages) >= hha_b_count[hha_bi]:
-            chosen_hha = possible_hha_bi_ages[0:hha_b_count[hha_bi]]
-            hha_living_alone.extend(chosen_hha)
-        else:
-            print('cannot choose head of household age in ', hha_brackets[hha_bi], 'because no one in that age group exists')
-        # hha_living_alone.extend(chosen_hha)
-    np.random.shuffle(hha_living_alone)
+#     for hha_bi in hha_brackets:
+#         print(hha_bi)
+#         possible_hha_bi_ages = []
+#         for a in hha_brackets[hha_bi]:
+#             possible_hha_bi_ages.extend([a] * age_count[a])
+#         print(possible_hha_bi_ages)
+#         np.random.shuffle(possible_hha_bi_ages)
+#         if len(possible_hha_bi_ages) >= hha_b_count[hha_bi]:
+#             chosen_hha = possible_hha_bi_ages[0:hha_b_count[hha_bi]]
+#             hha_living_alone.extend(chosen_hha)
+#         else:
+#             print('cannot choose head of household age in ', hha_brackets[hha_bi], 'because no one in that age group exists')
+#         # hha_living_alone.extend(chosen_hha)
+#     np.random.shuffle(hha_living_alone)
 
-    homes = np.array(hha_living_alone).astype(int).reshape((len(hha_living_alone), 1))
-    return homes
+#     homes = np.array(hha_living_alone).astype(int).reshape((len(hha_living_alone), 1))
+#     return homes
 
 # keep
 def generate_household_sizes(hh_sizes):
-    """."""
-    household_sizes = []
-    for hs in range(1, len(hh_sizes) + 1):
-        household_sizes.extend([hs] * hh_sizes[hs - 1])
-    household_sizes = np.array(household_sizes)
-    np.random.shuffle(household_sizes)
-    return household_sizes
-
-# maybe don't keep --- generalized into generate_household_sizes
-def generate_larger_household_sizes(hh_sizes):
     """
-    Create a list of the households larger than 1 in random order so that as
-    individuals are placed by age into homes running out of specific ages is not
+    Create a list of the household sizes in random order so that as individuals
+    are placed by age into homes running out of specific ages is not
     systemically an issue for any given household size unless certain sizes
     greatly outnumber households of other sizes.
 
@@ -304,51 +308,73 @@ def generate_larger_household_sizes(hh_sizes):
         Np.array: An array of household sizes to be generated and place people
         into households.
     """
-    larger_hh_size_array = []
-    for hs in range(2, len(hh_sizes) + 1):
-        larger_hh_size_array.extend([hs] * hh_sizes[hs - 1])
-    larger_hh_size_array = np.array(larger_hh_size_array)
-    np.random.shuffle(larger_hh_size_array)
-    return larger_hh_size_array
+    household_sizes = []
+    for hs in range(1, len(hh_sizes) + 1):
+        household_sizes.extend([hs] * hh_sizes[hs - 1])
+    household_sizes = np.array(household_sizes)
+    np.random.shuffle(household_sizes)
+    return household_sizes
 
-# maybe don't keep --- generate_household_head_ages
-def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, ages_left_to_assign):
-    """
-    Generate the ages of the heads of households for households larger than 2.
-    """
-    larger_hha_chosen = []
+# # maybe don't keep --- generalized into generate_household_sizes
+# def generate_larger_household_sizes(hh_sizes):
+#     """
+#     Create a list of the households larger than 1 in random order so that as
+#     individuals are placed by age into homes running out of specific ages is not
+#     systemically an issue for any given household size unless certain sizes
+#     greatly outnumber households of other sizes.
 
-    # go through every household and choose the head age
-    # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
-    # any optimized method will also need to avoid ordering bias, e.g., we could count the number of households of each size, then use the
-    # conditional probability of household head age by household size in a multinomial draw to sample the ages of household heads for each size.
-    # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
-    # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
-    # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
-    # then sampling each household head or reference person's age from the conditional probability distribution and the 
+#     Args:
+#         hh_sizes (array) : The count of household size s at index s-1.
 
-    for nh, hs in enumerate(larger_hh_size_array):
-        hs_distr = hha_by_size[hs - 1, :]
-        hbi = spsamp.fast_choice(hs_distr)
-        hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
+#     Returns:
+#         Np.array: An array of household sizes to be generated and place people
+#         into households.
+#     """
+#     larger_hh_size_array = []
+#     for hs in range(2, len(hh_sizes) + 1):
+#         larger_hh_size_array.extend([hs] * hh_sizes[hs - 1])
+#     larger_hh_size_array = np.array(larger_hh_size_array)
+#     np.random.shuffle(larger_hh_size_array)
+#     return larger_hh_size_array
 
-        while sum(hbi_distr) == 0: # pragma: no cover
-            hbi = spsamp.fast_choice(hs_distr)
-            hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
+# # maybe don't keep --- generate_household_head_ages
+# def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, ages_left_to_assign):
+#     """
+#     Generate the ages of the heads of households for households larger than 2.
+#     """
+#     larger_hha_chosen = []
 
-        hha = hha_brackets[hbi][spsamp.fast_choice(hbi_distr)]
-        ages_left_to_assign[hha] -= 1
+#     # go through every household and choose the head age
+#     # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
+#     # any optimized method will also need to avoid ordering bias, e.g., we could count the number of households of each size, then use the
+#     # conditional probability of household head age by household size in a multinomial draw to sample the ages of household heads for each size.
+#     # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
+#     # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
+#     # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
+#     # then sampling each household head or reference person's age from the conditional probability distribution and the 
 
-        larger_hha_chosen.append(hha)
+#     for nh, hs in enumerate(larger_hh_size_array):
+#         hs_distr = hha_by_size[hs - 1, :]
+#         hbi = spsamp.fast_choice(hs_distr)
+#         hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
 
-    return larger_hha_chosen, ages_left_to_assign
+#         while sum(hbi_distr) == 0: # pragma: no cover
+#             hbi = spsamp.fast_choice(hs_distr)
+#             hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
+
+#         hha = hha_brackets[hbi][spsamp.fast_choice(hbi_distr)]
+#         ages_left_to_assign[hha] -= 1
+
+#         larger_hha_chosen.append(hha)
+
+#     return larger_hha_chosen, ages_left_to_assign
 
 # Keep - used in refactored method
 def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
     """
     Assign people to households larger than one person (excluding special
     residences like long term care facilities or agricultural workers living in
-    shared residential quarters.
+    shared residential quarters).
 
     Args:
         hh_sizes (array)              : The count of household size s at index s-1.
@@ -357,7 +383,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         cm_age_brackets (dict)        : The age brackets for the contact matrix.
         cm_age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
         household_matrix (dict)       : The age-specific contact matrix for the household ontact setting.
-        ages_left_to_assign (dict) : Age count of people left to place in households larger than one person.
+        ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
 
     Returns:
         dict: A dictionary of households by age indexed by household size.
@@ -411,8 +437,34 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
 
 
 def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, ages_left_to_assign):
-    """."""
+    """
+    Generate the ages of those living in households together. First create
+    households of people living alone, then larger households. For households
+    larger than 1, a reference individual's age is sampled conditional on the
+    household size, while all other household members have their ages sampled
+    conditional on the reference person's age and the age mixing contact matrix
+    in households for the population under study. Fix the count of ages in the
+    population before placing individuals in households so that the age
+    distribution of the generated population is fixed to closely match the age
+    distribution from data on the population.
 
+    Args:
+        n_remaining (int)             : The number of people in the population left to place in a residence.
+        hh_sizes (array)              : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)           : The age brackets for the heads of household.
+        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrix_dic (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
+        ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
+
+    Returns:
+        An array of all households where each household is a row and the values
+        in the row are the ages of the household members. The first age in the
+        row is the age of the reference individual. Households are randomly
+        shuffled by size.
+    """
+    log.debug('generate_all_households_method_2_refactor()')
     household_sizes = generate_household_sizes(hh_sizes)
 
     # generate the ages for heads of households or reference persons conditional on the household size and the age distribution
@@ -440,63 +492,30 @@ def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size
     return homes_dic, homes
 
 
-    # # print(sum(age_count_left_to_place.values()))
-    # # print(hh_sizes)
-    # # print('hh_sizes sum', sum([hh_sizes[s] * (s + 1) for s in range(len(hh_sizes))]))
-    # # print(hha_brackets)
-    # # homes_dic = dict()
-
-    # homes_dic[1] = generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count_left_to_place)
-
-    # print(homes_dic[1])
-    # living_alone_ages = [homes_dic[1][h][0] for h in range(len(homes_dic[1]))]
-
-    # living_alone_age_count = Counter(living_alone_ages)
-    # new_ages_left_to_assign = dict.fromkeys(np.arange(len(age_count_left_to_place)))
-
-    # # remove those already placed in households on their own
-    # for a in new_ages_left_to_assign:
-    #     new_ages_left_to_assign[a] = age_count_left_to_place[a] - living_alone_age_count[a]
-    #     # print(a, new_ages_left_to_assign[a])
-
-    # print(len(homes_dic[1]))
-    # print(sum(living_alone_age_count.values()))
-    # print(sum(new_ages_left_to_assign.values()))
-
-    # # create array of expected household sizes  larger than out of order so that running out of individuals to place by age is not systemically as issue for larger household sizes
-    # max_hh_size = len(hh_sizes)
-    # larger_hh_size_array = generate_larger_household_sizes(hh_sizes)
-    # print(larger_hh_size_array)
-    # for hs in range(2, max_hh_size + 1):
-    #     homes_dic[hs] = []
-
-    # # go through every household and assign age of the head of the household
-    # # need to check and make sure this isn't biased towards smaller households because of ordering
-    # larger_hha_chosen, new_ages_left_to_assign = generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, new_ages_left_to_assign)
-    # larger_hha_count = Counter(larger_hha_chosen)
-    # # print(larger_hha_chosen)
-    # # print(larger_hha_count)
-    # # for a in new_ages_left_to_assign:
-    # #     print(a, new_ages_left_to_assign[a])
-
-    # print(n_remaining)
-    # print(n_remaining - hh_sizes[0])
-    # print(hh_sizes[0])
-    # # print(n_remaining - hh_sizes[0] - hh_sizes[1:].sum())
-    # print(sum(new_ages_left_to_assign.values()))
-    # # # make copy of the household matrix that you can modify to help with sampling
-    # # household_matrix = contact_matrices['H'].copy()
-    # # homes_dic, new_ages_left_to_assign = generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, new_ages_left_to_assign, homes_dic)
-    # # homes = get_all_households(homes_dic)
-
-    # # print(sum(new_ages_left_to_assign.values()))
-
-    # # return homes_dic, homes
-
-
 def generate_larger_households_method_1(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist, p=0.15):
-    """."""
-    log.debug('generate_larger_houeholds_method_1')
+    """
+    Generate ages of those living in households of greater than one individual.
+    Reference individual is sampled conditional on the household size. All other
+    household members have their ages sampled conditional on the reference
+    person's age and the age mixing contact matrix in households for the
+    population under study.
+
+    Args:
+        size (int)                    : The household size.
+        hh_sizes (array)              : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)           : The age brackets for the heads of household.
+        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrix_dic (dict)     : A dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict)  : The age distribution.
+
+    Returns:
+        An array of households for size ``size`` where each household is a row
+        and the values in the row are the ages of the household members. The
+        first age in the row is the age of the reference individual.
+    """
+    log.debug('generate_larger_households_method_1()')
     # calibrated to work for Seattle metro - use method 2 for other populations
     # p = 0.15  # This is a placeholder value. Users will need to change this to fit whatever population they are working with if using this method
 
@@ -544,8 +563,33 @@ def generate_larger_households_method_1(size, larger_household_sizes, heads_of_l
 
 
 def generate_all_households_method_1_refactor(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, adjusted_age_dist, ages_left_to_assign):
-    """."""
+    """
+    Generate the ages of those living in households together. First create households of people living alone, then larger households.
+    For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
+    members have their ages sampled conditional on the reference person's age and the age mixing contact matrix in households for the
+    population under study.
 
+    Args:
+        n (int)                       : The number of people in the population.
+        n_remaining (int)             : The number of people in the population left to place in a residence.
+        hh_sizes (array)              : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)           : The age brackets for the heads of household.
+        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)       : The dictionary of the age-specific contact matrix for different physical contact settings.
+        ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
+
+    Returns:
+        An array of all households where each household is a row and the values in the row are the ages of the household members.
+        The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
+
+    Note:
+        This method is not guaranteed to model the population age distribution well automatically. The method called
+        inside, generate_larger_households_method_1 uses the method ltcf_resample_age to fit Seattle, Washington populations with long term
+        care facilities generated. For a method that matches the age distribution well for populations in general, please use generate_all_households_methods_2.
+    """
+    log.debug('generate_all_households_method_1_refactor()')
     household_sizes = generate_household_sizes(hh_sizes)
 
     # generate the ages for heads of households or reference persons conditional on the household size and the age distribution

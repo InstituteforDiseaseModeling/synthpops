@@ -108,7 +108,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     Returns:
         A dictionary with a count of workers to assign to a workplace.
     """
-
+    log.debug('get_workers_by_age_to_assign()')
     workers_by_age_to_assign_count = dict.fromkeys(np.arange(101), 0)
     for a in potential_worker_ages_left_count:
         if a in employment_rates:
