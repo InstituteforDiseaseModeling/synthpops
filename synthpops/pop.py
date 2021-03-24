@@ -261,7 +261,12 @@ class Pop(sc.prettyobj):
         staff_age_max                   = self.school_pars.staff_age_max
 
         # Load and store the expected age distribution of the population
-        age_brackets = spdata.read_age_bracket_distr(**loc_pars)
+        age_bracket_dist = spdata.read_age_bracket_distr(**loc_pars)  # age distribution defined by bins or age brackets
+        expected_age_dist = spdata.get_smoothed_single_year_age_distr(**loc_pars, window_length=self.window_length)
+        self.expected_age_dist = expected_age_dist
+
+        # Load and store the age brackets
+        age_brackets = spdata.get_census_age_brackets(**loc_pars)
         self.age_brackets = age_brackets
 
         # Load and store the age brackets
@@ -277,9 +282,13 @@ class Pop(sc.prettyobj):
         contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
         contact_matrix_row = contact_matrix_shape[0]
 
-        cm_age_brackets = spdata.get_census_age_brackets(**sc.mergedicts(loc_pars, dict(nbrackets=contact_matrix_row)))
-        # cm_age_brackets = spdata.get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=contact_matrix_row)
+        cm_age_brackets = spdata.get_census_age_brackets(**loc_pars, nbrackets=contact_matrix_row)
         cm_age_by_brackets_dic = spb.get_age_by_brackets_dic(cm_age_brackets)
+        self.cm_age_brackets = cm_age_brackets
+        self.cm_age_by_brackets_dic = cm_age_by_brackets_dic
+
+        # Generate an age count for the population --- this will get passed around to methods generating the different layers where people live: long term care facilities, households, agricultural living quarters, other group living arrangements
+        age_count = sphh.generate_age_count_multinomial(n, expected_age_dist)
 
         # Generate LTCFs
         n_nonltcf, age_brackets, age_by_brackets_dic, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)

@@ -13,7 +13,11 @@ from . import data_distributions as spdata
 from . import base as spb
 
 
-def generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length):
+def generate_ltcfs():
+    """."""
+
+
+def generate_ltcfs_old(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length):
     """
     Generate residents living in long term care facilities and their ages.
 
