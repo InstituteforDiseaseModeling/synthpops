@@ -264,6 +264,8 @@ class Pop(sc.prettyobj):
         age_bracket_dist = spdata.read_age_bracket_distr(**loc_pars)  # age distribution defined by bins or age brackets
         expected_age_dist = spdata.get_smoothed_single_year_age_distr(**loc_pars, window_length=self.window_length)
         self.expected_age_dist = expected_age_dist
+        expected_age_dist_values = [expected_age_dist[a] for a in expected_age_dist]
+        self.expected_age_dist_values = expected_age_dist_values
 
         # Load and store the age brackets
         age_brackets = spdata.get_census_age_brackets(**loc_pars)
@@ -288,7 +290,7 @@ class Pop(sc.prettyobj):
         self.cm_age_by_brackets_dic = cm_age_by_brackets_dic
 
         # Generate an age count for the population --- this will get passed around to methods generating the different layers where people live: long term care facilities, households, agricultural living quarters, other group living arrangements
-        age_count = sphh.generate_age_count_multinomial(n, expected_age_dist)
+        age_count = sphh.generate_age_count_multinomial(n, expected_age_dist_values)
 
         # Ages left to assign to a residence
         ages_left_to_assign = sc.dcp(age_count)

@@ -73,6 +73,7 @@ def generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to
     return n_nonltcf, ltcf_adjusted_age_dist, ltcf_adjusted_age_dist_values, ages_left_to_assign, facilities
 
 
+# to be removed
 def generate_ltcfs_old(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length):
     """
     Generate residents living in long term care facilities and their ages.
@@ -307,6 +308,7 @@ def ltcf_resample_age(exp_age_distr, a):
 
 # Household construction methods
 
+# to be removed
 def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate ages of those living in households of greater than one individual.
@@ -373,7 +375,7 @@ def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_
 
     return homes
 
-
+# to be removed
 def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, single_year_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
