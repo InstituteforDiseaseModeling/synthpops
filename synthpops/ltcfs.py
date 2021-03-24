@@ -28,7 +28,7 @@ def generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to
     # initialize an empty list for facilities
     facilities = []
 
-    # if not using facilities, skip everything here
+    # If not using facilities, skip everything here
     if with_facilities:
 
         # what the ltcf user rates by age?
@@ -37,7 +37,7 @@ def generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to
         # generate the count of ltcf users by age and make a list of all users represented by their age
         expected_users_by_age = dict.fromkeys(expected_age_dist.keys(), 0)
 
-        # make a list of all the users by their age
+        # make a list of all resident ages
         all_residents = []
         for a in expected_users_by_age:
             expected_users_by_age[a] = np.random.binomial(ages_left_to_assign[a], ltcf_rates_by_age[a])
