@@ -661,6 +661,7 @@ class Pop(sc.prettyobj):
             pop_size   = self.n,
             pop_type   = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
+            rand_seed = self.rand_seed,
         )
         sim = cv.Sim(pars, popfile=self.popdict)
         ppl = cv.make_people(sim)  # Create the corresponding population
