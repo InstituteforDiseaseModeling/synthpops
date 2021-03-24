@@ -572,7 +572,7 @@ def generate_all_households_method_1_refactor(n, n_remaining, hh_sizes, hha_by_s
         adjusted_age_dist[hha] -= 1 / n
     for a in adjusted_age_dist:
         adjusted_age_dist[a] = max(adjusted_age_dist[a], 0)
-    adjusted_age_dist_values = np.array([adjusted_age_dist[a] for a in adjusted_age_dist])
+    # adjusted_age_dist_values = np.array([adjusted_age_dist[a] for a in adjusted_age_dist])
 
     # generate the large households and ages of those people
     for size in range(2, len(hh_sizes) + 1):
