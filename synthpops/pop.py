@@ -267,6 +267,11 @@ class Pop(sc.prettyobj):
         expected_age_dist_values = [expected_age_dist[a] for a in expected_age_dist]
         self.expected_age_dist_values = expected_age_dist_values
 
+        print('expected_age_dist', expected_age_dist)
+        print(sorted(expected_age_dist.keys()))
+        print(len(expected_age_dist))
+
+
         # Load and store the age brackets
         age_brackets = spdata.get_census_age_brackets(**loc_pars)
         self.age_brackets = age_brackets
@@ -601,7 +606,9 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+        for a in self.summary.enrollment_by_age:
+            print(a, self.summary.enrollment_by_age[a], self.summary.age_count[a])
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -630,7 +637,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
