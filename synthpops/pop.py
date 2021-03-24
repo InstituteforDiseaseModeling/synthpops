@@ -306,13 +306,11 @@ class Pop(sc.prettyobj):
 
         if household_method == 'fixed_ages':
 
-            # homes_dic, homes = spltcf.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist)
-            homes_dic, homes = sphh.generate_all_households_method_2_refactor(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ages_left_to_assign)
+            homes_dic, homes = sphh.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ages_left_to_assign)
 
         else:
             log.debug("defaulting to 'infer_ages' household generation method. See class notes for description.")
-            # homes_dic, homes = spltcf.generate_all_households_method_1(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist)
-            homes_dic, homes = sphh.generate_all_households_method_1_refactor(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist, ages_left_to_assign)
+            homes_dic, homes = sphh.generate_all_households_method_1(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist, ages_left_to_assign)
 
         # Handle homes and facilities
         homes = facilities + homes
