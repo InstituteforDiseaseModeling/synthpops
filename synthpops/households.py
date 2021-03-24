@@ -10,7 +10,7 @@ from . import base as spb
 from . import sampling as spsamp
 
 
-def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
+def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
 
@@ -178,11 +178,11 @@ def generate_age_count_multinomial(n, age_distr):
     return dict(zip(range(len(age_distr)), age_count))
 
 
-def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, ages_left_to_assign):
+def generate_household_head_ages(household_sizes, hha_by_size, hha_brackets, ages_left_to_assign):
     """
-    Generate the ages of the heads of households for households larger than 2.
+    Generate the ages of the heads of households for households.
     """
-    larger_hha_chosen = []
+    household_head_ages = []
 
     # go through every household and choose the head age
     # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
@@ -191,9 +191,9 @@ def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_
     # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
     # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
     # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
-    # then sampling each household head or reference person's age from the conditional probability distribution and the 
+    # then sampling each household head or reference person's age from the conditional probability distribution and the
 
-    for nh, hs in enumerate(larger_hh_size_array):
+    for nh, hs in enumerate(household_sizes):
         hs_distr = hha_by_size[hs - 1, :]
         hbi = spsamp.fast_choice(hs_distr)
         hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
@@ -205,12 +205,13 @@ def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_
         hha = hha_brackets[hbi][spsamp.fast_choice(hbi_distr)]
         ages_left_to_assign[hha] -= 1
 
-        larger_hha_chosen.append(hha)
+        household_head_ages.append(hha)
+    household_head_ages = np.array(household_head_ages).astype(int)
 
-    return larger_hha_chosen, ages_left_to_assign
+    return household_head_ages, ages_left_to_assign
 
 
-def generate_household_head_ages(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, age_count_left_to_place):
+def generate_household_head_ages_draft(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, age_count_left_to_place):
     """."""
     household_head_ages = []
     household_sizes = []
@@ -281,9 +282,7 @@ def generate_all_households_method_2_refactor(n_remaining, hh_sizes, hha_by_size
 
     # print(sum(new_ages_left_to_assign.values()))
 
-
     # return homes_dic, homes
-
 
 
 def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_count):
@@ -333,6 +332,16 @@ def generate_living_alone_method_2(hh_sizes, hha_by_size, hha_brackets, age_coun
 
     homes = np.array(hha_living_alone).astype(int).reshape((len(hha_living_alone), 1))
     return homes
+
+
+def generate_household_sizes(hh_sizes):
+    """."""
+    household_sizes = []
+    for hs in range(1, len(hh_sizes) + 1):
+        household_sizes.extend([hs] * hh_sizes[hs - 1])
+    household_sizes = np.array(household_sizes)
+    np.random.shuffle(household_sizes)
+    return household_sizes
 
 
 def generate_larger_household_sizes(hh_sizes):

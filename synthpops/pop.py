@@ -291,7 +291,7 @@ class Pop(sc.prettyobj):
         # Generate households
         household_size_distr = spdata.get_household_size_distr(**loc_pars)
         # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
-        hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
         hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
