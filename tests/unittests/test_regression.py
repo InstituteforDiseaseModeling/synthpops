@@ -184,7 +184,7 @@ class TestRegression(unittest.TestCase):
                 agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
                 textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")
                 np.savetxt(textfile, agg_matrix, delimiter=",", fmt=fmt)
-                fig = sp.plot_contacts(pop, setting_code=setting_code, density_or_frequency=method, do_show=False)
+                fig = sp.plot_contacts(pop, layer=setting_code, density_or_frequency=method, do_show=False)
                 fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.png"))
 
     """
@@ -275,8 +275,8 @@ class TestRegression(unittest.TestCase):
             if max_difference > 1:
                 for option in ['density', 'frequency']:
                     print(f"\ncheck:{code} with {option}")
-                    actual_matrix = sp.calculate_contact_matrix(actual, density_or_frequency=option, setting_code=code)
-                    # expected_matrix = sp.calculate_contact_matrix(expected, density_or_frequency=option, setting_code=code)
+                    actual_matrix = sp.calculate_contact_matrix(actual, density_or_frequency=option, layer=code)
+                    # expected_matrix = sp.calculate_contact_matrix(expected, density_or_frequency=option, layer=code)
                     expected_matrix = np.loadtxt(os.path.join(self.expectedDir,f"pop{self.n}_seed_{self.seed}_{code}_{option}_contact_matrix.csv"), unpack=True, delimiter=",")
                     np.savetxt(os.path.join(self.pdfDir,f"pop{self.n}_seed_{self.seed}_{code}_{option}_contact_matrix.csv"), expected_matrix, delimiter=",")
                     # calculate Canberra distance

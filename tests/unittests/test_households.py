@@ -380,7 +380,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         hh_distro = self.get_seattle_household_size_distro()
-        hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(500, hh_distro)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(500, hh_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -425,7 +425,7 @@ class HouseholdsTest(unittest.TestCase):
             6: 0.05,
             7: 0.175
         }
-        hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(500, custom_distro)
+        hh_sizes = sp.generate_household_size_count_from_fixed_pop_size(500, custom_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -738,7 +738,7 @@ class HouseholdsTest(unittest.TestCase):
         # 900 is divisble by the expected value (3.0) but 901 is not
         # this creates test cases for N_gen = N and N_gen < N condition
         for i in [900, 901]:
-            hh = sp.generate_household_sizes_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
+            hh = sp.generate_household_size_count_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
             # verify the total number of people matches N
             self.assertEqual(i, sum([(n+1)*hh[n] for n in range(0, len(hh))]))
             # verify distribution
@@ -751,7 +751,7 @@ class HouseholdsTest(unittest.TestCase):
                        3: 0.2,
                        4: 0.29,
                        5: 0.11}
-        hh2 = sp.generate_household_sizes_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
+        hh2 = sp.generate_household_size_count_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
         self.assertEqual(900, sum([(n+1)*hh2[n] for n in range(0, len(hh2))]))
         self.verify_buckets(uneven_dist.values(), hh2)
 
