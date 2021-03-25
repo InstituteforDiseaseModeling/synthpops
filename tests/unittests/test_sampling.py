@@ -40,22 +40,24 @@ def test_fast_choice(do_plot=False, sigma=5):
     return samples
 
 
-def test_check_dist():
-    sc.heading('Testing check_dist()...')
+def test_check_dist_poisson():
+    sc.heading('Testing test_check_dist_poisson() (statistical tests for a discrete distribution)...')
 
-    # # Poisson tests
+    # Poisson tests
     n              = 100 # Number of samples
     expected       = 10 # Target value
     actual_valid   = 12 # Close to target given the number of samples
     actual_invalid = 20 # Far from target
     invalid_data = np.random.rand(n) + expected
 
-    # print('↓ Should print some warnings')
+    print('↓ Should print some warnings')
     sp.check_poisson(actual=actual_valid, expected=expected, die=True) # Should pass
     sp.check_poisson(actual=actual_invalid, expected=expected, verbose=False) # Shouldn't pass, but not die
 
     # test poisson for rate = 0, seems to fail and return the max value for the quantile instead of the min value
-    sp.check_poisson(actual=0, expected=0, verbose=True, check='mean')
+    with pytest.raises(NotImplementedError) as excinfo:
+        sp.check_poisson(actual=np.zeros(100), expected=0, verbose=True, check='mean')
+    print(str(excinfo.value))
     stats = sp.check_poisson(actual=invalid_data, expected=expected, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
 
     with pytest.raises(ValueError):
@@ -63,22 +65,26 @@ def test_check_dist():
     with pytest.raises(ValueError):
         sp.check_poisson(actual=actual_valid, expected=expected, alpha=1.0, die=True)
 
+    return stats
+
+
+def test_check_dist_normal():
+    sc.heading('Testing test_check_dist_normal() (statistical tests for a continuous distribution)...')
     # Normal tests
-    expected = 5
-    invalid = 15
-    std = 3
-    valid_ndata = np.random.randn(n)*std + expected
+    n             = 100
+    expected      = 5
+    invalid       = 15
+    std           = 3
+    valid_ndata   = np.random.randn(n)*std + expected
     invalid_ndata = np.random.randn(n)*std + invalid
     sp.check_normal(actual=valid_ndata, expected=expected, die=True)
     with pytest.raises(ValueError):
         sp.check_normal(actual=invalid_ndata, expected=expected, die=True)
 
-    # Other tests
-    sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm', die=True)
-    with pytest.raises(NotImplementedError):
-        sp.check_dist(actual=1, expected=1, dist='not a distribution')
 
-    # Check dist test: binom --- discrete distribution statistical test
+def test_check_dist_binom():
+    sc.heading('Testing test_check_dist_binom() (statistical tests for a discrete distribution)...')
+    # Binomial tests
     n = 300
     p = 0.06
     size = 300
@@ -86,7 +92,13 @@ def test_check_dist():
     actual = scipy.stats.binom.rvs(n, p, size=size)
     sp.check_dist(actual=actual, expected=expected, dist='binom', check='dist', verbose=True)
 
-    return stats
+
+def test_other_distributions():
+    sc.heading('Testing test_other_distributions()...')
+    # Other tests
+    sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm', die=True)
+    with pytest.raises(NotImplementedError):
+        sp.check_dist(actual=1, expected=1, dist='not a distribution')
 
 
 if __name__ == '__main__':
@@ -94,9 +106,10 @@ if __name__ == '__main__':
     T = sc.tic()
 
     choices = test_fast_choice()
-    stats = test_check_dist()
-    # test_breakdown_check_dist()
-
+    stats = test_check_dist_poisson()
+    test_check_dist_normal()
+    test_check_dist_binom()
+    test_other_distributions()
 
     sc.toc(T)
     print('Done.')

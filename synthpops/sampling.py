@@ -212,6 +212,11 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
         null = minquant <= quantile <= maxquant # True if above minimum and below maximum
 
+    # catch the situation where poisson dist check fails for poisson with rate = 0
+    if dist in ['poisson'] and expected == 0:  # poisson fails with rate == 0, potentially this does not work for other distributions as well
+        errormsg = f"This test is not implemented to check a null hypothesis with the poisson distribution and rate = {expected}."
+        raise NotImplementedError(errormsg)
+
     # Additional stats
     n_samples = len(actual) if is_dist else 1
     eps = 1.0/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
