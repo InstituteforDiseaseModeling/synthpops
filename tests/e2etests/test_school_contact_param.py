@@ -15,19 +15,14 @@ import pytest
 import pathlib
 import warnings
 import synthpops as sp
+import setup_e2e
+from setup_e2e import get_fig_dir
 
 pars = dict(
     n=30000,
     rand_seed=1,
     with_non_teaching_staff=1
 )
-
-@pytest.fixture
-def get_fig_dir(request, artifact_dir):
-    testname = request.node.originalname
-    fig_dir = pathlib.Path(artifact_dir, testname)
-    os.makedirs(fig_dir, exist_ok=True)
-    return fig_dir
 
 
 @pytest.mark.parametrize("average_class_size", [10, 20, 50])

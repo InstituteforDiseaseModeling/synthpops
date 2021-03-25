@@ -4,6 +4,7 @@ Functions for generating households
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 from collections import Counter
 from .config import logger as log, checkmem
 from . import base as spb
@@ -364,6 +365,45 @@ def get_household_heads(popdict):
 
     return household_heads
 
+def get_household_head_age_size(pop):
+    """
+    Calculate the household count by household size and household head's age
+    assuming lowest uids in the household should be household head
+
+    Args:
+        pop   : population
+
+    Returns:
+        array with rows as family size and columns as age brackets
+    """
+    popdict = pop.popdict
+    from . import data_distributions as spdata
+    hha_brackets = spdata.get_head_age_brackets(datadir=pop.datadir,
+                                            location=pop.location,
+                                            state_location=pop.state_location,
+                                            country_location=pop.country_location,
+                                            use_default=pop.use_default)
+
+    #hha_index use age as key and bracket index as value
+    hha_index = dict()
+    for k, v in hha_brackets.items():
+        for i in v:
+            hha_index[i] = k
+    uids = get_household_heads(popdict=popdict)
+    d = {}
+    i = 0
+    # construct tables for each houldhold head
+    for uid in uids.values():
+        d[i] = {'hhid': popdict[uid]['hhid'],
+                'age': popdict[uid]['age'],
+                'family_size': len(popdict[uid]['contacts']['H']) + 1,
+                'age_bracket': hha_index[popdict[uid]['age']]}
+        i += 1
+    df_household_age = pd.DataFrame.from_dict(d, "index")
+    # aggregate by age_bracket (column) and family_size (row)
+    df_household_age = df_household_age.groupby(['age_bracket', 'family_size'], as_index=False).count()\
+        .pivot(index='family_size', columns='age_bracket', values='hhid').fillna(0)
+    return np.array(df_household_age.values)
 
 def get_generated_household_size_distribution(household_sizes):
     """
