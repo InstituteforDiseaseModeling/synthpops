@@ -78,7 +78,7 @@ def test_check_dist():
     with pytest.raises(NotImplementedError):
         sp.check_dist(actual=1, expected=1, dist='not a distribution')
 
-    # Check dist test: binomial, should work but doesn't... seems like there's a problem with the dist option
+    # Check dist test: binom --- discrete distribution statistical test
     n = 300
     p = 0.06
     size = 300
