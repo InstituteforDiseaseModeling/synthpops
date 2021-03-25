@@ -88,12 +88,42 @@ def test_check_dist():
     return stats
 
 
+def test_breakdown_check_dist():
+    """Testing the logic of check_dist"""
+
+    # normal distribution
+    expected, std = 0, 1.
+    args = (expected, std)
+    scipydist = getattr(scipy.stats, 'norm')
+    truedist = scipydist(*args)
+    # print(truedist)
+    value = -1
+    print(truedist.cdf(value))  # at this value what is the expected cdf?
+
+    actual = truedist.rvs(size=1000000)
+    print(np.histogram(actual, bins = np.linspace(-3,3,10)))
+    teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf='norm', args=args)
+    print(teststat, pvalue)
+
+    expected = 1
+    args = (expected, )
+    scipydist = getattr(scipy.stats, 'poisson')
+    truedist = scipydist(*args)
+
+    actual = truedist.rvs(size=1000)
+    teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf='poisson', args=args)
+    print(teststat, pvalue)
+
+
 if __name__ == '__main__':
 
     T = sc.tic()
 
-    choices = test_fast_choice()
-    stats = test_check_dist()
+    # choices = test_fast_choice()
+    # stats = test_check_dist()
+
+    test_breakdown_check_dist()
+
 
     sc.toc(T)
     print('Done.')
