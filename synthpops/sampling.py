@@ -210,12 +210,9 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
         minquant = alpha/2 # e.g., 0.025 for alpha=0.05
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
-        null = minquant <= quantile <= maxquant # True if above minimum and below maximum
-
-    # catch the situation where poisson dist check fails for poisson with rate = 0
-    if dist in ['poisson'] and expected == 0:  # poisson fails with rate == 0, potentially this does not work for other distributions as well
-        errormsg = f"This test is not implemented to check a null hypothesis with the poisson distribution and rate = {expected}."
-        raise NotImplementedError(errormsg)
+        quant_check = (minquant <= quantile <= maxquant) # True if above minimum and below maximum
+        val_check = truedist.ppf(minquant) <= value <= truedist.ppf(maxquant) # Check values
+        null = quant_check or val_check # Consider either
 
     # Additional stats
     n_samples = len(actual) if is_dist else 1
@@ -226,6 +223,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
 
     # If null hypothesis is rejected, print a warning or error
     if not null:
+        import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
         msg = f''''
 Variable{label} with n={n_samples} samples is out of range using the distribution:
     {dist}({args}) →
