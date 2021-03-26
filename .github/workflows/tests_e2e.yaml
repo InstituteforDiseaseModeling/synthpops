@@ -10,7 +10,7 @@ on:
 jobs:
   install_and_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       max-parallel: 8

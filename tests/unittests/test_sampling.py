@@ -53,6 +53,7 @@ def test_check_dist_poisson():
     print('↓ Should print some warnings')
     sp.check_poisson(actual=actual_valid, expected=expected, die=True) # Should pass
     sp.check_poisson(actual=actual_invalid, expected=expected, verbose=False) # Shouldn't pass, but not die
+    sp.check_poisson(actual=actual_valid, expected=expected, check='median') # Should pass checking against median
 
     sp.check_poisson(actual=np.zeros(100), expected=0, verbose=True, check='mean')
     stats = sp.check_poisson(actual=invalid_data, expected=expected, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
@@ -102,11 +103,11 @@ if __name__ == '__main__':
 
     T = sc.tic()
 
-    choices = test_fast_choice()
-    stats = test_check_dist_poisson()
-    test_check_dist_normal()
+    # choices = test_fast_choice()
+    # stats = test_check_dist_poisson()
+    # test_check_dist_normal()
     test_check_dist_binom()
-    test_other_distributions()
+    # test_other_distributions()
 
     sc.toc(T)
     print('Done.')

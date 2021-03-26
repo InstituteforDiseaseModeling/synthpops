@@ -268,7 +268,7 @@ def test_generate_larger_households(location='seattle_metro', state_location='Wa
 
 #     syn_schools, syn_school_uids, syn_school_types = sp.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 #                                                                                 ages_in_school_count, age_brackets, age_by_brackets_dic,
-#                                                                                 contact_matrix_dic, verbose=False)
+#                                                                                 contact_matrix_dic)
 #     assert syn_schools, syn_school_uids is not None
 
 #     return syn_schools, syn_school_uids
@@ -306,7 +306,7 @@ def test_generate_larger_households(location='seattle_metro', state_location='Wa
 #                                                                                 uids_in_school_by_age,
 #                                                                                 ages_in_school_count, age_brackets,
 #                                                                                 age_by_brackets_dic,
-#                                                                                 contact_matrix_dic, verbose=False)
+#                                                                                 contact_matrix_dic)
 
 #     potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = sp.get_uids_potential_workers(
 #         syn_school_uids, employment_rates, age_by_uid_dic)
@@ -449,7 +449,7 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
 #                                                                 potential_worker_uids, potential_worker_uids_by_age,
 #                                                                 potential_worker_ages_left_count,
 #                                                                 student_teacher_ratio=30, teacher_age_min=25,
-#                                                                 teacher_age_max=75, verbose=False)
+#                                                                 teacher_age_max=75)
 
     # for n in range(len(syn_schools)):
     #     print(syn_schools[n])

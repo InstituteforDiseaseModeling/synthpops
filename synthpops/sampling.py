@@ -164,7 +164,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         if std is None:
             if is_dist:
                 std = np.std(actual) # Get standard deviation from the data
-            else:
+            else: # pragma: no cover
                 std = 1.0
         args = (expected, std)
         scipydist = getattr(scipy.stats, 'norm')
@@ -194,7 +194,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
             expected_r = truedist.rvs(size=size)
             teststat, pvalue = scipy.stats.ks_2samp(actual, expected_r)
 
-        else:
+        else: # pragma: no cover
             errormsg = 'Distribution is neither continuous or discrete and so not supported at this time.'
             raise NotImplementedError(errormsg)
         null = pvalue > alpha

@@ -30,7 +30,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                                               average_additional_staff_degree=20,
                                               school_type_by_age=None,
                                               workplaces_by_industry_codes=None,
-                                              verbose=False,
                                               max_contacts=None):
     """
     From microstructure objects (dictionary mapping ID to age, lists of lists in different settings, etc.), create a dictionary of individuals.
@@ -58,7 +57,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         average_additional_staff_degree (float)           : The average number of contacts per additional non teaching staff in schools.
         school_type_by_age (dict)                         : A dictionary of probabilities for the school type likely for each age.
         workplaces_by_industry_codes (np.ndarray or None) : array with workplace industry code for each workplace
-        verbose (bool)                                    : If True, print debugging statements.
         trimmed_size_dic (dict)                           : If supplied, trim contacts on creation rather than post hoc.
 
     Returns:
@@ -183,8 +181,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...students ' + checkmem())
 
-    n_non_teaching_staff = []
-    n_teaching_staff = []
 
     for ns, students in enumerate(schools_by_uids):
         teachers = teachers_by_uids[ns]
@@ -203,18 +199,13 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             min_age = min(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
-            spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type, verbose)
-            if verbose:
-                if this_school_type in ['es', 'ms', 'hs']:
-                    n_non_teaching_staff.append(len(non_teaching_staff))
-                    n_teaching_staff.append(len(teachers))
+            spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type)
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
             spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
 
         for uid in students:
-
             popdict[uid]['scid'] = ns
             popdict[uid]['sc_student'] = 1
             popdict[uid]['sc_type'] = this_school_type
