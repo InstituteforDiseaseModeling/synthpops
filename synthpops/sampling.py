@@ -228,7 +228,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         msg = f''''
 Variable{label} with n={n_samples} samples is out of range using the distribution:
     {dist}({args}) →
-    p={pvalue} < α={alpha}
+    p={pvalue} < α={alpha}hehe
 Expected quintiles are: {expect_quin}
 Observed quintiles are: {obvs_quin}
 Observed median is in quantile: {quantile}'''

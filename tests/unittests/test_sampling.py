@@ -103,11 +103,11 @@ if __name__ == '__main__':
 
     T = sc.tic()
 
-    # choices = test_fast_choice()
-    # stats = test_check_dist_poisson()
-    # test_check_dist_normal()
+    choices = test_fast_choice()
+    stats = test_check_dist_poisson()
+    test_check_dist_normal()
     test_check_dist_binom()
-    # test_other_distributions()
+    test_other_distributions()
 
     sc.toc(T)
     print('Done.')
