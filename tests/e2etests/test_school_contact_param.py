@@ -55,14 +55,15 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_staff']['all'])
 
     elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
-        
+
         counts.extend(contacts['sc_student']['sc_student'])
 
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
     # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution
     fig, ax = plt.subplots(1, 1)
     res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
-    plt.show()
+    if do_show:
+        plt.show()
     return
 
 
@@ -108,9 +109,9 @@ def test_average_student_teacher_ratio(average_student_teacher_ratio, do_show, d
     )
     pop = sp.Pop(**pars, **testpars)
     ratios = get_teacher_staff_ratio(pop.popdict,
-                                    "average_student_teacher_ratio",
-                                    average_student_teacher_ratio,
-                                    do_show, do_save, get_fig_dir)
+                                     "average_student_teacher_ratio",
+                                     average_student_teacher_ratio,
+                                     do_show, do_save, get_fig_dir)
     sp.check_normal(actual=ratios, expected=average_student_teacher_ratio, label='average_student_teacher_ratio', check='mean')
     return
 
@@ -132,9 +133,9 @@ def test_student_all_staff_ratio(average_student_all_staff_ratio, do_show, do_sa
     )
     pop = sp.Pop(**pars, **testpars)
     ratios = get_teacher_staff_ratio(pop.popdict,
-                                    "average_student_all_staff_ratio",
-                                    average_student_all_staff_ratio,
-                                    do_show, do_save, get_fig_dir)
+                                     "average_student_all_staff_ratio",
+                                     average_student_all_staff_ratio,
+                                     do_show, do_save, get_fig_dir)
     sp.check_normal(actual=ratios, expected=average_student_all_staff_ratio, label='average_student_all_staff_ratio', check='mean')
     return
 

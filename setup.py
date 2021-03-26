@@ -44,9 +44,9 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "sciris==1.0.0",
+        "sciris>=1.0.0",
         "covasim>=2.0.0",
-        "matplotlib==3.3.4",
+        "matplotlib>=3.3.0",
         "numpy",
         "scipy",
         "pandas",
