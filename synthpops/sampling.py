@@ -195,7 +195,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
             teststat, pvalue = scipy.stats.ks_2samp(actual, expected_r)
 
         else:
-            errormsg = f'Distribution is neither continuous or discrete and so not supported at this time.'
+            errormsg = 'Distribution is neither continuous or discrete and so not supported at this time.'
             raise NotImplementedError(errormsg)
         null = pvalue > alpha
 
@@ -210,12 +210,11 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
         minquant = alpha/2 # e.g., 0.025 for alpha=0.05
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
-        null = minquant <= quantile <= maxquant # True if above minimum and below maximum
-
-    # catch the situation where poisson dist check fails for poisson with rate = 0
-    if dist in ['poisson'] and expected == 0:  # poisson fails with rate == 0, potentially this does not work for other distributions as well
-        errormsg = f"This test is not implemented to check a null hypothesis with the poisson distribution and rate = {expected}."
-        raise NotImplementedError(errormsg)
+        minval = truedist.ppf(minquant)
+        maxval = truedist.ppf(maxquant)
+        quant_check = (minquant <= quantile <= maxquant) # True if above minimum and below maximum
+        val_check = (minval <= value <= maxval) # Check values
+        null = quant_check or val_check # Consider it to pass if either passes
 
     # Additional stats
     n_samples = len(actual) if is_dist else 1
