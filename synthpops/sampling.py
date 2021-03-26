@@ -240,6 +240,8 @@ Observed median is in quantile: {quantile}'''
     # If null hypothesis is not rejected, under verbose, print a confirmation
     if null and verbose:
         print(f'Check passed. Null hypothesis with expected distribution: {dist}{args} not rejected.')
+        if is_dist and check == 'dist':
+            print(f'Test statistic: {teststat}, pvalue: {pvalue}')
 
     if not stats:
         return null

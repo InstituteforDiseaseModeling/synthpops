@@ -42,21 +42,24 @@ def test_fast_choice(do_plot=False, sigma=5):
 
 def test_check_dist_poisson():
     sc.heading('Testing test_check_dist_poisson() (statistical tests for a discrete distribution)...')
-
     # Poisson tests
+    np.random.seed(0)  # set random seed for test
     n              = 100 # Number of samples
     expected       = 10 # Target value
     actual_valid   = 12 # Close to target given the number of samples
     actual_invalid = 20 # Far from target
     invalid_data = np.random.rand(n) + expected
+    alpha = 1e-3
+
+    print(f"If any of test_check_dist_poisson() tests fail, try to rerun this by resetting the random seed. With alpha: {alpha} we expect 1 out of {1/alpha:.0f} tests to fail.")
 
     print('↓ Should print some warnings')
-    sp.check_poisson(actual=actual_valid, expected=expected, die=True) # Should pass
-    sp.check_poisson(actual=actual_invalid, expected=expected, verbose=False) # Shouldn't pass, but not die
-    sp.check_poisson(actual=actual_valid, expected=expected, check='median') # Should pass checking against median
+    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, die=True) # Should pass
+    sp.check_poisson(actual=actual_invalid, expected=expected, alpha=alpha, verbose=False) # Shouldn't pass, but not die
+    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, check='median') # Should pass checking against median
 
-    sp.check_poisson(actual=np.zeros(100), expected=0, verbose=True, check='mean')
-    stats = sp.check_poisson(actual=invalid_data, expected=expected, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
+    sp.check_poisson(actual=np.zeros(100), expected=0, alpha=alpha, verbose=True, check='mean')
+    stats = sp.check_poisson(actual=invalid_data, expected=expected, alpha=alpha, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
 
     with pytest.raises(ValueError):
         sp.check_poisson(actual=actual_invalid, expected=expected, die=True)
@@ -69,34 +72,43 @@ def test_check_dist_poisson():
 def test_check_dist_normal():
     sc.heading('Testing test_check_dist_normal() (statistical tests for a continuous distribution)...')
     # Normal tests
-    n             = 1000
+    np.random.seed(0)  # set random seed for test
+    n             = 100
     expected      = 5
     invalid       = 15
     std           = 3
     valid_ndata   = np.random.randn(n)*std + expected
     invalid_ndata = np.random.randn(n)*std + invalid
-    sp.check_normal(actual=valid_ndata, expected=expected, die=True)
+    alpha = 1e-3
+    print(f"If any of test_check_dist_normal() tests fail, try to rerun this by resetting the random seed. With alpha: {alpha} we expect 1 out of {1/alpha:.0f} tests to fail.")
+    sp.check_normal(actual=valid_ndata, expected=expected, alpha=alpha, die=True)
     with pytest.raises(ValueError):
-        sp.check_normal(actual=invalid_ndata, expected=expected, die=True)
+        sp.check_normal(actual=invalid_ndata, expected=expected, alpha=alpha, die=True)
 
 
 def test_check_dist_binom():
     sc.heading('Testing test_check_dist_binom() (statistical tests for a discrete distribution)...')
     # Binomial tests
+    np.random.seed(0)  # set random seed for test
     n = 300
     p = 0.06
     size = 300
     expected = (n, p)  # n, p
     actual = scipy.stats.binom.rvs(n, p, size=size)
-    sp.check_dist(actual=actual, expected=expected, dist='binom', check='dist', verbose=True)
+    alpha = 1e-3
+    print(f"If any of test_check_dist_binom() tests fail, try to rerun this by resetting the random seed. With alpha: {alpha} we expect 1 out of {1/alpha:.0f} tests to fail.")
+    sp.check_dist(actual=actual, expected=expected, alpha=alpha, dist='binom', check='dist', verbose=True)
 
 
 def test_other_distributions():
     sc.heading('Testing test_other_distributions()...')
     # Other tests
-    sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm', die=True)
+    np.random.seed(0)  # set random seed for test
+    alpha = 1e-3
+    print(f"If any of test_other_distributions() tests fail, try to rerun this by resetting the random seed. With alpha: {alpha} we expect 1 out of {1/alpha:.0f} tests to fail.")
+    sp.check_dist(actual=5.5, expected=(1, 5), alpha=alpha, dist='lognorm', die=True)
     with pytest.raises(NotImplementedError):
-        sp.check_dist(actual=1, expected=1, dist='not a distribution')
+        sp.check_dist(actual=1, expected=1, alpha=alpha, dist='not a distribution')
 
 
 if __name__ == '__main__':
