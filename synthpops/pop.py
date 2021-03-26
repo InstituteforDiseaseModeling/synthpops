@@ -665,6 +665,7 @@ class Pop(sc.prettyobj):
         Plot a comparison of the expected and generated household size distribution.
 
         **Example**::
+
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_household_sizes()
@@ -704,6 +705,7 @@ class Pop(sc.prettyobj):
         Plot a comparison of the expected and generated ltcf resident sizes.
 
         **Examples**::
+
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_ltcf_resident_sizes()
@@ -729,6 +731,7 @@ class Pop(sc.prettyobj):
         Plot a comparison of the expected and generated enrollment rates by age.
 
         **Example**::
+
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_enrollment_rates_by_age()
@@ -768,6 +771,7 @@ class Pop(sc.prettyobj):
         workplaces that are not schools or long term care facilities.
 
         **Examples**::
+        
             pars = {'n': 10e3, location='seattle_metro', state_location='Washington', country_location='usa'}
             pop = sp.Pop(**pars)
             fig, ax = pop.plot_ltcf_resident_sizes()
