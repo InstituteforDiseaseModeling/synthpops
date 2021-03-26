@@ -238,9 +238,8 @@ Observed median is in quantile: {quantile}'''
             warnings.warn(msg)
 
     # If null hypothesis is not rejected, under verbose, print a confirmation
-    if null:
-        if verbose:
-            print(f'Check passed. Null hypothesis with expected distribution ({dist}) not rejected.')
+    if null and verbose:
+        print(f'Check passed. Null hypothesis with expected distribution: {dist}{args} not rejected.')
 
     if not stats:
         return null
