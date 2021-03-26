@@ -10,7 +10,7 @@ BUILDDIR      = _build
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -v -jauto -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
@@ -46,17 +46,18 @@ help:
 	@echo "  dummy      to check syntax errors of document sources"
 
 .PHONY: clean
-clean:
-	rm -rf $(BUILDDIR)/*
+clean: # The -f is to ignore missing files, not to force remove
+	rm -rf $(BUILDDIR)
+	rm -f synthpops*.rst
+	rm -f modules.rst
+	cd tutorials; ./clean_outputs
 
 .PHONY: generate-api
 
 # Generates the API doc
 generate-api:
-	-rm modules.rst
 	sphinx-apidoc -f -e -M -o . ../synthpops
 	mv synthpops.rst modules.rst
-
 
 .PHONY: html
 html:
