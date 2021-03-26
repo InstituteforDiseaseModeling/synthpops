@@ -6,6 +6,8 @@ average_student_all_staff_ratio,
 average_additional_staff_degree,
 average_class_size
 """
+from scipy import stats
+import numpy as np
 import collections
 import itertools
 import matplotlib.pyplot as plt
@@ -42,11 +44,25 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     """
     testpars = dict(
         average_class_size = average_class_size,
+        # average_student_teacher_ratio = average_class_size,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
     )
     pop = sp.Pop(**pars, **testpars)
     contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
-    counts = contacts['sc_student']['sc_student']
-    sp.check_normal(actual=counts, expected=average_class_size, label='average_class_size', check='mean')
+    counts = []
+    if not pop.school_pars.with_school_types:
+        counts.extend(contacts['sc_student']['all'])
+        counts.extend(contacts['sc_teacher']['all'])
+        counts.extend(contacts['sc_staff']['all'])
+
+    elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
+        
+        counts.extend(contacts['sc_student']['sc_student'])
+
+    sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
+    # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution
+    fig, ax = plt.subplots(1, 1)
+    res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
+    plt.show()
     return
 
 

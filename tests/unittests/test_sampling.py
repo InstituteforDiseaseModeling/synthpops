@@ -6,6 +6,7 @@ import sciris as sc
 import synthpops as sp
 import numpy as np
 import pytest
+import scipy
 
 
 def test_fast_choice(do_plot=False, sigma=5):
@@ -39,8 +40,8 @@ def test_fast_choice(do_plot=False, sigma=5):
     return samples
 
 
-def test_check_dist():
-    sc.heading('Testing check_dist()...')
+def test_check_dist_poisson():
+    sc.heading('Testing test_check_dist_poisson() (statistical tests for a discrete distribution)...')
 
     # Poisson tests
     n              = 100 # Number of samples
@@ -52,6 +53,8 @@ def test_check_dist():
     print('↓ Should print some warnings')
     sp.check_poisson(actual=actual_valid, expected=expected, die=True) # Should pass
     sp.check_poisson(actual=actual_invalid, expected=expected, verbose=False) # Shouldn't pass, but not die
+
+    sp.check_poisson(actual=np.zeros(100), expected=0, verbose=True, check='mean')
     stats = sp.check_poisson(actual=invalid_data, expected=expected, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
 
     with pytest.raises(ValueError):
@@ -59,22 +62,40 @@ def test_check_dist():
     with pytest.raises(ValueError):
         sp.check_poisson(actual=actual_valid, expected=expected, alpha=1.0, die=True)
 
+    return stats
+
+
+def test_check_dist_normal():
+    sc.heading('Testing test_check_dist_normal() (statistical tests for a continuous distribution)...')
     # Normal tests
-    expected = 5
-    invalid = 15
-    std = 3
-    valid_ndata = np.random.randn(n)*std + expected
+    n             = 100
+    expected      = 5
+    invalid       = 15
+    std           = 3
+    valid_ndata   = np.random.randn(n)*std + expected
     invalid_ndata = np.random.randn(n)*std + invalid
     sp.check_normal(actual=valid_ndata, expected=expected, die=True)
     with pytest.raises(ValueError):
         sp.check_normal(actual=invalid_ndata, expected=expected, die=True)
 
+
+def test_check_dist_binom():
+    sc.heading('Testing test_check_dist_binom() (statistical tests for a discrete distribution)...')
+    # Binomial tests
+    n = 300
+    p = 0.06
+    size = 300
+    expected = (n, p)  # n, p
+    actual = scipy.stats.binom.rvs(n, p, size=size)
+    sp.check_dist(actual=actual, expected=expected, dist='binom', check='dist', verbose=True)
+
+
+def test_other_distributions():
+    sc.heading('Testing test_other_distributions()...')
     # Other tests
     sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm', die=True)
     with pytest.raises(NotImplementedError):
         sp.check_dist(actual=1, expected=1, dist='not a distribution')
-
-    return stats
 
 
 if __name__ == '__main__':
@@ -82,7 +103,10 @@ if __name__ == '__main__':
     T = sc.tic()
 
     choices = test_fast_choice()
-    stats = test_check_dist()
+    stats = test_check_dist_poisson()
+    test_check_dist_normal()
+    test_check_dist_binom()
+    test_other_distributions()
 
     sc.toc(T)
     print('Done.')

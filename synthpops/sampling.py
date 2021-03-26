@@ -123,32 +123,38 @@ def sample_from_range(distr, min_val, max_val):
     return sample_single_dict(distr_keys, distr_vals)
 
 
-def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None, alpha=0.05, verbose=True, die=False, stats=False):
-    '''
+def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None, alpha=0.05, size=10000, verbose=True, die=False, stats=False):
+    """
     Check whether counts match the expected distribution. The distribution can be
     any listed in scipy.stats. The parameters for the distribution should be supplied
     via the "expected" argument. The standard deviation for a normal distribution is
     a special case; it can be supplied separately or calculated from the (actual) data.
 
     Args:
-        actual (int, float, or array): the observed value, or distribution of values
-        expected (int, float, tuple): the expected value; or, a tuple of arguments
-        std (float): for normal distributions, the standard deviation of the expected value (taken from data if not supplied)
-        dist (str): the type of distribution to use
-        check (str): what to check: 'dist' = entire distribution (default), 'mean' (equivalent to supplying np.mean(actual)), or 'median'
-        label (str): the name of the variable being tested
-        alpha (float): the significance level at which to reject the null hypothesis
+        actual (int, float, or array) : the observed value, or distribution of values
+        expected (int, float, tuple)  : the expected value; or, a tuple of arguments
+        std (float)                   : for normal distributions, the standard deviation of the expected value (taken from data if not supplied)
+        dist (str)                    : the type of distribution to use
+        check (str)                   : what to check: 'dist' = entire distribution (default), 'mean' (equivalent to supplying np.mean(actual)), or 'median'
+        label (str)                   : the name of the variable being tested
+        alpha (float)                 : the significance level at which to reject the null hypothesis
+        size (int)                    : the size of the sample from the expected distribution to compare with if distribution is discrete
 
-        verbose (bool): print a warning if the null hypothesis is rejected
-        die (bool): raise an exception if the null hypothesis is rejected
-        stats (bool): whether to return statistics
+        verbose (bool)                : print a warning if the null hypothesis is rejected
+        die (bool)                    : raise an exception if the null hypothesis is rejected
+        stats (bool)                  : whether to return statistics
+
+    Returns:
+        If stats is True, returns statistics: whether null hypothesis is
+        rejected, pvalue, number of samples, expected quintiles, observed
+        quintiles, and the observed quantile.
 
     **Examples**::
 
         sp.check_dist(actual=[3,4,4,2,3], expected=3, dist='poisson')
         sp.check_dist(actual=[0.14, -3.37,  0.59, -0.07], expected=0, std=1.0, dist='norm')
         sp.check_dist(actual=5.5, expected=(1, 5), dist='lognorm')
-    '''
+    """
     # Handle inputs
     label = f' "{label}"' if label else ''
     is_dist = sc.isiterable(actual)
@@ -161,6 +167,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
             else:
                 std = 1.0
         args = (expected, std)
+        scipydist = getattr(scipy.stats, 'norm')
         truedist = scipy.stats.norm(expected, std)
     else:
         try:
@@ -177,8 +184,21 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
     # Calculate stats
     if is_dist and check == 'dist':
         quantile = truedist.cdf(np.median(actual))
-        teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args) # Use the K-S test to see if came from the same distribution
+
+        # only if distribution is continuous
+        if isinstance(scipydist, scipy.stats.rv_continuous):
+            teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args) # Use the K-S test to see if came from the same distribution
+
+        # ks test against large sample from the theoretical distribution
+        elif isinstance(scipydist, scipy.stats.rv_discrete):
+            expected_r = truedist.rvs(size=size)
+            teststat, pvalue = scipy.stats.ks_2samp(actual, expected_r)
+
+        else:
+            errormsg = 'Distribution is neither continuous or discrete and so not supported at this time.'
+            raise NotImplementedError(errormsg)
         null = pvalue > alpha
+
     else:
         if check == 'mean':
             value = np.mean(actual)
@@ -190,7 +210,11 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
         minquant = alpha/2 # e.g., 0.025 for alpha=0.05
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
-        null = minquant <= quantile <= maxquant # True if above minimum and below maximum
+        minval = truedist.ppf(minquant)
+        maxval = truedist.ppf(maxquant)
+        quant_check = (minquant <= quantile <= maxquant) # True if above minimum and below maximum
+        val_check = (minval <= value <= maxval) # Check values
+        null = quant_check or val_check # Consider it to pass if either passes
 
     # Additional stats
     n_samples = len(actual) if is_dist else 1
@@ -212,6 +236,10 @@ Observed median is in quantile: {quantile}'''
             raise ValueError(msg)
         elif verbose:
             warnings.warn(msg)
+
+    # If null hypothesis is not rejected, under verbose, print a confirmation
+    if null and verbose:
+        print(f'Check passed. Null hypothesis with expected distribution: {dist}{args} not rejected.')
 
     if not stats:
         return null
