@@ -198,7 +198,7 @@ def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
         contact_counter[key] = dict(zip(contact_types, ([] for _ in contact_types)))
 
     for uid, person in popdict.items():
-        if person['scid']:
+        if person['scid'] is not None:
             # count_switcher is a case-switch selector for contact counts by type
             count_switcher = {
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
