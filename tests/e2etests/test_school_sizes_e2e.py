@@ -76,6 +76,6 @@ if __name__ == '__main__':
     # run as main to see the code and figures in action!
     sc.tic()
 
-    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True, do_save=True)
+    fig0, ax0, pop0 = test_plot_school_sizes(do_show=True, do_save=True, artifact_dir='artifact')
 
     sc.toc()
