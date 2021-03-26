@@ -50,7 +50,6 @@ clean: # The -f is to ignore missing files, not to force remove
 	rm -rf $(BUILDDIR)
 	rm -f synthpops*.rst
 	rm -f modules.rst
-	cd tutorials; ./clean_outputs
 
 .PHONY: generate-api
 
