@@ -75,7 +75,7 @@ def test_check_dist_normal():
     std           = 3
     valid_ndata   = np.random.randn(n)*std + expected
     invalid_ndata = np.random.randn(n)*std + invalid
-    sp.check_normal(actual=valid_ndata, expected=expected, std=std, die=True)
+    sp.check_normal(actual=valid_ndata, expected=expected, die=True)
     with pytest.raises(ValueError):
         sp.check_normal(actual=invalid_ndata, expected=expected, die=True)
 
