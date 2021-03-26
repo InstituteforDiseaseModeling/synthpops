@@ -225,7 +225,6 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
 
     # If null hypothesis is rejected, print a warning or error
     if not null:
-        import traceback; traceback.print_exc(); import pdb; pdb.set_trace()
         msg = f''''
 Variable{label} with n={n_samples} samples is out of range using the distribution:
     {dist}({args}) →
