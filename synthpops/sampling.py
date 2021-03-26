@@ -195,7 +195,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
             teststat, pvalue = scipy.stats.ks_2samp(actual, expected_r)
 
         else:
-            errormsg = f'Distribution is neither continuous or discrete and so not supported at this time.'
+            errormsg = 'Distribution is neither continuous or discrete and so not supported at this time.'
             raise NotImplementedError(errormsg)
         null = pvalue > alpha
 
@@ -210,9 +210,11 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
         pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
         minquant = alpha/2 # e.g., 0.025 for alpha=0.05
         maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
+        minval = truedist.ppf(minquant)
+        maxval = truedist.ppf(maxquant)
         quant_check = (minquant <= quantile <= maxquant) # True if above minimum and below maximum
-        val_check = truedist.ppf(minquant) <= value <= truedist.ppf(maxquant) # Check values
-        null = quant_check or val_check # Consider either
+        val_check = (minval <= value <= maxval) # Check values
+        null = quant_check or val_check # Consider it to pass if either passes
 
     # Additional stats
     n_samples = len(actual) if is_dist else 1
