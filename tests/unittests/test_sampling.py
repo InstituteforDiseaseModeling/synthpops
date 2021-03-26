@@ -69,7 +69,7 @@ def test_check_dist_poisson():
 def test_check_dist_normal():
     sc.heading('Testing test_check_dist_normal() (statistical tests for a continuous distribution)...')
     # Normal tests
-    n             = 100
+    n             = 1000
     expected      = 5
     invalid       = 15
     std           = 3
