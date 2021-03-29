@@ -9,13 +9,13 @@ from . import logger
 class SchoolSizeDistributionByType(JsonObject):
     school_type = StringProperty()
     # length should be len(location.school_size_distribution)
-    size_distribution = ListProperty(FloatProperty)
+    size_distribution = ListProperty(DefaultProperty)
 
 
 class SchoolTypeByAge(JsonObject):
     school_type = StringProperty()
     # [min_age, max_age]
-    age_range = ListProperty(FloatProperty)
+    age_range = ListProperty(DefaultProperty)
 
 
 class Location(JsonObject):
@@ -33,32 +33,32 @@ class Location(JsonObject):
 
     population_age_distribution_16 = ListProperty(
         # [min_age, max_age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     population_age_distribution_18 = ListProperty(
         # [min_age, max_age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     population_age_distribution_20 = ListProperty(
         # [min_age, max_age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     employment_rates_by_age = ListProperty(
         # [age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     enrollment_rates_by_age = ListProperty(
         # [age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     household_head_age_brackets = ListProperty(
         # [age_min, age_max]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     household_head_age_distribution_by_family_size = ListProperty(
@@ -66,40 +66,40 @@ class Location(JsonObject):
         # The first entry is the family size, the rest of the entries fill in the household head age counts for
         # each household head age bracket.
         # [family_size, count_1, count_2, ...]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     household_size_distribution = ListProperty(
         # [size, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     ltcf_resident_to_staff_ratio_distribution = ListProperty(
         # [ratio_low, ratio_hi, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     ltcf_num_residents_distribution = ListProperty(
         # [num_residents_low, num_residents_hi, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     ltcf_num_staff_distribution = ListProperty(
         # [num_staff_low, num_staff_hi, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     ltcf_use_rate_distribution = ListProperty(
         # [age, percentage]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     school_size_brackets = ListProperty(
         # [school_size_low, school_size_hi]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
-    school_size_distribution = ListProperty(FloatProperty)
+    school_size_distribution = ListProperty(DefaultProperty)
 
     # The length of size_distribution needs to equal the length of school_size_brackets
     school_size_distribution_by_type = ListProperty(SchoolSizeDistributionByType)
@@ -108,7 +108,7 @@ class Location(JsonObject):
 
     workplace_size_counts_by_num_personnel = ListProperty(
         # [num_personnel_low, num_personnel_hi, count]
-        ListProperty(FloatProperty)
+        ListProperty(DefaultProperty)
     )
 
     def get_list_properties(self):
