@@ -392,8 +392,9 @@ class Pop(sc.prettyobj):
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
         # Add layer classes
-        self.households = sphh.Households(**{'households': homes_by_uids,
-                                          'age_by_uid': age_by_uid_dic})
+        self.homes_by_uids = homes_by_uids
+        # self.households = sphh.Households(**{'households': homes_by_uids,
+                                          # 'age_by_uid': age_by_uid_dic})
         # how to populate empty households
         # if not self.households.populated:
         #     self.households.initialize_empty_households()

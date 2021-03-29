@@ -55,7 +55,12 @@ class Household(sc.objdict):
         Class constructor for empty household.
 
         Args:
-            kwargs (dict): dictionary of household attributes, such as hhid (household id), member pids, member ages, information about the reference person, etc.
+            **hhid (int)          : household id
+            **member_pids (array) : ids of household members
+            **member_ages (array) : ages of household members
+            **reference_pid (int) : id of the reference person
+            **reference_age (int) : age of the reference person
+
         """
         # set up default values
         kwargs = sc.mergedicts(self.default_hkwargs(), kwargs)  # at least define the basic household attributes
@@ -80,7 +85,13 @@ class Household(sc.objdict):
         reference_age (int): age of the reference person used to generate the household members and their ages
 
         """
-        default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
+        default_hkwargs = sc.objdict()
+        default_hkwargs.hhid = None
+        default_hkwargs.member_pids = np.array([], dtype=np.int32)
+        default_hkwargs.member_ages = np.array([], dtype=np.int32)
+        default_hkwargs.reference_pid = None
+        default_hkwargs.reference_age = None
+
         return default_hkwargs
 
     def set_household(self, **kwargs):
@@ -154,7 +165,10 @@ class Households(sc.prettyobj):
         Default attributes for the collection of households.
 
         """
-        default_kwargs = dict(n_households=0, households=[])
+        default_kwargs = sc.objdict()
+        default_kwargs.n_households = 0
+        default_kwargs.households = []
+
         return default_kwargs
 
     def initialize_empty_households(self, n_households=None):
