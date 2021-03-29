@@ -56,33 +56,39 @@ class Household(sc.objdict):
 
         Args:
             **hhid (int)          : household id
-            **member_pids (array) : ids of household members
-            **member_ages (array) : ages of household members
+            **member_pids (np.array) : ids of household members
+            **member_ages (np.array) : ages of household members
             **reference_pid (int) : id of the reference person
             **reference_age (int) : age of the reference person
 
         """
         # set up default values
         kwargs = sc.mergedicts(self.default_hkwargs(), kwargs)  # at least define the basic household attributes
-        for key, value in kwargs.items():
-            self[key] = value
+        self.update(kwargs)
+        # for key, value in kwargs.items():
+            # self[key] = value
 
         return
 
-    def __setitem__(self, key, value):
-        """Set attribute values by key."""
-        setattr(self, key, value)
-        return
+    def __repr__(self):
+        output = sc.objrepr(self)
+        output += sc.objdict.__repr__(self)
+        return output
+
+    # def __setitem__(self, key, value):
+    #     """Set attribute values by key."""
+    #     setattr(self, key, value)
+    #     return
 
     def default_hkwargs(self):
         """
         Default household attributes.
 
-        hhid (int): household id
-        member_pids (np.ndarray): pids of household members
-        member_ages (np.ndarray): ages of household members  # maybe not needed
-        reference_pid (int): reference person used to generate the household members and their ages
-        reference_age (int): age of the reference person used to generate the household members and their ages
+        hhid (int)               : household id
+        member_pids (np.ndarray) : pids of household members
+        member_ages (np.ndarray) : ages of household members  # maybe not needed
+        reference_pid (int)      : reference person used to generate the household members and their ages
+        reference_age (int)      : age of the reference person used to generate the household members and their ages
 
         """
         default_hkwargs = sc.objdict()
@@ -103,20 +109,21 @@ class Household(sc.objdict):
                 self[key] = value
         return
 
-    def get_household_size(self):
-        """Return number of household members."""
-        return len(self.member_pids)
+    # def get_household_size(self):
+    #     """Return number of household members."""
+    #     return len(self.member_pids)
 
-    def get_reference_pid(self):
-        """Return the pid of the reference person used to generate the household member's ages."""
-        return self.reference_pid
+    # def get_reference_pid(self):
+    #     """Return the pid of the reference person used to generate the household member's ages."""
+    #     return self.reference_pid
 
-    def get_reference_age(self):
-        """Return the age of the reference person used to generate the household member's ages."""
-        return self.reference_age
+    # def get_reference_age(self):
+    #     """Return the age of the reference person used to generate the household member's ages."""
+    #     return self.reference_age
 
 
-class Households(sc.prettyobj):
+# class Households(sc.prettyobj):
+class Households(sc.objdict):
     """
     A class for households and methods to operate on them.
 
@@ -129,31 +136,37 @@ class Households(sc.prettyobj):
 
         # check that either 'n_households' is in kwargs or 'households'
         kwargs = sc.mergedicts(self.default_households_kwargs(), kwargs)
-        print(kwargs)
-        if 'n_households' in kwargs:
-            kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
-        elif 'households' in kwargs:
-            kwargs['n_households'] = len(kwargs['households'])
-        else:
-            kwargs['n_households'] = 0
 
-        self.populated = False  # have the empty households been populated yet?
+        # print(kwargs)
+        # if 'n_households' in kwargs:
+        #     kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
+        # elif 'households' in kwargs:
+        #     kwargs['n_households'] = len(kwargs['households'])
+        # else:
+        #     kwargs['n_households'] = 0
 
-        for key, value in kwargs.items():
-            # if key == 'n_households':
-            #     self[key] = max(value, len(kwargs['households']))
-            if key not in ['age_by_uid']:
-                self[key] = value
-                if key == 'households' and 'age_by_uid' in kwargs:
-                    self[key] = [value]
-                    self.populate_households(kwargs['households'], kwargs['age_by_uid'])
-                    self.n_households = len(self.households)
-                    self.populated = True  # empty households populated
+        # self.populated = False  # have the empty households been populated yet?
 
-        if self.households == []:  # empty households array if we just know the number to create
-            self.initialize_empty_households(self.n_households)
+        # for key, value in kwargs.items():
+        #     # if key == 'n_households':
+        #     #     self[key] = max(value, len(kwargs['households']))
+        #     if key not in ['age_by_uid']:
+        #         self[key] = value
+        #         if key == 'households' and 'age_by_uid' in kwargs:
+        #             self[key] = [value]
+        #             self.populate_households(kwargs['households'], kwargs['age_by_uid'])
+        #             self.n_households = len(self.households)
+        #             self.populated = True  # empty households populated
+
+        # if self.households == []:  # empty households array if we just know the number to create
+        #     self.initialize_empty_households(self.n_households)
 
         return
+
+    def __repr__(self):
+        output = sc.objrepr(self)
+        output += sc.objdict.__repr__(self)
+        return output
 
     def __setitem__(self, key, value):
         """Set attribute values by key."""

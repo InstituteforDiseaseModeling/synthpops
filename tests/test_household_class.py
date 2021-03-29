@@ -19,7 +19,7 @@ mplt.rcParams['font.size'] = 7
 
 # parameters to generate a test population
 pars = dict(
-    n                               = 5e3,
+    n                               = 5e1,
     rand_seed                       = 123,
     max_contacts                    = None,
 
@@ -30,10 +30,10 @@ pars = dict(
 
     smooth_ages                     = True,
     window_length                   = 7,
-    household_method                = 'fixed_ages',
+    household_method                = 'infer_ages',
 
     with_industry_code              = 0,
-    with_facilities                 = 1,
+    with_facilities                 = 0,
     with_non_teaching_staff         = 1,
     use_two_group_reduction         = 1,
     with_school_types               = 1,
@@ -62,7 +62,7 @@ def test_household_class():
 
     pop = sp.Pop(**pars)
 
-    print(pop)
+    # print(pop)
     return pop
 
 
@@ -82,6 +82,20 @@ def test_household_basic():
 if __name__ == '__main__':
 
     pop = test_household_class()
+    print(pop.homes_by_uids)
+
+    pop.household = sp.Household()
+    print(pop.household)
+    # pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
+    #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
+    #                             hhid=0)
+
+    print(pop.household)
+
+    # pop.households = sp.Households(**{'households': pop.household})
+    pop.households = sp.Households()
+
+    # print(pop.households)
 
     # pop.households = sp.Households(**{'households': pop.homes})
     # pop.households.initialize_empty_households()
