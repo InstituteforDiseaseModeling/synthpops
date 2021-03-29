@@ -65,7 +65,7 @@ def test_household_class():
     # print(pop)
     return pop
 
-
+@pytest.mark.skip
 def test_household_basic():
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
     age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
