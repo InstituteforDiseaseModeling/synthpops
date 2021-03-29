@@ -308,11 +308,8 @@ class Pop(sc.prettyobj):
 
         if with_school_types:
             school_size_distr_by_type = spdata.get_school_size_distr_by_type(**loc_pars)
-            # school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
             school_size_brackets = spdata.get_school_size_brackets(**loc_pars)  # for right now the size distribution for all school types will use the same brackets or bins
-            # school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
             school_type_age_ranges = spdata.get_school_type_age_ranges(**loc_pars)
-            # school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
@@ -334,7 +331,7 @@ class Pop(sc.prettyobj):
             school_type_by_age = None
 
         # Get employment rates
-        employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        employment_rates = spdata.get_employment_rates(**loc_pars)
 
         # Find people who can be workers (removing everyone who is currently a student)
         uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)  # Make a dictionary listing out uids of people by their age
@@ -593,7 +590,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -622,7 +619,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
