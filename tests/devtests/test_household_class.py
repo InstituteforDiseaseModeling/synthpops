@@ -18,10 +18,9 @@ mplt.rcParams['font.size'] = 7
 
 
 # parameters to generate a test population
-pars = dict(
+pars = sc.objdict(
     n                               = 5e1,
     rand_seed                       = 123,
-    max_contacts                    = None,
 
     country_location                = 'usa',
     state_location                  = 'Washington',
@@ -38,24 +37,8 @@ pars = dict(
     use_two_group_reduction         = 1,
     with_school_types               = 1,
 
-    average_LTCF_degree             = 20,
-    ltcf_staff_age_min              = 20,
-    ltcf_staff_age_max              = 60,
-
     school_mixing_type              = {'pk': 'age_and_class_clustered', 'es': 'age_and_class_clustered', 'ms': 'age_and_class_clustered', 'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
-    average_class_size              = 20,
-    inter_grade_mixing              = 0.1,
-    teacher_age_min                 = 25,
-    teacher_age_max                 = 75,
-    staff_age_min                   = 20,
-    staff_age_max                   = 75,
-
-    # average_student_teacher_ratio   = 20,
-    # average_teacher_teacher_degree  = 3,
-    # average_student_all_staff_ratio = 11,
-    # average_additional_staff_degree = 20,
 )
-pars = sc.objdict(pars)
 
 
 def test_household_class():
@@ -70,13 +53,22 @@ def test_household_basic():
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
     age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
     hhs = sp.Households(**{'households': homes_by_uids,
-                                         'age_by_uid': age_by_uid_dic})
+                           'age_by_uid': age_by_uid_dic})
     assert hhs.n_households == len(homes_by_uids), "number of household should match."
     for i in range(0, len(homes_by_uids)):
-       assert hhs.get_household(i).get_reference_pid() == homes_by_uids[i][0]
-       assert hhs.get_household(i).get_reference_age() == age_by_uid_dic[homes_by_uids[i][0]]
-       assert hhs.get_household(i).get_household_size() == len(homes_by_uids[i])
+        assert hhs.get_household(i).get_reference_pid() == homes_by_uids[i][0]
+        assert hhs.get_household(i).get_reference_age() == age_by_uid_dic[homes_by_uids[i][0]]
+        assert hhs.get_household(i).get_household_size() == len(homes_by_uids[i])
 
+
+def test_cannot_change_attribute():
+    pop = sp.Pop(**pars)
+    pop.household = sp.Household()
+    with pytest.raises(ValueError) as excinfo:
+        pop.household.set_household = 1
+    print(str(excinfo.value))
+    assert "exists as an attribute, so cannot be set as key; use setattribute() instead" in str(excinfo.value), 'Check that you cannot reset an attribute or household class method failed.'
+    print('Check passed. Could not reset household class method as an integer.')
 
 
 if __name__ == '__main__':
@@ -90,9 +82,12 @@ if __name__ == '__main__':
     #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
     #                             hhid=0)
 
-    with pytest.raises(ValueError):
-        pop.household.set_household = 3
-    print(pop.household)
+    # with pytest.raises(ValueError):
+    #     pop.household.set_household = 3
+    # print(pop.household)
+
+    test_cannot_change_attribute()
+
 
     # pop.households = sp.Households(**{'households': pop.household})
     pop.households = sp.Households()
