@@ -50,10 +50,10 @@ pars = dict(
     staff_age_min                   = 20,
     staff_age_max                   = 75,
 
-    average_student_teacher_ratio   = 20,
-    average_teacher_teacher_degree  = 3,
-    average_student_all_staff_ratio = 11,
-    average_additional_staff_degree = 20,
+    # average_student_teacher_ratio   = 20,
+    # average_teacher_teacher_degree  = 3,
+    # average_student_all_staff_ratio = 11,
+    # average_additional_staff_degree = 20,
 )
 pars = sc.objdict(pars)
 
@@ -90,6 +90,8 @@ if __name__ == '__main__':
     #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
     #                             hhid=0)
 
+    with pytest.raises(ValueError):
+        pop.household.set_household = 3
     print(pop.household)
 
     # pop.households = sp.Households(**{'households': pop.household})
