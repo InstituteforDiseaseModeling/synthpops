@@ -2,7 +2,6 @@ import sciris as sc
 import synthpops as sp
 
 plot = False
-verbose = False
 # write = True
 write = False
 return_popdict = True
@@ -218,7 +217,7 @@ def test_make_population_with_industry_code():
 #     # Make 2 groups of contacts
 #     # Facility contacts - use generating function so that data can be generated as needed to run this test
 #     contacts_group_1 = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
-#                                                                   n=n, plot=False, verbose=False,
+#                                                                   n=n, plot=False,
 #                                                                   write=False, return_popdict=True,
 #                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
 

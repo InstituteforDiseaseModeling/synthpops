@@ -34,6 +34,6 @@ or other model being used with |SP|.
     Save the output to a cache file on disk. Implemented in
     :py:func:`~synthpops.contact_networks.generate_synthetic_population`.
 #.  Load the cached file and produce a dictionary that can be used by |Cov_s|. Implemented in
-    :py:func:`~synthpops.api.make_population`. |Cov_s| assigns community contacts at random on a daily basis
+    :py:func:`~synthpops.pop.make_population`. |Cov_s| assigns community contacts at random on a daily basis
     to reflect the random and stochastic aspect of contacts in many public spaces, such as shopping
     centers, parks, and community centers.

@@ -4,7 +4,7 @@ on: [pull_request]
 jobs:
   install_and_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -40,14 +40,6 @@ jobs:
         with:
           name: report
           path: tests/unittests/regression/report/
-      - name: Trigger e2e workflow
-        if: failure()
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          event-type: trigger-workflow-e2e
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
       - name: Create coverage report
         id: cv
         working-directory: ./tests

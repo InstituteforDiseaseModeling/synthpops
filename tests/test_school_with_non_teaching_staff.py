@@ -12,7 +12,7 @@ import settings
 
 
 # parameters to generate a test population
-pars = dict(
+pars = sc.objdict(
         n                               = settings.pop_sizes.small_medium,
         rand_seed                       = 123,
         with_non_teaching_staff         = 1,
@@ -30,11 +30,11 @@ def test_with_non_teaching_staff():
     sp.logger.info(f'Testing the effect of the parameter with_non_teaching_staff.')
 
     test_pars = sc.dcp(pars)
-    test_pars['with_non_teaching_staff'] = True
+    test_pars.with_non_teaching_staff = True
     pop_1 = sp.Pop(**test_pars)
     popdict_1 = pop_1.to_dict()
 
-    test_pars['with_non_teaching_staff'] = False
+    test_pars.with_non_teaching_staff = False
     pop_2 = sp.Pop(**test_pars)
     popdict_2 = pop_2.to_dict()
 
