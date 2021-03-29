@@ -28,17 +28,17 @@ def default_hkwargs():
     return default_hkwargs
 
 
-def default_households_kwargs():
-    """
-    Default attributes for the collection of households.
+# def default_households_kwargs():
+#     """
+#     Default attributes for the collection of households.
 
-    """
-    default_kwargs = dict(n_households=0, households=[])
-    return default_kwargs
+#     """
+#     default_kwargs = dict(n_households=0, households=[])
+#     return default_kwargs
 
 
-default_hkwargs = default_hkwargs()
-default_households_kwargs = default_households_kwargs()
+# default_hkwargs = default_hkwargs()
+# default_households_kwargs = default_households_kwargs()
 
 
 class Household(sc.prettyobj):
@@ -67,6 +67,20 @@ class Household(sc.prettyobj):
         """Set attribute values by key."""
         setattr(self, key, value)
         return
+
+    def default_hkwargs():
+        """
+        Default household attributes.
+
+        hhid (int): household id
+        member_pids (np.ndarray): pids of household members
+        member_ages (np.ndarray): ages of household members  # maybe not needed
+        reference_pid (int): reference person used to generate the household members and their ages
+        reference_age (int): age of the reference person used to generate the household members and their ages
+
+        """
+        default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
+        return default_hkwargs
 
     def set_household(self, **kwargs):
         """Set up the household -- works for a static population."""
@@ -102,8 +116,14 @@ class Households(sc.prettyobj):
         # set kwargs for the households
 
         # check that either 'n_households' is in kwargs or 'households'
-        kwargs = sc.mergedicts(default_households_kwargs, kwargs)
-        kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
+        kwargs = sc.mergedicts(self.default_households_kwargs, kwargs)
+        print(kwargs)
+        if 'n_households' in kwargs:
+            kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
+        elif 'households' in kwargs:
+            kwargs['n_households'] = len(kwargs['households'])
+        else:
+            kwargs['n_households'] = 0
 
         self.populated = False  # have the empty households been populated yet?
 
@@ -127,6 +147,14 @@ class Households(sc.prettyobj):
         """Set attribute values by key."""
         setattr(self, key, value)
         return
+
+    def default_households_kwargs():
+        """
+        Default attributes for the collection of households.
+
+        """
+        default_kwargs = dict(n_households=0, households=[])
+        return default_kwargs
 
     def initialize_empty_households(self, n_households=None):
         """Array of empty households."""

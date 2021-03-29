@@ -65,13 +65,14 @@ def test_household_class():
     print(pop)
     return pop
 
+
 def test_household_basic():
-   homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
-   age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
-   hhs = sp.Households(**{'households': homes_by_uids,
+    homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
+    age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+    hhs = sp.Households(**{'households': homes_by_uids,
                                          'age_by_uid': age_by_uid_dic})
-   assert hhs.n_households == len(homes_by_uids), "number of household should match."
-   for i in range(0, len(homes_by_uids)):
+    assert hhs.n_households == len(homes_by_uids), "number of household should match."
+    for i in range(0, len(homes_by_uids)):
        assert hhs.get_household(i).get_reference_pid() == homes_by_uids[i][0]
        assert hhs.get_household(i).get_reference_age() == age_by_uid_dic[homes_by_uids[i][0]]
        assert hhs.get_household(i).get_household_size() == len(homes_by_uids[i])
@@ -92,12 +93,12 @@ if __name__ == '__main__':
     print(pop.households.get_household(0))
     print(pop.households.get_household(2))
 
-    school = sp.School()
+    # school = sp.School()
     # school.set_school(**{'scid': 0})
-    print(school)
+    # print(school)
     # school.__setitem__('students', [0, 9])
-    school.set_item('students', [0, 9])
-    print(school)
+    # school.set_item('students', [0, 9])
+    # print(school)
     # school.set_school(**{'students': [0, 9]})
     # print(school)
 
