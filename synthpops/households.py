@@ -13,19 +13,19 @@ from . import sampling as spsamp
 # __all__ = ['Household', 'Households']
 
 
-def default_hkwargs():
-    """
-    Default household attributes.
+# def default_hkwargs():
+#     """
+#     Default household attributes.
 
-    hhid (int): household id
-    member_pids (np.ndarray): pids of household members
-    member_ages (np.ndarray): ages of household members  # maybe not needed
-    reference_pid (int): reference person used to generate the household members and their ages
-    reference_age (int): age of the reference person used to generate the household members and their ages
+#     hhid (int): household id
+#     member_pids (np.ndarray): pids of household members
+#     member_ages (np.ndarray): ages of household members  # maybe not needed
+#     reference_pid (int): reference person used to generate the household members and their ages
+#     reference_age (int): age of the reference person used to generate the household members and their ages
 
-    """
-    default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
-    return default_hkwargs
+#     """
+#     default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
+#     return default_hkwargs
 
 
 # def default_households_kwargs():
@@ -41,7 +41,8 @@ def default_hkwargs():
 # default_households_kwargs = default_households_kwargs()
 
 
-class Household(sc.prettyobj):
+# class Household(sc.prettyobj):
+class Household(sc.objdict):
     """
     A class for individual households and methods to operate on each.
 
@@ -57,7 +58,7 @@ class Household(sc.prettyobj):
             kwargs (dict): dictionary of household attributes, such as hhid (household id), member pids, member ages, information about the reference person, etc.
         """
         # set up default values
-        kwargs = sc.mergedicts(default_hkwargs, kwargs)  # at least define the basic household attributes
+        kwargs = sc.mergedicts(self.default_hkwargs(), kwargs)  # at least define the basic household attributes
         for key, value in kwargs.items():
             self[key] = value
 
@@ -68,7 +69,7 @@ class Household(sc.prettyobj):
         setattr(self, key, value)
         return
 
-    def default_hkwargs():
+    def default_hkwargs(self):
         """
         Default household attributes.
 
@@ -116,7 +117,7 @@ class Households(sc.prettyobj):
         # set kwargs for the households
 
         # check that either 'n_households' is in kwargs or 'households'
-        kwargs = sc.mergedicts(self.default_households_kwargs, kwargs)
+        kwargs = sc.mergedicts(self.default_households_kwargs(), kwargs)
         print(kwargs)
         if 'n_households' in kwargs:
             kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
@@ -148,7 +149,7 @@ class Households(sc.prettyobj):
         setattr(self, key, value)
         return
 
-    def default_households_kwargs():
+    def default_households_kwargs(self):
         """
         Default attributes for the collection of households.
 

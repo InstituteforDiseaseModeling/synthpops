@@ -86,12 +86,12 @@ if __name__ == '__main__':
     # pop.households = sp.Households(**{'households': pop.homes})
     # pop.households.initialize_empty_households()
 
-    print(pop.households)
-    # print(pop.households.household_list)
+    # print(pop.households)
+    # # print(pop.households.household_list)
 
-    # pop.households.populate_households(pop.homes_by_uids[0:2], pop.age_by_uid)
-    print(pop.households.get_household(0))
-    print(pop.households.get_household(2))
+    # # pop.households.populate_households(pop.homes_by_uids[0:2], pop.age_by_uid)
+    # print(pop.households.get_household(0))
+    # print(pop.households.get_household(2))
 
     # school = sp.School()
     # school.set_school(**{'scid': 0})
