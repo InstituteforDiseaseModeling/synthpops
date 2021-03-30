@@ -646,12 +646,11 @@ def check_household_head(pop,
     for k, bracket in enumerate(head_age_brackets):
         for age in head_age_brackets[bracket]:
             hh_index[age] = k
-
-    expected_hh_ages = [h[1:] for h in household_head_age_distribution_by_family_size]
-    expected_hh_ages = pandas.DataFrame(expected_hh_ages)
+    household_head_age_distribution_by_family_size = household_head_age_distribution_by_family_size[1:]
+    expected_hh_ages = pandas.DataFrame(household_head_age_distribution_by_family_size)
     expected_hh_ages_percentage = expected_hh_ages.div(expected_hh_ages.sum(axis=0), axis=1)
     actual_hh_ages_percetnage = utilities.get_household_head_age_size(pop, index=hh_index)
-    expected_values = expected_hh_ages_percentage.values
+    expected_values = expected_hh_ages_percentage.values[1:,:]
     actual_values = actual_hh_ages_percetnage.values
     xlabels = [ f'{min(head_age_brackets[bracket_index])}-{max(head_age_brackets[bracket_index])}'
                 for bracket_index in head_age_brackets.keys() ]
