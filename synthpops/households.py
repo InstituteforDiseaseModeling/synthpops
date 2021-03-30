@@ -27,13 +27,13 @@ class Household(sc.objdict):
         Class constructor for empty household.
 
         Args:
-            **hhid (int)          : household id
+            **hhid (int)             : household id
             **member_pids (np.array) : ids of household members
             **member_ages (np.array) : ages of household members
-            **reference_pid (int) : id of the reference person
-            **reference_age (int) : age of the reference person
+            **reference_pid (int)    : id of the reference person
+            **reference_age (int)    : age of the reference person
         """
-        # set up default values
+        # set up default household values
         kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
         self.update(kwargs)
 
@@ -102,53 +102,62 @@ class Household(sc.objdict):
 
     def get_reference_pid(self):
         """Return the pid of the reference person used to generate the household member's ages."""
-        # return self.reference_pid
+        # return self.reference_pid  # more direct
         return self.get('reference_pid')  # using sc.objdict's method
 
     def get_reference_age(self):
         """Return the age of the reference person used to generate the household member's ages."""
-        # return self.reference_age
+        # return self.reference_age  # more direct
         return self.get('reference_age')  # using sc.objdict's method
 
 
-# class Households(sc.prettyobj):
-class Households(sc.objdict):
+# class Households(sc.prettyobj):  # should this be based on sc.prettyobj or
+class Households(sc.objdict):  # sc.objdict?
     """
     A class for households and methods to operate on them.
 
     Args:
-        kwargs (dict): additional keys for households generation
+        kwargs (dict): data dictionary for households generation
     """
     def __init__(self, **kwargs):
-        """."""
+        """
+        Class constructor for empty container of households.
+
+        Args:
+            **n_households (int) : the number of households
+            **households (list)  : list of households
+        """
         # set kwargs for the households
+        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)
+        self.update(kwargs)  # set update the initial values then take care of any issues
 
-        # check that either 'n_households' is in kwargs or 'households'
-        kwargs = sc.mergedicts(self.default_households_kwargs(), kwargs)
+        # clean up the rest of the initialization
+        # align n_households and households supplied
+        if self.n_households < len(self.households):
+            self.n_households = len(self.households)
 
-        # print(kwargs)
-        # if 'n_households' in kwargs:
-        #     kwargs['n_households'] = max(kwargs['n_households'], len(kwargs['households']))
-        # elif 'households' in kwargs:
-        #     kwargs['n_households'] = len(kwargs['households'])
-        # else:
-        #     kwargs['n_households'] = 0
+        elif self.n_households > len(self.households):
+            self.n_households = len(self.households)
 
-        # self.populated = False  # have the empty households been populated yet?
+        self.populated = False  # have the empty households been populated yet?
+
+        # if there's enough information to populate households
+        if 'households' and 'age_by_uid' in self:
+            self.populate_households(self.households, self.age_by_uid)
+            self.n_households = len(self.households)
+            self.populated = True
 
         # for key, value in kwargs.items():
-        #     # if key == 'n_households':
-        #     #     self[key] = max(value, len(kwargs['households']))
-        #     if key not in ['age_by_uid']:
-        #         self[key] = value
+        #     if key not in ['age_by_uid']:  # if you have age_by_uid dictionary then you can populate households, otherwise no
+        #         self[key] = value  # covered by self.update(kwargs)
         #         if key == 'households' and 'age_by_uid' in kwargs:
         #             self[key] = [value]
         #             self.populate_households(kwargs['households'], kwargs['age_by_uid'])
         #             self.n_households = len(self.households)
         #             self.populated = True  # empty households populated
 
-        # if self.households == []:  # empty households array if we just know the number to create
-        #     self.initialize_empty_households(self.n_households)
+        if self.households == []:  # empty households array if we just know the number to create
+            self.initialize_empty_households(self.n_households)
 
         return
 
@@ -159,13 +168,17 @@ class Households(sc.objdict):
 
     def __setitem__(self, key, value):
         """Set attribute values by key."""
-        setattr(self, key, value)
+        # setattr(self, key, value)
+        sc.objdict.__setitem__(self, key, value)
+
         return
 
-    def default_households_kwargs(self):
+    def default_kwargs(self):
         """
         Default attributes for the collection of households.
 
+        n_households (int) : the number of households
+        households (list)  : list of households
         """
         default_kwargs = sc.objdict()
         default_kwargs.n_households = 0
@@ -174,8 +187,13 @@ class Households(sc.objdict):
         return default_kwargs
 
     def initialize_empty_households(self, n_households=None):
-        """Array of empty households."""
-        if n_households is not None:
+        """
+        Array of empty households.
+
+        Args:
+            n_households (int) : the number of households to initialize
+        """
+        if n_households is not None and isinstance(n_households, int):
             self.n_households = n_households
         else:
             self.n_households = 0
@@ -188,7 +206,14 @@ class Households(sc.objdict):
         return
 
     def populate_households(self, households, age_by_uid):
-        """Populate all of the households. Store each household at the index corresponding to it's hhid."""
+        """
+        Populate all of the households. Store each household at the index corresponding to it's hhid.
+
+        Args:
+            households (list) : list of lists where each sublist represents a household and contains the ids of the household members
+            age_by_uid (dict) : dictionary mapping each person's id to their age
+        """
+
         # check there are enough households
         if len(self.households) < len(households):
             log.debug(f"Reinitializing list of households with {len(households)} empty households.")
@@ -208,6 +233,8 @@ class Households(sc.objdict):
         if len(self.households) < hhid:
             raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
         return self.households[hhid]
+
+
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
