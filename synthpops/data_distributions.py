@@ -201,7 +201,7 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
     return r
 
 
-def get_head_age_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_head_age_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get a dictionary of head age brackets either from the file_path directly, or
     using the other parameters to figure out what the file_path should be. If
@@ -232,7 +232,7 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
     return age_brackets
 
 
-def get_head_age_by_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, household_size_1_included=False, use_default=False):
+def get_head_age_by_size_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, household_size_1_included=False, use_default=False):
     """
     Create an array of head of household age bracket counts (column) given by
     size (row). If use_default, then we'll first try to look for location
