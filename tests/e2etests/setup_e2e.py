@@ -16,14 +16,13 @@ sample_pars = sc.objdict(
     with_facilities                 = 1,
     with_non_teaching_staff         = 1
 )
-sample_pop = None
 
 @pytest.fixture(scope="session")
 def create_sample_pop():
     """
         fixture to create and return a sample population for the session
     """
-    print("Use sample_pars to create sample_pop population")
+    sp.logger.info("Use sample_pars to create sample_pop population")
     sample_pop = sp.Pop(**sample_pars)
     return sample_pop
 

@@ -1554,7 +1554,10 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
     """
 
     plkwargs = get_plkwargs(pop)
-    plkwargs.update(kwargs)
+    method_defaults = sc.objdict(title_prefix="household_head_age_family_size",
+                                 fontsize=14,
+                                 cmap="viridis")
+    plkwargs.update_defaults(method_defaults, kwargs)
     pop.loc_pars.location = None
     df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
     label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
@@ -1580,11 +1583,7 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
                         names_y=ylabels,
                         label_x='Head of Household Age',
                         label_y='Household Size',
-                        # expected_hh_ages_percentage.columns, # family_sizes,
-                        title_prefix="household_head_age_family_size",
-                        figdir=plkwargs.figdir,
-                        do_show=plkwargs.do_show,
-                        do_save=plkwargs.do_save)
+                        **plkwargs)
 
 
 def plot_heatmap(expected,
@@ -1593,11 +1592,7 @@ def plot_heatmap(expected,
                  names_y,
                  label_x,
                  label_y,
-                 figdir=None,
-                 title_prefix="",
-                 do_show=False,
-                 do_save=False,
-                 data_range=[0, 1]):
+                 data_range=[0, 1], **kwargs):
     """
     Plotting heatmaps of for expected and actual data
 
@@ -1618,43 +1613,56 @@ def plot_heatmap(expected,
         Matplotlib figure and axes.
         Plots will be save to figdir if provided
     """
-    fig, axs = plt.subplots(1, 2, figsize=(17, 8),
-                            # subplot_kw={'aspect': 1},
-                            # gridspec_kw={'width_ratios': [1, 1]}
-                            )
-    fig.subplots_adjust(top=0.8, right=0.8, wspace=0.15)
+    plkwargs = plotting_kwargs()
 
-    font = {'weight': 'bold',
-            'size': 14}
+    # method specific plotting defaults
+    method_defaults = sc.objdict(title_prefix="heatmap",
+                                 figsize=(17,8),
+                                 fontsize=14,
+                                 top=0.8,
+                                 right=0.8,
+                                 wspace=0.15,
+                                 origin='lower',
+                                 interpolation='nearest',
+                                 aspect="auto",
+                                 rotation=45,
+                                 rotation_mode="anchor",
+                                 ha="right",
+                                 divider_size="5%",
+                                 divider_pad=0.15)
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    fig, axs = plt.subplots(1, 2, figsize=plkwargs.figsize)
+    fig.subplots_adjust(top=plkwargs.top, right=plkwargs.right, wspace=plkwargs.wspace)
+
+    font = {'weight': plkwargs.fontweight,
+            'size': plkwargs.fontsize }
     plt.rc('font', **font)
-    im1 = axs[0].imshow(expected, origin='lower', cmap='viridis', interpolation='nearest', aspect="auto", vmin=data_range[0], vmax=data_range[1])
-    im2 = axs[1].imshow(actual, origin='lower', cmap='viridis', interpolation='nearest', aspect="auto", vmin=data_range[0], vmax=data_range[1])
+    im1 = axs[0].imshow(expected, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
+    im2 = axs[1].imshow(actual, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
     for ax in axs:
         ax.set_xticks(np.arange(len(names_x)))
         ax.set_yticks(np.arange(len(names_y)))
         ax.set_xticklabels(names_x)
         ax.set_yticklabels(names_y)
         # Rotate the tick labels and set their alignment.
-        plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+        plt.setp(ax.get_xticklabels(), rotation=plkwargs.rotation, ha=plkwargs.ha, rotation_mode=plkwargs.rotation_mode)
         ax.set_xlabel(label_x)
         ax.set_ylabel(label_y)
     axs[0].set_title(f"Expected")
     axs[1].set_title(f"Actual")
     # plt.tight_layout()
-    fig.suptitle(title_prefix, fontsize=28)
+    fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     divider = make_axes_locatable(axs[1])
-    cax = divider.new_horizontal(size='5%', pad=0.15)
+    cax = divider.new_horizontal(size=plkwargs.divider_size, pad=plkwargs.divider_pad)
     fig.add_axes(cax)
     cbar = fig.colorbar(im1, cax=cax)
-    # cbar.ax.set_xlabel('')
 
-    # cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-    # fig.colorbar(im1, cax=cbar_ax)
-    if do_save and figdir:
-        os.makedirs(figdir, exist_ok=True)
-        plt.savefig(os.path.join(figdir, f"{title_prefix}_graph.png"), format="png", bbox_inches="tight")
-    if do_show:
+    if plkwargs.do_save and plkwargs.figdir:
+        os.makedirs(plkwargs.figdir, exist_ok=True)
+        plt.savefig(os.path.join(plkwargs.figdir, f"{plkwargs.title_prefix}_graph.png"), format="png", bbox_inches="tight")
+    if plkwargs.do_show:
         plt.show()
 
     return fig, ax

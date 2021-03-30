@@ -24,5 +24,7 @@ def test_household_head_age_distribution(do_show, do_save, create_sample_pop, ge
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     sp.plotting.plot_household_head_age_dist_by_family_size(create_sample_pop, **plotting_kwargs)
 
+
 if __name__ == "__main__":
-    pytest.main(['-v', __file__])
+    # you can pass --do-save --do-show --artifact-dir argument to view/save the figures
+    pytest.main(['-v', '--do-show', __file__])
