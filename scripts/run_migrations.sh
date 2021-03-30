@@ -12,6 +12,8 @@ python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=u
 python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa
 python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa --state_location=Washington
 python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa --state_location=Washington --location=seattle_metro
+python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa --state_location=Washington --location=Franklin_County
+python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa --state_location=Washington --location=Island_County
 python scripts/migrate_legacy_data.py --output_folder=data/ --country_location=usa --state_location=Washington --location=Spokane_County
 
 
