@@ -62,11 +62,11 @@ def test_household_basic():
 
 
 def test_cannot_change_attribute():
+    sp.logger.info("Test to show that class methods can't be easily reset.")
     pop = sp.Pop(**pars)
     pop.household = sp.Household()
     with pytest.raises(ValueError) as excinfo:
         pop.household.set_household = 1
-    print(str(excinfo.value))
     assert "exists as an attribute, so cannot be set as key; use setattribute() instead" in str(excinfo.value), 'Check that you cannot reset an attribute or household class method failed.'
     print('Check passed. Could not reset household class method as an integer.')
 
@@ -78,19 +78,23 @@ if __name__ == '__main__':
 
     pop.household = sp.Household()
     print(pop.household)
-    # pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
-    #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
-    #                             hhid=0)
 
-    # with pytest.raises(ValueError):
-    #     pop.household.set_household = 3
-    # print(pop.household)
+    pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
+                                reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
+                                hhid=0)
+    print(pop.household)
+    print(pop.household.get('reference_age'))
 
-    test_cannot_change_attribute()
-
+    pop.household2 = sp.Household(**dict(member_pids=pop.homes_by_uids[1],
+                                         member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
+                                         reference_pid=min(pop.homes_by_uids[1]),
+                                         reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])],
+                                         hhid=1))
+    print(pop.household2)
+    # test_cannot_change_attribute()
 
     # pop.households = sp.Households(**{'households': pop.household})
-    pop.households = sp.Households()
+    # pop.households = sp.Households()
 
     # print(pop.households)
 

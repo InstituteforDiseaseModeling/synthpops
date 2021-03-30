@@ -60,13 +60,10 @@ class Household(sc.objdict):
             **member_ages (np.array) : ages of household members
             **reference_pid (int) : id of the reference person
             **reference_age (int) : age of the reference person
-
         """
         # set up default values
         kwargs = sc.mergedicts(self.default_hkwargs(), kwargs)  # at least define the basic household attributes
         self.update(kwargs)
-        # for key, value in kwargs.items():
-            # self[key] = value
 
         return
 
@@ -74,11 +71,6 @@ class Household(sc.objdict):
         output = sc.objrepr(self)
         output += sc.objdict.__repr__(self)
         return output
-
-    # def __setitem__(self, key, value):
-    #     """Set attribute values by key."""
-    #     setattr(self, key, value)
-    #     return
 
     def default_hkwargs(self):
         """
@@ -100,26 +92,51 @@ class Household(sc.objdict):
 
         return default_hkwargs
 
+    # DM: why does this work?
+    def __setitem__(self, key, value):
+        """Set attribute values by key."""
+        if isinstance(value, (list, np.ndarray)):
+            sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
+        else:
+            sc.objdict.__setitem__(self, key, value)
+        return
+
+    # alternative way
+    # def setitem(self, key, value):
+    #     """Set attribute values by key."""
+    #     if isinstance(value, (list, np.ndarray)):
+    #         self[key] = sc.promotetoarray(value)
+    #     else:
+    #         self[key] = value
+    #     return
+
     def set_household(self, **kwargs):
         """Set up the household -- works for a static population."""
         for key, value in kwargs.items():
-            if key in ['member_pids', 'member_ages']:
-                self[key] = sc.promotetoarray(value)  # make sure this is an array
-            else:
-                self[key] = value
+            # self.setitem(key, value)
+            self.__setitem__(key, value)
+
+            # direct method --- would repeat logic...
+            # if key in ['member_pids', 'member_ages']:
+            # if isinstance(value, (np.ndarray, list)):
+            #     self[key] = sc.promotetoarray(value)  # make sure this is an array
+            # else:
+            #     self[key] = value
         return
 
-    # def get_household_size(self):
-    #     """Return number of household members."""
-    #     return len(self.member_pids)
+    def get_household_size(self):
+        """Return number of household members."""
+        return len(self.member_pids)
 
-    # def get_reference_pid(self):
-    #     """Return the pid of the reference person used to generate the household member's ages."""
-    #     return self.reference_pid
+    def get_reference_pid(self):
+        """Return the pid of the reference person used to generate the household member's ages."""
+        # return self.reference_pid
+        return self.get('reference_pid')  # using sc.objdict's method
 
-    # def get_reference_age(self):
-    #     """Return the age of the reference person used to generate the household member's ages."""
-    #     return self.reference_age
+    def get_reference_age(self):
+        """Return the age of the reference person used to generate the household member's ages."""
+        # return self.reference_age
+        return self.get('reference_age')  # using sc.objdict's method
 
 
 # class Households(sc.prettyobj):
