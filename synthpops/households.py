@@ -57,8 +57,8 @@ class Household(sc.objdict):
         """
         default_kwargs = sc.objdict()
         default_kwargs.hhid = None
-        default_kwargs.member_pids = np.array([], dtype=np.int32)
-        default_kwargs.member_ages = np.array([], dtype=np.int32)
+        default_kwargs.member_pids = np.array([], dtype=int)
+        default_kwargs.member_ages = np.array([], dtype=int)
         default_kwargs.reference_pid = None
         default_kwargs.reference_age = None
 
@@ -233,8 +233,6 @@ class Households(sc.objdict):  # sc.objdict?
         if len(self.households) < hhid:
             raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
         return self.households[hhid]
-
-
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):

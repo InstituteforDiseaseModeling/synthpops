@@ -41,13 +41,6 @@ pars = sc.objdict(
 )
 
 
-def test_household_class():
-
-    pop = sp.Pop(**pars)
-
-    # print(pop)
-    return pop
-
 @pytest.mark.skip
 def test_household_basic():
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
@@ -71,6 +64,29 @@ def test_cannot_change_attribute():
     print('Check passed. Could not reset household class method as an integer.')
 
 
+def test_household_class():
+
+    pop = sp.Pop(**pars)
+    pop2 = sc.dcp(pop)
+
+    sp.logger.info("Test creating an empty household.")
+    pop.household = sp.Household()
+    assert pop.household.get('hhid') is None, f"Check failed. pop.household hhid is {pop.household.get('hhid')}"
+    np.testing.assert_array_equal(pop.household.get('member_pids'), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_pids.", verbose=True)
+    np.testing.assert_array_equal(pop.household.get('member_ages'), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
+    assert pop.household.get('reference_pid') is None, f"Check failed. pop.household reference_pid is {pop.household.get('reference_pid')}."
+    assert pop.household.get('reference_age') is None, f"Check failed. pop.household reference_age is {pop.household.get('reference_age')}."
+
+    print('Checks passed for an empty household.')
+
+    return pop
+
+
+# def test_make_household():
+
+
+
+
 if __name__ == '__main__':
 
     pop = test_household_class()
@@ -78,33 +94,39 @@ if __name__ == '__main__':
 
     pop.household = sp.Household()
     print(pop.household)
+    print(pop.household.keys())
+    print(pop.household.hhid)
+    print(pop.household.get('member_pids'))
+    print(type(pop.household.get('member_pids')))
 
-    pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
-                                reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
-                                hhid=0)
-    print(pop.household)
-    print(pop.household.get('reference_age'))
+    # pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
+    #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
+    #                             hhid=0)
+    # print(pop.household)
+    # print(pop.household.get('reference_age'))
 
-    pop.household2 = sp.Household(**dict(member_pids=pop.homes_by_uids[1],
-                                         member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
-                                         reference_pid=min(pop.homes_by_uids[1]),
-                                         reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])],
-                                         hhid=1))
-    print(pop.household2)
-    # test_cannot_change_attribute()
+    # pop.household2 = sp.Household(**dict(member_pids=pop.homes_by_uids[1],
+    #                                      member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
+    #                                      reference_pid=min(pop.homes_by_uids[1]),
+    #                                      reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])],
+    #                                      hhid=1))
+    # print(pop.household2)
+    # # test_cannot_change_attribute()
 
-    # pop.households = sp.Households(**{'households': pop.household})
+    # # pop.households = sp.Households(**{'households': pop.household})
     # pop.households = sp.Households()
 
     # print(pop.households)
 
-    # pop.households = sp.Households(**{'households': pop.homes})
-    # pop.households.initialize_empty_households()
-
+    # # pop.households = sp.Households(**{'households': pop.homes})
+    # pop.households.initialize_empty_households(n_households=3)
+    # print('here')
     # print(pop.households)
-    # # print(pop.households.household_list)
+    # # print(pop.households.households)
 
-    # # pop.households.populate_households(pop.homes_by_uids[0:2], pop.age_by_uid)
+    # pop.households.populate_households(pop.homes_by_uids[0:3], pop.age_by_uid)
+    # print(pop.households.households)
+
     # print(pop.households.get_household(0))
     # print(pop.households.get_household(2))
 
