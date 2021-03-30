@@ -47,4 +47,10 @@ Glossary
         people in workplaces excluding teachers in schools. The school and workplace contact
         layers are mutually exclusive, someone cannot be both a student and a worker.
 
+    location
+        The context in which a set of synthpops input data parameters are valid. This is often geographic but
+        could be administrative or specific to e.g. a sub-demographic within a geographic region.
+        Locations are organized hierarchically. Locations are defined by a location file.
+        Child locations can inherit input data parameter values from their parent location.
+
 .. _network theory: https://en.wikipedia.org/wiki/Network_theory
