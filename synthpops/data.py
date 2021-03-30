@@ -1,10 +1,12 @@
 import json
+import jsbeautifier
 from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
 import os
 from . import config as cfg
 from . import logger
+
 
 class SchoolSizeDistributionByType(JsonObject):
     school_type = StringProperty()
@@ -220,8 +222,14 @@ def save_location_to_filepath(location, abs_filepath):
     """
     logger.info(f"Saving location to filepath [{abs_filepath}]")
     location_json = location.to_json()
+
+    options = jsbeautifier.default_options()
+    options.indent_size = 2
+    location_json = jsbeautifier.beautify(json.dumps(location_json), options)
+
     with open(abs_filepath, 'w') as f:
-        json.dump(location_json, f, indent=2)
+        f.write(location_json)
+        #json.dump(location_json, f, indent=2)
 
 
 def check_location_constraints_satisfied(location):

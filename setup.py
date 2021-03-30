@@ -58,6 +58,7 @@ setup(
         "seaborn",
         "graphviz",
         "pydot",
-        "jsonobject"
+        "jsonobject",
+        "jsbeautifier"
     ],
 )
