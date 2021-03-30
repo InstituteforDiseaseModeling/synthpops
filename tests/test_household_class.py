@@ -64,12 +64,11 @@ def test_cannot_change_attribute():
     print('Check passed. Could not reset household class method as an integer.')
 
 
-def test_household_class():
+def test_empty_household():
+    sp.logger.info("Test creating an empty household.")
 
     pop = sp.Pop(**pars)
-    pop2 = sc.dcp(pop)
 
-    sp.logger.info("Test creating an empty household.")
     pop.household = sp.Household()
     assert pop.household.get('hhid') is None, f"Check failed. pop.household hhid is {pop.household.get('hhid')}"
     np.testing.assert_array_equal(pop.household.get('member_pids'), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_pids.", verbose=True)
@@ -82,22 +81,30 @@ def test_household_class():
     return pop
 
 
-# def test_make_household():
+def test_make_household():
+    sp.logger.info("Test creating a household after the fact.")
+    pop = sp.Pop(**pars)
+
+    pop.household = sp.Household()
+    pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
+                                reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
+                                hhid=0)
+    assert pop.household.get('hhid') == 0, f"Check failed. pop.household hhid is {pop.household.get('hhid')}."
+    assert len(pop.household.get('member_pids')) > 0 and isinstance(pop.household.get('member_pids'), np.ndarray), 'Check failed.'
+    
+
+
 
 
 
 
 if __name__ == '__main__':
 
-    pop = test_household_class()
+    # pop = test_empty_household()
+    pop = sp.Pop(**pars)
     print(pop.homes_by_uids)
 
     pop.household = sp.Household()
-    print(pop.household)
-    print(pop.household.keys())
-    print(pop.household.hhid)
-    print(pop.household.get('member_pids'))
-    print(type(pop.household.get('member_pids')))
 
     # pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
     #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
