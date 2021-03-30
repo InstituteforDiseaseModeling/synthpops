@@ -6,7 +6,6 @@ import setup_e2e as e2e
 from setup_e2e import create_sample_pop, get_fig_dir_by_module
 
 
-global sample_pop
 def test_househould_average_contact_by_age(do_show, do_save, create_sample_pop, get_fig_dir_by_module):
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     fig = create_sample_pop.plot_contacts(**plotting_kwargs)
