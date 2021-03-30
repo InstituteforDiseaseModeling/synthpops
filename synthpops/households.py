@@ -13,34 +13,6 @@ from . import sampling as spsamp
 # __all__ = ['Household', 'Households']
 
 
-# def default_hkwargs():
-#     """
-#     Default household attributes.
-
-#     hhid (int): household id
-#     member_pids (np.ndarray): pids of household members
-#     member_ages (np.ndarray): ages of household members  # maybe not needed
-#     reference_pid (int): reference person used to generate the household members and their ages
-#     reference_age (int): age of the reference person used to generate the household members and their ages
-
-#     """
-#     default_hkwargs = dict(hhid=None, member_pids=np.array([], dtype=np.int32), member_ages=np.array([], dtype=np.int32), reference_pid=None, reference_age=None)
-#     return default_hkwargs
-
-
-# def default_households_kwargs():
-#     """
-#     Default attributes for the collection of households.
-
-#     """
-#     default_kwargs = dict(n_households=0, households=[])
-#     return default_kwargs
-
-
-# default_hkwargs = default_hkwargs()
-# default_households_kwargs = default_households_kwargs()
-
-
 # class Household(sc.prettyobj):
 class Household(sc.objdict):
     """
@@ -62,7 +34,7 @@ class Household(sc.objdict):
             **reference_age (int) : age of the reference person
         """
         # set up default values
-        kwargs = sc.mergedicts(self.default_hkwargs(), kwargs)  # at least define the basic household attributes
+        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
         self.update(kwargs)
 
         return
@@ -72,7 +44,7 @@ class Household(sc.objdict):
         output += sc.objdict.__repr__(self)
         return output
 
-    def default_hkwargs(self):
+    def default_kwargs(self):
         """
         Default household attributes.
 
@@ -83,14 +55,14 @@ class Household(sc.objdict):
         reference_age (int)      : age of the reference person used to generate the household members and their ages
 
         """
-        default_hkwargs = sc.objdict()
-        default_hkwargs.hhid = None
-        default_hkwargs.member_pids = np.array([], dtype=np.int32)
-        default_hkwargs.member_ages = np.array([], dtype=np.int32)
-        default_hkwargs.reference_pid = None
-        default_hkwargs.reference_age = None
+        default_kwargs = sc.objdict()
+        default_kwargs.hhid = None
+        default_kwargs.member_pids = np.array([], dtype=np.int32)
+        default_kwargs.member_ages = np.array([], dtype=np.int32)
+        default_kwargs.reference_pid = None
+        default_kwargs.reference_age = None
 
-        return default_hkwargs
+        return default_kwargs
 
     # DM: why does this work?
     def __setitem__(self, key, value):
