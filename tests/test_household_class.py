@@ -90,8 +90,11 @@ def test_make_household():
                                 reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
                                 hhid=0)
     assert pop.household.get('hhid') == 0, f"Check failed. pop.household hhid is {pop.household.get('hhid')}."
-    assert len(pop.household.get('member_pids')) > 0 and isinstance(pop.household.get('member_pids'), np.ndarray), 'Check failed.'
-    
+    assert len(pop.household.get('member_pids')) > 0 and isinstance(pop.household.get('member_pids'), np.ndarray), 'Check failed: member_pids is empty or not a np.array.'
+    assert len(pop.household.get('member_ages')) > 0 and isinstance(pop.household.get('member_ages'), np.ndarray), 'Check failed: member_ages is empty or not a np.array.'
+    assert pop.household.get('reference_pid') is not None, 'Check failed. pop.household reference_pid is None.'
+    assert pop.household.get('reference_age') is not None, 'Check failed. pop.household reference_age is None.'
+    assert pop.household.get('hhid') is not None, 'Check failed. pop.household hhid is None.'
 
 
 
