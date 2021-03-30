@@ -9,6 +9,7 @@ from collections import Counter
 from .config import logger as log, checkmem
 from . import base as spb
 from . import sampling as spsamp
+from . import data_distributions as spdata
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
@@ -377,12 +378,7 @@ def get_household_head_age_size(pop):
         array with rows as family size and columns as age brackets
     """
     popdict = pop.popdict
-    from . import data_distributions as spdata
-    hha_brackets = spdata.get_head_age_brackets(datadir=pop.datadir,
-                                            location=pop.location,
-                                            state_location=pop.state_location,
-                                            country_location=pop.country_location,
-                                            use_default=pop.use_default)
+    hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
 
     #hha_index use age as key and bracket index as value
     hha_index = dict()
