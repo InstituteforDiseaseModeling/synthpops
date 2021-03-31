@@ -1,3 +1,8 @@
+"""
+This file defines the fixture of e2e tests, note that fixtures can be overridden if the same name is used
+please be cautious when using the same name in your test module
+more details see https://docs.pytest.org/en/stable/fixture.html#override-fixtures
+"""
 import os
 import pytest
 import pathlib
@@ -21,6 +26,9 @@ sample_pars = sc.objdict(
 def create_sample_pop():
     """
         fixture to create and return a sample population for the session
+
+    Returns:
+        a sample population based on sample_pars
     """
     sp.logger.info("Use sample_pars to create sample_pop population")
     sample_pop = sp.Pop(**sample_pars)
@@ -30,6 +38,9 @@ def create_sample_pop():
 def get_fig_dir(request, artifact_dir):
     """
         fixture to create and return a subdirectory with function name under artifact_dir
+
+    Returns:
+        filepath with function name as subfolder
     """
     testname = request.node.originalname if request.node.originalname is not None else request.node.name
     fig_dir = pathlib.Path(artifact_dir, testname)
@@ -40,6 +51,9 @@ def get_fig_dir(request, artifact_dir):
 def get_fig_dir_by_module(request, artifact_dir):
     """
         fixture to create and return a subdirectory with module name under artifact_dir
+
+    Returns:
+        filepath with module name as subfolder
     """
     modulename = request.node.name
     start = modulename.rfind("/")+1
