@@ -1547,7 +1547,13 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
     Plot a matrix for household head age distribution by familiy size
 
     Args:
-        pop (pop object)    : population
+        pop (pop object)        : population, either synthpops.pop.Pop or dict
+        **figdir (str)          : directory to save the plot if provided
+        **title_prefix (str)    : used to prefix the title of the plot
+        **fontsize (float)      : Matplotlib.figure.fontsize
+        **cmap (str)            : colormap
+        **do_show (bool)        : If True, show the plot
+        **do_save (bool)        : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1562,10 +1568,7 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
     df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
     label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
     xlabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
-    expected_hh_ages = spdata.get_head_age_by_size_distr(datadir=pop.datadir,
-                                          state_location=pop.state_location,
-                                          country_location=pop.country_location,
-                                          use_default=pop.use_default)
+    expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
 
     # we will ignore the first row (family_size = 1) for plotting
     expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages),:]
@@ -1597,17 +1600,18 @@ def plot_heatmap(expected,
     Plotting heatmaps of for expected and actual data
 
     Args:
-        expected        : expected 2-dimenional matrix
-        actual          : actual 2-dimenional matrix
-        names_x         : name for x-axis
-        names_y         : name for y-axis
-        label_x         : customed label for x-axis
-        label_y         : customed label for y-axis
-        figdir          : directory where to result files are saved
-        title_prefix    : used for prefix of the plot title
-        do_show         : show image if set to True
-        do_save         : save image if set to True
-        data_range      : data range for heatmap's [vmin,vmax], default to [0,1]
+        expected (numpy array)  : expected 2-dimenional matrix
+        actual (numpy array)    : actual 2-dimenional matrix
+        names_x (str)           : name for x-axis
+        names_y (str)           : name for y-axis
+        label_x (str)           : customed label for x-axis
+        label_y (str)           : customed label for y-axis
+        data_range (list)       : data range for heatmap's [vmin,vmax], default to [0,1]
+        **figdir (str)          : directory to save the plot if provided
+        **title_prefix (str)    : used to prefix the title of the plot
+        **do_show (bool)        : If True, show the plot
+        **do_save (bool)        : If True, save the plot to disk
+
 
     Returns:
         Matplotlib figure and axes.
