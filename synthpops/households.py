@@ -381,21 +381,16 @@ def get_household_head_age_size(pop):
     hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
 
     #hha_index use age as key and bracket index as value
-    hha_index = dict()
-    for k, v in hha_brackets.items():
-        for i in v:
-            hha_index[i] = k
+    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
     uids = get_household_heads(popdict=popdict)
     d = {}
-    i = 0
     # construct tables for each houldhold head
     for uid in uids.values():
-        d[i] = {'hhid': popdict[uid]['hhid'],
-                'age': popdict[uid]['age'],
-                'family_size': len(popdict[uid]['contacts']['H']) + 1,
-                'age_bracket': hha_index[popdict[uid]['age']]}
-        i += 1
-    df_household_age = pd.DataFrame.from_dict(d, "index")
+        d[popdict[uid]['hhid']] = {'hhid': popdict[uid]['hhid'],
+                                   'age': popdict[uid]['age'],
+                                   'family_size': len(popdict[uid]['contacts']['H']) + 1,
+                                   'age_bracket': hha_index[popdict[uid]['age']]}
+    df_household_age = pd.DataFrame.from_dict(d, orient="index")
     # aggregate by age_bracket (column) and family_size (row)
     df_household_age = df_household_age.groupby(['age_bracket', 'family_size'], as_index=False).count()\
         .pivot(index='family_size', columns='age_bracket', values='hhid').fillna(0)
