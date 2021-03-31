@@ -62,7 +62,7 @@ def migrate_population_age_brackets_16(datadir, country_location,  state_locatio
                                                                             )
     for bracket_index, age_range in legacy_age_brackets.items():
         # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_16.append([float(min(age_range)), float(max(age_range)), 0.0])
+        new_location.population_age_distribution_16.append([int(min(age_range)), int(max(age_range)), 0.0])
 
 
 def migrate_population_age_brackets_18(datadir, country_location,  state_location, location, new_location,):
@@ -74,7 +74,7 @@ def migrate_population_age_brackets_18(datadir, country_location,  state_locatio
                                                                             )
     for bracket_index, age_range in legacy_age_brackets.items():
         # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_18.append([float(min(age_range)), float(max(age_range)), 0.0])
+        new_location.population_age_distribution_18.append([int(min(age_range)), int(max(age_range)), 0.0])
 
 
 def migrate_population_age_brackets_20(datadir, country_location,  state_location, location, new_location,):
@@ -86,7 +86,7 @@ def migrate_population_age_brackets_20(datadir, country_location,  state_locatio
                                                                             )
     for bracket_index, age_range in legacy_age_brackets.items():
         # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_20.append([float(min(age_range)), float(max(age_range)), 0.0])
+        new_location.population_age_distribution_20.append([int(min(age_range)), int(max(age_range)), 0.0])
 
 
 def migrate_population_age_distribution_16(datadir, country_location, state_location, location, new_location):
