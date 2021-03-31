@@ -146,7 +146,7 @@ def migrate_household_head_age_brackets(datadir, country_location, state_locatio
     pattern = re.compile('household_head_age_([\d.]+)_([\d.]+)')
     household_head_age_key_matches = [pattern.match(key) for key in df.keys() if pattern.match(key) is not None]
     new_location.household_head_age_brackets = [
-                                                [float(match.group(1)), float(match.group(2))]
+                                                [int(match.group(1)), int(match.group(2))]
                                                 for match in household_head_age_key_matches
                                                ]
 
@@ -236,7 +236,7 @@ def migrate_ltcf_use_rate_distribution(datadir, country_location, state_location
                                                                                           country_location)
 
     for age, percent in legacy_distribution.items():
-        target_entry = [float(age), float(percent)]
+        target_entry = [int(age), float(percent)]
         new_location.ltcf_use_rate_distribution.append(target_entry)
 
 
@@ -248,8 +248,8 @@ def migrate_school_size_brackets(datadir, country_location, state_location, loca
                                                                          country_location)
 
     for k, bracket_expanded in legacy_brackets.items():
-        bracket_min = float(min(bracket_expanded))
-        bracket_max = float(max(bracket_expanded))
+        bracket_min = int(min(bracket_expanded))
+        bracket_max = int(max(bracket_expanded))
         target_entry = [bracket_min, bracket_max]
         new_location.school_size_brackets.append(target_entry)
 
@@ -287,8 +287,8 @@ def migrate_school_types_by_age(datadir, country_location, state_location, locat
     for school_type, ages in legacy_type_age_ranges.items():
         target_type_by_ages = data.SchoolTypeByAge()
         target_type_by_ages.school_type = school_type
-        age_min = float(min(ages))
-        age_max = float(max(ages))
+        age_min = int(min(ages))
+        age_max = int(max(ages))
         target_type_by_ages.age_range = [age_min, age_max]
         new_location.school_types_by_age.append(target_type_by_ages)
 
