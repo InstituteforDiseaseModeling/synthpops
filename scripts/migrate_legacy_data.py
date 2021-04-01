@@ -309,8 +309,8 @@ def migrate_workplace_size_counts_by_num_personnel(datadir, country_location, st
         raise RuntimeError(f"Mismatched lengths for distribution and brackets for work size counts country location [{country_location}], state location [{state_location}], location [{location}]")
 
     for k, bracket_expanded in legacy_brackets.items():
-        bracket_min = float(min(bracket_expanded))
-        bracket_max = float(max(bracket_expanded))
+        bracket_min = int(min(bracket_expanded))
+        bracket_max = int(max(bracket_expanded))
         count = float(legacy_distribution[k])
         target_entry = [bracket_min, bracket_max, count]
         new_location.workplace_size_counts_by_num_personnel.append(target_entry)
