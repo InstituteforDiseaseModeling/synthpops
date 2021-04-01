@@ -14,7 +14,7 @@ pars = sc.objdict(
 
     country_location   = 'usa',
     state_location     = 'Washington',
-    location           = 'Island_County',
+    location           = 'Spokane_County',
     use_default        = 1,
 
     household_method   = 'fixed_ages',

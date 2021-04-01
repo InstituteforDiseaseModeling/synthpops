@@ -101,6 +101,15 @@ def test_school_modules():
     school_size_distr_by_type = sp.get_default_school_size_distr_by_type()
     uids_in_school = {syn_school_uids[n]: syn_school_ages[n] for n in range(len(syn_school_uids))}
 
+    # print(school_types_distr_by_age)
+    # for a in school_types_distr_by_age:
+        # print(a, school_types_distr_by_age[a])
+    # print(school_type_age_ranges)
+    print(school_size_brackets)
+    print(school_size_distr_by_type)
+
+
+
     uids_in_school_by_age = {}
     for a in range(100):
         uids_in_school_by_age[a] = []

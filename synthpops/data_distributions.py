@@ -255,10 +255,13 @@ def get_head_age_by_size_distr(datadir=None, location=None, state_location=None,
         households for households of size s-1.
 
     """
-    if household_size_1_included:
-        raise NotImplementedError(f"Not supported: household_size_1_included = {household_size_1_included}")
     location = load_location(location, state_location, country_location, revert_to_default=use_default)
-    dist = [d[1:] for d in location.household_head_age_distribution_by_family_size]
+    if household_size_1_included:
+        # raise NotImplementedError(f"Not supported: household_size_1_included = {household_size_1_included}")
+        dist = [d[0:] for d in location.household_head_age_distribution_by_family_size]
+    else:
+        # location = load_location(location, state_location, country_location, revert_to_default=use_default)
+        dist = [d[1:] for d in location.household_head_age_distribution_by_family_size]
     return np.array(dist)
 
 def calculate_which_nbrackets_to_use(nbrackets = None):
@@ -539,7 +542,7 @@ def get_default_school_size_distr_brackets():
         A dictionary of school size brackets.
 
     """
-    return get_school_size_brackets(cfg.datadir, country_location='usa', use_default=True)
+    return get_school_size_brackets(cfg.datadir, country_location='usa', state_location=cfg.default_state, location=cfg.default_location, use_default=True)
 
 
 def get_default_school_size_distr_by_type():
@@ -555,7 +558,7 @@ def get_default_school_size_distr_by_type():
     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
 
     for k in school_types:
-        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(cfg.datadir, country_location='usa', use_default=True)
+        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(cfg.datadir, country_location='usa', state_location=cfg.default_state, location=cfg.default_location, use_default=True)
 
     return school_size_distr_by_type
 

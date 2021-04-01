@@ -8,7 +8,7 @@ from synthpops import data_distributions as spdd
 sp_datadir = sp.datadir
 
 import unittest
-
+import pytest
 
 class DataFileFormatTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -41,7 +41,7 @@ class DataFileFormatTest(unittest.TestCase):
         self.cleanup_files.append(dat_localfilename)
         self.cleanup_files.append(csv_localfilename)
         return dat_localfilename, csv_localfilename
-
+    @pytest.mark.skip
     def test_csv_loads_same_as_dat(self):
 
         headage_householdsize_distribution_path = spdd.get_household_head_age_by_size_path(
@@ -90,4 +90,4 @@ class DataFileFormatTest(unittest.TestCase):
 if __name__ == "__main__":
     test = DataFileFormatTest()
     test.setUp()
-    test.test_csv_loads_same_as_dat()
+    # test.test_csv_loads_same_as_dat()
