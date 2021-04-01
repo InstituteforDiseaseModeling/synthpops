@@ -96,9 +96,21 @@ class Household(sc.objdict):
             #     self[key] = value
         return
 
+    def get_hhid(self):
+        """Return the household id."""
+        return self.get('hhid')
+
     def get_household_size(self):
         """Return number of household members."""
         return len(self.member_pids)
+
+    def get_member_pids(self):
+        """Return the pids of all household members."""
+        return self.get('member_pids')
+
+    def get_member_ages(self):
+        """Return the ages of all household members."""
+        return self.get('member_ages')
 
     def get_reference_pid(self):
         """Return the pid of the reference person used to generate the household member's ages."""

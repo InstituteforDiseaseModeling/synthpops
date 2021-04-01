@@ -70,11 +70,11 @@ def test_empty_household():
     pop = sp.Pop(**pars)
 
     pop.household = sp.Household()
-    assert pop.household.get('hhid') is None, f"Check failed. pop.household hhid is {pop.household.get('hhid')}"
-    np.testing.assert_array_equal(pop.household.get('member_pids'), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_pids.", verbose=True)
-    np.testing.assert_array_equal(pop.household.get('member_ages'), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
-    assert pop.household.get('reference_pid') is None, f"Check failed. pop.household reference_pid is {pop.household.get('reference_pid')}."
-    assert pop.household.get('reference_age') is None, f"Check failed. pop.household reference_age is {pop.household.get('reference_age')}."
+    assert pop.household.get_hhid() is None, f"Check failed. pop.household hhid is {pop.household.get_hhid()}"
+    np.testing.assert_array_equal(pop.household.get_member_pids(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_pids.", verbose=True)
+    np.testing.assert_array_equal(pop.household.get_member_ages(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
+    assert pop.household.get_reference_pid() is None, f"Check failed. pop.household reference_pid is {pop.household.get_reference_pid()}."
+    assert pop.household.get_reference_age() is None, f"Check failed. pop.household reference_age is {pop.household.get_reference_age()}."
 
     print('Checks passed for an empty household.')
 
@@ -89,12 +89,12 @@ def test_make_household():
     pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                                 reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
                                 hhid=0)
-    assert pop.household.get('hhid') == 0, f"Check failed. pop.household hhid is {pop.household.get('hhid')}."
-    assert len(pop.household.get('member_pids')) > 0 and isinstance(pop.household.get('member_pids'), np.ndarray), 'Check failed: member_pids is empty or not a np.array.'
-    assert len(pop.household.get('member_ages')) > 0 and isinstance(pop.household.get('member_ages'), np.ndarray), 'Check failed: member_ages is empty or not a np.array.'
-    assert pop.household.get('reference_pid') is not None, 'Check failed. pop.household reference_pid is None.'
-    assert pop.household.get('reference_age') is not None, 'Check failed. pop.household reference_age is None.'
-    assert pop.household.get('hhid') is not None, 'Check failed. pop.household hhid is None.'
+    assert pop.household.get_hhid() == 0, f"Check failed. pop.household hhid is {pop.household.get_hhid()}."
+    assert len(pop.household.get_member_pids()) > 0 and isinstance(pop.household.get_member_pids(), np.ndarray), 'Check failed: member_pids is empty or not a np.array.'
+    assert len(pop.household.get_member_ages()) > 0 and isinstance(pop.household.get_member_ages(), np.ndarray), 'Check failed: member_ages is empty or not a np.array.'
+    assert pop.household.get_reference_pid() is not None, 'Check failed. pop.household reference_pid is None.'
+    assert pop.household.get_reference_age() is not None, 'Check failed. pop.household reference_age is None.'
+    assert pop.household.get_hhid() is not None, 'Check failed. pop.household hhid is None.'
 
 
 
@@ -104,10 +104,11 @@ def test_make_household():
 if __name__ == '__main__':
 
     # pop = test_empty_household()
-    pop = sp.Pop(**pars)
-    print(pop.homes_by_uids)
+    test_make_household()
+    # pop = sp.Pop(**pars)
+    # print(pop.homes_by_uids)
 
-    pop.household = sp.Household()
+    # pop.household = sp.Household()
 
     # pop.household.set_household(member_pids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
     #                             reference_pid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
