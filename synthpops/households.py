@@ -145,6 +145,7 @@ class Households(sc.objdict):  # sc.objdict?
 
         # clean up the rest of the initialization
         # align n_households and households supplied
+
         if self.n_households < len(self.households):
             self.n_households = len(self.households)
 
@@ -159,16 +160,7 @@ class Households(sc.objdict):  # sc.objdict?
             self.n_households = len(self.households)
             self.populated = True
 
-        # for key, value in kwargs.items():
-        #     if key not in ['age_by_uid']:  # if you have age_by_uid dictionary then you can populate households, otherwise no
-        #         self[key] = value  # covered by self.update(kwargs)
-        #         if key == 'households' and 'age_by_uid' in kwargs:
-        #             self[key] = [value]
-        #             self.populate_households(kwargs['households'], kwargs['age_by_uid'])
-        #             self.n_households = len(self.households)
-        #             self.populated = True  # empty households populated
-
-        if self.households == []:  # empty households array if we just know the number to create
+        if len(self.households) == 0:  # empty households array if we just know the number to create
             self.initialize_empty_households(self.n_households)
 
         return
@@ -234,9 +226,9 @@ class Households(sc.objdict):  # sc.objdict?
         log.debug("Populating households.")
         # now populate households
         for nh, household in enumerate(households):
-            hkwargs = dict(hhid=nh, member_pids=household, member_ages=[age_by_uid[i] for i in household], reference_pid=household[0], reference_age=age_by_uid[household[0]])  # reference person in synthpops is always the first person place in a household
+            kwargs = dict(hhid=nh, member_pids=household, member_ages=[age_by_uid[i] for i in household], reference_pid=household[0], reference_age=age_by_uid[household[0]])  # reference person in synthpops is always the first person place in a household
             household = Household()
-            household.set_household(**hkwargs)
+            household.set_household(**kwargs)
             self.households[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
         return
 
