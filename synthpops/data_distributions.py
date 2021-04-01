@@ -107,9 +107,15 @@ def read_age_bracket_distr(datadir=None, location=None, state_location=None, cou
         of ages in that age bracket.
 
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
     nbrackets = calculate_which_nbrackets_to_use(nbrackets)
     age_brackets = location_data.get_population_age_distribution(nbrackets)
+    # Use default if no data for this parameter.
+    if age_brackets is None or len(age_brackets) == 0:
+        return read_age_bracket_distr(location=cfg.default_location,
+                                      state_location=cfg.default_state,
+                                      country_location=cfg.default_country)
     percent = [age_bracket[2] for age_bracket in age_brackets]
     r = dict(zip(np.arange(len(age_brackets)), percent))
     return r
@@ -195,7 +201,13 @@ def get_household_size_distr(datadir=None, location=None, state_location=None, c
         that size.
 
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.household_size_distribution is None or len(location_data.household_size_distribution) == 0:
+        return get_household_size_distr(location=cfg.default_location,
+                                        state_location=cfg.default_state,
+                                        country_location=cfg.default_country)
     dist = [ [int(entry[0]), entry[1]] for entry in location_data.household_size_distribution ]
     r = dict(dist)
     return r
@@ -225,7 +237,13 @@ def get_head_age_brackets(datadir=None, location=None, state_location=None, coun
         of households which head of household in that age bracket.
 
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.household_head_age_brackets is None or len(location_data.household_head_age_brackets) == 0:
+        return get_head_age_brackets(location=cfg.default_location,
+                                     state_location=cfg.default_state,
+                                     country_location=cfg.default_country)
     age_brackets = {}
     for [bracket_index, bracket_minmax] in enumerate(location_data.household_head_age_brackets):
         age_brackets[bracket_index] = np.arange(int(bracket_minmax[0]), int(bracket_minmax[1]) + 1)
@@ -257,7 +275,13 @@ def get_head_age_by_size_distr(datadir=None, location=None, state_location=None,
     """
     if household_size_1_included:
         raise NotImplementedError(f"Not supported: household_size_1_included = {household_size_1_included}")
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.household_head_age_distribution_by_family_size is None or len(location_data.household_head_age_distribution_by_family_size) == 0:
+        return get_head_age_by_size_distr(location=cfg.default_location,
+                                          state_location=cfg.default_state,
+                                          country_location=cfg.default_country)
     dist = [d[1:] for d in location_data.household_head_age_distribution_by_family_size]
     return np.array(dist)
 
@@ -289,12 +313,18 @@ def get_census_age_brackets(datadir=None, location=None, state_location=None, co
         A dictionary of the range of ages that map to each age bracket.
 
     """
-
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
 
     nbrackets = calculate_which_nbrackets_to_use(nbrackets)
 
     dist = location_data.get_population_age_distribution(nbrackets)
+
+    # Use default if no data for this parameter.
+    if dist is None or len(dist) == 0:
+        return get_census_age_brackets(location=cfg.default_location,
+                                       state_location=cfg.default_state,
+                                       country_location=cfg.default_country)
 
     age_brackets = {}
     for bracket_index, dist in enumerate(dist):
@@ -412,7 +442,14 @@ def get_school_enrollment_rates(datadir=None, location=None, state_location=None
     Returns:
         A dictionary of school enrollment rates by age.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.enrollment_rates_by_age is None or len(location_data.enrollment_rates_by_age) == 0:
+        return get_school_enrollment_rates(location=cfg.default_location,
+                                           state_location=cfg.default_state,
+                                           country_location=cfg.default_country)
+
     dist = [ [int(d[0]), d[1]] for d in location_data.enrollment_rates_by_age ]
     return dict(dist)
 
@@ -437,7 +474,14 @@ def get_school_size_brackets(datadir=None, location=None, state_location=None, c
     Returns:
         A dictionary of school size brackets.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.school_size_brackets is None or len(location_data.school_size_brackets) == 0:
+        return get_school_size_brackets(location=cfg.default_location,
+                                        state_location=cfg.default_state,
+                                        country_location=cfg.default_country)
+
     school_size_brackets = {}
     for bracket_index, bracket in enumerate(location_data.school_size_brackets):
         size_min = int(bracket[0])
@@ -465,7 +509,14 @@ def get_school_size_distr_by_brackets(datadir=None, location=None, state_locatio
     Returns:
         A dictionary of the distribution of school sizes by bracket.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.school_size_distribution is None or len(location_data.school_size_distribution) == 0:
+        return get_school_size_distr_by_brackets(location=cfg.default_location,
+                                                 state_location=cfg.default_state,
+                                                 country_location=cfg.default_country)
+
     size_distr = dict(enumerate(location_data.school_size_distribution))
     size_distr = spb.norm_dic(size_distr)
     return size_distr
@@ -575,7 +626,14 @@ def get_school_type_age_ranges(datadir=None, location=None, state_location=None,
     Returns:
         A dictionary of default school types and the age range for each.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.school_types_by_age is None or len(location_data.school_types_by_age) == 0:
+        return get_school_type_age_ranges(location=cfg.default_location,
+                                          state_location=cfg.default_state,
+                                          country_location=cfg.default_country)
+
     school_type_age_ranges = dict()
     for school_type_by_age in location_data.school_types_by_age:
         age_min = school_type_by_age.age_range[0]
@@ -601,7 +659,14 @@ def get_school_size_distr_by_type(datadir=None, location=None, state_location=No
     Returns:
         A dictionary of school size distributions binned by size groups or brackets for each type of default school.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.school_size_distribution_by_type is None or len(location_data.school_size_distribution_by_type) == 0:
+        return get_school_size_distr_by_type(location=cfg.default_location,
+                                             state_location=cfg.default_state,
+                                             country_location=cfg.default_country)
+
     school_size_distr_by_type = {}
     for dist_by_type in location_data.school_size_distribution_by_type:
         size_dist = dict(enumerate(dist_by_type.size_distribution))
@@ -628,7 +693,14 @@ def get_employment_rates(datadir=None, location=None, state_location=None, count
     Returns:
         A dictionary of employment rates by age.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.employment_rates_by_age is None or len(location_data.employment_rates_by_age) == 0:
+        return get_employment_rates(location=cfg.default_location,
+                                    state_location=cfg.default_state,
+                                    country_location=cfg.default_country)
+
     return dict(location_data.employment_rates_by_age)
 
 
@@ -651,7 +723,14 @@ def get_workplace_size_brackets(datadir=None, location=None, state_location=None
     Returns:
         A dictionary of workplace size brackets.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.workplace_size_counts_by_num_personnel is None or len(location_data.workplace_size_counts_by_num_personnel) == 0:
+        return get_workplace_size_brackets(location=cfg.default_location,
+                                           state_location=cfg.default_state,
+                                           country_location=cfg.default_country)
+
     workplace_size_brackets = dict()
     for bracket_index, bracket in enumerate(location_data.workplace_size_counts_by_num_personnel):
         size_min = int(bracket[0])
@@ -679,7 +758,14 @@ def get_workplace_size_distr_by_brackets(datadir=None, location=None, state_loca
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.workplace_size_counts_by_num_personnel is None or len(location_data.workplace_size_counts_by_num_personnel) == 0:
+        return get_workplace_size_distr_by_brackets(location=cfg.default_location,
+                                                    state_location=cfg.default_state,
+                                                    country_location=cfg.default_country)
+
     bracket_sizes = [ [bracket[0], bracket[1][2]]
                       for bracket in enumerate(location_data.workplace_size_counts_by_num_personnel) ]
     dist = dict(bracket_sizes)
@@ -754,7 +840,14 @@ def get_long_term_care_facility_residents_distr(datadir=None, location=None, sta
         A dictionary of the distribution of residents per facility for Long Term
         Care Facilities.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.ltcf_num_residents_distribution is None or len(location_data.ltcf_num_residents_distribution) == 0:
+        return get_long_term_care_facility_residents_distr(location=cfg.default_location,
+                                                           state_location=cfg.default_state,
+                                                           country_location=cfg.default_country)
+
     bin_dist = [ [bracket[0], bracket[1][2]] for bracket in enumerate(location_data.ltcf_num_residents_distribution)]
     dist = dict(bin_dist)
     return dist
@@ -776,7 +869,14 @@ def get_long_term_care_facility_residents_distr_brackets(datadir=None, location=
     Returns:
         A dictionary of size brackets or bins for residents per facility.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.ltcf_num_residents_distribution is None or len(location_data.ltcf_num_residents_distribution) == 0:
+        return get_long_term_care_facility_residents_distr_brackets(location=cfg.default_location,
+                                                                    state_location=cfg.default_state,
+                                                                    country_location=cfg.default_country)
+
     num_residents_brackets = dict()
     for bracket_index, bracket in enumerate(location_data.ltcf_num_residents_distribution):
         min_num_residents = int(bracket[0])
@@ -802,7 +902,14 @@ def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir=None, loc
         A dictionary of the distribution of residents per facility for Long Term
         Care Facilities.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.ltcf_resident_to_staff_ratio_distribution is None or len(location_data.ltcf_resident_to_staff_ratio_distribution) == 0:
+        return get_long_term_care_facility_resident_to_staff_ratios_distr(location=cfg.default_location,
+                                                                          state_location=cfg.default_state,
+                                                                          country_location=cfg.default_country)
+
     bin_dist = [ [bracket[0], bracket[1][2]] for bracket in enumerate(location_data.ltcf_resident_to_staff_ratio_distribution)]
     dist = dict(bin_dist)
     return dist
@@ -825,7 +932,14 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir=None, 
         A dictionary of size brackets or bins for resident to staff ratios per
         facility.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.ltcf_resident_to_staff_ratio_distribution is None or len(location_data.ltcf_resident_to_staff_ratio_distribution) == 0:
+        return get_long_term_care_facility_resident_to_staff_ratios_brackets(location=cfg.default_location,
+                                                                             state_location=cfg.default_state,
+                                                                             country_location=cfg.default_country)
+
     ltcf_ratio_brackets = dict()
     for bracket_index, bracket in enumerate(location_data.ltcf_resident_to_staff_ratio_distribution):
         size_min = bracket[0]
@@ -853,6 +967,13 @@ def get_long_term_care_facility_use_rates(datadir=None, location=None, state_loc
     Note:
         Currently only available for the United States.
     """
+    # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
+    # Use default if no data for this parameter.
+    if location_data.ltcf_use_rate_distribution is None or len(location_data.ltcf_use_rate_distribution) == 0:
+        return get_long_term_care_facility_use_rates(location=cfg.default_location,
+                                                     state_location=cfg.default_state,
+                                                     country_location=cfg.default_country)
+
     dist = [[int(d[0]), d[1]] for d in location_data.ltcf_use_rate_distribution]
     return dict(dist)
