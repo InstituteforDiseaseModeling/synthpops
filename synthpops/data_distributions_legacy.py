@@ -1,6 +1,8 @@
 """
 Read in data distributions.
 Legacy version, prior to JSON location file format.
+This is here to support 'scripts/migrate_legacy_data.py', which converts data from the old data schema
+to the new one.
 Version from commit 5aa01c9b6141208173e13d6e86656329a18b97df.
 """
 
