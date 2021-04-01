@@ -86,7 +86,7 @@ def load_location(specific_location, state_location, country_location, revert_to
             raise NotImplementedError(msg)
 
 
-def read_age_bracket_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=False):
+def read_age_bracket_distr(datadir=None, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=False):
     """
     A dict of the age distribution by age brackets. If use_default, then we'll
     first try to look for location specific data and if that's not available
@@ -116,7 +116,7 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
 
 
 # TODO: need to adapt this to new data.py
-def get_smoothed_single_year_age_distr(datadir, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=None, window_length=7):
+def get_smoothed_single_year_age_distr(datadir=None, location=None, state_location=None, country_location=None, nbrackets=None, file_path=None, use_default=None, window_length=7):
     """
     A smoothed dict of the age distribution by single years. If use_default,
     then we'll first try to look for location specific data and if that's not
@@ -171,7 +171,7 @@ def get_smoothed_single_year_age_distr(datadir, location=None, state_location=No
     return smoothed_age_distr
 
 
-def get_household_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_household_size_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     A dictionary of the distribution of household sizes. If you don't give the
     file_path, then supply the location, state_location, and country_location
@@ -268,7 +268,7 @@ def calculate_which_nbrackets_to_use(nbrackets = None):
     return nbrackets
 
 
-def get_census_age_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False, nbrackets=None):
+def get_census_age_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False, nbrackets=None):
     """
     Get census age brackets: depends on the country or source of the age
     distribution and the contact pattern data. If use_default, then we'll first
@@ -355,7 +355,7 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
             raise NotImplementedError("Contact matrix did not open. Check inputs.")
 
 # TODO: still open question on how to handle these.
-def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
+def get_contact_matrix_dic(datadir=None, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
     # need review for additional countries
     """
     Create a dict of setting specific age contact matrices. If use_default, then
@@ -393,7 +393,7 @@ def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimit
     return matrix_dic
 
 
-def get_school_enrollment_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_school_enrollment_rates(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get dictionary of enrollment rates by age. If use_default, then we'll first
     try to look for location specific data and if that's not available we'll use
@@ -417,7 +417,7 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
     return dict(dist)
 
 
-def get_school_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_school_size_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get school size brackets: depends on the source/location of the data. If
     use_default, then we'll first try to look for location specific data and if
@@ -446,7 +446,7 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
     return school_size_brackets
 
 
-def get_school_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_school_size_distr_by_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get distribution of school sizes by size bracket or bin. If use_default,
     then we'll first try to look for location specific data and if that's not
@@ -560,7 +560,7 @@ def get_default_school_size_distr_by_type():
     return school_size_distr_by_type
 
 
-def get_school_type_age_ranges(datadir, location, state_location, country_location, file_path=None, use_default=None):
+def get_school_type_age_ranges(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get a dictionary of the school types and the age range for each for the location specified.
 
@@ -584,7 +584,7 @@ def get_school_type_age_ranges(datadir, location, state_location, country_locati
     return school_type_age_ranges
 
 
-def get_school_size_distr_by_type(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_school_size_distr_by_type(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get the school size distribution by school types. If use_default, then we'll try to look for location specific data first,
     and if that's not available we'll use default data from the set default locations (see sp.config.py). This may not be appropriate
@@ -609,7 +609,7 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
     return school_size_distr_by_type
 
 
-def get_employment_rates(datadir, location, state_location, country_location, file_path=None, use_default=False):
+def get_employment_rates(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get employment rates by age. If use_default, then we'll first try to look
     for location specific data and if that's not available we'll use default
@@ -632,7 +632,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
     return dict(location_data.employment_rates_by_age)
 
 
-def get_workplace_size_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_workplace_size_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get workplace size brackets. If use_default, then we'll first try to look
     for location specific data and if that's not available we'll use default
@@ -660,7 +660,7 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
     return workplace_size_brackets
 
 
-def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
+def get_workplace_size_distr_by_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
     """
     Get the distribution of workplace size by brackets. If use_default, then
     we'll first try to look for location specific data and if that's not
@@ -705,7 +705,7 @@ def get_state_postal_code(state_location, country_location):
     return dic[state_location]
 
 
-def get_usa_long_term_care_facility_data(datadir, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
+def get_usa_long_term_care_facility_data(datadir=None, state_location=None, country_location=None, part=None, file_path=None, use_default=False):
     """
     Get state level data table from National survey on Long Term Care Providers
     for the US from 2015-2016.
@@ -737,7 +737,7 @@ def get_usa_long_term_care_facility_data(datadir, state_location=None, country_l
     return df
 
 
-def get_long_term_care_facility_residents_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_residents_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size distribution of residents per facility for Long Term Care
     Facilities.
@@ -760,7 +760,7 @@ def get_long_term_care_facility_residents_distr(datadir, location=None, state_lo
     return dist
 
 
-def get_long_term_care_facility_residents_distr_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_residents_distr_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size bins for the distribution of residents per facility for Long Term
     Care Facilities.
@@ -785,7 +785,7 @@ def get_long_term_care_facility_residents_distr_brackets(datadir, location=None,
     return num_residents_brackets
 
 
-def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size distribution of resident to staff ratios per facility for Long Term
     Care Facilities.
@@ -808,7 +808,7 @@ def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location
     return dist
 
 
-def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get size bins for the distribution of resident to staff ratios per facility
     for Long Term Care Facilities.
@@ -834,7 +834,7 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, locat
     return ltcf_ratio_brackets
 
 
-def get_long_term_care_facility_use_rates(datadir, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
+def get_long_term_care_facility_use_rates(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=None):
     """
     Get Long Term Care Facility use rates by age for a state.
 
