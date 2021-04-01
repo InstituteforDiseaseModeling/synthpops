@@ -373,7 +373,6 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
         "ltcf_num_residents_distribution":
                                         partial(migrate_ltcf_num_residents_distribution,
                                                 datadir, country_location, state_location, location, new_location),
-        #"ltcf_num_staff_distribution": TODO: no available data to test migration?
         "ltcf_use_rate_distribution":   partial(migrate_ltcf_use_rate_distribution,
                                                 datadir, country_location, state_location, location, new_location),
         "school_size_brackets":         partial(migrate_school_size_brackets,
