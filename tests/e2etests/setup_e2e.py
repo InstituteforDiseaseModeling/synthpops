@@ -23,7 +23,7 @@ sample_pars = sc.objdict(
 )
 
 @pytest.fixture(scope="session")
-def create_sample_pop():
+def create_sample_pop_e2e():
     """
         fixture to create and return a sample population for the session
 

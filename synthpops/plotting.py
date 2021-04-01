@@ -1548,6 +1548,7 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
 
     Args:
         pop (pop object)        : population, either synthpops.pop.Pop or dict
+        **figname (str)         : name to save figure to disk
         **figdir (str)          : directory to save the plot if provided
         **title_prefix (str)    : used to prefix the title of the plot
         **fontsize (float)      : Matplotlib.figure.fontsize
@@ -1561,8 +1562,13 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
 
     plkwargs = get_plkwargs(pop)
     method_defaults = sc.objdict(title_prefix="household_head_age_family_size",
-                                 fontsize=14,
-                                 cmap="viridis")
+                                 fontsize=24,
+                                 fontweight='bold',
+                                 cmap="viridis",
+                                 figname="household_head_age_family_size",
+                                 height=17,
+                                 width=30,
+                                 rotation=60)
     plkwargs.update_defaults(method_defaults, kwargs)
     pop.loc_pars.location = None
     df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
@@ -1571,17 +1577,27 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
     expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
 
     # we will ignore the first row (family_size = 1) for plotting
-    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages),:]
-    expected_hh_ages_percentage = np.divide(expected_hh_ages, np.sum(expected_hh_ages, axis=0))
+    # flip to make each row an age bin for calculation then flip back
+    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages),:].transpose()
+
+    expected_hh_ages_percentage = np.divide(expected_hh_ages,
+                                            np.sum(expected_hh_ages, axis=0),
+                                            out=np.zeros(expected_hh_ages.shape),
+                                            where=expected_hh_ages != 0).transpose()
 
     actual_hh_ages = sphh.get_household_head_age_size(pop)
-    actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :]
-    actual_hh_ages_percentage = np.divide(actual_hh_ages, np.sum(actual_hh_ages, axis=0))
+    actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :].transpose()
+    actual_hh_ages_percentage = np.divide(actual_hh_ages,
+                                          np.sum(actual_hh_ages, axis=0),
+                                          out=np.zeros(actual_hh_ages.shape),
+                                          where=actual_hh_ages != 0).transpose()
 
+    #spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
+    housesize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
     family_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) -1)]
     ylabels = family_sizes
-    return plot_heatmap(expected=expected_hh_ages_percentage,
-                        actual=actual_hh_ages_percentage,
+    return plot_heatmap(expected=expected_hh_ages_percentage[0:housesize_rows,:],
+                        actual=actual_hh_ages_percentage[0:housesize_rows,:],
                         names_x=xlabels,
                         names_y=ylabels,
                         label_x='Head of Household Age',
@@ -1600,13 +1616,14 @@ def plot_heatmap(expected,
     Plotting heatmaps of for expected and actual data
 
     Args:
-        expected (numpy array)  : expected 2-dimenional matrix
-        actual (numpy array)    : actual 2-dimenional matrix
+        expected (array)        : expected 2-dimenional matrix
+        actual (array)          : actual 2-dimenional matrix
         names_x (str)           : name for x-axis
         names_y (str)           : name for y-axis
         label_x (str)           : customed label for x-axis
         label_y (str)           : customed label for y-axis
         data_range (list)       : data range for heatmap's [vmin,vmax], default to [0,1]
+        **figname (str)         : name to save figure to disk
         **figdir (str)          : directory to save the plot if provided
         **title_prefix (str)    : used to prefix the title of the plot
         **do_show (bool)        : If True, show the plot
@@ -1621,10 +1638,14 @@ def plot_heatmap(expected,
 
     # method specific plotting defaults
     method_defaults = sc.objdict(title_prefix="heatmap",
-                                 figsize=(17,8),
+                                 height=10,
+                                 width=30,
                                  fontsize=14,
                                  top=0.8,
+                                 bottom=0.2,
+                                 left=0.2,
                                  right=0.8,
+                                 hspace=0.15,
                                  wspace=0.15,
                                  origin='lower',
                                  interpolation='nearest',
@@ -1636,26 +1657,23 @@ def plot_heatmap(expected,
                                  divider_pad=0.15)
     plkwargs.update_defaults(method_defaults, kwargs)
 
-    fig, axs = plt.subplots(1, 2, figsize=plkwargs.figsize)
-    fig.subplots_adjust(top=plkwargs.top, right=plkwargs.right, wspace=plkwargs.wspace)
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(plkwargs.width, plkwargs.height))
+    fig.subplots_adjust(**plkwargs.axis)
 
-    font = {'weight': plkwargs.fontweight,
-            'size': plkwargs.fontsize }
-    plt.rc('font', **font)
+
     im1 = axs[0].imshow(expected, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
     im2 = axs[1].imshow(actual, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
     for ax in axs:
         ax.set_xticks(np.arange(len(names_x)))
         ax.set_yticks(np.arange(len(names_y)))
-        ax.set_xticklabels(names_x)
-        ax.set_yticklabels(names_y)
+        ax.set_xticklabels(names_x, fontsize=plkwargs.fontsize)
+        ax.set_yticklabels(names_y, fontsize=plkwargs.fontsize)
         # Rotate the tick labels and set their alignment.
         plt.setp(ax.get_xticklabels(), rotation=plkwargs.rotation, ha=plkwargs.ha, rotation_mode=plkwargs.rotation_mode)
-        ax.set_xlabel(label_x)
-        ax.set_ylabel(label_y)
-    axs[0].set_title(f"Expected")
-    axs[1].set_title(f"Actual")
-    # plt.tight_layout()
+        ax.set_xlabel(label_x, fontsize=plkwargs.fontsize)
+        ax.set_ylabel(label_y, fontsize=plkwargs.fontsize)
+    axs[0].set_title(f"Expected", fontsize=plkwargs.fontsize)
+    axs[1].set_title(f"Actual", fontsize=plkwargs.fontsize)
     fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     divider = make_axes_locatable(axs[1])
@@ -1663,12 +1681,7 @@ def plot_heatmap(expected,
     fig.add_axes(cax)
     cbar = fig.colorbar(im1, cax=cax)
 
-    if plkwargs.do_save and plkwargs.figdir:
-        os.makedirs(plkwargs.figdir, exist_ok=True)
-        plt.savefig(os.path.join(plkwargs.figdir, f"{plkwargs.title_prefix}_graph.png"), format="png", bbox_inches="tight")
-    if plkwargs.do_show:
-        plt.show()
-
+    finalize_figure(fig, plkwargs)
     return fig, ax
 
 

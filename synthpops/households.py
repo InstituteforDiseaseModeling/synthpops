@@ -389,11 +389,11 @@ def get_household_head_age_size(pop):
         d[popdict[uid]['hhid']] = {'hhid': popdict[uid]['hhid'],
                                    'age': popdict[uid]['age'],
                                    'family_size': len(popdict[uid]['contacts']['H']) + 1,
-                                   'age_bracket': hha_index[popdict[uid]['age']]}
+                                   'hh_age_bracket': hha_index[popdict[uid]['age']]}
     df_household_age = pd.DataFrame.from_dict(d, orient="index")
     # aggregate by age_bracket (column) and family_size (row)
-    df_household_age = df_household_age.groupby(['age_bracket', 'family_size'], as_index=False).count()\
-        .pivot(index='family_size', columns='age_bracket', values='hhid').fillna(0)
+    df_household_age = df_household_age.groupby(['hh_age_bracket', 'family_size'], as_index=False).count()\
+        .pivot(index='family_size', columns='hh_age_bracket', values='hhid').fillna(0)
     return np.array(df_household_age.values)
 
 def get_generated_household_size_distribution(household_sizes):
