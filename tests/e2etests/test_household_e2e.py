@@ -2,6 +2,7 @@ import pathlib
 import pytest
 import sciris as sc
 import synthpops as sp
+import matplotlib as mplt
 import setup_e2e as e2e
 from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 
@@ -23,10 +24,13 @@ def test_household_distribution():
 def test_household_head_age_distribution(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     fig, ax = sp.plot_household_head_age_dist_by_family_size(create_sample_pop_e2e, **plotting_kwargs)
-    assert fig
-    assert ax
+    assert isinstance(fig, mplt.figure.Figure), 'fig not generated.'
 
 
 if __name__ == "__main__":
     # you can pass --do-save --do-show --artifact-dir argument to view/save the figures
     pytest.main(['-v', '--do-show', __file__])
+
+    # for running individual tests, you can do this
+    # testcase = 'test_household_head_age_distribution'
+    # pytest.main(['-v', '-k', testcase, '--do-show'])

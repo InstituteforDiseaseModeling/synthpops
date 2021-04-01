@@ -32,6 +32,7 @@ def create_sample_pop_e2e():
     """
     sp.logger.info("Use sample_pars to create sample_pop population")
     sample_pop = sp.Pop(**sample_pars)
+    sp.logger.info("If you define a fixture with the same name, this fixture may be overridden!")
     return sample_pop
 
 @pytest.fixture(scope="function")

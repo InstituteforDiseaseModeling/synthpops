@@ -1562,12 +1562,12 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
 
     plkwargs = get_plkwargs(pop)
     method_defaults = sc.objdict(title_prefix="household_head_age_family_size",
-                                 fontsize=24,
+                                 fontsize=14,
                                  fontweight='bold',
                                  cmap="viridis",
                                  figname="household_head_age_family_size",
-                                 height=17,
-                                 width=30,
+                                 height=8,
+                                 width=17,
                                  rotation=60)
     plkwargs.update_defaults(method_defaults, kwargs)
     pop.loc_pars.location = None
@@ -1638,9 +1638,9 @@ def plot_heatmap(expected,
 
     # method specific plotting defaults
     method_defaults = sc.objdict(title_prefix="heatmap",
-                                 height=10,
-                                 width=30,
-                                 fontsize=14,
+                                 height=8,
+                                 width=17,
+                                 fontsize=12,
                                  top=0.8,
                                  bottom=0.2,
                                  left=0.2,
