@@ -25,7 +25,7 @@ def test_household_distribution():
 def test_household_head_ages_by_household_size_e2e(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
     sp.logger.info("Test the age distribution of household heads by the household size.")
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
-    fig, ax = sp.plot_household_head_ages_by_household_size(create_sample_pop_e2e, **plotting_kwargs)
+    fig, ax = sp.plot_household_head_ages_by_size(create_sample_pop_e2e, **plotting_kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
     print('Check passed. Figure made.')
 

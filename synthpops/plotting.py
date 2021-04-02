@@ -33,7 +33,7 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plot_workplace_sizes',
-           'plot_household_head_ages_by_household_size']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+           'plot_household_head_ages_by_size']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.objdict):
@@ -1498,7 +1498,7 @@ def plot_workplace_sizes(pop, **kwargs):
     return fig, ax
 
 
-def plot_household_head_ages_by_household_size(pop, **kwargs):
+def plot_household_head_ages_by_size(pop, **kwargs):
     """
     Plot a comparison of the expected and generated age distribution of the
     household heads by the household size, presented as matrices. The age
@@ -1553,7 +1553,7 @@ def plot_household_head_ages_by_household_size(pop, **kwargs):
                                             where=expected_hh_ages != 0).transpose()
     expected_hh_ages_percentage *= 100
 
-    actual_hh_ages = sphh.get_household_head_age_size(pop)
+    actual_hh_ages = sphh.get_household_head_ages_by_size(pop)
     actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :].transpose()
     actual_hh_ages_percentage = np.divide(actual_hh_ages,
                                           np.sum(actual_hh_ages, axis=0),

@@ -374,16 +374,19 @@ def get_household_heads(popdict):
 
     return household_heads
 
-def get_household_head_age_size(pop):
+
+def get_household_head_ages_by_size(pop):
     """
-    Calculate the household count by household size and household head's age
-    assuming lowest uids in the household should be household head
+    Calculate the count of households by size and the age of the head of the
+    household, assuming the minimal household members id is the id of the head
+    of the household.
 
     Args:
         pop (sp.Pop) : population object
 
     Returns:
-        array with rows as family size and columns as age brackets
+        np.ndarray: An array with rows as household size and columns as
+        household head age brackets.
     """
     popdict = pop.popdict
     hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
@@ -403,6 +406,7 @@ def get_household_head_age_size(pop):
     df_household_age = df_household_age.groupby(['hh_age_bracket', 'family_size'], as_index=False).count()\
         .pivot(index='family_size', columns='hh_age_bracket', values='hhid').fillna(0)
     return np.array(df_household_age.values)
+
 
 def get_generated_household_size_distribution(household_sizes):
     """

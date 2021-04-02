@@ -299,7 +299,7 @@ def test_household_head_ages_by_household_size(do_show=False, do_save=False):
 
     if kwargs.do_show:
         plt.switch_backend(mplt_org_backend)
-    fig, ax = pop.plot_household_head_ages_by_household_size(**kwargs)
+    fig, ax = pop.plot_household_head_ages_by_size(**kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
     print('Check passed. Figure made.')
 
