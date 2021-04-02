@@ -279,6 +279,32 @@ def test_plot_workplace_sizes(do_show=False, do_save=False):
     return fig, ax, pop
 
 
+def test_household_head_ages_by_household_size(do_show=False, do_save=False):
+    """
+    Test that the household head age distribution by household size comparison plotting method in sp.Pop class works.
+
+    Args:
+        do_show (bool) : If True, show the plot
+        do_save (bool) : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure, axes, and pop object.
+    """
+    sp.logger.info("Test the age distribution of household heads by the household size.")
+    pop = sp.Pop(**pars)
+    kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
+    kwargs.figname = f"test_household_head_ages_by_size_{kwargs.location}_pop"
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+
+    if kwargs.do_show:
+        plt.switch_backend(mplt_org_backend)
+    fig, ax = pop.plot_household_head_ages_by_size(**kwargs)
+    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    print('Check passed. Figure made.')
+
+    return fig, ax, pop
+
 if __name__ == '__main__':
 
     T = sc.tic()
@@ -296,6 +322,7 @@ if __name__ == '__main__':
     fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(do_show=True)
     fig5, ax5, pop5 = test_plot_employment_rates_by_age(do_show=True)
     fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
+    fig7, ax7, pop7 = test_household_head_ages_by_household_size(do_show=True)
 
     sc.toc(T)
     print('Done.')
