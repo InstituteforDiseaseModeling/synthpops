@@ -27,6 +27,12 @@ Latest versions (1.6.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.6.2 (2021-04-01)
+--------------------------
+- *Feature*: Added new methods, ``sp.get_household_head_ages_by_size()``, ``sp.plot_household_head_ages_by_size()``. Also accessible pop methods as ``pop.get_household_head_ages_by_size()``, ``pop.plot_household_head_ages_by_size()``. These calculate the generated count the household head age by the household size, and the plotting methods compare this to the expected age distributions by size as matrices.
+- *Github Info*: PR `385 <https://github.com/amath-idm/synthpops/pull/385>`__
+
+
 Version 1.6.1 (2021-03-25)
 --------------------------
 - *Feature*: Added new methods, ``sp.check_dist()`` and aliases ``sp.check_normal()`` and ``sp.check_poisson()``, to check whether the observed distribution matches the expected distribution.
