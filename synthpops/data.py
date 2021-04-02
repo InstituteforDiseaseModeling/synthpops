@@ -25,6 +25,7 @@ class Location(JsonObject):
     data_provenance_notices = ListProperty(StringProperty)
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
+    notes = ListProperty(StringProperty)
 
     # The general use case would be to use a filepath, and the parent data is parsed from the filepath.
     # DefaultProperty type handles either a scalar or json object.

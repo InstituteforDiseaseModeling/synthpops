@@ -46,6 +46,13 @@ citations
 
     ["https://doi.org/10.1093/ajae/aaq063"]
 
+notes
+    A list of strings. Each string in the list is a note describing something about the dataset.
+
+.. code-block::
+
+    ["Field X, row N, is literally a guess.", "There is no spoon."]
+
 parent
     The name of the parent location file, including the ".json" suffix.
 

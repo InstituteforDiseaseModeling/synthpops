@@ -408,6 +408,11 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
 
     hha_by_size = np.zeros((2 + len(hha_df), len(hha_df.columns)-1))
 
+    # This was not originally part of 'data_distributions.py' that became this module, but instead was added after.
+    # We detect if household_size_1_included is true or false based on the data.
+    if hha_df['family_size'][0] == 1:
+        household_size_1_included = True
+
     if household_size_1_included:
         for s in range(1, len(hha_df)+1):
             d = hha_df[hha_df['family_size'] == s].values[0][1:]
