@@ -453,7 +453,7 @@ class Pop(sc.prettyobj):
         self.summary.household_heads = self.get_household_heads()
         self.summary.household_head_ages = self.get_household_head_ages()
         self.summary.household_head_age_count = self.count_household_head_ages()
-        self.summary.household_head_age_by_size_count = self.get_household_head_age_by_size()
+        self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
 
         self.summary.ltcf_sizes = self.get_ltcf_sizes()
         self.summary.ltcf_size_count = self.count_ltcf_sizes()
