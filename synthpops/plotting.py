@@ -1538,9 +1538,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
     plkwargs.update_defaults(method_defaults, kwargs)
 
     pop.loc_pars.location = None
-    df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
-    label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
-    xticklabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
+    xticklabels = spdata.get_head_age_brackets(**pop.loc_pars)
     expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
 
     # we will ignore the first row (family_size = 1) for plotting
