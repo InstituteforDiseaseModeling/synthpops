@@ -687,20 +687,22 @@ class Pop(sc.prettyobj):
     #     fig, ax = sppl.plot_household_head_ages(self, **kwargs)
     #     return fig, ax
 
-    # # TBC: placeholder for now
-    # def plot_household_head_ages_by_household_size(self, **kwargs):
-    #     """
-    #     Plot a comparison of the expected and generated head of household ages
-    #     by the household size.
+    def plot_household_head_ages_by_household_size(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated age distribution of the
+        household heads by the household size.
 
-    #     **Examples**::
+        **Examples**::
 
-    #         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
-    #         pop = sp.Pop(**pars)
-    #         fig, ax = pop.plot_household_head_ages_by_household_size()
-    #     """
-    #     fig, ax = sppl.plot_household_head_ages_by_household_size(self, **kwargs)
-    #     return fig, ax
+            pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_household_head_ages_by_household_size()
+
+            kwargs = pars.copy()
+            fig, ax = pop.plot_household_head_ages_by_household_size(**kwargs)
+        """
+        fig, ax = sppl.plot_household_head_ages_by_household_size(self, **kwargs)
+        return fig, ax
 
     def plot_ltcf_resident_sizes(self, **kwargs):
         """

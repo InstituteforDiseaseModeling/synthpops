@@ -355,7 +355,15 @@ def get_household_heads(popdict):
         popdict (dict) : population dictionary
 
     Returns:
-        dict: Dictionary of the id of the head of the household for each household.
+        dict: Dictionary of the id of the head of the household for each
+        household.
+    
+    Note:
+        In static populations the id of the head of the household is the minimum
+        id of the household members. With vital dynamics turned on and
+        populations growing or changing households over time, this method will
+        need to change and the household head or reference person will need to
+        be specified at creation and when those membership events occur.
     """
     household_heads = dict()
     for i, person in popdict.items():
@@ -372,7 +380,7 @@ def get_household_head_age_size(pop):
     assuming lowest uids in the household should be household head
 
     Args:
-        pop   : population
+        pop (sp.Pop) : population object
 
     Returns:
         array with rows as family size and columns as age brackets

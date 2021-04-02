@@ -33,7 +33,7 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plot_workplace_sizes',
-           'plot_household_head_age_dist_by_family_size']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+           'plot_household_head_ages_by_household_size']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.objdict):
@@ -183,7 +183,7 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
     Args:
         fig (matplotlib.Figure)    : figure
         plkwargs (plotting_kwargs) : plotting kwargs class
-        new_plkwargs (dict)        : dictionary of new plotting kwargs to update with
+        **new_plkwargs (dict)        : dictionary of new plotting kwargs to update with
 
     Returns:
         Matplotlib figure.
@@ -301,7 +301,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         **density_or_frequency (str)       : Default value is 'density', see notes for more details.
         **logcolors_flag (bool)            : If True, plot heatmap in logscale
         **aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        **cmap(str or matplotlib colormap) : colormap
+        **cmap(str or Matplotlib colormap) : colormap
         **fontsize (int)                   : base font size
         **rotation (int)                   : rotation for x axis labels
         **title_prefix(str)                : optional title prefix for the figure
@@ -454,7 +454,7 @@ def plot_contacts(pop, **kwargs):
         **density_or_frequency (str)    : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
         **state_location (string)       : name of the state the location is in
         **country_location (string)     : name of the country the location is in
-        **cmap (str or matplotlib cmap) : colormap
+        **cmap (str or Matplotlib cmap) : colormap
         **fontsize (int)                : base font size
         **rotation (int)                : rotation for x axis labels
         **title_prefix(str)             : optional title prefix for the figure
@@ -532,6 +532,8 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         **value_text (bool)     : If True, display the values on top of the bar if specified
         **rotation (float)      : rotation angle for xticklabels
         **binned (bool)         : If True, data are binned. Else, if False, plot a simple histogram for expected data.
+        **do_show (bool)        : If True, show the plot
+        **do_save (bool)        : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -635,6 +637,8 @@ def plot_ages(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -734,6 +738,8 @@ def plot_household_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -830,6 +836,8 @@ def plot_household_sizes(pop, **kwargs):
 #         **fontsize (float)  : Matplotlib.figure.fontsize
 #         **figname (str)     : name to save figure to disk
 #         **comparison (bool) : If True, plot comparison to the generated population
+#         **do_show (bool)    : If True, show the plot
+#         **do_save (bool)    : If True, save the plot to disk
 
 #     Returns:
 #         Matplotlib figure and axes.
@@ -894,6 +902,8 @@ def plot_household_sizes(pop, **kwargs):
 #         **fontsize (float)  : Matplotlib.figure.fontsize
 #         **figname (str)     : name to save figure to disk
 #         **comparison (bool) : If True, plot comparison to the generated population
+#         **do_show (bool)    : If True, show the plot
+#         **do_save (bool)    : If True, save the plot to disk
 
 #     Returns:
 #         Matplotlib figure and axes.
@@ -957,6 +967,8 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1054,6 +1066,8 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 #         **fontsize (float)  : Matplotlib.figure.fontsize
 #         **figname (str)     : name to save figure to disk
 #         **comparison (bool) : If True, plot comparison to the generated population
+#         **do_show (bool)    : If True, show the plot
+#         **do_save (bool)    : If True, save the plot to disk
 
 #     Returns:
 #         Matplotlib figure and axes.
@@ -1101,6 +1115,8 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1192,6 +1208,8 @@ def plot_employment_rates_by_age(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1289,9 +1307,11 @@ def plot_school_sizes(pop, **kwargs):
         **location_text_y (float)       : height to add location text to figure
         **fontsize (float)              : Matplotlib.figure.fontsize
         **rotation (float)              : rotation angle for xticklabels
-        **cmap (str)                    : colormap
+        **cmap (str or Matplotlib cmap) : colormap
         **figname (str)                 : name to save figure to disk
         **comparison (bool)             : If True, plot comparison to the generated population
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1453,6 +1473,8 @@ def plot_workplace_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1542,38 +1564,49 @@ def plot_workplace_sizes(pop, **kwargs):
     return fig, ax
 
 
-def plot_household_head_age_dist_by_family_size(pop, **kwargs):
+def plot_household_head_ages_by_household_size(pop, **kwargs):
     """
-    Plot a matrix for household head age distribution by familiy size
+    Plot a comparison of the expected and generated age distribution of the
+    household heads by the household size, presented as matrices. The age
+    distribution of household heads is binned to match the expected data.
 
     Args:
-        pop (pop object)        : population, either synthpops.pop.Pop or dict
-        **figname (str)         : name to save figure to disk
-        **figdir (str)          : directory to save the plot if provided
-        **title_prefix (str)    : used to prefix the title of the plot
-        **fontsize (float)      : Matplotlib.figure.fontsize
-        **cmap (str)            : colormap
-        **do_show (bool)        : If True, show the plot
-        **do_save (bool)        : If True, save the plot to disk
+        pop (sp.Pop)                    : population
+        **figname (str)                 : name to save figure to disk
+        **figdir (str)                  : directory to save the plot if provided
+        **title_prefix (str)            : used to prefix the title of the plot
+        **fontsize (float)              : Matplotlib.figure.fontsize
+        **cmap (str or Matplotlib cmap) : colormap
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
-    """
 
+    **Example**::
+
+        pars = {'n': 10e3, 'location': 'seattle_metro', 'state_location': 'Washington', 'country_location': 'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = plot_household_head_ages_by_household_size(pop)
+
+        kwargs = pars.copy()
+        kwargs['cmap'] = 'magma'
+        fig, ax = plot_household_head_ages_by_household_size(pop, **kwargs)
+    """
     plkwargs = get_plkwargs(pop)
     method_defaults = sc.objdict(title_prefix="household_head_age_family_size",
                                  fontsize=14,
-                                 fontweight='bold',
+                                 # fontweight='bold',
                                  cmap="viridis",
                                  figname="household_head_age_family_size",
-                                 height=8,
-                                 width=17,
-                                 rotation=60)
+                                 height=8, width=17, rotation=60,
+                                 )
     plkwargs.update_defaults(method_defaults, kwargs)
+
     pop.loc_pars.location = None
     df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
     label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
-    xlabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
+    xticklabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
     expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
 
     # we will ignore the first row (family_size = 1) for plotting
@@ -1593,87 +1626,74 @@ def plot_household_head_age_dist_by_family_size(pop, **kwargs):
                                           where=actual_hh_ages != 0).transpose()
 
     #spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
-    housesize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
-    family_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) -1)]
-    ylabels = family_sizes
-    return plot_heatmap(expected=expected_hh_ages_percentage[0:housesize_rows,:],
-                        actual=actual_hh_ages_percentage[0:housesize_rows,:],
-                        names_x=xlabels,
-                        names_y=ylabels,
-                        label_x='Head of Household Age',
-                        label_y='Household Size',
+    householdsize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
+    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) -1)]
+    yticklabels = household_sizes
+    return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows,:],
+                        actual=actual_hh_ages_percentage[0:householdsize_rows,:],
+                        xticklabels=xticklabels, yticklabels=yticklabels,
+                        xlabel='Head of Household Age', ylabel='Household Size',
                         **plkwargs)
 
 
-def plot_heatmap(expected,
-                 actual,
-                 names_x,
-                 names_y,
-                 label_x,
-                 label_y,
-                 data_range=[0, 1], **kwargs):
+def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, data_range=[0, 1], **kwargs):
     """
-    Plotting heatmaps of for expected and actual data
+    Plot a comparison of heatmaps for expected and actual data.
 
     Args:
-        expected (array)        : expected 2-dimenional matrix
-        actual (array)          : actual 2-dimenional matrix
-        names_x (str)           : name for x-axis
-        names_y (str)           : name for y-axis
-        label_x (str)           : customed label for x-axis
-        label_y (str)           : customed label for y-axis
-        data_range (list)       : data range for heatmap's [vmin,vmax], default to [0,1]
-        **figname (str)         : name to save figure to disk
-        **figdir (str)          : directory to save the plot if provided
-        **title_prefix (str)    : used to prefix the title of the plot
-        **do_show (bool)        : If True, show the plot
-        **do_save (bool)        : If True, save the plot to disk
-
+        expected (array)                : expected 2-dimenional matrix
+        actual (array)                  : actual 2-dimenional matrix
+        names_x (str)                   : name for x-axis
+        names_y (str)                   : name for y-axis
+        xlabel (str)                   : x-axis label
+        ylabel (str)                   : y-axis label
+        data_range (list)               : data range for heatmap's [vmin,vmax], default to [0,1]
+        **title_prefix (str)            : used to prefix the title of the plot
+        **fontsize (float)              : Matplotlib.figure.fontsize
+        **cmap (str or Matplotlib cmap) : colormap
+        **left (float)                  : Matplotlib.figure.subplot.left
+        **right (float)                 : Matplotlib.figure.subplot.right
+        **top (float)                   : Matplotlib.figure.subplot.top
+        **bottom (float)                : Matplotlib.figure.subplot.bottom
+        **hspace (float)                : Matplotlib.figure.hspace
+        **wspace (float)                : Matplotlib.figure.wspace
+        **figname (str)                 : name to save figure to disk
+        **figdir (str)                  : directory to save the plot if provided
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
-        Plots will be save to figdir if provided
     """
     plkwargs = plotting_kwargs()
-
     # method specific plotting defaults
-    method_defaults = sc.objdict(title_prefix="heatmap",
-                                 height=8,
-                                 width=17,
-                                 fontsize=12,
-                                 top=0.8,
-                                 bottom=0.2,
-                                 left=0.2,
-                                 right=0.8,
-                                 hspace=0.15,
-                                 wspace=0.15,
-                                 origin='lower',
-                                 interpolation='nearest',
-                                 aspect="auto",
-                                 rotation=45,
-                                 rotation_mode="anchor",
-                                 ha="right",
-                                 divider_size="5%",
-                                 divider_pad=0.15)
+    method_defaults = sc.objdict(title_prefix="heatmap", fontsize=12, cmap='viridis', 
+                                 height=8, width=17,
+                                 left=0.2, right=0.8, top=0.8, bottom=0.2, hspace=0.15, wspace=0.15,
+                                 origin='lower', interpolation='nearest', aspect="auto",
+                                 rotation=45, rotation_mode="anchor",
+                                 ha="right", divider_size="5%", divider_pad=0.15,
+                                 )
+
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.set_font()  # font styles to be updated
 
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(plkwargs.width, plkwargs.height))
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
-
 
     im1 = axs[0].imshow(expected, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
     im2 = axs[1].imshow(actual, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1])
     for ax in axs:
-        ax.set_xticks(np.arange(len(names_x)))
-        ax.set_yticks(np.arange(len(names_y)))
-        ax.set_xticklabels(names_x, fontsize=plkwargs.fontsize)
-        ax.set_yticklabels(names_y, fontsize=plkwargs.fontsize)
+        ax.set_xticks(np.arange(len(xticklabels)))
+        ax.set_yticks(np.arange(len(yticklabels)))
+        ax.set_xticklabels(xticklabels, fontsize=plkwargs.fontsize)
+        ax.set_yticklabels(yticklabels, fontsize=plkwargs.fontsize)
         # Rotate the tick labels and set their alignment.
         plt.setp(ax.get_xticklabels(), rotation=plkwargs.rotation, ha=plkwargs.ha, rotation_mode=plkwargs.rotation_mode)
-        ax.set_xlabel(label_x, fontsize=plkwargs.fontsize)
-        ax.set_ylabel(label_y, fontsize=plkwargs.fontsize)
-    axs[0].set_title(f"Expected", fontsize=plkwargs.fontsize)
-    axs[1].set_title(f"Actual", fontsize=plkwargs.fontsize)
+        ax.set_xlabel(xlabel, fontsize=plkwargs.fontsize)
+        ax.set_ylabel(ylabel, fontsize=plkwargs.fontsize)
+    axs[0].set_title('Expected', fontsize=plkwargs.fontsize + 1)
+    axs[1].set_title('Generated', fontsize=plkwargs.fontsize + 1)
     fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     divider = make_axes_locatable(axs[1])
