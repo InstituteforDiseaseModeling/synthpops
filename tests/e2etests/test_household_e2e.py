@@ -22,7 +22,7 @@ def test_household_distribution():
     # todo: require statistics methods
     pass
 
-def test_household_head_ages_by_household_size(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
+def test_household_head_ages_by_household_size_e2e(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
     sp.logger.info("Test the age distribution of household heads by the household size.")
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     fig, ax = sp.plot_household_head_ages_by_household_size(create_sample_pop_e2e, **plotting_kwargs)
@@ -35,5 +35,5 @@ if __name__ == "__main__":
     # pytest.main(['-v', '--do-show', __file__])
 
     # for running individual tests, you can do this
-    testcase = 'test_household_head_ages_by_household_size'
+    testcase = 'test_household_head_ages_by_household_size_e2e'
     pytest.main(['-v', '-k', testcase, '--do-show'])
