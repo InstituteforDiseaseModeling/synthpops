@@ -44,7 +44,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "decorator==4.4.2",
+        # "decorator==4.4.2",
         "line_profiler==3.1", # Temporary -- build issue with line_profiler 3.2
         "sciris>=1.0.0",
         "covasim>=2.0.0",
