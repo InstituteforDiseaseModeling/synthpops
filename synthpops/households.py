@@ -4,10 +4,12 @@ Functions for generating households
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 from collections import Counter
 from .config import logger as log, checkmem
 from . import base as spb
 from . import sampling as spsamp
+from . import data_distributions as spdata
 
 
 # __all__ = ['Household', 'Households']
@@ -28,9 +30,9 @@ class Household(sc.objdict):
 
         Args:
             **hhid (int)             : household id
-            **member_pids (np.array) : ids of household members
+            **member_uids (np.array) : ids of household members
             **member_ages (np.array) : ages of household members
-            **reference_pid (int)    : id of the reference person
+            **reference_uid (int)    : id of the reference person
             **reference_age (int)    : age of the reference person
         """
         # set up default household values
@@ -49,17 +51,17 @@ class Household(sc.objdict):
         Default household attributes.
 
         hhid (int)               : household id
-        member_pids (np.ndarray) : pids of household members
+        member_uids (np.ndarray) : uids of household members
         member_ages (np.ndarray) : ages of household members  # maybe not needed
-        reference_pid (int)      : reference person used to generate the household members and their ages
+        reference_uid (int)      : reference person used to generate the household members and their ages
         reference_age (int)      : age of the reference person used to generate the household members and their ages
 
         """
         default_kwargs = sc.objdict()
         default_kwargs.hhid = None
-        default_kwargs.member_pids = np.array([], dtype=int)
+        default_kwargs.member_uids = np.array([], dtype=int)
         default_kwargs.member_ages = np.array([], dtype=int)
-        default_kwargs.reference_pid = None
+        default_kwargs.reference_uid = None
         default_kwargs.reference_age = None
 
         return default_kwargs
@@ -89,7 +91,7 @@ class Household(sc.objdict):
             self.__setitem__(key, value)
 
             # direct method --- would repeat logic...
-            # if key in ['member_pids', 'member_ages']:
+            # if key in ['member_uids', 'member_ages']:
             # if isinstance(value, (np.ndarray, list)):
             #     self[key] = sc.promotetoarray(value)  # make sure this is an array
             # else:
@@ -102,20 +104,20 @@ class Household(sc.objdict):
 
     def get_household_size(self):
         """Return number of household members."""
-        return len(self.member_pids)
+        return len(self.member_uids)
 
-    def get_member_pids(self):
-        """Return the pids of all household members."""
-        return self.get('member_pids')
+    def get_member_uids(self):
+        """Return the uids of all household members."""
+        return self.get('member_uids')
 
     def get_member_ages(self):
         """Return the ages of all household members."""
         return self.get('member_ages')
 
-    def get_reference_pid(self):
-        """Return the pid of the reference person used to generate the household member's ages."""
-        # return self.reference_pid  # more direct
-        return self.get('reference_pid')  # using sc.objdict's method
+    def get_reference_uid(self):
+        """Return the uid of the reference person used to generate the household member's ages."""
+        # return self.reference_uid  # more direct
+        return self.get('reference_uid')  # using sc.objdict's method
 
     def get_reference_age(self):
         """Return the age of the reference person used to generate the household member's ages."""
@@ -143,22 +145,17 @@ class Households(sc.objdict):  # sc.objdict?
         kwargs = sc.mergedicts(self.default_kwargs(), kwargs)
         self.update(kwargs)  # set update the initial values then take care of any issues
 
-        # clean up the rest of the initialization
         # align n_households and households supplied
+        self.initialize_number_of_households()
 
-        if self.n_households < len(self.households):
-            self.n_households = len(self.households)
-
-        elif self.n_households > len(self.households):
-            self.n_households = len(self.households)
+        # elif self.n_households > len(self.households):
+            # self.n_households = len(self.households)
 
         self.populated = False  # have the empty households been populated yet?
 
         # if there's enough information to populate households
         if 'households' and 'age_by_uid' in self:
             self.populate_households(self.households, self.age_by_uid)
-            self.n_households = len(self.households)
-            self.populated = True
 
         if len(self.households) == 0:  # empty households array if we just know the number to create
             self.initialize_empty_households(self.n_households)
@@ -190,6 +187,13 @@ class Households(sc.objdict):  # sc.objdict?
 
         return default_kwargs
 
+    def initialize_number_of_households(self):
+        """Align n_households and the households supplied to self."""
+        if self.n_households < len(self.households):
+            self.n_households = len(self.households)
+
+        return
+
     def initialize_empty_households(self, n_households=None):
         """
         Array of empty households.
@@ -205,7 +209,12 @@ class Households(sc.objdict):  # sc.objdict?
         return
 
     def add_household(self, household):
-        """Add a household to the list of households."""
+        """
+        Add a household to the list of households.
+
+        Args:
+            household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
+        """
         self.households.append(household)
         return
 
@@ -226,10 +235,21 @@ class Households(sc.objdict):  # sc.objdict?
         log.debug("Populating households.")
         # now populate households
         for nh, household in enumerate(households):
-            kwargs = dict(hhid=nh, member_pids=household, member_ages=[age_by_uid[i] for i in household], reference_pid=household[0], reference_age=age_by_uid[household[0]])  # reference person in synthpops is always the first person place in a household
+            kwargs = dict(hhid=nh,
+                          member_uids=household, 
+                          member_ages=[age_by_uid[i] for i in household],
+                          # reference_uid=household[0],
+                          # reference_age=age_by_uid[household[0]]
+                          reference_uid=min(household),
+                          reference_age=age_by_uid[min(household)]  # reference person is the minimal id
+                          )  # reference person in synthpops is always the first person place in a household
             household = Household()
             household.set_household(**kwargs)
             self.households[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+
+        self.n_households = len(self.households)
+        self.populate = True
+
         return
 
     def get_household(self, hhid):
@@ -582,7 +602,15 @@ def get_household_heads(popdict):
         popdict (dict) : population dictionary
 
     Returns:
-        dict: Dictionary of the id of the head of the household for each household.
+        dict: Dictionary of the id of the head of the household for each
+        household.
+    
+    Note:
+        In static populations the id of the head of the household is the minimum
+        id of the household members. With vital dynamics turned on and
+        populations growing or changing households over time, this method will
+        need to change and the household head or reference person will need to
+        be specified at creation and when those membership events occur.
     """
     household_heads = dict()
     for i, person in popdict.items():
@@ -592,6 +620,41 @@ def get_household_heads(popdict):
                 household_heads[person['hhid']] = i  # update the minimum id; synthpops creates the head of the household first for each household so they will have the smallest id of all members in their household
 
     return household_heads
+
+
+def get_household_head_ages_by_size(pop):
+    """
+    Calculate the count of households by size and the age of the head of the
+    household, assuming the minimal household members id is the id of the head
+    of the household.
+
+    Args:
+        pop (sp.Pop) : population object
+
+    Returns:
+        np.ndarray: An array with rows as household size and columns as
+        household head age brackets.
+    """
+    popdict = pop.popdict
+    loc_pars = sc.dcp(pop.loc_pars)
+    loc_pars.location = None
+    hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
+
+    #hha_index use age as key and bracket index as value
+    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
+    uids = get_household_heads(popdict=popdict)
+    d = {}
+    # construct tables for each houldhold head
+    for uid in uids.values():
+        d[popdict[uid]['hhid']] = {'hhid': popdict[uid]['hhid'],
+                                   'age': popdict[uid]['age'],
+                                   'family_size': len(popdict[uid]['contacts']['H']) + 1,
+                                   'hh_age_bracket': hha_index[popdict[uid]['age']]}
+    df_household_age = pd.DataFrame.from_dict(d, orient="index")
+    # aggregate by age_bracket (column) and family_size (row)
+    df_household_age = df_household_age.groupby(['hh_age_bracket', 'family_size'], as_index=False).count()\
+        .pivot(index='family_size', columns='hh_age_bracket', values='hhid').fillna(0)
+    return np.array(df_household_age.values)
 
 
 def get_generated_household_size_distribution(household_sizes):

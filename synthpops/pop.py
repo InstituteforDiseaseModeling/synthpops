@@ -468,6 +468,7 @@ class Pop(sc.prettyobj):
         self.summary.household_heads = self.get_household_heads()
         self.summary.household_head_ages = self.get_household_head_ages()
         self.summary.household_head_age_count = self.count_household_head_ages()
+        self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
 
         self.summary.ltcf_sizes = self.get_ltcf_sizes()
         self.summary.ltcf_size_count = self.count_ltcf_sizes()
@@ -533,6 +534,18 @@ class Pop(sc.prettyobj):
             head_ages = list(self.summary.household_head_ages.values())
             hist, bins = np.histogram(head_ages, bins=bins, density=0)
             return {i: hist[i] for i in range(len(hist))}
+
+    def get_household_head_ages_by_size(self):
+        """
+        Get the count of households by size and the age of the head of the
+        household, assuming the minimal household members id is the id of the
+        head of the household.
+
+        Returns:
+            np.ndarray: An array with row as household size and columns as
+            household head age brackets.
+        """
+        return sphh.get_household_head_ages_by_size(self)
 
     # convert to work on array
     def get_ltcf_sizes(self, keys_to_exclude=[]):
@@ -701,20 +714,22 @@ class Pop(sc.prettyobj):
     #     fig, ax = sppl.plot_household_head_ages(self, **kwargs)
     #     return fig, ax
 
-    # # TBC: placeholder for now
-    # def plot_household_head_ages_by_household_size(self, **kwargs):
-    #     """
-    #     Plot a comparison of the expected and generated head of household ages
-    #     by the household size.
+    def plot_household_head_ages_by_size(self, **kwargs):
+        """
+        Plot a comparison of the expected and generated age distribution of the
+        household heads by the household size.
 
-    #     **Examples**::
+        **Examples**::
 
-    #         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
-    #         pop = sp.Pop(**pars)
-    #         fig, ax = pop.plot_household_head_ages_by_household_size()
-    #     """
-    #     fig, ax = sppl.plot_household_head_ages_by_household_size(self, **kwargs)
-    #     return fig, ax
+            pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
+            pop = sp.Pop(**pars)
+            fig, ax = pop.plot_household_head_ages_by_household_size()
+
+            kwargs = pars.copy()
+            fig, ax = pop.plot_household_head_ages_by_household_size(**kwargs)
+        """
+        fig, ax = sppl.plot_household_head_ages_by_size(self, **kwargs)
+        return fig, ax
 
     def plot_ltcf_resident_sizes(self, **kwargs):
         """
