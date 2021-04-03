@@ -379,6 +379,7 @@ def check_school_size_brackets(location):
 
 
 def check_school_size_distribution(location):
+    # TODO: decide if there is a check we should apply here.
     return [True, None]
 
 
