@@ -130,24 +130,31 @@ def test_households_basic():
 
     print('Check passed. Generic households can be populated during class initialization.')
 
-
+@pytest.mark.skip
 def test_reset_household_values():
-    sp.logger.info("Test reset household values.")
+    sp.logger.info("Test resetting household values. Warning these features should only be available when synthpops is set to use vital dynamics.")
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
     age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
     hhs = sp.Households(**{'households': homes_by_uids,
                            'age_by_uid': age_by_uid_dic})
     hhs.get_household(0).set_hhid(7)
     hhs.get_household(0).set_member_uids([8, 8, 8])
+    hhs.get_household(0).set_member_ages([0, 0, 0])
+    hhs.get_household(0).set_reference_uid(8)
+    hhs.get_household(0).set_reference_age(0)
     print(hhs.get_household(0))
 
 
 def test_households_initialization():
-    sp.logger.info("Test initializing empty households.")
+    sp.logger.info("Test households initialization methods.")
     households = sp.Households()
-    # households.set_hhid('n_households', 5)
-    print(households)
-
+    households.households = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
+    households.n_households = 2
+    assert households.n_households != len(households.households), 'Check households.n_households and len(households.households) are not aligned.'
+    print('Check passed. Initially households.n_households do not match len(households.households).')
+    households.initialize_n_households()
+    assert households.n_households == len(households.households), 'Check households.n_households and len(households.households) match.'
+    print('Check passed. Now households.n_households and len(households.households).')
 
 
 
@@ -163,13 +170,9 @@ if __name__ == '__main__':
     pop.household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                                 reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])], hhid=0)
     print(pop.household)
-    pop.household.set_hhid(7)
-    print(pop.household)
 
-    pop.household.set_member_uids([7, 88])
-    print(pop.household)
 
-    test_reset_household_values()
+
 
     # pop.household2 = sp.Household(**dict(member_uids=pop.homes_by_uids[1], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
     #                                      reference_uid=min(pop.homes_by_uids[1]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])], hhid=1))
@@ -188,7 +191,7 @@ if __name__ == '__main__':
     # # # print(pop.households.households)
 
 
-    # test_households_initialization()
+    test_households_initialization()
 
     # pop.households.populate_households(pop.homes_by_uids[0:3], pop.age_by_uid)
     # print(pop.households.households)

@@ -70,10 +70,8 @@ class Household(sc.objdict):
     def __setitem__(self, key, value):
         """Set attribute values by key."""
         if isinstance(value, (list, np.ndarray)):
-            # setattr(self, key, sc.promotetoarray(value))
             sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
         else:
-            # setattr(self, key, value)
             sc.objdict.__setitem__(self, key, value)
         return
 
@@ -92,21 +90,11 @@ class Household(sc.objdict):
             # self.setitem(key, value)
             self.__setitem__(key, value)
 
-            # direct method --- would repeat logic...
-            # if key in ['member_uids', 'member_ages']:
-            # if isinstance(value, (np.ndarray, list)):
-            #     self[key] = sc.promotetoarray(value)  # make sure this is an array
-            # else:
-            #     self[key] = value
         return
 
     def get_hhid(self):
         """Return the household id."""
         return self.get('hhid')
-
-    def set_hhid(self, hhid):
-        """Set the household id."""
-        self.__setitem__('hhid', hhid)
 
     def get_household_size(self):
         """Return number of household members."""
@@ -116,35 +104,40 @@ class Household(sc.objdict):
         """Return the uids of all household members."""
         return self.get('member_uids')
 
-    def set_member_uids(self, member_uids):
-        """Set the uids of all household members."""
-        self.__setitem__('member_uids', member_uids)
-
     def get_member_ages(self):
         """Return the ages of all household members."""
         return self.get('member_ages')
-
-    def set_member_ages(self):
-        """Set the ages of all household members."""
-        self.__setitem__('member_ages', member_ages)
-        # self.set_household(member_ages=member_ages)
 
     def get_reference_uid(self):
         """Return the uid of the reference person used to generate the household members ages."""
         # return self.reference_uid  # more direct
         return self.get('reference_uid')  # using sc.objdict's method
 
-    def set_reference_uid(self, reference_uid):
-        self.__setitem__('reference_uid', reference_uid)
-
     def get_reference_age(self):
         """Return the age of the reference person used to generate the household members ages."""
         # return self.reference_age  # more direct
         return self.get('reference_age')  # using sc.objdict's method
 
-    def set_reference_age(self):
-        """Set the age of the reference person to generate the household members ages."""
-        self.__setitem__('reference_age', reference_age)
+    # To be turned on for vital dynamics...
+    # def set_hhid(self, hhid):
+    #     """Set the household id."""
+    #     self.__setitem__('hhid', hhid)
+
+    # def set_member_uids(self, member_uids):
+    #     """Set the uids of all household members."""
+    #     self.__setitem__('member_uids', member_uids)
+
+    # def set_member_ages(self):
+    #     """Set the ages of all household members."""
+    #     self.__setitem__('member_ages', member_ages)
+
+    # def set_reference_uid(self, reference_uid):
+    #     """Set the uid of the reference person to generate the household members ages."""
+    #     self.__setitem__('reference_uid', reference_uid)
+
+    # def set_reference_age(self):
+    #     """Set the age of the reference person to generate the household members ages."""
+    #     self.__setitem__('reference_age', reference_age)
 
 
 class Households(sc.objdict):
@@ -167,14 +160,15 @@ class Households(sc.objdict):
         self.update(kwargs)  # set update the initial values then take care of any issues
 
         # align n_households and households supplied
-        self.initialize_number_of_households()
+        self.initialize_n_households()
 
         self.populated = False  # have the empty households been populated yet?
 
-        # if there's enough information to populate households
+        # if there's enough information to populate households --- not a great name --- what to call the list of households?
         if 'households' and 'age_by_uid' in self:
             self.populate_households(self.households, self.age_by_uid)
 
+        # must find a better name; shouldn't have households.households
         if len(self.households) == 0:  # empty households array if we just know the number to create
             self.initialize_empty_households(self.n_households)
 
@@ -205,7 +199,7 @@ class Households(sc.objdict):
 
         return default_kwargs
 
-    def initialize_number_of_households(self):
+    def initialize_n_households(self):
         """Align n_households and the households supplied to self."""
         if self.n_households < len(self.households):
             self.n_households = len(self.households)
