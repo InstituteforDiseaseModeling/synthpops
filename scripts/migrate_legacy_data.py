@@ -1,3 +1,4 @@
+"""Run this file as a script to migrate legacy files. Run python migrate_legacy_data.py --help for options. """
 import synthpops.data_distributions_legacy as data_distributions_legacy
 import synthpops.data as data
 import synthpops.config as spconfig
