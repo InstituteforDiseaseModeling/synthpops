@@ -204,7 +204,7 @@ def load_location_from_filepath(rel_filepath):
 
     """
     filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
-    logger.info(f"Opening location from filepath [{filepath}]")
+    logger.debug(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
     return load_location_from_json(json_obj)
@@ -221,7 +221,7 @@ def save_location_to_filepath(location, abs_filepath):
     Returns:
 
     """
-    logger.info(f"Saving location to filepath [{abs_filepath}]")
+    logger.debug(f"Saving location to filepath [{abs_filepath}]")
     location_json = location.to_json()
 
     options = jsbeautifier.default_options()
@@ -379,6 +379,7 @@ def check_school_size_brackets(location):
 
 
 def check_school_size_distribution(location):
+    # TODO: decide if there is a check we should apply here.
     return [True, None]
 
 
