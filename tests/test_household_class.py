@@ -156,6 +156,11 @@ def test_households_initialization():
     assert households.n_households == len(households.households), 'Check households.n_households and len(households.households) match.'
     print('Check passed. Now households.n_households and len(households.households).')
 
+    households.households = []
+    households.initialize_empty_households(n_households=5)
+    for i in range(households.n_households):
+        assert isinstance(households.households[i], sp.Household) and households.get_household(i).get_hhid() is None, 'Check failed. households[i] is not a household object.'
+    print(f'Check passed. Initialized {households.n_households} empty households.')
 
 
 if __name__ == '__main__':
@@ -173,14 +178,15 @@ if __name__ == '__main__':
 
 
 
-
     # pop.household2 = sp.Household(**dict(member_uids=pop.homes_by_uids[1], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
     #                                      reference_uid=min(pop.homes_by_uids[1]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])], hhid=1))
     # print(pop.household2)
     # # test_cannot_change_attribute()
 
     # # pop.households = sp.Households(**{'households': pop.household})
-    # pop.households = sp.Households()
+    pop.households = sp.Households()
+
+    pop.households.add_household('0')
 
     # print(pop.households)
 

@@ -227,6 +227,8 @@ class Households(sc.objdict):
         Args:
             household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
         """
+        if not isinstance(household, Household):
+            raise ValueError('household is not a sp.Household class.')
         self.households.append(household)
         return
 
