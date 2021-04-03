@@ -102,6 +102,10 @@ class Household(sc.objdict):
         """Return the household id."""
         return self.get('hhid')
 
+    def set_hhid(self, hhid):
+        """Set the household id,"""
+        self.set_household(hhid=hhid)
+
     def get_household_size(self):
         """Return number of household members."""
         return len(self.member_uids)
