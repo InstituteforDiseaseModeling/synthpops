@@ -127,7 +127,19 @@ def test_households_basic():
         assert hhs.get_household(i).get_reference_uid() == homes_by_uids[i][0]
         assert hhs.get_household(i).get_reference_age() == age_by_uid_dic[homes_by_uids[i][0]]
         assert hhs.get_household(i).get_household_size() == len(homes_by_uids[i])
+
     print('Check passed. Generic households can be populated during class initialization.')
+
+
+def test_reset_household_values():
+    sp.logger.info("Test reset household values.")
+    homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
+    age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+    hhs = sp.Households(**{'households': homes_by_uids,
+                           'age_by_uid': age_by_uid_dic})
+    hhs.get_household(0).set_hhid(7)
+    hhs.get_household(0).set_member_uids([8, 8, 8])
+    print(hhs.get_household(0))
 
 
 def test_households_initialization():
@@ -153,6 +165,11 @@ if __name__ == '__main__':
     print(pop.household)
     pop.household.set_hhid(7)
     print(pop.household)
+
+    pop.household.set_member_uids([7, 88])
+    print(pop.household)
+
+    test_reset_household_values()
 
     # pop.household2 = sp.Household(**dict(member_uids=pop.homes_by_uids[1], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
     #                                      reference_uid=min(pop.homes_by_uids[1]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])], hhid=1))

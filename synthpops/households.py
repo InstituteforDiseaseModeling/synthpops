@@ -70,8 +70,10 @@ class Household(sc.objdict):
     def __setitem__(self, key, value):
         """Set attribute values by key."""
         if isinstance(value, (list, np.ndarray)):
+            # setattr(self, key, sc.promotetoarray(value))
             sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
         else:
+            # setattr(self, key, value)
             sc.objdict.__setitem__(self, key, value)
         return
 
@@ -103,8 +105,8 @@ class Household(sc.objdict):
         return self.get('hhid')
 
     def set_hhid(self, hhid):
-        """Set the household id,"""
-        self.set_household(hhid=hhid)
+        """Set the household id."""
+        self.__setitem__('hhid', hhid)
 
     def get_household_size(self):
         """Return number of household members."""
@@ -114,19 +116,35 @@ class Household(sc.objdict):
         """Return the uids of all household members."""
         return self.get('member_uids')
 
+    def set_member_uids(self, member_uids):
+        """Set the uids of all household members."""
+        self.__setitem__('member_uids', member_uids)
+
     def get_member_ages(self):
         """Return the ages of all household members."""
         return self.get('member_ages')
 
+    def set_member_ages(self):
+        """Set the ages of all household members."""
+        self.__setitem__('member_ages', member_ages)
+        # self.set_household(member_ages=member_ages)
+
     def get_reference_uid(self):
-        """Return the uid of the reference person used to generate the household member's ages."""
+        """Return the uid of the reference person used to generate the household members ages."""
         # return self.reference_uid  # more direct
         return self.get('reference_uid')  # using sc.objdict's method
 
+    def set_reference_uid(self, reference_uid):
+        self.__setitem__('reference_uid', reference_uid)
+
     def get_reference_age(self):
-        """Return the age of the reference person used to generate the household member's ages."""
+        """Return the age of the reference person used to generate the household members ages."""
         # return self.reference_age  # more direct
         return self.get('reference_age')  # using sc.objdict's method
+
+    def set_reference_age(self):
+        """Set the age of the reference person to generate the household members ages."""
+        self.__setitem__('reference_age', reference_age)
 
 
 class Households(sc.objdict):
