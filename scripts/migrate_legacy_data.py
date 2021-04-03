@@ -340,54 +340,32 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
 
     new_location.parent = f"{parent}.json" if len(parent) > 0 else  ""
 
+    args = [datadir, country_location, state_location, location, new_location]
+
     # The key is the subject data being migrated; the value is a bound function that performs the migration.
     migration_functions = {
-        "population_age_brackets_16":   partial(migrate_population_age_brackets_16,
-                                                datadir, country_location, state_location, location, new_location),
-        "population_age_brackets_18": partial(migrate_population_age_brackets_18,
-                                              datadir, country_location, state_location, location, new_location),
-        "population_age_brackets_20": partial(migrate_population_age_brackets_20,
-                                              datadir, country_location, state_location, location, new_location),
-        "population_age_distribution_16":
-                                        partial(migrate_population_age_distribution_16,
-                                                datadir, country_location, state_location, location, new_location),
-        "population_age_distribution_18":
-                                        partial(migrate_population_age_distribution_18,
-                                                datadir, country_location, state_location, location, new_location),
-        "population_age_distribution_20":
-                                        partial(migrate_population_age_distribution_20,
-                                                datadir, country_location, state_location, location, new_location),
-        "employment_rates_by_age":      partial(migrate_employment_rates_by_age,
-                                                datadir, country_location, state_location, location, new_location),
-        "enrollment_rates_by_age":      partial(migrate_enrollment_rates_by_age,
-                                                datadir, country_location, state_location, location, new_location),
-        "household_head_age_brackets":  partial(migrate_household_head_age_brackets,
-                                                datadir, country_location, state_location, location, new_location),
+        "population_age_brackets_16":       partial(migrate_population_age_brackets_16, *args),
+        "population_age_brackets_18":       partial(migrate_population_age_brackets_18, *args),
+        "population_age_brackets_20":       partial(migrate_population_age_brackets_20, *args),
+        "population_age_distribution_16":   partial(migrate_population_age_distribution_16, *args),
+        "population_age_distribution_18":   partial(migrate_population_age_distribution_18, *args),
+        "population_age_distribution_20":   partial(migrate_population_age_distribution_20, *args),
+        "employment_rates_by_age":          partial(migrate_employment_rates_by_age, *args),
+        "enrollment_rates_by_age":          partial(migrate_enrollment_rates_by_age, *args),
+        "household_head_age_brackets":      partial(migrate_household_head_age_brackets, *args),
         "household_head_age_distribution_by_family_size":
-                                        partial(migrate_household_head_age_distribution_by_family_size,
-                                                datadir, country_location, state_location, location, new_location),
-        "household_size_distribution":  partial(migrate_household_size_distribution,
-                                                datadir, country_location, state_location, location, new_location),
+                                            partial(migrate_household_head_age_distribution_by_family_size, *args),
+        "household_size_distribution":      partial(migrate_household_size_distribution, *args),
         "ltcf_resident_to_staff_ratio_distribution":
-                                        partial(migrate_ltcf_resident_to_staff_ratio_distribution,
-                                                datadir, country_location, state_location, location, new_location),
-        "ltcf_num_residents_distribution":
-                                        partial(migrate_ltcf_num_residents_distribution,
-                                                datadir, country_location, state_location, location, new_location),
-        "ltcf_use_rate_distribution":   partial(migrate_ltcf_use_rate_distribution,
-                                                datadir, country_location, state_location, location, new_location),
-        "school_size_brackets":         partial(migrate_school_size_brackets,
-                                                datadir, country_location, state_location, location, new_location),
-        "school_size_distribution":     partial(migrate_school_size_distribution,
-                                                datadir, country_location, state_location, location, new_location),
-        "school_size_distribution_by_type":
-                                        partial(migrate_school_size_distribution_by_type,
-                                                datadir, country_location, state_location, location, new_location),
-        "school_types_by_age":          partial(migrate_school_types_by_age,
-                                                datadir, country_location, state_location, location, new_location),
+                                            partial(migrate_ltcf_resident_to_staff_ratio_distribution, *args),
+        "ltcf_num_residents_distribution":  partial(migrate_ltcf_num_residents_distribution, *args),
+        "ltcf_use_rate_distribution":       partial(migrate_ltcf_use_rate_distribution, *args),
+        "school_size_brackets":             partial(migrate_school_size_brackets, *args),
+        "school_size_distribution":         partial(migrate_school_size_distribution, *args),
+        "school_size_distribution_by_type": partial(migrate_school_size_distribution_by_type, *args),
+        "school_types_by_age":              partial(migrate_school_types_by_age, *args),
         "workplace_size_counts_by_num_personnel":
-                                        partial(migrate_workplace_size_counts_by_num_personnel,
-                                                datadir, country_location, state_location, location, new_location),
+                                            partial(migrate_workplace_size_counts_by_num_personnel, *args),
     }
 
     for key, bound_function in migration_functions.items():
