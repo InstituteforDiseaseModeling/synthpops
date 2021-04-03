@@ -11,8 +11,7 @@ def test_household_average_contact_by_age(do_show, do_save, create_sample_pop_e2
     sp.logger.info("Test average household contacts by age by plotting the average age mixing matrix.")
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     fig = create_sample_pop_e2e.plot_contacts(**plotting_kwargs)
-    fig.savefig(pathlib.Path(get_fig_dir_by_module, "household_age_mixing.png"))
-
+    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
 
 def test_age_distribution():
     #todo: require statistics methods
