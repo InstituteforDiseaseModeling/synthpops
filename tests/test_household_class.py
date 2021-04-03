@@ -69,16 +69,29 @@ def test_empty_household():
 
     pop = sp.Pop(**pars)
 
-    pop.household = sp.Household()
-    assert pop.household.get_hhid() is None, f"Check failed. pop.household hhid is {pop.household.get_hhid()}"
-    print(f"Check passed. pop.household hhid is {pop.household.get_hhid()}")
-    np.testing.assert_array_equal(pop.household.get_member_uids(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_uids.", verbose=True)
-    print("Check passed. pop.household member_uids is an empty np.array")
-    np.testing.assert_array_equal(pop.household.get_member_ages(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
-    print("Check passed. pop.household member_ages is an empty np.array")
-    assert pop.household.get_reference_uid() is None, f"Check failed. pop.household reference_uid is {pop.household.get_reference_uid()}."
-    assert pop.household.get_reference_age() is None, f"Check failed. pop.household reference_age is {pop.household.get_reference_age()}."
+    def check_phrase(key, value, passed):
+        if passed:
+            print(f"Check passed. pop.household {key} for an empty household is {value}.")
+        else:
+            print(f"Check failed. pop.household {key} for an empty household is {value}.")
 
+
+    pop.household = sp.Household()
+    assert pop.household.get_hhid() is None, check_phrase('hhid', pop.household.get_hhid(), passed=False)
+    check_phrase('hhid', pop.household.get_hhid(), passed=True)
+
+    np.testing.assert_array_equal(pop.household.get_member_uids(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_uids.", verbose=True)
+    check_phrase('member_uids', pop.household.get_member_uids(), passed=True)
+    
+    np.testing.assert_array_equal(pop.household.get_member_ages(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
+    check_phrase('member_ages', pop.household.get_member_ages(), passed=True)
+
+    assert pop.household.get_reference_uid() is None, check_phrase('reference_uid', pop.household.get_reference_uid(), passed=False)
+    check_phrase('reference_uid', pop.household.get_reference_uid(), passed=True)
+
+    assert pop.household.get_reference_age() is None, check_phrase('reference_age', pop.household.get_reference_age(), passed=False)
+    check_phrase('reference_age', pop.household.get_reference_age(), passed=True)
+    
     print('Checks passed for an empty household.')
 
     return pop
@@ -92,7 +105,9 @@ def test_make_household():
     pop.household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                                 reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
                                 hhid=0)
+
     assert pop.household.get_hhid() == 0, f"Check failed. pop.household hhid is {pop.household.get_hhid()}."
+    
     assert len(pop.household.get_member_uids()) > 0 and isinstance(pop.household.get_member_uids(), np.ndarray), 'Check failed: member_uids is empty or not a np.array.'
     assert len(pop.household.get_member_ages()) > 0 and isinstance(pop.household.get_member_ages(), np.ndarray), 'Check failed: member_ages is empty or not a np.array.'
     assert pop.household.get_reference_uid() is not None, 'Check failed. pop.household reference_uid is None.'

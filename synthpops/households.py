@@ -125,8 +125,7 @@ class Household(sc.objdict):
         return self.get('reference_age')  # using sc.objdict's method
 
 
-# class Households(sc.prettyobj):  # should this be based on sc.prettyobj or
-class Households(sc.objdict):  # sc.objdict?
+class Households(sc.objdict):
     """
     A class for households and methods to operate on them.
 
@@ -147,9 +146,6 @@ class Households(sc.objdict):  # sc.objdict?
 
         # align n_households and households supplied
         self.initialize_number_of_households()
-
-        # elif self.n_households > len(self.households):
-            # self.n_households = len(self.households)
 
         self.populated = False  # have the empty households been populated yet?
 
