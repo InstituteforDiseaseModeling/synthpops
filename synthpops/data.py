@@ -9,29 +9,41 @@ from . import logger
 
 
 class SchoolSizeDistributionByType(JsonObject):
+    """Class for the school size distribution by school type."""
     school_type = StringProperty()
     # length should be len(location.school_size_distribution)
     size_distribution = ListProperty(DefaultProperty)
 
 
 class SchoolTypeByAge(JsonObject):
+    """Class for the school type by age range."""
     school_type = StringProperty()
     # [min_age, max_age]
     age_range = ListProperty(DefaultProperty)
 
 
 class Location(JsonObject):
+    """
+    Class for the data object of the location.
+
+    The general use case of this is to use a filepath, and the parent data is
+    parsed from the filepath. DefaultProperty type handles either a scalar or
+    json object. We allow a json object mainly for testing of inheriting from
+    a parent specified directly in the json.
+
+    Most users will want to populate this with a relative or absolute file path.
+
+    Notes:
+        The structures for the population age distribution need to be updated
+        to be flexible to take in a parameter for the number of age brackets
+        to generate the population age distribution structure.
+    """
     location_name = StringProperty()
     data_provenance_notices = ListProperty(StringProperty)
     reference_links = ListProperty(StringProperty)
     citations = ListProperty(StringProperty)
     notes = ListProperty(StringProperty)
 
-    # The general use case would be to use a filepath, and the parent data is parsed from the filepath.
-    # DefaultProperty type handles either a scalar or json object.
-    # We allow a json object mainly for testing of inheriting from a parent specified directly
-    # in the json.
-    # Most users will want to populate this with a relative or absolute file path.
     parent = DefaultProperty()
 
     population_age_distribution_16 = ListProperty(
@@ -115,9 +127,27 @@ class Location(JsonObject):
     )
 
     def get_list_properties(self):
+        """
+        Get the properties of the location data object as a list.
+
+        Returns:
+            list: A list of the properties of the location data object.
+        """
         return [p for p in self if type(getattr(self, p)) is JsonArray]
 
     def get_population_age_distribution(self, nbrackets):
+        """
+        Get the age distribution of the population aggregated to nbrackets
+        age brackets. Currently we support 16, 18, and, 20 nbrackets and
+        return a container for the age distribution with nbrackets.
+
+        Args:
+            nbrackets (int): the number of age brackets the age distribution is aggregated to
+
+        Returns:
+            list: A list of the probability age distribution values indexed by
+            the bracket number.
+        """
         if nbrackets not in [16, 18, 20]:
             raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
 
@@ -132,6 +162,18 @@ class Location(JsonObject):
 
 
 def populate_parent_data_from_file_path(location, parent_file_path):
+    """
+    Loading a location json data object with necessary data fields filled from
+    the parent location using the parent location file path.
+
+    Args:
+        location (json)        : json data object for the location  # parameter name should probably change to reflect that better
+        parent_file_path (str) : file path to the parent location
+
+    Returns:
+        json: The location json data object with necessary data fields filled
+        from the parent location.
+    """
     logger.debug(f"Loading parent location from filepath [{parent_file_path}]")
     try:
         parent_obj = load_location_from_filepath(parent_file_path)
@@ -143,6 +185,18 @@ def populate_parent_data_from_file_path(location, parent_file_path):
 
 
 def populate_parent_data_from_json_obj(location, parent):
+    """
+    Loading a location data object with necessary data fields filled from
+    the parent location json.
+
+    Args:
+        location (json): json data object for the location  # parameter name should probably change to reflect that better
+        parent (json): json data object for the parent location  # parameter name should probably change to reflect that better
+
+    Returns:
+        json: The location json data object with necessary data fields filled
+        from the parent location.
+    """
     if parent.parent is not None:
         populate_parent_data(parent)
 

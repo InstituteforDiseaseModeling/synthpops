@@ -1,6 +1,8 @@
+import sciris as sc
 import synthpops as sp
-
+import os
 import unittest
+
 
 class TestLocation(unittest.TestCase):
     """
@@ -513,7 +515,7 @@ class TestLocation(unittest.TestCase):
         self.check_minimal_location_with_parent(location)
 
     def test_load_minimal_location_with_parent_filepath_from_filepath(self):
-        child_filepath = "unittests/test_location_child.json"
+        child_filepath = os.path.join("unittests", "test_location_child.json")
         location = sp.load_location_from_filepath(child_filepath)
         self.check_minimal_location_with_parent(location)
 
@@ -521,14 +523,17 @@ class TestLocation(unittest.TestCase):
         # All but the three specified lists are existing and empty...
         for list_property in location.get_list_properties():
             att = getattr(location, list_property)
+            # what fields are we planning to test...
             if str(list_property) in ["employment_rates_by_age",
                                       "population_age_distribution_16",
                                       "school_size_distribution_by_type",
                                       "school_size_distribution",
                                       "school_size_brackets",
+                                      "reference_links",
+                                      "citations",
                                       ]:
                 continue
-            self.assertTrue(att is not None and len(att) == 0)
+            self.assertTrue(att is not None and len(att) == 0)  # everything else should be empty
 
         self.assertEqual(location.location_name, "test_location_child",
                           "location_name incorrect")
