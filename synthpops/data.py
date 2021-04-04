@@ -24,19 +24,20 @@ class SchoolTypeByAge(JsonObject):
 
 class Location(JsonObject):
     """
-    Class for the data object of the location.
+    Class for the json object for the location containing data about the
+    population to generate representative contact networks.
 
     The general use case of this is to use a filepath, and the parent data is
     parsed from the filepath. DefaultProperty type handles either a scalar or
-    json object. We allow a json object mainly for testing of inheriting from
-    a parent specified directly in the json.
+    json object. We allow a json object mainly for testing of inheriting from a
+    parent specified directly in the json.
 
     Most users will want to populate this with a relative or absolute file path.
 
     Note:
-        The structures for the population age distribution need to be updated
-        to be flexible to take in a parameter for the number of age brackets
-        to generate the population age distribution structure.
+        The structures for the population age distribution need to be updated to
+        be flexible to take in a parameter for the number of age brackets to
+        generate the population age distribution structure.
     """
     location_name = StringProperty()
     data_provenance_notices = ListProperty(StringProperty)
@@ -131,14 +132,15 @@ class Location(JsonObject):
         Get the properties of the location data object as a list.
 
         Returns:
-            list: A list of the properties of the location data object.
+            list: A list of the properties of the location json object with
+            data about the location.
         """
         return [p for p in self if type(getattr(self, p)) is JsonArray]
 
     def get_population_age_distribution(self, nbrackets):
         """
-        Get the age distribution of the population aggregated to nbrackets
-        age brackets. Currently there is support 16, 18, and, 20 nbrackets and
+        Get the age distribution of the population aggregated to nbrackets age
+        brackets. Currently there is support 16, 18, and, 20 nbrackets and
         return a container for the age distribution with nbrackets.
 
         Args:
@@ -147,8 +149,17 @@ class Location(JsonObject):
         Returns:
             list: A list of the probability age distribution values indexed by
             the bracket number.
+        Note:
+            This will be updated shortly to support a more flexible number of
+            age brackets.
         """
         if nbrackets not in [16, 18, 20]:
+            # DM: This is not the same behavior as previous versions of synthpops:
+            # in config.py we instead raised a warning but still allowed users to use different nbrackets
+            # most users may not use this, but development work certainly does so this behavior must be changed
+            # the warning raised:
+            # logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
+
             raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
 
         dists = {
@@ -163,17 +174,18 @@ class Location(JsonObject):
 
 def populate_parent_data_from_file_path(location, parent_file_path):
     """
-    Loading a location json data object with necessary data fields filled from
-    the parent location using the parent location file path.
+    Loading a location json object with necessary data fields filled from the
+    parent location using the parent location file path.
 
     Args:
-        location (json)        : json data object for the location  # parameter name should probably change to reflect that better
+        location (json)        : json object for the location data
         parent_file_path (str) : file path to the parent location
 
     Returns:
-        json: The location json data object with necessary data fields filled
-        from the parent location.
+        json: The location json object with necessary data fields filled from
+        the parent location.
     """
+    # DM: parameter name of location should change to better reflect what this parameter actually is: the location data object
     logger.debug(f"Loading parent location from filepath [{parent_file_path}]")
     try:
         parent_obj = load_location_from_filepath(parent_file_path)
@@ -186,17 +198,18 @@ def populate_parent_data_from_file_path(location, parent_file_path):
 
 def populate_parent_data_from_json_obj(location, parent):
     """
-    Loading a location data object with necessary data fields filled from
-    the parent location json.
+    Loading a location json object with necessary data fields filled from the
+    parent location json.
 
     Args:
-        location (json) : json data object for the location  # parameter name should probably change to reflect that better
-        parent (json)   : json data object for the parent location  # parameter name should probably change to reflect that better
+        location (json) : json object for the location data
+        parent (json)   : json object for the parent location
 
     Returns:
-        json: The location json data object with necessary data fields filled
-        from the parent location.
+        json: The location json object with necessary data fields filled from
+        the parent location.
     """
+    # DM: parameter names should change to reflect that better
     if parent.parent is not None:
         populate_parent_data(parent)
 
@@ -212,8 +225,8 @@ def populate_parent_data_from_json_obj(location, parent):
 
 def populate_parent_data(location):
     """
-    Populate location json data object with fields from the parent location
-    if available.
+    Populate location json object with fields from the parent location if
+    available.
 
     Args:
         location (json): json data object for the location  # parameter name change for more specificity
@@ -241,13 +254,13 @@ def populate_parent_data(location):
 
 def load_location_from_json(json_obj):
     """
-    Load location data from json with some checks made.
+    Load location data from json object with some checks made.
 
     Args:
         json_obj (json): json object containing location data
 
     Returns:
-        json: The location json data object.
+        json: The json object with location data.
     """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
@@ -260,10 +273,10 @@ def load_location_from_json_str(json_str):
     Load location data from json str with some checks made.
 
     Args:
-        json_str (str): string of the location json data object
+        json_str (str): string version of the json object
 
     Returns:
-        json: The location json data object.
+        json: The json object with location data.
     """
     json_obj = json.loads(json_str)
     return load_location_from_json(json_obj)
@@ -297,7 +310,7 @@ def load_location_from_filepath(rel_filepath):
         rel_filepath (str): relative file path for the location data
 
     Returns:
-        json: The location json data object.
+        json: The json object with location data.
     """
     filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
@@ -308,10 +321,10 @@ def load_location_from_filepath(rel_filepath):
 
 def save_location_to_filepath(location, abs_filepath):
     """
-    Saves location json data object to provided absolute filepath.
+    Saves json object with location data to provided absolute filepath.
 
     Args:
-        location (json)    : the json data object for the location
+        location (json)    : the json object with location data
         abs_filepath (str) : absolute file path to where the json is saved
 
     Returns:
@@ -334,14 +347,14 @@ def check_location_constraints_satisfied(location):
     Checks a number of constraints that need to be satisfied for the schema.
 
     Args:
-        location (json): the json data object for the location
+        location (json): the json object with location data
 
     Returns:
         None.
 
     Raises:
-        RuntimeError with a description if one of the constraints is
-        not satisfied.
+        RuntimeError with a description if one of the constraints is not
+        satisfied.
     """
     [status, msg] = are_location_constraints_satisfied(location)
     if not status:
@@ -353,7 +366,7 @@ def are_location_constraints_satisfied(location):
     Checks a number of constraints that need to be satisfied for the schema.
 
     Args:
-        location (json): the json data object for the location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if all constraints are satisfied.
@@ -389,7 +402,7 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
     Check that each array in an array of arrays has the expected length.
 
     Args:
-        location (json)     : the json data object for a location
+        location (json)     : the json object with location data
         expected_len (int)  : the expected length of each sub array
         property_name (str) : the property name
 
@@ -411,12 +424,13 @@ def check_location_name(location):
     Check the location json data object has a string.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, str] if the location json has a str value in the location_name
         field. Returned str specifies the location_name.
-        [False, str] if the location json does not have a str value in the location_name field.
+        [False, str] if the location json does not have a str value in the
+        location_name field.
     """
     if location.location_name is not None and len(location.location_name) > 0 and isinstance(location.location_name, str):
         return [True, f"The location_name is {location.location_name}"]
@@ -426,11 +440,11 @@ def check_location_name(location):
 # DM: this could be generalized to a single function with a parameter nbrackets
 def check_population_age_distribution_16(location):
     """
-    Check that the population age distribution aggregated to 16 age brackets
-    is an array of length 16 and each sub array has length 3.
+    Check that the population age distribution aggregated to 16 age brackets is
+    an array of length 16 and each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -445,11 +459,11 @@ def check_population_age_distribution_16(location):
 
 def check_population_age_distribution_18(location):
     """
-    Check that the population age distribution aggregated to 18 age brackets
-    is an array of length 18 and each sub array has length 3.
+    Check that the population age distribution aggregated to 18 age brackets is
+    an array of length 18 and each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -464,11 +478,11 @@ def check_population_age_distribution_18(location):
 
 def check_population_age_distribution_20(location):
     """
-    Check that the population age distribution aggregated to 20 age brackets
-    is an array of length 20 and each sub array has length 3.
+    Check that the population age distribution aggregated to 20 age brackets is
+    an array of length 20 and each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -487,7 +501,7 @@ def check_employment_rates_by_age(location):
     sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -501,7 +515,7 @@ def check_enrollment_rates_by_age(location):
     sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -515,7 +529,7 @@ def check_household_head_age_brackets(location):
     sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -529,7 +543,7 @@ def check_household_head_age_distributions_by_family_size(location):
     is an array with length equal to the number of household head age brackets.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object with location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -551,7 +565,7 @@ def check_household_size_distribution(location):
     sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -565,7 +579,7 @@ def check_ltcf_resident_to_staff_ratio_distribution(location):
     is an array of arrays, where each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -579,7 +593,7 @@ def check_ltcf_num_residents_distribution(location):
     is an array of arrays, where each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -589,11 +603,11 @@ def check_ltcf_num_residents_distribution(location):
 
 def check_ltcf_num_staff_distribution(location):
     """
-    Check that the long term care facility staff size distribution
-    is an array of arrays, where each sub array has length 3.
+    Check that the long term care facility staff size distribution is an array
+    of arrays, where each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -603,11 +617,11 @@ def check_ltcf_num_staff_distribution(location):
 
 def check_school_size_brackets(location):
     """
-    Check that the school size distribution brackets
-    is an array of arrays, where each sub array has length 2.
+    Check that the school size distribution brackets is an array of arrays,
+    where each sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -624,11 +638,11 @@ def check_school_size_distribution(location):
 
 def check_school_size_distribution_by_type(location):
     """
-    Check that the school size distribution by school type
-    is an array of arrays, where each sub array has length 3.
+    Check that the school size distribution by school type is an array of
+    arrays, where each sub array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -650,7 +664,7 @@ def check_school_types_by_age(location):
     sub array has length 2.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
@@ -670,7 +684,7 @@ def check_workplace_size_counts_by_num_personnel(location):
     array has length 3.
 
     Args:
-        location (json): the json data object for a location
+        location (json): the json object location data
 
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
