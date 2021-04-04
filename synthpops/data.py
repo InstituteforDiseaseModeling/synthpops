@@ -407,13 +407,34 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
 
 
 def check_location_name(location):
-    if location.location_name is not None and len(location.location_name) > 0:
-        return [True, ""]
+    """
+    Check the location json data object has a string.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, str] if the location json has a str value in the location_name
+        field. Returned str specifies the location_name.
+        [False, str] if the location json does not have a str value in the location_name field.
+    """
+    if location.location_name is not None and len(location.location_name) > 0 and isinstance(location.location_name, str):
+        return [True, f"The location_name is {location.location_name}"]
 
     return [False, "location_name must be specified"]
 
-
+# DM: this could be generalized to a single function with a parameter nbrackets
 def check_population_age_distribution_16(location):
+    """
+    Check that the population age distribution aggregated to 16 age brackets
+    is an array of length 16 and each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     if len(location.population_age_distribution_16) == 0:
         return [True, ""]
     if len(location.population_age_distribution_16) != 16:
@@ -423,6 +444,16 @@ def check_population_age_distribution_16(location):
 
 
 def check_population_age_distribution_18(location):
+    """
+    Check that the population age distribution aggregated to 18 age brackets
+    is an array of length 18 and each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     if len(location.population_age_distribution_18) == 0:
         return [True, ""]
     if len(location.population_age_distribution_18) != 18:
@@ -432,6 +463,16 @@ def check_population_age_distribution_18(location):
 
 
 def check_population_age_distribution_20(location):
+    """
+    Check that the population age distribution aggregated to 20 age brackets
+    is an array of length 20 and each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     if len(location.population_age_distribution_20) == 0:
         return [True, ""]
     if len(location.population_age_distribution_20) != 20:
@@ -441,14 +482,44 @@ def check_population_age_distribution_20(location):
 
 
 def check_employment_rates_by_age(location):
+    """
+    Check that the employment rates by age is an array of arrays, where each
+    sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 2, 'employment_rates_by_age')
 
 
 def check_enrollment_rates_by_age(location):
+    """
+    Check that the enrollment rates by age is an array of arrays, where each
+    sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 2, 'enrollment_rates_by_age')
 
 
 def check_household_age_brackets(location):
+    """
+    Check that the employment rates by age is an array of arrays, where each
+    sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 2, 'household_head_age_brackets')
 
 
