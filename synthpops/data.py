@@ -33,7 +33,7 @@ class Location(JsonObject):
 
     Most users will want to populate this with a relative or absolute file path.
 
-    Notes:
+    Note:
         The structures for the population age distribution need to be updated
         to be flexible to take in a parameter for the number of age brackets
         to generate the population age distribution structure.
@@ -138,7 +138,7 @@ class Location(JsonObject):
     def get_population_age_distribution(self, nbrackets):
         """
         Get the age distribution of the population aggregated to nbrackets
-        age brackets. Currently we support 16, 18, and, 20 nbrackets and
+        age brackets. Currently there is support 16, 18, and, 20 nbrackets and
         return a container for the age distribution with nbrackets.
 
         Args:
@@ -190,8 +190,8 @@ def populate_parent_data_from_json_obj(location, parent):
     the parent location json.
 
     Args:
-        location (json): json data object for the location  # parameter name should probably change to reflect that better
-        parent (json): json data object for the parent location  # parameter name should probably change to reflect that better
+        location (json) : json data object for the location  # parameter name should probably change to reflect that better
+        parent (json)   : json data object for the parent location  # parameter name should probably change to reflect that better
 
     Returns:
         json: The location json data object with necessary data fields filled
@@ -211,6 +211,17 @@ def populate_parent_data_from_json_obj(location, parent):
 
 
 def populate_parent_data(location):
+    """
+    Populate location json data object with fields from the parent location
+    if available.
+
+    Args:
+        location (json): json data object for the location  # parameter name change for more specificity
+
+    Returns:
+        json: The location json data object with data fields filled from the
+        parent location.
+    """
     if location.parent is None:
         return location
 
@@ -229,6 +240,15 @@ def populate_parent_data(location):
 
 
 def load_location_from_json(json_obj):
+    """
+    Load location data from json with some checks made.
+
+    Args:
+        json_obj (json): json object containing location data
+
+    Returns:
+        json: The location json data object.
+    """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
     populate_parent_data(location)
@@ -236,11 +256,32 @@ def load_location_from_json(json_obj):
 
 
 def load_location_from_json_str(json_str):
+    """
+    Load location data from json str with some checks made.
+
+    Args:
+        json_str (str): string of the location json data object
+
+    Returns:
+        json: The location json data object.
+    """
     json_obj = json.loads(json_str)
     return load_location_from_json(json_obj)
 
 
 def get_relative_path(datadir):
+    """
+    Get the relative path for the data folder.
+
+    Args:
+        datadir (str): data folder path
+
+    Returns:
+        str: Relative path for the data folder.
+
+    Notes
+        This method may not be necessary anymore...
+    """
     base_dir = datadir
     if len(cfg.rel_path) > 1:
         base_dir = os.path.join(datadir, *cfg.rel_path)
@@ -249,13 +290,14 @@ def get_relative_path(datadir):
 
 def load_location_from_filepath(rel_filepath):
     """
-    Loads location from provided relative filepath; relative to cfg.datadir.
+    Loads location data object from provided relative filepath where the file path is
+    relative to cfg.datadir.
 
     Args:
-        rel_filepath:
+        rel_filepath (str): relative file path for the location data
 
     Returns:
-
+        json: The location json data object.
     """
     filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
@@ -266,16 +308,16 @@ def load_location_from_filepath(rel_filepath):
 
 def save_location_to_filepath(location, abs_filepath):
     """
-    Saves location data to provided absolute filepath.
+    Saves location json data object to provided absolute filepath.
 
     Args:
-        location:
-        abs_filepath:
+        location (json)    : the json data object for the location
+        abs_filepath (str) : absolute file path to where the json is saved
 
     Returns:
-
+        None.
     """
-    logger.debug(f"Saving location to filepath [{abs_filepath}]")
+    logger.debug(f"Saving location json to filepath [{abs_filepath}]")
     location_json = location.to_json()
 
     options = jsbeautifier.default_options()
@@ -284,24 +326,22 @@ def save_location_to_filepath(location, abs_filepath):
 
     with open(abs_filepath, 'w') as f:
         f.write(location_json)
-        #json.dump(location_json, f, indent=2)
+        # json.dump(location_json, f, indent=2)
 
 
 def check_location_constraints_satisfied(location):
     """
-    Checks a number of constraints that need to be satisfied, above and
-    beyond the schema.
+    Checks a number of constraints that need to be satisfied for the schema.
 
     Args:
-        location:
+        location (json): the json data object for the location
 
     Returns:
-        Nothing
+        None.
 
     Raises:
         RuntimeError with a description if one of the constraints is
         not satisfied.
-
     """
     [status, msg] = are_location_constraints_satisfied(location)
     if not status:
@@ -310,16 +350,15 @@ def check_location_constraints_satisfied(location):
 
 def are_location_constraints_satisfied(location):
     """
-    Checks a number of constraints that need to be satisfied, above and
-    beyond the schema.
+    Checks a number of constraints that need to be satisfied for the schema.
 
     Args:
-        location:
+        location (json): the json data object for the location
 
     Returns:
-        [True, None] If all constraints are satisfied.
-        [False, string] If a constraint is violated.
-
+        [True, None] if all constraints are satisfied.
+        [False, str] if a constraint is violated. The returned str is one of
+        the error messages.
     """
 
     for f in [check_location_name,
@@ -338,7 +377,7 @@ def are_location_constraints_satisfied(location):
               check_school_types_by_age,
               check_workplace_size_counts_by_num_personnel,
               ]:
-        [status, msg] = f(location)
+        [status, msg] = f(location)  # update this to return the combination of all the error messages
         if not status:
             return [status, msg]
 
@@ -346,6 +385,19 @@ def are_location_constraints_satisfied(location):
 
 
 def check_array_of_arrays_entry_lens(location, expected_len, property_name):
+    """
+    Check that each array in an array of arrays has the expected length.
+
+    Args:
+        location (json)     : the json data object for a location
+        expected_len (int)  : the expected length of each sub array
+        property_name (str) : the property name
+
+    Returns:
+        [True, None] if sub array length checks pass.
+        [False, str] if sub array length checks fail. The returned str is the
+        error message.
+    """
     arr = getattr(location, property_name)
     for [k, bracket] in enumerate(arr):
         if not len(bracket) == expected_len:
