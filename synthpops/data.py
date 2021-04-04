@@ -509,9 +509,9 @@ def check_enrollment_rates_by_age(location):
     return check_array_of_arrays_entry_lens(location, 2, 'enrollment_rates_by_age')
 
 
-def check_household_age_brackets(location):
+def check_household_head_age_brackets(location):
     """
-    Check that the employment rates by age is an array of arrays, where each
+    Check that the household head age brackets is an array of arrays, where each
     sub array has length 2.
 
     Args:
@@ -524,6 +524,16 @@ def check_household_age_brackets(location):
 
 
 def check_household_head_age_distributions_by_family_size(location):
+    """
+    Check that the conditional household head age distribution by household size
+    is an array with length equal to the number of household head age brackets.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     num_household_age_brackets = len(location.household_head_age_brackets)
 
     for [k, household_head_age_distribution] in enumerate(location.household_head_age_distribution_by_family_size):
@@ -536,31 +546,93 @@ def check_household_head_age_distributions_by_family_size(location):
 
 
 def check_household_size_distribution(location):
+    """
+    Check that the household size distribution is an array of arrays, where each
+    sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 2, 'household_size_distribution')
 
 
 def check_ltcf_resident_to_staff_ratio_distribution(location):
+    """
+    Check that the long term care facility resident to staff ratio distribution
+    is an array of arrays, where each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 3, 'ltcf_resident_to_staff_ratio_distribution')
 
 
 def check_ltcf_num_residents_distribution(location):
+    """
+    Check that the long term care facility resident size distribution
+    is an array of arrays, where each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 3, 'ltcf_num_residents_distribution')
 
 
 def check_ltcf_num_staff_distribution(location):
+    """
+    Check that the long term care facility staff size distribution
+    is an array of arrays, where each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 3, 'ltcf_num_staff_distribution')
 
 
 def check_school_size_brackets(location):
+    """
+    Check that the school size distribution brackets
+    is an array of arrays, where each sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 2, 'school_size_brackets')
 
 
 def check_school_size_distribution(location):
     # TODO: decide if there is a check we should apply here.
+    # DM: This should check that the school size distribution has the same
+    # length as the school size brackets otherwise we have a data inconsistency
     return [True, None]
 
 
 def check_school_size_distribution_by_type(location):
+    """
+    Check that the school size distribution by school type
+    is an array of arrays, where each sub array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     num_school_size_brackets = len(location.school_size_brackets)
 
     for [k, bracket] in enumerate(location.school_size_distribution_by_type):
@@ -573,6 +645,16 @@ def check_school_size_distribution_by_type(location):
 
 
 def check_school_types_by_age(location):
+    """
+    Check that the school types by age range is an array of arrays, where each
+    sub array has length 2.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     for [k, bracket] in enumerate(location.school_types_by_age):
         expected_len = 2
         actual_len = len(bracket.age_range)
@@ -583,4 +665,14 @@ def check_school_types_by_age(location):
 
 
 def check_workplace_size_counts_by_num_personnel(location):
+    """
+    Check that the workplace size count is an array of arrays, where each sub
+    array has length 3.
+
+    Args:
+        location (json): the json data object for a location
+
+    Returns:
+        [True, None] if checks pass. [False, str] if checks fail.
+    """
     return check_array_of_arrays_entry_lens(location, 3, 'workplace_size_counts_by_num_personnel')
