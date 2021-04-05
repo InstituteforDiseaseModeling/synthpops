@@ -4,8 +4,7 @@ Input data
 
 Locations
 =======================
-Synthpops input data is organized around the concept of a :term:`location`. Each location can have its
-own set of values for each of the input parameters.
+|SP| input data is organized around the concept of a :term:`location`. Each location can have its own set of values for each of the input data.
 
 
 Location hierarchy

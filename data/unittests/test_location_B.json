@@ -12,13 +12,13 @@
       "school_type": "ms",
       "size_distribution": [
         0.35,
-        0.6
+        0.65
       ]
     }
   ],
   "school_size_brackets": [
-    [20,50],
-    [51,100]
+    [20, 50],
+    [51, 100]
   ],
   "school_size_distribution": [
     0.25,

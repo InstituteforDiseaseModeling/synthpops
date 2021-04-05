@@ -378,7 +378,7 @@ def are_location_constraints_satisfied(location):
               check_population_age_distribution_16,
               check_employment_rates_by_age,
               check_enrollment_rates_by_age,
-              check_household_age_brackets,
+              check_household_head_age_brackets,
               check_household_head_age_distributions_by_family_size,
               check_household_size_distribution,
               check_ltcf_resident_to_staff_ratio_distribution,

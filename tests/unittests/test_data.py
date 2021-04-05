@@ -87,7 +87,7 @@ class TestLocation(unittest.TestCase):
               "school_type": "ms",
               "size_distribution": [
                 0.35,
-                0.6
+                0.65
               ]
             }
           ],
@@ -127,7 +127,7 @@ class TestLocation(unittest.TestCase):
                       "school_type": "ms",
                       "size_distribution": [
                         0.35,
-                        0.6
+                        0.65
                       ]
                     }
                   ],
@@ -165,7 +165,7 @@ class TestLocation(unittest.TestCase):
           ],
           "school_size_distribution": [
             0.45,
-            0.65
+            0.55
           ]
         }"""
         return test_str
@@ -180,7 +180,7 @@ class TestLocation(unittest.TestCase):
           ],
           "school_size_distribution": [
             0.45,
-            0.65
+            0.55
           ]
         }"""
         return test_str
@@ -458,7 +458,7 @@ class TestLocation(unittest.TestCase):
                           "Array length incorrect")
         self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[0], 0.35,
                           "Array entry incorrect")
-        self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[1], 0.6,
+        self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[1], 0.65,
                           "Array entry incorrect")
 
 
@@ -591,7 +591,7 @@ class TestLocation(unittest.TestCase):
                           "Array length incorrect")
         self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[0], 0.35,
                           "Array entry incorrect")
-        self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[1], 0.6,
+        self.assertEqual(location.school_size_distribution_by_type[1].size_distribution[1], 0.65,
                           "Array entry incorrect")
 
         self.assertEqual(len(location.school_size_brackets), 2,
@@ -611,5 +611,5 @@ class TestLocation(unittest.TestCase):
                           "Array length incorrect")
         self.assertEqual(location.school_size_distribution[0], 0.45,
                           "Array entry incorrect")
-        self.assertEqual(location.school_size_distribution[1], 0.65,
+        self.assertEqual(location.school_size_distribution[1], 0.55,
                           "Array entry  incorrect")

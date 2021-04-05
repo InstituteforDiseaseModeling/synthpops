@@ -25,11 +25,11 @@ def report_processing_error(data_subject, e):
     Logs a standardized warning message for errors raised during migrating pieces of data.
 
     Args:
-        data_subject: The subject data being migrated, will be included in standardized warning message.
-        e: Exception that was raised during the migration of the subject data.
+        data_subject : The subject data being migrated, will be included in standardized warning message.
+        e            : Exception that was raised during the migration of the subject data.
 
     Returns:
-        Nothing.
+        None.
     """
     logger.warning(f"Data for {data_subject} may be incomplete, due to error: {e}")
 
@@ -46,7 +46,7 @@ def try_migrate(data_subject, f):
         f: Bound function implementing a data migration.
 
     Returns:
-        Nothing.
+        None.
     """
     try:
         f()
