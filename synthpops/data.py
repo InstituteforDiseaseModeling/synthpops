@@ -35,8 +35,8 @@ class Location(JsonObject):
     Most users will want to populate this with a relative or absolute file path.
 
     Note:
-        The structures for the population age distribution need to be updated to
-        be flexible to take in a parameter for the number of age brackets to
+        The structures for the population age distribution will be updated to be
+        more flexible to take in a parameter for the number of age brackets to
         generate the population age distribution structure.
     """
     location_name = StringProperty()
@@ -154,9 +154,9 @@ class Location(JsonObject):
             age brackets.
         """
         if nbrackets not in [16, 18, 20]:
-            # DM: This is not the same behavior as previous versions of synthpops:
+            # DM: This is different behavior than previous versions of synthpops:
             # in config.py we instead raised a warning but still allowed users to use different nbrackets
-            # most users may not use this, but development work certainly does so this behavior must be changed
+            # most users may not use this, but development work certainly does so this behavior should be changed soon
             # the warning raised:
             # logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
 

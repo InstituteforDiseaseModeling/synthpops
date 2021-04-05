@@ -65,7 +65,7 @@ def test_get_head_age_by_size_path():
                                                          country_location=country_location)
     assert hha_by_size is not None
 
-@pytest.mark.skip
+@pytest.mark.skip(reason="Path methods were removed; we're keeping this around for reference.")
 def test_get_school_enrollment_rates():
     school_enrollement_file_path = os.path.join(datadir,
                                                 country_location,

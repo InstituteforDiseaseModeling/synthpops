@@ -48,7 +48,7 @@ def sanitize_location(location):
         return ""
     else:
         # No spaces in filenames.
-        location = location.replace(" ", "_").replace("-", "_")
+        location = location.replace(" ", "_")
         # Our convention is to separate location segments with "-".
         location = location.replace("-", "_")
     return location

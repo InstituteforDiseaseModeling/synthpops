@@ -109,7 +109,7 @@ def get_config_data():
              'country': 'Senegal',
              'sheet_name': 'Senegal',
              'nbrackets': 18,
-             # 'household_size_1': True
+             'household_size_1': True
               },
         'defaults': {
              'location': 'seattle_metro',

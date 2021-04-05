@@ -1,4 +1,3 @@
-import sciris as sc
 import synthpops as sp
 import os
 import unittest

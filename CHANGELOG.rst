@@ -23,8 +23,20 @@ Legend for changelog
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-Latest versions (1.6.x)
+Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.7.0 (2021-04-05)
+--------------------------
+- *Efficiency*: Refactor of data methods to read from consolidated json data files for each location and look for missing data from parent locations or alternatively json data files for default locations. Migration of data fields for locations into json objects under the ``data`` directory.
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versions 1.5.x (1.6.0 – 1.6.2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Version 1.6.2 (2021-04-01)
