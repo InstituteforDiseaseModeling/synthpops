@@ -4,12 +4,12 @@ Input data
 
 Locations
 =======================
-|SP| input data is organized around the concept of a :term:`location`. Each location can have its own set of values for each of the input data.
+|SP| input data is organized around the concept of a :term:`location`. Each location can have its own set of values for each of the input data fields or parameters.
 
 
 Location hierarchy
 =======================
-Every location optionally has a parent location. The child location inherits all of the parameter values
+Every location optionally has a parent location. The child location inherits all of the data field values
 from the parent. The child location can override the values inherited from the parent.
 
 
@@ -29,7 +29,7 @@ data_provenance_notices
 
 .. code-block::
 
-    ["This data originally from So-and-so, and co., 1998", "LTCF data from XYZ"]
+    ["This data originally comes from X, and co., 2015.", "Long term care facility (LTCF) data source is XYZ."]
 
 reference_links
     A list of strings. Each string in the list is a reference for some portion, or all, of the data in the file.
@@ -43,14 +43,14 @@ citations
 
 .. code-block::
 
-    ["https://doi.org/10.1093/ajae/aaq063"]
+    ["https://doi.org/10.1038/s41467-020-20544-y", "American Community Survey 2018: Seattle-Tacoma-Bellevue, WA"]
 
 notes
     A list of strings. Each string in the list is a note describing something about the dataset.
 
 .. code-block::
 
-    ["Field X, row N, is literally a guess.", "There is no spoon."]
+    ["Field X, row N, is missing from the source data and assumed to be default value Y.", "Data field Z is mising from the source data and assumed to have distribution A."]
 
 parent
     The name of the parent location file, including the ".json" suffix.
@@ -61,56 +61,32 @@ parent
 
 population_age_distribution_16
 
-    The 16-bin version of population age distribution. A list of tuples of the form [min_age, max_age, percentage].
+    The 16-bracket version of population age distribution. A list of tuples of the form [min_age, max_age, percentage].
     See next section for more info.
 
 .. code-block::
 
     [
-    [0.0, 4.0, 0.0605381173520116],
-    [5.0, 9.0, 0.060734396722304],
-    [10.0, 14.0, 0.0566101569658667],
-    [15.0, 19.0, 0.0557345272362203],
-    [20.0, 24.0, 0.0612425535030782],
-    [25.0, 29.0, 0.084312667951918],
-    [30.0, 34.0, 0.0848554024455934],
-    [35.0, 39.0, 0.0764781040023024],
-    [40.0, 44.0, 0.0697266360597407],
-    [45.0, 49.0, 0.0701378396455174],
-    [50.0, 54.0, 0.0681980977511943],
-    [55.0, 59.0, 0.0653691662398127],
-    [60.0, 64.0, 0.0591156851624661],
-    [65.0, 69.0, 0.0453212116979792],
-    [70.0, 74.0, 0.0312168948061224],
-    [75.0, 100.0, 0.0504085424578719]
+    [0, 4, 0.0605381173520116],
+    [5, 9, 0.060734396722304],
+    ...
+    [70, 74, 0.0312168948061224],
+    [75, 100, 0.0504085424578719]
     ]
 
 population_age_distribution_18
 
-    The 18-bin version of population age distribution. A list of tuples of the form [min_age, max_age, percentage].
+    The 18-bracket version of population age distribution. A list of tuples of the form [min_age, max_age, percentage].
     See next section for more info.
 
 .. code-block::
 
     [
-    [0.0, 4.0, 0.0605381173520116],
-    [5.0, 9.0, 0.060734396722304],
-    [10.0, 14.0, 0.0566101569658667],
-    [15.0, 19.0, 0.0557345272362203],
-    [20.0, 24.0, 0.0612425535030782],
-    [25.0, 29.0, 0.084312667951918],
-    [30.0, 34.0, 0.0848554024455934],
-    [35.0, 39.0, 0.0764781040023024],
-    [40.0, 44.0, 0.0697266360597407],
-    [45.0, 49.0, 0.0701378396455174],
-    [50.0, 54.0, 0.0681980977511943],
-    [55.0, 59.0, 0.0653691662398127],
-    [60.0, 64.0, 0.0591156851624661],
-    [65.0, 69.0, 0.0453212116979792],
-    [70.0, 74.0, 0.0312168948061224],
-    [75.0, 79.0, 0.019743196072243],
-    [80.0, 84.0, 0.0140175336124184],
-    [85.0, 100.0, 0.0166478127732105]
+    [0, 4, 0.0605381173520116],
+    [5, 9, 0.060734396722304],
+    ...
+    [80, 84, 0.0140175336124184],
+    [85, 100, 0.0166478127732105]
     ]
 
 population_age_distribution_20
@@ -121,26 +97,11 @@ population_age_distribution_20
 .. code-block::
 
     [
-    [0.0, 4.0, 0.0605381173520116],
-    [5.0, 9.0, 0.060734396722304],
-    [10.0, 14.0, 0.0566101569658667],
-    [15.0, 19.0, 0.0557345272362203],
-    [20.0, 24.0, 0.0612425535030782],
-    [25.0, 29.0, 0.084312667951918],
-    [30.0, 34.0, 0.0848554024455934],
-    [35.0, 39.0, 0.0764781040023024],
-    [40.0, 44.0, 0.0697266360597407],
-    [45.0, 49.0, 0.0701378396455174],
-    [50.0, 54.0, 0.0681980977511943],
-    [55.0, 59.0, 0.0653691662398127],
-    [60.0, 64.0, 0.0591156851624661],
-    [65.0, 69.0, 0.0453212116979792],
-    [70.0, 74.0, 0.0312168948061224],
-    [75.0, 79.0, 0.02016],
-    [80.0, 84.0, 0.01344],
-    [85.0, 89.0, 0.01008],
-    [90.0, 94.0, 0.00436],
-    [95.0, 100.0, 0.00236]
+    [0, 4, 0.0605381173520116],
+    [5, 9, 0.060734396722304],
+    ...
+    [90, 94, 0.00436],
+    [95, 100, 0.00236]
     ]
 
 employment_rates_by_age
@@ -151,89 +112,13 @@ employment_rates_by_age
 
     [
     [16, 0.3],
-    [17, 0.3],
-    [18, 0.3],
-    [19, 0.3],
-    [20, 0.693],
-    [21, 0.693],
-    [22, 0.693],
-    [23, 0.693],
-    [24, 0.693],
+    ...
     [25, 0.861],
-    [26, 0.861],
-    [27, 0.861],
-    [28, 0.861],
-    [29, 0.861],
-    [30, 0.838],
-    [31, 0.838],
-    [32, 0.838],
-    [33, 0.838],
-    [34, 0.838],
-    [35, 0.838],
-    [36, 0.838],
-    [37, 0.838],
-    [38, 0.838],
-    [39, 0.838],
-    [40, 0.838],
-    [41, 0.838],
+    ...
     [42, 0.838],
-    [43, 0.838],
-    [44, 0.838],
-    [45, 0.814],
-    [46, 0.814],
-    [47, 0.814],
-    [48, 0.814],
-    [49, 0.814],
-    [50, 0.814],
-    [51, 0.814],
-    [52, 0.814],
-    [53, 0.814],
-    [54, 0.814],
-    [55, 0.761],
-    [56, 0.761],
-    [57, 0.761],
-    [58, 0.761],
-    [59, 0.761],
-    [60, 0.626],
-    [61, 0.626],
-    [62, 0.626],
-    [63, 0.626],
-    [64, 0.626],
-    [65, 0.294],
-    [66, 0.294],
-    [67, 0.294],
+    ...
     [68, 0.294],
-    [69, 0.294],
-    [70, 0.294],
-    [71, 0.294],
-    [72, 0.294],
-    [73, 0.294],
-    [74, 0.294],
-    [75, 0.061],
-    [76, 0.061],
-    [77, 0.061],
-    [78, 0.061],
-    [79, 0.061],
-    [80, 0.061],
-    [81, 0.061],
-    [82, 0.061],
-    [83, 0.061],
-    [84, 0.061],
-    [85, 0.061],
-    [86, 0.061],
-    [87, 0.061],
-    [88, 0.061],
-    [89, 0.061],
-    [90, 0.061],
-    [91, 0.061],
-    [92, 0.061],
-    [93, 0.061],
-    [94, 0.061],
-    [95, 0.061],
-    [96, 0.061],
-    [97, 0.061],
-    [98, 0.061],
-    [99, 0.061],
+    ...
     [100, 0.061]
     ]
 
@@ -244,136 +129,49 @@ enrollment_rates_by_age
 .. code-block::
 
     [
-    [0, 0.0],
-    [1, 0.0],
-    [2, 0.0],
+    ...
     [3, 0.529],
-    [4, 0.529],
-    [5, 0.95],
-    [6, 0.95],
-    [7, 0.95],
-    [8, 0.95],
-    [9, 0.95],
+    ...
     [10, 0.987],
-    [11, 0.987],
-    [12, 0.987],
-    [13, 0.987],
-    [14, 0.987],
-    [15, 0.977],
-    [16, 0.977],
+    ...
     [17, 0.977],
-    [18, 0.793],
-    [19, 0.793],
-    [20, 0.409],
-    [21, 0.409],
-    [22, 0.409],
-    [23, 0.409],
+    ...
     [24, 0.409],
-    [25, 0.113],
-    [26, 0.113],
-    [27, 0.113],
-    [28, 0.113],
-    [29, 0.113],
-    [30, 0.113],
-    [31, 0.113],
-    [32, 0.113],
+    ...
     [33, 0.113],
-    [34, 0.113],
-    [35, 0.027],
-    [36, 0.027],
-    [37, 0.027],
-    [38, 0.027],
-    [39, 0.027],
-    [40, 0.027],
-    [41, 0.027],
-    [42, 0.027],
-    [43, 0.027],
-    [44, 0.027],
-    [45, 0.027],
-    [46, 0.027],
-    [47, 0.027],
+    ...
     [48, 0.027],
-    [49, 0.027],
-    [50, 0.027],
-    [51, 0.0],
-    [52, 0.0],
-    [53, 0.0],
-    [54, 0.0],
-    [55, 0.0],
-    [56, 0.0],
-    [57, 0.0],
-    [58, 0.0],
-    [59, 0.0],
-    [60, 0.0],
-    [61, 0.0],
-    [62, 0.0],
-    [63, 0.0],
-    [64, 0.0],
-    [65, 0.0],
-    [66, 0.0],
-    [67, 0.0],
-    [68, 0.0],
-    [69, 0.0],
-    [70, 0.0],
-    [71, 0.0],
-    [72, 0.0],
-    [73, 0.0],
-    [74, 0.0],
-    [75, 0.0],
-    [76, 0.0],
-    [77, 0.0],
-    [78, 0.0],
-    [79, 0.0],
-    [80, 0.0],
-    [81, 0.0],
-    [82, 0.0],
-    [83, 0.0],
-    [84, 0.0],
-    [85, 0.0],
-    [86, 0.0],
-    [87, 0.0],
-    [88, 0.0],
-    [89, 0.0],
-    [90, 0.0],
-    [91, 0.0],
-    [92, 0.0],
-    [93, 0.0],
-    [94, 0.0],
-    [95, 0.0],
-    [96, 0.0],
-    [97, 0.0],
-    [98, 0.0],
-    [99, 0.0],
+    ...
     [100, 0.0]
     ]
 
 household_head_age_brackets
 
-    Age brackets for household head age distribution. A list of tuples of the form [age_min, age_max].
+    Age brackets for the household head age distribution. A list of tuples of the form [age_min, age_max].
 
 .. code-block::
 
     [
-    [15.0, 19.0],
-    [20.0, 24.0],
-    [25.0, 29.0],
-    [30.0, 34.0],
-    [35.0, 39.0],
-    [40.0, 44.0],
-    [45.0, 49.0],
-    [50.0, 54.0],
-    [55.0, 59.0],
-    [60.0, 64.0],
-    [65.0, 69.0],
-    [70.0, 74.0],
-    [75.0, 79.0],
-    [80.0, 100.0]
+    [15, 19],
+    [20, 24],
+    [25, 29],
+    [30, 34],
+    [35, 39],
+    [40, 44],
+    [45, 49],
+    [50, 54],
+    [55, 59],
+    [60, 64],
+    [65, 69],
+    [70, 74],
+    [75, 79],
+    [80, 100]
     ]
 
 household_head_age_distribution_by_family_size
 
-    A table providing the distribution of household head age, as a function of family size. Each row in this table specifies the distribution for a given family size. The family size is the first entry in the row.
-    The remaining entries are, for each household head age bracket (see last table entry), the number of households.
+    A table providing the distribution of the age of the household head (sometimes referred to as the reference person), as a function of family size. Each row in this table specifies the distribution for a given family size. The family size is the first entry in the row.
+    The remaining entries are, for each household head age bracket (see last table entry), the number or percentage of households with a household head in that age bracket.
 
 .. code-block::
 
@@ -411,19 +209,11 @@ ltcf_resident_to_staff_ratio_distribution
 .. code-block::
 
     [
-    [1.0, 1.0, 0.0],
-    [2.0, 2.0, 0.0],
-    [3.0, 3.0, 0.0],
-    [4.0, 4.0, 0.0],
-    [5.0, 5.0, 0.0],
+    ...
     [6.0, 6.0, 0.0227272727272727],
-    [7.0, 7.0, 0.1136363636363636],
-    [8.0, 8.0, 0.1136363636363636],
+    ...
     [9.0, 9.0, 0.25],
-    [10.0, 10.0, 0.1590909090909091],
-    [11.0, 11.0, 0.1363636363636363],
-    [12.0, 12.0, 0.0227272727272727],
-    [13.0, 13.0, 0.0909090909090909],
+    ...
     [14.0, 14.0, 0.0909090909090909]
     ]
 
@@ -434,40 +224,17 @@ ltcf_num_residents_distribution
 .. code-block::
 
     [
-    [0.0, 19.0, 0.0],
-    [20.0, 39.0, 0.0895522388059701],
+    ...
     [40.0, 59.0, 0.1343283582089552],
-    [60.0, 79.0, 0.1343283582089552],
-    [80.0, 99.0, 0.1940298507462686],
-    [100.0, 119.0, 0.1044776119402985],
+    ...
     [120.0, 139.0, 0.1194029850746268],
-    [140.0, 159.0, 0.0597014925373134],
-    [160.0, 179.0, 0.0149253731343283],
-    [180.0, 199.0, 0.0],
+    ...
     [200.0, 219.0, 0.0149253731343283],
-    [220.0, 239.0, 0.0149253731343283],
-    [240.0, 259.0, 0.0],
-    [260.0, 279.0, 0.0298507462686567],
-    [280.0, 299.0, 0.0],
+    ...
     [300.0, 319.0, 0.0298507462686567],
-    [320.0, 339.0, 0.0149253731343283],
-    [340.0, 359.0, 0.0],
-    [360.0, 379.0, 0.0],
-    [380.0, 399.0, 0.0],
-    [400.0, 419.0, 0.0],
-    [420.0, 439.0, 0.0149253731343283],
-    [440.0, 459.0, 0.0149253731343283],
-    [460.0, 479.0, 0.0],
-    [480.0, 499.0, 0.0],
-    [500.0, 519.0, 0.0],
+    ...
     [520.0, 539.0, 0.0149253731343283],
-    [540.0, 559.0, 0.0],
-    [560.0, 579.0, 0.0],
-    [580.0, 599.0, 0.0],
-    [600.0, 619.0, 0.0],
-    [620.0, 639.0, 0.0],
-    [640.0, 659.0, 0.0],
-    [660.0, 679.0, 0.0],
+    ...
     [680.0, 699.0, 0.0]
     ]
 
@@ -478,41 +245,17 @@ Specifies the distribution of number of long term care facility staff in a facil
 .. code-block::
 
     [
-    [0,19,0.014925373134328358],
-    [20,39,0.07462686567164178],
-    [40,59,0.14925373134328357],
-    [60,79,0.1044776119402985],
-    [80,99,0.11940298507462686],
-    [100,119,0.1044776119402985],
-    [120,139,0.07462686567164178],
-    [140,159,0.11940298507462686],
-    [160,179,0.04477611940298507],
-    [180,199,0.029850746268656716],
-    [200,219,0.029850746268656716],
-    [220,239,0.0],
-    [240,259,0.0],
-    [260,279,0.04477611940298507],
-    [280,299,0.0],
-    [300,319,0.05970149253731343],
-    [320,339,0.0],
-    [340,359,0.0],
-    [360,379,0.0],
-    [380,399,0.0],
-    [400,419,0.0],
-    [420,439,0.0],
-    [440,459,0.0],
-    [460,479,0.014925373134328358],
-    [480,499,0.0],
-    [500,519,0.0],
-    [520,539,0.0],
-    [540,559,0.0],
-    [560,579,0.0],
-    [580,599,0.0],
-    [600,619,0.0],
-    [620,639,0.0],
-    [640,659,0.014925373134328358],
-    [660,679,0.0],
-    [680,699,0.0]
+    [0, 19,0.014925373134328358],
+    ...
+    [60, 79,0.1044776119402985],
+    ...
+    [140, 159,0.11940298507462686],
+    ...
+    [260, 279,0.04477611940298507],
+    ...
+    [460, 479,0.014925373134328358],
+    ...
+    [680, 699,0.0]
     ]
 
 ltcf_use_rate_distribution
@@ -522,106 +265,17 @@ ltcf_use_rate_distribution
 .. code-block::
 
     [
-    [0.0, 0.0],
-    [1.0, 0.0],
-    [2.0, 0.0],
-    [3.0, 0.0],
-    [4.0, 0.0],
-    [5.0, 0.0],
-    [6.0, 0.0],
-    [7.0, 0.0],
-    [8.0, 0.0],
-    [9.0, 0.0],
-    [10.0, 0.0],
-    [11.0, 0.0],
-    [12.0, 0.0],
-    [13.0, 0.0],
-    [14.0, 0.0],
-    [15.0, 0.0],
-    [16.0, 0.0],
-    [17.0, 0.0],
-    [18.0, 0.0],
-    [19.0, 0.0],
-    [20.0, 0.0],
-    [21.0, 0.0],
-    [22.0, 0.0],
-    [23.0, 0.0],
-    [24.0, 0.0],
-    [25.0, 0.0],
-    [26.0, 0.0],
-    [27.0, 0.0],
-    [28.0, 0.0],
-    [29.0, 0.0],
-    [30.0, 0.0],
-    [31.0, 0.0],
-    [32.0, 0.0],
-    [33.0, 0.0],
-    [34.0, 0.0],
-    [35.0, 0.0],
-    [36.0, 0.0],
-    [37.0, 0.0],
-    [38.0, 0.0],
-    [39.0, 0.0],
-    [40.0, 0.0],
-    [41.0, 0.0],
-    [42.0, 0.0],
-    [43.0, 0.0],
-    [44.0, 0.0],
-    [45.0, 0.0],
-    [46.0, 0.0],
-    [47.0, 0.0],
-    [48.0, 0.0],
-    [49.0, 0.0],
-    [50.0, 0.0],
-    [51.0, 0.0],
-    [52.0, 0.0],
-    [53.0, 0.0],
-    [54.0, 0.0],
-    [55.0, 0.0],
-    [56.0, 0.0],
+    ...
     [57.0, 0.0],
-    [58.0, 0.0],
-    [59.0, 0.0],
-    [60.0, 0.01014726],
-    [61.0, 0.01014726],
-    [62.0, 0.01014726],
+    ...
     [63.0, 0.01014726],
-    [64.0, 0.01014726],
-    [65.0, 0.00992606],
-    [66.0, 0.00992606],
-    [67.0, 0.00992606],
-    [68.0, 0.00992606],
-    [69.0, 0.00992606],
-    [70.0, 0.00992606],
-    [71.0, 0.00992606],
+    ...
     [72.0, 0.00992606],
-    [73.0, 0.00992606],
-    [74.0, 0.00992606],
-    [75.0, 0.06078108],
-    [76.0, 0.06078108],
-    [77.0, 0.06078108],
-    [78.0, 0.06078108],
-    [79.0, 0.06078108],
-    [80.0, 0.06078108],
-    [81.0, 0.06078108],
-    [82.0, 0.06078108],
-    [83.0, 0.06078108],
+    ...
     [84.0, 0.06078108],
-    [85.0, 0.18420189],
-    [86.0, 0.18420189],
-    [87.0, 0.18420189],
-    [88.0, 0.18420189],
-    [89.0, 0.18420189],
-    [90.0, 0.18420189],
+    ...
     [91.0, 0.18420189],
-    [92.0, 0.18420189],
-    [93.0, 0.18420189],
-    [94.0, 0.18420189],
-    [95.0, 0.18420189],
-    [96.0, 0.18420189],
-    [97.0, 0.18420189],
-    [98.0, 0.18420189],
-    [99.0, 0.18420189],
+    ...
     [100.0, 0.18420189]
     ]
 
@@ -632,20 +286,20 @@ school_size_brackets
 .. code-block::
 
     [
-    [20.0, 50.0],
-    [51.0, 100.0],
-    [101.0, 300.0],
-    [301.0, 500.0],
-    [501.0, 700.0],
-    [701.0, 900.0],
-    [901.0, 1100.0],
-    [1101.0, 1300.0],
-    [1301.0, 1500.0],
-    [1501.0, 1700.0],
-    [1701.0, 1900.0],
-    [1901.0, 2100.0],
-    [2101.0, 2300.0],
-    [2301.0, 2700.0]
+    [20, 50],
+    [51, 100],
+    [101, 300],
+    [301, 500],
+    [501, 700],
+    [701, 900],
+    [901, 1100],
+    [1101, 1300],
+    [1301, 1500],
+    [1501, 1700],
+    [1701, 1900],
+    [1901, 2100],
+    [2101, 2300],
+    [2301, 2700]
     ]
 
 school_size_distribution
@@ -658,7 +312,7 @@ school_size_distribution
 
 school_size_distribution_by_type
 
-    Specifies the percentage of schools for each school_size_bracket, broken out by school type. A list of json objects with two keys 'school_type', and 'size_distribution'. The 'school_type" entry is a string. The 'size_distribution' entry is a list of percentages, one for each entry in school_size_brackets.
+    Specifies the percentage of schools for each school_size_bracket, broken out by school type. A list of json objects with two keys 'school_type', and 'size_distribution'. The 'school_type' entry is a string. The 'size_distribution' entry is a list of percentages, one for each entry in school_size_brackets.
 
 .. code-block::
 
@@ -687,19 +341,19 @@ school_types_by_age
 
     [{
     "school_type": "pk",
-    "age_range": [3.0, 5.0]
+    "age_range": [3, 5]
     }, {
     "school_type": "es",
-    "age_range": [6.0, 10.0]
+    "age_range": [6, 10]
     }, {
     "school_type": "ms",
-    "age_range": [11.0, 13.0]
+    "age_range": [11, 13]
     }, {
     "school_type": "hs",
-    "age_range": [14.0, 17.0]
+    "age_range": [14, 17]
     }, {
     "school_type": "uv",
-    "age_range": [18.0, 100.0]
+    "age_range": [18, 100]
     }]
 
 workplace_size_counts_by_num_personnel
@@ -709,20 +363,25 @@ workplace_size_counts_by_num_personnel
 .. code-block::
 
     [
-    [1.0, 4.0, 60050.0],
-    [5.0, 9.0, 19002.0],
-    [10.0, 19.0, 13625.0],
-    [20.0, 49.0, 9462.0],
-    [50.0, 99.0, 3190.0],
-    [100.0, 249.0, 1802.0],
-    [250.0, 499.0, 486.0],
-    [500.0, 999.0, 157.0],
-    [1000.0, 1999.0, 109.0]
+    [1, 4, 60050.0],
+    [5, 9, 19002.0],
+    [10, 19, 13625.0],
+    [20, 49, 9462.0],
+    [50, 99, 3190.0],
+    [100, 249, 1802.0],
+    [250, 499, 486.0],
+    [500, 999, 157.0],
+    [1000, 1999, 109.0]
     ]
 
-16-, 18-, and 20-bin versions of population age distributions.
-=================================================================
-TODO description of why different bincount versions of this, and how they are used differently.
+16-, 18-, and 20-bracket versions of population age distributions.
+==================================================================
+The are different aggregations of the age distribution for a population for a variety of reasons.
+These kind of data come from sources like a national census website or survey sample and may be 
+aggregated into age brackets (also referred to as groups or bins), or may be available for single years of age. The age brackets are also used to map other data such as age-specific contact matrices. Contact matrices of age mixing patterns are rarely available at a resolution of single years of age. Rather, they are most frequently
+available for age brackets. Currently, by default, |SP| uses age-specific contact matrices aggregated to 16 age brackets and so we include the age distributions of locations aggregated to 16 age brackets, as well as other aggregations. 
+
+Specifically, for US sourced data we include the original US Census Bureau age distributions aggregated to 18 age brackets, and age distributions inferred for 20 age brackets from trend data to assist in infectious disease modeling of older ages. Where inferred or estimated, we include a note in the 'notes' field about the method used to infer or estimate the age distribution data.
 
 
 Location File Format
