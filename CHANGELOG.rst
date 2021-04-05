@@ -29,13 +29,15 @@ Latest versions (1.7.x)
 
 Version 1.7.0 (2021-04-05)
 --------------------------
-- *Efficiency*: Refactor of data methods to read from consolidated json data files for each location and look for missing data from parent locations or alternatively json data files for default locations. Migration of data fields for locations into json objects under the ``data`` directory.
-
-
+- *Efficiency*: Major refactor of data methods to read from consolidated json data files for each location and look for missing data from parent locations or alternatively json data files for default locations. Migration of multiple data files for locations into a single json object per location under the ``data`` directory. This will should make it easier to identify all of the available data per location and where missing data are read in from. Examples of how to create, change, and save new json data files will come in the next minor version update.
+- *Feature*: Location data jsons now have fields for the data source, reference links, and citations! These fields will be fully populated shortly. Please reference the links provided for any data obtained from SynthPops as most population data are sourced from other databases and should be referenced as such.
+- *Deprecated*: Refactored data methods no longer support the reading in of data from user specified file paths. Use of methods to read in age distributions aggregated to a number of age brackets not equal to 16, 18, or 20 (officially supported values) is currently turned off. Next minor update will re-enable these features. Old methods are available in `synthpops.data_distributions_legacy.py`, however this file will be removed in upcoming versions once we have migrated all examples to use the new data methods and have fully enabled all the functionality of the original data methods. Please update your usage of SynthPops accordingly.
+- Updated documentation about the input data layers.
+- *Github Info*: PR `407 <https://github.com/amath-idm/synthpops/pull/407>`__, `303 <https://github.com/amath-idm/synthpops/pull/303>`__
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Versions 1.5.x (1.6.0 – 1.6.2)
+Versions 1.6.x (1.6.0 – 1.6.2)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
