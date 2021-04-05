@@ -3,6 +3,8 @@ import synthpops.data
 import synthpops.config
 import argparse
 
+# argparse is part of the python standard library and is the recommended way to parse command line arguments.
+# For more information, see this link: https://docs.python.org/3/library/argparse.html
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--input_location_filepath",
@@ -22,7 +24,10 @@ args = parser.parse_args()
 if __name__ == '__main__':
     print(f'Loading location from [{args.input_location_filepath}]')
 
-    # Load the location data file.
+    # Load the location data file.  When we invoke load_location_from_filepath() below, the argument will be
+    # interpreted relative to the directory provided to synthpops.config.set_datadir(). In this case,
+    # we are setting that to be the python working directory.  So, the argument to load_location_from_filepath()
+    # will be interpreted relative to the python working directory.
     synthpops.config.set_datadir(".")
     location_data: synthpops.data.Location = synthpops.data.load_location_from_filepath(args.input_location_filepath)
 
