@@ -612,3 +612,29 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEqual(location.school_size_distribution[1], 0.55,
                           "Array entry  incorrect")
+
+
+def test_check_probability_distributions(location_name='usa-Washington-seattle_metro', property_name='population_age_distribution_16', tolerance=0.05):
+    """
+    Run checks that fields representing probabilty distributions have sums equal to 1 wthin some tolerance.
+
+    Args:
+        location_name(str): name of the location json to test
+        property_name (str): the property name
+        tolerance (float): difference from the sum of 1 tolerated
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.
+    """
+    location_file_path = f"{location_name}.json"
+    location = sp.load_location_from_filepath(location_file_path)
+    # print(location_file_path)
+    # print(location)
+    # print(location.keys())
+    # print(location.population_age_distribution_16)
+    sp.check_probability_distribution_sum(location, property_name, tolerance)
+
+if __name__ == '__main__':
+
+    test_check_probability_distributions()

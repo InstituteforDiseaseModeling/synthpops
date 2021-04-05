@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import jsbeautifier
 from jsonobject import *
@@ -417,6 +418,37 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
             return [False,
                     f"Entry [{k}] in {property_name} has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
     return [True, None]
+
+
+def check_probability_distribution_nonnegative(location, property_name):
+    """
+    Check that 
+    """
+
+
+def check_probability_distribution_sum(location, property_name, tolerance):
+    """
+    Check that fields representing probability distributions have sums equal to 1 within some tolerance.
+
+    Args:
+        location (json): the json object with location data
+        property_name (str): the property name
+        tolerance (float): difference from the sum of 1 tolerated
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.  
+    """
+    arr = getattr(location, property_name)
+
+    # what is the sum of the probability distribution values?
+    arr_sum = sum([bracket[-1] for k, bracket in enumerate(arr)])
+
+    # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
+    check = np.abs(1 - arr_sum) < tolerance
+    print('check', check)
+
+
 
 
 def check_location_name(location):
