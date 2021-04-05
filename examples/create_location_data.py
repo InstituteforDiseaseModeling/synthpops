@@ -134,9 +134,6 @@ if __name__ == '__main__':
         [21, 100, 8000]
     ]
 
-    # Clear a field, irrespective of whatever it was set to before.
-    location_data.household_size_distribution = []
-
     print('... done.')
 
     # Save the location data.
