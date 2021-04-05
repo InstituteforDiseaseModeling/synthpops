@@ -1521,11 +1521,11 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
         pars = {'n': 10e3, 'location': 'seattle_metro', 'state_location': 'Washington', 'country_location': 'usa'}
         pop = sp.Pop(**pars)
-        fig, ax = plot_household_head_ages_by_household_size(pop)
+        fig, ax = plot_household_head_ages_by_size(pop)
 
         kwargs = pars.copy()
         kwargs['cmap'] = 'rocket'
-        fig, ax = plot_household_head_ages_by_household_size(pop, **kwargs)
+        fig, ax = plot_household_head_ages_by_size(pop, **kwargs)
     """
     plkwargs = get_plkwargs(pop)
     # method specific plotting defaults
@@ -1538,9 +1538,11 @@ def plot_household_head_ages_by_size(pop, **kwargs):
     plkwargs.update_defaults(method_defaults, kwargs)
 
     pop.loc_pars.location = None
-    df = spdata.get_household_head_age_by_size_df(**pop.loc_pars)
-    label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
-    xticklabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
+
+    # get the labels of the head of household age brackets
+    hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
+    xticklabels = [f"{hha_brackets[b][0]}-{hha_brackets[b][-1]}" for b in hha_brackets.keys()]
+
     expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
 
     # we will ignore the first row (family_size = 1) for plotting

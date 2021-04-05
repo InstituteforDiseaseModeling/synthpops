@@ -3,7 +3,7 @@ import numpy as np
 import utilities
 import os
 from collections import Counter
-
+import pandas
 
 def check_work_size_distribution(pop,
                                  n,
@@ -636,21 +636,23 @@ def check_household_head(pop,
     Plots will be save to figdir if provided
     """
     figdir = os.path.join(figdir, "household_head")
-    df = sp.get_household_head_age_by_size_df(datadir=datadir,
-                                              state_location=state_location,
-                                              country_location=country_location,
-                                              file_path=file_path,
-                                              use_default=use_default)
-    hh_index = utilities.get_household_age_brackets_index(df)
-    expected_hh_ages = df.loc[:, df.columns.str.startswith("household_head_age")]
+
+    household_head_age_distribution_by_family_size = sp.get_head_age_by_size_distr(state_location=state_location,
+                                                                                   country_location=country_location)
+    head_age_brackets = sp.get_head_age_brackets(state_location=state_location,
+                                        country_location=country_location)
+    # Inverse the mapping for use below
+    hha_index = sp.get_index_by_brackets_dic(head_age_brackets)
+
+    household_head_age_distribution_by_family_size = household_head_age_distribution_by_family_size[1:]
+    expected_hh_ages = pandas.DataFrame(household_head_age_distribution_by_family_size)
     expected_hh_ages_percentage = expected_hh_ages.div(expected_hh_ages.sum(axis=0), axis=1)
-    actual_hh_ages_percetnage = utilities.get_household_head_age_size(pop, index=hh_index)
-    expected_values = expected_hh_ages_percentage.values
+    actual_hh_ages_percetnage = utilities.get_household_head_age_size(pop, index=hha_index)
+    expected_values = expected_hh_ages_percentage.values[1:,:]
     actual_values = actual_hh_ages_percetnage.values
-    label_columns = df.columns[df.columns.str.startswith("household_head_age")].values
-    xlabels = [lc.strip('household_head_age').replace('_', '-') for lc in label_columns]
+    xlabels = [ f'{min(head_age_brackets[bracket_index])}-{max(head_age_brackets[bracket_index])}'
+                for bracket_index in head_age_brackets.keys() ]
     family_sizes = [i+2 for i in range(0, len(expected_hh_ages_percentage))]
-    # ylabels = family_sizes
     utilities.plot_heatmap(expected_values, actual_values,
                            xlabels, family_sizes, 'Head of Household Age', 'Household Size',
                            # expected_hh_ages_percentage.columns, # family_sizes,

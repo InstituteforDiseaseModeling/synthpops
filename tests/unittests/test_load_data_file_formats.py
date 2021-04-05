@@ -42,6 +42,7 @@ class DataFileFormatTest(unittest.TestCase):
         self.cleanup_files.append(csv_localfilename)
         return dat_localfilename, csv_localfilename
 
+    @unittest.skip("Path methods were removed; we're keeping this around for reference.")
     def test_csv_loads_same_as_dat(self):
 
         headage_householdsize_distribution_path = spdd.get_household_head_age_by_size_path(
