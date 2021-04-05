@@ -279,7 +279,7 @@ def test_plot_workplace_sizes(do_show=False, do_save=False):
     return fig, ax, pop
 
 
-def test_household_head_ages_by_household_size(do_show=False, do_save=False):
+def test_household_head_ages_by_size(do_show=False, do_save=False):
     """
     Test that the household head age distribution by household size comparison plotting method in sp.Pop class works.
 
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(do_show=True)
     fig5, ax5, pop5 = test_plot_employment_rates_by_age(do_show=True)
     fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
-    fig7, ax7, pop7 = test_household_head_ages_by_household_size(do_show=True)
+    fig7, ax7, pop7 = test_household_head_ages_by_size(do_show=True)
 
     sc.toc(T)
     print('Done.')

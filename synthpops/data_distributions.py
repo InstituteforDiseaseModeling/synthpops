@@ -155,8 +155,8 @@ def read_age_bracket_distr(datadir=None, location=None, state_location=None, cou
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the age distribution by age bracket. Keys map to a range
-        of ages in that age bracket.
+        dict: A dictionary of the age distribution by age bracket. Keys map to a
+        range of ages in that age bracket.
 
     """
     # Use default if no file for this location.
@@ -194,8 +194,8 @@ def get_smoothed_single_year_age_distr(datadir=None, location=None, state_locati
         window_length (int)       : length of window, in units of years, over which to average or smooth out age distribution
 
     Returns:
-        A dictionary of the age distribution by age bracket. Keys map to a range
-        of ages in that age bracket.
+        dict: A dictionary of the age distribution by age bracket. Keys map to a
+        range of ages in that age bracket.
     """
     age_bracket_distr = read_age_bracket_distr(datadir, location, state_location, country_location, nbrackets, file_path, use_default)
     age_brackets = get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=nbrackets)
@@ -250,10 +250,9 @@ def get_household_size_distr(datadir=None, location=None, state_location=None, c
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the household size distribution data. Keys map to the
-        household size as an integer, values are the percent of households of
-        that size.
-
+        dict: A dictionary of the household size distribution data. Keys map to
+        the household size as an integer, values are the percent of households
+        of that size.
     """
     # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
@@ -287,10 +286,9 @@ def get_head_age_brackets(datadir=None, location=None, state_location=None, coun
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the default_location, default_state, default_country.
 
     Returns:
-        A dictionary of the age brackets for head of household distribution
-        data. Keys map to the age bracket as an integer, values are the percent
-        of households which head of household in that age bracket.
-
+        dict: A dictionary of the age brackets for head of household
+        distribution data. Keys map to the age bracket as an integer, values are
+        the percent of households which head of household in that age bracket.
     """
     # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
@@ -325,9 +323,8 @@ def get_head_age_by_size_distr(datadir=None, location=None, state_location=None,
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from default_location, default_state, default_country.
 
     Returns:
-        An array where each row s represents the age distribution of the head of
-        households for households of size s-1.
-
+        ndarray: An array where each row s represents the age distribution of
+        the head of households for households of size s-1.
     """
     # Use default if no file for this location.
     location_data = load_location(location, state_location, country_location, revert_to_default=use_default)
@@ -472,7 +469,6 @@ def get_contact_matrix_dic(datadir=None, sheet_name=None, file_path_dic=None, de
         dict: A dictionary of the different contact matrices for each
         population, given by the sheet name. Keys map to the different possible
         physical contact settings for which data are available.
-
     """
     matrix_dic = {}
     if file_path_dic is None:
@@ -668,8 +664,8 @@ def get_default_school_size_distr_by_type():
     school size distributions are binned to size groups or brackets.
 
     Return:
-        dict: A dictionary of school size distributions binned by size groups or brackets for each type of default school.
-
+        dict: A dictionary of school size distributions binned by size groups or
+        brackets for each type of default school.
     """
     school_size_distr_by_type = {}
 
@@ -1042,7 +1038,6 @@ def get_long_term_care_facility_use_rates(datadir=None, location=None, state_loc
         country_location (str) : name of the country the location is in
         file_path (string)     : file path to user specified gender by age bracket distribution data
         use_default (bool)     : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from Seattle, Washington.
-
 
     Returns:
         dict: A dictionary of the Long Term Care Facility usage rates by age.

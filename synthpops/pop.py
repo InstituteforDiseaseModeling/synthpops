@@ -709,10 +709,10 @@ class Pop(sc.prettyobj):
 
             pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
             pop = sp.Pop(**pars)
-            fig, ax = pop.plot_household_head_ages_by_household_size()
+            fig, ax = pop.plot_household_head_ages_by_size()
 
             kwargs = pars.copy()
-            fig, ax = pop.plot_household_head_ages_by_household_size(**kwargs)
+            fig, ax = pop.plot_household_head_ages_by_size(**kwargs)
         """
         fig, ax = sppl.plot_household_head_ages_by_size(self, **kwargs)
         return fig, ax
