@@ -430,10 +430,27 @@ def check_probability_distribution_nonnegative(location, property_name):
         tolerance (float)   : difference from the sum of 1 tolerated
 
     Returns:
-        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [True, None] if the values of the probability distribution are all non negative.
         [False, str] else. The returned str is the error message with some information about the check.  
     """
+    arr = getattr(location, property_name)
+
+    # what are the values of the probability distribution
+    if isinstance(arr[0], float):
+        arr = np.array(arr)
+    else:
+        arr = np.array([bracket[-1] for k, bracket in enumerate(arr)])
+
+    # find the indices where the distribution is negative
+    negative = np.argwhere(arr < 0)
+    # check if any are negative
+    any_negative = len(negative)
+    check = not any_negative
     
+    if check:
+        return [True, None]
+    else:
+        return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
 
 
 def check_probability_distribution_sum(location, property_name, tolerance):
@@ -450,8 +467,8 @@ def check_probability_distribution_sum(location, property_name, tolerance):
         [False, str] else. The returned str is the error message with some information about the check.  
     """
     arr = getattr(location, property_name)
+
     # what is the sum of the probability distribution values?
-    
     if isinstance(arr[0], float):  # for school size distributions
         arr_sum = sum(arr)
     else:
