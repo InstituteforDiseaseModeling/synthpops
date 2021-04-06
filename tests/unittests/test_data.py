@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 import synthpops as sp
 import os
 import unittest
@@ -612,3 +614,82 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEqual(location.school_size_distribution[1], 0.55,
                           "Array entry  incorrect")
+
+
+# def setup_conversion_steps(location, property_name, filepath, cols_ind, int_cols_ind):
+
+#     # what is the data file?
+#     # filename = 'Washington_age_bracket_distr_16.dat'
+#     # datadir = os.path.join(sp.datadir, 'unittests')
+
+#     # filepath = os.path.join(datadir, filename)
+
+#     # open the data file to be converted
+#     df = pd.read_csv(filepath)
+
+
+
+
+#     arr = sp.convert_pandas_to_json_entry(df, cols, int_cols)
+
+#     err_msg = "Arrays don't match"
+
+#     np.testing.assert_array_equal(arr, getattr(location, property_name), err_msg=err_msg)
+
+
+
+def test_convert_pandas_to_json_entry(location='usa-Washington', property_name='population_age_distribution_16',
+                                      filedir=os.path.join(sp.datadir, 'unittests'),
+                                      filename='Washington_age_bracket_distr_16.dat',
+                                      cols_ind=None, int_cols_ind=[-1], do_show=False):
+    
+
+    sp.logger.info("Testing method to convert pandas dataframe to json arrays.")
+
+    # filename = 'Washington_age_bracket_distr_16.dat'
+    # datadir = os.path.join(sp.datadir, 'unittests')
+
+    # filepath = os.path.join(datadir, filename)
+    filepath = os.path.join(filedir, filename)
+    df = pd.read_csv(filepath)
+
+    # columns to include
+    if cols_ind is None:
+        cols = df.columns
+    else:
+        cols = df.columns[cols_ind]
+
+    # columns to convert
+    if int_cols_ind is None:
+        int_cols = df.columns
+    else:
+        int_cols = df.columns[int_cols_ind]
+
+    # cols = df.columns[cols_ind]
+    # int_cols = df.columns[int_cols]
+
+    # arrayify all the data, convert the first two columns to integers
+    # arr = sp.convert_pandas_to_json_entry(df, df.columns, list(df.columns[0:2]))
+    arr = sp.convert_pandas_to_json_entry(df, cols, int_cols)
+
+    # corresponding json data object for the same location and data
+    location_name = f"{location}.json"
+    location = sp.load_location_from_filepath(location_name)
+
+    property_name = 'population_age_distribution_16'
+
+    err_msg = "Arrays don't match."
+    np.testing.assert_array_equal(arr, getattr(location, property_name), err_msg=err_msg)
+
+    if do_show:
+        print('copy from json', location.population_age_distribution_16)
+        print('arrayified data', arr)
+        print('They match.')
+
+
+
+
+
+if __name__ == '__main__':
+
+    test_convert_pandas_to_json_entry(do_show=1)

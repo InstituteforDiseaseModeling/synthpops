@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import jsbeautifier
 from jsonobject import *
@@ -690,3 +691,35 @@ def check_workplace_size_counts_by_num_personnel(location):
         [True, None] if checks pass. [False, str] if checks fail.
     """
     return check_array_of_arrays_entry_lens(location, 3, 'workplace_size_counts_by_num_personnel')
+
+
+def convert_pandas_to_json_entry(df, cols, int_cols=None):
+    """
+    Convert data from a pandas dataframe into a json array.
+
+    Args:
+        df (pandas dataframe)  : the dataframe with data
+        cols (list)            : list of the columns to convert to the json array format
+        int_cols (str or list) : a str or list of columns to convert to integer values
+
+    Returns:
+        array: An array version of the pandas dataframe to be added to synthpops
+        json data objects.
+    """
+    df = df[cols]
+    # numpy arrayify
+    m = np.array(df.values)
+
+    # make into a list
+    if not isinstance(int_cols, list):
+        int_cols = [int_cols]
+
+    # make an array of arrays
+    arr = [list(row) for row in m]
+
+    # convert some columns in every row into integer values
+    for row in arr:
+        for j, int_col in enumerate(int_cols):
+            row[j] = int(row[j])
+
+    return arr
