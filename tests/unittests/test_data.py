@@ -617,7 +617,8 @@ class TestLocation(unittest.TestCase):
 
 def check_single_probability_distribution_sum(location, property_name='population_age_distribution_16', tolerance=0.05):
     """
-    Run checks that a fields representing probabilty distributions have sums equal to 1 wthin some tolerance.
+    Run checks that a fields representing probabilty distributions have sums
+    equal to 1 wthin some tolerance.
 
     Args:
         location (json)     : json object with the location data
@@ -625,8 +626,9 @@ def check_single_probability_distribution_sum(location, property_name='populatio
         tolerance (float)   : difference from the sum of 1 tolerated
 
     Returns:
-        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
-        [False, str] else. The returned str is the error message with some information about the check.
+        [True, None] if the sum of the probability distribution is equal to 1
+        within the tolerance level. [False, str] else. The returned str is the
+        error message with some information about the check.
     """
     valid_properties = ['population_age_distribution_16',
                         'population_age_distribution_18',
@@ -642,18 +644,19 @@ def check_single_probability_distribution_sum(location, property_name='populatio
         print(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1.")
 
 
-def check_single_probability_distribution_nonnegative(location, property_name='population_age_distribution_16', tolerance=0.05):
+def check_single_probability_distribution_nonnegative(location, property_name='population_age_distribution_16'):
     """
-    Run checks that a fields representing probabilty distributions have sums equal to 1 wthin some tolerance.
+    Run checks that a field representing probabilty distributions has all non
+    negative values.
 
     Args:
         location (json)     : json object with the location data
         property_name (str) : the property name
-        tolerance (float)   : difference from the sum of 1 tolerated
 
     Returns:
-        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
-        [False, str] else. The returned str is the error message with some information about the check.
+        [True, None] if the probability distribution has all non negative values.
+        [False, str] else. The returned str is the error message with some
+        information about the check.
     """
     valid_properties = ['population_age_distribution_16',
                         'population_age_distribution_18',
@@ -664,12 +667,9 @@ def check_single_probability_distribution_nonnegative(location, property_name='p
                         'school_size_distribution',
                         ]
     if property_name in valid_properties:
-        # sp.check_probability_distribution_nonnegative(location, property_name)
-        check, msg = sp.check_probability_distribution_sum(location, property_name, tolerance)
+        check, msg = sp.check_probability_distribution_nonnegative(location, property_name)
         assert check, msg
         print(f"Check passed. The probability distribution for {property_name} has all non negative values.")
-
-
 
 
 def test_check_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
@@ -700,15 +700,14 @@ def test_check_probability_distribution_sums(location_name='usa-Washington-seatt
         check_single_probability_distribution_sum(location, property_name, tolerance)
 
 
-def test_check_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
+def test_check_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro', property_list=None):
     """
     Run all checks for fields representing probability distributions. Each
-    should have a sum that equals 1 within the tolerance level.
+    should have all non negative values.
 
     Args:
         location_name(str)   : name of the location json to test
         property_list (list) : list of properties to check the sum of the probabilityd distribution
-        tolerance (float)    : difference from the sum of 1 tolerated
     """
     valid_properties = ['population_age_distribution_16',
                         'population_age_distribution_18',
@@ -725,9 +724,7 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
         property_list = sc.dcp(valid_properties)
 
     for i, property_name in enumerate(property_list):
-        # property_name=property_list[0]
         check_single_probability_distribution_nonnegative(location, property_name)
-
 
 
 if __name__ == '__main__':

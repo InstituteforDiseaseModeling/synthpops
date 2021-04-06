@@ -437,7 +437,7 @@ def check_probability_distribution_nonnegative(location, property_name):
 
     # what are the values of the probability distribution
     if isinstance(arr[0], float):
-        arr = np.array(arr)
+        arr = np.array(arr)  # for school size distributions
     else:
         arr = np.array([bracket[-1] for k, bracket in enumerate(arr)])
 
