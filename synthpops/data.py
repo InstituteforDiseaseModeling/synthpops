@@ -266,8 +266,8 @@ def load_location_from_json(json_obj):
     """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
-    check_all_probability_distribution_sums(location)  # can't turn this on with toy data that's fake
-    check_all_probability_distribution_nonnegative(location)  # can't turn this on with toy data that's fake
+    check_all_probability_distribution_sums(location)
+    check_all_probability_distribution_nonnegative(location)
 
     populate_parent_data(location)
     return location
