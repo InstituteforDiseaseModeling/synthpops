@@ -741,36 +741,6 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
         sp.logger.info('')
 
 
-# def test_check_all_probability_distribution_sums(location_name='usa-Washington-seattle_metro', tolerance=0.05):
-#     """
-#     Run all checks for fields representing probability distributions. Each
-#     should have a sum that equals 1 within the tolerance level.
-
-#     Args:
-#         location_name(str)   : name of the location json to test
-#         tolerance (float)    : difference from the sum of 1 tolerated
-#     """
-#     location_file_path = f"{location_name}.json"
-#     location = sp.load_location_from_filepath(location_file_path)
-
-#     sp.check_all_probability_distribution_sums(location, tolerance)
-
-
-
-# def test_check_all_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro'):
-#     """
-#     Run all checks for fields representing probability distributions. Each
-#     should have all non negative values.
-
-#     Args:
-#         location_name(str)   : name of the location json to test
-#     """
-#     location_file_path = f"{location_name}.json"
-#     location = sp.load_location_from_filepath(location_file_path)
-
-#     sp.check_all_probability_distribution_nonnegative(location)
-
-
 if __name__ == '__main__':
 
     test_check_probability_distribution_sums()
