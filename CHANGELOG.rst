@@ -19,12 +19,19 @@ Legend for changelog
 
 - "Regression Information": a change to the model or update to data resulted in a change to regression results.
 
-- "Github Information": the associated PRs to any changes.
+- "Github Info": the associated PRs to any changes.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
 Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.7.1 (2021-04-05)
+--------------------------
+- Added checks for probability distributions with methods ``sp.check_all_probability_distribution_sums()``, ``sp.check_all_probability_distrubution_nonnegative()``, ``sp.check_probability_distribution_sum()``, ``sp.check_probability_distribution_nonnegative()``. These check that probabilities sum to 1 within a tolerance level  (0.05), and have all non negative values.
+- Added example of how to load data into the location json objects and save to file.
+- *Github Info*: PR `410 <https://github.com/amath-idm/synthpops/pull/410>`__, 
 
 
 Version 1.7.0 (2021-04-05)

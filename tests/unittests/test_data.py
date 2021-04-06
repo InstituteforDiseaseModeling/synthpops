@@ -615,7 +615,7 @@ class TestLocation(unittest.TestCase):
                           "Array entry  incorrect")
 
 
-# Examples of how the sum and non negative checks can be run individually
+# Example of how the sum check can be run individually
 def check_single_probability_distribution_sum(location, property_name='population_age_distribution_16', tolerance=0.05):
     """
     Run checks that a fields representing probabilty distributions have sums
@@ -645,6 +645,7 @@ def check_single_probability_distribution_sum(location, property_name='populatio
         print(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1.")
 
 
+# Examples of how the non negative check can be run individually
 def check_single_probability_distribution_nonnegative(location, property_name='population_age_distribution_16'):
     """
     Run checks that a field representing probabilty distributions has all non
@@ -672,10 +673,11 @@ def check_single_probability_distribution_nonnegative(location, property_name='p
         assert check, msg
         print(f"Check passed. The probability distribution for {property_name} has all non negative values.")
 
-# Examples of how the sum and non negative checks can be run for a subset of properties
+
+# Example of how the sum checks can be run for a subset of properties
 def test_check_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
     """
-    Run all checks for fields representing probability distributions. Each
+    Run all checks for fields in property_list representing probability distributions. Each
     should have a sum that equals 1 within the tolerance level.
 
     Args:
@@ -695,45 +697,21 @@ def test_check_probability_distribution_sums(location_name='usa-Washington-seatt
     location = sp.load_location_from_filepath(location_file_path)
 
     if property_list is None:
-        property_list = sc.dcp(valid_properties)
+        sp.logger.info(f"Testing all probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
+        sp.check_all_probability_distribution_sums(location, tolerance)
 
-    for i, property_name in enumerate(property_list):
-        check_single_probability_distribution_sum(location, property_name, tolerance)
-
-
-def test_check_all_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
-    """
-    Run all checks for fields representing probability distributions. Each
-    should have a sum that equals 1 within the tolerance level.
-
-    Args:
-        location_name(str)   : name of the location json to test
-        property_list (list) : list of properties to check the sum of the probabilityd distribution
-        tolerance (float)    : difference from the sum of 1 tolerated
-    """
-    valid_properties = ['population_age_distribution_16',
-                        'population_age_distribution_18',
-                        'population_age_distribution_20',
-                        'household_size_distribution',
-                        'ltcf_resident_to_staff_ratio_distribution',
-                        'ltcf_num_residents_distribution', 
-                        'school_size_distribution',
-                        ]
-    location_file_path = f"{location_name}.json"
-    location = sp.load_location_from_filepath(location_file_path)
-
-    if property_list is None:
-        property_list = sc.dcp(valid_properties)
-
-    sp.check_all_probability_distribution_sums(location)
-
-    # for i, property_name in enumerate(property_list):
-        # check_single_probability_distribution_sum(location, property_name, tolerance)
+    else:
+        sp.logger.info(f"Testing a subset of probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
+        property_list = set(property_list).intersection(set(valid_properties))
+        for i, property_name in enumerate(property_list):
+            check_single_probability_distribution_sum(location, property_name, tolerance)
+        sp.logger.info('')
 
 
+# Examples of how the non negative checks can be run for a subset of properties
 def test_check_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro', property_list=None):
     """
-    Run all checks for fields representing probability distributions. Each
+    Run all checks for fields in property_list representing probability distributions. Each
     should have all non negative values.
 
     Args:
@@ -752,14 +730,51 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
     location = sp.load_location_from_filepath(location_file_path)
 
     if property_list is None:
-        property_list = sc.dcp(valid_properties)
+        sp.logger.info(f"Testing all probability distributions are all non negative for {location_name}.")
+        sp.check_all_probability_distribution_nonnegative(location)
 
-    for i, property_name in enumerate(property_list):
-        check_single_probability_distribution_nonnegative(location, property_name)
+    else:
+        sp.logger.info(f"Testing a subset of probability distributions are all non negative for {location_name}")
+        property_list = set(property_list).intersection(set(valid_properties))
+        for i, property_name in enumerate(property_list):
+            check_single_probability_distribution_nonnegative(location, property_name)
+        sp.logger.info('')
+
+
+# def test_check_all_probability_distribution_sums(location_name='usa-Washington-seattle_metro', tolerance=0.05):
+#     """
+#     Run all checks for fields representing probability distributions. Each
+#     should have a sum that equals 1 within the tolerance level.
+
+#     Args:
+#         location_name(str)   : name of the location json to test
+#         tolerance (float)    : difference from the sum of 1 tolerated
+#     """
+#     location_file_path = f"{location_name}.json"
+#     location = sp.load_location_from_filepath(location_file_path)
+
+#     sp.check_all_probability_distribution_sums(location, tolerance)
+
+
+
+# def test_check_all_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro'):
+#     """
+#     Run all checks for fields representing probability distributions. Each
+#     should have all non negative values.
+
+#     Args:
+#         location_name(str)   : name of the location json to test
+#     """
+#     location_file_path = f"{location_name}.json"
+#     location = sp.load_location_from_filepath(location_file_path)
+
+#     sp.check_all_probability_distribution_nonnegative(location)
 
 
 if __name__ == '__main__':
 
-    # test_check_probability_distribution_sums()
-    test_check_all_probability_distribution_sums()
-    # test_check_probability_distribution_nonnegative()
+    test_check_probability_distribution_sums()
+    test_check_probability_distribution_nonnegative()
+    test_check_probability_distribution_sums(property_list=['population_age_distribution_16', 'household_size_distribution'])
+    test_check_probability_distribution_nonnegative(property_list=['population_age_distribution_16', 'household_size_distribution'])
+

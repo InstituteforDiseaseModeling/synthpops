@@ -192,7 +192,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
         parent_obj = load_location_from_filepath(parent_file_path)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.warn(f"You may have an invalid data configuration: couldn't load parent "
+        logger.warning(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
@@ -265,6 +265,9 @@ def load_location_from_json(json_obj):
     """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
+    # check_all_probability_distribution_sums(location)  # can't turn this on with toy data that's fake
+    # check_all_probability_distribution_nonnegative(location)  # can't turn this on with toy data that's fake
+
     populate_parent_data(location)
     return location
 
@@ -436,21 +439,23 @@ def check_probability_distribution_nonnegative(location, property_name):
     arr = getattr(location, property_name)
 
     # what are the values of the probability distribution
-    if isinstance(arr[0], float):
-        arr = np.array(arr)  # for school size distributions
-    else:
-        arr = np.array([bracket[-1] for k, bracket in enumerate(arr)])
+    if len(arr) > 0:
+        if isinstance(arr[0], float):
+            arr = np.array(arr)  # for school size distributions
+        else:
+            arr = np.array([bracket[-1] for k, bracket in enumerate(arr)])
 
-    # find the indices where the distribution is negative
-    negative = np.argwhere(arr < 0)
-    # check if any are negative
-    any_negative = len(negative)
-    check = not any_negative
-    
-    if check:
-        return [True, None]
-    else:
-        return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
+        # find the indices where the distribution is negative
+        negative = np.argwhere(arr < 0)
+        # check if any are negative
+        any_negative = len(negative)
+        check = not any_negative
+        
+        if check:
+            return [True, None]
+        else:
+            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
+    return [True, None]
 
 
 def check_probability_distribution_sum(location, property_name, tolerance):
@@ -468,20 +473,22 @@ def check_probability_distribution_sum(location, property_name, tolerance):
     """
     arr = getattr(location, property_name)
 
-    # what is the sum of the probability distribution values?
-    if isinstance(arr[0], float):  # for school size distributions
-        arr_sum = sum(arr)
-    else:
-        arr_sum = sum([bracket[-1] for k, bracket in enumerate(arr)])
+    if len(arr) > 0:
+        # what is the sum of the probability distribution values?
+        if isinstance(arr[0], float):  # for school size distributions
+            arr_sum = sum(arr)
+        else:
+            arr_sum = sum([bracket[-1] for k, bracket in enumerate(arr)])
 
-    # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
-    check = np.abs(1 - arr_sum) < tolerance
-    
-    if check:
-        return [True, None]
-    else:
-        return [False, f"The sum of the probability distribution for the property: {property_name} is {arr_sum:.4f}.\n\
+        # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
+        check = np.abs(1 - arr_sum) < tolerance
+        
+        if check:
+            return [True, None]
+        else:
+            return [False, f"The sum of the probability distribution for the property: {property_name} is {arr_sum:.4f}.\n\
 We expected the sum of these probabilities to be less than {tolerance} from 1."]
+    return [True, None]
 
 
 def check_all_probability_distribution_sums(location, tolerance=0.05):
@@ -490,8 +497,9 @@ def check_all_probability_distribution_sums(location, tolerance=0.05):
     close to 1.
 
     Args:
-        location (json): the json object with location data
-    
+        location (json)   : the json object with location data
+        tolerance (float) : difference from the sum of 1 tolerated
+
     Returns:
         None.
     """
@@ -511,14 +519,13 @@ def check_all_probability_distribution_sums(location, tolerance=0.05):
         cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
 
 
-def check_single_probability_distribution_nonnegative(location, property_name='population_age_distribution_16'):
+def check_all_probability_distribution_nonnegative(location):
     """
     Run checks that a field representing probabilty distributions has all non
     negative values.
 
     Args:
         location (json)     : json object with the location data
-        property_name (str) : the property name
 
     Returns:
         [True, None] if the probability distribution has all non negative values.
@@ -533,14 +540,12 @@ def check_single_probability_distribution_nonnegative(location, property_name='p
                         'ltcf_num_residents_distribution', 
                         'school_size_distribution',
                         ]
-    if property_name in valid_properties:
-        check, msg = sp.check_probability_distribution_nonnegative(location, property_name)
+    property_list = set(location.keys()).intersection(set(valid_properties))
+
+    for i, property_name in enumerate(property_list):
+        check, msg = check_probability_distribution_nonnegative(location, property_name)
         assert check, msg
-        print(f"Check passed. The probability distribution for {property_name} has all non negative values.")
-
-
-
-
+        cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
 
 
 def check_location_name(location):
