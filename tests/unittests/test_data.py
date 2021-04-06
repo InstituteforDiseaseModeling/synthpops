@@ -615,6 +615,7 @@ class TestLocation(unittest.TestCase):
                           "Array entry  incorrect")
 
 
+# Examples of how the sum and non negative checks can be run individually
 def check_single_probability_distribution_sum(location, property_name='population_age_distribution_16', tolerance=0.05):
     """
     Run checks that a fields representing probabilty distributions have sums
@@ -671,7 +672,7 @@ def check_single_probability_distribution_nonnegative(location, property_name='p
         assert check, msg
         print(f"Check passed. The probability distribution for {property_name} has all non negative values.")
 
-
+# Examples of how the sum and non negative checks can be run for a subset of properties
 def test_check_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
     """
     Run all checks for fields representing probability distributions. Each
@@ -698,6 +699,36 @@ def test_check_probability_distribution_sums(location_name='usa-Washington-seatt
 
     for i, property_name in enumerate(property_list):
         check_single_probability_distribution_sum(location, property_name, tolerance)
+
+
+def test_check_all_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
+    """
+    Run all checks for fields representing probability distributions. Each
+    should have a sum that equals 1 within the tolerance level.
+
+    Args:
+        location_name(str)   : name of the location json to test
+        property_list (list) : list of properties to check the sum of the probabilityd distribution
+        tolerance (float)    : difference from the sum of 1 tolerated
+    """
+    valid_properties = ['population_age_distribution_16',
+                        'population_age_distribution_18',
+                        'population_age_distribution_20',
+                        'household_size_distribution',
+                        'ltcf_resident_to_staff_ratio_distribution',
+                        'ltcf_num_residents_distribution', 
+                        'school_size_distribution',
+                        ]
+    location_file_path = f"{location_name}.json"
+    location = sp.load_location_from_filepath(location_file_path)
+
+    if property_list is None:
+        property_list = sc.dcp(valid_properties)
+
+    sp.check_all_probability_distribution_sums(location)
+
+    # for i, property_name in enumerate(property_list):
+        # check_single_probability_distribution_sum(location, property_name, tolerance)
 
 
 def test_check_probability_distribution_nonnegative(location_name='usa-Washington-seattle_metro', property_list=None):
@@ -730,4 +761,5 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
 if __name__ == '__main__':
 
     # test_check_probability_distribution_sums()
-    test_check_probability_distribution_nonnegative()
+    test_check_all_probability_distribution_sums()
+    # test_check_probability_distribution_nonnegative()

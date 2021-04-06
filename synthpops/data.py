@@ -484,6 +484,65 @@ def check_probability_distribution_sum(location, property_name, tolerance):
 We expected the sum of these probabilities to be less than {tolerance} from 1."]
 
 
+def check_all_probability_distribution_sums(location, tolerance=0.05):
+    """
+    Checks that each probability distribution available to a location has a sum
+    close to 1.
+
+    Args:
+        location (json): the json object with location data
+    
+    Returns:
+        None.
+    """
+    valid_properties = ['population_age_distribution_16',
+                        'population_age_distribution_18',
+                        'population_age_distribution_20',
+                        'household_size_distribution',
+                        'ltcf_resident_to_staff_ratio_distribution',
+                        'ltcf_num_residents_distribution', 
+                        'school_size_distribution',
+                        ]
+    property_list = set(location.keys()).intersection(set(valid_properties))
+
+    for i, property_name in enumerate(property_list):
+        check, msg = check_probability_distribution_sum(location, property_name, tolerance)
+        assert check, msg
+        cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+
+
+def check_single_probability_distribution_nonnegative(location, property_name='population_age_distribution_16'):
+    """
+    Run checks that a field representing probabilty distributions has all non
+    negative values.
+
+    Args:
+        location (json)     : json object with the location data
+        property_name (str) : the property name
+
+    Returns:
+        [True, None] if the probability distribution has all non negative values.
+        [False, str] else. The returned str is the error message with some
+        information about the check.
+    """
+    valid_properties = ['population_age_distribution_16',
+                        'population_age_distribution_18',
+                        'population_age_distribution_20',
+                        'household_size_distribution',
+                        'ltcf_resident_to_staff_ratio_distribution',
+                        'ltcf_num_residents_distribution', 
+                        'school_size_distribution',
+                        ]
+    if property_name in valid_properties:
+        check, msg = sp.check_probability_distribution_nonnegative(location, property_name)
+        assert check, msg
+        print(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+
+
+
+
+
+
 def check_location_name(location):
     """
     Check the location json data object has a string.
