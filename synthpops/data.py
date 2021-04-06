@@ -422,8 +422,18 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
 
 def check_probability_distribution_nonnegative(location, property_name):
     """
-    Check that 
+    Check that fields representing probability distributions have all non negative values.
+
+    Args:
+        location (json)     : the json object with location data
+        property_name (str) : the property name
+        tolerance (float)   : difference from the sum of 1 tolerated
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.  
     """
+    
 
 
 def check_probability_distribution_sum(location, property_name, tolerance):
@@ -431,9 +441,9 @@ def check_probability_distribution_sum(location, property_name, tolerance):
     Check that fields representing probability distributions have sums equal to 1 within some tolerance.
 
     Args:
-        location (json): the json object with location data
-        property_name (str): the property name
-        tolerance (float): difference from the sum of 1 tolerated
+        location (json)     : the json object with location data
+        property_name (str) : the property name
+        tolerance (float)   : difference from the sum of 1 tolerated
 
     Returns:
         [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
