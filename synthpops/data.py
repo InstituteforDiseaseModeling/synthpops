@@ -440,15 +440,21 @@ def check_probability_distribution_sum(location, property_name, tolerance):
         [False, str] else. The returned str is the error message with some information about the check.  
     """
     arr = getattr(location, property_name)
-
     # what is the sum of the probability distribution values?
-    arr_sum = sum([bracket[-1] for k, bracket in enumerate(arr)])
+    
+    if isinstance(arr[0], float):  # for school size distributions
+        arr_sum = sum(arr)
+    else:
+        arr_sum = sum([bracket[-1] for k, bracket in enumerate(arr)])
 
     # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
     check = np.abs(1 - arr_sum) < tolerance
-    print('check', check)
-
-
+    
+    if check:
+        return [True, None]
+    else:
+        return [False, f"The sum of the probability distribution for the property: {property_name} is {arr_sum:.4f}.\n\
+We expected the sum of these probabilities to be less than {tolerance} from 1."]
 
 
 def check_location_name(location):

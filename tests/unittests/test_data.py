@@ -1,3 +1,4 @@
+import sciris as sc
 import synthpops as sp
 import os
 import unittest
@@ -614,27 +615,62 @@ class TestLocation(unittest.TestCase):
                           "Array entry  incorrect")
 
 
-def test_check_probability_distributions(location_name='usa-Washington-seattle_metro', property_name='population_age_distribution_16', tolerance=0.05):
+def check_single_probability_distribution(location, property_name='population_age_distribution_16', tolerance=0.05):
     """
-    Run checks that fields representing probabilty distributions have sums equal to 1 wthin some tolerance.
+    Run checks that a fields representing probabilty distributions have sums equal to 1 wthin some tolerance.
 
     Args:
-        location_name(str): name of the location json to test
-        property_name (str): the property name
-        tolerance (float): difference from the sum of 1 tolerated
+        location (json)     : json object with the location data
+        property_name (str) : the property name
+        tolerance (float)   : difference from the sum of 1 tolerated
 
     Returns:
         [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
         [False, str] else. The returned str is the error message with some information about the check.
     """
+    valid_properties = ['population_age_distribution_16',
+                        'population_age_distribution_18',
+                        'population_age_distribution_20',
+                        'household_size_distribution',
+                        'ltcf_resident_to_staff_ratio_distribution',
+                        'ltcf_num_residents_distribution', 
+                        'school_size_distribution',
+                        ]
+    if property_name in valid_properties:
+        check, msg = sp.check_probability_distribution_sum(location, property_name, tolerance)
+        assert check, msg
+        print(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1.")
+
+
+def test_check_probability_distribution_sums(location_name='usa-Washington-seattle_metro', property_list=None, tolerance=0.05):
+    """
+    Run all checks for fields representing probability distributions. Each
+    should have a sum that equals 1 within the tolerance level.
+
+    Args:
+        location_name(str)   : name of the location json to test
+        property_list (list) : list of properties to check the sum of the probabilityd distribution
+        tolerance (float)    : difference from the sum of 1 tolerated
+    """
+    valid_properties = ['population_age_distribution_16',
+                        'population_age_distribution_18',
+                        'population_age_distribution_20',
+                        'household_size_distribution',
+                        'ltcf_resident_to_staff_ratio_distribution',
+                        'ltcf_num_residents_distribution', 
+                        'school_size_distribution',
+                        ]
     location_file_path = f"{location_name}.json"
     location = sp.load_location_from_filepath(location_file_path)
-    # print(location_file_path)
-    # print(location)
-    # print(location.keys())
-    # print(location.population_age_distribution_16)
-    sp.check_probability_distribution_sum(location, property_name, tolerance)
+
+    if property_list is None:
+        property_list = sc.dcp(valid_properties)
+
+    for i, property_name in enumerate(property_list):
+        check_single_probability_distribution(location, property_name, tolerance)
+
 
 if __name__ == '__main__':
 
-    test_check_probability_distributions()
+    # check_single_probability_distribution()
+    test_check_probability_distribution_sums()
