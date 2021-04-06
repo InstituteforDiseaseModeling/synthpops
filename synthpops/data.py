@@ -7,6 +7,7 @@ from jsonobject.containers import JsonDict
 import os
 from . import config as cfg
 from . import logger
+import warnings
 
 
 class SchoolSizeDistributionByType(JsonObject):
@@ -265,8 +266,8 @@ def load_location_from_json(json_obj):
     """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
-    # check_all_probability_distribution_sums(location)  # can't turn this on with toy data that's fake
-    # check_all_probability_distribution_nonnegative(location)  # can't turn this on with toy data that's fake
+    check_all_probability_distribution_sums(location)  # can't turn this on with toy data that's fake
+    check_all_probability_distribution_nonnegative(location)  # can't turn this on with toy data that's fake
 
     populate_parent_data(location)
     return location
@@ -515,7 +516,9 @@ def check_all_probability_distribution_sums(location, tolerance=0.05):
 
     for i, property_name in enumerate(property_list):
         check, msg = check_probability_distribution_sum(location, property_name, tolerance)
-        assert check, msg
+        # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
+        if not check:
+            warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
 
 
@@ -544,7 +547,9 @@ def check_all_probability_distribution_nonnegative(location):
 
     for i, property_name in enumerate(property_list):
         check, msg = check_probability_distribution_nonnegative(location, property_name)
-        assert check, msg
+        # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
+        if not check:
+            warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
 
 
