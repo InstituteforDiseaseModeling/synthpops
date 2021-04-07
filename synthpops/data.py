@@ -693,9 +693,9 @@ def check_workplace_size_counts_by_num_personnel(location):
     return check_array_of_arrays_entry_lens(location, 3, 'workplace_size_counts_by_num_personnel')
 
 
-def convert_pandas_to_json_entry(df, cols, int_cols=None):
+def convert_df_to_json_array(df, cols, int_cols=None):
     """
-    Convert data from a pandas dataframe into a json array.
+    Convert desired data from a pandas dataframe into a json array.
 
     Args:
         df (pandas dataframe)  : the dataframe with data
@@ -707,10 +707,12 @@ def convert_pandas_to_json_entry(df, cols, int_cols=None):
         json data objects.
     """
     df = df[cols]
-    # numpy arrayify
+    columns = list(df.columns.values)
+
+    # numpy array of data
     m = np.array(df.values)
 
-    # make into a list
+    # make into a list to iterate over
     if not isinstance(int_cols, list):
         int_cols = [int_cols]
 
@@ -719,7 +721,8 @@ def convert_pandas_to_json_entry(df, cols, int_cols=None):
 
     # convert some columns in every row into integer values
     for row in arr:
-        for j, int_col in enumerate(int_cols):
+        for int_col in int_cols:
+            j = columns.index(int_col)
             row[j] = int(row[j])
 
     return arr

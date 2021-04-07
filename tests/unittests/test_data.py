@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sciris as sc
 import synthpops as sp
 import os
 import unittest
@@ -616,80 +617,79 @@ class TestLocation(unittest.TestCase):
                           "Array entry  incorrect")
 
 
-# def setup_conversion_steps(location, property_name, filepath, cols_ind, int_cols_ind):
+pars = sc.objdict(
+            location_name = 'usa-Washington',  # name of the location
+            property_name = 'population_age_distribution_16',  # name of the property to compare to
+            filepath      = os.path.join(sp.datadir, 
+                                         'unittests',
+                                         'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
+            cols_ind      = [],  # list of column indices to include in array in conversion
+            int_cols_ind  = [],  # list of column induces to convert to ints
+            )
 
-#     # what is the data file?
-#     # filename = 'Washington_age_bracket_distr_16.dat'
-#     # datadir = os.path.join(sp.datadir, 'unittests')
+def setup_convert_df_to_json_array(pars):
+    """
+    Set up objects to compare.
 
-#     # filepath = os.path.join(datadir, filename)
+    Returns:
+        array, json.array : An array of the desired data from a dataframe and
+        the json entry for comparison.
+    """
+    df = pd.read_csv(pars.filepath)
 
-#     # open the data file to be converted
-#     df = pd.read_csv(filepath)
-
-
-
-
-#     arr = sp.convert_pandas_to_json_entry(df, cols, int_cols)
-
-#     err_msg = "Arrays don't match"
-
-#     np.testing.assert_array_equal(arr, getattr(location, property_name), err_msg=err_msg)
-
-
-
-def test_convert_pandas_to_json_entry(location='usa-Washington', property_name='population_age_distribution_16',
-                                      filedir=os.path.join(sp.datadir, 'unittests'),
-                                      filename='Washington_age_bracket_distr_16.dat',
-                                      cols_ind=None, int_cols_ind=[-1], do_show=False):
-    
-
-    sp.logger.info("Testing method to convert pandas dataframe to json arrays.")
-
-    # filename = 'Washington_age_bracket_distr_16.dat'
-    # datadir = os.path.join(sp.datadir, 'unittests')
-
-    # filepath = os.path.join(datadir, filename)
-    filepath = os.path.join(filedir, filename)
-    df = pd.read_csv(filepath)
-
-    # columns to include
-    if cols_ind is None:
+    # columns to include : include all by default
+    if pars.cols_ind == []:
         cols = df.columns
     else:
-        cols = df.columns[cols_ind]
+        cols = df.columns[pars.cols_ind]  # use indices to indicate which columns to include
 
-    # columns to convert
-    if int_cols_ind is None:
-        int_cols = df.columns
+    if pars.int_cols_ind == []:
+        int_cols = pars.int_cols_ind
     else:
-        int_cols = df.columns[int_cols_ind]
+        int_cols = list(df.columns[pars.int_cols_ind].values)
 
-    # cols = df.columns[cols_ind]
-    # int_cols = df.columns[int_cols]
-
-    # arrayify all the data, convert the first two columns to integers
-    # arr = sp.convert_pandas_to_json_entry(df, df.columns, list(df.columns[0:2]))
-    arr = sp.convert_pandas_to_json_entry(df, cols, int_cols)
+    # array-ify all the data, convert some columns to integers
+    arr = sp.convert_df_to_json_array(df, cols, int_cols)
 
     # corresponding json data object for the same location and data
-    location_name = f"{location}.json"
-    location = sp.load_location_from_filepath(location_name)
+    location = sp.load_location_from_filepath(f"{pars.location_name}.json")
 
-    property_name = 'population_age_distribution_16'
+    json_array = getattr(location, pars.property_name)
 
-    err_msg = "Arrays don't match."
-    np.testing.assert_array_equal(arr, getattr(location, property_name), err_msg=err_msg)
-
-    if do_show:
-        print('copy from json', location.population_age_distribution_16)
-        print('arrayified data', arr)
-        print('They match.')
+    return arr, json_array
 
 
+def test_convert_df_to_json_array_age_distribution_16(verbose=False):
+    """
+    Test that the sp.convert_df_to_json_entry() converts the desired data from
+    a dataframe to an array of arrays like those that can be uploaded to the
+    json data objects synthpops uses.
+    """
+    sp.logger.info("Testing method to convert pandas dataframe to json arrays.")
+  
+    arr, json_array = setup_convert_df_to_json_array(pars)
+    assert arr == json_array, "Arrays don't match"
+    if verbose:
+        print(f"The pandas table converted to an array matches the corresponding json array for {pars.property_name} in location: {pars.location_name}")
 
+
+def test_convert_df_to_json_entry_int_values():
+    sp.logger.info("Test that specified columns are converted to ints when data from a df is converted to a json array.")
+    test_pars = sc.dcp(pars)
+    test_pars.int_cols_ind = [0, 1]  # want to convert values from columns 0 and 1 to integers
+
+    arr, json_array = setup_convert_df_to_json_array(test_pars)
+
+    for i in range(len(arr)):
+        for j in test_pars.int_cols_ind:
+             assert isinstance(arr[i][j], int), f"Value at ({i},{j}): {arr[i][j]} is not an integer as expected."
+    print("Check passed. Some columns were converted to ints as expected.")
 
 
 if __name__ == '__main__':
 
-    test_convert_pandas_to_json_entry(do_show=1)
+    unittest.main()  # run every test in this file
+
+    # # run a subset of the tests here
+    # test_convert_df_to_json_array_age_distribution_16(verbose=True)
+    # test_convert_df_to_json_entry_int_values()
