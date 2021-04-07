@@ -563,7 +563,7 @@ We expected the sum of these probabilities to be less than {tolerance} from 1."]
     return [True, None]
 
 
-def check_all_probability_distribution_sums(location, tolerance=1e-2, **kwargs):
+def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, **kwargs):
     """
     Checks that each probability distribution available to a location has a sum
     close to 1.
@@ -582,11 +582,15 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, **kwargs):
         check, msg = check_probability_distribution_sum(location, property_name, tolerance=tolerance, **kwargs)
         # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
         if not check:
-            warnings.warn(msg)
+            if die: # pragna: no cover
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+    return check, msg
 
 
-def check_all_probability_distribution_nonnegative(location):
+def check_all_probability_distribution_nonnegative(location, die=False):
     """
     Run checks that a field representing probabilty distributions has all non
     negative values.
@@ -605,8 +609,12 @@ def check_all_probability_distribution_nonnegative(location):
         check, msg = check_probability_distribution_nonnegative(location, property_name)
         # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
         if not check:
-            warnings.warn(msg)
+            if die: # pragma: no cover
+                raise ValueError(msg)
+            else:
+                warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+    return check, msg
 
 
 def check_location_name(location):

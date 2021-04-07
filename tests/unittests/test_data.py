@@ -630,12 +630,15 @@ def test_check_probability_distribution_sums(location_name='usa-Washington-seatt
 
     if property_list is None:
         sp.logger.info(f"Testing all probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
-        sp.check_all_probability_distribution_sums(location, tolerance)
+        check, msg = sp.check_all_probability_distribution_sums(location, tolerance)
+        assert check == True, msg
 
     else:
         sp.logger.info(f"Testing a subset of probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
         for i, property_name in enumerate(property_list):
-            sp.check_probability_distribution_sum(location, property_name, tolerance)
+            check, msg = sp.check_probability_distribution_sum(location, property_name, tolerance)
+            assert check == True, msg
+
         sp.logger.info('')
 
 
@@ -654,12 +657,15 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
 
     if property_list is None:
         sp.logger.info(f"Testing all probability distributions are all non negative for {location_name}.")
-        sp.check_all_probability_distribution_nonnegative(location)
+        check, msg = sp.check_all_probability_distribution_nonnegative(location)
+        assert check == True, msg
 
     else:
         sp.logger.info(f"Testing a subset of probability distributions are all non negative for {location_name}")
         for i, property_name in enumerate(property_list):
-            sp.check_probability_distribution_nonnegative(location, property_name)
+            check, msg = sp.check_probability_distribution_nonnegative(location, property_name)
+            assert check == True, msg
+
         sp.logger.info('')
 
 
