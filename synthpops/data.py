@@ -576,15 +576,6 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, **kwargs):
     Returns:
         None.
     """
-    # valid_properties = ['population_age_distribution_16',
-    #                     'population_age_distribution_18',
-    #                     'population_age_distribution_20',
-    #                     'household_size_distribution',
-    #                     'ltcf_resident_to_staff_ratio_distribution',
-    #                     'ltcf_num_residents_distribution', 
-    #                     'school_size_distribution',
-    #                     ]
-    # property_list = set(location.keys()).intersection(set(valid_properties))
     property_list = valid_probability_distributions()
 
     for i, property_name in enumerate(property_list):
@@ -608,15 +599,6 @@ def check_all_probability_distribution_nonnegative(location):
         [False, str] else. The returned str is the error message with some
         information about the check.
     """
-    # valid_properties = ['population_age_distribution_16',
-    #                     'population_age_distribution_18',
-    #                     'population_age_distribution_20',
-    #                     'household_size_distribution',
-    #                     'ltcf_resident_to_staff_ratio_distribution',
-    #                     'ltcf_num_residents_distribution', 
-    #                     'school_size_distribution',
-    #                     ]
-    # property_list = set(location.keys()).intersection(set(valid_properties))
     property_list = valid_probability_distributions()
 
     for i, property_name in enumerate(property_list):
