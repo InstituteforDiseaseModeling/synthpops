@@ -563,6 +563,8 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
     Args:
         location (json)   : the json object with location data
         tolerance (float) : difference from the sum of 1 tolerated
+        die (bool)        : raise an exception if the check fails
+        verbose (bool)    : print a warning if the check fails
         kwargs (dict)     : dictionary of values passed to np.isclose()
 
     Returns:
@@ -576,7 +578,7 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
         check, msg = check_probability_distribution_sum(location, property_name, tolerance=tolerance, **kwargs)
         checks.append(check)
         msgs.append(msg)
-        # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
+
         if not check:
             if die: # pragma: no cover
                 raise ValueError(msg)
@@ -592,7 +594,9 @@ def check_all_probability_distribution_nonnegative(location, die=False, verbose=
     negative values.
 
     Args:
-        location (json)     : json object with the location data
+        location (json) : json object with the location data
+        die (bool)      : raise an exception if the check fails
+        verbose (bool)  : print a warning if the check fails
 
     Returns:
         list, list: List of checks and a list of associated error messages.
@@ -605,7 +609,7 @@ def check_all_probability_distribution_nonnegative(location, die=False, verbose=
         check, msg = check_probability_distribution_nonnegative(location, property_name)
         checks.append(check)
         msgs.append(msg)
-        # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
+
         if not check:
             if die: # pragma: no cover
                 raise ValueError(msg)
