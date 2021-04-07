@@ -8,6 +8,13 @@ from . import config as cfg
 from . import logger
 
 
+class PopulationAgeDistribution(JsonObject):
+    """Class for population age distribution with a specified number of bins."""
+    num_bins = IntegerProperty()
+    # [min_age, max_age, percentage]
+    distribution = ListProperty(DefaultProperty)
+
+
 class SchoolSizeDistributionByType(JsonObject):
     """Class for the school size distribution by school type."""
     school_type = StringProperty()
@@ -47,20 +54,7 @@ class Location(JsonObject):
 
     parent = DefaultProperty()
 
-    population_age_distribution_16 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
-
-    population_age_distribution_18 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
-
-    population_age_distribution_20 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
+    population_age_distributions = ListProperty(PopulationAgeDistribution)
 
     employment_rates_by_age = ListProperty(
         # [age, percentage]
@@ -140,8 +134,8 @@ class Location(JsonObject):
     def get_population_age_distribution(self, nbrackets):
         """
         Get the age distribution of the population aggregated to nbrackets age
-        brackets. Currently there is support 16, 18, and, 20 nbrackets and
-        return a container for the age distribution with nbrackets.
+        brackets. If the data doesn't contain a distribution with the requested number
+        of brackets, an exception is raised.
 
         Args:
             nbrackets (int): the number of age brackets the age distribution is aggregated to
@@ -149,26 +143,14 @@ class Location(JsonObject):
         Returns:
             list: A list of the probability age distribution values indexed by
             the bracket number.
-        Note:
-            This will be updated shortly to support a more flexible number of
-            age brackets.
         """
-        if nbrackets not in [16, 18, 20]:
-            # DM: This is different behavior than previous versions of synthpops:
-            # in config.py we instead raised a warning but still allowed users to use different nbrackets
-            # most users may not use this, but development work certainly does so this behavior should be changed soon
-            # the warning raised:
-            # logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
 
-            raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
+        matching_distributions = [d for d in self.population_age_distributions if d.num_bins==nbrackets]
+        if len(matching_distributions) == 0:
+            raise RuntimeError(f"The configured location data doesn't have a population age "
+                               f"distribution with [{nbrackets}] brackets.")
 
-        dists = {
-            16: self.population_age_distribution_16,
-            18: self.population_age_distribution_18,
-            20: self.population_age_distribution_20,
-        }
-
-        dist = dists[nbrackets]
+        dist = matching_distributions[0].distribution
         return dist
 
 
@@ -375,7 +357,7 @@ def are_location_constraints_satisfied(location):
     """
 
     for f in [check_location_name,
-              check_population_age_distribution_16,
+              check_population_age_distributions,
               check_employment_rates_by_age,
               check_enrollment_rates_by_age,
               check_household_head_age_brackets,
@@ -397,6 +379,14 @@ def are_location_constraints_satisfied(location):
     return [True, None]
 
 
+def check_array_of_array_entry_lens_arr(array_of_arrays, expected_len):
+    for [k, bracket] in enumerate(array_of_arrays):
+        if not len(bracket) == expected_len:
+            return [False,
+                    f"Entry [{k}] has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
+    return [True, None]
+
+
 def check_array_of_arrays_entry_lens(location, expected_len, property_name):
     """
     Check that each array in an array of arrays has the expected length.
@@ -412,10 +402,9 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
         error message.
     """
     arr = getattr(location, property_name)
-    for [k, bracket] in enumerate(arr):
-        if not len(bracket) == expected_len:
-            return [False,
-                    f"Entry [{k}] in {property_name} has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
+    status, reason = check_array_of_array_entry_lens_arr(arr, expected_len)
+    if not status:
+        return [False, f"For property {property_name}: {reason}"]
     return [True, None]
 
 
@@ -437,11 +426,11 @@ def check_location_name(location):
 
     return [False, "location_name must be specified"]
 
-# DM: this could be generalized to a single function with a parameter nbrackets
-def check_population_age_distribution_16(location):
+
+def check_population_age_distributions(location):
     """
-    Check that the population age distribution aggregated to 16 age brackets is
-    an array of length 16 and each sub array has length 3.
+    Check that the population age distributions are self-consistent in the number of brackets,
+    and each sub array has length 3.
 
     Args:
         location (json): the json object with location data
@@ -449,51 +438,12 @@ def check_population_age_distribution_16(location):
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
     """
-    if len(location.population_age_distribution_16) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_16) != 16:
-        return [False, f"Invalid length for {location.population_age_distribution_16}: "
-                       f"{len(location.population_age_distribution_16)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_16')
-
-
-def check_population_age_distribution_18(location):
-    """
-    Check that the population age distribution aggregated to 18 age brackets is
-    an array of length 18 and each sub array has length 3.
-
-    Args:
-        location (json): the json object with location data
-
-    Returns:
-        [True, None] if checks pass. [False, str] if checks fail.
-    """
-    if len(location.population_age_distribution_18) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_18) != 18:
-        return [False, f"Invalid length for {location.population_age_distribution_18}: "
-                       f"{len(location.population_age_distribution_18)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_18')
-
-
-def check_population_age_distribution_20(location):
-    """
-    Check that the population age distribution aggregated to 20 age brackets is
-    an array of length 20 and each sub array has length 3.
-
-    Args:
-        location (json): the json object with location data
-
-    Returns:
-        [True, None] if checks pass. [False, str] if checks fail.
-    """
-    if len(location.population_age_distribution_20) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_20) != 20:
-        return [False, f"Invalid length for {location.population_age_distribution_20}: "
-                       f"{len(location.population_age_distribution_20)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_20')
-
+    for population_age_distribution in location.population_age_distributions:
+        if len(population_age_distribution.distribution) != population_age_distribution.num_bins:
+            return [False, f"Length for {population_age_distribution} distribution doesn't match 'num_bins': "
+                           f"{len(population_age_distribution.distribution)} != {population_age_distribution.num_bins}"]
+        return check_array_of_array_entry_lens_arr(population_age_distribution.distribution, 3)
+    return [True, None]
 
 def check_employment_rates_by_age(location):
     """

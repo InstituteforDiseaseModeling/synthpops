@@ -17,22 +17,22 @@ class TestLocation(unittest.TestCase):
           "citations": ["citation1","citation2"],
           "parent": {},
           "population_age_distribution_16": [
-            [0,4,0.060538117352011624],
-            [5,9,0.06073439672230401],
-            [10,14,0.056610156965866715],
-            [15,19,0.055734527236220355],
-            [20,24,0.061242553503078265],
-            [25,29,0.084312667951918],
-            [30,34,0.08485540244559349],
-            [35,39,0.07647810400230247],
-            [40,44,0.06972663605974079],
-            [45,49,0.07013783964551742],
-            [50,54,0.06819809775119437],
-            [55,59,0.06536916623981272],
-            [60,64,0.0591156851624661],
-            [65,69,0.04532121169797927],
-            [70,74,0.031216894806122424],
-            [75,79,0.02016]
+              [0, 4, 0.0529582569989547],
+              [5, 9, 0.0558095490543863],
+              [10, 14, 0.0604326443303601],
+              [15, 19, 0.0592331859478199],
+              [20, 24, 0.0631016111246386],
+              [25, 29, 0.0702732294593048],
+              [30, 34, 0.0706992873192425],
+              [35, 39, 0.0721768569258823],
+              [40, 44, 0.065064037895203],
+              [45, 49, 0.0622025507991608],
+              [50, 54, 0.0589574456633972],
+              [55, 59, 0.0616100529739052],
+              [60, 64, 0.0655126196820712],
+              [65, 69, 0.0604741357747057],
+              [70, 74, 0.0503101544738328],
+              [75, 100, 0.0711843815771348]
           ],
           "employment_rates_by_age": [
             [19,0.300],
@@ -139,24 +139,27 @@ class TestLocation(unittest.TestCase):
                     0.75
                   ]
               },
-              "population_age_distribution_16": [
-                [0,4,0.060538117352011624],
-                [5,9,0.06073439672230401],
-                [10,14,0.056610156965866715],
-                [15,19,0.055734527236220355],
-                [20,24,0.061242553503078265],
-                [25,29,0.084312667951918],
-                [30,34,0.08485540244559349],
-                [35,39,0.07647810400230247],
-                [40,44,0.06972663605974079],
-                [45,49,0.07013783964551742],
-                [50,54,0.06819809775119437],
-                [55,59,0.06536916623981272],
-                [60,64,0.0591156851624661],
-                [65,69,0.04532121169797927],
-                [70,74,0.031216894806122424],
-                [75,79,0.02016]
-              ]
+              "population_age_distributions": [{
+                  "num_bins": 16,
+                  "distribution": [
+                    [0, 4, 0.0529582569989547],
+                    [5, 9, 0.0558095490543863],
+                    [10, 14, 0.0604326443303601],
+                    [15, 19, 0.0592331859478199],
+                    [20, 24, 0.0631016111246386],
+                    [25, 29, 0.0702732294593048],
+                    [30, 34, 0.0706992873192425],
+                    [35, 39, 0.0721768569258823],
+                    [40, 44, 0.065064037895203],
+                    [45, 49, 0.0622025507991608],
+                    [50, 54, 0.0589574456633972],
+                    [55, 59, 0.0616100529739052],
+                    [60, 64, 0.0655126196820712],
+                    [65, 69, 0.0604741357747057],
+                    [70, 74, 0.0503101544738328],
+                    [75, 100, 0.0711843815771348]
+                  ]
+                }]
           },
           "employment_rates_by_age": [
             [19,0.300],
@@ -252,7 +255,7 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEqual(location.population_age_distribution_16[0][1], 4,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[0][2], 0.060538117352011624,
+        self.assertEqual(location.population_age_distribution_16[0][2], 0.0529582569989547,
                           "Array entry incorrect")
 
         self.assertEqual(len(location.population_age_distribution_16[1]), 3,
@@ -261,7 +264,7 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEqual(location.population_age_distribution_16[1][1], 9,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[1][2], 0.06073439672230401,
+        self.assertEqual(location.population_age_distribution_16[1][2], 0.0558095490543863,
                           "Array entry incorrect")
 
         self.assertEqual(len(location.employment_rates_by_age), 2,
@@ -524,7 +527,7 @@ class TestLocation(unittest.TestCase):
             att = getattr(location, list_property)
             # what fields are we planning to test...
             if str(list_property) in ["employment_rates_by_age",
-                                      "population_age_distribution_16",
+                                      "population_age_distributions",
                                       "school_size_distribution_by_type",
                                       "school_size_distribution",
                                       "school_size_brackets",
@@ -552,25 +555,27 @@ class TestLocation(unittest.TestCase):
         self.assertEqual(location.employment_rates_by_age[1][1], 0.693,
                           "Array entry incorrect")
 
-        self.assertEqual(len(location.population_age_distribution_16), 16,
+        self.assertEqual(location.population_age_distributions[0].num_bins, 16,
+                          "Num bins incorrect")
+        self.assertEqual(len(location.population_age_distributions[0].distribution), 16,
                           "Array length incorrect")
 
         # Just checking the first couple entries.
-        self.assertEqual(len(location.population_age_distribution_16[0]), 3,
+        self.assertEqual(len(location.population_age_distributions[0].distribution[0]), 3,
                           "Array length incorrect")
-        self.assertEqual(location.population_age_distribution_16[0][0], 0,
+        self.assertEqual(location.population_age_distributions[0].distribution[0][0], 0,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[0][1], 4,
+        self.assertEqual(location.population_age_distributions[0].distribution[0][1], 4,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[0][2], 0.060538117352011624,
+        self.assertEqual(location.population_age_distributions[0].distribution[0][2], 0.0529582569989547,
                           "Array entry incorrect")
-        self.assertEqual(len(location.population_age_distribution_16[1]), 3,
+        self.assertEqual(len(location.population_age_distributions[0].distribution[1]), 3,
                           "Array length incorrect")
-        self.assertEqual(location.population_age_distribution_16[1][0], 5,
+        self.assertEqual(location.population_age_distributions[0].distribution[1][0], 5,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[1][1], 9,
+        self.assertEqual(location.population_age_distributions[0].distribution[1][1], 9,
                           "Array entry incorrect")
-        self.assertEqual(location.population_age_distribution_16[1][2], 0.06073439672230401,
+        self.assertEqual(location.population_age_distributions[0].distribution[1][2], 0.0558095490543863,
                           "Array entry incorrect")
 
         self.assertEqual(len(location.school_size_distribution_by_type), 2,
