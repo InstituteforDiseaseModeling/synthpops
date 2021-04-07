@@ -630,16 +630,18 @@ def test_check_probability_distribution_sums(location_name='usa-Washington-seatt
 
     if property_list is None:
         sp.logger.info(f"Testing all probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
-        check, msg = sp.check_all_probability_distribution_sums(location, tolerance)
-        assert check == True, msg
+        checks, msgs = sp.check_all_probability_distribution_sums(location, tolerance)
+        # assert check == True, msg
+        err_msgs = [msg for msg in msgs if msg is not None]  # only get the msgs for failures
+        err_msg = "\n".join(err_msgs)
+        assert sum(checks) == len(checks), err_msg  # assert that all checks passed
+        print(f'Checks passed. {sum(checks)}, {len(msgs)}')
 
     else:
         sp.logger.info(f"Testing a subset of probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
         for i, property_name in enumerate(property_list):
             check, msg = sp.check_probability_distribution_sum(location, property_name, tolerance)
             assert check == True, msg
-
-        sp.logger.info('')
 
 
 # Examples of how the non negative checks can be run for a subset of properties
@@ -671,8 +673,11 @@ def test_check_probability_distribution_nonnegative(location_name='usa-Washingto
 
 if __name__ == '__main__':
 
+
+    # unittest.main() -v  # run all tests
+
+    # # run tests with non default values
     test_check_probability_distribution_sums()
-    test_check_probability_distribution_nonnegative()
-    test_check_probability_distribution_sums(property_list=['population_age_distribution_16', 'household_size_distribution'])
-    test_check_probability_distribution_nonnegative(property_list=['population_age_distribution_16', 'household_size_distribution'])
+    # test_check_probability_distribution_sums(property_list=['population_age_distribution_16', 'household_size_distribution'])
+    # test_check_probability_distribution_nonnegative(property_list=['population_age_distribution_16', 'household_size_distribution'])
 
