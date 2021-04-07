@@ -445,6 +445,7 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
 
 
 def valid_probability_distributions():
+    """A list of default valid probability distributions."""
     valid_properties = ['population_age_distribution_16',
                         'population_age_distribution_18',
                         'population_age_distribution_20',
@@ -458,6 +459,14 @@ def valid_probability_distributions():
 
 def check_valid_probability_distributions(property_name, valid_properties=None):
     """
+    Check that the property_name is a valid probability distribution.
+
+    Args:
+        property_name (str)            : the property name
+        valid_properties (str or list) : a list of the valid probability distributions
+
+    Returns:
+        None.
     """
     # check the property_name is in the list of valid_probability_distributions()
     if valid_properties is None:
@@ -476,24 +485,14 @@ def check_probability_distribution_nonnegative(location, property_name, valid_pr
     Check that fields representing probability distributions have all non negative values.
 
     Args:
-        location (json)     : the json object with location data
-        property_name (str) : the property name
+        location (json)                : the json object with location data
+        property_name (str)            : the property name
+        valid_properties (str or list) : a list of the valid probability distributions
 
     Returns:
         [True, None] if the values of the probability distribution are all non negative.
         [False, str] else. The returned str is the error message with some information about the check.  
     """
-    # # check the property_name is in the list of valid_probability_distributions()
-    # if valid_properties is None:
-    #     valid_properties = valid_probability_distributions()
-
-    # # if a single str, make into a list so next check will work
-    # if not isinstance(valid_properties, list): # pragma: no cover
-    #     valid_properties = [valid_properties]
-
-    # if property_name not in valid_properties: # pragma: no cover
-    #     raise NotImplementedError(f"{property_name} is not one of the expected probability distributions. The list of expected probability distributions is {valid_properties}. If you wish to use this method on the attribute {property_name}, you can supply it as the parameter valid_properties={property_name}.")
-
     check_valid_probability_distributions(property_name, valid_properties)
 
     arr = get_location_attr(location, property_name)
@@ -524,25 +523,16 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
     Check that fields representing probability distributions have sums equal to 1 within some tolerance.
 
     Args:
-        location (json)     : the json object with location data
-        property_name (str) : the property name
-        tolerance (float)   : difference from the sum of 1 tolerated
-        kwargs (dict)       : dictionary of values passed to np.isclose()
+        location (json)                : the json object with location data
+        property_name (str)            : the property name
+        tolerance (float)              : difference from the sum of 1 tolerated
+        valid_properties (str or list) : a list of the valid probability distributions
+        kwargs (dict)                  : dictionary of values passed to np.isclose()
 
     Returns:
         [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
         [False, str] else. The returned str is the error message with some information about the check.  
     """
-    # check the property_name is in the list of valid_probability_distributions()
-    # if valid_properties is None:
-    #     valid_properties = valid_probability_distributions()
-
-    # # if a single str, make into a list so next check will work
-    # if not isinstance(valid_properties, list):  # pragma no cover
-    #     valid_properties = [valid_properties]
-
-    # if property_name not in valid_properties: # pragma no cover
-    #     raise NotImplementedError(f"{property_name} is not one of the expected probability distributions. The list of expected probability distributions is {valid_properties}. If you wish to use this method on the attribute {property_name}, you can supply it as the parameter valid_properties={property_name}.")
     check_valid_probability_distributions(property_name, valid_properties)
 
     arr = get_location_attr(location, property_name)
@@ -561,12 +551,10 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
             raise NotImplementedError(f"Could not understand an array of shape {arr.shape}: Expected a 1D or 2D array.")
 
         # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
-        # check = np.abs(1 - arr_sum) < tolerance
         if tolerance is not None:
             kwargs['atol'] = tolerance
         check = np.isclose(a=1, b=arr_sum, **kwargs)
 
-        
         if check:
             return [True, None]
         else:
