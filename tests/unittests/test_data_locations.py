@@ -2,7 +2,9 @@
 Test sp.location_data properties
 """
 import pytest
+import tempfile
 import types
+import os
 import synthpops as sp
 
 log = sp.logger
@@ -109,6 +111,55 @@ def test_parent_data_loaded():
     assert parent_location.household_head_age_distribution_by_family_size == child_location.household_head_age_distribution_by_family_size, \
         "household_head_age_distribution_by_family_size incorrect for seattle_metro."
 
+def test_brackets_unavailable():
+    """
+    Test get_population_age_distribution
+    Dakar has only 16/18 age brackets
+    """
+    specific_location = "Dakar"
+    state_location = "Dakar"
+    country_location = "Senegal"
+    location_data= sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
+    assert len(location_data.get_population_age_distribution(nbrackets=16)) == 16
+    assert len(location_data.get_population_age_distribution(nbrackets=18)) == 18
+    assert len(location_data.get_population_age_distribution(nbrackets=20)) == 0
+    with pytest.raises(RuntimeError) as err:
+        location_data.get_population_age_distribution(nbrackets=21)
+        assert "Unsupported value for nbrackets" in str(err.value)
+
+def test_attribute_unavailable():
+    location_data = sp.load_location(None, None, None, revert_to_default=True)
+    with pytest.raises(AttributeError):
+        location_data.school_attr_noexistent
+
+def test_save_location_to_filepath():
+    location_data = sp.load_location(None, None, None, revert_to_default=True)
+    outfile = tempfile.mktemp(suffix=".json")
+    try:
+        sp.save_location_to_filepath(location_data, outfile)
+        assert os.stat(outfile).st_size > 0
+        saved_location_data = sp.load_location_from_json_str(open(outfile, 'r').read())
+        assert saved_location_data.location_name == location_data.location_name
+    finally:
+        os.remove(outfile) if os.path.exists(outfile) else None
+
+def test_populate_parent_exception():
+    """
+    Test if loading parent data from a wrong file, the same location is returned
+    if populate_parent_data is not a vaild json string or json type, error is returned
+    """
+    specific_location = ""
+    state_location = ""
+    country_location = "usa"
+    location_data = sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
+    parent_data = sp.data.populate_parent_data_from_file_path(location_data, "badfile.json")
+    assert parent_data == location_data
+    # pass parent in list which is not supported
+    with pytest.raises(RuntimeError) as err:
+        test_location = sp.load_location_from_json_str('{"location_name": "X"}')
+        test_location.parent = ["Y"]
+        sp.populate_parent_data(test_location)
+        assert "Invalid type" in str(err)
 
 if __name__ == "__main__":
     testcase = 'test_location_data'
