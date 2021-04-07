@@ -555,7 +555,7 @@ We expected the sum of these probabilities to be less than {tolerance} from 1."]
         # return [False, f"Could not check if probability distribution summed to 1 for property: {property_name}."]
 
 
-def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, **kwargs):
+def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=False, **kwargs):
     """
     Checks that each probability distribution available to a location has a sum
     close to 1.
@@ -568,7 +568,6 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
     Returns:
         list, list: List of checks and a list of associated error messages.
     """
-    # property_list = valid_probability_distributions()
     property_list = defaults.valid_probability_distributions
 
     checks, msgs = [], []
@@ -581,13 +580,13 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
         if not check:
             if die: # pragma: no cover
                 raise ValueError(msg)
-            else:
+            elif verbose:
                 warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
     return checks, msgs
 
 
-def check_all_probability_distribution_nonnegative(location, die=False):
+def check_all_probability_distribution_nonnegative(location, die=False, verbose=False):
     """
     Run checks that a field representing probabilty distributions has all non
     negative values.
@@ -596,23 +595,24 @@ def check_all_probability_distribution_nonnegative(location, die=False):
         location (json)     : json object with the location data
 
     Returns:
-        [True, None] if the probability distribution has all non negative values.
-        [False, str] else. The returned str is the error message with some
-        information about the check.
+        list, list: List of checks and a list of associated error messages.
     """
-    # property_list = valid_probability_distributions()
     property_list = defaults.valid_probability_distributions
+
+    checks, msgs = [], []
 
     for i, property_name in enumerate(property_list):
         check, msg = check_probability_distribution_nonnegative(location, property_name)
+        checks.append(check)
+        msgs.append(msg)
         # assert check, msg  # instead of raising assertion error, send a warning so we can have fake data
         if not check:
             if die: # pragma: no cover
                 raise ValueError(msg)
-            else:
+            elif verbose:
                 warnings.warn(msg)
         cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
-    return check, msg
+    return checks, msgs
 
 
 def check_location_name(location):
