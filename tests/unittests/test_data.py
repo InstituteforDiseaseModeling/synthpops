@@ -675,6 +675,7 @@ class Testconvert_df_to_json_array(unittest.TestCase):
       
         arr, json_array = self.setup_convert_df_to_json_array(pars)
         assert arr == json_array, "Arrays don't match"
+
         if verbose:
             print(f"The pandas table converted to an array matches the corresponding json array for {pars.property_name} in location: {pars.location_name}")
 

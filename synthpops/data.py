@@ -710,14 +710,11 @@ def convert_df_to_json_array(df, cols, int_cols=None):
     df = df[cols]
     columns = df.columns.values.tolist()
 
-    # numpy array of data
-    m = np.array(df.values)
-
     # make into a list to iterate over
     int_cols = sc.tolist(int_cols)
 
     # make an array of arrays
-    arr = [list(row) for row in m]
+    arr = df.values.tolist()
 
     # convert some columns in every row into integer values
     for row in arr:
