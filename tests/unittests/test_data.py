@@ -627,6 +627,7 @@ pars = sc.objdict(
             int_cols_ind  = [],  # list of column induces to convert to ints
             )
 
+
 class Testconvert_df_to_json_array(unittest.TestCase):
     """
     Test different aspects of the sp.data.convert_df_to_json_array() method.
@@ -699,7 +700,3 @@ class Testconvert_df_to_json_array(unittest.TestCase):
 if __name__ == '__main__':
 
     unittest.main(verbosity=2)  # run every test in this file
-
-    # # run a subset of the tests here
-    # test_convert_df_to_json_array_age_distribution_16(verbose=True)
-    # test_convert_df_to_json_entry_int_values()
