@@ -306,7 +306,7 @@ def get_relative_path(datadir):
         base_dir = os.path.join(datadir, *cfg.rel_path)
     return base_dir
 
-# DM: is there a way to include this check and not interfere
+
 def get_location_attr(location, property_name):
     """
     Get the attribute from the json object containing location data given the
@@ -317,8 +317,8 @@ def get_location_attr(location, property_name):
         property_name (str) : the property name
 
     Returns:
-        If property_name exists in the location json object, return that
-        attribute from the json object. Else, return None.
+        If property_name exists in the location json object, return [True, attribute].
+        Else, return [False, None].
     """
     if property_name in location.keys():
         return getattr(location, property_name)
@@ -504,8 +504,7 @@ def check_probability_distribution_nonnegative(location, property_name, valid_pr
         else:
             return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
     else:
-        return [False, f"{property_name} could not be checked for negative values."]
-        # return [False, f"Could not check if probability distribution has negative values for property: {property_name}."]
+        return [False, f"{location.location_name} {property_name} could not be checked for negative values."]
 
 
 def check_probability_distribution_sum(location, property_name, tolerance=1e-2, valid_properties=None, **kwargs):
@@ -552,7 +551,6 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
 We expected the sum of these probabilities to be less than {tolerance} from 1."]
     else:
         return [False, f"{location.location_name} {property_name} could not be checked for a sum close to 1."]
-        # return [False, f"Could not check if probability distribution summed to 1 for property: {property_name}."]
 
 
 def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=False, **kwargs):
