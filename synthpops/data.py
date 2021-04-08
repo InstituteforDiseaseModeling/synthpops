@@ -459,7 +459,6 @@ def check_valid_probability_distributions(property_name, valid_properties=None):
     # check the property_name is in the list of valid_probability_distributions()
     if valid_properties is None:
         valid_properties = defaults.valid_probability_distributions
-        # valid_properties = valid_probability_distributions()
 
     # if a single str, make into a list so next check will work
     if not isinstance(valid_properties, list): # pragma: no cover

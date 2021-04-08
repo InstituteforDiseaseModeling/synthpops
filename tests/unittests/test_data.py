@@ -695,6 +695,7 @@ if __name__ == '__main__':
     # t1.test_load_minimal_location_with_parent_filepath()
     # t1.test_load_minimal_location_with_parent_filepath_from_filepath()
 
+    # # run checks on a subset of the properties by specifying property_list
     # t2 = TestChecks()
     # t2.test_check_probability_distribution_sums(property_list=['population_age_distribution_16', 'household_size_distribution'])
     # t2.test_check_probability_distribution_nonnegative(property_list=['population_age_distribution_16', 'household_size_distribution'])
