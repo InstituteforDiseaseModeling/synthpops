@@ -1,6 +1,7 @@
 """
 This module provides plotting methods including methods to plot the age-specific contact matrix in different contact layers.
 """
+import itertools
 import os
 import sciris as sc
 import numpy as np
@@ -33,7 +34,8 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plot_workplace_sizes',
-           'plot_household_head_ages_by_size']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+           'plot_household_head_ages_by_size',
+           'plot_contact_counts']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.objdict):
@@ -1657,5 +1659,31 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
 
     return fig, ax
 
+def plot_contact_counts(contact_counter, varname, varvalue, **kwargs):
+    """
 
+    Args:
+        contact_counter: A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
+        and each value is a dictionary which stores the list of counts for each type of contacts:
+        for example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+        varname      : variable name used for plotting to identify the scenario
+        varvalue     : variable value used for plotting to identify the scenario
+        **kwargs:
 
+    Returns:
+        a histogram of contact distributions for the corresponding contact_counter
+    """
+    plkwargs = plotting_kwargs()
+    method_defaults = sc.objdict(figname=f"contacts_{varname}_{varvalue}",)
+    plkwargs.update_defaults(method_defaults, kwargs)
+    people_types = contact_counter.keys()
+    contact_types = contact_counter[next(iter(contact_counter))].keys()
+    fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(30, 20))
+    fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
+    for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
+        ax.hist(contact_counter[counter[0]][counter[1]])
+        ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': 20})
+        ax.tick_params(axis='both', which='major', labelsize=20)
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        finalize_figure(fig, plkwargs)
+    return fig, ax
