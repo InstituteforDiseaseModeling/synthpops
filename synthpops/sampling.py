@@ -2,11 +2,13 @@
 
 import numpy as np
 import numba as nb
+import pandas as pd
 import sciris as sc
 import random
 import itertools
 import bisect
 import scipy
+from scipy import stats as st
 import warnings
 from . import base as spb
 
@@ -266,3 +268,29 @@ def check_poisson(*args, **kwargs):
     ''' Alias to check_dist(dist='poisson') '''
     dist = kwargs.pop('dist', 'poisson')
     return check_dist(*args, **kwargs, dist=dist)
+
+
+def statistic_test(expected, actual, test=st.chisquare, **kwargs):
+    """
+    Perform statistics checks for exepected and actual data
+    based on the null hypothesis that expected/actual distributions are identical
+    throw assertion if the expected/actual differ significantly based on the test selected
+    see https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-tests
+    Args:
+        expected : expected data (array)
+        actual   : actual data (array)
+        test     : scipy statistical tests functions, for example scipy.
+        **kwargs : optional arguments for statistical tests
+
+    Returns:
+        None.
+    """
+    print(f"expected data: \n{pd.Series(expected).describe()}")
+    print(f"actual data: \n{pd.Series(actual).describe()}")
+    print(f"use {str(test.__name__)} to check actual distribution")
+    s, p = test(expected, actual, **kwargs)
+    print(f"statistics: {s} pvalue:{p}")
+
+    assert p > 0.05, f"Under the null hypothesis the expected/actual distributions are identical." \
+                     f" If statistics is small or the p-value is high (greater than the significance level 5%)" \
+                     f", then we cannot reject the hypothesis. But we got p={p} and s={s}"

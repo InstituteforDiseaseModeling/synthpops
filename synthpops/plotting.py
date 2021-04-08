@@ -1674,16 +1674,24 @@ def plot_contact_counts(contact_counter, varname, varvalue, **kwargs):
         a histogram of contact distributions for the corresponding contact_counter
     """
     plkwargs = plotting_kwargs()
-    method_defaults = sc.objdict(figname=f"contacts_{varname}_{varvalue}",)
+    method_defaults = sc.objdict(figname=f"contacts_{varname}_{varvalue}",
+                                 fontsize=20,)
     plkwargs.update_defaults(method_defaults, kwargs)
     people_types = contact_counter.keys()
     contact_types = contact_counter[next(iter(contact_counter))].keys()
     fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(30, 20))
     fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
-    for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
-        ax.hist(contact_counter[counter[0]][counter[1]])
-        ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': 20})
-        ax.tick_params(axis='both', which='major', labelsize=20)
-        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        finalize_figure(fig, plkwargs)
-    return fig, ax
+    if max(len(people_types), len(contact_types))>1:
+        for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
+            ax.hist(contact_counter[counter[0]][counter[1]])
+            ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': plkwargs.fontsize})
+            ax.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
+    else:
+        from_index = list(people_types)[0]
+        to_index = list(contact_types)[0]
+        axes.hist(contact_counter.get(from_index).get(to_index))
+        axes.set_title(f'{from_index} to {to_index}', {'fontsize': plkwargs.fontsize})
+        axes.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    finalize_figure(fig, plkwargs)
+    return fig, axes

@@ -437,8 +437,9 @@ def get_contact_counts_by_people_types(popdict,
                     # store sc_teacher, sc_student, sc_staff, all_staff and all below
                     for k2 in people_types:
                         index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                    index_switcher.get(k1)["all_staff"].append(
-                        count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+                    if layer == "s":
+                        index_switcher.get(k1)["all_staff"].append(
+                            count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                        index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     return contact_counter
