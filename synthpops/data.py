@@ -1,4 +1,5 @@
 import numpy as np
+import sciris as sc
 import json
 import jsbeautifier
 from jsonobject import *
@@ -707,14 +708,13 @@ def convert_df_to_json_array(df, cols, int_cols=None):
         json data objects.
     """
     df = df[cols]
-    columns = list(df.columns.values)
+    columns = df.columns.values.tolist()
 
     # numpy array of data
     m = np.array(df.values)
 
     # make into a list to iterate over
-    if not isinstance(int_cols, list):
-        int_cols = [int_cols]
+    int_cols = sc.tolist(int_cols)
 
     # make an array of arrays
     arr = [list(row) for row in m]
