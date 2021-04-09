@@ -624,7 +624,7 @@ class TestLocation(unittest.TestCase):
 
 pars = sc.objdict(
             location_name = 'usa-Washington',  # name of the location
-            property_name = 'population_age_distribution_16',  # name of the property to compare to
+            property_name = 'population_age_distributions',  # name of the property to compare to
             filepath      = os.path.join(sp.datadir, 
                                          'unittests',
                                          'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
@@ -666,6 +666,9 @@ class Testconvert_df_to_json_array(unittest.TestCase):
         location = sp.load_location_from_filepath(f"{pars.location_name}.json")
 
         json_array = getattr(location, pars.property_name)
+
+        if pars.property_name == 'population_age_distributions':
+            json_array = [j for j in json_array if j.num_bins == len(arr)][0].distribution
 
         return arr, json_array
 
