@@ -1666,10 +1666,11 @@ def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
         and each value is a dictionary which stores the list of counts for each type of contacts
         for example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
     Args:
-        contact_counter: A dictionary with people_types as keys and value as list of counts for each type of contacts
-        varname      : variable name used for plotting to identify the scenario
-        varvalue     : variable value used for plotting to identify the scenario
-        **kwargs:
+        contact_counter (dict)  : A dictionary with people_types as keys and value as list of counts for each type of contacts
+        varname (str)           : variable name used for plotting to identify the scenario
+        varvalue (str)          : variable value used for plotting to identify the scenario
+        **figname (str)         : name to save figure to disk
+        **fontsize (float)      : Matplotlib.figure.fontsize
 
     Returns:
         a histogram of contact distributions for the corresponding contact_counter
