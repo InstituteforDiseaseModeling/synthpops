@@ -9,7 +9,6 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from .config import logger as log, checkmem
 
-__all__ = ['get_contact_counts_by_layer']
 
 def make_contacts_from_microstructure_objects(age_by_uid_dic,
                                               homes_by_uids,
