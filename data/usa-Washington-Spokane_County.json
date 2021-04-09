@@ -1,9 +1,19 @@
 {
   "location_name": "usa-Washington-Spokane_County",
   "data_provenance_notices": [],
-  "reference_links": ["https://data.census.gov/cedsci"],
-  "citations": ["American Community Survey 2019: Spokane County, WA", "Long-Term Care Providers and Service Users in the United States, 2015-2016"],
-  "notes": [""],
+  "reference_links": ["https://data.census.gov/cedsci",
+    "https://khn.org/news/look-up-how-nursing-home-staffing-fluctuates-nationwide/",
+    "https://data.wa.gov/Education/Report-Card-Enrollment-2019-20-School-Year/gtd3-scga",
+  ],
+  "citations": [
+    "American Community Survey 2019: Spokane County, WA", 
+    "Long-Term Care Providers and Service Users in the United States, 2015-2016",
+    "Look-Up: How Nursing Home Staffing Fluctuates Nationwide, Kaiser Health News, 05-02-2019",
+    "Report Card Enrollment 2019-20 School Year, Washington Office of Superintendent of Public Instruction",
+  ],
+  "notes": [
+    "Kaiser Health News analysis of data from the Centers for Medicare & Medicaid Services based on staffing levels, January-March 2018"
+    ],
   "parent": "usa-Washington.json",
   "population_age_distribution_16": [
     [0, 4, 0.060017444596192],
