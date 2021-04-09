@@ -1,7 +1,7 @@
 """Example showing how to use the synthpops data api to create a new location file and save it."""
-import synthpops.data
-from synthpops.data import SchoolSizeDistributionByType, SchoolTypeByAge
-import synthpops.config
+# import synthpops.data
+# from synthpops.data import SchoolSizeDistributionByType, SchoolTypeByAge
+import synthpops as sp
 import os
 
 if __name__ == '__main__':
@@ -10,7 +10,8 @@ if __name__ == '__main__':
 
     print('Creating location data...')
 
-    location_data = synthpops.data.Location()
+    location_data = sp.Location()
+
 
     location_data.location_name = "Everythingbagelton"
     location_data.data_provenance_notices = ["This data was completely made up."]
@@ -20,10 +21,26 @@ if __name__ == '__main__':
 
     location_data.parent = None
 
-    location_data.population_age_distribution_16 = [
+    location_data.population_age_distributions = []
+    location_data.population_age_distributions.append(sp.PopulationAgeDistribution())
+
+    location_data.population_age_distributions[0].num_bins = 2
+
+    location_data.population_age_distributions[0].distribution = [
         [0,   5, 0.1],
         [6, 110, 0.9]
     ]
+
+    location_data.population_age_distributions.append(sp.PopulationAgeDistribution())
+    location_data.population_age_distributions[1].num_bins = 4
+    location_data.population_age_distributions[1].distribution = [
+        [0,    5, 0.25],
+        [6,   20, 0.25],
+        [21,  60, 0.25],
+        [61, 100, 0.25]
+    ]
+
+
 
     location_data.employment_rates_by_age = [
         [0,  5,   0.0],
@@ -99,30 +116,30 @@ if __name__ == '__main__':
     ]
 
     location_data.school_size_distribution_by_type = [
-        SchoolSizeDistributionByType(school_type="pk",
+        sp.SchoolSizeDistributionByType(school_type="pk",
                                      size_distribution=[
                                          0.111, 0.111, 0.111
                                      ]),
-        SchoolSizeDistributionByType(school_type="es",
+        sp.SchoolSizeDistributionByType(school_type="es",
                                      size_distribution=[
                                          0.111, 0.111, 0.111
                                      ]),
-        SchoolSizeDistributionByType(school_type="ms",
+        sp.SchoolSizeDistributionByType(school_type="ms",
                                      size_distribution=[
                                          0.111, 0.111, 0.111
                                      ])
     ]
 
     location_data.school_types_by_age = [
-        SchoolTypeByAge(school_type="pk",
+        sp.SchoolTypeByAge(school_type="pk",
                         age_range=[
                             1, 5
                         ]),
-        SchoolTypeByAge(school_type="es",
+        sp.SchoolTypeByAge(school_type="es",
                         age_range=[
                             6, 10
                         ]),
-        SchoolTypeByAge(school_type="ms",
+        sp.SchoolTypeByAge(school_type="ms",
                         age_range=[
                             11, 13
                         ])
@@ -138,4 +155,5 @@ if __name__ == '__main__':
 
     # Save the location data.
     print(f'Saving location data to [{output_location_filepath}]')
-    synthpops.data.save_location_to_filepath(location_data, output_location_filepath)
+    sp.save_location_to_filepath(location_data, output_location_filepath)
+
