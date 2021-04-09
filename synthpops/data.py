@@ -1,3 +1,5 @@
+import numpy as np
+import sciris as sc
 import json
 import jsbeautifier
 from jsonobject import *
@@ -640,3 +642,30 @@ def check_workplace_size_counts_by_num_personnel(location):
         [True, None] if checks pass. [False, str] if checks fail.
     """
     return check_array_of_arrays_entry_lens(location, 3, 'workplace_size_counts_by_num_personnel')
+
+
+def convert_df_to_json_array(df, cols, int_cols=None):
+    """
+    Convert desired data from a pandas dataframe into a json array.
+
+    Args:
+        df (pandas dataframe)  : the dataframe with data
+        cols (list)            : list of the columns to convert to the json array format
+        int_cols (str or list) : a str or list of columns to convert to integer values
+
+    Returns:
+        array: An array version of the pandas dataframe to be added to synthpops
+        json data objects.
+    """
+    df = df[cols]
+    columns = df.columns.values.tolist()
+
+    # make into a list to iterate over
+    int_cols = sc.tolist(int_cols)
+
+    # make an array of arrays
+    arr = df.values.tolist()
+
+    arr = [[int(j) if columns[nj] in int_cols else j for nj, j in enumerate(i)] for i in arr]
+
+    return arr

@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+import sciris as sc
 import synthpops as sp
 import os
 import unittest
@@ -617,3 +620,89 @@ class TestLocation(unittest.TestCase):
                           "Array entry incorrect")
         self.assertEqual(location.school_size_distribution[1], 0.55,
                           "Array entry  incorrect")
+
+
+pars = sc.objdict(
+            location_name = 'usa-Washington',  # name of the location
+            property_name = 'population_age_distribution_16',  # name of the property to compare to
+            filepath      = os.path.join(sp.datadir, 
+                                         'unittests',
+                                         'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
+            cols_ind      = [],  # list of column indices to include in array in conversion
+            int_cols_ind  = [],  # list of column induces to convert to ints
+            )
+
+
+class Testconvert_df_to_json_array(unittest.TestCase):
+    """
+    Test different aspects of the sp.data.convert_df_to_json_array() method.
+    """
+
+    def setup_convert_df_to_json_array(self, pars):
+        """
+        Set up objects to compare.
+
+        Returns:
+            array, json.array : An array of the desired data from a dataframe and
+            the json entry for comparison.
+        """
+        df = pd.read_csv(pars.filepath)
+
+        # columns to include : include all by default
+        if pars.cols_ind == []:
+            cols = df.columns
+        else:
+            cols = df.columns[pars.cols_ind]  # use indices to indicate which columns to include
+
+        if pars.int_cols_ind == []:
+            int_cols = pars.int_cols_ind
+        else:
+            int_cols = list(df.columns[pars.int_cols_ind].values)
+
+        # array-ify all the data, convert some columns to integers
+        arr = sp.convert_df_to_json_array(df, cols, int_cols)
+
+        # corresponding json data object for the same location and data
+        location = sp.load_location_from_filepath(f"{pars.location_name}.json")
+
+        json_array = getattr(location, pars.property_name)
+
+        return arr, json_array
+
+
+    def test_convert_df_to_json_array_age_distribution_16(self, verbose=False):
+        """
+        Test that the sp.convert_df_to_json_entry() converts the desired data from
+        a dataframe to an array of arrays like those that can be uploaded to the
+        json data objects synthpops uses.
+        """
+        sp.logger.info("Testing method to convert pandas dataframe to json arrays.")
+      
+        arr, json_array = self.setup_convert_df_to_json_array(pars)
+        assert arr == json_array, "Arrays don't match"
+
+        if verbose:
+            print(f"The pandas table converted to an array matches the corresponding json array for {pars.property_name} in location: {pars.location_name}")
+
+
+    def test_convert_df_to_json_entry_int_values(self):
+        """
+        Test that when converting a df to arrays, some of the columns specified are
+        made into ints, like when we have columns specifying the age bracket min or
+        max values.
+        """
+        sp.logger.info("Test that specified columns are converted to ints when data from a df is converted to a json array.")
+        test_pars = sc.dcp(pars)
+        test_pars.int_cols_ind = [0, 1]  # want to convert values from columns 0 and 1 to integers
+
+        arr, json_array = self.setup_convert_df_to_json_array(test_pars)
+
+        for i in range(len(arr)):
+            for j in test_pars.int_cols_ind:
+                 assert isinstance(arr[i][j], int), f"Value at ({i},{j}): {arr[i][j]} is not an integer as expected."
+        print("Check passed. Some columns were converted to ints as expected.")
+
+
+if __name__ == '__main__':
+
+    unittest.main(verbosity=2)  # run every test in this file
