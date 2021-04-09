@@ -1,6 +1,5 @@
 """Example showing how to use the synthpops data api to create a new location file and save it."""
-# import synthpops.data
-# from synthpops.data import SchoolSizeDistributionByType, SchoolTypeByAge
+
 import synthpops as sp
 import os
 

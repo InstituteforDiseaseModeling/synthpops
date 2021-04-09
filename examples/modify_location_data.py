@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # interpreted relative to the directory provided to synthpops.config.set_datadir(). In this case,
     # we are setting that to be the python working directory.  So, the argument to load_location_from_filepath()
     # will be interpreted relative to the python working directory.
-    # location_data: synthpops.data.Location = synthpops.data.load_location_from_filepath(input_location_filepath)
+
     location_data: sp.Location = sp.load_location_from_filepath(input_location_filepath)
 
 
@@ -41,5 +41,4 @@ if __name__ == '__main__':
 
     # Save the location data.
     print(f'Saving location data to [{output_location_filepath}], relative to python working directory: [{os.getcwd()}]')
-    # synthpops.data.save_location_to_filepath(location_data, output_location_filepath)
     sp.save_location_to_filepath(location_data, output_location_filepath)
