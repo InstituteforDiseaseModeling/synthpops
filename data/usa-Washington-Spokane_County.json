@@ -1,8 +1,8 @@
 {
   "location_name": "usa-Washington-Spokane_County",
   "data_provenance_notices": [],
-  "reference_links": [],
-  "citations": [],
+  "reference_links": ["https://data.census.gov/cedsci"],
+  "citations": ["American Community Survey 2019: Spokane County, WA"],
   "notes": [],
   "parent": "usa-Washington.json",
   "population_age_distribution_16": [
