@@ -385,11 +385,11 @@ def get_contact_counts_by_layer(popdict,
     Helper method to get contact counts for teachers, students and staffs in the popdict
 
     Args:
-        popdict : popdict of a Pop object
-        layer   : contact layer, for example 's' for school, 'w' for workplace
+        popdict (dict)  : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
 
     Returns:
-        A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
+        dict: A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
         and each value is a dictionary which stores the list of counts for each type of contacts:
         default to ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
         for example: contact_counter['sc_teacher']['sc_teacher'] store the counts of each teacher's "teacher" contact

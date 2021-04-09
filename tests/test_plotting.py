@@ -306,16 +306,29 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
     return fig, ax, pop
 
 def test_plot_contact_count(do_show, do_save):
-    contacts = {
+    # multiple subplots
+    contacts1 = {
         "people_type1": {
             "contact_type1": [2, 3, 4, 3, 4, 3, 4, 2, 1, 2],
             "contact_type2": [10, 22, 11, 12, 9, 9, 8, 10, 11, 10]
+        },
+        "people_type2": {
+            "contact_type1": [1, 3, 4, 3, 5, 3, 4, 4, 1, 2],
+            "contact_type2": [10, 21, 11, 11, 10, 9, 8, 10, 11, 10]
+        }
+    }
+    # single subplot
+    contacts2 = {
+        "people_type": {
+            "contact_type": [2, 3, 4, 3, 4, 3, 4, 2, 1, 2]
         }
     }
     params = sc.objdict(do_save=do_save, do_show=do_show)
-    fig, ax = sp.plot_contact_counts(contact_counter=contacts, varname="test", varvalue="true", **params)
-    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
-    print('Check passed. Figure made.')
+    fig1, ax1 = sp.plot_contact_counts(contact_counter=contacts1, varname="test", varvalue="true", **params)
+    assert isinstance(fig1, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    fig2, ax2 = sp.plot_contact_counts(contact_counter=contacts2, varname="test", varvalue="true", **params)
+    assert isinstance(fig2, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    print('Check passed. Figures made.')
 
 
 if __name__ == '__main__':
