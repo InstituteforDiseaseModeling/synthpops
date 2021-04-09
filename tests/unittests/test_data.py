@@ -700,4 +700,7 @@ class Testconvert_df_to_json_array(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    unittest.main(verbosity=2)  # run every test in this file
+    # unittest.main(verbosity=2)  # run every test in this file
+
+    t = Testconvert_df_to_json_array()
+    t.test_convert_df_to_json_entry_int_values()
