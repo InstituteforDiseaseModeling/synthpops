@@ -305,6 +305,19 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
 
     return fig, ax, pop
 
+def test_plot_contact_count(do_show, do_save):
+    contacts = {
+        "people_type1": {
+            "contact_type1": [2, 3, 4, 3, 4, 3, 4, 2, 1, 2],
+            "contact_type2": [10, 22, 11, 12, 9, 9, 8, 10, 11, 10]
+        }
+    }
+    params = sc.objdict(do_save=do_save, do_show=do_show)
+    fig, ax = sp.plot_contact_counts(contact_counter=contacts, varname="test", varvalue="true", **params)
+    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    print('Check passed. Figure made.')
+
+
 if __name__ == '__main__':
 
     T = sc.tic()

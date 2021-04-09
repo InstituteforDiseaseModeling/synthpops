@@ -433,7 +433,7 @@ def get_contact_counts_by_layer(popdict,
             }
             for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
-                if person.get(k1):
+                if person.get(k1) is not None:
                     # store sc_teacher, sc_student, sc_staff, all_staff and all below
                     if layer == "S":
                         for k2 in people_types:
