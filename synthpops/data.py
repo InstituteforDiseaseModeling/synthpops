@@ -708,14 +708,14 @@ def convert_df_to_json_array(df, cols, int_cols=None):
         json data objects.
     """
     df = df[cols]
-    columns = df.columns.values.tolist()
 
     # make into a list to iterate over
     int_cols = sc.tolist(int_cols)
 
-    # make an array of arrays
-    arr = df.values.tolist()
+    # some columns as ints
+    df = df.astype({k: int for k in int_cols})
 
-    arr = [[int(j) if columns[nj] in int_cols else j for nj, j in enumerate(i)] for i in arr]
+    # make an array of arrays --- dtype=object to preserve each columns type
+    arr = df.to_numpy(dtype=object).tolist()
 
     return arr
