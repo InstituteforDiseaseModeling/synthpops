@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from . import base as spb
 from . import data_distributions as spdata
+from . import data_distributions_legacy
 import os
 
 
@@ -350,7 +351,7 @@ def process_long_term_care_facility_rates_by_age(datadir, state_location, countr
     acs_period = 1  # using ACS 1 year estimates
     part = 2  # which part of the LTCF state data table to use
 
-    ltcf_df = spdata.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part=part)
+    ltcf_df = data_distributions_legacy.get_usa_long_term_care_facility_data(datadir, state_location, country_location, part=part)
     ltcf_age_bracket_keys = ['Under 65', '65–74', '75–84', '85 and over']  # age brackets as defined by National LTCF Providers survey
 
     facility_keys = ['Nursing home',
