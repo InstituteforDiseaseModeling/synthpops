@@ -1,5 +1,7 @@
 import synthpops as sp
+from synthpops import contact_networks as cn
 import sciris as sc
+import pytest
 import setup_e2e as e2e
 from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 import scipy
@@ -24,8 +26,8 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
                                             country_location=create_sample_pop_e2e.country_location))
 
     # calculate the workplace contacts count and plot
-    contacts = sp.get_contact_counts_by_people_types(create_sample_pop_e2e.popdict, layer="w")
-    sp.plot_contact_counts(contacts, varname="total_worker", varvalue=len(contacts.get("wpid").get("wpid")), **plotting_kwargs)
+    contacts = cn.get_contact_counts_by_layer(create_sample_pop_e2e.popdict, layer="w")
+    sp.plot_contact_counts(contacts, varname="total_worker", varvalue=len(contacts.get("wpid").get("all")), **plotting_kwargs)
     # calculate expected count by using actual number of workplaces
     expected_count = {k:expected_distr[k]*sum(actual_count.values())for k in expected_distr}
     # perform statistical check
@@ -53,6 +55,12 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     generated_expected = sum([[i] * expected_employment_age_count[i] for i in expected_employment_age_count], [])
     # run statistical tests for employment by age distribution
     # TODO: Need to refine the data for fair comparison
-    # sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest)
+    sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest)
     # plot enrollment by age
     create_sample_pop_e2e.plot_enrollment_rates_by_age(**plotting_kwargs)
+
+if __name__ == "__main__":
+    # you can pass --do-save --do-show --artifact-dir argument to view/save the figures
+    # for running individual tests, you can do this
+    testcase = 'test_employment_age_distribution'
+    pytest.main(['-v', '-k', testcase, '--do-show'])

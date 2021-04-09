@@ -11,5 +11,4 @@ from .schools import *
 from .workplaces import *
 from .pop import *
 from .data import *
-from .contact_networks import *
 logger.debug('Finished imports')

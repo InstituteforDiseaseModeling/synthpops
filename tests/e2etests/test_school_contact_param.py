@@ -15,6 +15,7 @@ import os
 import pytest
 import pathlib
 import synthpops as sp
+from synthpops import contact_networks as cn
 import sciris as sc
 from setup_e2e import get_fig_dir
 
@@ -42,7 +43,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     )
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
-    contacts = sp.get_contact_counts_by_people_types(pop.popdict)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
     sp.plot_contact_counts(contacts, "average_class_size", average_class_size, **plotting_kwargs)
     counts = []
     if not pop.school_pars.with_school_types:
@@ -60,6 +61,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
     if do_show:
         plt.show()
+    plt.close()
     return
 
 
@@ -81,7 +83,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
     )
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
-    contacts = sp.get_contact_counts_by_people_types(pop.popdict)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
     sp.plot_contact_counts(contacts, "average_additional_staff_degree",
                            average_additional_staff_degree, **plotting_kwargs)
     counts = contacts['sc_staff']['all']
@@ -157,7 +159,7 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show,
     )
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
-    contacts = sp.get_contact_counts_by_people_types(pop.popdict)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
     sp.plot_contact_counts(contacts, "average_teacher_teacher_degree",
                            average_teacher_teacher_degree, **plotting_kwargs)
     counts = contacts['sc_teacher']['sc_teacher']
@@ -215,7 +217,7 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
         if do_save:
             os.makedirs(fig_dir, exist_ok=True)
             plt.savefig(os.path.join(fig_dir, f"{varname}_{str(varvalue)}.png"))
-            plt.close()
+        plt.close()
     return ratio
 
 

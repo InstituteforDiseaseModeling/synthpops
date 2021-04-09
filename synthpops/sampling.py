@@ -270,7 +270,7 @@ def check_poisson(*args, **kwargs):
     return check_dist(*args, **kwargs, dist=dist)
 
 
-def statistic_test(expected, actual, test=st.chisquare, **kwargs):
+def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False, **kwargs):
     """
     Perform statistics checks for exepected and actual data
     based on the null hypothesis that expected/actual distributions are identical
@@ -290,7 +290,11 @@ def statistic_test(expected, actual, test=st.chisquare, **kwargs):
     print(f"use {str(test.__name__)} to check actual distribution")
     s, p = test(expected, actual, **kwargs)
     print(f"statistics: {s} pvalue:{p}")
-
-    assert p > 0.05, f"Under the null hypothesis the expected/actual distributions are identical." \
-                     f" If statistics is small or the p-value is high (greater than the significance level 5%)" \
-                     f", then we cannot reject the hypothesis. But we got p={p} and s={s}"
+    if p<0.05:
+        msg = f"Under the null hypothesis the expected/actual distributions are identical." \
+              f"If statistics is small or the p-value is high (greater than the significance level 5%)," \
+              f" then we cannot reject the hypothesis. But we got p={p} and s={s}"
+        if die:
+            raise ValueError(msg)
+        elif verbose:
+            warnings.warn(msg)

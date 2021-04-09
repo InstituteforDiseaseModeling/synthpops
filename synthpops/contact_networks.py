@@ -9,7 +9,7 @@ from . import data_distributions as spdata
 from . import schools as spsch
 from .config import logger as log, checkmem
 
-__all__ = ['get_contact_counts_by_people_types']
+__all__ = ['get_contact_counts_by_layer']
 
 def make_contacts_from_microstructure_objects(age_by_uid_dic,
                                               homes_by_uids,
@@ -380,8 +380,8 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     return popdict
 
-def get_contact_counts_by_people_types(popdict,
-                                       layer='s'):
+def get_contact_counts_by_layer(popdict,
+                                layer='S'):
     """
     Helper method to get contact counts for teachers, students and staffs in the popdict
 
@@ -395,10 +395,15 @@ def get_contact_counts_by_people_types(popdict,
         default to ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
         for example: contact_counter['sc_teacher']['sc_teacher'] store the counts of each teacher's "teacher" contact
     """
-    if layer=='s':
+    layer=layer.upper()
+    layer_keys = {"S": "scid",
+                  "W": "wpid",
+                  "H": "hhid",
+                  "LTCF": "snfid"}
+
+    if layer=='S':
         people_types = ['sc_teacher', 'sc_student', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
-        layer_key = 'scid'
         contact_counter = {k:dict(zip(contact_types, ([] for _ in contact_types))) for k in
                            dict.fromkeys(people_types)}
         # index_switcher is a case-switch selector for the person selected by its type
@@ -407,39 +412,36 @@ def get_contact_counts_by_people_types(popdict,
             'sc_student': contact_counter['sc_student'],
             'sc_staff': contact_counter['sc_staff']
         }
-    elif layer=='w':
-        people_types =['wpid']
-        contact_types = ['wpid']
-        layer_key = 'wpid'
+    elif layer in ["W", "H", "LTCF"]:
+        people_types =[layer_keys[layer]]
+        contact_types = ['all']
         contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
                            dict.fromkeys(people_types)}
-        for key in contact_counter:
-            contact_counter[key] = dict(zip(contact_types, ([] for _ in contact_types)))
         index_switcher = {
-            'wpid': contact_counter['wpid']
+            layer_keys[layer]: contact_counter[layer_keys[layer]]
         }
     else:
         raise NotImplementedError(f"layer {layer} not supported.")
 
     for uid, person in popdict.items():
-        if person[layer_key] is not None:
+        if person[layer_keys[layer]] is not None:
             # count_switcher is a case-switch selector for contact counts by type
             count_switcher = {
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
-                'all': len([c for c in person["contacts"]["S"]]),
-                'wpid': len([c for c in person["contacts"]["W"] if popdict[c]['wpid'] == person["wpid"]])
+                'all': len([c for c in person["contacts"][layer]])
             }
             for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
                 if person.get(k1):
                     # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                    for k2 in people_types:
-                        index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                    if layer == "s":
+                    if layer == "S":
+                        for k2 in people_types:
+                            index_switcher.get(k1)[k2].append(count_switcher.get(k2))
                         index_switcher.get(k1)["all_staff"].append(
                             count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                        index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+                    # for other types, only all contacts are stored
+                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     return contact_counter

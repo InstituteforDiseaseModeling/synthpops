@@ -1659,13 +1659,14 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
 
     return fig, ax
 
-def plot_contact_counts(contact_counter, varname, varvalue, **kwargs):
+def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
     """
-
-    Args:
-        contact_counter: A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
-        and each value is a dictionary which stores the list of counts for each type of contacts:
+        plot contacts by contact types as histogram, contact_counter is a dictionary with keys = people_types
+        (default to school layer ['sc_teacher', 'sc_student', 'sc_staff'])
+        and each value is a dictionary which stores the list of counts for each type of contacts
         for example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+    Args:
+        contact_counter: A dictionary with people_types as keys and value as list of counts for each type of contacts
         varname      : variable name used for plotting to identify the scenario
         varvalue     : variable value used for plotting to identify the scenario
         **kwargs:
@@ -1679,7 +1680,6 @@ def plot_contact_counts(contact_counter, varname, varvalue, **kwargs):
     plkwargs.update_defaults(method_defaults, kwargs)
     people_types = contact_counter.keys()
     contact_types = contact_counter[next(iter(contact_counter))].keys()
-    plt.clf()
     fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height))
     fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=plkwargs.fontsize)
     if max(len(people_types), len(contact_types))>1:
@@ -1695,4 +1695,5 @@ def plot_contact_counts(contact_counter, varname, varvalue, **kwargs):
         axes.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
     plt.tight_layout()
     finalize_figure(fig, plkwargs)
+    plt.close()
     return fig, axes
