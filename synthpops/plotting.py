@@ -1659,7 +1659,7 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
 
     return fig, ax
 
-def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
+def plot_contact_counts(contact_counter, **kwargs):
     """
         plot contacts by contact types as histogram, contact_counter is a dictionary with keys = people_types
         (default to school layer ['sc_teacher', 'sc_student', 'sc_staff'])
@@ -1667,8 +1667,7 @@ def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
         for example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
     Args:
         contact_counter (dict)  : A dictionary with people_types as keys and value as list of counts for each type of contacts
-        varname (str)           : variable name used for plotting to identify the scenario
-        varvalue (str)          : variable value used for plotting to identify the scenario
+        **title_prefix(str)     : optional title prefix for the figure
         **figname (str)         : name to save figure to disk
         **fontsize (float)      : Matplotlib.figure.fontsize
 
@@ -1676,25 +1675,26 @@ def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
         a histogram of contact distributions for the corresponding contact_counter
     """
     plkwargs = plotting_kwargs()
-    method_defaults = sc.objdict(figname=f"contacts_{varname}_{varvalue}",
-                                 fontsize=plkwargs.fontsize,)
+    method_defaults = sc.objdict(fontsize=plkwargs.fontsize,)
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.title_prefix = plkwargs.title_prefix if hasattr(plkwargs, "title_prefix") else f""
+    plkwargs.figname = plkwargs.figname if hasattr(plkwargs, "figname") else f"contact_plot"
     people_types = contact_counter.keys()
     contact_types = contact_counter[next(iter(contact_counter))].keys()
     fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height))
-    fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=plkwargs.fontsize)
+    fig.suptitle(f"Contact View:{plkwargs.title_prefix}", fontsize=plkwargs.fontsize)
     if max(len(people_types), len(contact_types)) > 1:
         fig.tight_layout()
         for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
             ax.hist(contact_counter[counter[0]][counter[1]])
             ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': plkwargs.fontsize})
-            ax.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
+            ax.tick_params(which='major', labelsize=plkwargs.fontsize)
     else:
         from_index = list(people_types)[0]
         to_index = list(contact_types)[0]
         axes.hist(contact_counter.get(from_index).get(to_index))
         axes.set_title(f'{from_index} to {to_index}', {'fontsize': plkwargs.fontsize})
-        axes.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
+        axes.tick_params(which='major', labelsize=plkwargs.fontsize)
     finalize_figure(fig, plkwargs)
     plt.close()
     return fig, axes

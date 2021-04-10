@@ -277,10 +277,12 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
     throw assertion if the expected/actual differ significantly based on the test selected
     see https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-tests
     Args:
-        expected : expected data (array)
-        actual   : actual data (array)
-        test     : scipy statistical tests functions, for example scipy.
-        **kwargs : optional arguments for statistical tests
+        actual (array)      : the observed value, or distribution of values
+        expected (array)    : the expected value; or, a tuple of arguments
+        test (scipy.stats)  : scipy statistical tests functions, for example scipy.
+        verbose (bool)      : print a warning if the null hypothesis is rejected
+        die (bool)          : raise an exception if the null hypothesis is rejected
+        **kwargs (dict)     : optional arguments for statistical tests
 
     Returns:
         None.

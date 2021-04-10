@@ -110,6 +110,24 @@ def test_other_distributions():
     with pytest.raises(NotImplementedError):
         sp.check_dist(actual=1, expected=1, alpha=alpha, dist='not a distribution')
 
+def test_statistic_test():
+    low, high, size =0, 10, 500
+    mu, sigma = 5, 3
+    bins = range(low, high, 1)
+    expected = scipy.stats.truncnorm.rvs((low-mu)/sigma,(high-mu)/sigma,loc=mu,scale=sigma,size=size)
+    actual_good = scipy.stats.truncnorm.rvs((low-mu)/sigma,(high-mu)/sigma,loc=mu,scale=sigma,size=size)
+    actual_bad = np.random.randint(low=low+2, high=high-2, size=size)
+    # default chisquare
+    sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])
+    with pytest.warns(UserWarning):
+        sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_bad, bins)[0])
+
+    #use t-test
+    test=scipy.stats.ttest_rel
+    sp.statistic_test(expected, actual_good, test)
+    with pytest.warns(UserWarning):
+        sp.statistic_test(expected, actual_bad, test)
+
 
 if __name__ == '__main__':
 
