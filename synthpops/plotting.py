@@ -1683,7 +1683,8 @@ def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
     contact_types = contact_counter[next(iter(contact_counter))].keys()
     fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height))
     fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=plkwargs.fontsize)
-    if max(len(people_types), len(contact_types))>1:
+    if max(len(people_types), len(contact_types)) > 1:
+        fig.tight_layout()
         for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
             ax.hist(contact_counter[counter[0]][counter[1]])
             ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': plkwargs.fontsize})
@@ -1694,7 +1695,6 @@ def plot_contact_counts(contact_counter, varname="", varvalue="", **kwargs):
         axes.hist(contact_counter.get(from_index).get(to_index))
         axes.set_title(f'{from_index} to {to_index}', {'fontsize': plkwargs.fontsize})
         axes.tick_params(axis='both', which='major', labelsize=plkwargs.fontsize)
-    plt.tight_layout()
     finalize_figure(fig, plkwargs)
     plt.close()
     return fig, axes
