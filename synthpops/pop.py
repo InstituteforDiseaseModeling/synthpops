@@ -640,6 +640,16 @@ class Pop(sc.prettyobj):
         """
         return spb.count_values(self.summary.workplace_sizes)
 
+    def get_contact_counts_by_layer(self, layer='S'):
+        """
+        Get the number of contacts by layer.
+
+        Returns:
+            dict: Dictionary of the count of contacts in the layer for the
+            different people types in the layer. See
+            sp.contact_networks.get_contact_counts_by_layer() for method details.
+        """
+        return spcnx.get_contact_counts_by_layer(self.popdict, layer)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
@@ -659,6 +669,30 @@ class Pop(sc.prettyobj):
         """Plot matrices of the contacts for a given layer or layers."""
         fig = sppl.plot_contacts(self.popdict, *args, **kwargs)
         return fig
+
+    def plot_contact_counts(self, contact_counter, **kwargs):
+        """
+        Plot the number of contacts by contact types as a histogram.
+
+        Args:
+            contact_counter (dict)  : A dictionary with people_types as keys and value as list of counts for each type of contacts
+            **title_prefix(str)     : optional title prefix for the figure
+            **figname (str)         : name to save figure to disk
+            **fontsize (float)      : Matplotlib.figure.fontsize
+
+        Returns:
+            Matplotlib figure and axes of the histograms of contact distributions
+            for the corresponding contact_counter.
+
+        **Examples**::
+
+            pars = {'n': 10e3, 'location': 'seattle_metro', 'state_location': 'Washington', 'country_location': 'usa'}
+            pop = sp.Pop(**pars)
+            layer = 'S'
+            contact_counter = pop.get_contact_counts_by_layer(layer=layer)
+            fig, ax = pop.plot_contact_counts(contact_counter)
+        """
+        return sppl.plot_contact_counts(contact_counter, **kwargs)
 
     def plot_ages(self, **kwargs):
         """
