@@ -165,7 +165,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
     if dist.lower() in ['norm', 'normal', 'gaussian']:
         if std is None:
             if is_dist:
-                std = np.std(actual) # Get standard deviation from the data
+                std = np.std(actual)  # Get standard deviation from the data
             else: # pragma: no cover
                 std = 1.0
         args = (expected, std)
@@ -189,7 +189,7 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
 
         # only if distribution is continuous
         if isinstance(scipydist, scipy.stats.rv_continuous):
-            teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args) # Use the K-S test to see if came from the same distribution
+            teststat, pvalue = scipy.stats.kstest(rvs=actual, cdf=dist, args=args)  # Use the K-S test to see if came from the same distribution
 
         # ks test against large sample from the theoretical distribution
         elif isinstance(scipydist, scipy.stats.rv_discrete):
@@ -208,19 +208,19 @@ def check_dist(actual, expected, std=None, dist='norm', check='dist', label=None
             value = np.median(actual)
         else:
             value = actual
-        quantile = truedist.cdf(value) # If it's a single value, see where it lands on the Poisson CDF
-        pvalue = 1.0-2*abs(quantile-0.5) # E.g., 0.975 maps on to p=0.05
-        minquant = alpha/2 # e.g., 0.025 for alpha=0.05
-        maxquant = 1-alpha/2 # e.g., 0.975 for alpha=0.05
+        quantile = truedist.cdf(value)  # If it's a single value, see where it lands on the Poisson CDF
+        pvalue = 1.0-2*abs(quantile-0.5)  # E.g., 0.975 maps on to p=0.05
+        minquant = alpha/2  # e.g., 0.025 for alpha=0.05
+        maxquant = 1-alpha/2  # e.g., 0.975 for alpha=0.05
         minval = truedist.ppf(minquant)
         maxval = truedist.ppf(maxquant)
-        quant_check = (minquant <= quantile <= maxquant) # True if above minimum and below maximum
-        val_check = (minval <= value <= maxval) # Check values
-        null = quant_check or val_check # Consider it to pass if either passes
+        quant_check = (minquant <= quantile <= maxquant)  # True if above minimum and below maximum
+        val_check = (minval <= value <= maxval)  # Check values
+        null = quant_check or val_check  # Consider it to pass if either passes
 
     # Additional stats
     n_samples = len(actual) if is_dist else 1
-    eps = 1.0/n_samples if n_samples>4 else 1e-2 # For small number of samples, use default limits
+    eps = 1.0/n_samples if n_samples > 4 else 1e-2  # For small number of samples, use default limits
     quintiles = [eps, 0.25, 0.5, 0.75, 1-eps]
     obvs_quin = np.quantile(actual, quintiles) if is_dist else actual
     expect_quin = truedist.ppf(quintiles)
@@ -272,14 +272,16 @@ def check_poisson(*args, **kwargs):
 
 def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False, **kwargs):
     """
-    Perform statistics checks for exepected and actual data
-    based on the null hypothesis that expected/actual distributions are identical
-    throw assertion if the expected/actual differ significantly based on the test selected
-    see https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-tests
+    Perform statistical checks for expected and actual data based on the null
+    hypothesis that expected and actual distributions are identical. Throw
+    assertion if the expected and actual data differ significantly based on the
+    test selected.
+    See https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-tests.
+
     Args:
-        actual (array)      : the observed value, or distribution of values
         expected (array)    : the expected value; or, a tuple of arguments
-        test (scipy.stats)  : scipy statistical tests functions, for example scipy.
+        actual (array)      : the observed value, or distribution of values
+        test (scipy.stats)  : scipy statistical tests functions, for example scipy.stats.chisquare
         verbose (bool)      : print a warning if the null hypothesis is rejected
         die (bool)          : raise an exception if the null hypothesis is rejected
         **kwargs (dict)     : optional arguments for statistical tests
@@ -292,11 +294,11 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
     print(f"use {str(test.__name__)} to check actual distribution")
     s, p = test(expected, actual, **kwargs)
     print(f"statistics: {s} pvalue:{p}")
-    if p<0.05:
+    if p < 0.05:
         msg = f"Under the null hypothesis the expected/actual distributions are identical." \
               f"If statistics is small or the p-value is high (greater than the significance level 5%)," \
-              f" then we cannot reject the hypothesis. But we got p={p} and s={s}"
-        if die:
+              f" then we cannot reject the hypothesis. But we got p = {p} and s = {s}."
+        if die: # pragma: no cover
             raise ValueError(msg)
-        elif verbose:
+        elif verbose: # pragma: no cover
             warnings.warn(msg)

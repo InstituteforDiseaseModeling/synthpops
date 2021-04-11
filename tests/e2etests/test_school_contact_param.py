@@ -44,7 +44,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
     contacts = cn.get_contact_counts_by_layer(pop.popdict)
-    plotting_kwargs.append("title_prefix", f"average_class_size={average_class_size}")
+    plotting_kwargs.append("title_prefix", f"Average Class Size = {average_class_size}")
     plotting_kwargs.append("figname", f"contact_average_class_size_{average_class_size}")
     sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = []
@@ -86,7 +86,7 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
     contacts = cn.get_contact_counts_by_layer(pop.popdict)
-    plotting_kwargs.append("title_prefix", f"average_additional_staff_degree={average_additional_staff_degree}")
+    plotting_kwargs.append("title_prefix", f"Average Additional Staff Degree = {average_additional_staff_degree}")
     plotting_kwargs.append("figname", f"contact_average_additional_staff_degree_{average_additional_staff_degree}")
     sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = contacts['sc_staff']['all']
@@ -163,7 +163,7 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show,
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
     contacts = cn.get_contact_counts_by_layer(pop.popdict)
-    plotting_kwargs.append("title_prefix", f"average_teacher_teacher_degree={average_teacher_teacher_degree}")
+    plotting_kwargs.append("title_prefix", f"Average Teacher-Teacher Degree = {average_teacher_teacher_degree}")
     plotting_kwargs.append("figname", f"contact_average_teacher_teacher_degree_{average_teacher_teacher_degree}")
     sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = contacts['sc_teacher']['sc_teacher']

@@ -306,7 +306,8 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
     return fig, ax, pop
 
 
-def test_plot_contact_count(do_show=False, do_save=False):
+def test_plot_contact_counts(do_show=False, do_save=False):
+    sp.logger.info("Test plot_contact_counts method. Unit test --- for actual use with a sp.Pop object see e2etests/test_workplace_e2e.py.")
     # multiple subplots
     contacts1 = {
         "people_type1": {
@@ -350,6 +351,7 @@ if __name__ == '__main__':
     fig5, ax5, pop5 = test_plot_employment_rates_by_age(do_show=True)
     fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
     fig7, ax7, pop7 = test_household_head_ages_by_size(do_show=True)
+    test_plot_contact_counts(do_show=True)
 
     sc.toc(T)
     print('Done.')

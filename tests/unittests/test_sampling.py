@@ -54,12 +54,12 @@ def test_check_dist_poisson():
     print(f"If any of test_check_dist_poisson() tests fail, try to rerun this by resetting the random seed. With alpha: {alpha} we expect 1 out of {1/alpha:.0f} tests to fail.")
 
     print('↓ Should print some warnings')
-    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, die=True) # Should pass
-    sp.check_poisson(actual=actual_invalid, expected=expected, alpha=alpha, verbose=False) # Shouldn't pass, but not die
-    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, check='median') # Should pass checking against median
+    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, die=True)  # Should pass
+    sp.check_poisson(actual=actual_invalid, expected=expected, alpha=alpha, verbose=False)  # Shouldn't pass, but not die
+    sp.check_poisson(actual=actual_valid, expected=expected, alpha=alpha, check='median')  # Should pass checking against median
 
     sp.check_poisson(actual=np.zeros(100), expected=0, alpha=alpha, verbose=True, check='mean')
-    stats = sp.check_poisson(actual=invalid_data, expected=expected, alpha=alpha, label='Example', verbose=True, stats=True) # Shouldn't pass, print warning
+    stats = sp.check_poisson(actual=invalid_data, expected=expected, alpha=alpha, label='Example', verbose=True, stats=True)  # Shouldn't pass, print warning
 
     with pytest.raises(ValueError):
         sp.check_poisson(actual=actual_invalid, expected=expected, die=True)
@@ -110,23 +110,31 @@ def test_other_distributions():
     with pytest.raises(NotImplementedError):
         sp.check_dist(actual=1, expected=1, alpha=alpha, dist='not a distribution')
 
+
 def test_statistic_test():
-    low, high, size =0, 10, 500
+    sp.logger.info("Test sp.statistic_test method. This performs specified scipy statistical tests on expected and actual data to see if they are likely to be from the same distribution. By default the test is the chi squared test.")
+    low, high, size = 0, 10, 500
     mu, sigma = 5, 3
     bins = range(low, high, 1)
-    expected = scipy.stats.truncnorm.rvs((low-mu)/sigma,(high-mu)/sigma,loc=mu,scale=sigma,size=size)
-    actual_good = scipy.stats.truncnorm.rvs((low-mu)/sigma,(high-mu)/sigma,loc=mu,scale=sigma,size=size)
-    actual_bad = np.random.randint(low=low+2, high=high-2, size=size)
-    # default chisquare
-    sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])
-    with pytest.warns(UserWarning):
-        sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_bad, bins)[0])
 
-    #use t-test
-    test=scipy.stats.ttest_rel
-    sp.statistic_test(expected, actual_good, test)
+    # generate data from the truncated normal distribution
+    expected = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
+    actual_good = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
+
+    # generate data uniformly from low+2 to high-2 --- this should not match
+    actual_bad = np.random.randint(low=low+2, high=high-2, size=size)
+
+    # default test is chisquare
+    sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass
     with pytest.warns(UserWarning):
-        sp.statistic_test(expected, actual_bad, test)
+        sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_bad, bins)[0])  # should fail
+
+    # use t-test to compare instead
+    test = scipy.stats.ttest_rel
+    sp.statistic_test(expected, actual_good, test)  # should pass
+
+    with pytest.warns(UserWarning):
+        sp.statistic_test(expected, actual_bad, test)  # should fail
 
 
 if __name__ == '__main__':
@@ -138,6 +146,7 @@ if __name__ == '__main__':
     test_check_dist_normal()
     test_check_dist_binom()
     test_other_distributions()
+    test_statistic_test()
 
     sc.toc(T)
     print('Done.')

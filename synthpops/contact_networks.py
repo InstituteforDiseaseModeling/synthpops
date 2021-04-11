@@ -379,40 +379,52 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     return popdict
 
+
 def get_contact_counts_by_layer(popdict,
                                 layer='S'):
     """
-    Helper method to get contact counts for teachers, students and staffs in the popdict
+    Method to count the number of contacts for individuals in the population
+    based on their role in a layer and the role of their contacts. For example,
+    in schools this method can distinguish the number of contacts between
+    students, teachers, and non teaching staff in the population, as well as
+    return the number of contacts between all individuals present in a school.
+    In a population with a school layer and roles defined as students, teachers,
+    and non teaching staff, this method will return the number of contacts or
+    edges for sc_students, sc_teachers, and sc_staff to sc_student, sc_teacher,
+    sc_staff, all_staff, all. all_staff is the combination of sc_teacher and
+    sc_staff, and all is all kinds of people in schools.
 
     Args:
         popdict (dict)  : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
         layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
 
     Returns:
-        dict: A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
-        and each value is a dictionary which stores the list of counts for each type of contacts:
-        default to ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
-        for example: contact_counter['sc_teacher']['sc_teacher'] store the counts of each teacher's "teacher" contact
+        dict: A dictionary with keys = people_types (default to ['sc_student',
+        'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
+        the list of counts for each type of contact: default to ['sc_student',
+        'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
+        contact_counter['sc_teacher']['sc_teacher'] store the counts of each
+        teacher's contacts or edges to other teachers.
     """
-    layer=layer.upper()
+    layer = layer.upper()
     layer_keys = {"S": "scid",
                   "W": "wpid",
                   "H": "hhid",
                   "LTCF": "snfid"}
 
-    if layer=='S':
-        people_types = ['sc_teacher', 'sc_student', 'sc_staff']
+    if layer == 'S':
+        people_types = ['sc_student', 'sc_teacher', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
-        contact_counter = {k:dict(zip(contact_types, ([] for _ in contact_types))) for k in
+        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
                            dict.fromkeys(people_types)}
         # index_switcher is a case-switch selector for the person selected by its type
         index_switcher = {
-            'sc_teacher': contact_counter['sc_teacher'],
             'sc_student': contact_counter['sc_student'],
+            'sc_teacher': contact_counter['sc_teacher'],
             'sc_staff': contact_counter['sc_staff']
         }
     elif layer in ["W", "H", "LTCF"]:
-        people_types =[layer_keys[layer]]
+        people_types = [layer_keys[layer]]
         contact_types = ['all']
         contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
                            dict.fromkeys(people_types)}
@@ -426,8 +438,8 @@ def get_contact_counts_by_layer(popdict,
         if person[layer_keys[layer]] is not None:
             # count_switcher is a case-switch selector for contact counts by type
             count_switcher = {
-                'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
+                'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }

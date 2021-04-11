@@ -6,6 +6,7 @@ import os
 import sciris as sc
 import numpy as np
 import covasim as cv
+import pandas as pd
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -1549,7 +1550,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     # we will ignore the first row (family_size = 1) for plotting
     # flip to make each row an age bin for calculation then flip back
-    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages),:]
+    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages), :]
 
     expected_hh_ages_percentage = expected_hh_ages / np.sum(expected_hh_ages, axis=1)[:, np.newaxis]
     expected_hh_ages_percentage[np.isnan(expected_hh_ages_percentage)] = 0
@@ -1564,9 +1565,9 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     actual_hh_ages_percentage *= 100
 
-    #spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
+    # spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
     householdsize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
-    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) -1)]
+    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) - 1)]
     yticklabels = household_sizes
 
     interval = 5
@@ -1576,8 +1577,8 @@ def plot_household_head_ages_by_size(pop, **kwargs):
     data_range_max = int(np.ceil(data_range_max/interval)) * interval
     data_range = [data_range_min, data_range_max]
 
-    return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows,:],
-                        actual=actual_hh_ages_percentage[0:householdsize_rows,:],
+    return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows, :],
+                        actual=actual_hh_ages_percentage[0:householdsize_rows, :],
                         xticklabels=xticklabels, yticklabels=yticklabels,
                         xlabel='Head of Household Age', ylabel='Household Size',
                         cbar_ylabel='%',
@@ -1617,7 +1618,7 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
     """
     plkwargs = plotting_kwargs()
     # method specific plotting defaults
-    method_defaults = sc.objdict(title_prefix="heatmap", fontsize=12, cmap='rocket_r', 
+    method_defaults = sc.objdict(title_prefix="heatmap", fontsize=12, cmap='rocket_r',
                                  height=8, width=17,
                                  left=0.09, right=0.9, top=0.83, bottom=0.22, hspace=0.15, wspace=0.30,
                                  origin='lower', interpolation='nearest', aspect="auto",
@@ -1659,12 +1660,15 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
 
     return fig, ax
 
+
 def plot_contact_counts(contact_counter, **kwargs):
     """
-        plot contacts by contact types as histogram, contact_counter is a dictionary with keys = people_types
-        (default to school layer ['sc_teacher', 'sc_student', 'sc_staff'])
-        and each value is a dictionary which stores the list of counts for each type of contacts
-        for example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
+    Plot the number of contacts by contact types as a histogram. The
+    contact_counter is a dictionary with keys = people_types (default to school
+    layer ['sc_student', 'sc_teacher', 'sc_staff']) and each value is a
+    dictionary which stores the list of counts for each type of contact, for
+    example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all'].
+
     Args:
         contact_counter (dict)  : A dictionary with people_types as keys and value as list of counts for each type of contacts
         **title_prefix(str)     : optional title prefix for the figure
@@ -1672,29 +1676,39 @@ def plot_contact_counts(contact_counter, **kwargs):
         **fontsize (float)      : Matplotlib.figure.fontsize
 
     Returns:
-        a histogram of contact distributions for the corresponding contact_counter
+        Matplotlib figure and axes of the histograms of contact distributions
+        for the corresponding contact_counter.
     """
     plkwargs = plotting_kwargs()
-    method_defaults = sc.objdict(fontsize=plkwargs.fontsize,)
+    cmap = plt.get_cmap('cmr.freeze')
+    # method specific defaults
+    method_defaults = sc.objdict(fontsize=plkwargs.fontsize, color_1=cmap(0.4), color_2=cmap(0.4))
+
     plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.title_prefix = plkwargs.title_prefix if hasattr(plkwargs, "title_prefix") else f""
     plkwargs.figname = plkwargs.figname if hasattr(plkwargs, "figname") else f"contact_plot"
+
     people_types = contact_counter.keys()
     contact_types = contact_counter[next(iter(contact_counter))].keys()
-    fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height))
-    fig.suptitle(f"Contact View:{plkwargs.title_prefix}", fontsize=plkwargs.fontsize)
+
+    fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.suptitle(f"Contact View: {plkwargs.title_prefix}", fontsize=plkwargs.fontsize)
+
     if max(len(people_types), len(contact_types)) > 1:
         fig.tight_layout()
         for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
-            ax.hist(contact_counter[counter[0]][counter[1]])
-            ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': plkwargs.fontsize})
+            ax.hist(contact_counter[counter[0]][counter[1]], color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
+            ax.set_title(f'{counter[0]} to {counter[1]}', fontsize=plkwargs.fontsize)
             ax.tick_params(which='major', labelsize=plkwargs.fontsize)
+            ax.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
     else:
         from_index = list(people_types)[0]
         to_index = list(contact_types)[0]
-        axes.hist(contact_counter.get(from_index).get(to_index))
-        axes.set_title(f'{from_index} to {to_index}', {'fontsize': plkwargs.fontsize})
+        axes.hist(contact_counter.get(from_index).get(to_index), color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
+        axes.set_title(f'{from_index} to {to_index}', fontsize=plkwargs.fontsize)
         axes.tick_params(which='major', labelsize=plkwargs.fontsize)
+        axes.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
+
     finalize_figure(fig, plkwargs)
     plt.close()
     return fig, axes
