@@ -5,6 +5,16 @@ import synthpops as sp
 import os
 import unittest
 
+# for Testconvert_df_to_json_array()
+pars = sc.objdict(
+            location_name = 'usa-Washington',  # name of the location
+            property_name = 'population_age_distribution_16',  # name of the property to compare to
+            filepath      = os.path.join(sp.datadir, 
+                                         'unittests',
+                                         'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
+            cols_ind      = [],  # list of column indices to include in array in conversion
+            int_cols_ind  = [],  # list of column induces to convert to ints
+            )
 
 class TestLocation(unittest.TestCase):
     """
@@ -617,15 +627,72 @@ class TestLocation(unittest.TestCase):
                           "Array entry  incorrect")
 
 
-pars = sc.objdict(
-            location_name = 'usa-Washington',  # name of the location
-            property_name = 'population_age_distribution_16',  # name of the property to compare to
-            filepath      = os.path.join(sp.datadir, 
-                                         'unittests',
-                                         'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
-            cols_ind      = [],  # list of column indices to include in array in conversion
-            int_cols_ind  = [],  # list of column induces to convert to ints
-            )
+class TestChecks(unittest.TestCase):
+    """
+    Test checks can be run on probability distributions. Checks made: sum of
+    probability distributions is close to 1, distribution has no negative values.
+    """
+
+    def test_check_probability_distribution_sums(self, location_name='usa-Washington-seattle_metro', property_list=None, tolerance=1e-2):
+        """
+        Run all checks for fields in property_list representing probability distributions. Each
+        should have a sum that equals 1 within the tolerance level.
+
+        Args:
+            location_name(str)   : name of the location json to test
+            property_list (list) : list of properties to check the sum of the probabilityd distribution
+            tolerance (float)    : difference from the sum of 1 tolerated
+        """
+        location_file_path = f"{location_name}.json"
+        location = sp.load_location_from_filepath(location_file_path)
+
+        if property_list is None:
+            sp.logger.info(f"\nTesting all probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
+            checks, msgs = sp.check_all_probability_distribution_sums(location, tolerance)
+
+            err_msgs = [msg for msg in msgs if msg is not None]  # only get the msgs for failures
+            err_msg = "\n".join(err_msgs)
+            assert sum(checks) == len(checks), err_msg  # assert that all checks passed
+            print(f'All {sum(checks)} checks passed.')
+
+        else:
+            # Example of how the sum checks can be run for a subset of properties
+            sp.logger.info(f"\nTesting a subset of probability distributions sum to 1 or within tolerance {tolerance} for {location_name}.")
+            for i, property_name in enumerate(property_list):
+                check, msg = sp.check_probability_distribution_sum(location, property_name, tolerance)
+                assert check == True, msg
+                print(f'{property_name} check passed.')
+
+
+    def test_check_probability_distribution_nonnegative(self, location_name='usa-Washington-seattle_metro', property_list=None):
+        """
+        Run all checks for fields in property_list representing probability distributions. Each
+        should have all non negative values.
+
+        Args:
+            location_name(str)   : name of the location json to test
+            property_list (list) : list of properties to check the sum of the probabilityd distribution
+        """
+        location_file_path = f"{location_name}.json"
+        location = sp.load_location_from_filepath(location_file_path)
+
+        if property_list is None:
+            sp.logger.info(f"\nTesting all probability distributions are all non negative for {location_name}.")
+            checks, msgs = sp.check_all_probability_distribution_nonnegative(location)
+
+            err_msgs = [msg for msg in msgs if msg is not None]
+            err_msg = "\n".join(err_msgs)
+            assert sum(checks) == len(checks), err_msg  # assert that all checks passed
+            print(f'All {sum(checks)} checks passed.')
+
+        else:
+            # Examples of how the non negative checks can be run for a subset of properties
+            sp.logger.info(f"\nTesting a subset of probability distributions are all non negative for {location_name}")
+            for i, property_name in enumerate(property_list):
+                check, msg = sp.check_probability_distribution_nonnegative(location, property_name)
+                assert check == True, msg
+                print(f'{property_name} check passed.')
+
 
 
 class Testconvert_df_to_json_array(unittest.TestCase):
@@ -636,6 +703,9 @@ class Testconvert_df_to_json_array(unittest.TestCase):
     def setup_convert_df_to_json_array(self, pars):
         """
         Set up objects to compare.
+
+        Args:
+            pars (dict): dictionary to get the data array and json array for comparison.
 
         Returns:
             array, json.array : An array of the desired data from a dataframe and
@@ -700,4 +770,23 @@ class Testconvert_df_to_json_array(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    unittest.main(verbosity=2)  # run every test in this file
+
+    unittest.main(verbosity=2)  # run all tests in this file
+
+    # # run tests with non default values
+    # t1 = TestLocation()
+    # t1.test_load_completely_empty_object_test_str()
+    # t1.test_load_empty_object_test_str()
+    # t1.test_load_minimal_location()
+    # t1.test_load_minimal_location_with_parent()
+    # t1.test_load_minimal_location_with_parent_filepath()
+    # t1.test_load_minimal_location_with_parent_filepath_from_filepath()
+
+    # # run checks on a subset of the properties by specifying property_list
+    # t2 = TestChecks()
+    # t2.test_check_probability_distribution_sums(property_list=['population_age_distribution_16', 'household_size_distribution'])
+    # t2.test_check_probability_distribution_nonnegative(property_list=['population_age_distribution_16', 'household_size_distribution'])
+
+    # t3 = Testconvert_df_to_json_array()
+    # t3.test_convert_df_to_json_array_age_distribution_16()
+    # t3.test_convert_df_to_json_entry_int_values()
