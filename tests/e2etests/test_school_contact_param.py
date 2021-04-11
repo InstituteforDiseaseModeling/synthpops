@@ -15,6 +15,8 @@ import os
 import pytest
 import pathlib
 import synthpops as sp
+from synthpops import contact_networks as cn
+import sciris as sc
 from setup_e2e import get_fig_dir
 
 pars = dict(
@@ -40,7 +42,11 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         # average_student_teacher_ratio = average_class_size,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
     )
     pop = sp.Pop(**pars, **testpars)
-    contacts = get_contact_counts(pop.popdict, "average_class_size", average_class_size, do_show, do_save, get_fig_dir)
+    plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
+    plotting_kwargs.append("title_prefix", f"Average Class Size = {average_class_size}")
+    plotting_kwargs.append("figname", f"contact_average_class_size_{average_class_size}")
+    sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = []
     if not pop.school_pars.with_school_types:
         counts.extend(contacts['sc_student']['all'])
@@ -57,6 +63,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     res = stats.probplot(counts, dist=stats.poisson, sparams=(average_class_size, ), plot=ax)
     if do_show:
         plt.show()
+    plt.close()
     return
 
 
@@ -77,10 +84,11 @@ def test_average_additional_staff_degree(average_additional_staff_degree, do_sho
         with_school_types = 1,
     )
     pop = sp.Pop(**pars, **testpars)
-    contacts = get_contact_counts(pop.popdict,
-                                  "average_additional_staff_degree",
-                                  average_additional_staff_degree,
-                                  do_show, do_save, get_fig_dir)
+    plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
+    plotting_kwargs.append("title_prefix", f"Average Additional Staff Degree = {average_additional_staff_degree}")
+    plotting_kwargs.append("figname", f"contact_average_additional_staff_degree_{average_additional_staff_degree}")
+    sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = contacts['sc_staff']['all']
     sp.check_normal(actual=counts, expected=average_additional_staff_degree, label='staff degree', check='mean')
     return
@@ -153,84 +161,14 @@ def test_average_teacher_teacher_degree(average_teacher_teacher_degree, do_show,
                               'hs': 'age_clustered', 'uv': 'age_clustered'}
     )
     pop = sp.Pop(**pars, **testpars)
-    contacts = get_contact_counts(pop.popdict,
-                                  "average_teacher_teacher_degree",
-                                  average_teacher_teacher_degree,
-                                  do_show, do_save, get_fig_dir)
+    plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
+    contacts = cn.get_contact_counts_by_layer(pop.popdict)
+    plotting_kwargs.append("title_prefix", f"Average Teacher-Teacher Degree = {average_teacher_teacher_degree}")
+    plotting_kwargs.append("figname", f"contact_average_teacher_teacher_degree_{average_teacher_teacher_degree}")
+    sp.plot_contact_counts(contacts, **plotting_kwargs)
     counts = contacts['sc_teacher']['sc_teacher']
     sp.check_normal(actual=counts, expected=average_teacher_teacher_degree, label='teacher degree', check='mean')
     return
-
-
-def get_contact_counts(popdict, varname, varvalue, do_show, do_save, fig_dir,
-                       people_types=['sc_teacher', 'sc_student', 'sc_staff']):
-    """
-    Helper method to get contact counts for teachers, students and staffs in the popdict
-
-    Args:
-        popdict      : popdict of a Pop object
-        varname      : variable name used for plotting to identify the test cases
-        varvalue     : variable value used for plotting to identify the test cases
-        do_show      : whether to plot the count distribution or not
-        do_save      : whether to save the plot or not
-        fig_dir      : subfolder name (under current run directory) for saving the plots
-        people_types : a list of possible people types (such as sc_student, sc_teacher, sc_staff, snf_staff, snf_res)
-
-    Returns:
-        A dictionary with keys = people_types (default to ['sc_teacher', 'sc_student', 'sc_staff'])
-        and each value is a dictionary which stores the list of counts for each type of contacts:
-        default to ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all']
-        for example: contact_counter['sc_teacher']['sc_teacher'] store the counts of each teacher's "teacher" contact
-    """
-    contact_types = people_types + ['all_staff', 'all']
-    # initialize the contact_counter dictionary, the keys are used to identify the teacher, student and staff
-    # the categories are used to store the count by contacts type where all means all contacts and all_staff means
-    # sc_teacher + sc_staff
-    contact_counter = dict.fromkeys(people_types)
-    for key in contact_counter:
-        contact_counter[key] = dict(zip(contact_types, ([] for _ in contact_types)))
-
-    for uid, person in popdict.items():
-        if person['scid'] is not None:
-            # count_switcher is a case-switch selector for contact counts by type
-            count_switcher = {
-                'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
-                'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
-                'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
-                'all': len([c for c in person["contacts"]["S"]])
-            }
-            # index_switcher is a case-switch selector for the person selected by its type
-            index_switcher = {
-                'sc_teacher': contact_counter['sc_teacher'],
-                'sc_student': contact_counter['sc_student'],
-                'sc_staff': contact_counter['sc_staff']
-            }
-            for k1 in people_types:
-                # if this person does not belong to a particular key, we don't need to store the counts under this key
-                if person.get(k1):
-                    # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                    for k2 in people_types:
-                        index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                    index_switcher.get(k1)["all_staff"].append(
-                        count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
-
-    # draw a simple histogram for distribution of counts
-    if do_show or do_save:
-        fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(30, 20))
-        fig.suptitle(f"Contact View:{varname}={str(varvalue)}", fontsize=20)
-        for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
-            ax.hist(contact_counter[counter[0]][counter[1]])
-            ax.set_title(f'{counter[0]} to {counter[1]}', {'fontsize': 20})
-            ax.tick_params(axis='both', which='major', labelsize=20)
-        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        if do_show:
-            plt.show()
-        if do_save:
-            os.makedirs(fig_dir, exist_ok=True)
-            plt.savefig(os.path.join(fig_dir, f"contacts_{varname}_{str(varvalue)}.png"))
-            plt.close()
-    return contact_counter
 
 
 def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_dir):
@@ -283,7 +221,7 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
         if do_save:
             os.makedirs(fig_dir, exist_ok=True)
             plt.savefig(os.path.join(fig_dir, f"{varname}_{str(varvalue)}.png"))
-            plt.close()
+        plt.close()
     return ratio
 
 

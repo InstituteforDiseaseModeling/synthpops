@@ -1,9 +1,38 @@
 """
 Test generation of a synthetic population with microstructure, reading from file, and using sp.make_population to do both.
 """
-
+import sciris as sc
 import synthpops as sp
+from synthpops import contact_networks as cn
+import pytest
 
+@pytest.fixture
+def create_simple_pop(scope="module"):
+    pars = sc.objdict(
+        n=5e+3,
+        rand_seed=1,
+        country_location='usa',
+        state_location='Washington',
+        location='seattle_metro',
+        use_default=True,
+        with_facilities=1,
+        average_LTCF_degree=20,
+        ltcf_staff_age_min=20,
+        ltcf_staff_age_max=60,
+        with_non_teaching_staff=1
+    )
+    sample_pop = sp.Pop(**pars)
+    return sample_pop
+
+@pytest.mark.parametrize("layer", ["S", "W", "H","LTCF"])
+def test_get_contact_counts_by_layer(layer, create_simple_pop):
+    result = cn.get_contact_counts_by_layer(create_simple_pop.popdict, layer)
+    assert len(result) > 0
+    layer_map = {"S": "sc_teacher",
+                  "W": "wpid",
+                  "H": "hhid",
+                  "LTCF": "snfid"}
+    assert len(result.get(layer_map[layer])) > 0
 
 if __name__ == '__main__':
 
