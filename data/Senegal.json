@@ -1,9 +1,20 @@
 {
   "location_name": "Senegal",
   "data_provenance_notices": [],
-  "reference_links": [],
-  "citations": [],
-  "notes": [],
+  "reference_links": [
+    "https://www.ansd.sn/ressources/ses/chapitres/3-SES-2015_Emploi.pdf",
+    "https://hal.archives-ouvertes.fr/tel-01150504v2",
+    "https://labordoc.ilo.org/permalink/41ILO_INST/8s7mv9/alma995060592602676"
+  ],
+  "citations": [
+    "Situation Economique et Social du Senegal en 2015, Agence Nationale de la Statistique et de la Demographie (2015)",
+    "Oswald Koussihouede. Three Essays in the Economics of Education. Economics and Finance. Université Gaston Berger, 2015. English. tel-01150504v2",
+    "Recensement Général des Entreprises (2016)",
+    "Diagnostic de l’Économie Informelle au Sénégal"
+  ],
+  "notes": [
+    "Employment rates are taken from Figure 3.12 of 3-SES-2015_Emploi.pdf"
+  ],
   "parent": "",
   "population_age_distribution_16": [],
   "population_age_distribution_18": [],

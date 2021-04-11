@@ -1,8 +1,12 @@
 {
   "location_name": "usa",
   "data_provenance_notices": [],
-  "reference_links": [],
-  "citations": [],
+  "reference_links": [
+    "https://data.census.gov/cedsci"
+  ],
+  "citations": [
+    "United States Census Bureau"
+  ],
   "notes": [],
   "parent": "",
   "population_age_distribution_16": [],
