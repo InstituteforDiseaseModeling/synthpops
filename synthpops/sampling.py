@@ -294,7 +294,7 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
     print(f"use {str(test.__name__)} to check actual distribution")
     s, p = test(expected, actual, **kwargs)
     print(f"statistics: {s} pvalue:{p}")
-    if p < 0.05:
+    if p < 0.05: # pragma: no cover
         msg = f"Under the null hypothesis the expected/actual distributions are identical." \
               f"If statistics is small or the p-value is high (greater than the significance level 5%)," \
               f" then we cannot reject the hypothesis. But we got p = {p} and s = {s}."

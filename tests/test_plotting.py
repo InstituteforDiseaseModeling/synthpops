@@ -333,6 +333,22 @@ def test_plot_contact_counts(do_show=False, do_save=False):
     print('Check passed. Figures made.')
 
 
+def test_plot_contact_counts_on_pop(do_show=False, do_save=False):
+    sp.logger.info("Test plot_contact_counts on sp.Pop object.")
+    pop = sp.Pop(**pars)
+    contact_counter = pop.get_contact_counts_by_layer(layer='S')
+    kwargs = sc.objdict()
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+
+    if kwargs.do_show:
+        plt.switch_backend(mplt_org_backend)
+
+    fig, ax = pop.plot_contact_counts(contact_counter, **kwargs)
+    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    return fig, ax, pop
+
+
 if __name__ == '__main__':
 
     T = sc.tic()
@@ -352,6 +368,7 @@ if __name__ == '__main__':
     fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
     fig7, ax7, pop7 = test_household_head_ages_by_size(do_show=True)
     test_plot_contact_counts(do_show=True)
+    test_plot_contact_counts_on_pop(do_show=True)
 
     sc.toc(T)
     print('Done.')
