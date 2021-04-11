@@ -18,7 +18,8 @@ skipped_properties = {"all":
                            "ltcf_num_staff_distribution",
                            "ltcf_num_residents_distribution"],
                       "Oregon":
-                          ["ltcf_resident_to_staff_ratio_distribution",
+                          ["household_head_age_brackets",
+                           "ltcf_resident_to_staff_ratio_distribution",
                            "ltcf_use_rate_distribution",
                            "school_size_brackets",
                            "school_size_distribution",
@@ -55,6 +56,7 @@ for i in locations:
             specific_location = k
             test_tuples.append((country_location, state_location, specific_location))
 
+
 @pytest.mark.parametrize(('country_location', 'state_location', 'specific_location'), test_tuples)
 def test_location_data(specific_location, state_location, country_location):
     location_data = sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
@@ -73,17 +75,19 @@ def test_location_data(specific_location, state_location, country_location):
                 log.debug(f"property:{p} length 0")
             assert len(value) > 0, f"property:{p} length 0 for {test_tuples}"
 
+
 def test_location_default():
     """
     if location is not available, seattle_metro should be used
     """
-    specific_location ="Sacramento"
-    state_location ="California"
-    country_location="usa"
+    specific_location = "Sacramento"
+    state_location = "California"
+    country_location = "usa"
     location_data = sp.load_location(specific_location, state_location, country_location, revert_to_default=True)
     assert "seattle_metro" in location_data.location_name
     assert "Washington" in location_data.location_name
     assert "usa" in location_data.location_name
+
 
 def test_parent_data_loaded():
     """
@@ -101,7 +105,7 @@ def test_parent_data_loaded():
                                        country_location=country_location, revert_to_default=True)
     log.debug(f"parent_location: {parent_location.location_name}")
     log.debug(f"child_location: {child_location.location_name}")
-    #both should have 11 age brackets and 8 family sizes
+    # both should have 11 age brackets and 8 family sizes
     assert len(parent_location.household_head_age_brackets) == 11, \
         "household_head_age_brackets incorrect for Washington."
     assert len(parent_location.household_head_age_distribution_by_family_size) == 8, \
@@ -110,6 +114,7 @@ def test_parent_data_loaded():
         "household_head_age_brackets incorrect for seattle_metro."
     assert parent_location.household_head_age_distribution_by_family_size == child_location.household_head_age_distribution_by_family_size, \
         "household_head_age_distribution_by_family_size incorrect for seattle_metro."
+
 
 def test_brackets_unavailable():
     """
@@ -127,10 +132,12 @@ def test_brackets_unavailable():
         location_data.get_population_age_distribution(nbrackets=21)
         assert "Unsupported value for nbrackets" in str(err.value)
 
+
 def test_attribute_unavailable():
     location_data = sp.load_location(None, None, None, revert_to_default=True)
     with pytest.raises(AttributeError):
         location_data.school_attr_noexistent
+
 
 def test_save_location_to_filepath():
     location_data = sp.load_location(None, None, None, revert_to_default=True)
@@ -142,6 +149,7 @@ def test_save_location_to_filepath():
         assert saved_location_data.location_name == location_data.location_name
     finally:
         os.remove(outfile) if os.path.exists(outfile) else None
+
 
 def test_populate_parent_exception():
     """
@@ -160,6 +168,7 @@ def test_populate_parent_exception():
         test_location.parent = ["Y"]
         sp.populate_parent_data(test_location)
         assert "Invalid type" in str(err)
+
 
 if __name__ == "__main__":
     testcase = 'test_location_data'
