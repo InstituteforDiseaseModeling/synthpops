@@ -19,12 +19,33 @@ Legend for changelog
 
 - "Regression Information": a change to the model or update to data resulted in a change to regression results.
 
-- "Github Information": the associated PRs to any changes.
+- "Github Info": the associated PRs to any changes.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-Latest versions (1.6.x)
+Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.7.1 (2021-04-05)
+--------------------------
+- Feature: Added checks for probability distributions with methods ``sp.check_all_probability_distribution_sums()``, ``sp.check_all_probability_distrubution_nonnegative()``, ``sp.check_probability_distribution_sum()``, ``sp.check_probability_distribution_nonnegative()``. These check that probabilities sum to 1 within a tolerance level  (0.05), and have all non negative values. Added method to convert data from pandas dataframe to json array style, ``sp.convert_df_to_json_array()``. Added statistical test method ``sp.statistic_test()``. Added method to count contacts, ``sp.get_contact_counts_by_layer()``, and method to plot the results, ``sp.plot_contact_counts()``. See ``sp.contact_networks.get_contact_counts_by_layer()`` for more details on the method.
+- Added example of how to load data into the location json objects and save to file. See ``examples/create_location_data.py`` and ``examples/modify_location_data.py``.
+- *Github Info*: PR `410 <https://github.com/amath-idm/synthpops/pull/410>`__, `413 <https://github.com/amath-idm/synthpops/pull/413>`__, `426 <https://github.com/amath-idm/synthpops/pull/426>`__
+
+
+Version 1.7.0 (2021-04-05)
+--------------------------
+- *Efficiency*: Major refactor of data methods to read from consolidated json data files for each location and look for missing data from parent locations or alternatively json data files for default locations. Migration of multiple data files for locations into a single json object per location under the ``data`` directory. This will should make it easier to identify all of the available data per location and where missing data are read in from. Examples of how to create, change, and save new json data files will come in the next minor version update.
+- *Feature*: Location data jsons now have fields for the data source, reference links, and citations! These fields will be fully populated shortly. Please reference the links provided for any data obtained from SynthPops as most population data are sourced from other databases and should be referenced as such.
+- *Deprecated*: Refactored data methods no longer support the reading in of data from user specified file paths. Use of methods to read in age distributions aggregated to a number of age brackets not equal to 16, 18, or 20 (officially supported values) is currently turned off. Next minor update will re-enable these features. Old methods are available in `synthpops.data_distributions_legacy.py`, however this file will be removed in upcoming versions once we have migrated all examples to use the new data methods and have fully enabled all the functionality of the original data methods. Please update your usage of SynthPops accordingly.
+- Updated documentation about the input data layers.
+- *Github Info*: PR `407 <https://github.com/amath-idm/synthpops/pull/407>`__, `303 <https://github.com/amath-idm/synthpops/pull/303>`__
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versions 1.6.x (1.6.0 – 1.6.2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Version 1.6.2 (2021-04-01)
