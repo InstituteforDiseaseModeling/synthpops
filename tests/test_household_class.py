@@ -86,11 +86,12 @@ def test_empty_household():
     print('Checks passed for an empty household.')
 
 
-
 def test_make_household():
     sp.logger.info("Test creating a household after the fact.")
     pop = sp.Pop(**pars)
 
+    # we don't need to store this in the pop object but this shows that we can
+    # and now the tests are being run using data stored in the pop object (pop.homes_by_uids, pop.age_by_uid)
     pop.household = sp.Household()
     pop.household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                                 reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
@@ -115,44 +116,73 @@ def test_make_household():
     print(f"Check passed. pop.household household size is {pop.household.get_household_size()}.")
 
 
-@pytest.mark.skip
+def test_add_household():
+    sp.logger.info("Test creating a sp.Household object and adding it to an empty sp.Households class after generation.")
+    home = [1, 2, 3]
+    age_by_uid = {1: 88, 2: 45, 3: 47}
+    household = sp.Household(member_uids=home, member_ages=[age_by_uid[i] for i in home],
+                             reference_uid=home[0], reference_age=age_by_uid[home[0]],
+                             hhid=0)
+
+    assert isinstance(household, sp.Household), 'Check failed. Not a sp.Household object.'
+
+    households = sp.Households()
+    households.add_household(household)
+
+    assert isinstance(households.households[0], sp.Household), 'Check failed. Did not add a sp.Household object to the list of households.'
+    print('Check passed. Added a sp.Household object to an sp.Households object.')
+
+
 def test_households_basic():
     sp.logger.info("Test creating generic households.")
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
-    age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+    age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
 
     hhs = sp.Households(**{'households': homes_by_uids,
-                           'age_by_uid': age_by_uid_dic})
+                           'age_by_uid': age_by_uid})
 
     assert hhs.n_households == len(homes_by_uids), "number of household should match."
 
     for i in range(0, len(homes_by_uids)):
         assert hhs.get_household(i).get_reference_uid() == homes_by_uids[i][0]
-        assert hhs.get_household(i).get_reference_age() == age_by_uid_dic[homes_by_uids[i][0]]
+        assert hhs.get_household(i).get_reference_age() == age_by_uid[homes_by_uids[i][0]]
         assert hhs.get_household(i).get_household_size() == len(homes_by_uids[i])
-
     print('Check passed. Generic households can be populated during class initialization.')
+
+    not_a_household = ''
+    with pytest.raises(ValueError) as excinfo:
+        hhs.add_household(not_a_household)
+    print('Check passed. Cannot add an object that is not a sp.Household to a sp.Households object.')
 
 
 @pytest.mark.skip  # necessary for vital dynamics but not working right now
 def test_reset_household_values():
     sp.logger.info("Test resetting household values. Warning these features should only be available when synthpops is set to use vital dynamics.")
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
-    age_by_uid_dic = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+    age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
     hhs = sp.Households(**{'households': homes_by_uids,
-                           'age_by_uid': age_by_uid_dic})
+                           'age_by_uid': age_by_uid})
     hhs.get_household(0).set_hhid(7)
     hhs.get_household(0).set_member_uids([8, 8, 8])
     hhs.get_household(0).set_member_ages([0, 0, 0])
     hhs.get_household(0).set_reference_uid(8)
     hhs.get_household(0).set_reference_age(0)
-    print(hhs.get_household(0))
 
 
 def test_households_initialization():
     sp.logger.info("Test households initialization methods.")
+
     households = sp.Households()
-    households.households = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
+
+    # test no households made
+    households.initialize_empty_households()
+    assert households.n_households == 0, 'Check failed. households.n_households is not 0.'
+    print('Check passed. Initially without any households information, households.n_households is 0.')
+
+    homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
+    age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+
+    households.households = homes_by_uids
     households.n_households = 2
     assert households.n_households != len(households.households), 'Check households.n_households and len(households.households) are not aligned.'
     print('Check passed. Initially households.n_households do not match len(households.households).')
@@ -166,78 +196,18 @@ def test_households_initialization():
         assert isinstance(households.households[i], sp.Household) and households.get_household(i).get_hhid() is None, 'Check failed. households[i] is not a household object.'
     print(f'Check passed. Initialized {households.n_households} empty households.')
 
+    # test that if there are not enough households when populating, we reinitialize that cover with the correct number
+    households.households = []
+    households.populate_households(homes_by_uids, age_by_uid)
+    assert len(households.households) == len(homes_by_uids), 'Check failed.'
+    print('Check passed.')
+
 
 if __name__ == '__main__':
-    # pop = test_empty_household()
+
+    test_cannot_change_attribute()
+    pop = test_empty_household()
     test_make_household()
-    pop = sp.Pop(**pars)
-    # print(pop.homes_by_uids)
-    pop.household = sp.Household()
-
-    pop.household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
-                                reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])], hhid=0)
-    print(pop.household)
-
-    # pop.household2 = sp.Household(**dict(member_uids=pop.homes_by_uids[1], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[1]],
-    #                                      reference_uid=min(pop.homes_by_uids[1]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[1])], hhid=1))
-    # print(pop.household2)
-    # # test_cannot_change_attribute()
-
-    # # pop.households = sp.Households(**{'households': pop.household})
-    pop.households = sp.Households()
-    with pytest.raises(ValueError) as excinfo:
-        pop.households.add_household('0')
-
-    # print(pop.households)
-    # # # pop.households = sp.Households(**{'households': pop.homes})
-    # pop.households.initialize_empty_households(n_households=3)
-    # print(pop.households)
-    # # # print(pop.households.households)
-
-    # test_households_initialization()
+    test_add_household()
     test_households_basic()
-
-
-    # pop.households.populate_households(pop.homes_by_uids[0:3], pop.age_by_uid)
-    # print(pop.households.households)
-
-    # print(pop.households.get_household(0))
-    # print(pop.households.get_household(2))
-
-    # school = sp.School()
-    # school.set_school(**{'scid': 0})
-    # print(school)
-    # school.__setitem__('students', [0, 9])
-    # school.set_item('students', [0, 9])
-    # print(school)
-    # school.set_school(**{'students': [0, 9]})
-    # print(school)
-
-    # h = sp.Household()
-    # print(h)
-    # print(type(h))
-
-    # for nh, home_ids in enumerate(pop.homes_by_uids[0:2]):
-    #     hkwargs = dict(hhid=nh, member_uids=home_ids, member_ages=pop.homes[nh], reference_uid=home_ids[0], reference_age=pop.homes[nh][0])
-    #     h = sp.Household()
-    #     h.set_household(**hkwargs)
-
-    #     # print(h.get_household_size())
-    #     # print(h)
-
-    # pop.households.populate_households(pop.homes_by_uids[0:2], pop.age_by_uid)
-
-    # print(pop.households)
-    # for h in pop.households.household_list:
-    #     print(h)
-
-    # pop.pop_item('homes_by_uids')  # pop a bunch of unnecessary items once the population has been generated and stored in the right classes
-
-    # cvpopdict = cv.make_synthpop(population=sc.dcp(pop.popdict), community_contacts=2)
-
-    # # print(cvpopdict.keys())
-    # people_pars = dict(pop_size=pars.n, beta_layer={k: 1. for k in 'hswcl'}, beta=1.)
-    # people = cv.People(people_pars, uid=cvpopdict['uid'], age=cvpopdict['age'])
-
-    # print(people)
-    # print(type(people))
+    test_households_initialization()

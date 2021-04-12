@@ -73,7 +73,7 @@ class Household(sc.objdict):
             sc.objdict.__setitem__(self, key, value)
         return
 
-    # alternative way
+    # # alternative way
     # def setitem(self, key, value):
     #     """Set attribute values by key."""
     #     if isinstance(value, (list, np.ndarray)):
@@ -92,7 +92,7 @@ class Household(sc.objdict):
 
     def get_hhid(self):
         """Return the household id."""
-        return self.get('hhid')
+        return self.hhid
 
     def get_household_size(self):
         """Return number of household members."""
@@ -100,21 +100,21 @@ class Household(sc.objdict):
 
     def get_member_uids(self):
         """Return the uids of all household members."""
-        return self.get('member_uids')
+        return self.member_uids
 
     def get_member_ages(self):
         """Return the ages of all household members."""
-        return self.get('member_ages')
+        # return self.get('member_ages')
+        return self.member_ages
 
     def get_reference_uid(self):
         """Return the uid of the reference person used to generate the household members ages."""
-        # return self.reference_uid  # more direct
-        return self.get('reference_uid')  # using sc.objdict's method
+        return self.reference_uid
 
     def get_reference_age(self):
         """Return the age of the reference person used to generate the household members ages."""
-        # return self.reference_age  # more direct
-        return self.get('reference_age')  # using sc.objdict's method
+        return self.reference_age  # more direct
+        # return self.get('reference_age')  # using sc.objdict's method
 
     # To be turned on for vital dynamics...
     # def set_hhid(self, hhid):
@@ -237,7 +237,6 @@ class Households(sc.objdict):
             households (list) : list of lists where each sublist represents a household and contains the ids of the household members
             age_by_uid (dict) : dictionary mapping each person's id to their age
         """
-
         # check there are enough households
         if len(self.households) < len(households):
             log.debug(f"Reinitializing list of households with {len(households)} empty households.")
@@ -249,11 +248,11 @@ class Households(sc.objdict):
             kwargs = dict(hhid=nh,
                           member_uids=hh,
                           member_ages=[age_by_uid[i] for i in hh],
-                          reference_uid=hh[0],
+                          reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
                           reference_age=age_by_uid[hh[0]]
                           # reference_uid=min(hh),
                           # reference_age=age_by_uid[min(hh)]  # reference person is the minimal id
-                          )  # reference person in synthpops is always the first person place in a household
+                          )
             household = Household()
             household.set_household(**kwargs)
             self.households[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
