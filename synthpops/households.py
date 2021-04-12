@@ -15,7 +15,6 @@ from . import data_distributions as spdata
 # __all__ = ['Household', 'Households']
 
 
-# class Household(sc.prettyobj):
 class Household(sc.objdict):
     """
     A class for individual households and methods to operate on each.
@@ -66,7 +65,6 @@ class Household(sc.objdict):
 
         return default_kwargs
 
-    # DM: why does this work?
     def __setitem__(self, key, value):
         """Set attribute values by key."""
         if isinstance(value, (list, np.ndarray)):
@@ -156,7 +154,7 @@ class Households(sc.objdict):
             **households (list)  : list of households
         """
         # set kwargs for the households
-        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)
+        kwargs = sc.mergedicts(self.default_kwargs(), sc.dcp(kwargs))  # pass along a copy of the kwargs
         self.update(kwargs)  # set update the initial values then take care of any issues
 
         # align n_households and households supplied
@@ -181,7 +179,6 @@ class Households(sc.objdict):
 
     def __setitem__(self, key, value):
         """Set attribute values by key."""
-        # setattr(self, key, value)
         sc.objdict.__setitem__(self, key, value)
 
         return
@@ -248,14 +245,14 @@ class Households(sc.objdict):
 
         log.debug("Populating households.")
         # now populate households
-        for nh, household in enumerate(households):
+        for nh, hh in enumerate(households):
             kwargs = dict(hhid=nh,
-                          member_uids=household, 
-                          member_ages=[age_by_uid[i] for i in household],
-                          # reference_uid=household[0],
-                          # reference_age=age_by_uid[household[0]]
-                          reference_uid=min(household),
-                          reference_age=age_by_uid[min(household)]  # reference person is the minimal id
+                          member_uids=hh,
+                          member_ages=[age_by_uid[i] for i in hh],
+                          reference_uid=hh[0],
+                          reference_age=age_by_uid[hh[0]]
+                          # reference_uid=min(hh),
+                          # reference_age=age_by_uid[min(hh)]  # reference person is the minimal id
                           )  # reference person in synthpops is always the first person place in a household
             household = Household()
             household.set_household(**kwargs)
