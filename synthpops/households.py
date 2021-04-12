@@ -104,7 +104,6 @@ class Household(sc.objdict):
 
     def get_member_ages(self):
         """Return the ages of all household members."""
-        # return self.get('member_ages')
         return self.member_ages
 
     def get_reference_uid(self):
