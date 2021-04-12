@@ -2,12 +2,15 @@
   "location_name": "usa",
   "data_provenance_notices": [],
   "reference_links": [
-    "https://data.census.gov/cedsci"
+    "https://data.census.gov/cedsci",
+    "https://www.census.gov/data/tables/2019/demo/families/cps-2019.html"
   ],
   "citations": [
     "United States Census Bureau"
   ],
-  "notes": [],
+  "notes": [
+    "The data on the age of head of households is available at the national scale for household sizes 2 through 7+. For households of single individuals, we assume a uniform distribution across all head of household age brackets given the lack of data to indicate otherwise."
+  ],
   "parent": "",
   "population_age_distribution_16": [],
   "population_age_distribution_18": [],
