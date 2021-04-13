@@ -305,6 +305,50 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
 
     return fig, ax, pop
 
+
+def test_plot_contact_counts(do_show=False, do_save=False):
+    sp.logger.info("Test plot_contact_counts method. Unit test --- for actual use with a sp.Pop object see e2etests/test_workplace_e2e.py.")
+    # multiple subplots
+    contacts1 = {
+        "people_type1": {
+            "contact_type1": [2, 3, 4, 3, 4, 3, 4, 2, 1, 2],
+            "contact_type2": [10, 22, 11, 12, 9, 9, 8, 10, 11, 10]
+        },
+        "people_type2": {
+            "contact_type1": [1, 3, 4, 3, 5, 3, 4, 4, 1, 2],
+            "contact_type2": [10, 21, 11, 11, 10, 9, 8, 10, 11, 10]
+        }
+    }
+    # single subplot
+    contacts2 = {
+        "people_type": {
+            "contact_type": [2, 3, 4, 3, 4, 3, 4, 2, 1, 2]
+        }
+    }
+    params = sc.objdict(do_save=do_save, do_show=do_show, title_prefix='test=true')
+    fig1, ax1 = sp.plot_contact_counts(contact_counter=contacts1, **params)
+    assert isinstance(fig1, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    fig2, ax2 = sp.plot_contact_counts(contact_counter=contacts2, varname="test", **params)
+    assert isinstance(fig2, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    print('Check passed. Figures made.')
+
+
+def test_plot_contact_counts_on_pop(do_show=False, do_save=False):
+    sp.logger.info("Test plot_contact_counts on sp.Pop object.")
+    pop = sp.Pop(**pars)
+    contact_counter = pop.get_contact_counts_by_layer(layer='S')
+    kwargs = sc.objdict()
+    kwargs.do_show = do_show
+    kwargs.do_save = do_save
+
+    if kwargs.do_show:
+        plt.switch_backend(mplt_org_backend)
+
+    fig, ax = pop.plot_contact_counts(contact_counter, **kwargs)
+    assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
+    return fig, ax, pop
+
+
 if __name__ == '__main__':
 
     T = sc.tic()
@@ -323,6 +367,8 @@ if __name__ == '__main__':
     fig5, ax5, pop5 = test_plot_employment_rates_by_age(do_show=True)
     fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
     fig7, ax7, pop7 = test_household_head_ages_by_size(do_show=True)
+    test_plot_contact_counts(do_show=True)
+    test_plot_contact_counts_on_pop(do_show=True)
 
     sc.toc(T)
     print('Done.')

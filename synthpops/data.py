@@ -8,6 +8,8 @@ from jsonobject.containers import JsonDict
 import os
 from . import config as cfg
 from . import logger
+from . import defaults
+import warnings
 
 
 class PopulationAgeDistribution(JsonObject):
@@ -175,7 +177,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
         parent_obj = load_location_from_filepath(parent_file_path)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.warn(f"You may have an invalid data configuration: couldn't load parent "
+        logger.warning(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
@@ -248,6 +250,9 @@ def load_location_from_json(json_obj):
     """
     location = Location(json_obj)
     check_location_constraints_satisfied(location)
+    check_all_probability_distribution_sums(location)
+    check_all_probability_distribution_nonnegative(location)
+
     populate_parent_data(location)
     return location
 
@@ -283,6 +288,25 @@ def get_relative_path(datadir):
     if len(cfg.rel_path) > 1:
         base_dir = os.path.join(datadir, *cfg.rel_path)
     return base_dir
+
+
+def get_location_attr(location, property_name):
+    """
+    Get the attribute from the json object containing location data given the
+    associated property name.
+
+    Args:
+        location (json)     : the json object with location data
+        property_name (str) : the property name
+
+    Returns:
+        If property_name exists in the location json object, return [True, attribute].
+        Else, return [False, None].
+    """
+    if property_name in location.keys():
+        return getattr(location, property_name)
+    else:
+        return [False, None]
 
 
 def load_location_from_filepath(rel_filepath):
@@ -403,11 +427,183 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
         [False, str] if sub array length checks fail. The returned str is the
         error message.
     """
-    arr = getattr(location, property_name)
+    arr = get_location_attr(location, property_name)
     status, reason = check_array_of_array_entry_lens_arr(arr, expected_len)
     if not status:
         return [False, f"For property {property_name}: {reason}"]
+
     return [True, None]
+
+
+def check_valid_probability_distributions(property_name, valid_properties=None):
+    """
+    Check that the property_name is a valid probability distribution.
+
+    Args:
+        property_name (str)            : the property name
+        valid_properties (str or list) : a list of the valid probability distributions
+
+    Returns:
+        None.
+    """
+    # check the property_name is in the list of valid_probability_distributions()
+    if valid_properties is None:
+        valid_properties = defaults.valid_probability_distributions
+
+    # if a single str, make into a list so next check will work
+    if not isinstance(valid_properties, list): # pragma: no cover
+        valid_properties = [valid_properties]
+
+    if property_name not in valid_properties: # pragma: no cover
+        raise NotImplementedError(f"{property_name} is not one of the expected probability distributions. The list of expected probability distributions is {valid_properties}. If you wish to use this method on the attribute {property_name}, you can supply it as the parameter valid_properties={property_name}.")
+
+
+def check_probability_distribution_sum(location, property_name, tolerance=1e-2, valid_properties=None, **kwargs):
+    """
+    Check that fields representing probability distributions have sums equal to 1 within some tolerance.
+
+    Args:
+        location (json)                : the json object with location data
+        property_name (str)            : the property name
+        tolerance (float)              : difference from the sum of 1 tolerated
+        valid_properties (str or list) : a list of the valid probability distributions
+        kwargs (dict)                  : dictionary of values passed to np.isclose()
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.  
+    """
+    check_valid_probability_distributions(property_name, valid_properties)
+
+    arr = get_location_attr(location, property_name)
+    arr = np.array(arr)
+
+    if len(arr):
+
+        # what is the sum of the probability distribution values?
+        if arr.ndim == 1:  # for school size distributions
+            arr_sum = sum(arr)
+
+        elif arr.ndim == 2:
+            arr_sum = np.sum(arr[:, -1])  # distibution values are in the last column if arr is 2D array
+
+        else:
+            raise NotImplementedError(f"Could not understand an array of shape {arr.shape}: Expected a 1D or 2D array.")
+
+        # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
+        if tolerance is not None:
+            kwargs['atol'] = tolerance
+        check = np.isclose(a=1, b=arr_sum, **kwargs)
+
+        if check:
+            return [True, None]
+        else:
+            return [False, f"The sum of the probability distribution for the property: {property_name} is {arr_sum:.4f}.\n\
+We expected the sum of these probabilities to be less than {tolerance} from 1."]
+    else:
+        return [False, f"{location.location_name} {property_name} could not be checked for a sum close to 1."]
+
+
+def check_probability_distribution_nonnegative(location, property_name, valid_properties=None):
+    """
+    Check that fields representing probability distributions have all non negative values.
+
+    Args:
+        location (json)                : the json object with location data
+        property_name (str)            : the property name
+        valid_properties (str or list) : a list of the valid probability distributions
+
+    Returns:
+        [True, None] if the values of the probability distribution are all non negative.
+        [False, str] else. The returned str is the error message with some information about the check.  
+    """
+    check_valid_probability_distributions(property_name, valid_properties)
+
+    arr = get_location_attr(location, property_name)
+    arr = np.array(arr)
+
+    # what are the values of the probability distribution
+    if len(arr):
+
+        if arr.ndim == 2:
+            arr = arr[:, -1]  # distribution values are in the last column if arr is 2D array
+
+        # find the indices where the distribution is negative
+        negative = np.argwhere(arr < 0)
+        # check if any are negative
+        any_negative = len(negative)
+        check = not any_negative
+
+        if check:
+            return [True, None]
+        else:
+            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
+    else:
+        return [False, f"{location.location_name} {property_name} could not be checked for negative values."]
+
+
+def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=True, **kwargs):
+    """
+    Checks that each probability distribution available to a location has a sum
+    close to 1.
+
+    Args:
+        location (json)   : the json object with location data
+        tolerance (float) : difference from the sum of 1 tolerated
+        die (bool)        : raise an exception if the check fails
+        verbose (bool)    : print a warning if the check fails
+        kwargs (dict)     : dictionary of values passed to np.isclose()
+
+    Returns:
+        list, list: List of checks and a list of associated error messages.
+    """
+    property_list = defaults.valid_probability_distributions
+
+    checks, msgs = [], []
+
+    for i, property_name in enumerate(property_list):
+        check, msg = check_probability_distribution_sum(location, property_name, tolerance=tolerance, **kwargs)
+        checks.append(check)
+        msgs.append(msg)
+
+        if not check:
+            if die: # pragma: no cover
+                raise ValueError(msg)
+            elif verbose:
+                warnings.warn(msg)
+        cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+    return checks, msgs
+
+
+def check_all_probability_distribution_nonnegative(location, die=False, verbose=True):
+    """
+    Run checks that a field representing probabilty distributions has all non
+    negative values.
+
+    Args:
+        location (json) : json object with the location data
+        die (bool)      : raise an exception if the check fails
+        verbose (bool)  : print a warning if the check fails
+
+    Returns:
+        list, list: List of checks and a list of associated error messages.
+    """
+    property_list = defaults.valid_probability_distributions
+
+    checks, msgs = [], []
+
+    for i, property_name in enumerate(property_list):
+        check, msg = check_probability_distribution_nonnegative(location, property_name)
+        checks.append(check)
+        msgs.append(msg)
+
+        if not check:
+            if die: # pragma: no cover
+                raise ValueError(msg)
+            elif verbose:
+                warnings.warn(msg)
+        cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+    return checks, msgs
 
 
 def check_location_name(location):
@@ -446,6 +642,7 @@ def check_population_age_distributions(location):
                            f"{len(population_age_distribution.distribution)} != {population_age_distribution.num_bins}"]
         return check_array_of_array_entry_lens_arr(population_age_distribution.distribution, 3)
     return [True, None]
+
 
 def check_employment_rates_by_age(location):
     """
@@ -658,14 +855,14 @@ def convert_df_to_json_array(df, cols, int_cols=None):
         json data objects.
     """
     df = df[cols]
-    columns = df.columns.values.tolist()
 
     # make into a list to iterate over
     int_cols = sc.tolist(int_cols)
 
-    # make an array of arrays
-    arr = df.values.tolist()
+    # some columns as ints
+    df = df.astype({k: int for k in int_cols})
 
-    arr = [[int(j) if columns[nj] in int_cols else j for nj, j in enumerate(i)] for i in arr]
+    # make an array of arrays --- dtype=object to preserve each columns type
+    arr = df.to_numpy(dtype=object).tolist()
 
     return arr

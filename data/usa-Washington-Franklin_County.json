@@ -424,7 +424,22 @@
     "school_type": "uv",
     "size_distribution": [0.027522935779816515, 0.009174311926605505, 0.2018348623853211, 0.3944954128440367, 0.1926605504587156, 0.045871559633027525, 0.05504587155963303, 0.03669724770642202, 0.009174311926605505, 0.0, 0.027522935779816515, 0.0, 0.0, 0.0]
   }],
-  "school_types_by_age": [],
+  "school_types_by_age": [{
+    "school_type": "pk",
+    "age_range": [3, 5]
+  }, {
+    "school_type": "es",
+    "age_range": [6, 10]
+  }, {
+    "school_type": "ms",
+    "age_range": [11, 13]
+  }, {
+    "school_type": "hs",
+    "age_range": [14, 17]
+  }, {
+    "school_type": "uv",
+    "age_range": [18, 100]
+  }],
   "workplace_size_counts_by_num_personnel": [
     [1, 4, 875.0],
     [5, 9, 296.0],

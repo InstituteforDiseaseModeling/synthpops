@@ -389,6 +389,8 @@ def migrate_legacy_data(datadir, country_location, state_location, location, out
     for key, bound_function in migration_functions.items():
         try_migrate(key, bound_function)
 
+    #make sure output_folder exist
+    os.makedirs(output_folder, exist_ok=True)
     output_filepath = os.path.join(output_folder, f"{new_location.location_name}.json")
     data.save_location_to_filepath(new_location, output_filepath)
 
