@@ -27,7 +27,7 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.1 (2021-04-05)
+Version 1.7.1 (2021-04-09)
 --------------------------
 - Feature: Added checks for probability distributions with methods ``sp.check_all_probability_distribution_sums()``, ``sp.check_all_probability_distrubution_nonnegative()``, ``sp.check_probability_distribution_sum()``, ``sp.check_probability_distribution_nonnegative()``. These check that probabilities sum to 1 within a tolerance level  (0.05), and have all non negative values. Added method to convert data from pandas dataframe to json array style, ``sp.convert_df_to_json_array()``. Added statistical test method ``sp.statistic_test()``. Added method to count contacts, ``sp.get_contact_counts_by_layer()``, and method to plot the results, ``sp.plot_contact_counts()``. See ``sp.contact_networks.get_contact_counts_by_layer()`` for more details on the method.
 - Added example of how to load data into the location json objects and save to file. See ``examples/create_location_data.py`` and ``examples/modify_location_data.py``.
