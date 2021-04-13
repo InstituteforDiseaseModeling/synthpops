@@ -14,12 +14,14 @@ def test_household_average_contact_by_age(do_show, do_save, create_sample_pop_e2
     fig = create_sample_pop_e2e.plot_contacts(**plotting_kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
 
+
 def test_age_distribution():
-    #todo: require statistics methods
+    # todo: require statistics methods
     pass
 
+
 def test_household_distribution( create_sample_pop_e2e):
-    actual_households_count = Counter([len(i.member_uids) for i in create_sample_pop_e2e.households.households])
+    actual_households_count = Counter([len(i.member_uids) for i in create_sample_pop_e2e.households.households_array])
     actual_households_size = [actual_households_count[i] for i in sorted(actual_households_count)]
     expected_households_dist = sp.get_household_size_distr(**create_sample_pop_e2e.loc_pars)
     expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.households.n_households for i in sorted(expected_households_dist)]
@@ -39,5 +41,6 @@ if __name__ == "__main__":
     # pytest.main(['-v', '--do-show', __file__])
 
     # for running individual tests, you can do this
-    testcase = 'test_household_head_ages_by_household_size_e2e'
+    # testcase = 'test_household_head_ages_by_household_size_e2e'
+    testcase = 'test_household_distribution'
     pytest.main(['-v', '-k', testcase, '--do-show'])
