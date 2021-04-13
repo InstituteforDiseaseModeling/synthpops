@@ -3,6 +3,7 @@ import pytest
 import sciris as sc
 import synthpops as sp
 import matplotlib as mplt
+from collections import Counter
 import setup_e2e as e2e
 from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 
@@ -17,9 +18,13 @@ def test_age_distribution():
     #todo: require statistics methods
     pass
 
-def test_household_distribution():
-    # todo: require statistics methods
-    pass
+def test_household_distribution( create_sample_pop_e2e):
+    actual_households_count = Counter([len(i.member_uids) for i in create_sample_pop_e2e.households.households])
+    actual_households_size = [actual_households_count[i] for i in sorted(actual_households_count)]
+    expected_households_dist = sp.get_household_size_distr(**create_sample_pop_e2e.loc_pars)
+    expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.households.n_households for i in sorted(expected_households_dist)]
+    sp.statistic_test(expected_households_size, actual_households_size)
+
 
 def test_household_head_ages_by_household_size_e2e(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
     sp.logger.info("Test the age distribution of household heads by the household size.")
