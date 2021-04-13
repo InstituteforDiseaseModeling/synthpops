@@ -772,7 +772,7 @@ class Testconvert_df_to_json_array(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    # unittest.main(verbosity=2)  # run all tests in this file
+    unittest.main(verbosity=2)  # run all tests in this file
 
     # # run tests with non default values
     # t1 = TestLocation()
@@ -784,8 +784,8 @@ if __name__ == '__main__':
     # t1.test_load_minimal_location_with_parent_filepath_from_filepath()
 
     # # run checks on a subset of the properties by specifying property_list
-    t2 = TestChecks()
-    t2.test_check_probability_distribution_sums(property_list=['household_size_distribution'])
+    # t2 = TestChecks()
+    # t2.test_check_probability_distribution_sums(property_list=['population_age_distributions', 'household_size_distribution'])
     # t2.test_check_probability_distribution_nonnegative(property_list=['household_size_distribution'])
 
     # t3 = Testconvert_df_to_json_array()

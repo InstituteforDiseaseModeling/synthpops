@@ -451,11 +451,91 @@ def check_valid_probability_distributions(property_name, valid_properties=None):
         valid_properties = defaults.valid_probability_distributions
 
     # if a single str, make into a list so next check will work
-    if not isinstance(valid_properties, list): # pragma: no cover
-        valid_properties = [valid_properties]
+    valid_properties = sc.tolist(valid_properties)
 
     if property_name not in valid_properties: # pragma: no cover
         raise NotImplementedError(f"{property_name} is not one of the expected probability distributions. The list of expected probability distributions is {valid_properties}. If you wish to use this method on the attribute {property_name}, you can supply it as the parameter valid_properties={property_name}.")
+
+
+def check_probability_distribution_sum_age_distributions(location, arr, tolerance=1e-2, **kwargs):
+    """
+    Check that each population age distribution has a sum equal to 1 within some
+    tolerance.
+
+    Args:
+        location (json)   : the json object with location data
+        arr (list)        : the list of population age distributions
+        tolerance (float) : difference from the sum of 1 tolerated
+        kwargs (dict)     : dictionary of values passed to np.isclose()
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.
+    """
+    if tolerance is not None: # pragma: no cover
+        kwargs['atol'] = tolerance
+
+    checks, msgs = [], []
+    for i in arr: # pragma: no cover
+        if 'num_bins' in i:
+            arr_i = np.array(i.distribution)
+            arr_sum = np.sum(arr_i[:, -1])
+
+            check = np.isclose(a=1, b=arr_sum, **kwargs)
+            checks.append(check)
+
+            if check:
+                msg = ''
+            else:
+                msg = f"The sum of the probability distribution for the population age distribution for {location.location_name} with num_bins = {i.num_bins} is {arr_sum:.4f}.\n"
+            msgs.append(msg)
+
+        else:
+            checks.append(False)
+            msgs.append(f"The probability distribution for the population age distribution for {location.location_name} does not have num_bins.")
+    msg = "".join(msgs)
+    if msg == "": # pragma: no cover
+        msg = None
+    return [sum(checks) > 0, msg]
+
+
+def check_probability_distribution_nonnegative_age_distribution(location, arr):
+    """
+    Check that each population age distribution has all non negative values.
+
+    Args:
+        location (json) : the json object with location data
+        arr (list) : the list of population age distributions
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.
+    """
+    checks, msgs = [], []
+    for i in arr: # pragma: no cover
+        if 'num_bins' in i:
+            arr_i = np.array(i.distribution)
+
+            # find the indices where the distribution is negative
+            negative = np.argwhere(arr_i < 0)
+            # check is any are negative
+            any_negative = len(negative)
+            check = not any_negative
+            checks.append(check)
+
+            if check:
+                msg = ''
+            else:
+                msg = f"The probability distribution for the population age distribution for {location.location_name} with num_bins = {i.num_bins} has some negative values, {arr_i[negative]}, at the indices {negative}.\n"
+            msgs.append(msg)
+
+        else:
+            checks.append(False)
+            msgs.append(f"The probability distribution for the population age distribution for {location.location_name} does not have num_bins.")
+    msg = "".join(msgs)
+    if msg == "": # pragma: no cover
+        msg = None
+    return [sum(checks) > 0, msg]
 
 
 def check_probability_distribution_sum(location, property_name, tolerance=1e-2, valid_properties=None, **kwargs):
@@ -471,28 +551,33 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
 
     Returns:
         [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
-        [False, str] else. The returned str is the error message with some information about the check.  
+        [False, str] else. The returned str is the error message with some information about the check.
     """
     check_valid_probability_distributions(property_name, valid_properties)
 
+    # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
+    if tolerance is not None:
+        kwargs['atol'] = tolerance
+
     arr = get_location_attr(location, property_name)
-    arr = np.array(arr)
 
-    if len(arr):
+    if property_name == 'population_age_distributions':
+        check, msg = check_probability_distribution_sum_age_distributions(location, arr, **kwargs)
+        return check, msg
 
-        # what is the sum of the probability distribution values?
+    elif len(arr):
+
+        arr = np.array(arr)
+
         if arr.ndim == 1:  # for school size distributions
-            arr_sum = sum(arr)
+            arr_sum = sum(arr)  # what is the sum of the probability distribution values?
 
         elif arr.ndim == 2:
-            arr_sum = np.sum(arr[:, -1])  # distibution values are in the last column if arr is 2D array
+            arr_sum = np.sum(arr[:, -1])  # distribution values are in the last column if arr is 2D array
 
         else:
             raise NotImplementedError(f"Could not understand an array of shape {arr.shape}: Expected a 1D or 2D array.")
 
-        # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
-        if tolerance is not None:
-            kwargs['atol'] = tolerance
         check = np.isclose(a=1, b=arr_sum, **kwargs)
 
         if check:
@@ -515,15 +600,18 @@ def check_probability_distribution_nonnegative(location, property_name, valid_pr
 
     Returns:
         [True, None] if the values of the probability distribution are all non negative.
-        [False, str] else. The returned str is the error message with some information about the check.  
+        [False, str] else. The returned str is the error message with some information about the check.
     """
     check_valid_probability_distributions(property_name, valid_properties)
 
     arr = get_location_attr(location, property_name)
-    arr = np.array(arr)
 
-    # what are the values of the probability distribution
-    if len(arr):
+    if property_name == 'population_age_distributions':
+        check, msg = check_probability_distribution_nonnegative_age_distribution(location, arr)
+        return check, msg
+
+    elif len(arr):
+        arr = np.array(arr)
 
         if arr.ndim == 2:
             arr = arr[:, -1]  # distribution values are in the last column if arr is 2D array
@@ -537,12 +625,12 @@ def check_probability_distribution_nonnegative(location, property_name, valid_pr
         if check:
             return [True, None]
         else:
-            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
+            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]}, at the indices {negative}."]
     else:
         return [False, f"{location.location_name} {property_name} could not be checked for negative values."]
 
 
-def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=True, **kwargs):
+def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=False, **kwargs):
     """
     Checks that each probability distribution available to a location has a sum
     close to 1.
