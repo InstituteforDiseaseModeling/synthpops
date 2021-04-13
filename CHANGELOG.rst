@@ -27,11 +27,24 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.1 (2021-04-05)
+Version 1.7.3 (2021-04-14)
+--------------------------
+- Data folder cleaned up and removed individual csv data files now that synthpops has json data files instead for the collection of data used for each location.
+- Json data objects also updated with documentation on the sources for the original and estimated data. When data have been estimated or inferred, to the best of our ability, we've added a note about this in the notes field.
+- *Github Info*: PR `427 <https://github.com/amath-idm/synthpops/pull/427>`__
+
+
+Version 1.7.2 (2021-04-13)
+--------------------------
+- *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accomodate this flexibility.
+- *Github Info*: PR `422 <https://github.com/amath-idm/synthpops/pull/422>`__
+
+
+Version 1.7.1 (2021-04-09)
 --------------------------
 - Feature: Added checks for probability distributions with methods ``sp.check_all_probability_distribution_sums()``, ``sp.check_all_probability_distrubution_nonnegative()``, ``sp.check_probability_distribution_sum()``, ``sp.check_probability_distribution_nonnegative()``. These check that probabilities sum to 1 within a tolerance level  (0.05), and have all non negative values. Added method to convert data from pandas dataframe to json array style, ``sp.convert_df_to_json_array()``. Added statistical test method ``sp.statistic_test()``. Added method to count contacts, ``sp.get_contact_counts_by_layer()``, and method to plot the results, ``sp.plot_contact_counts()``. See ``sp.contact_networks.get_contact_counts_by_layer()`` for more details on the method.
 - Added example of how to load data into the location json objects and save to file. See ``examples/create_location_data.py`` and ``examples/modify_location_data.py``.
-- *Github Info*: PR `410 <https://github.com/amath-idm/synthpops/pull/410>`__, `413 <https://github.com/amath-idm/synthpops/pull/413>`__, `426 <https://github.com/amath-idm/synthpops/pull/426>`__
+- *Github Info*: PR `410 <https://github.com/amath-idm/synthpops/pull/410>`__, `413 <https://github.com/amath-idm/synthpops/pull/413>`__, `423 <https://github.com/amath-idm/synthpops/pull/423>`__
 
 
 Version 1.7.0 (2021-04-05)
