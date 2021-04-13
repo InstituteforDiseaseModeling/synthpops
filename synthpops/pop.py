@@ -396,7 +396,7 @@ class Pop(sc.prettyobj):
         self.age_by_uid = age_by_uid_dic
 
         self.households = sphh.Households(**{'households': self.homes_by_uids,
-                                          'age_by_uid': self.age_by_uid})
+                                             'age_by_uid': self.age_by_uid})
 
         return population
 

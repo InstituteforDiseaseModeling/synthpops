@@ -150,7 +150,7 @@ class Households(sc.objdict):
 
         Args:
             **n_households (int) : the number of households
-            **households (list)  : list of households
+            **households (list)  : list of households or list of member ids of the households
         """
         # set kwargs for the households
         kwargs = sc.mergedicts(self.default_kwargs(), sc.dcp(kwargs))  # pass along a copy of the kwargs
@@ -161,8 +161,13 @@ class Households(sc.objdict):
 
         self.populated = False  # have the empty households been populated yet?
 
+        # if 'households' contains Household objects then simply add those
+        if len(self.households) > 0 and isinstance(self.households[0], Household):
+            for nh, hh in enumerate(self.households):
+                self.add_household(hh)
+
         # if there's enough information to populate households --- not a great name --- what to call the list of households?
-        if 'households' and 'age_by_uid' in self:
+        elif 'households' and 'age_by_uid' in self:
             self.populate_households(self.households, self.age_by_uid)
 
         # must find a better name; shouldn't have households.households
@@ -192,13 +197,14 @@ class Households(sc.objdict):
         default_kwargs = sc.objdict()
         default_kwargs.n_households = 0
         default_kwargs.households = []
+        default_kwargs.households_array = []
 
         return default_kwargs
 
     def initialize_n_households(self):
         """Align n_households and the households supplied to self."""
-        if self.n_households < len(self.households):
-            self.n_households = len(self.households)
+        if self.n_households < len(self.households_array):
+            self.n_households = len(self.households_array)
 
         return
 
@@ -213,7 +219,7 @@ class Households(sc.objdict):
             self.n_households = n_households
         else:
             self.n_households = 0
-        self.households = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
+        self.households_array = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
         return
 
     def add_household(self, household):
@@ -225,7 +231,7 @@ class Households(sc.objdict):
         """
         if not isinstance(household, Household):
             raise ValueError('household is not a sp.Household class.')
-        self.households.append(household)
+        self.households_array.append(household)
         return
 
     def populate_households(self, households, age_by_uid):
@@ -237,7 +243,7 @@ class Households(sc.objdict):
             age_by_uid (dict) : dictionary mapping each person's id to their age
         """
         # check there are enough households
-        if len(self.households) < len(households):
+        if len(self.households_array) < len(households):
             log.debug(f"Reinitializing list of households with {len(households)} empty households.")
             self.initialize_empty_households(len(households))
 
@@ -254,7 +260,7 @@ class Households(sc.objdict):
                           )
             household = Household()
             household.set_household(**kwargs)
-            self.households[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+            self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
 
         self.n_households = len(self.households)
         self.populate = True
@@ -263,9 +269,9 @@ class Households(sc.objdict):
 
     def get_household(self, hhid):
         """Return household with id: hhid."""
-        if len(self.households) < hhid:
+        if len(self.households_array) < hhid:
             raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
-        return self.households[hhid]
+        return self.households_array[hhid]
 
 
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
