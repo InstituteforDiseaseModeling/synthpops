@@ -499,7 +499,7 @@ def check_probability_distribution_sum_age_distributions(location, arr, toleranc
     return [sum(checks) > 0, msg]
 
 
-def check_probability_distribution_nonnegative_age_distribution(location, arr):
+def check_probability_distribution_nonnegative_age_distributions(location, arr):
     """
     Check that each population age distribution has all non negative values.
 
@@ -607,7 +607,7 @@ def check_probability_distribution_nonnegative(location, property_name, valid_pr
     arr = get_location_attr(location, property_name)
 
     if property_name == 'population_age_distributions':
-        check, msg = check_probability_distribution_nonnegative_age_distribution(location, arr)
+        check, msg = check_probability_distribution_nonnegative_age_distributions(location, arr)
         return check, msg
 
     elif len(arr):

@@ -30,7 +30,7 @@ Latest versions (1.7.x)
 Version 1.7.2 (2021-04-13)
 --------------------------
 - *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accomodate this flexibility.
-- *Github Info*: PR `422 <https://github.com/amath-idm/synthpops/pull/422>`__
+- *Github Info*: PR `401 <https://github.com/amath-idm/synthpops/pull/401>`__, `422 <https://github.com/amath-idm/synthpops/pull/422>`__
 
 
 Version 1.7.1 (2021-04-09)
