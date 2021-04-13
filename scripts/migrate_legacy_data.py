@@ -54,6 +54,20 @@ def try_migrate(data_subject, f):
         report_processing_error(data_subject, sys.exc_info()[1])
 
 
+def migrate_population_age_brackets(legacy_age_brackets, new_location):
+    num_brackets = len(legacy_age_brackets.keys())
+    if num_brackets == 0:
+        return
+    brackets = []
+    for bracket_index, age_range in legacy_age_brackets.items():
+        # Insert age bracket with 0.0 percentage for now.
+        brackets.append([int(min(age_range)), int(max(age_range)), 0.0])
+    population_age_distribution = data.PopulationAgeDistribution()
+    population_age_distribution.num_bins = num_brackets
+    population_age_distribution.distribution = brackets
+    new_location.population_age_distributions.append(population_age_distribution)
+
+
 def migrate_population_age_brackets_16(datadir, country_location,  state_location, location, new_location,):
     legacy_age_brackets = data_distributions_legacy.get_census_age_brackets(datadir,
                                                                             location,
@@ -61,9 +75,7 @@ def migrate_population_age_brackets_16(datadir, country_location,  state_locatio
                                                                             country_location,
                                                                             nbrackets=16
                                                                             )
-    for bracket_index, age_range in legacy_age_brackets.items():
-        # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_16.append([int(min(age_range)), int(max(age_range)), 0.0])
+    migrate_population_age_brackets(legacy_age_brackets, new_location)
 
 
 def migrate_population_age_brackets_18(datadir, country_location,  state_location, location, new_location,):
@@ -73,9 +85,7 @@ def migrate_population_age_brackets_18(datadir, country_location,  state_locatio
                                                                             country_location,
                                                                             nbrackets=18
                                                                             )
-    for bracket_index, age_range in legacy_age_brackets.items():
-        # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_18.append([int(min(age_range)), int(max(age_range)), 0.0])
+    migrate_population_age_brackets(legacy_age_brackets, new_location)
 
 
 def migrate_population_age_brackets_20(datadir, country_location,  state_location, location, new_location,):
@@ -85,9 +95,20 @@ def migrate_population_age_brackets_20(datadir, country_location,  state_locatio
                                                                             country_location,
                                                                             nbrackets=20
                                                                             )
-    for bracket_index, age_range in legacy_age_brackets.items():
-        # Insert age bracket with 0.0 percentage for now.
-        new_location.population_age_distribution_20.append([int(min(age_range)), int(max(age_range)), 0.0])
+    migrate_population_age_brackets(legacy_age_brackets, new_location)
+
+
+def migrate_population_age_distribution(legacy_age_distribution, new_location):
+    if len(legacy_age_distribution.items()) == 0:
+        return
+    nbrackets = len(legacy_age_distribution.keys())
+    # The brackets need to have been already migrated, that includes setting num_bins.
+    matching_new_dists = [d for d in new_location.population_age_distributions if d.num_bins == nbrackets]
+    if len(matching_new_dists) == 0:
+        raise RuntimeError(f"Missing new population age distribution w/ num_bins = {nbrackets}")
+    new_dist = matching_new_dists[0]
+    for bracket_index, dist_percentage in legacy_age_distribution.items():
+        new_dist.distribution[bracket_index][2] = dist_percentage
 
 
 def migrate_population_age_distribution_16(datadir, country_location, state_location, location, new_location):
@@ -96,8 +117,7 @@ def migrate_population_age_distribution_16(datadir, country_location, state_loca
                                                                                state_location,
                                                                                country_location,
                                                                                16)
-    for bracket_index, dist_percentage in legacy_age_distribution.items():
-        new_location.population_age_distribution_16[bracket_index][2] = dist_percentage
+    migrate_population_age_distribution(legacy_age_distribution, new_location)
 
 
 def migrate_population_age_distribution_18(datadir, country_location, state_location, location, new_location):
@@ -106,8 +126,7 @@ def migrate_population_age_distribution_18(datadir, country_location, state_loca
                                                                                state_location,
                                                                                country_location,
                                                                                18)
-    for bracket_index, dist_percentage in legacy_age_distribution.items():
-        new_location.population_age_distribution_18[bracket_index][2] = dist_percentage
+    migrate_population_age_distribution(legacy_age_distribution, new_location)
 
 
 def migrate_population_age_distribution_20(datadir, country_location, state_location, location, new_location):
@@ -116,8 +135,7 @@ def migrate_population_age_distribution_20(datadir, country_location, state_loca
                                                                                state_location,
                                                                                country_location,
                                                                                20)
-    for bracket_index, dist_percentage in legacy_age_distribution.items():
-        new_location.population_age_distribution_20[bracket_index][2] = dist_percentage
+    migrate_population_age_distribution(legacy_age_distribution, new_location)
 
 
 def migrate_employment_rates_by_age(datadir, country_location, state_location, location, new_location):
