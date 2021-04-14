@@ -54,11 +54,44 @@ def test_log_level():
     sp.logger.setLevel('INFO')  # need to reset logger level - this changes a synthpops setting
 
 
+def print_default():
+    global default_country
+    print("\nglobal default_country in config.py is ", default_country)
+
+
+def test_set_location_defaults():
+    """Testing that sp.set_location_defaults() works as expected"""
+    sp.set_location_defaults('Senegal')
+
+
+# import synthpops as sp
+# from synthpops import default_country
+# sp.print_default()
+# print("global:", default_country)
+# sp.set_location_defaults('Senegal')
+# sp.print_default()
+# print("global:", default_country)
+
+
 if __name__ == '__main__':
 
-    test_version()
-    test_metadata()
-    test_nbrackets()
-    test_validate_datadir()
-    test_set_datadir()
-    test_log_level()
+    # test_version()
+    # test_metadata()
+    # test_nbrackets()
+    # test_validate_datadir()
+    # test_set_datadir()
+    # test_log_level()
+
+    print(sp.default_country)
+    print(sp.defaults_config)
+
+    sp.reset_defaults_config('a', 9)
+    sp.reset_defaults_config('default_country', 'Senegal')
+
+    print(sp.defaults_config)
+    print(sp.defaults.defaults_config)
+
+    test_set_location_defaults()
+
+    print(sp.default_country)
+    print(sp.config.default_country)

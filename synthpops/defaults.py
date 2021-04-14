@@ -10,3 +10,10 @@ valid_probability_distributions = [
     'ltcf_num_residents_distribution',
     'school_size_distribution',
 ]
+
+defaults_config = {}
+defaults_config['default_country'] = 'usa'
+
+
+def reset_defaults_config(key, value):
+    defaults_config[key] = value
