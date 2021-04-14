@@ -30,6 +30,7 @@ Latest versions (1.7.x)
 Version 1.7.2 (2021-04-13)
 --------------------------
 - *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accomodate this flexibility.
+- *Fix*: Catching division by zero when calculating enrollment, employment, etc. rates by age and the number of people in a given age is zero (can occur when population size is very small, e.g. n~200).
 - *Github Info*: PR `401 <https://github.com/amath-idm/synthpops/pull/401>`__, `422 <https://github.com/amath-idm/synthpops/pull/422>`__
 
 
