@@ -20,7 +20,7 @@ default_data = {
         'location'         : 'Dakar',
         'sheet_name'       : 'Senegal',
         'nbrackets'        : 18,
-        'household_size_1': True,
+        # 'household_size_1': True,
     },
     'defaults': {
         'country_location': 'usa',
@@ -28,13 +28,15 @@ default_data = {
         'location': 'seattle_metro',
         'sheet_name': 'United States of America',
         'nbrackets' : 20,
+        # 'household_size_1': True,
     },
     'usa': {
         'country_location': 'usa',
         'state_location': 'Washington',
         'location': 'seattle_metro',
         'sheet_name': 'United States of America',
-        'nbrackets': 20
+        'nbrackets': 20,
+        # 'household_size_1': True,
     },
 }
 

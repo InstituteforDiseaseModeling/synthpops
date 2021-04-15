@@ -182,25 +182,25 @@ def set_location_defaults(country=None):
     if country_location in data.keys():
         loc = data[country_location]
 
-        # for key in ['location', 'state_location', '']
+        spd.reset_defaults_config(loc)
 
-        default_location = loc['location']
-        spd.reset_defaults_config_by_key('location', default_location)
+        # default_location = loc['location']
+        # spd.reset_defaults_config_by_key('location', default_location)
         # spd.reset_defaults_config('default_location', default_location)
 
         # default_state = loc['province']
-        default_state = loc['state_location']
-        spd.reset_defaults_config_by_key('state_location', default_state)
+        # default_state = loc['state_location']
+        # spd.reset_defaults_config_by_key('state_location', default_state)
         # spd.reset_defaults_config('default_state', default_state)
         # default_country = loc['country']
-        default_country = loc['country_location']
-        spd.reset_defaults_config_by_key('country_location', default_country)
+        # default_country = loc['country_location']
+        # spd.reset_defaults_config_by_key('country_location', default_country)
         # spd.reset_defaults_config('default_country', default_country)
-        default_sheet_name = loc['sheet_name']
-        spd.reset_defaults_config_by_key('sheet_name', default_sheet_name)
+        # default_sheet_name = loc['sheet_name']
+        # spd.reset_defaults_config_by_key('sheet_name', default_sheet_name)
         # spd.reset_defaults_config('default_sheet_name', default_sheet_name)
-        nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
-        spd.reset_defaults_config_by_key('nbrackets', nbrackets)
+        # nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+        # spd.reset_defaults_config_by_key('nbrackets', nbrackets)
 
         default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
         spd.reset_defaults_config_by_key('household_size_1_included', default_household_size_1_included)
