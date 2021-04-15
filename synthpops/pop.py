@@ -180,7 +180,7 @@ class Pop(sc.prettyobj):
         # if country is specified, and state is not, we are doing a country population
         if self.state_location is None:
             self.location = None
-        print(self.sheet_name, 'self sheet_name')
+
         # if sheet name is not specified, use the default
         if self.sheet_name is None:
             self.sheet_name = defaults.defaults_config.default_sheet_name
@@ -474,9 +474,6 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the age count of the generated population.
         """
-        # print(self.popdict)
-        # for i in self.popdict:
-            # print(i, self.popdict[i]['age'])
         return spb.count_ages(self.popdict)
 
     # convert to work on array

@@ -19,14 +19,14 @@ def test_metadata():
 def test_nbrackets():
     sp.logger.info("Testing that nbrackets can be set outside of the recommended range and warning message returned.")
 
-    nbrackets = max(min(sp.config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
+    nbrackets = max(min(sp.defaults_config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
     sp.set_nbrackets(n=nbrackets - 1)  # testing a valid outside the range currently supported.
-    assert nbrackets - 1 == sp.config.nbrackets,f'Check failed. sp.config.nbrackets not set to {nbrackets-1} outside of the official supported range.'
-    print(f'Check passed. synthpops.nbrackets.config updated to {nbrackets-1} outside of the official supported range.')
+    assert nbrackets - 1 == sp.defaults_config.nbrackets,f'Check failed. sp.config.nbrackets not set to {nbrackets-1} outside of the official supported range.'
+    print(f'Check passed. synthpops.defaults_config.nbrackets updated to {nbrackets-1} outside of the official supported range.')
 
     sp.set_nbrackets(n=nbrackets)  # resetting to the default value
-    assert nbrackets == sp.config.nbrackets,f'Check failed. sp.config.nbrackets not reset to {nbrackets}.'
-    print(f'Check passed. Reset default synthpops.config.nbrackets.')
+    assert nbrackets == sp.defaults_config.nbrackets,f'Check failed. sp.defaults_config.nbrackets not reset to {nbrackets}.'
+    print(f'Check passed. Reset default synthpops.defaults_config.nbrackets.')
 
 
 def test_validate_datadir():
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # test_set_datadir()
     # test_log_level()
 
-    print(sp.default_country)
+    print(sp.defaults_config.default_country)
     print(sp.defaults_config)
 
     print()
@@ -94,5 +94,5 @@ if __name__ == '__main__':
 
     test_set_location_defaults()
 
-    print(sp.default_country)
-    print(sp.config.default_country)
+    print(sp.defaults_config.default_country)
+    print(sp.defaults_config.default_country)

@@ -40,8 +40,8 @@ def test_age_distribution_used():
     pop = sp.Pop(**pars)
     loc_pars = pop.loc_pars
     age_dist = sp.read_age_bracket_distr(**loc_pars)
-    assert len(age_dist) == sp.config.nbrackets, f'Check failed, len(age_dist): {len(age_dist)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
-    print(f'Check passed, len(age_dist): {len(age_dist)} == sp.config.nbrackets: {sp.config.nbrackets}.')
+    assert len(age_dist) == sp.defaults_config.nbrackets, f'Check failed, len(age_dist): {len(age_dist)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
+    print(f'Check passed, len(age_dist): {len(age_dist)} == sp.config.nbrackets: {sp.defaults_config.nbrackets}.')
 
     return pop
 

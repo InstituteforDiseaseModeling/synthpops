@@ -422,17 +422,13 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
     if file_path is None:
         setting_names = {'H': 'home', 'S': 'school', 'W': 'work', 'C': 'other_locations'}
         base_dir = get_relative_path(datadir)
-        print('base_dir', base_dir)
 
         if setting_code in setting_names:
             file_path = os.path.join(base_dir, 'MUestimates_' + setting_names[setting_code] + '_1.xlsx')
-            # print('file_path', file_path)
+
             try: # Shortcut: use pre-processed data
                 obj_path = file_path.replace('_1.xlsx', '.obj').replace('_2.xlsx', '.obj')
-                # print('obj_path', obj_path)
                 data = sc.loadobj(obj_path)
-                # print('uploaded', type(data), data.keys())
-                print('sheet', sheet_name)
                 arr = data[sheet_name]
                 return arr
             except Exception as E:

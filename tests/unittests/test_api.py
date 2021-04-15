@@ -4,8 +4,8 @@ import sciris as sc
 import pytest
 import synthpops as sp
 
-if not sp.config.full_data_available:
-    pytest.skip("Data not available, tests not possible", allow_module_level=True)
+# if not sp.config.full_data_available:
+    # pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 
 def test_api():

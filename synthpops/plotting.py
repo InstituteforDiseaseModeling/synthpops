@@ -145,12 +145,12 @@ class plotting_kwargs(sc.objdict):
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
         for k in default_pop_pars:
             if k not in self:
-                spd.defaults_config.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
                 self[k] = default_pop_pars[k]
 
         for k in default_age_pars:
             if k not in self:
-                spd.defaults_config.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
+                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
                 self[k] = default_age_pars[k]
 
         # loc_pars not in self yet
@@ -1383,7 +1383,7 @@ def plot_school_sizes(pop, **kwargs):
             fig.set_size_inches(plkwargs.width, plkwargs.height)
 
         else:
-            spd.defaults_config.logger.info("Setting default plotting parameters to save figure to disk. If these settings produce figures you would prefer to change, this method returns the figure and ax for you to modify and save to disk.")
+            cfg.logger.info("Setting default plotting parameters to save figure to disk. If these settings produce figures you would prefer to change, this method returns the figure and ax for you to modify and save to disk.")
             fig.set_size_inches(plkwargs.display_width, plkwargs.display_height)
             plkwargs.update(dict(bottom=0.075, hspace=0.52, left=0.12))
 

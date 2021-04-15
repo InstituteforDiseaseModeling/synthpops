@@ -9,8 +9,8 @@ import synthpops.schools as spsch
 
 # pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
 
-if not sp.config.full_data_available:
-    pytest.skip("Data not available, tests not possible", allow_module_level=True)
+# if not sp.config.full_data_available:
+#     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
 datadir = sp.datadir
 

@@ -6,7 +6,7 @@ from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
 import os
-from . import config as cfg
+# from . import config as cfg
 from . import logger
 from . import defaults
 import warnings
@@ -289,7 +289,6 @@ def get_relative_path(datadir):
         base_dir = os.path.join(datadir,  *defaults.defaults_config.relative_path)
     # if len(cfg.rel_path) > 1:
         # base_dir = os.path.join(datadir, *cfg.rel_path)
-    print('base_dir', base_dir)
     return base_dir
 
 
@@ -315,7 +314,7 @@ def get_location_attr(location, property_name):
 def load_location_from_filepath(rel_filepath):
     """
     Loads location data object from provided relative filepath where the file path is
-    relative to cfg.datadir.
+    relative to defaults.defaults_config.datadir.
 
     Args:
         rel_filepath (str): relative file path for the location data
@@ -662,7 +661,7 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+        logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
     return checks, msgs
 
 
@@ -693,7 +692,7 @@ def check_all_probability_distribution_nonnegative(location, die=False, verbose=
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+        logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
     return checks, msgs
 
 
