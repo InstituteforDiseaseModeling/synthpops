@@ -3,6 +3,8 @@ Test config methods.
 """
 import synthpops as sp
 import sciris as sc
+import tempfile
+import os
 
 
 def test_version():
@@ -29,6 +31,15 @@ def test_nbrackets():
     assert nbrackets == sp.settings.nbrackets,f'Check failed. sp.settings.nbrackets not reset to {nbrackets}.'
     print(f'Check passed. Reset default synthpops.settings.nbrackets.')
 
+    current_nbrackets = sp.default_config.nbrackets
+    nbrackets = max(sp.default_config.valid_nbracket_ranges)
+    try:
+        sp.set_nbrackets(n=nbrackets)  # set to different value
+        assert nbrackets == sp.default_config.nbrackets, f'Check failed. sp.default_config.nbrackets not reset to {nbrackets}.'
+        print(f'Check passed. Reset default synthpops.default_config.nbrackets.')
+    finally:
+        sp.set_nbrackets(current_nbrackets)
+
 
 def test_validate_datadir():
     sp.logger.info("Testing that synthpops.settings.datadir can be found.")
@@ -46,6 +57,16 @@ def test_set_datadir():
     datadir = sp.set_datadir(sp.default_datadir_path())
     assert datadir == sp.default_datadir_path() and datadir == sp.settings.datadir, "Check failed. datadir did not reset to default sp.settings.datadir"
     print("Check passed. datadir reset to synthpops default and sp.settings.datadir reset.")
+
+    newpath = tempfile.mkdtemp()
+    try:
+        datadir = sp.set_datadir(newpath)
+        assert datadir == sp.default_config.datadir and datadir == newpath, "Check failed. datadir did not set to new path"
+        print("Check passed. datadir reset to synthpops default and sp.default_config.datadir reset.")
+    finally:
+        sp.set_datadir(sp.default_datadir_path())
+        if os.path.exists(newpath):
+            os.removedirs(newpath)
 
 
 def test_log_level():
