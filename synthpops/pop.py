@@ -82,7 +82,7 @@ class Pop(sc.prettyobj):
             school_pars (dict)                      : if supplied, replace default school parameters
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
-            use_default (bool)                      : If True, use default data from default_location, default_state, default_country.
+            use_default (bool)                      : If True, use default data from defaults_config.location, defaults_config.state, defaults_config.country.
             use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
             average_LTCF_degree (float)             : default average degree in long term care facilities.
             ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
@@ -170,9 +170,9 @@ class Pop(sc.prettyobj):
 
         # Handle data
         if self.country_location is None:
-            self.country_location = defaults.defaults_config.default_country
-            self.state_location   = defaults.defaults_config.default_state
-            self.location         = defaults.defaults_config.default_location
+            self.country_location = defaults.defaults_config.country_location
+            self.state_location   = defaults.defaults_config.state_location
+            self.location         = defaults.defaults_config.location
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
@@ -183,7 +183,7 @@ class Pop(sc.prettyobj):
 
         # if sheet name is not specified, use the default
         if self.sheet_name is None:
-            self.sheet_name = defaults.defaults_config.default_sheet_name
+            self.sheet_name = defaults.defaults_config.sheet_name
         self.datadir = defaults.defaults_config.datadir  # Assume this has been reset...
 
         # Location parameters

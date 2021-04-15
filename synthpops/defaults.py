@@ -53,13 +53,20 @@ defaults_config.nbrackets = 20
 defaults_config.valid_nbracket_ranges = [16, 18, 20]
 defaults_config.household_size_1 = 1
 
-defaults_config.default_country = None
-defaults_config.default_state = None
-defaults_config.default_location = None
-defaults_config.default_sheet_name = None
+defaults_config.country_location = None
+defaults_config.state_location = None
+defaults_config.location = None
+defaults_config.sheet_name = None
+# defaults_config.default_country = None
+# defaults_config.default_state = None
+# defaults_config.default_location = None
+# defaults_config.default_sheet_name = None
 
 
-def reset_defaults_config(key, value):
+def reset_defaults_config_by_key(key, value):
     defaults_config[key] = value
 
 
+def reset_defaults_config(new_config):
+    for key, value in new_config.items():
+        reset_defaults_config_by_key(key, value)

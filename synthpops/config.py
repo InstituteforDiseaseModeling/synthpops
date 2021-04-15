@@ -54,9 +54,9 @@ __all__ = ['logger',
 
 # Replace with local data dir if Dropbox folder is not found
 # if datadir is None: # pragma: no cover
-    # full_data_available = True
-    # datadir = localdatadir
-    # datadir = spd.defaults_config.localdatadir
+#     full_data_available = True
+#     datadir = localdatadir
+#     datadir = spd.defaults_config.localdatadir
 
 # Number of census age brackets to use
 # max_age = 101
@@ -181,21 +181,29 @@ def set_location_defaults(country=None):
 
     if country_location in data.keys():
         loc = data[country_location]
+
+        # for key in ['location', 'state_location', '']
+
         default_location = loc['location']
-        spd.reset_defaults_config('default_location', default_location)
+        spd.reset_defaults_config_by_key('location', default_location)
+        # spd.reset_defaults_config('default_location', default_location)
 
         # default_state = loc['province']
         default_state = loc['state_location']
-        spd.reset_defaults_config('default_state', default_state)
+        spd.reset_defaults_config_by_key('state_location', default_state)
+        # spd.reset_defaults_config('default_state', default_state)
         # default_country = loc['country']
         default_country = loc['country_location']
-        spd.reset_defaults_config('default_country', default_country)
+        spd.reset_defaults_config_by_key('country_location', default_country)
+        # spd.reset_defaults_config('default_country', default_country)
         default_sheet_name = loc['sheet_name']
-        spd.reset_defaults_config('default_sheet_name', default_sheet_name)
+        spd.reset_defaults_config_by_key('sheet_name', default_sheet_name)
+        # spd.reset_defaults_config('default_sheet_name', default_sheet_name)
         nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
-        spd.reset_defaults_config('nbrackets', nbrackets)
+        spd.reset_defaults_config_by_key('nbrackets', nbrackets)
+
         default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-        spd.reset_defaults_config('household_size_1_included', default_household_size_1_included)
+        spd.reset_defaults_config_by_key('household_size_1_included', default_household_size_1_included)
 
 
 set_location_defaults()
@@ -216,13 +224,13 @@ def set_datadir(root_dir, relative_path=None):
     datadir = root_dir
     if relative_path is not None:
         # spd.defaults_config.relative_path = relative_path
-        spd.reset_defaults_config('relative_path', relative_path)
+        spd.reset_defaults_config_by_key('relative_path', relative_path)
         # rel_path = relative_path
     logger.info(f'Done: data directory set to {root_dir}.')
     logger.info(f'Relative Path set to  {spd.defaults_config.relative_path}.')
     # return datadir
     # spd.defaults_config.datadir = datadir
-    spd.reset_defaults_config('datadir', datadir)
+    spd.reset_defaults_config_by_key('datadir', datadir)
     return spd.defaults_config.datadir
 
 
@@ -230,7 +238,7 @@ def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
     # global nbrackets
     logger.info(f"set_nbrackets n = {n}")
-    spd.reset_defaults_config('nbrackets', n)
+    spd.reset_defaults_config_by_key('nbrackets', n)
     # nbrackets = n
     # if nbrackets not in valid_nbracket_ranges:
     if spd.defaults_config.nbrackets not in spd.defaults_config.valid_nbracket_ranges:

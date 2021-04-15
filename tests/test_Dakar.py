@@ -30,7 +30,7 @@ def test_Dakar():
     sp.set_location_defaults('defaults')  # Reset default values after this test is complete.
 
     sp.logger.info("Test that the default country was reset.")
-    assert sp.defaults_config.default_country == 'usa', f'Check failed: default_country is {sp.defaults_config.default_country}'
+    assert sp.defaults_config.country_location == 'usa', f'Check failed: default_country is {sp.defaults_config.country_location}'
     print('2nd Check passed')
 
     return pop
