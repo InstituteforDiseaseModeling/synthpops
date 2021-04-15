@@ -21,13 +21,14 @@ jobs:
           architecture: x64
       - name: SetVar
         run: |
-         echo "::set-env name=TMP::$env:USERPROFILE\AppData\Local\Temp"
-         echo "::set-env name=TEMP::$env:USERPROFILE\AppData\Local\Temp"    
+         echo "TMP=$env:USERPROFILE\AppData\Local\Temp" >> $GITHUB_ENV
+         echo "TEMP::$env:USERPROFILE\AppData\Local\Temp" >> $GITHUB_ENV  
       - name: Use Default python to install
         run: | 
           python --version
           which python
           echo "%TEMP%"
+          echo "${{ env.TEMP }}"
           python setup.py develop --user
       
       #- name: Use Conda to install
