@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macOS-latest]
+        os: [windows-latest]
         python-version: [3.8]
     name: Python ${{ matrix.python-version }} Installation for Synthpop ${{ matrix.os }}
     steps:
@@ -19,10 +19,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - name: SetVar
+        run: |
+         echo "::set-env name=TMP::$env:USERPROFILE\AppData\Local\Temp"
+         echo "::set-env name=TEMP::$env:USERPROFILE\AppData\Local\Temp"    
       - name: Use Default python to install
         run: | 
           python --version
           which python
+          echo "%TEMP%"
           python setup.py develop --user
       
       #- name: Use Conda to install
