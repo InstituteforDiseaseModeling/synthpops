@@ -11,9 +11,6 @@ from collections import Counter
 import pytest
 
 
-if not sp.config.full_data_available:
-    pytest.skip("Data not available, tests not possible", allow_module_level=True)
-
 # Pretty fonts
 
 try:
