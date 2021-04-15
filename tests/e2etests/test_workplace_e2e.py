@@ -7,6 +7,7 @@ from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 import scipy
 from scipy import stats as st
 import numpy as np
+import re
 
 
 def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
@@ -57,23 +58,36 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
     #check workplace with worksize <= max_contacts
     max_contacts = create_sample_pop_e2e.max_contacts['W']
     upperbound = st.poisson.interval(alpha=0.95, mu=max_contacts)[1]
-    large_worksize_contacts = []
-    medium_large_worksize_contacts = []
+    group_size_contacts = {
+        f'all_worksize_contacts size > {max_contacts//2}': [],  # capture size > max_contacts//2
+        f'large_worksize_contacts size > {upperbound}': [],  # capture size > upperbound
+        f'medium_large_worksize_contacts size between {max_contacts}, {upperbound}': [],  # capture size between max_contacts and upperbound
+        f'small_medium_worksize_contacts size between {max_contacts//2}, {max_contacts}': [],  # capture size between max_contacts//2 and max_contacts
+    }
     for k, v in contacts_by_id.items():
-        if len(v) < max_contacts//2:
+        if len(v) <= max_contacts//2:
             assert len([i for i in v if i != len(v)-1 ]) == 0, \
                 "Failed, not all contacts in {len(k)} are equal to {len(v)} : {v}"
         else:
-            if len(v) >= upperbound:
-                large_worksize_contacts += v
-            medium_large_worksize_contacts += v
+            if len(v) > upperbound:
+                group_size_contacts[f'large_worksize_contacts size > {upperbound}'] += v
+            elif len(v) >= max_contacts:
+                group_size_contacts[f'medium_large_worksize_contacts size between {max_contacts}, {upperbound}'] += v
+            else:
+                group_size_contacts[f'small_medium_worksize_contacts size between {max_contacts//2}, {max_contacts}'] += v
+            group_size_contacts[f'all_worksize_contacts size > {max_contacts//2}'] += v
 
-    plotting_kwargs["title_prefix"] = f"Comparison for worksize > {round(upperbound)}"
-    plotting_kwargs["figname"]=f"large_worksize_contacts"
-    check_truncated_poisson(testdata=large_worksize_contacts, mu=max_contacts, lowerbound=max_contacts//2, **plotting_kwargs)
-    plotting_kwargs["title_prefix"] = f"Comparison for worksize > {max_contacts//2}"
-    plotting_kwargs["figname"] = f"medium_large_worksize_contacts"
-    check_truncated_poisson(testdata=medium_large_worksize_contacts, mu=max_contacts, lowerbound=max_contacts//2, **plotting_kwargs)
+    file_pattern=re.compile(r'([\s><=])')
+    for i in group_size_contacts:
+        plotting_kwargs["title_prefix"] = i
+        plotting_kwargs["figname"]= file_pattern.sub("_", i)
+        check_truncated_poisson(testdata=group_size_contacts[i],
+                                mu=max_contacts,
+                                lowerbound=max_contacts//2,
+                                skipcheck=True if "small" in i else True,
+                                **plotting_kwargs)
+
+
 
 
 def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
@@ -98,7 +112,7 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     create_sample_pop_e2e.plot_employment_rates_by_age(**plotting_kwargs)
 
 
-def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, **kwargs):
+def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skipcheck=False, **kwargs):
     """
     test if data fits in truncated poisson distribution between upperbound and lowerbound using kstest
     Args:
@@ -119,16 +133,15 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, **kw
     q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
     # use percent point function to get inverse of cdf
     expected_data = st.poisson.ppf(q=q, mu=mu)
-    sp.statistic_test(expected_data, testdata, test=st.kstest)
+    if not skipcheck:
+        sp.statistic_test(expected_data, testdata, test=st.kstest)
 
     #plot comparison
     actual, bins = np.histogram(testdata, bins=10)
     expected = np.histogram(expected_data, bins=bins)[0]
     kwargs["generated"] = actual
-    #merge 11 bins to 10 for plotting
-    merged_bins = [round((bins[np.where(bins == i)[0][0]] + i)/2) for i in bins if np.where(bins==i)[0][0] < len(bins)-1]
-    merged_bins[0]=bins[0]
-    merged_bins[-1]=bins[-1]
+    #merge 11 bins to 10 for bar plot align at center
+    merged_bins = [round((bins[np.where(bins == i)[0][0]] + i)/2) for i in bins if np.where(bins == i)[0][0] < len(bins)-1]
     kwargs["xvalue"] = merged_bins
     sp.plot_array(expected, **kwargs)
 
