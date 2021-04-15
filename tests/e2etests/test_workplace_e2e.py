@@ -68,9 +68,11 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
                 large_worksize_contacts += v
             medium_large_worksize_contacts += v
 
-    plotting_kwargs["title_prefix"] = f"Comparison for worksize > {upperbound}"
+    plotting_kwargs["title_prefix"] = f"Comparison for worksize > {round(upperbound)}"
+    plotting_kwargs["figname"]=f"large_worksize_contacts"
     check_truncated_poisson(testdata=large_worksize_contacts, mu=max_contacts, lowerbound=max_contacts//2, **plotting_kwargs)
     plotting_kwargs["title_prefix"] = f"Comparison for worksize > {max_contacts//2}"
+    plotting_kwargs["figname"] = f"medium_large_worksize_contacts"
     check_truncated_poisson(testdata=medium_large_worksize_contacts, mu=max_contacts, lowerbound=max_contacts//2, **plotting_kwargs)
 
 
@@ -124,7 +126,10 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, **kw
     expected = np.histogram(expected_data, bins=bins)[0]
     kwargs["generated"] = actual
     #merge 11 bins to 10 for plotting
-    kwargs["xvalue"] = [round((bins[np.where(bins == i)[0][0]] + i)/2) for i in bins if np.where(bins==i)[0][0] < len(bins)-1]
+    merged_bins = [round((bins[np.where(bins == i)[0][0]] + i)/2) for i in bins if np.where(bins==i)[0][0] < len(bins)-1]
+    merged_bins[0]=bins[0]
+    merged_bins[-1]=bins[-1]
+    kwargs["xvalue"] = merged_bins
     sp.plot_array(expected, **kwargs)
 
 
