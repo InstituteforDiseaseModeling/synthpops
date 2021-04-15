@@ -399,12 +399,16 @@ def get_contact_counts_by_layer(popdict,
         layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
 
     Returns:
-        dict: A dictionary with keys = people_types (default to ['sc_student',
+        Tuple:
+        First element is a dictionary with keys = people_types (default to ['sc_student',
         'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
         the list of counts for each type of contact: default to ['sc_student',
         'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
         contact_counter['sc_teacher']['sc_teacher'] store the counts of each
         teacher's contacts or edges to other teachers.
+        Second element is a dictionary with keys = layer_id (for example: scid, wpid...),
+        and value is list of contact contacts.
+
     """
     layer = layer.upper()
     layer_keys = {"S": "scid",
@@ -433,7 +437,7 @@ def get_contact_counts_by_layer(popdict,
         }
     else:
         raise NotImplementedError(f"layer {layer} not supported.")
-
+    contacts_counter_by_id = dict()
     for uid, person in popdict.items():
         if person[layer_keys[layer]] is not None:
             # count_switcher is a case-switch selector for contact counts by type
@@ -443,6 +447,7 @@ def get_contact_counts_by_layer(popdict,
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
+            contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
             for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
                 if person.get(k1) is not None:
@@ -454,5 +459,5 @@ def get_contact_counts_by_layer(popdict,
                             count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
                     # for other types, only all contacts are stored
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
-
-    return contact_counter
+                    contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
+    return contact_counter, contacts_counter_by_id
