@@ -202,8 +202,8 @@ def set_location_defaults(country=None):
         # nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
         # spd.reset_defaults_config_by_key('nbrackets', nbrackets)
 
-        default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-        spd.reset_defaults_config_by_key('household_size_1_included', default_household_size_1_included)
+        # default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+        # spd.reset_defaults_config_by_key('household_size_1_included', default_household_size_1_included)
 
 
 set_location_defaults()

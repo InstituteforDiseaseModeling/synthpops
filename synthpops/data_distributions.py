@@ -305,7 +305,8 @@ def get_head_age_brackets(datadir=None, location=None, state_location=None, coun
     return age_brackets
 
 
-def get_head_age_by_size_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, household_size_1_included=False, use_default=False):
+def get_head_age_by_size_distr(datadir=None, location=None, state_location=None, country_location=None, file_path=None, # household_size_1_included=False, 
+                               use_default=False):
     """
     Create an array of head of household age bracket counts (column) given by
     size (row). If use_default, then we'll first try to look for location
@@ -320,7 +321,7 @@ def get_head_age_by_size_distr(datadir=None, location=None, state_location=None,
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified age of the head of the household by household size distribution data
-        household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
+        # household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from location, state_location, country_location.
 
     Returns:

@@ -327,7 +327,8 @@ def get_household_head_age_by_size_df(datadir, location=None, state_location=Non
     return df
 
 
-def get_head_age_by_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, household_size_1_included=False, use_default=False): # pragma: no cover
+def get_head_age_by_size_distr(datadir, location=None, state_location=None, country_location=None, file_path=None, # household_size_1_included=False, 
+                               use_default=False): # pragma: no cover
     """
     Create an array of head of household age bracket counts (column) given by
     size (row). If use_default, then we'll first try to look for location
@@ -342,7 +343,7 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified age of the head of the household by household size distribution data
-        household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
+        # household_size_1_included : if True, age distribution for who lives alone is included in the head of household age by household size dataframe, so it will be used. Else, assume a uniform distribution for this among all ages of adults.
         use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from location, state_location, country_location.
 
     Returns:
@@ -356,18 +357,18 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
 
     # This was not originally part of 'data_distributions.py' that became this module, but instead was added after.
     # We detect if household_size_1_included is true or false based on the data.
-    if hha_df['family_size'][0] == 1:
-        household_size_1_included = True
+    # if hha_df['family_size'][0] == 1:
+    #     household_size_1_included = True
 
-    if household_size_1_included:
-        for s in range(1, len(hha_df)+1):
-            d = hha_df[hha_df['family_size'] == s].values[0][1:]
-            hha_by_size[s-1] = d
-    else:
-        hha_by_size[0, :] += 1
-        for s in range(2, len(hha_df)+2):
-            d = hha_df[hha_df['family_size'] == s].values[0][1:]
-            hha_by_size[s-1] = d
+    # if household_size_1_included:
+    #     for s in range(1, len(hha_df)+1):
+    #         d = hha_df[hha_df['family_size'] == s].values[0][1:]
+    #         hha_by_size[s-1] = d
+    # else:
+    #     hha_by_size[0, :] += 1
+    #     for s in range(2, len(hha_df)+2):
+    #         d = hha_df[hha_df['family_size'] == s].values[0][1:]
+    #         hha_by_size[s-1] = d
     return hha_by_size
 
 

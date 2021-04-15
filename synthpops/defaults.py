@@ -53,7 +53,7 @@ datadir = defaults_config.datadir
 defaults_config.max_age = 101
 defaults_config.nbrackets = 20
 defaults_config.valid_nbracket_ranges = [16, 18, 20]
-defaults_config.household_size_1 = 1
+# defaults_config.household_size_1_included = 1
 
 defaults_config.country_location = None
 defaults_config.state_location = None
