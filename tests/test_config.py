@@ -39,21 +39,12 @@ def test_set_datadir():
     sp.logger.info("Testing set_datadir still works in essence.")
     datadir = sp.set_datadir('not_spdatadir')
 
-    print('datadir', datadir)
-    print('sp.default_config.datadir', sp.default_config.datadir)
-    print()
-    # assert datadir != sp.datadir, "Check failed. datadir set still equal to default sp.datadir"
     assert datadir != sp.default_datadir_path(), "Check failed. datadir set still equal to default sp.default_config.datadir"
-    print("New datadir set different from synthpops default.")
+    print("Check passed. New datadir set different from synthpops default.")
 
     datadir = sp.set_datadir(sp.default_datadir_path())
-    assert datadir == sp.default_datadir_path(), "Check failed. datadir did not reset to default sp.datadir"
-    print("datadir reset to synthpops default.")
-
-    assert datadir == sp.defaults.default_config.datadir, "Check 2 failed."
-    print('datadir did reset everywhere')
-
-    # print(sp.default_config.datadir)
+    assert datadir == sp.default_datadir_path() and datadir == sp.default_config.datadir, "Check failed. datadir did not reset to default sp.default_config.datadir"
+    print("Check passed. datadir reset to synthpops default and sp.default_config.datadir reset.")
 
 
 def test_log_level():
@@ -67,9 +58,11 @@ def test_log_level():
 def test_set_location_defaults():
     """Testing that sp.set_location_defaults() works as expected"""
     sp.set_location_defaults('Senegal')
-    assert sp.default_config.country_location == 'Senegal'
+    assert sp.default_config.country_location == 'Senegal', f"Check failed. sp.default_config.country_location did not set to 'Senegal'."
+    print(f"Check passed. sp.default_config.country_location set to 'Senegal'.")
     sp.set_location_defaults('defaults')
-    assert sp.default_config.country_location == 'usa'
+    assert sp.default_config.country_location == 'usa', f"Check failed. sp.default_config.country_location did not set to 'usa'."
+    print(f"Check passed. sp.default_config.country_location set to 'usa'.")
 
 
 def test_pakistan():

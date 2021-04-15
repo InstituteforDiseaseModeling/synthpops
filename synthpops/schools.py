@@ -21,8 +21,6 @@ import networkx as nx
 import logging
 
 from . import data_distributions as spdata
-# from .config import datadir
-# from .config import max_age
 from . import defaults
 
 from . import base as spb

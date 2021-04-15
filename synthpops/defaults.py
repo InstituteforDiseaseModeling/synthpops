@@ -48,9 +48,9 @@ def default_datadir_path():
 default_config = sc.objdict()
 
 default_config.thisdir = os.path.dirname(os.path.abspath(__file__))
-default_config.localdatadir = os.path.join(default_config.thisdir, os.pardir, 'data')
+default_config.localdatadir = default_datadir_path()
+# default_config.localdatadir = os.path.join(default_config.thisdir, os.pardir, 'data')
 default_config.datadir = default_config.localdatadir
-# datadir = default_config.datadir  # should be an alias
 
 default_config.relative_path = []
 
@@ -64,10 +64,6 @@ default_config.country_location = None
 default_config.state_location = None
 default_config.location = None
 default_config.sheet_name = None
-
-
-# def datadir():
-#     return default_config.datadir
 
 
 def reset_default_config_by_key(key, value):

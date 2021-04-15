@@ -6,7 +6,7 @@ from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
 import os
-# from . import config as cfg
+
 from . import logger
 from . import defaults
 import warnings

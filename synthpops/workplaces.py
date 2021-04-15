@@ -5,7 +5,6 @@ import numpy as np
 from . import base as spb
 from . import sampling as spsamp
 from .config import logger as log
-# from .config import max_age
 from . import defaults
 
 

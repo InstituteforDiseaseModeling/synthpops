@@ -19,57 +19,13 @@ from . import defaults as spd
 
 __all__ = ['logger',
            'checkmem',
-           # 'datadir',
-           # 'localdatadir',
-           # 'rel_path',
-           # 'alt_rel_path',
            'set_nbrackets',
            'set_datadir',
            'validate_datadir',
            'set_location_defaults',
-           # 'default_country',
-           # 'default_state',
-           # 'default_location',
-           # 'default_sheet_name',
-           # 'alt_location',
-           # 'default_household_size_1_included',
-           # 'get_config_data',
            'version_info',
-           # 'max_age'
            ]
 
-
-# Declaring this here makes it globally available as synthpops.datadir
-# datadir = None
-# alt_datadir = None
-# localdatadir = None
-# rel_path = []
-# alt_rel_path = []
-# full_data_available = False  # this is likely not necessary anymore
-
-# Set the local data folder
-# thisdir = os.path.dirname(os.path.abspath(__file__))
-
-# localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
-
-
-# Replace with local data dir if Dropbox folder is not found
-# if datadir is None: # pragma: no cover
-#     full_data_available = True
-#     datadir = localdatadir
-#     datadir = spd.default_config.localdatadir
-
-# Number of census age brackets to use
-# max_age = 101
-# valid_nbracket_ranges = [16, 18, 20]  # Choose how many age bins to use -- 20 is only partially supported
-# nbrackets = 20
-# matrix_size = 16  # The dimensions of the mixing matrices -- currently only 16 is available
-# default_country = None
-# default_state = None
-# default_location = None
-# default_sheet_name = None
-# alt_location = None
-# default_household_size_1_included = False
 
 # %% Logger
 
@@ -118,36 +74,6 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     return output
 
 
-# def get_config_data():
-#     data = {
-#         'valid_nbrackets':
-#             [16, 18, 20],
-#         'Senegal': {
-#              'location': 'Dakar',
-#              'province': 'Dakar',
-#              'country': 'Senegal',
-#              'sheet_name': 'Senegal',
-#              'nbrackets': 18,
-#              'household_size_1': True
-#               },
-#         'defaults': {
-#              'location': 'seattle_metro',
-#              'province': 'Washington',
-#              'country': 'usa',
-#              'sheet_name': 'United States of America',
-#              'nbrackets': 20
-#               },
-#         'usa': {
-#              'location': 'seattle_metro',
-#              'province': 'Washington',
-#              'country': 'usa',
-#              'sheet_name': 'United States of America',
-#              'nbrackets': 20
-#               }
-#          }
-#     return data
-
-
 # %% Functions
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {spd.default_config.thisdir}')
@@ -166,40 +92,17 @@ def set_metadata(obj):
 
 
 def set_location_defaults(country_location=None):
-    # global config_file
-    # global default_country
-    # global default_state
-    # global default_location
-    # global default_sheet_name
-    # global nbrackets
-    # global default_household_size_1_included
 
     # read the confiuration file
-    # if country_location is None:
-    #     logger.warning(f"Setting default location information with {spd.default_data['defaults']}")
-
-    # country_location = country if country is not None else 'defaults'
     data = spd.default_data
 
     if country_location in data.keys():
         loc = data[country_location]
 
         spd.reset_default_config(loc)
-
-        # default_location = loc['location']
-        # spd.reset_default_config_by_key('location', default_location)
-
-        # default_state = loc['state_location']
-        # spd.reset_default_config_by_key('state_location', default_state)
-        # default_country = loc['country_location']
-        # spd.reset_default_config_by_key('country_location', default_country)
-        # default_sheet_name = loc['sheet_name']
-        # spd.reset_default_config_by_key('sheet_name', default_sheet_name)
-        # nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
-        # spd.reset_default_config_by_key('nbrackets', nbrackets)
-
         # default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
         # spd.reset_default_config_by_key('household_size_1_included', default_household_size_1_included)
+
     elif country_location is None:
         logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")
         loc = data['defaults']
@@ -208,6 +111,7 @@ def set_location_defaults(country_location=None):
         logger.warning(f"synthpops has no defaults for {country_location}. You can use sp.reset_default_config() to set the default location information for the keys: {spd.default_config.keys()}")
 
 
+# initially set defaults for the usa
 set_location_defaults()
 
 
@@ -239,7 +143,6 @@ def set_datadir(root_dir, relative_path=None):
     logger.info(f'Relative Path set to  {spd.default_config.relative_path}.')
 
     spd.reset_default_config_by_key('datadir', datadir)
-    # spd.datadir = datadir  # reset alias as well
 
     return spd.default_config.datadir
 

@@ -54,7 +54,7 @@ def test_plot_generated_contact_matrix(setting_code='H',
         A fig object.
 
     """
-    datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'
@@ -125,13 +125,11 @@ def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggrega
         A fig object.
 
     """
-    datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'
     country_location = 'usa'
-
-    # popdict = {}
 
     options_args = {'use_microstructure': True}
     network_distr_args = {'Npop': int(n)}
@@ -161,7 +159,7 @@ def test_plot_generated_trimmed_contact_matrix(setting_code='H', n=5000, aggrega
 
 if __name__ == '__main__':
 
-    datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     n = int(22500)
 
