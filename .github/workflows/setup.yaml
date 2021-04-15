@@ -1,10 +1,10 @@
-name: Test Install
+name: Test Install On Windows
 on:
   workflow_dispatch:
   # remove branch when merged
   push:
     branches:
-      - windows-setup
+      - master
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -15,30 +15,16 @@ jobs:
     name: Python ${{ matrix.python-version }} Installation for Synthpop ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      #- uses: actions/setup-python@master
-      #  with:
-      #    python-version: ${{ matrix.python-version }}
-      #    architecture: x64
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
           activate-environment: myenv
           python-version: ${{ matrix.python-version }}
           
-      - name: Use Default python to install
+      - name: Use Miniconda to install
         run: | 
           python --version
           which python
           python setup.py develop
       
-      #- name: Use Conda to install
-      #  uses: s-weigand/setup-conda@v1
-      #  with:
-      #    update-conda: true
-      #    python-version: ${{ matrix.python-version }}
-      #    conda-channels: anaconda, conda-forge
-      #- run: conda --version
-      #- run: which python
-      #- run: python setup.py develop
-      
-     
+ 
