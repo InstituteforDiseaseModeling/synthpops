@@ -4,7 +4,7 @@ on:
   # remove branch when merged
   push:
     branches:
-      - **setup**
+      - windows-setup
 jobs:
   build:
     runs-on: ${{ matrix.os }}
