@@ -15,16 +15,20 @@ jobs:
     name: Python ${{ matrix.python-version }} Installation for Synthpop ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@master
+      #- uses: actions/setup-python@master
+      #  with:
+      #    python-version: ${{ matrix.python-version }}
+      #    architecture: x64
+      - uses: conda-incubator/setup-miniconda@v2
         with:
+          miniconda-version: "latest"
+          activate-environment: myenv
           python-version: ${{ matrix.python-version }}
-          architecture: x64
+          
       - name: Use Default python to install
         run: | 
           python --version
           which python
-          conda create -n myenv python=3
-          conda activate myenv
           python setup.py develop
       
       #- name: Use Conda to install
