@@ -164,7 +164,8 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     )
     people = cv.People(people_pars, strict=False, uid=cvpopdict['uid'], age=cvpopdict['age'], sex=cvpopdict['sex'])
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.datadir = sp.datadir
+    # kwargs.datadir = sp.datadir
+    kwargs.datadir = sp.default_config.datadir
     kwargs.figname = f"test_ages_{kwargs.location}_cvpeople"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
@@ -219,7 +220,8 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
 
     sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with a population dictionary.")
     popdict = pop.to_dict()
-    kwargs.datadir = sp.datadir  # extra information required
+    kwargs.datadir = sp.default_config.datadir
+    # kwargs.datadir = sp.datadir  # extra information required
     kwargs.figname = f"test_{plotting_method_name}_{kwargs.location}_popdict"
     kwargs.do_show = False
 

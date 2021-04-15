@@ -5,7 +5,7 @@ import settings
 
 
 # default_nbrackets = sp.config.nbrackets
-default_nbrackets = sp.defaults_config.nbrackets
+default_nbrackets = sp.default_config.nbrackets
 
 pars = sc.objdict(
     n                               = settings.pop_sizes.small,
@@ -30,7 +30,7 @@ def test_Dakar():
     sp.set_location_defaults('defaults')  # Reset default values after this test is complete.
 
     sp.logger.info("Test that the default country was reset.")
-    assert sp.defaults_config.country_location == 'usa', f'Check failed: default_country is {sp.defaults_config.country_location}'
+    assert sp.default_config.country_location == 'usa', f'Check failed: default_country is {sp.default_config.country_location}'
     print('2nd Check passed')
 
     return pop

@@ -20,7 +20,6 @@ default_data = {
         'location'         : 'Dakar',
         'sheet_name'       : 'Senegal',
         'nbrackets'        : 18,
-        # 'household_size_1': True,
     },
     'defaults': {
         'country_location': 'usa',
@@ -28,7 +27,6 @@ default_data = {
         'location': 'seattle_metro',
         'sheet_name': 'United States of America',
         'nbrackets' : 20,
-        # 'household_size_1': True,
     },
     'usa': {
         'country_location': 'usa',
@@ -36,39 +34,62 @@ default_data = {
         'location': 'seattle_metro',
         'sheet_name': 'United States of America',
         'nbrackets': 20,
-        # 'household_size_1': True,
     },
 }
 
-defaults_config = sc.objdict()
 
-defaults_config.thisdir = os.path.dirname(os.path.abspath(__file__))
-defaults_config.localdatadir = os.path.join(defaults_config.thisdir, os.pardir, 'data')
-defaults_config.datadir = defaults_config.localdatadir
-
-defaults_config.relative_path = []
-
-datadir = defaults_config.datadir
-
-defaults_config.max_age = 101
-defaults_config.nbrackets = 20
-defaults_config.valid_nbracket_ranges = [16, 18, 20]
-# defaults_config.household_size_1_included = 1
-
-defaults_config.country_location = None
-defaults_config.state_location = None
-defaults_config.location = None
-defaults_config.sheet_name = None
-# defaults_config.default_country = None
-# defaults_config.default_state = None
-# defaults_config.default_location = None
-# defaults_config.default_sheet_name = None
+def default_datadir_path():
+    """Return the path to synthpops internal data folder."""
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(thisdir, os.pardir, 'data')
 
 
-def reset_defaults_config_by_key(key, value):
-    defaults_config[key] = value
+# available globally if needed or via defaults.py
+default_config = sc.objdict()
+
+default_config.thisdir = os.path.dirname(os.path.abspath(__file__))
+default_config.localdatadir = os.path.join(default_config.thisdir, os.pardir, 'data')
+default_config.datadir = default_config.localdatadir
+# datadir = default_config.datadir  # should be an alias
+
+default_config.relative_path = []
 
 
-def reset_defaults_config(new_config):
+default_config.max_age = 101
+default_config.nbrackets = 20
+default_config.valid_nbracket_ranges = [16, 18, 20]
+# default_config.household_size_1_included = 1
+
+default_config.country_location = None
+default_config.state_location = None
+default_config.location = None
+default_config.sheet_name = None
+
+
+# def datadir():
+#     return default_config.datadir
+
+
+def reset_default_config_by_key(key, value):
+    """
+    Reset a key in the globally available defaults_config dictionary with a new value.
+
+    Returns:
+        None
+    """
+    default_config[key] = value
+
+
+def reset_default_config(new_config):
+    """
+    Reset multiple keys in the globally available defaults_config dictionary based on a new
+    dictionary of values.
+
+    Args:
+        new_config (dict) : a dictionary with new values mapped to keys
+
+    Returns:
+        None.
+    """
     for key, value in new_config.items():
-        reset_defaults_config_by_key(key, value)
+        reset_default_config_by_key(key, value)

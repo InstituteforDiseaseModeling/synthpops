@@ -37,11 +37,11 @@ def test_smooth_binned_age_distribution(w_len):
     Returns:
 
     '''
-    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
+    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.default_config.datadir,
                                                           location=pars[0]['location'],
                                                           state_location=pars[0]['state_location'],
                                                           country_location=pars[0]['country_location'], window_length=1)
-    smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir, location=pars[0]['location'],
+    smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.default_config.datadir, location=pars[0]['location'],
                                                                state_location=pars[0]['state_location'],
                                                                country_location=pars[0]['country_location'],
                                                                window_length=w_len)
@@ -51,9 +51,9 @@ def test_smooth_binned_age_distribution(w_len):
 @pytest.mark.parametrize("w_len", [-1, 10000])
 @pytest.mark.xfail(raises=ValueError)
 def test_smooth_binned_age_distribution_invalid(w_len):
-    #if invalid values provided, value error should be raised
+    # if invalid values provided, value error should be raised
     with pytest.raises(ValueError, match=r".*non-negative integer value less than 10.*"):
-        smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
+        smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.default_config.datadir,
                                                                    location=pars[0]['location'],
                                                                    state_location=pars[0]['state_location'],
                                                                    country_location=pars[0]['country_location'],
@@ -62,18 +62,18 @@ def test_smooth_binned_age_distribution_invalid(w_len):
 
 @pytest.mark.parametrize("pars", pars)
 def test_smooth_binned_age_distribution_location(pars):
-    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
+    raw_age_distr = sp.get_smoothed_single_year_age_distr(sp.default_config.datadir,
                                                           location=pars['location'],
                                                           state_location=pars['state_location'],
                                                           country_location=pars['country_location'], window_length=1)
 
-    smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.datadir,
+    smoothed_age_distr = sp.get_smoothed_single_year_age_distr(sp.default_config.datadir,
                                                                location=pars['location'],
                                                                state_location=pars['state_location'],
                                                                country_location=pars['country_location'],
                                                                use_default=pars['use_default'])
 
-    # check_smooth_values(raw_age_distr, smoothed_age_distr)
+    check_smooth_values(raw_age_distr, smoothed_age_distr)
 
 
 def check_smooth_values(raw_age_distr, smoothed_age_distr):
@@ -83,5 +83,4 @@ def check_smooth_values(raw_age_distr, smoothed_age_distr):
     print(f"distance: {str(d)}")
     # add some validation for smoothing results
     assert d < 1e-2
-
 

@@ -257,7 +257,7 @@ def count_employment_by_age(popdict):
     Returns:
         dict: Dictionary of the count of employed people by age in popdict.
     """
-    employment_count_by_age = dict.fromkeys(np.arange(0, defaults.defaults_config.max_age), 0)
+    employment_count_by_age = dict.fromkeys(np.arange(0, defaults.default_config.max_age), 0)
     for i, person in popdict.items():
         if person['snf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
             employment_count_by_age[person['age']] += 1

@@ -7,7 +7,8 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
-datadir = sp.datadir
+# datadir = sp.datadir
+datadir = sp.default_config.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
@@ -254,7 +255,8 @@ def test_make_population(location='seattle_metro', state_location='Washington', 
 if __name__ == '__main__':
     sc.tic()
 
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     location = 'seattle_metro'
     state_location = 'Washington'

@@ -12,8 +12,8 @@ import synthpops.schools as spsch
 # if not sp.config.full_data_available:
 #     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
-datadir = sp.datadir
-
+# datadir = sp.datadir
+datadir = sp.default_config.datadir
 
 @pytest.mark.skip(reason='Deprecated functions')
 def test_all(location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America'):
@@ -22,7 +22,8 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
     sc.heading('Running all tests')
 
     sp.validate()  # Validate that data files can be found
-    dropbox_path = sp.datadir
+    # dropbox_path = sp.datadir
+    dropbox_path = sp.default_config.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(dropbox_path, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, location, state_location, country_location)
@@ -72,7 +73,8 @@ def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='W
 
     sc.heading('Running single ages')
     sp.validate()
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
@@ -96,7 +98,8 @@ def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='W
 def test_multiple_ages(n_people=1e4, location='seattle_metro', state_location='Washington', country_location='usa'):
     sc.heading('Running multiple ages')
 
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
@@ -467,7 +470,8 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
 if __name__ == '__main__':
     sc.tic()
 
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
     n = 1000
     location = 'seattle_metro'  # for census distributions
     state_location = 'Washington'  # for state wide age mixing patterns

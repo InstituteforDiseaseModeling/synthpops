@@ -134,8 +134,8 @@ class plotting_kwargs(sc.objdict):
         Check if method has some key pop parameters to call on data. If not, use
         defaults and warn user of their use and value.
         """
-        default_pop_pars = sc.objdict(datadir=spd.defaults_config.datadir, location=spd.defaults_config.location, state_location=spd.defaults_config.state_location,
-                                      country_location=spd.defaults_config.country_location, use_default=False)
+        default_pop_pars = sc.objdict(datadir=spd.default_config.datadir, location=spd.default_config.location, state_location=spd.default_config.state_location,
+                                      country_location=spd.default_config.country_location, use_default=False)
         default_age_pars = sc.objdict(smooth_ages=False, window_length=7)
 
         # if loc_pars exists, then update the default_pop_pars with that information
@@ -477,7 +477,7 @@ def plot_contacts(pop, **kwargs):
                                  aggregate_flag=True, logcolors_flag=True,
                                  cmap='cmr.freeze_r', fontsize=16, rotation=50,
                                  title_prefix=None, fig=None, ax=None, do_show=False, do_save=False,
-                                 state_location=spd.defaults_config.state_location, country_location=spd.defaults_config.country_location
+                                 state_location=spd.default_config.state_location, country_location=spd.default_config.country_location
                                  )
     method_defaults.figname = f"contact_matrix_{method_defaults.layer}"  # by defining this here, we can at least ensure that default names connect to the layer being modeled
 
@@ -1188,7 +1188,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
         plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
 
     # get the expected employment rates
-    expected_employment_rates_by_age = dict.fromkeys(np.arange(spd.defaults_config.max_age), 0)
+    expected_employment_rates_by_age = dict.fromkeys(np.arange(spd.default_config.max_age), 0)
     expected_employment_rates_by_age = sc.mergedicts(expected_employment_rates_by_age, spdata.get_employment_rates(**plkwargs.loc_pars))
     expected_employment_rates_by_age_values = [expected_employment_rates_by_age[a] * 100 for a in sorted(expected_employment_rates_by_age.keys())]
 
@@ -1329,7 +1329,7 @@ def plot_school_sizes(pop, **kwargs):
     if plkwargs.location is not None:
         location_text = f"{plkwargs.location.replace('_', ' ').title()}"
     else:
-        location_text = f"{spd.defaults_config.location.replace('_', ' ').title()}"
+        location_text = f"{spd.default_config.location.replace('_', ' ').title()}"
 
     # create fig, ax, set cmap
     fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
