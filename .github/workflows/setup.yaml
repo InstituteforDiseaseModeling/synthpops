@@ -19,17 +19,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: SetVar
-        run: |
-         echo "TMP=$env:USERPROFILE\AppData\Local\Temp" >> $GITHUB_ENV
-         echo "TEMP::$env:USERPROFILE\AppData\Local\Temp" >> $GITHUB_ENV  
       - name: Use Default python to install
         run: | 
           python --version
           which python
-          echo "%TEMP%"
-          echo "${{ env.TEMP }}"
-          python setup.py develop --user
+          conda create -n myenv python=3
+          conda activate myenv
+          python setup.py develop
       
       #- name: Use Conda to install
       #  uses: s-weigand/setup-conda@v1
