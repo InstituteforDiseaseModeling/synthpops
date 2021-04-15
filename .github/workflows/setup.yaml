@@ -23,7 +23,7 @@ jobs:
         run: | 
           python --version
           which python
-          python setup.py develop
+          python setup.py develop --user
       
       #- name: Use Conda to install
       #  uses: s-weigand/setup-conda@v1
