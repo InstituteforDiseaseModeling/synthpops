@@ -45,6 +45,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "line_profiler==3.1;platform_system=='Linux'", # Temporary -- build issue with line_profiler 3.2
+        "cython>=0.29.21,<1.0.0;platform_system=='Windows'",
         "sciris>=1.0.0",
         "covasim>=2.0.0",
         "matplotlib>=3.3.0",

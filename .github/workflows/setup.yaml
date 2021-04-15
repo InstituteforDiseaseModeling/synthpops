@@ -29,7 +29,6 @@ jobs:
         run: | 
           python --version
           which python
-          pip install "cython>=0.29.21,<1.0.0"
           python setup.py develop
       
       #- name: Use Conda to install
