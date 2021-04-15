@@ -163,7 +163,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
 
     ::
 
-        age_brackets = sp.get_census_age_brackets(sp.default_confi.datadir,state_location='Washington',country_location='usa')
+        age_brackets = sp.get_census_age_brackets(sp.default_config.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
         aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)

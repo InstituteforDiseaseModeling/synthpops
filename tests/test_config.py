@@ -8,7 +8,7 @@ import sciris as sc
 def test_version():
     sp.logger.info("Testing that version info is returned.")
     sp.version_info()
-
+    print(sp.default_config.country_location)
 
 def test_metadata():
     sp.logger.info("Testing that the version is greater than 1.5.0")
@@ -73,25 +73,34 @@ def test_set_location_defaults():
 
 
 def test_pakistan():
+    """
+    Testing that we get a warning message and that default information is still
+    set to usa, however users can manually set their own default location to
+    use for data gaps (we're not supplying all data).
+    """
     sp.set_location_defaults('Pakistan')
+    assert sp.default_config.country_location == 'usa', 'Check failed. Defaults are not set as expected.'
+    print('Defaults still set to default usa location information.')
+
+    # this data does not actually exist yet
+    new_defaults = dict(location=None, state_location=None, country_location='Pakistan')
+    sp.reset_default_config(new_defaults)
+    assert sp.default_config.country_location == 'Pakistan', 'Check failed. Default location information did not update to Pakistan.'
+    print('Defaults update to Pakistan location information.')
+
+    # reset the global parameters
+    sp.reset_default_config(sp.default_data['defaults'])
+    assert sp.default_config.country_location == 'usa', 'Reset failed.'
+    print('Reset to original defaults.')
 
 
 if __name__ == '__main__':
 
-    # test_version()
-    # test_metadata()
-    # test_nbrackets()
-    # test_validate_datadir()
+    test_version()
+    test_metadata()
+    test_nbrackets()
+    test_validate_datadir()
     test_set_datadir()
-    # test_log_level()
-
-    # print(sp.default_config)
-    # sp.reset_default_config('country_location', 'Senegal')
-
+    test_log_level()
     test_set_location_defaults()
-
-    print(sp.default_config)
-    print()
     test_pakistan()
-    print(sp.default_config)
-
