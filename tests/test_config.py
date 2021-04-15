@@ -85,7 +85,8 @@ if __name__ == '__main__':
     print(sp.default_country)
     print(sp.defaults_config)
 
-    sp.reset_defaults_config('a', 9)
+    print()
+    # sp.reset_defaults_config('a', 9)
     sp.reset_defaults_config('default_country', 'Senegal')
 
     print(sp.defaults_config)

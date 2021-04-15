@@ -14,43 +14,61 @@ import psutil
 import sciris as sc
 import logging
 from . import version as spv
+from . import defaults as spd
 
-__all__ = ['logger', 'checkmem', 'datadir', 'localdatadir', 'rel_path', 'alt_rel_path', 'set_nbrackets', 'set_datadir',
-           'validate_datadir', 'set_location_defaults', 'default_country', 'default_state',
-           'default_location', 'default_sheet_name', 'alt_location', 'default_household_size_1_included',
-           'get_config_data', 'version_info', 'max_age']
+__all__ = ['logger',
+           'checkmem',
+           # 'datadir',
+           # 'localdatadir',
+           # 'rel_path',
+           # 'alt_rel_path',
+           'set_nbrackets',
+           'set_datadir',
+           'validate_datadir',
+           'set_location_defaults',
+           # 'default_country',
+           # 'default_state',
+           # 'default_location',
+           # 'default_sheet_name',
+           # 'alt_location',
+           # 'default_household_size_1_included',
+           # 'get_config_data',
+           'version_info',
+           # 'max_age'
+           ]
 
 
 # Declaring this here makes it globally available as synthpops.datadir
-datadir = None
-alt_datadir = None
-localdatadir = None
-rel_path = []
-alt_rel_path = []
-full_data_available = False  # this is likely not necessary anymore
+# datadir = None
+# alt_datadir = None
+# localdatadir = None
+# rel_path = []
+# alt_rel_path = []
+# full_data_available = False  # this is likely not necessary anymore
 
 # Set the local data folder
-thisdir = os.path.dirname(os.path.abspath(__file__))
+# thisdir = os.path.dirname(os.path.abspath(__file__))
 
-localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
+# localdatadir = os.path.abspath(os.path.join(thisdir, os.pardir, 'data'))
 
 
 # Replace with local data dir if Dropbox folder is not found
-if datadir is None: # pragma: no cover
-    full_data_available = True
-    datadir = localdatadir
+# if datadir is None: # pragma: no cover
+    # full_data_available = True
+    # datadir = localdatadir
+    # datadir = spd.defaults_config.localdatadir
 
 # Number of census age brackets to use
-max_age = 101
-valid_nbracket_ranges = [16, 18, 20]  # Choose how many age bins to use -- 20 is only partially supported
-nbrackets = 20
-matrix_size = 16  # The dimensions of the mixing matrices -- currently only 16 is available
-default_country = None
-default_state = None
-default_location = None
-default_sheet_name = None
-alt_location = None
-default_household_size_1_included = False
+# max_age = 101
+# valid_nbracket_ranges = [16, 18, 20]  # Choose how many age bins to use -- 20 is only partially supported
+# nbrackets = 20
+# matrix_size = 16  # The dimensions of the mixing matrices -- currently only 16 is available
+# default_country = None
+# default_state = None
+# default_location = None
+# default_sheet_name = None
+# alt_location = None
+# default_household_size_1_included = False
 
 # %% Logger
 
@@ -99,43 +117,45 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
     return output
 
 
-def get_config_data():
-    data = {
-        'valid_nbrackets':
-            [16, 18, 20],
-        'Senegal': {
-             'location': 'Dakar',
-             'province': 'Dakar',
-             'country': 'Senegal',
-             'sheet_name': 'Senegal',
-             'nbrackets': 18,
-             'household_size_1': True
-              },
-        'defaults': {
-             'location': 'seattle_metro',
-             'province': 'Washington',
-             'country': 'usa',
-             'sheet_name': 'United States of America',
-             'nbrackets': 20
-              },
-        'usa': {
-             'location': 'seattle_metro',
-             'province': 'Washington',
-             'country': 'usa',
-             'sheet_name': 'United States of America',
-             'nbrackets': 20
-              }
-         }
-    return data
+# def get_config_data():
+#     data = {
+#         'valid_nbrackets':
+#             [16, 18, 20],
+#         'Senegal': {
+#              'location': 'Dakar',
+#              'province': 'Dakar',
+#              'country': 'Senegal',
+#              'sheet_name': 'Senegal',
+#              'nbrackets': 18,
+#              'household_size_1': True
+#               },
+#         'defaults': {
+#              'location': 'seattle_metro',
+#              'province': 'Washington',
+#              'country': 'usa',
+#              'sheet_name': 'United States of America',
+#              'nbrackets': 20
+#               },
+#         'usa': {
+#              'location': 'seattle_metro',
+#              'province': 'Washington',
+#              'country': 'usa',
+#              'sheet_name': 'United States of America',
+#              'nbrackets': 20
+#               }
+#          }
+#     return data
 
 
 # %% Functions
 def version_info():
-    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {thisdir}')
-    print(f'Data folder: {datadir}')
+    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {spd.defaults_config.thisdir}')
+    # print(f'Data folder: {datadir}')
+    print(f'Data folder: {spd.datadir}')
     print(f'Git information:')
     sc.pp(sc.gitinfo(__file__))
     return
+
 
 def set_metadata(obj):
     ''' Set standard metadata for an object '''
@@ -146,26 +166,36 @@ def set_metadata(obj):
 
 
 def set_location_defaults(country=None):
-    global config_file
-    global default_country
-    global default_state
-    global default_location
-    global default_sheet_name
-    global nbrackets
-    global default_household_size_1_included
+    # global config_file
+    # global default_country
+    # global default_state
+    # global default_location
+    # global default_sheet_name
+    # global nbrackets
+    # global default_household_size_1_included
 
     # read the confiuration file
     country_location = country if country is not None else 'defaults'
-    data = get_config_data()
+    # data = get_config_data()
+    data = spd.default_data
 
     if country_location in data.keys():
         loc = data[country_location]
         default_location = loc['location']
-        default_state = loc['province']
-        default_country = loc['country']
+        spd.reset_defaults_config('default_location', default_location)
+
+        # default_state = loc['province']
+        default_state = loc['state_location']
+        spd.reset_defaults_config('default_state', default_state)
+        # default_country = loc['country']
+        default_country = loc['country_location']
+        spd.reset_defaults_config('default_country', default_country)
         default_sheet_name = loc['sheet_name']
+        spd.reset_defaults_config('default_sheet_name', default_sheet_name)
         nbrackets = 20 if loc['nbrackets'] is None else loc['nbrackets']
+        spd.reset_defaults_config('nbrackets', nbrackets)
         default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
+        spd.reset_defaults_config('household_size_1_included', default_household_size_1_included)
 
 
 set_location_defaults()
@@ -181,34 +211,43 @@ def set_datadir(root_dir, relative_path=None):
         e.g. root_dir/demographics/contact... the user can change datadir without changing relative path, by passing in relative_path = None (default)
         -- note, mostly deprecated.'''
     ''' user specifies complete path'''
-    global datadir
-    global rel_path
+    # global datadir
+    # global rel_path
     datadir = root_dir
     if relative_path is not None:
-        rel_path = relative_path
+        # spd.defaults_config.relative_path = relative_path
+        spd.reset_defaults_config('relative_path', relative_path)
+        # rel_path = relative_path
     logger.info(f'Done: data directory set to {root_dir}.')
-    logger.info(f'Relative Path set to  {rel_path}.')
-    return datadir
+    logger.info(f'Relative Path set to  {spd.defaults_config.relative_path}.')
+    # return datadir
+    # spd.defaults_config.datadir = datadir
+    spd.reset_defaults_config('datadir', datadir)
+    return spd.defaults_config.datadir
 
 
 def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16 or 20.'''
-    global nbrackets
+    # global nbrackets
     logger.info(f"set_nbrackets n = {n}")
-    nbrackets = n
-    if nbrackets not in valid_nbracket_ranges:
-        logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
+    spd.reset_defaults_config('nbrackets', n)
+    # nbrackets = n
+    # if nbrackets not in valid_nbracket_ranges:
+    if spd.defaults_config.nbrackets not in spd.defaults_config.valid_nbracket_ranges:
+        logger.warning(f'Note: current supported bracket choices are {spd.defaults_config.valid_nbracket_ranges}, use {spd.defaults_config.nbrackets} at your own risk.')
     logger.info(f'Done: number of brackets is set to {n}.')
-    return nbrackets
+    # return nbrackets
+    return spd.defaults_config.nbrackets
 
 
 def validate_datadir(verbose=True):
     ''' Check that the data folder can be found. '''
-    if os.path.isdir(datadir):
-        logger.info(f"The data folder {datadir} was found.")
-
+    # if os.path.isdir(datadir):
+    #     logger.info(f"The data folder {datadir} was found.")
+    if os.path.isdir(spd.datadir):
+        logger.info(f"The data folder {spd.datadir} was found.")
     else:
-        if datadir is None:
+        if spd.datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')
         else:
-            raise FileNotFoundError(f'The folder "{datadir}" does not exist.')
+            raise FileNotFoundError(f'The folder "{spd.datadir}" does not exist.')

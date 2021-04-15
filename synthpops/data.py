@@ -285,8 +285,11 @@ def get_relative_path(datadir):
         This method may not be necessary anymore...
     """
     base_dir = datadir
-    if len(cfg.rel_path) > 1:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    if len(defaults.defaults_config.relative_path) > 1:
+        base_dir = os.path.join(datadir,  *defaults.defaults_config.relative_path)
+    # if len(cfg.rel_path) > 1:
+        # base_dir = os.path.join(datadir, *cfg.rel_path)
+    print('base_dir', base_dir)
     return base_dir
 
 
@@ -320,7 +323,7 @@ def load_location_from_filepath(rel_filepath):
     Returns:
         json: The json object with location data.
     """
-    filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
+    filepath = os.path.join(get_relative_path(defaults.defaults_config.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)

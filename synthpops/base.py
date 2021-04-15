@@ -5,7 +5,8 @@ The module contains frequently-used functions that do not neatly fit into other 
 import numpy as np
 import sciris as sc
 from collections import Counter
-from . import config as cfg
+# from . import config as cfg
+from . import defaults as spd
 
 
 def norm_dic(dic):
@@ -112,7 +113,9 @@ def count_ages(popdict):
     Returns:
         dict: Dictionary of the age count of the population.
     """
-    age_count = dict.fromkeys(np.arange(0, cfg.max_age), 0)
+    # age_count = dict.fromkeys(np.arange(0, cfg.max_age), 0)
+    age_count = dict.fromkeys(np.arange(0, spd.defaults_config.max_age), 0)
+    print(age_count)
     for i, person in popdict.items():
         age_count[person['age']] += 1
     return age_count

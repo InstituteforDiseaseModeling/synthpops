@@ -16,6 +16,7 @@ from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
 from . import plotting as sppl
+from . import defaults
 
 
 __all__ = ['Pop', 'make_population', 'generate_synthetic_population']
@@ -169,20 +170,21 @@ class Pop(sc.prettyobj):
 
         # Handle data
         if self.country_location is None:
-            self.country_location = cfg.default_country
-            self.state_location   = cfg.default_state
-            self.location         = cfg.default_location
+            self.country_location = defaults.defaults_config.default_country
+            self.state_location   = defaults.defaults_config.default_state
+            self.location         = defaults.defaults_config.default_location
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
+
         # if country is specified, and state is not, we are doing a country population
         if self.state_location is None:
             self.location = None
-
+        print(self.sheet_name, 'self sheet_name')
         # if sheet name is not specified, use the default
         if self.sheet_name is None:
-            self.sheet_name = cfg.default_sheet_name
-        self.datadir = cfg.datadir  # Assume this has been reset...
+            self.sheet_name = defaults.defaults_config.default_sheet_name
+        self.datadir = defaults.defaults_config.datadir  # Assume this has been reset...
 
         # Location parameters
         self.loc_pars.location         = self.location
@@ -285,7 +287,7 @@ class Pop(sc.prettyobj):
         # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
         hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
-        hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
+        hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=defaults.defaults_config.household_size_1_included)
 
         if household_method == 'fixed_ages':
 
@@ -472,6 +474,9 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the age count of the generated population.
         """
+        # print(self.popdict)
+        # for i in self.popdict:
+            # print(i, self.popdict[i]['age'])
         return spb.count_ages(self.popdict)
 
     # convert to work on array
@@ -589,7 +594,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.defaults_config.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -618,7 +623,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.defaults_config.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
