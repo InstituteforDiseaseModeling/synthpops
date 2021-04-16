@@ -16,6 +16,7 @@ from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
 from . import plotting as sppl
+from . import defaults
 
 
 __all__ = ['Pop', 'make_population', 'generate_synthetic_population']
@@ -81,7 +82,7 @@ class Pop(sc.prettyobj):
             school_pars (dict)                      : if supplied, replace default school parameters
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
-            use_default (bool)                      : If True, use default data from default_location, default_state, default_country.
+            use_default (bool)                      : If True, use default data from settings.location, settings.state, settings.country.
             use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
             average_LTCF_degree (float)             : default average degree in long term care facilities.
             ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
@@ -169,20 +170,21 @@ class Pop(sc.prettyobj):
 
         # Handle data
         if self.country_location is None:
-            self.country_location = cfg.default_country
-            self.state_location   = cfg.default_state
-            self.location         = cfg.default_location
+            self.country_location = defaults.settings.country_location
+            self.state_location   = defaults.settings.state_location
+            self.location         = defaults.settings.location
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
+
         # if country is specified, and state is not, we are doing a country population
         if self.state_location is None:
             self.location = None
 
         # if sheet name is not specified, use the default
         if self.sheet_name is None:
-            self.sheet_name = cfg.default_sheet_name
-        self.datadir = cfg.datadir  # Assume this has been reset...
+            self.sheet_name = defaults.settings.sheet_name
+        self.datadir = defaults.settings.datadir  # Assume this has been reset...
 
         # Location parameters
         self.loc_pars.location         = self.location
@@ -282,11 +284,11 @@ class Pop(sc.prettyobj):
 
         # Generate households
         household_size_distr = spdata.get_household_size_distr(**loc_pars)
-        # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
+
         hha_brackets = spdata.get_head_age_brackets(**loc_pars)
-        # hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
-        hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars, household_size_1_included=cfg.default_household_size_1_included)
+        hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars)
+
         # hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
         if household_method == 'fixed_ages':
@@ -597,7 +599,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -626,7 +628,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(cfg.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
