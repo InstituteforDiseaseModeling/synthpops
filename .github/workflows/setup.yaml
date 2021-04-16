@@ -25,6 +25,6 @@ jobs:
         run: | 
           python --version
           which python
-          python setup.py develop
+          pip install -e .
       
  
