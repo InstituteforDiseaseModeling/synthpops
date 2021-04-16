@@ -284,8 +284,10 @@ class Pop(sc.prettyobj):
         household_size_distr = spdata.get_household_size_distr(**loc_pars)
         # household_size_distr = spdata.get_household_size_distr(datadir, location, state_location, country_location, use_default=use_default)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
-        hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
-        hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
+        hha_brackets = spdata.get_head_age_brackets(**loc_pars)
+        # hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
+        hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars, household_size_1_included=cfg.default_household_size_1_included)
+        # hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
         if household_method == 'fixed_ages':
 
@@ -301,16 +303,21 @@ class Pop(sc.prettyobj):
         facilities_by_uids = homes_by_uids[0:len(facilities)]
 
         # Generate school sizes
-        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-        school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(**loc_pars)
+        # school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
+        # school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
         uids_in_school, uids_in_school_by_age, ages_in_school_count = spsch.get_uids_in_school(datadir, n_nonltcf, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
         if with_school_types:
-            school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-            school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
-            school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+            school_size_distr_by_type = spdata.get_school_size_distr_by_type(**loc_pars)
+            # school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+            school_size_brackets = spdata.get_school_size_brackets(**loc_pars)  # for right now the size distribution for all school types will use the same brackets or bins
+            # school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
+            school_type_age_ranges = spdata.get_school_type_age_ranges(**loc_pars)
+            # school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
@@ -332,7 +339,8 @@ class Pop(sc.prettyobj):
             school_type_by_age = None
 
         # Get employment rates
-        employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        employment_rates = spdata.get_employment_rates(**loc_pars)
+        # employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Find people who can be workers (removing everyone who is currently a student)
         uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)  # Make a dictionary listing out uids of people by their age
