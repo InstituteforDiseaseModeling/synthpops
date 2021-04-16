@@ -31,6 +31,9 @@ pars = sc.objdict(
                                'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
+@pytest.fixture(scope="module")
+def create_pop():
+    return sp.Pop(**pars)
 
 def test_plots(do_plot=False):
     ''' Basic plots '''
@@ -182,7 +185,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     return fig, ax, people
 
 
-def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
+def summary_plotting_helper(pop, pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
     """
     Generic function to set up test data and logic for different plotting methods.
 
@@ -201,7 +204,6 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
         example to see how to do this.
     """
     sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with sp.Pop object.")
-    pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.figname = f"test_{plotting_method_name}_{kwargs.location}_pop"
     kwargs.do_show = do_show
@@ -241,41 +243,41 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
     return fig, ax, pop
 
 
-def test_plot_ages(do_show=False, do_save=False):
+def test_plot_ages(create_pop, do_show=False, do_save=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_household_sizes_dist(do_show=False, do_save=False):
+def test_plot_household_sizes_dist(create_pop, do_show=False, do_save=False):
     """Test that the household sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_ltcf_resident_sizes(do_show=False, do_save=False):
+def test_plot_ltcf_resident_sizes(create_pop, do_show=False, do_save=False):
     """Test that the long term care facility resident sizes comparison plotting method in sp.Pop class works."""
     test_pars = sc.dcp(pars)
     test_pars.n = settings.pop_sizes.large
-    fig, ax, pop = summary_plotting_helper(test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
+def test_plot_enrollment_rates_by_age(create_pop, do_show=False, do_save=False):
     """Test that the enrollment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_employment_rates_by_age(do_show=False, do_save=False):
+def test_plot_employment_rates_by_age(create_pop, do_show=False, do_save=False):
     """Test that the employment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_workplace_sizes(do_show=False, do_save=False):
+def test_plot_workplace_sizes(create_pop, do_show=False, do_save=False):
     """Test that the workplace sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
