@@ -125,11 +125,11 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
         None
     """
     sample_size = len(testdata)
-    # need to exclude any value below or equal to lowerbound and any value, so we first find the quantile location for
-    # max_contacts + 1 and only generate poisson values above this location
+    # need to exclude any value below or equal to lowerbound and any value above or equal to upperbound, so we first find the quantile location for
+    # lowerbound and upperbound then only generate poisson cdf values in between these 2 locations
     minquantile = st.poisson.cdf(lowerbound, mu=mu) if lowerbound else 0
     maxquantile = st.poisson.cdf(upperbound, mu=mu) if upperbound else 1
-    # create uniformly distributed number between minquantile and 1 (in the cdf quantile space)
+    # create uniformly distributed number between minquantile and maxquantile (in the cdf quantile space)
     q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
     # use percent point function to get inverse of cdf
     expected_data = st.poisson.ppf(q=q, mu=mu)
