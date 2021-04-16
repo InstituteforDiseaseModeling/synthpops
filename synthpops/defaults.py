@@ -45,40 +45,39 @@ def default_datadir_path():
 
 
 # available globally if needed or via defaults.py
-default_config = sc.objdict()
+settings_config = sc.objdict()
 
-default_config.thisdir = os.path.dirname(os.path.abspath(__file__))
-default_config.localdatadir = default_datadir_path()
-# default_config.localdatadir = os.path.join(default_config.thisdir, os.pardir, 'data')
-default_config.datadir = default_config.localdatadir
+settings_config.thisdir = os.path.dirname(os.path.abspath(__file__))
+settings_config.localdatadir = default_datadir_path()
+settings_config.datadir = settings_config.localdatadir
 
-default_config.relative_path = []
-
-
-default_config.max_age = 101
-default_config.nbrackets = 20
-default_config.valid_nbracket_ranges = [16, 18, 20]
-# default_config.household_size_1_included = 1
-
-default_config.country_location = None
-default_config.state_location = None
-default_config.location = None
-default_config.sheet_name = None
+settings_config.relative_path = []
 
 
-def reset_default_config_by_key(key, value):
+settings_config.max_age = 101
+settings_config.nbrackets = 20
+settings_config.valid_nbracket_ranges = [16, 18, 20]
+# settings_config.household_size_1_included = 1
+
+settings_config.country_location = None
+settings_config.state_location = None
+settings_config.location = None
+settings_config.sheet_name = None
+
+
+def reset_settings_config_by_key(key, value):
     """
-    Reset a key in the globally available defaults_config dictionary with a new value.
+    Reset a key in the globally available settings_config dictionary with a new value.
 
     Returns:
         None
     """
-    default_config[key] = value
+    settings_config[key] = value
 
 
-def reset_default_config(new_config):
+def reset_settings_config(new_config):
     """
-    Reset multiple keys in the globally available defaults_config dictionary based on a new
+    Reset multiple keys in the globally available settings_config dictionary based on a new
     dictionary of values.
 
     Args:
@@ -88,4 +87,4 @@ def reset_default_config(new_config):
         None.
     """
     for key, value in new_config.items():
-        reset_default_config_by_key(key, value)
+        reset_settings_config_by_key(key, value)
