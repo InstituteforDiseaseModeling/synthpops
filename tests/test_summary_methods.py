@@ -121,7 +121,7 @@ def test_summary_in_generation():
     print("Check passed. Bin labels are strings.")
 
     workplace_size_dist = sp.get_generated_workplace_size_distribution(pop.summary.workplace_sizes, workplace_size_bins)
-    expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.settings_config.datadir, state_location=pop.state_location, country_location=pop.country_location))
+    expected_workplace_size_dist = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(sp.settings.datadir, state_location=pop.state_location, country_location=pop.country_location))
     if expected_workplace_size_dist[0] > 0:
         assert workplace_size_dist[0] > 0, f"Check failed. Expected some workplaces to be created in the smallest bin size but there are none in this bin."
         print("Check passed for workplaces in the smallest bin.")
@@ -137,7 +137,7 @@ def test_contact_matrices_used():
     sp.logger.info("Test that the contact matrices used in generation match the expected data.")
     pop = sp.Pop(**pars)
 
-    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings_config.datadir, sheet_name=pop.sheet_name)
+    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=pop.sheet_name)
     for k in expected_contact_matrix_dic.keys():
         err_msg = f"Check failed for contact setting {k}."
         np.testing.assert_array_equal(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k], err_msg=err_msg)
@@ -154,7 +154,7 @@ def test_change_sheet_name():
     test_pars.sheet_name = 'Senegal'
     pop = sp.Pop(**test_pars)
 
-    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings_config.datadir, sheet_name=test_pars.sheet_name)
+    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=test_pars.sheet_name)
 
     # check that the correct contact matrices are used in population generation
     for k in expected_contact_matrix_dic.keys():
@@ -167,7 +167,7 @@ def test_change_sheet_name():
 def test_get_contact_matrix_dic_error_handling():
     """Test error handling for sp.get_contact_matrix_dic()."""
     with pytest.raises(RuntimeError) as excinfo:
-        sp.get_contact_matrix_dic(sp.settings_config.datadir, sheet_name="notexist")
+        sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name="notexist")
     assert "Data unavailable for the location specified" in str(excinfo.value), \
         "Error message for non existent sheet should be meaningful"
 

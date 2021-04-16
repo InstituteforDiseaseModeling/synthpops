@@ -23,8 +23,7 @@ class TestLocation(unittest.TestCase):
         keywords = ["get", "path"]
         exclude_pattern = ["household_head_age_by_size", "head_age_brackets"]
         methods = self.get_methods_to_test(keywords=keywords, exclude_pattern=exclude_pattern)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "Spokane_County"}
         self.run_tests(datadir, methods, testcase)
@@ -34,8 +33,7 @@ class TestLocation(unittest.TestCase):
         keywords = ["get", "path"]
         exclude_pattern = ["household_head_age_by_size"]
         methods = self.get_methods_to_test(keywords=keywords, exclude_pattern=exclude_pattern)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase)
@@ -45,8 +43,7 @@ class TestLocation(unittest.TestCase):
         keywords = ["get", "path"]
         exclude_pattern = ["school", "long_term_care_facility", "household_head_age_by_size"]
         methods = self.get_methods_to_test(keywords=keywords, exclude_pattern=exclude_pattern)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Oregon", "location": "portland_metro"}
         self.run_tests(datadir, methods, testcase)
@@ -59,8 +56,7 @@ class TestLocation(unittest.TestCase):
         exclude_pattern = ["school", "long_term_care_facility"]
         methods = self.get_methods_to_test(keywords=keywords, target_args=args,
                                            exclude_args=ignored_args, exclude_pattern=exclude_pattern)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington"}
         self.run_tests(datadir, methods, testcase)
@@ -73,8 +69,7 @@ class TestLocation(unittest.TestCase):
                            "get_long_term_"]
         keywords = ["get", "path"]
         methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location": "Dakar"}
         self.run_tests(datadir, methods, testcase)
@@ -89,8 +84,7 @@ class TestLocation(unittest.TestCase):
         ignored_args = ['location', 'part']
         methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords, target_args=args,
                                            exclude_args=ignored_args)
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("Senegal")
         testcase = {"country_location": "Senegal", "state_location": "Dakar"}
         self.run_tests(datadir, methods, testcase)
@@ -102,8 +96,7 @@ class TestLocation(unittest.TestCase):
         methods = self.get_methods_to_test(exclude_pattern=exclde_pattern, keywords=keywords)
         for m in methods:
             print(m[0])
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         # sp.cfg.set_location_defaults("usa")
         testcase = {"country_location": "usa", "state_location": "Washington", "location": "seattle_metro"}
         self.run_tests(datadir, methods, testcase, ispath=False)
@@ -118,8 +111,7 @@ class TestLocation(unittest.TestCase):
         methods = self.get_methods_to_test(exclude_pattern=exclude_pattern, keywords=keywords)
         for m in methods:
             print(m[0])
-        datadir = sp.settings_config.datadir
-        # datadir = sp.datadir
+        datadir = sp.settings.datadir
         testcase = {"country_location": "Senegal", "state_location": "Dakar", "location": "Dakar"}
         self.run_tests(datadir, methods, testcase, ispath=False)
 
