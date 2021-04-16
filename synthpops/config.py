@@ -76,8 +76,8 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 
 # %% Functions
 def version_info():
-    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {spd.settings_config.thisdir}')
-    print(f'Data folder: {spd.settings_config.datadir}')
+    print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {spd.settings.thisdir}')
+    print(f'Data folder: {spd.settings.datadir}')
     print(f'Git information:')
     sc.pp(sc.gitinfo(__file__))
     return
@@ -99,16 +99,16 @@ def set_location_defaults(country_location=None):
     if country_location in data.keys():
         loc = data[country_location]
 
-        spd.reset_settings_config(loc)
+        spd.reset_settings(loc)
         # default_household_size_1_included = False if 'household_size_1' not in loc.keys() else loc['household_size_1']
-        # spd.reset_settings_config_by_key('household_size_1_included', default_household_size_1_included)
+        # spd.reset_settings_by_key('household_size_1_included', default_household_size_1_included)
 
     elif country_location is None:
         logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")
         loc = data['defaults']
-        spd.reset_settings_config(loc)
+        spd.reset_settings(loc)
     else:
-        logger.warning(f"synthpops has no defaults for {country_location}. You can use sp.reset_settings_config() to set the default location information for the keys: {spd.settings_config.keys()}")
+        logger.warning(f"synthpops has no defaults for {country_location}. You can use sp.reset_settings() to set the default location information for the keys: {spd.settings.keys()}")
 
 
 # initially set defaults for the usa
@@ -133,38 +133,38 @@ def set_datadir(root_dir, relative_path=None):
         relative_path (str) : new relative path to the root_dir
 
     Returns:
-        str: path to the updated settings_config.datadir
+        str: path to the updated settings.datadir
     '''
     datadir = root_dir
     if relative_path is not None:
-        spd.reset_settings_config_by_key('relative_path', relative_path)
+        spd.reset_settings_by_key('relative_path', relative_path)
 
     logger.info(f'Done: data directory set to {root_dir}.')
-    logger.info(f'Relative Path set to  {spd.settings_config.relative_path}.')
+    logger.info(f'Relative Path set to  {spd.settings.relative_path}.')
 
-    spd.reset_settings_config_by_key('datadir', datadir)
+    spd.reset_settings_by_key('datadir', datadir)
 
-    return spd.settings_config.datadir
+    return spd.settings.datadir
 
 
 def set_nbrackets(n):
     '''Set the number of census brackets -- usually 16, 18 or 20.'''
     logger.info(f"set_nbrackets n = {n}")
-    spd.reset_settings_config_by_key('nbrackets', n)
+    spd.reset_settings_by_key('nbrackets', n)
 
-    if spd.settings_config.nbrackets not in spd.settings_config.valid_nbracket_ranges:
-        logger.warning(f'Note: current supported bracket choices are {spd.settings_config.valid_nbracket_ranges}, use {spd.settings_config.nbrackets} at your own risk.')
+    if spd.settings.nbrackets not in spd.settings.valid_nbracket_ranges:
+        logger.warning(f'Note: current supported bracket choices are {spd.settings.valid_nbracket_ranges}, use {spd.settings.nbrackets} at your own risk.')
     logger.info(f'Done: number of brackets is set to {n}.')
 
-    return spd.settings_config.nbrackets
+    return spd.settings.nbrackets
 
 
 def validate_datadir(verbose=True):
     ''' Check that the data folder can be found. '''
-    if os.path.isdir(spd.settings_config.datadir):
-        logger.info(f"The data folder {spd.settings_config.datadir} was found.")
+    if os.path.isdir(spd.settings.datadir):
+        logger.info(f"The data folder {spd.settings.datadir} was found.")
     else:
-        if spd.settings_config.datadir is None:
+        if spd.settings.datadir is None:
             raise FileNotFoundError(f'The datadir has not been set; use synthpops.set_datadir() and try again.')
         else:
-            raise FileNotFoundError(f'The folder "{spd.settings_config.datadir}" does not exist.')
+            raise FileNotFoundError(f'The folder "{spd.settings.datadir}" does not exist.')

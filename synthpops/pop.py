@@ -82,7 +82,7 @@ class Pop(sc.prettyobj):
             school_pars (dict)                      : if supplied, replace default school parameters
             with_industry_code (bool)               : If True, assign industry codes for workplaces, currently only possible for cached files of populations in the US.
             with_facilities (bool)                  : If True, create long term care facilities, currently only available for locations in the US.
-            use_default (bool)                      : If True, use default data from settings_config.location, settings_config.state, settings_config.country.
+            use_default (bool)                      : If True, use default data from settings.location, settings.state, settings.country.
             use_two_group_reduction (bool)          : If True, create long term care facilities with reduced contacts across both groups.
             average_LTCF_degree (float)             : default average degree in long term care facilities.
             ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
@@ -170,9 +170,9 @@ class Pop(sc.prettyobj):
 
         # Handle data
         if self.country_location is None:
-            self.country_location = defaults.settings_config.country_location
-            self.state_location   = defaults.settings_config.state_location
-            self.location         = defaults.settings_config.location
+            self.country_location = defaults.settings.country_location
+            self.state_location   = defaults.settings.state_location
+            self.location         = defaults.settings.location
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
@@ -183,8 +183,8 @@ class Pop(sc.prettyobj):
 
         # if sheet name is not specified, use the default
         if self.sheet_name is None:
-            self.sheet_name = defaults.settings_config.sheet_name
-        self.datadir = defaults.settings_config.datadir  # Assume this has been reset...
+            self.sheet_name = defaults.settings.sheet_name
+        self.datadir = defaults.settings.datadir  # Assume this has been reset...
 
         # Location parameters
         self.loc_pars.location         = self.location
@@ -590,7 +590,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings_config.max_age)}
+        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -619,7 +619,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings_config.max_age)}
+        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):

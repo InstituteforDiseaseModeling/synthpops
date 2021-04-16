@@ -28,14 +28,14 @@ def get_relative_path(datadir): # pragma: no cover
         str: A path relative to a specified data directory datadir
     """
     base_dir = datadir
-    if len(defaults.settings_config.relative_path):
-        base_dir = os.path.join(datadir, *defaults.settings_config.relative_path)
+    if len(defaults.settings.relative_path):
+        base_dir = os.path.join(datadir, *defaults.settings.relative_path)
     return base_dir
 
 
 def get_nbrackets():  # pragma: no cover
     """Return the default number of age brackets."""
-    return defaults.settings_config.nbrackets
+    return defaults.settings.nbrackets
 
 
 def get_age_brackets_from_df(ab_file_path): # pragma: no cover
@@ -90,7 +90,7 @@ def get_age_bracket_distr_path(datadir, location=None, state_location=None, coun
     # datadir = get_relative_path(datadir)
     levels = [location, state_location, country_location]
     if nbrackets is None:
-        nbrackets = defaults.settings_config.nbrackets
+        nbrackets = defaults.settings.nbrackets
     if all(level is None for level in levels):
         raise NotImplementedError("Missing inputs. Please check that you have supplied the correct location and state_location strings.")
     elif country_location is None:
@@ -107,8 +107,8 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
     """
     A dict of age distribution by age brackets. If use_default, then we'll first
     try to look for location specific data and if that's not available we'll use
-    default data from settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    default data from settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -118,7 +118,7 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified age bracket distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the age distribution by age bracket. Keys map to a range
@@ -132,10 +132,10 @@ def read_age_bracket_distr(datadir, location=None, state_location=None, country_
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_age_bracket_distr_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location, nbrackets=defaults.settings_config.nbrackets)
+            file_path = get_age_bracket_distr_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location, nbrackets=defaults.settings.nbrackets)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}.")
     return dict(zip(np.arange(len(df)), df.percent))
 
 
@@ -173,8 +173,8 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
     file_path, then supply the location, state_location, and country_location
     strings. If use_default, then we'll first try to look for location specific
     data and if that's not available we'll use default data from
-    settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -184,7 +184,7 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified household size distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the household size distribution data. Keys map to the
@@ -198,10 +198,10 @@ def get_household_size_distr(datadir, location=None, state_location=None, countr
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_household_size_distr_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_household_size_distr_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}.")
     return dict(zip(df.household_size, df.percent))
 
 
@@ -237,8 +237,8 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
     Get a dictionary of head age brackets either from the file_path directly, or
     using the other parameters to figure out what the file_path should be. If
     use_default, then we'll first try to look for location specific data and if
-    that's not available we'll use default data from settings_config.location,
-    settings_config.state_location, settings_config.country_location. This may not
+    that's not available we'll use default data from settings.location,
+    settings.state_location, settings.country_location. This may not
     be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -248,7 +248,7 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified head age brackets data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the age brackets for head of household distribution
@@ -262,11 +262,11 @@ def get_head_age_brackets(datadir, location=None, state_location=None, country_l
         age_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_head_age_brackets_path(datadir, location=location, state_location=defaults.settings_config.state_location,
-                                                   country_location=defaults.settings_config.country_location)
+            file_path = get_head_age_brackets_path(datadir, location=location, state_location=defaults.settings.state_location,
+                                                   country_location=defaults.settings.country_location)
             age_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return age_brackets
 
 
@@ -303,8 +303,8 @@ def get_household_head_age_by_size_df(datadir, location=None, state_location=Non
     Return a pandas df of head of household age by the size of the household. If
     the file_path is given return from there first. If use_default, then we'll
     first try to look for location specific data and if that's not available
-    we'll use default data from settings_config.location,
-    settings_config.state_location, settings_config.country_location. This may not
+    we'll use default data from settings.location,
+    settings.state_location, settings.country_location. This may not
     be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -314,7 +314,7 @@ def get_household_head_age_by_size_df(datadir, location=None, state_location=Non
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified data for the age of the head of the household by household size
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from the settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A file path to the head of household age by household size count or
@@ -326,10 +326,10 @@ def get_household_head_age_by_size_df(datadir, location=None, state_location=Non
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_household_head_age_by_size_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_household_head_age_by_size_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return df
 
 
@@ -338,8 +338,8 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
     Create an array of head of household age bracket counts (column) given by
     size (row). If use_default, then we'll first try to look for location
     specific data and if that's not available we'll use default data from the
-    settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -349,7 +349,7 @@ def get_head_age_by_size_distr(datadir, location=None, state_location=None, coun
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified age of the head of the household by household size distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         An array where each row s represents the age distribution of the head of
@@ -415,8 +415,8 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
     Get census age brackets: depends on the country or source of the age
     distribution and the contact pattern data. If use_default, then we'll first
     try to look for location specific data and if that's not available we'll use
-    default data from settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    default data from settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -426,14 +426,14 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
         state_location (string)   : name of the state
         country_location (string) : name of the country the state_location is in
         file_path (string)        : file path to user specified census age brackets
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the range of ages that map to each age bracket.
 
     """
     # if nbrackets is None:
-    #     nbrackets = defaults.settings_config.nbrackets
+    #     nbrackets = defaults.settings.nbrackets
 
     if file_path is None:
         file_path = get_census_age_brackets_path(datadir, location, state_location, country_location, nbrackets=nbrackets)
@@ -442,10 +442,10 @@ def get_census_age_brackets(datadir, location=None, state_location=None, country
         age_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_census_age_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location, nbrackets=nbrackets)
+            file_path = get_census_age_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location, nbrackets=nbrackets)
             age_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return age_brackets
 
 
@@ -505,7 +505,7 @@ def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimit
     """
     Create a dict of setting specific age contact matrices. If use_default, then
     we'll first try to look for location specific data and if that's not
-    available we'll use default data from settings_config.sheet_name. This may
+    available we'll use default data from settings.sheet_name. This may
     not be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -532,9 +532,9 @@ def get_contact_matrix_dic(datadir, sheet_name=None, file_path_dic=None, delimit
     except:
         if use_default:
             for setting_code in ['H', 'S', 'W', 'C']:
-                matrix_dic[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name=defaults.settings_config.sheet_name)
+                matrix_dic[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name=defaults.settings.sheet_name)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from the {defaults.settings_config.sheet_name}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from the {defaults.settings.sheet_name}.")
     return matrix_dic
 
 
@@ -569,8 +569,8 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
     """
     Get dictionary of enrollment rates by age. If use_default, then we'll first
     try to look for location specific data and if that's not available we'll use
-    default data from settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    default data from settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -580,7 +580,7 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified school enrollment by age data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of school enrollment rates by age.
@@ -592,10 +592,10 @@ def get_school_enrollment_rates(datadir, location=None, state_location=None, cou
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_school_enrollment_rates_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_school_enrollment_rates_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.Age, df.Percent))
 
 
@@ -632,8 +632,8 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
     """
     Get school size brackets: depends on the source/location of the data. If
     use_default, then we'll first try to look for location specific data and if
-    that's not available we'll use default data from settings_config.location,
-    settings_config.state_location, settings_config.country_location. This may not
+    that's not available we'll use default data from settings.location,
+    settings.state_location, settings.country_location. This may not
     be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -643,7 +643,7 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified school size brackets data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of school size brackets.
@@ -654,10 +654,10 @@ def get_school_size_brackets(datadir, location=None, state_location=None, countr
         school_size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_school_size_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_school_size_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             school_size_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return school_size_brackets
 
 
@@ -692,8 +692,8 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
     """
     Get distribution of school sizes by size bracket or bin. If use_default,
     then we'll first try to look for location specific data and if that's not
-    available we'll use default data from settings_config.location,
-    settings_config.state_location, settings_config.country_location. This may not
+    available we'll use default data from settings.location,
+    settings.state_location, settings.country_location. This may not
     be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -703,7 +703,7 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified school size distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the distribution of school sizes by bracket.
@@ -714,10 +714,10 @@ def get_school_size_distr_by_brackets(datadir, location=None, state_location=Non
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_school_size_distr_by_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_school_size_distr_by_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     size_distr = dict(zip(df.size_bracket, df.percent))
     size_distr = spb.norm_dic(size_distr)
 
@@ -793,7 +793,7 @@ def get_default_school_size_distr_brackets(): # pragma: no cover
         A dictionary of school size brackets.
 
     """
-    return get_school_size_brackets(defaults.settings_config.datadir, country_location=defaults.settings_config.country_location, use_default=True)
+    return get_school_size_brackets(defaults.settings.datadir, country_location=defaults.settings.country_location, use_default=True)
 
 
 def get_default_school_size_distr_by_type(): # pragma: no cover
@@ -809,7 +809,7 @@ def get_default_school_size_distr_by_type(): # pragma: no cover
     school_types = ['pk', 'es', 'ms', 'hs', 'uv']
 
     for k in school_types:
-        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(defaults.settings_config.datadir, country_location=defaults.settings_config.country_location, use_default=True)
+        school_size_distr_by_type[k] = get_school_size_distr_by_brackets(defaults.settings.datadir, country_location=defaults.settings.country_location, use_default=True)
 
     return school_size_distr_by_type
 
@@ -899,7 +899,7 @@ def get_school_type_age_ranges(datadir, location, state_location, country_locati
         if use_default:
             return get_default_school_type_age_ranges()
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
 
     z = zip(df.age_range_min, df.age_range_max)
     return dict(zip(df.school_type, [np.arange(i[0], i[1] + 1) for i in z]))
@@ -945,7 +945,7 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         file_path (string)        : file path to user specified distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of school size distributions binned by size groups or brackets for each type of default school.
@@ -965,11 +965,11 @@ def get_school_size_distr_by_type(datadir, location=None, state_location=None, c
     except Exception as E:
         if use_default:
             data = get_default_school_size_distr_by_type()  # convert to a static data file and then you can move data clean up to the end of the function
-            # file_path = get_school_size_distr_by_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            # file_path = get_school_size_distr_by_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             # f = open(file_path, 'r')
             # data = json.load(f)
         else:
-            raise ValueError(f"Data unavailable for the location specified ({str(E)}). Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise ValueError(f"Data unavailable for the location specified ({str(E)}). Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
 
     return data
 
@@ -1005,8 +1005,8 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
     """
     Get employment rates by age. If use_default, then we'll first try to look
     for location specific data and if that's not available we'll use default
-    data from settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    data from settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -1016,7 +1016,7 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         file_path (string)        : file path to user specified employment by age data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of employment rates by age.
@@ -1028,10 +1028,10 @@ def get_employment_rates(datadir, location, state_location, country_location, fi
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_employment_rates_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_employment_rates_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.Age, df.Percent))
 
 
@@ -1065,8 +1065,8 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
     """
     Get workplace size brackets. If use_default, then we'll first try to look
     for location specific data and if that's not available we'll use default
-    data from settings_config.location, settings_config.state_location,
-    settings_config.country_location. This may not be appropriate for the
+    data from settings.location, settings.state_location,
+    settings.country_location. This may not be appropriate for the
     population under study so it's best to provide as much data as you can for
     the specific population.
 
@@ -1076,7 +1076,7 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in, which should be the 'usa'
         file_path (string)        : file path to user specified workplace size brackets data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of workplace size brackets.
@@ -1088,10 +1088,10 @@ def get_workplace_size_brackets(datadir, location=None, state_location=None, cou
         workplace_size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_workplace_size_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_workplace_size_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             workplace_size_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return workplace_size_brackets
 
 
@@ -1126,8 +1126,8 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
     """
     Get the distribution of workplace size by brackets. If use_default, then
     we'll first try to look for location specific data and if that's not
-    available we'll use default data from settings_config.location,
-    settings_config.state_location, settings_config.country_location. This may not
+    available we'll use default data from settings.location,
+    settings.state_location, settings.country_location. This may not
     be appropriate for the population under study so it's best to provide as
     much data as you can for the specific population.
 
@@ -1137,7 +1137,7 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         state_location (string)   : name of the state the location is in
         country_location (string) : name of the country the location is in
         file_path (string)        : file path to user specified workplace size distribution data
-        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings_config.location, settings_config.state_location, settings_config.country_location.
+        use_default (bool)        : if True, try to first use the other parameters to find data specific to the location under study, otherwise returns default data drawing from settings.location, settings.state_location, settings.country_location.
 
     Returns:
         A dictionary of the distribution of workplace sizes by bracket.
@@ -1149,10 +1149,10 @@ def get_workplace_size_distr_by_brackets(datadir, location=None, state_location=
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_workplace_size_distr_by_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_workplace_size_distr_by_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.work_size_bracket, df.size_count))
 
 
@@ -1167,7 +1167,7 @@ def get_state_postal_code(state_location, country_location): # pragma: no cover
     Return:
         str: A postal code for the state_location.
     """
-    file_path = os.path.join(defaults.settings_config.datadir, country_location, 'postal_codes.csv')
+    file_path = os.path.join(defaults.settings.datadir, country_location, 'postal_codes.csv')
 
     df = pd.read_csv(file_path, delimiter=',')
     dic = dict(zip(df.state, df.postal_code))
@@ -1224,10 +1224,10 @@ def get_usa_long_term_care_facility_data(datadir, state_location=None, country_l
         df = pd.read_csv(file_path, header=2)
     except:
         if use_default:
-            file_path = get_usa_long_term_care_facility_path(datadir, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location, part=part)
+            file_path = get_usa_long_term_care_facility_path(datadir, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location, part=part)
             df = pd.read_csv(file_path, header=2)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return df
 
 
@@ -1280,10 +1280,10 @@ def get_long_term_care_facility_residents_distr(datadir, location=None, state_lo
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_residents_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_long_term_care_facility_residents_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path, header=0)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.bin, df.percent))
 
 
@@ -1337,10 +1337,10 @@ def get_long_term_care_facility_residents_distr_brackets(datadir, location=None,
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_residents_distr_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location,)
+            file_path = get_long_term_care_facility_residents_distr_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location,)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return size_brackets
 
 
@@ -1395,10 +1395,10 @@ def get_long_term_care_facility_resident_to_staff_ratios_distr(datadir, location
         df = pd.read_csv(file_path, header=0)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_long_term_care_facility_resident_to_staff_ratios_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path, header=0)
         else:
-            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise ValueError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.bin, df.percent))
 
 
@@ -1453,10 +1453,10 @@ def get_long_term_care_facility_resident_to_staff_ratios_brackets(datadir, locat
         size_brackets = get_age_brackets_from_df(file_path)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=defaults.settings_config.location, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_long_term_care_facility_resident_to_staff_ratios_brackets_path(datadir, location=defaults.settings.location, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             size_brackets = get_age_brackets_from_df(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.location}, {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.location}, {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return size_brackets
 
 
@@ -1511,8 +1511,8 @@ def get_long_term_care_facility_use_rates(datadir, state_location=None, country_
         df = pd.read_csv(file_path)
     except:
         if use_default:
-            file_path = get_long_term_care_facility_use_rates_path(datadir, state_location=defaults.settings_config.state_location, country_location=defaults.settings_config.country_location)
+            file_path = get_long_term_care_facility_use_rates_path(datadir, state_location=defaults.settings.state_location, country_location=defaults.settings.country_location)
             df = pd.read_csv(file_path)
         else:
-            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings_config.state_location}, {defaults.settings_config.country_location}.")
+            raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from {defaults.settings.state_location}, {defaults.settings.country_location}.")
     return dict(zip(df.Age, df.Percent))
