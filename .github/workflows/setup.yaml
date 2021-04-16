@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - windows**
 jobs:
   build:
     runs-on: ${{ matrix.os }}
