@@ -4,7 +4,8 @@ Defaults for synthpops files and data types.
 import sciris as sc
 import os
 
-# specify default valid probability distributions - users can easily supply their own list if interested
+# specify default valid probability distributions - users can easily supply
+# their own list if interested in other properties
 valid_probability_distributions = [
     'population_age_distributions',
     'household_size_distribution',
@@ -44,7 +45,9 @@ def default_datadir_path():
     return os.path.join(thisdir, os.pardir, 'data')
 
 
-# available globally if needed or via defaults.py
+# available globally if needed or via defaults.py --- stores information about
+# location information to search for data when unavailable for the location
+# specified or the parent locations specified
 settings_config = sc.objdict()
 
 settings_config.thisdir = os.path.dirname(os.path.abspath(__file__))
