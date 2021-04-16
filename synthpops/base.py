@@ -112,7 +112,7 @@ def count_ages(popdict):
     Returns:
         dict: Dictionary of the age count of the population.
     """
-    age_count = dict.fromkeys(np.arange(0, spd.settings_config.max_age), 0)
+    age_count = dict.fromkeys(np.arange(0, spd.settings.max_age), 0)
 
     for i, person in popdict.items():
         age_count[person['age']] += 1

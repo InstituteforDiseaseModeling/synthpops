@@ -9,11 +9,9 @@ import synthpops.schools as spsch
 
 # pytest.skip("Tests require refactoring - a few are calling the wrong functions to create data objects that go into other functions. This is why we are seeing indexing issues. ", allow_module_level=True)
 
-# if not sp.config.full_data_available:
-#     pytest.skip("Data not available, tests not possible", allow_module_level=True)
 
-# datadir = sp.datadir
-datadir = sp.settings_config.datadir
+datadir = sp.settings.datadir
+
 
 @pytest.mark.skip(reason='Deprecated functions')
 def test_all(location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America'):
@@ -23,7 +21,7 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
 
     sp.validate()  # Validate that data files can be found
     # dropbox_path = sp.datadir
-    dropbox_path = sp.settings_config.datadir
+    dropbox_path = sp.settings.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(dropbox_path, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(dropbox_path, location, state_location, country_location)
@@ -68,13 +66,13 @@ def test_all(location='seattle_metro', state_location='Washington', country_loca
 
     return
 
+
 @pytest.mark.skip(reason='Deprecated functions')
 def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='Washington', country_location='usa'):
 
     sc.heading('Running single ages')
     sp.validate()
-    # datadir = sp.datadir
-    datadir = sp.settings_config.datadir
+    datadir = sp.settings.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
@@ -94,12 +92,12 @@ def test_n_single_ages(n_people=1e4, location='seattle_metro', state_location='W
 
     return
 
+
 @pytest.mark.skip(reason='Deprecated functions')
 def test_multiple_ages(n_people=1e4, location='seattle_metro', state_location='Washington', country_location='usa'):
     sc.heading('Running multiple ages')
 
-    # datadir = sp.datadir
-    datadir = sp.settings_config.datadir
+    datadir = sp.settings.datadir
 
     age_bracket_distr = spdd.read_age_bracket_distr(datadir, location, state_location, country_location)
     gender_fraction_by_age = sp.read_gender_fraction_by_age_bracket(datadir, location, state_location, country_location)
@@ -136,6 +134,7 @@ def test_generate_household_sizes(location='seattle_metro', state_location='Wash
     hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth, household_size_distr)
     assert len(hh_sizes) == 7
 
+
 @pytest.mark.skip(reason='Deprecated functions')
 def test_generate_household_sizes_from_fixed_pop_size(location='seattle_metro', state_location='Washington',
                                                       country_location='usa'):
@@ -144,6 +143,7 @@ def test_generate_household_sizes_from_fixed_pop_size(location='seattle_metro', 
     Nhomes = 1000
     hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(Nhomes, household_size_distr)
     assert len(hh_sizes) == 7
+
 
 @pytest.mark.skip(reason='Deprecated functions')
 def test_generate_all_households(location='seattle_metro', state_location='Washington',
@@ -179,6 +179,7 @@ def test_get_totalpopsizes_from_household_sizes(location='seattle_metro', state_
     hh_sizes = sp.generate_household_sizes(Nhomes_to_sample_smooth, household_size_distr)
     sum_hh_sizes = sp.get_totalpopsize_from_household_sizes(hh_sizes)
     assert sum_hh_sizes is not None
+
 
 @pytest.mark.skip(reason='Deprecated functions')
 def test_generate_larger_households(location='seattle_metro', state_location='Washington',
@@ -470,8 +471,7 @@ def test_generate_school_sizes(location='seattle_metro', state_location='Washing
 if __name__ == '__main__':
     sc.tic()
 
-    # datadir = sp.datadir
-    datadir = sp.settings_config.datadir
+    datadir = sp.settings.datadir
     n = 1000
     location = 'seattle_metro'  # for census distributions
     state_location = 'Washington'  # for state wide age mixing patterns

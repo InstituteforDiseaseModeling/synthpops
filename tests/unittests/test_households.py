@@ -17,8 +17,7 @@ from synthpops import data_distributions as spdd
 # and each test case will validate the properties of the population named "seapop_500"
 seapop_500 = sp.generate_synthetic_population(
     n=500,
-    # datadir=sp.datadir,
-    datadir = sp.settings.datadir,
+    datadir=sp.settings.datadir,
     location='seattle_metro',
     state_location='Washington',
     country_location='usa',
