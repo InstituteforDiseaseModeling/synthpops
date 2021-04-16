@@ -35,23 +35,23 @@ pars = sc.objdict(
 def create_pop():
     return sp.Pop(**pars)
 
-def test_plots(do_plot=False):
+def test_plots(create_pop, do_plot=False):
     ''' Basic plots '''
     if not do_plot:
         plt.switch_backend('agg')  # Plot but don't show
-    pop = sp.Pop(n=settings.pop_sizes.small_medium)  # default parameters, 5k people
+    pop = create_pop  # default parameters, 5k people
     fig1 = pop.plot_people()  # equivalent to cv.Sim.people.plot()
     fig2 = pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
     return [fig1, fig2]
 
 
-def test_calculate_contact_matrix_errors():
+def test_calculate_contact_matrix_errors(create_pop):
     """
     Test that synthpops.plotting.calculate_contact_matrix raises an error when
     density_or_frequency is neither 'density' nor 'frequency'.
     """
     sp.logger.info("Catch ValueError when density_or_frequency is not 'density' or 'frequency'.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     with pytest.raises(ValueError):
         pop.plot_contacts(density_or_frequency='neither')
 
@@ -122,7 +122,7 @@ def test_plot_array():
     print('Check passed. Figure made with sp.plot_array() with other options.')
 
 
-def test_pop_without_plkwargs():
+def test_pop_without_plkwargs(create_pop):
     """
     Test that plotting_kwargs will be added to sp.Pop class objects if it does
     not have it already.
@@ -132,7 +132,7 @@ def test_pop_without_plkwargs():
         tell the method where to look for expected data.
     """
     sp.logger.info("Test that plotting_kwargs will be added to sp.Pop object if it does not have it already.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
 
     # reset plkwargs to None
     pop.plkwargs = None
@@ -146,7 +146,7 @@ def test_pop_without_plkwargs():
     print('Check passed. Figure 1 made.')
 
 
-def test_plot_with_cvpeople(do_show=False, do_save=False):
+def test_plot_with_cvpeople(create_pop, do_show=False, do_save=False):
     """
     Test plotting method works on covasim.people.People object.
 
@@ -155,7 +155,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
         tell the method where to look for expected data.
     """
     sp.logger.info("Test that the age comparison plotting method works on cv.people.People and plotting styles can be easily updated.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     popdict = pop.to_dict()
     cvpopdict = cv.make_synthpop(population=popdict, community_contacts=2)  # array based
 
@@ -281,7 +281,7 @@ def test_plot_workplace_sizes(create_pop, do_show=False, do_save=False):
     return fig, ax, pop
 
 
-def test_household_head_ages_by_size(do_show=False, do_save=False):
+def test_household_head_ages_by_size(create_pop, do_show=False, do_save=False):
     """
     Test that the household head age distribution by household size comparison plotting method in sp.Pop class works.
 
@@ -293,7 +293,7 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
         Matplotlib figure, axes, and pop object.
     """
     sp.logger.info("Test the age distribution of household heads by the household size.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.figname = f"test_household_head_ages_by_size_{kwargs.location}_pop"
     kwargs.do_show = do_show
@@ -335,9 +335,9 @@ def test_plot_contact_counts(do_show=False, do_save=False):
     print('Check passed. Figures made.')
 
 
-def test_plot_contact_counts_on_pop(do_show=False, do_save=False):
+def test_plot_contact_counts_on_pop(create_pop, do_show=False, do_save=False):
     sp.logger.info("Test plot_contact_counts on sp.Pop object.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     contact_counter = pop.get_contact_counts_by_layer(layer='S')
     kwargs = sc.objdict()
     kwargs.do_show = do_show
