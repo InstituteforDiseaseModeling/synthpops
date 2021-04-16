@@ -8,7 +8,7 @@ return_popdict = True
 use_default = False
 
 # datadir = sp.datadir
-datadir = sp.default_config.datadir
+datadir = sp.settings_config.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'

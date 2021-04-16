@@ -18,7 +18,7 @@ from synthpops import data_distributions as spdd
 seapop_500 = sp.generate_synthetic_population(
     n=500,
     # datadir=sp.datadir,
-    datadir = sp.default_config.datadir,
+    datadir = sp.settings_config.datadir,
     location='seattle_metro',
     state_location='Washington',
     country_location='usa',
@@ -40,8 +40,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         np.random.seed(0)
         self.is_debugging = False
-        # self.d_datadir = sp.datadir
-        self.d_datadir = sp.default_config.datadir
+        self.d_datadir = sp.settings_config.datadir
         self.d_location = "seattle_metro"
         self.d_state_location = "Washington"
         self.d_country_location = "usa"
@@ -191,7 +190,7 @@ class HouseholdsTest(unittest.TestCase):
         self.is_debugging = False
         age_brackets = spdd.get_census_age_brackets(
             # datadir=sp.datadir,
-            datadir = sp.default_config.datadir,
+            datadir = sp.settings_config.datadir,
             state_location="Washington",
             country_location="usa",
             use_default=False
@@ -255,7 +254,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         contact_matrix = sp.get_contact_matrix_dic(
             # datadir=sp.datadir,
-            datadir = sp.default_config.datadir,
+            datadir = sp.settings_config.datadir,
             sheet_name="United States of America"
         )
         for layer in ['H', 'S', 'W', 'C']:
@@ -499,7 +498,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         sea_sex_age_brackets = sp.read_gender_fraction_by_age_bracket(
             # datadir=sp.datadir,
-            datadir = sp.default_config.datadir,
+            datadir = sp.settings_config.datadir,
             state_location=self.d_state_location,
             location=self.d_location,
             country_location=self.d_country_location
@@ -516,7 +515,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         sea_age_brackets = spdd.read_age_bracket_distr(
             # sp.datadir,
-            sp.default_config.datadir,
+            sp.settings_config.datadir,
             location=self.d_location,
             state_location=self.d_state_location,
             country_location=self.d_country_location
@@ -534,7 +533,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         census_age_brackets = sp.get_census_age_brackets(
             # sp.datadir,
-            sp.default_config.datadir,
+            sp.settings_config.datadir,
             state_location=self.d_state_location,
             country_location=self.d_country_location
         )

@@ -1237,7 +1237,7 @@ def count_enrollment_by_age(popdict):
     Returns:
         dict: Dictionary of the count of enrolled students by age in popdict.
     """
-    enrollment_count_by_age = dict.fromkeys(np.arange(0, defaults.default_config.max_age), 0)
+    enrollment_count_by_age = dict.fromkeys(np.arange(0, defaults.settings_config.max_age), 0)
     for i, person in popdict.items():
         if person['scid'] is not None and person['sc_student']:
             enrollment_count_by_age[person['age']] += 1

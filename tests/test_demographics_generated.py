@@ -40,8 +40,8 @@ def test_age_distribution_used():
     pop = sp.Pop(**pars)
     loc_pars = pop.loc_pars
     age_dist = sp.read_age_bracket_distr(**loc_pars)
-    assert len(age_dist) == sp.default_config.nbrackets, f'Check failed, len(age_dist): {len(age_dist)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
-    print(f'Check passed, len(age_dist): {len(age_dist)} == sp.config.nbrackets: {sp.default_config.nbrackets}.')
+    assert len(age_dist) == sp.settings_config.nbrackets, f'Check failed, len(age_dist): {len(age_dist)} does not match sp.config.nbrackets: {sp.config.nbrackets}.'
+    print(f'Check passed, len(age_dist): {len(age_dist)} == sp.config.nbrackets: {sp.settings_config.nbrackets}.')
 
     return pop
 
@@ -62,7 +62,7 @@ def test_age_brackets_used_with_contact_matrix():
 
     loc_pars = pop.loc_pars
 
-    contact_matrix_dic = sp.get_contact_matrix_dic(sp.default_config.datadir, sheet_name=sheet_name)
+    contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings_config.datadir, sheet_name=sheet_name)
     contact_matrix_nbrackets = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape[0]
     cm_age_brackets = sp.get_census_age_brackets(**sc.mergedicts(loc_pars, {'nbrackets': contact_matrix_nbrackets}))
     assert contact_matrix_nbrackets == len(cm_age_brackets), f'Check failed, len(contact_matrix_nbrackets): {contact_matrix_nbrackets} does not match len(cm_age_brackets): {len(cm_age_brackets)}.'
@@ -87,7 +87,7 @@ def test_older_ages_have_household_contacts():
     pop_dict = pop.to_dict()
     loc_pars = pop.loc_pars
 
-    contact_matrix_dic = sp.get_contact_matrix_dic(sp.default_config.datadir, sheet_name=pop.sheet_name)
+    contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings_config.datadir, sheet_name=pop.sheet_name)
 
     contact_matrix_nbrackets = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape[0]
     cm_age_brackets = sp.get_census_age_brackets(**sc.mergedicts(loc_pars, {'nbrackets': contact_matrix_nbrackets}))

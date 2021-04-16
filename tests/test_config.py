@@ -8,7 +8,8 @@ import sciris as sc
 def test_version():
     sp.logger.info("Testing that version info is returned.")
     sp.version_info()
-    print(sp.default_config.country_location)
+    print(sp.settings_config.country_location)
+
 
 def test_metadata():
     sp.logger.info("Testing that the version is greater than 1.5.0")
@@ -19,18 +20,18 @@ def test_metadata():
 def test_nbrackets():
     sp.logger.info("Testing that nbrackets can be set outside of the recommended range and warning message returned.")
 
-    nbrackets = max(min(sp.default_config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
+    nbrackets = max(min(sp.settings_config.valid_nbracket_ranges), 2)  # make sure new nbrackets is at least 2
     sp.set_nbrackets(n=nbrackets - 1)  # testing a valid outside the range currently supported.
-    assert nbrackets - 1 == sp.default_config.nbrackets,f'Check failed. sp.config.nbrackets not set to {nbrackets-1} outside of the official supported range.'
-    print(f'Check passed. synthpops.default_config.nbrackets updated to {nbrackets-1} outside of the official supported range.')
+    assert nbrackets - 1 == sp.settings_config.nbrackets,f'Check failed. sp.settings_config.nbrackets not set to {nbrackets-1} outside of the official supported range.'
+    print(f'Check passed. synthpops.settings_config.nbrackets updated to {nbrackets-1} outside of the official supported range.')
 
     sp.set_nbrackets(n=nbrackets)  # resetting to the default value
-    assert nbrackets == sp.default_config.nbrackets,f'Check failed. sp.default_config.nbrackets not reset to {nbrackets}.'
-    print(f'Check passed. Reset default synthpops.default_config.nbrackets.')
+    assert nbrackets == sp.settings_config.nbrackets,f'Check failed. sp.settings_config.nbrackets not reset to {nbrackets}.'
+    print(f'Check passed. Reset default synthpops.settings_config.nbrackets.')
 
 
 def test_validate_datadir():
-    sp.logger.info("Testing that synthpops.datadir can be found.")
+    sp.logger.info("Testing that synthpops.settings_config.datadir can be found.")
     sp.validate_datadir()
     sp.validate_datadir(verbose=False)
 
@@ -39,12 +40,12 @@ def test_set_datadir():
     sp.logger.info("Testing set_datadir still works in essence.")
     datadir = sp.set_datadir('not_spdatadir')
 
-    assert datadir != sp.default_datadir_path(), "Check failed. datadir set still equal to default sp.default_config.datadir"
+    assert datadir != sp.default_datadir_path(), "Check failed. datadir set still equal to default sp.setting_config.datadir"
     print("Check passed. New datadir set different from synthpops default.")
 
     datadir = sp.set_datadir(sp.default_datadir_path())
-    assert datadir == sp.default_datadir_path() and datadir == sp.default_config.datadir, "Check failed. datadir did not reset to default sp.default_config.datadir"
-    print("Check passed. datadir reset to synthpops default and sp.default_config.datadir reset.")
+    assert datadir == sp.default_datadir_path() and datadir == sp.settings_config.datadir, "Check failed. datadir did not reset to default sp.settings_config.datadir"
+    print("Check passed. datadir reset to synthpops default and sp.settings_config.datadir reset.")
 
 
 def test_log_level():
@@ -58,11 +59,11 @@ def test_log_level():
 def test_set_location_defaults():
     """Testing that sp.set_location_defaults() works as expected"""
     sp.set_location_defaults('Senegal')
-    assert sp.default_config.country_location == 'Senegal', f"Check failed. sp.default_config.country_location did not set to 'Senegal'."
-    print(f"Check passed. sp.default_config.country_location set to 'Senegal'.")
+    assert sp.settings_config.country_location == 'Senegal', f"Check failed. sp.settings_config.country_location did not set to 'Senegal'."
+    print(f"Check passed. sp.settings_config.country_location set to 'Senegal'.")
     sp.set_location_defaults('defaults')
-    assert sp.default_config.country_location == 'usa', f"Check failed. sp.default_config.country_location did not set to 'usa'."
-    print(f"Check passed. sp.default_config.country_location set to 'usa'.")
+    assert sp.settings_config.country_location == 'usa', f"Check failed. sp.settings_config.country_location did not set to 'usa'."
+    print(f"Check passed. sp.settings_config.country_location set to 'usa'.")
 
 
 def test_pakistan():
@@ -72,18 +73,18 @@ def test_pakistan():
     use for data gaps (we're not supplying all data).
     """
     sp.set_location_defaults('Pakistan')
-    assert sp.default_config.country_location == 'usa', 'Check failed. Defaults are not set as expected.'
+    assert sp.settings_config.country_location == 'usa', 'Check failed. Defaults are not set as expected.'
     print('Defaults still set to default usa location information.')
 
     # this data does not actually exist yet
     new_defaults = dict(location=None, state_location=None, country_location='Pakistan')
-    sp.reset_default_config(new_defaults)
-    assert sp.default_config.country_location == 'Pakistan', 'Check failed. Default location information did not update to Pakistan.'
+    sp.reset_settings_config(new_defaults)
+    assert sp.settings_config.country_location == 'Pakistan', 'Check failed. Default location information did not update to Pakistan.'
     print('Defaults update to Pakistan location information.')
 
     # reset the global parameters
-    sp.reset_default_config(sp.default_data['defaults'])
-    assert sp.default_config.country_location == 'usa', 'Reset failed.'
+    sp.reset_settings_config(sp.default_data['defaults'])
+    assert sp.settings_config.country_location == 'usa', 'Reset failed.'
     print('Reset to original defaults.')
 
 

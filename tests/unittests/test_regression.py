@@ -58,7 +58,7 @@ class TestRegression(unittest.TestCase):
         cls.pdfDir = sc.thisdir(__file__, "regression", "report")
         cls.expectedDir = sc.thisdir(__file__, "regression", "expected")
         # cls.datadir = sp.datadir
-        cls.datadir = sp.default_config.datadir
+        cls.datadir = sp.settings_config.datadir
         shutil.rmtree(cls.pdfDir, ignore_errors=True)
         os.makedirs(cls.pdfDir, exist_ok=True)
 

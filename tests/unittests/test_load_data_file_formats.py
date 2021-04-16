@@ -6,7 +6,7 @@ import synthpops as sp
 from synthpops import data_distributions as spdd
 
 # sp_datadir = sp.datadir
-sp_datadir = sp.default_config.datadir
+sp_datadir = sp.settings_config.datadir
 
 import unittest
 

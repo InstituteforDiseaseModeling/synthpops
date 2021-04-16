@@ -112,7 +112,7 @@ def count_ages(popdict):
     Returns:
         dict: Dictionary of the age count of the population.
     """
-    age_count = dict.fromkeys(np.arange(0, spd.default_config.max_age), 0)
+    age_count = dict.fromkeys(np.arange(0, spd.settings_config.max_age), 0)
 
     for i, person in popdict.items():
         age_count[person['age']] += 1
@@ -163,7 +163,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
 
     ::
 
-        age_brackets = sp.get_census_age_brackets(sp.default_config.datadir,state_location='Washington',country_location='usa')
+        age_brackets = sp.get_census_age_brackets(sp.settings_config.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
         aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)

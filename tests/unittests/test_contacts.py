@@ -7,8 +7,7 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
-# datadir = sp.datadir
-datadir = sp.default_config.datadir
+datadir = sp.settings_config.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'

@@ -4,7 +4,7 @@ import synthpops as sp
 from synthpops import data_distributions as spdd
 
 # datadir = sp.datadir
-datadir = sp.default_config.datadir
+datadir = sp.settings_config.datadir
 location = 'seattle_metro'
 state_location = 'Washington'
 country_location = 'usa'
