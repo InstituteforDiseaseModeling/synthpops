@@ -91,3 +91,16 @@ def reset_settings(new_config):
     """
     for key, value in new_config.items():
         reset_settings_by_key(key, value)
+
+
+def reset_default_settings():
+    """
+    By default, synthpops uses default settings for Seattle, Washington, USA.
+    After having changed the values in the settings dictionary, calling this
+    method can easily reset the settings dictionary to the values for Seattle,
+    Washington, USA.
+
+    Returns:
+        None
+    """
+    reset_settings(default_data['defaults'])
