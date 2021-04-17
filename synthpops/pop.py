@@ -302,7 +302,7 @@ class Pop(sc.prettyobj):
         # Handle homes and facilities
         homes = facilities + homes
         homes_by_uids, age_by_uid_dic = sphh.assign_uids_by_homes(homes)  # include facilities to assign ids
-        age_by_uid = [age_by_uid_dic[i] for i in range(self.n)]
+        age_by_uid = np.array([age_by_uid_dic[i] for i in range(self.n)])
         self.age_by_uid = age_by_uid
 
         facilities_by_uids = homes_by_uids[0:len(facilities)]
