@@ -456,3 +456,7 @@ def get_contact_counts_by_layer(popdict,
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     return contact_counter
+
+
+# def count_layer_degree(popdict, layer='H'):
+    
