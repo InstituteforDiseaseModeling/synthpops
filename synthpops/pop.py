@@ -475,6 +475,13 @@ class Pop(sc.prettyobj):
         self.summary.workplace_sizes = self.get_workplace_sizes()
         self.summary.workplace_size_count = self.count_workplace_sizes()
 
+    def compute_advanced_summary(self):
+        """
+        Computing an advanced summary of the population.
+
+        """
+        return
+
     def count_pop_ages(self):
         """
         Create an age count of the generated population post generation.
