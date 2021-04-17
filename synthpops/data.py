@@ -177,7 +177,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
         parent_obj = load_location_from_filepath(parent_file_path)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.warning(f"You may have an invalid data configuration: couldn't load parent "
+        logger.debug(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
