@@ -458,35 +458,57 @@ def get_contact_counts_by_layer(popdict,
     return contact_counter
 
 
-def count_layer_degree(pop, layer='H', ages=None, uids=None):
-
+def filter_people(pop, ages=None, uids=None):
+    """
+    Helper function to filter people based on their uid and age.
+    """
+    uid_mask = Ellipsis
     if uids is not None:
-        uid_filter = [True if i in uids else False for i in range(pop.n)]
-        # uids = np.array(uids)
-    else:
-        # uids = Ellipsis
-        uid_filter = Ellipsis
+        uid_mask = [True if i in uids else False for i in range(pop.n)]
 
+    age_mask = Ellipsis
     if ages is not None:
-        age_filter = [True if a in ages else False for a in pop.age_by_uid]
-    else:
-        age_filter = Ellipsis
-
-    # r = pop.age_by_uid[uids]
-    # r = pop.age_by_uid[age_filter]
-
-    # r = np.argwhere(pop.age_by_uid[age_filter])
-    # r = np.argwhere(age_filter)
-
-    # print('uid_filter', uid_filter)
+        age_mask = [True if a in ages else False for a in pop.age_by_uid]
 
     mask = Ellipsis
-    if uid_filter is Ellipsis:
-        mask = np.array(age_filter)
-    elif age_filter is Ellipsis:
-        mask = np.array(uid_filter)
-    elif uid_filter is not Ellipsis and age_filter is not Ellipsis:
-        mask = np.array(np.multiply(uid_filter, age_filter))
+    if uid_mask is Ellipsis:
+        mask = np.array(age_mask)
+    elif age_mask is Ellipsis:
+        mask = np.array(uid_mask)
+    elif uid_mask is not Ellipsis and age_mask is not Ellipsis:
+        mask = np.multiply(uid_mask, age_mask)
+        mask = np.array(mask)
 
-    print('mask', mask.sum())
-    print(np.array(Ellipsis).sum())
+    return np.arange(pop.n)[mask]
+
+
+def count_layer_degree(pop, layer='H', ages=None, uids=None):
+
+    # if uids is not None:
+    #     uid_filter = [True if i in uids else False for i in range(pop.n)]
+    # else:
+    #     uid_filter = Ellipsis
+
+    # if ages is not None:
+    #     age_filter = [True if a in ages else False for a in pop.age_by_uid]
+    # else:
+    #     age_filter = Ellipsis
+
+    # mask = Ellipsis
+    # if uid_filter is Ellipsis:
+    #     mask = np.array(age_filter)
+    # elif age_filter is Ellipsis:
+    #     mask = np.array(uid_filter)
+    # elif uid_filter is not Ellipsis and age_filter is not Ellipsis:
+    #     mask = np.array(np.multiply(uid_filter, age_filter))
+
+    # print('mask', mask.sum())
+    # print(np.array(Ellipsis).sum())
+
+    # uids_included = np.arange(pop.n)[mask]
+    # print(uids_included)
+
+    uids_included = filter_people(pop, ages, uids)
+
+    print(uids_included)
+
