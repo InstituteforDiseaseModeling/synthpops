@@ -4,6 +4,7 @@ This module generates the household, school, and workplace contact networks.
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 import networkx as nx
 from . import data_distributions as spdata
 from . import schools as spsch
@@ -489,7 +490,11 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
 
     layers = sc.tolist(layers)
 
-    degree = [[] for i in range(pop.max_age)]
+    # degree = [[] for i in range(pop.max_age)]
+
+    # instead let's create a table
+    degree_dicts = []
+
     for i in uids_included:
         a = pop.age_by_uid[i]
         nc = 0
@@ -498,22 +503,22 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
             nc += len(pop.popdict[i]['contacts'][layer])
             ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
-        degree[a].append(nc)
+        degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
 
-    for a in range(pop.max_age):
-        degree[a] = np.array(degree[a])
+    degree_df = pd.DataFrame(degree_dicts)
 
-    return degree
+    return degree_df
 
 
-def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree=None, q=[0.05, 0.5, 0.95]):
+def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
 
-    if degree is None:
-        degree = count_layer_degree(pop, layers, ages, uids, uids_included)
+    if degree_df is None:
+        degree_df = count_layer_degree(pop, layers, ages, uids, uids_included)
 
     stats = {}
 
     for qi in q:
-        stats[qi] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
+        stats[qi] = degree_df.groupby('age').quantile(qi)
+        # stats[qi] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
 
     return stats
