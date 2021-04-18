@@ -472,9 +472,9 @@ def filter_people(pop, ages=None, uids=None):
 
     mask = Ellipsis
     if uid_mask is Ellipsis:
-        mask = np.array(age_mask)
+        mask = age_mask
     elif age_mask is Ellipsis:
-        mask = np.array(uid_mask)
+        mask = uid_mask
     elif uid_mask is not Ellipsis and age_mask is not Ellipsis:
         mask = np.multiply(uid_mask, age_mask)
         mask = np.array(mask)
@@ -498,12 +498,12 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
             nc += len(pop.popdict[i]['contacts'][layer])
             ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
-        # print(i, a, nc, ca)
         degree[a].append(nc)
+        # print(a, nc, ca)
 
-    # for a in ages:
-        # print(a, degree[a])
-    print(len(degree))
+    for a in range(pop.max_age):
+        degree[a] = np.array(degree[a])
+
     return degree
 
 
@@ -512,10 +512,10 @@ def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_
     if degree is None:
         degree = count_layer_degree(pop, layers, ages, uids, uids_included)
 
-    # stats = [[] for a in range(pop.n)]
     stats = {}
-    stats['mean'] = np.array([np.mean(degree[a]) for a in degree])
 
+    stats[0.5] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
+    stats[alpha] = np.array([np.quantile(degree[a], alpha) if len(degree[a]) else np.nan for a in range(pop.max_age)])
+    stats[1 - alpha] = np.array([np.quantile(degree[a], 1 - alpha) if len(degree[a]) else np.nan for a in range(pop.max_age)])
 
-
-
+    return stats
