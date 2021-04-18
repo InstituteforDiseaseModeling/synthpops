@@ -463,6 +463,7 @@ def filter_people(pop, ages=None, uids=None):
     """
     Helper function to filter people based on their uid and age.
     """
+
     uid_mask = Ellipsis
     if uids is not None:
         uid_mask = [True if i in uids else False for i in range(pop.n)]
@@ -483,37 +484,41 @@ def filter_people(pop, ages=None, uids=None):
     return np.arange(pop.n)[mask]
 
 
-def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None):
+def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None):
 
     if uids_included is None:
         uids_included = filter_people(pop, ages, uids)
 
-    layers = sc.tolist(layers)
+    # layers = sc.tolist(layers)
 
-    # degree = [[] for i in range(pop.max_age)]
+    layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
 
     # instead let's create a table
     degree_dicts = []
 
     for i in uids_included:
         a = pop.age_by_uid[i]
-        nc = 0
-        ca = []
-        for layer in layers:
-            nc += len(pop.popdict[i]['contacts'][layer])
-            ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
+        # nc = 0
+        # ca = []
+        # for layer in layers:
+        if pop.popdict[i][layerid_mapping[layer]] is not None:
+            nc = len(pop.popdict[i]['contacts'][layer])
+            ca = [pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]]
+            # nc += len(pop.popdict[i]['contacts'][layer])
+            # ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
-        degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
+
+            degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
 
     degree_df = pd.DataFrame(degree_dicts)
 
     return degree_df
 
 
-def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
+def compute_layer_degree_statistics(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
 
     if degree_df is None:
-        degree_df = count_layer_degree(pop, layers, ages, uids, uids_included)
+        degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
 
     stats = {}
 
