@@ -11,7 +11,7 @@ import seaborn as sns
 
 
 pars = sc.objdict(
-    n                       = 10e3,
+    n                       = 50e3,
     rand_seed               = 123,
     smooth_ages             = 1,
 
@@ -45,6 +45,8 @@ def test_count_layer_degree():
     # ages = [95, 89, 90, 91]
     # ages = np.arange(5, 25)
     degree_df = sp.count_layer_degree(pop, layer, ages, uids)
+    print(degree_df.loc[degree_df['age'] == 20])
+
     # sc.tic()
     # stats = sp.compute_layer_degree_statistics(pop, degree_df=degree_df)
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
@@ -57,13 +59,16 @@ def test_count_layer_degree():
     #                                           shade=True, alpha=.5, legend=False)
 
     kwargs = sc.objdict()
-    # kwargs.xlim = [0, 20]
+    kwargs.xlim = [4, 30]
+    kwargs.figname='hex_degree'
+    kwargs.do_save=1
+
 
     # kind = 'scatter'
     # kind = 'reg'
     kind = 'hex'
 
-    fig, ax = sp.plot_degree_by_age(pop, layers=layer, degree_df=degree_df, kind=kind, **kwargs)
+    g = sp.plot_degree_by_age(pop, layers=layer, degree_df=degree_df, kind=kind, **kwargs)
 
 
     # fig, axes = plt.subplots(1, 3, figsize=(12, 3), sharex=True, sharey=True)

@@ -1728,29 +1728,31 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     if degree_df is None:
         degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
 
-    # layers = sc.tolist(layers)
-
     plkwargs = plotting_kwargs()
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.9,
                                  thresh=0.01, cbar=True, shade=True,
-                                 xlim=[0, 101],
-                                 title_prefix=f"Degree by Age for Layer: {layer}"
-                                 # title_prefix=f"Degree by Age for Layers: {''.join(layers)}"
+                                 xlim=[0, 101], height=5, ratio=5,
+                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
 
-    # fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
-    # fig.subplots_adjust(**plkwargs.axis)
-
-    interval = 10
+    interval = 5
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
+    min_y = int(np.floor(min(degree_df['degree'].values) / interval) * interval)
+
+    max_b = max(max_y, plkwargs.xlim[-1])
+
+    max_y = 35
+    min_y = 9
 
     if kind == 'kde':
 
         g = sns.jointplot(x='age', y='degree', data=degree_df, cmap=plkwargs.cmap, alpha=plkwargs.alpha,
                           kind=kind, shade=plkwargs.shade, thresh=plkwargs.thresh,
                           color=plkwargs.cmap(0.9), xlim=plkwargs.xlim, ylim=[0, max_y],
+                          height=plkwargs.height, ratio=plkwargs.ratio, bins=np.arange(0, max_b),
                           space=0)
         # sns.kdeplot(x=degree_df['age'], y=degree_df['degree'], cmap=plkwargs.cmap,
         #             shade=True, ax=ax, alpha=plkwargs.alpha, thresh=plkwargs.thresh,
@@ -1758,23 +1760,34 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
 
     elif kind == 'scatter':
         g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), alpha=plkwargs.alpha,
-                          kind=kind, xlim=plkwargs.xlim, ylim=[0, max_y], space=0)
+                          kind=kind, xlim=plkwargs.xlim, ylim=[0, max_y], ratio=plkwargs.ratio,
+                          height=plkwargs.height, space=0,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
 
     elif kind == 'reg':
-        g = sns.jointplot(x='age', y='degree', data=degree_df, cmap=plkwargs.cmap, alpha=plkwargs.alpha,
-                          kind=kind, xlim=plkwargs.xlim, ylim=[0, max_y], space=0)
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), alpha=plkwargs.alpha,
+                          kind=kind, xlim=plkwargs.xlim, ylim=[0, max_y], ratio=plkwargs.ratio,
+                          height=plkwargs.height, space=0,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
 
     elif kind == 'hex':
-        g = sns.jointplot(x='age', y='degree', data=degree_df, cmap=plkwargs.cmap, kind=kind, xlim=plkwargs.xlim,
-                          ylim=[0, max_y], space=0)
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), cmap=plkwargs.cmap,
+                          alpha=plkwargs.alpha, kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y],
+                          ratio=plkwargs.ratio, height=plkwargs.height, space=0,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
 
     g.plot_marginals(sns.kdeplot, color=plkwargs.cmap(0.75), shade=plkwargs.shade, alpha=plkwargs.alpha * 0.8, legend=False)
+
+    g.fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize+2, horizontalalignment='left')
+    g.ax_marg_y.tick_params(labelsize=plkwargs.fontsize)
+    g.ax_marg_x.tick_params(labelsize=plkwargs.fontsize)
 
     # ax.set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize+2)
     # ax.set_xlim(0, pop.max_age)
     # ax.set_ylim(0, max_y)
 
-    # finalize_figure(fig, plkwargs)
-
-    # return fig, ax
-    return g, []
+    finalize_figure(g.fig, plkwargs)
+    return g
