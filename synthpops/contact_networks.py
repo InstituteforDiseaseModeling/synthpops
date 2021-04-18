@@ -482,33 +482,24 @@ def filter_people(pop, ages=None, uids=None):
     return np.arange(pop.n)[mask]
 
 
-def count_layer_degree(pop, layer='H', ages=None, uids=None):
+def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None):
 
-    # if uids is not None:
-    #     uid_filter = [True if i in uids else False for i in range(pop.n)]
-    # else:
-    #     uid_filter = Ellipsis
+    if uids_included is None:
+        uids_included = filter_people(pop, ages, uids)
 
-    # if ages is not None:
-    #     age_filter = [True if a in ages else False for a in pop.age_by_uid]
-    # else:
-    #     age_filter = Ellipsis
+    layers = sc.tolist(layers)
 
-    # mask = Ellipsis
-    # if uid_filter is Ellipsis:
-    #     mask = np.array(age_filter)
-    # elif age_filter is Ellipsis:
-    #     mask = np.array(uid_filter)
-    # elif uid_filter is not Ellipsis and age_filter is not Ellipsis:
-    #     mask = np.array(np.multiply(uid_filter, age_filter))
+    degree = [[] for a in range(pop.n)]
+    for i in uids_included:
+        a = pop.age_by_uid[i]
+        nc = 0
+        ca = []
+        for layer in layers:
+            nc += len(pop.popdict[i]['contacts'][layer])
+            ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
-    # print('mask', mask.sum())
-    # print(np.array(Ellipsis).sum())
+        print(i, a, nc, ca)
+        degree[a].append(nc)
 
-    # uids_included = np.arange(pop.n)[mask]
-    # print(uids_included)
-
-    uids_included = filter_people(pop, ages, uids)
-
-    print(uids_included)
-
+    for a in ages:
+        print(a, degree[a])
