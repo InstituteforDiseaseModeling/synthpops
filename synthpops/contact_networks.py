@@ -499,7 +499,6 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
             ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
         degree[a].append(nc)
-        # print(a, nc, ca)
 
     for a in range(pop.max_age):
         degree[a] = np.array(degree[a])
@@ -507,15 +506,14 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
     return degree
 
 
-def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree=None, alpha=0.05):
+def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree=None, q=[0.05, 0.5, 0.95]):
 
     if degree is None:
         degree = count_layer_degree(pop, layers, ages, uids, uids_included)
 
     stats = {}
 
-    stats[0.5] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
-    stats[alpha] = np.array([np.quantile(degree[a], alpha) if len(degree[a]) else np.nan for a in range(pop.max_age)])
-    stats[1 - alpha] = np.array([np.quantile(degree[a], 1 - alpha) if len(degree[a]) else np.nan for a in range(pop.max_age)])
+    for qi in q:
+        stats[qi] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
 
     return stats
