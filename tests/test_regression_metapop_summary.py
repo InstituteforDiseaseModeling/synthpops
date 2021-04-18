@@ -63,8 +63,8 @@ def test_count_layer_degree():
     kwargs.figname='hex_degree'
     kwargs.do_save=1
 
-
-    # kind = 'scatter'
+    # kind = 'kde'
+    # kind = 'hist'
     # kind = 'reg'
     kind = 'hex'
 
