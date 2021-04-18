@@ -177,6 +177,8 @@ class Pop(sc.prettyobj):
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
 
+        self.max_age = defaults.settings.max_age
+
         # if country is specified, and state is not, we are doing a country population
         if self.state_location is None:
             self.location = None

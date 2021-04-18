@@ -489,7 +489,7 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
 
     layers = sc.tolist(layers)
 
-    degree = [[] for a in range(pop.n)]
+    degree = [[] for i in range(pop.max_age)]
     for i in uids_included:
         a = pop.age_by_uid[i]
         nc = 0
@@ -498,8 +498,24 @@ def count_layer_degree(pop, layers='H', ages=None, uids=None, uids_included=None
             nc += len(pop.popdict[i]['contacts'][layer])
             ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
 
-        print(i, a, nc, ca)
+        # print(i, a, nc, ca)
         degree[a].append(nc)
 
-    for a in ages:
-        print(a, degree[a])
+    # for a in ages:
+        # print(a, degree[a])
+    print(len(degree))
+    return degree
+
+
+def compute_layer_degree_statistics(pop, layers='H', ages=None, uids=None, uids_included=None, degree=None, alpha=0.05):
+
+    if degree is None:
+        degree = count_layer_degree(pop, layers, ages, uids, uids_included)
+
+    # stats = [[] for a in range(pop.n)]
+    stats = {}
+    stats['mean'] = np.array([np.mean(degree[a]) for a in degree])
+
+
+
+
