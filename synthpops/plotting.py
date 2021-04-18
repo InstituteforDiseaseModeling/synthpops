@@ -1720,9 +1720,11 @@ def plot_contact_counts(contact_counter, **kwargs):
     return fig, axes
 
 
+# dev / analysis tool
 def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, kind='kde', **kwargs):
+    """
 
-    # dev/analysis tool
+    """
     if degree_df is None:
         degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
 
@@ -1863,6 +1865,7 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
             axes[ni].set_ylim(min_y, max_y)
             axes[ni].set_title(f'Pop: {ni},  Layer: {layer}', fontsize=plkwargs.fontsize)
 
+    finalize_figure(fig, plkwargs)
 
     return fig, axes
 
