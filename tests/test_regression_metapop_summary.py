@@ -93,12 +93,36 @@ def test_count_layer_degree():
 
 def test_plot_degree_by_age_methods(layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing the different plotting methods to show the degree distribution by age for a single population.")
-
+    # age on x axis, degree distribution on y axis
     pop = sp.Pop(**pars)
+    kwargs = sc.objdict(do_show=do_show, do_save=do_save)
 
     ages = None
     uids = None
-    
+
+    uids_included = None
+
+    degree_df = sp.count_layer_degree(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included)
+
+    # kde seaborn jointplot
+    gkde = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, degree_df=degree_df, kind='kde', **kwargs)
+
+    # hist seaborn jointplot
+    ghist = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, degree_df=degree_df, kind='hist', **kwargs)
+
+    # reg seaborn joint
+    greg = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, degree_df=degree_df, kind='reg', **kwargs)
+
+    # hex seaborn joint
+    # extra features: can limit the ages or uids, then just don't include the degree_df and it will calculate a new one with those filters applied
+    age = np.arange(3, 76)
+    kwargs.xlim = [3, 75]
+    ghex = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, kind='hex', **kwargs)
+
+    ages = np.arange(15, 76)
+    fig, axboxplot = sp.plotting.plot_degree_by_age_boxplot(pop, layer='W', ages=ages, **kwargs)
+
+    return gkde, ghist, greg, ghex, axboxplot
 
 
 def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
@@ -134,4 +158,6 @@ if __name__ == '__main__':
 
     # test_count_layer_degree()
 
-    test_multiple_degree_histplots(do_show=True)
+    # test_multiple_degree_histplots(do_show=True)
+
+    gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)

@@ -1747,14 +1747,13 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
                           kind=kind, shade=plkwargs.shade, thresh=plkwargs.thresh,
                           color=plkwargs.cmap(0.9), xlim=plkwargs.xlim, ylim=[0, max_y],
                           height=plkwargs.height, ratio=plkwargs.ratio, space=0, levels=20,
-                          marginal_kws=dict(bins=np.arange(0, max_b))
                           )
 
     elif kind == 'hist':
         g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), cmap=plkwargs.cmap,
                           alpha=plkwargs.alpha, kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y],
                           ratio=plkwargs.ratio, height=plkwargs.height, space=0,
-                          bins=max_b,
+                          # bins=max_b,
                           marginal_kws=dict(bins=np.arange(0, max_b)),
                           )
 
@@ -1784,7 +1783,7 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     return g
 
 
-def plot_degree_by_age_2(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, **kwargs):
+def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, **kwargs):
 
     # dev/analysis tool
     if degree_df is None:
@@ -1793,16 +1792,21 @@ def plot_degree_by_age_2(pop, layer='H', ages=None, uids=None, uids_included=Non
     plkwargs = plotting_kwargs()
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
-                                 shade=True, xlim=[0, 101], height=5, ratio=5,
+                                 shade=True, xlim=[0, 101], height=7,
                                  title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.height, plkwargs.height))
+    ax = sns.boxplot(x='age', y='degree', data=degree_df, palette=[plkwargs.cmap(0.5)], ax=ax)
+    ax.set_xticks(np.arange(plkwargs.xlim[0], plkwargs.xlim[1], 10))
+    ax.set_xlim(plkwargs.xlim)
+    ax.set_title('Workplace Degree Distribution', fontsize=plkwargs.fontsize+2)
+    ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Degree', fontsize=plkwargs.fontsize)
+    finalize_figure(fig, plkwargs)
 
-    ax = sns.boxplot(x='age', y='degree', data=degree_df, palette = [plkwargs.cmap(0.5)])
-    ax.set_xticks(np.arange(0, 101, 10))
-    ax.set_xlim(0, 101)
-    return ax
+    return fig, ax
 
 
 def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwargs):
