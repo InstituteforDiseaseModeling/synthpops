@@ -45,10 +45,18 @@ def test_count_layer_degree():
     assert list(degree_df.columns.values) == ['uid', 'age', 'degree', 'contact_ages'], 'Check failed.'
     print('Check passed.')
 
-    stats = sp.compute_layer_degree_statistics(pop, degree_df=degree_df)
-    for qi, st in stats.items():
-        assert list(st.columns.values) == ['uid', 'degree'], 'Check failed.'
-        print(f'Check passed. quantile {qi} created for uid (not relevant) and degree (relevant).')
+    desc = sp.compute_layer_degree_description(pop, degree_df=degree_df)
+    cols = list(desc.columns.values)
+    expected_cols = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
+    for exc in expected_cols:
+        assert exc in cols, f'Check failed. {exc} not found in description columns.'
+    print('Check passed. Found all expected columns.')
+
+    stats_ci = sp.compute_layer_degree_ci(pop, degree_df=degree_df)
+    expected_cols = [0.05, 0.5, 0.95]
+    for exc in expected_cols:
+        assert exc in stats_ci.keys(), f"Check failed. key {exc} not found."
+    print('Check passed. Found all expected values for 95CI calculation.')
     return pop
 
 

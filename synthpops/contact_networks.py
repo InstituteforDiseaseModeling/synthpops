@@ -491,7 +491,7 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
 
     layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
 
-    # instead let's create a table
+    # let's create a table
     degree_dicts = []
 
     for i in uids_included:
@@ -507,7 +507,16 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
     return degree_df
 
 
-def compute_layer_degree_statistics(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
+def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None):
+
+    if degree_df is None:
+        degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    d = degree_df.groupby('age')['degree'].describe()
+    return d
+
+
+def compute_layer_degree_ci(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
 
     if degree_df is None:
         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
@@ -515,6 +524,6 @@ def compute_layer_degree_statistics(pop, layer='H', ages=None, uids=None, uids_i
     stats = {}
 
     for qi in q:
-        stats[qi] = degree_df.groupby('age').quantile(qi)
+        stats[qi] = degree_df.groupby('age')['degree'].quantile(qi)
 
     return stats

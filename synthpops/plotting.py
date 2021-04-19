@@ -1755,7 +1755,6 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
         g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), cmap=plkwargs.cmap,
                           alpha=plkwargs.alpha, kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y],
                           ratio=plkwargs.ratio, height=plkwargs.height, space=0,
-                          # bins=max_b,
                           marginal_kws=dict(bins=np.arange(0, max_b)),
                           )
 

@@ -116,27 +116,27 @@ class Pop(sc.prettyobj):
         log.debug('Pop()')
 
         # Assign all the variables
-        self.loc_pars                  = sc.objdict()
-        self.school_pars               = sc.objdict()
-        self.ltcf_pars                 = sc.objdict()
+        self.loc_pars           = sc.objdict()
+        self.school_pars        = sc.objdict()
+        self.ltcf_pars          = sc.objdict()
 
         # General parameters
-        self.n                         = int(n)
-        self.max_contacts              = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code        = with_industry_code
-        self.rand_seed                 = rand_seed
-        self.country_location          = country_location
-        self.state_location            = state_location
-        self.location                  = location
-        self.sheet_name                = sheet_name
-        self.use_default               = use_default
+        self.n                  = int(n)
+        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code = with_industry_code
+        self.rand_seed          = rand_seed
+        self.country_location   = country_location
+        self.state_location     = state_location
+        self.location           = location
+        self.sheet_name         = sheet_name
+        self.use_default        = use_default
 
         # Age distribution parameters
-        self.smooth_ages               = smooth_ages
-        self.window_length             = window_length
+        self.smooth_ages        = smooth_ages
+        self.window_length      = window_length
 
         # Household parameters
-        self.household_method          = household_method
+        self.household_method   = household_method
 
         # School parameters
         self.school_pars.with_school_types               = with_school_types
@@ -163,6 +163,13 @@ class Pop(sc.prettyobj):
         # If any parameters are supplied as a dict to override defaults, merge them in now
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
         self.ltcf_pars   = sc.objdict(sc.mergedicts(self.ltcf_pars, ltcf_pars))
+
+        # what are the layers generated?
+        if self.ltcf_pars.with_facilities:
+            self.layers = ['H', 'S', 'W', 'LTCF']
+        else:
+            self.layers = ['H', 'S', 'W']
+        self.layer_mappings = dict(H='Households', S='Schools', W='Workplaces', LTCF='Long Term Care facilities')
 
         # Handle the seed
         if self.rand_seed is not None:
@@ -480,10 +487,25 @@ class Pop(sc.prettyobj):
         self.summary.workplace_sizes = self.get_workplace_sizes()
         self.summary.workplace_size_count = self.count_workplace_sizes()
 
-    def compute_advanced_summary(self):
-        """
-        Computing an advanced summary of the population."""
+        # Computing an advanced summary of the population
+        self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
+        self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+        self.summary.layer_degrees = dict()
+        self.summary.layer_stats = dict()
+        self.summary.layer_degree_description = dict()
+
+        for layer in self.layers:
+            self.summary.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
+            self.summary.layer_stats[layer] = self.summary.layer_degrees[layer].describe()[['age', 'degree']]
+            self.summary.layer_degree_description[layer] = self.summary.layer_degrees[layer].groupby('age')['degree'].describe()
+
         return
+
+    def summarize(self):
+        """Print brief summary of the pop."""
+        print(f"Average age: {self.summary.average_age:.2f} +/- {self.summary.std_age:.2f} years old.")
+        print(f"")
+
 
     def count_pop_ages(self):
         """
