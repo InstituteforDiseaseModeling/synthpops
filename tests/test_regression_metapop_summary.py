@@ -4,17 +4,16 @@ Test advanced regression method
 import numpy as np
 import sciris as sc
 import synthpops as sp
-import covasim as cv
 import matplotlib as mplt
 import matplotlib.pyplot as plt
-import seaborn as sns
+import settings
 
 mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
 mplt.use('Agg')
 
 
 pars = sc.objdict(
-    n                       = 5e3,
+    n                       = settings.pop_sizes.small_medium,
     rand_seed               = 123,
     smooth_ages             = 1,
 
@@ -47,16 +46,11 @@ def test_count_layer_degree():
 
     desc = sp.compute_layer_degree_description(pop, degree_df=degree_df)
     cols = list(desc.columns.values)
-    expected_cols = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
+    expected_cols = ['count', 'mean', 'std', 'min', '5%', '25%', '50%', '75%', '95%', 'max']
     for exc in expected_cols:
         assert exc in cols, f'Check failed. {exc} not found in description columns.'
     print('Check passed. Found all expected columns.')
 
-    stats_ci = sp.compute_layer_degree_ci(pop, degree_df=degree_df)
-    expected_cols = [0.05, 0.5, 0.95]
-    for exc in expected_cols:
-        assert exc in stats_ci.keys(), f"Check failed. key {exc} not found."
-    print('Check passed. Found all expected values for 95CI calculation.')
     return pop
 
 
@@ -131,7 +125,7 @@ def test_plot_degree_by_age_stats(do_show=False, do_save=False):
     sp.logger.info("Testing plots of the statistics on the degree distribution by age summaries.")
 
     test_pars = sc.dcp(pars)
-    test_pars.n = 20e3
+    test_pars.n = settings.pop_sizes.medium
     pop = sp.Pop(**test_pars)
     kwargs = dict(do_show=do_show, do_save=do_save)
     if kwargs['do_show']:
@@ -144,10 +138,10 @@ def test_plot_degree_by_age_stats(do_show=False, do_save=False):
 
 if __name__ == '__main__':
 
-    # test_count_layer_degree()
+    test_count_layer_degree()
 
-    # test_multiple_degree_histplots(do_show=True)
+    test_multiple_degree_histplots(do_show=True)
 
-    # gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
+    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(do_show=True)
 
     fig, ax = test_plot_degree_by_age_stats(do_show=1)
