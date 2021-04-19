@@ -22,11 +22,11 @@ pars = sc.objdict(
     with_school_types       = 1,
 
     school_mixing_type      = {'pk': 'random',
-                          'es': 'random',
-                          'ms': 'random',
-                          'hs': 'random',
-                          'uv': 'random'
-                          },
+                               'es': 'random',
+                               'ms': 'random',
+                               'hs': 'random',
+                               'uv': 'random'
+                               },
 
 )
 
@@ -38,56 +38,9 @@ def test_count_layer_degree():
     layer = 'S'
     ages = None
     uids = None
-    # uids = [0, 1]
-    # ages = [95, 89, 90, 91]
-    # ages = np.arange(5, 25)
     degree_df = sp.count_layer_degree(pop, layer, ages, uids)
-    # print(degree_df.loc[degree_df['age'] == 20])
 
-    # stats = sp.compute_layer_degree_statistics(pop, degree_df=degree_df)
-    cmap = sns.cubehelix_palette(light=1, as_cmap=True)
-    # cmap = mplt.cm.get_cmap('mako_r')
-
-    # g = sns.jointplot(x="age", y="degree", data=degree_df, cmap=cmap, alpha=0.75,
-    #                   xlim=[0, 101], kind='kde', shade=True, thresh=0.01,
-    #                   color=cmap(0.9), ylim=[0, 6],
-    #                   space=0).plot_marginals(sns.kdeplot, color=cmap(0.75),
-    #                                           shade=True, alpha=.5, legend=False)
-
-    kwargs = sc.objdict()
-    # kwargs.xlim = [3, 70]
-    kwargs.figname = 'hex_degree'
-    kwargs.do_save = 1
-
-    # kind = 'kde'
-    kind = 'hist'
-    # kind = 'reg'
-    # kind = 'hex'
-
-    # g = sp.plotting.plot_degree_by_age(pop, layer=layer, degree_df=degree_df, kind=kind, **kwargs)
-
-    # ax = sp.plotting.plot_degree_by_age_2(pop, layer=layer, degree_df=degree_df, **kwargs)
-    # fig, axes = plt.subplots(1, 3, figsize=(12, 3), sharex=True, sharey=True)
-    # fig.subplots_adjust(left=0.06, right=0.97, bottom=0.15)
-
-    # pars2 = sc.dcp(pars)
-    # pars2['rand_seed'] = 0
-    # # alpha = 0.95
-    # # thresh = 0.001
-    # pop2 = sp.Pop(**pars2)
-    # # degree_df2 = sp.count_layer_degree(pop2, layer, ages, uids)
-    # # cmap2 = sns.cubehelix_palette(rot=0.3, light=1, as_cmap=True)
-
-    # pars3 = sc.dcp(pars)
-    # pars3['rand_seed'] = 1
-    # pop3 = sp.Pop(**pars3)
-    # # degree_df3 = sp.count_layer_degree(pop3, layer, ages, uids)
-    # # cmap3 = sns.cubehelix_palette(rot=0.2, light=1, as_cmap=True)
-
-    # # # g.plot_joint(sns.kdeplot, data=degree_df2, cmap=cmap2, alpha=0.75, xlim=[0, 101], kind='kde', shade=True, thresh=0.01, color=cmap2(0.9), ylim=[0, 6], space=0).plot_marginals(sns.kdeplot, color=cmap2(0.75), shade=True, alpha=0.5, legend=False)
-
-    plt.show()
-
+    stats = sp.compute_layer_degree_statistics(pop, degree_df=degree_df)
     return pop
 
 

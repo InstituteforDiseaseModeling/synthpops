@@ -489,8 +489,6 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
     if uids_included is None:
         uids_included = filter_people(pop, ages, uids)
 
-    # layers = sc.tolist(layers)
-
     layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
 
     # instead let's create a table
@@ -498,16 +496,10 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
 
     for i in uids_included:
         a = pop.age_by_uid[i]
-        # nc = 0
-        # ca = []
-        # for layer in layers:
+
         if pop.popdict[i][layerid_mapping[layer]] is not None:
             nc = len(pop.popdict[i]['contacts'][layer])
             ca = [pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]]
-            # nc += len(pop.popdict[i]['contacts'][layer])
-            # ca.extend([pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]])
-
-
             degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
 
     degree_df = pd.DataFrame(degree_dicts)
@@ -524,6 +516,5 @@ def compute_layer_degree_statistics(pop, layer='H', ages=None, uids=None, uids_i
 
     for qi in q:
         stats[qi] = degree_df.groupby('age').quantile(qi)
-        # stats[qi] = np.array([np.mean(degree[a]) if len(degree[a]) else np.nan for a in range(pop.max_age)])
 
     return stats
