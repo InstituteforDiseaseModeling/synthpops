@@ -122,6 +122,7 @@ if __name__ == '__main__':
 
     test_count_layer_degree()
 
-    # test_multiple_degree_histplots(do_show=True)
+    test_multiple_degree_histplots(do_show=True)
 
-    # gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
+    gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
+

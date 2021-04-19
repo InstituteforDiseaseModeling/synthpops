@@ -482,9 +482,7 @@ class Pop(sc.prettyobj):
 
     def compute_advanced_summary(self):
         """
-        Computing an advanced summary of the population.
-
-        """
+        Computing an advanced summary of the population."""
         return
 
     def count_pop_ages(self):

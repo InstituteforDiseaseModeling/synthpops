@@ -1729,8 +1729,9 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
         degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
 
     plkwargs = plotting_kwargs()
-    cmap = sns.cubehelix_palette(light=1, as_cmap=True)
-    method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
+    # cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+    cmap = mplt.cm.get_cmap("rocket")
+    method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.0001, cbar=True,
                                  shade=True, xlim=[0, 101], height=5, ratio=5,
                                  title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
@@ -1739,13 +1740,14 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
 
     interval = 5
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
-    min_y = int(np.floor(min(degree_df['degree'].values) / interval) * interval)
+    # min_y = int(np.floor(min(degree_df['degree'].values) / interval) * interval)
+    min_y = min(degree_df['degree'].values)
     max_b = max(max_y, plkwargs.xlim[-1])
 
     if kind == 'kde':
         g = sns.jointplot(x='age', y='degree', data=degree_df, cmap=plkwargs.cmap, alpha=plkwargs.alpha,
                           kind=kind, shade=plkwargs.shade, thresh=plkwargs.thresh,
-                          color=plkwargs.cmap(0.9), xlim=plkwargs.xlim, ylim=[0, max_y],
+                          color=plkwargs.cmap(0.9), xlim=plkwargs.xlim, ylim=[min_y, max_y],
                           height=plkwargs.height, ratio=plkwargs.ratio, space=0, levels=20,
                           )
 
@@ -1758,8 +1760,8 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
                           )
 
     elif kind == 'reg':
-        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), #alpha=plkwargs.alpha,
-                          kind=kind, xlim=plkwargs.xlim, ylim=[0, max_y], ratio=plkwargs.ratio,
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.3), #alpha=plkwargs.alpha,
+                          kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y], ratio=plkwargs.ratio,
                           height=plkwargs.height, space=0,
                           marginal_kws=dict(bins=np.arange(0, max_b)),
                           )
@@ -1772,7 +1774,7 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
                           marginal_kws=dict(bins=np.arange(0, max_b)),
                           )
 
-    g.plot_marginals(sns.kdeplot, color=plkwargs.cmap(0.75), shade=plkwargs.shade, alpha=plkwargs.alpha * 0.8, legend=False)
+    g.plot_marginals(sns.kdeplot, color=plkwargs.cmap(0.5), shade=plkwargs.shade, alpha=plkwargs.alpha * 0.8, legend=False)
 
     g.fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize+1.5, horizontalalignment='left')
     g.ax_joint.set_xlabel('Age', fontsize=plkwargs.fontsize)
