@@ -507,7 +507,7 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
     return degree_df
 
 
-def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None):
+def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=[0.05, 0.25, 0.5, 0.75, 0.95]):
 
     if degree_df is None:
         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
@@ -516,14 +516,14 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
     return d
 
 
-def compute_layer_degree_ci(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
+# def compute_layer_degree_ci(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
 
-    if degree_df is None:
-        degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
+#     if degree_df is None:
+#         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
 
-    stats = {}
+#     stats = {}
 
-    for qi in q:
-        stats[qi] = degree_df.groupby('age')['degree'].quantile(qi)
+#     for qi in q:
+#         stats[qi] = degree_df.groupby('age')['degree'].quantile(qi)
 
-    return stats
+#     return stats

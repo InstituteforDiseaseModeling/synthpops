@@ -499,7 +499,7 @@ class Pop(sc.prettyobj):
             self.summary.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
             self.summary.layer_stats[layer] = self.summary.layer_degrees[layer].describe()[['age', 'degree']]
             self.summary.layer_degree_description[layer] = self.summary.layer_degrees[layer].groupby('age')['degree'].describe()
-            self.summary.layer_degree_ci[layer] = spcnx.compute_layer_degree_ci(self, degree_df=self.summary.layer_degrees[layer])
+            # self.summary.layer_degree_ci[layer] = spcnx.compute_layer_degree_ci(self, degree_df=self.summary.layer_degrees[layer])
 
         return
 
