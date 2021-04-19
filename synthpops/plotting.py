@@ -1890,26 +1890,25 @@ def plot_degree_by_age_stats(pop, **kwargs):
 
     fig, axs = plt.subplots(nrows, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
     fig.subplots_adjust(**plkwargs.axis)
-    # cmap = mplt.cm.get_cmap('cmr.heat')
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
 
     for nl, layer in enumerate(pop.layers):
 
         x = np.arange(pop.max_age)
         s = pop.summary.layer_degree_description[layer]
-        k = pop.summary.layer_degree_ci[layer]
+        ylo = [s.loc[s.index == a]['5%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y25 = [s.loc[s.index == a]['25%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
         y = [s.loc[s.index == a]['mean'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
-        ylo = [s.loc[s.index == a]['25%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
-        yhi = [s.loc[s.index == a]['75%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y75 = [s.loc[s.index == a]['75%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        yhi = [s.loc[s.index == a]['95%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+
         y = np.array(y)
-        color = cmap(0.25 + 0.2 * nl)
-        # axs[nl].bar(x, y, color=cmap(0.25 + 0.2 * nl))
-        # axs[nl].plot(x, y, color=color, marker='o', markeredgecolor='white', markerfacecolor=color)
-        axs[nl].fill_between(x, ylo, yhi, color=color, alpha=plkwargs.alpha)
-        # print(ylo)
-        # print(yhi)
-        # print(y)
-        print(k)
+        color = cmap(0.3 + 0.15 * nl)
+
+        axs[nl].fill_between(x, ylo, yhi, color=color, alpha=plkwargs.alpha * 0.6, lw=0)
+        axs[nl].fill_between(x, y25, y75, color=color, alpha=plkwargs.alpha * 0.8, lw=0)
+        axs[nl].plot(x, y, color=color, lw=2)
+
         axs[nl].set_xlim(plkwargs.xlim)
         axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)
 

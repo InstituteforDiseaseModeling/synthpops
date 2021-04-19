@@ -512,7 +512,7 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
     if degree_df is None:
         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
 
-    d = degree_df.groupby('age')['degree'].describe()
+    d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d
 
 

@@ -128,7 +128,7 @@ def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
 
 def test_plot_degree_by_age_stats(do_show=False, do_save=False):
 
-    sp.logger.info("Testing plots for 95CI of degree distribution by age.")
+    sp.logger.info("Testing plots of the statistics on the degree distribution by age summaries.")
 
     test_pars = sc.dcp(pars)
     test_pars.n = 20e3
