@@ -126,11 +126,28 @@ def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     return fig, axes, fig2, axes2
 
 
+def test_plot_degree_by_age_stats(do_show=False, do_save=False):
+
+    sp.logger.info("Testing plots for 95CI of degree distribution by age.")
+
+    test_pars = sc.dcp(pars)
+    test_pars.n = 20e3
+    pop = sp.Pop(**test_pars)
+    kwargs = dict(do_show=do_show, do_save=do_save)
+    if kwargs['do_show']:
+        plt.switch_backend(mplt_org_backend)
+    fig, ax = sp.plotting.plot_degree_by_age_stats(pop, **kwargs)
+    plt.switch_backend('agg')
+
+    return fig, ax
+
+
 if __name__ == '__main__':
 
-    test_count_layer_degree()
+    # test_count_layer_degree()
 
-    test_multiple_degree_histplots(do_show=True)
+    # test_multiple_degree_histplots(do_show=True)
 
-    gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
+    # gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
 
+    fig, ax = test_plot_degree_by_age_stats(do_show=1)

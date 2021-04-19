@@ -1875,4 +1875,44 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
     return fig, axes
 
 
+def plot_degree_by_age_stats(pop, **kwargs):
 
+    plkwargs = plotting_kwargs()
+    method_defaults = sc.objdict(alpha=0.8, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
+                                 subplot_height=2.2, subplot_width=6, left=0.06, right=0.97,
+                                 bottom=0.08, top=0.92, hspace=0.5, )
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    nrows = len(pop.layers)
+
+    plkwargs.height = nrows * plkwargs.subplot_height
+    plkwargs.width = plkwargs.subplot_width
+
+    fig, axs = plt.subplots(nrows, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+    # cmap = mplt.cm.get_cmap('cmr.heat')
+    cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+
+    for nl, layer in enumerate(pop.layers):
+
+        x = np.arange(pop.max_age)
+        s = pop.summary.layer_degree_description[layer]
+        k = pop.summary.layer_degree_ci[layer]
+        y = [s.loc[s.index == a]['mean'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        ylo = [s.loc[s.index == a]['25%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        yhi = [s.loc[s.index == a]['75%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y = np.array(y)
+        color = cmap(0.25 + 0.2 * nl)
+        # axs[nl].bar(x, y, color=cmap(0.25 + 0.2 * nl))
+        # axs[nl].plot(x, y, color=color, marker='o', markeredgecolor='white', markerfacecolor=color)
+        axs[nl].fill_between(x, ylo, yhi, color=color, alpha=plkwargs.alpha)
+        # print(ylo)
+        # print(yhi)
+        # print(y)
+        print(k)
+        axs[nl].set_xlim(plkwargs.xlim)
+        axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)
+
+    finalize_figure(fig, plkwargs)
+
+    return fig, axs
