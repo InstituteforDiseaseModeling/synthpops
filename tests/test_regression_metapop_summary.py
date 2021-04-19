@@ -9,6 +9,9 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
+mplt.use('Agg')
+
 
 pars = sc.objdict(
     n                       = 5e3,
@@ -32,15 +35,20 @@ pars = sc.objdict(
 
 
 def test_count_layer_degree():
-
+    sp.logger.info("Testing degree_df and quantile stats calculating method for degree distribution by age.")
     pop = sp.Pop(**pars)
 
     layer = 'S'
     ages = None
     uids = None
     degree_df = sp.count_layer_degree(pop, layer, ages, uids)
+    assert list(degree_df.columns.values) == ['uid', 'age', 'degree', 'contact_ages'], 'Check failed.'
+    print('Check passed.')
 
     stats = sp.compute_layer_degree_statistics(pop, degree_df=degree_df)
+    for qi, st in stats.items():
+        assert list(st.columns.values) == ['uid', 'degree'], 'Check failed.'
+        print(f'Check passed. quantile {qi} created for uid (not relevant) and degree (relevant).')
     return pop
 
 
@@ -56,6 +64,9 @@ def test_plot_degree_by_age_methods(layer='S', do_show=False, do_save=False):
     uids_included = None
 
     degree_df = sp.count_layer_degree(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included)
+
+    if kwargs.do_show:
+        plt.switch_backend(mplt_org_backend)
 
     # kde seaborn jointplot
     gkde = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, degree_df=degree_df, kind='kde', **kwargs)
@@ -109,8 +120,8 @@ def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
 
 if __name__ == '__main__':
 
-    # test_count_layer_degree()
+    test_count_layer_degree()
 
     # test_multiple_degree_histplots(do_show=True)
 
-    gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
+    # gkde, ghist, greg, ghex, axboxplot = test_plot_degree_by_age_methods(do_show=True)
