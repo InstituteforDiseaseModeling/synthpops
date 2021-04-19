@@ -27,6 +27,13 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.7.4 (2020-04-19)
+--------------------------
+- *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
+- Also added is ``pop.summarize()`` which will print to screen a brief description of the population generated using SynthPops.
+- *Github* : PR `442 <https://github.com/amath-idm/synthpops/pull/442>`__ 
+
+
 Version 1.7.3 (2021-04-16)
 --------------------------
 - *Fix*: Restructured how default location parameters are stored; now moved from ``sp.config.py`` into a dictionary available from ``sp.defaults.py``. Methods added in ``sp.defaults.py`` to reset these values to user specified information.

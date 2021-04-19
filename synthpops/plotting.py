@@ -1723,15 +1723,31 @@ def plot_contact_counts(contact_counter, **kwargs):
 # dev / analysis tool
 def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, kind='kde', **kwargs):
     """
+    Method to plot the layer degree distribution by age using different seaborns
+    jointplot styles.
 
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        kind (str)                   : seaborn jointplot style
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
     """
     if degree_df is None:
         degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
 
     plkwargs = plotting_kwargs()
-    # cmap = sns.cubehelix_palette(light=1, as_cmap=True)
-    cmap = mplt.cm.get_cmap("rocket")
-    method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.0001, cbar=True,
+    # default_cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+    default_cmap = mplt.cm.get_cmap("rocket")
+    method_defaults = sc.objdict(cmap=default_cmap, alpha=0.99, thresh=0.0001, cbar=True,
                                  shade=True, xlim=[0, 101], height=5, ratio=5,
                                  title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
@@ -1784,9 +1800,25 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     return g
 
 
+# dev / analysis tool
 def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, **kwargs):
+    """
+    Method to plot the boxplot of the layer degree distribution by age.
 
-    # dev/analysis tool
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
     if degree_df is None:
         degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
 
@@ -1810,8 +1842,27 @@ def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_includ
     return fig, ax
 
 
+# dev / analysis tool
 def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwargs):
+    """
+    Method to plot the layer degree distribution by age for a list of different
+    populations using some available seaborns jointplot styles. Used for visual
+    comparison of the degree distribution for populations created with different
+    conditions (e.g. random seed or other population parameters).
 
+    Args:
+        pop_list (list)       : list of populations to visually compare
+        layer (str)           : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)  : ages of people to include
+        degree_df (dataframe) : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        kind (str)            : seaborn jointplot style
+        **cmap (colormap)     : colormap
+        **do_show (bool)      : If True, show the plot
+        **do_save (bool)      : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
     plkwargs = plotting_kwargs()
     method_defaults = sc.objdict(alpha=0.99, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
                                  subplot_height=3, subplot_width=3.1, left=0.06, right=0.97, bottom=0.15)
@@ -1832,7 +1883,6 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
     interval = 5
 
     for ni, pop in enumerate(pop_list):
-        # print(axes_list[ni], 'ji')
         cmap = sns.cubehelix_palette(light=1, as_cmap=True, rot=(ni+1) * 0.1)
         degree_dfi = spcnx.count_layer_degree(pop, layer=layer, ages=ages)
         max_y = int(np.ceil(max(degree_dfi['degree'].values) / interval) * interval)
@@ -1875,8 +1925,25 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
     return fig, axes
 
 
+# dev / analysis tool
 def plot_degree_by_age_stats(pop, **kwargs):
+    """
+    Method to plot percentile ranges of the layer degree distribution by age.
 
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
     plkwargs = plotting_kwargs()
     method_defaults = sc.objdict(alpha=0.8, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
                                  subplot_height=2.2, subplot_width=6, left=0.06, right=0.97,
@@ -1907,7 +1974,7 @@ def plot_degree_by_age_stats(pop, **kwargs):
 
         axs[nl].fill_between(x, ylo, yhi, color=color, alpha=plkwargs.alpha * 0.6, lw=0)
         axs[nl].fill_between(x, y25, y75, color=color, alpha=plkwargs.alpha * 0.8, lw=0)
-        axs[nl].plot(x, y, color=color, lw=2)
+        axs[nl].plot(x, y, color=color, lw=1.5)
 
         axs[nl].set_xlim(plkwargs.xlim)
         axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)

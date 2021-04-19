@@ -462,6 +462,14 @@ def get_contact_counts_by_layer(popdict,
 def filter_people(pop, ages=None, uids=None):
     """
     Helper function to filter people based on their uid and age.
+
+    Args:
+        pop (sp.Pop)         : population
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+
+    Returns:
+        array: An array of the ids of people to include for further analysis.
     """
 
     uid_mask = Ellipsis
@@ -485,13 +493,26 @@ def filter_people(pop, ages=None, uids=None):
 
 
 def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None):
+    """
+    Create a dataframe from the population of people in the layer, including
+    their uid, age, degree, and the ages of contacts in the layer.
 
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of people in the layer including uid, age,
+        degree, and the ages of contacts in the layer.
+    """
     if uids_included is None:
         uids_included = filter_people(pop, ages, uids)
 
     layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
 
-    # let's create a table
     degree_dicts = []
 
     for i in uids_included:
@@ -508,22 +529,27 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
 
 
 def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=[0.05, 0.25, 0.5, 0.75, 0.95]):
+    """
+    Compute a description of the statistics for the degree distribution by age
+    for a layer in the population contact network. See
+    pandas.Dataframe.describe() for more details on all of the statistics
+    included by default.
 
+    Args:
+        pop (sp.Pop)         : population
+        layer (str)  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+        uids_included (list or None): pre-calculated mask of people to include
+        degree_df (dataframe) : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        percentiles (list) : list of the percentiles to include as statistics
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of the statistics for the layer
+        degree distribution by age.
+    """
     if degree_df is None:
         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
 
     d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d
-
-
-# def compute_layer_degree_ci(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, q=[0.05, 0.5, 0.95]):
-
-#     if degree_df is None:
-#         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
-
-#     stats = {}
-
-#     for qi in q:
-#         stats[qi] = degree_df.groupby('age')['degree'].quantile(qi)
-
-#     return stats

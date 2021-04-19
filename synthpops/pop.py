@@ -493,13 +493,11 @@ class Pop(sc.prettyobj):
         self.summary.layer_degrees = dict()
         self.summary.layer_stats = dict()
         self.summary.layer_degree_description = dict()
-        self.summary.layer_degree_ci = dict()
 
         for layer in self.layers:
             self.summary.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
             self.summary.layer_stats[layer] = self.summary.layer_degrees[layer].describe()[['age', 'degree']]
             self.summary.layer_degree_description[layer] = self.summary.layer_degrees[layer].groupby('age')['degree'].describe(percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])  # default percentiles to include
-            # self.summary.layer_degree_ci[layer] = spcnx.compute_layer_degree_ci(self, degree_df=self.summary.layer_degrees[layer])
 
         return
 
@@ -511,6 +509,7 @@ class Pop(sc.prettyobj):
             s = self.summary.layer_stats[layer]
             print(f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.")
             print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.\n")
+        return
 
     def count_pop_ages(self):
         """
