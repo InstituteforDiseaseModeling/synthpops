@@ -94,7 +94,7 @@ def test_plot_degree_by_age_methods(layer='S', do_show=False, do_save=False):
 def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing a plotting dev tool to compare the degree distribution by age for multiple populations.")
 
-    npops = 6
+    npops = 5
     pop_list = []
 
     for ni in range(npops):
@@ -107,6 +107,10 @@ def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     kwargs.figname = f"multiple_degree_distribution_by_age_layer_{layer}"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
+
+    if kwargs['do_show']:
+        plt.switch_backend(mplt_org_backend)
+
     kind = 'kde'
     fig, axes = sp.plotting.plot_multi_degree_by_age(pop_list, layer=layer, kind=kind, **kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not made.'
@@ -138,10 +142,10 @@ def test_plot_degree_by_age_stats(do_show=False, do_save=False):
 
 if __name__ == '__main__':
 
-    test_count_layer_degree()
+    # test_count_layer_degree()
 
-    test_multiple_degree_histplots(do_show=True)
+    # test_multiple_degree_histplots(do_show=True)
 
     gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(do_show=True)
 
-    fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    # fig, ax = test_plot_degree_by_age_stats(do_show=1)

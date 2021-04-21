@@ -471,25 +471,15 @@ def filter_people(pop, ages=None, uids=None):
     Returns:
         array: An array of the ids of people to include for further analysis.
     """
+    output = np.arange(pop.n)
 
-    uid_mask = Ellipsis
-    if uids is not None:
-        uid_mask = [True if i in uids else False for i in range(pop.n)]
+    if uids is not None:  # catch instance where the only uids supplied is the first one, 0
+        output = np.intersect1d(output, uids)
 
-    age_mask = Ellipsis
-    if ages is not None:
-        age_mask = [True if a in ages else False for a in pop.age_by_uid]
+    if ages is not None:  # catch instance where the only ages supplied is age 0
+        output = np.intersect1d(output, sc.findinds(np.isin(pop.age_by_uid, ages)))
 
-    mask = Ellipsis
-    if uid_mask is Ellipsis:
-        mask = age_mask
-    elif age_mask is Ellipsis:
-        mask = uid_mask
-    elif uid_mask is not Ellipsis and age_mask is not Ellipsis:
-        mask = np.multiply(uid_mask, age_mask)
-        mask = np.array(mask)
-
-    return np.arange(pop.n)[mask]
+    return output
 
 
 def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None):
@@ -528,7 +518,7 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
     return degree_df
 
 
-def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=[0.05, 0.25, 0.5, 0.75, 0.95]):
+def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=None):
     """
     Compute a description of the statistics for the degree distribution by age
     for a layer in the population contact network. See
@@ -550,6 +540,9 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
     """
     if degree_df is None:
         degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    if percentiles is None:
+        percentiles = [0.05, 0.25, 0.5, 0.75, 0.95]
 
     d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d

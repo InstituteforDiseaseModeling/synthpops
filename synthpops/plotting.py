@@ -1756,7 +1756,6 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
 
     interval = 5
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
-    # min_y = int(np.floor(min(degree_df['degree'].values) / interval) * interval)
     min_y = min(degree_df['degree'].values)
     max_b = max(max_y, plkwargs.xlim[-1])
 
@@ -1865,18 +1864,14 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
     """
     plkwargs = plotting_kwargs()
     method_defaults = sc.objdict(alpha=0.99, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
-                                 subplot_height=3, subplot_width=3.1, left=0.06, right=0.97, bottom=0.15)
+                                 subplot_height=3, subplot_width=3.1, left=0.06, right=0.97, bottom=0.10)
     plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.height = np.ceil(len(pop_list) / 3) * plkwargs.subplot_height
     plkwargs.width = (len(pop_list) % 3 + 3) * plkwargs.subplot_width
 
-    nrows = int(np.ceil(len(pop_list) / 3))
-
-    if len(pop_list) > 3:
-        fig, axes = plt.subplots(nrows=nrows, ncols=3, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
-
-    else:
-        fig, axes = plt.subplots(nrows=nrows, ncols=len(pop_list), figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    ncols = min(3, len(pop_list))
+    nrows, ncols = sc.get_rows_cols(len(pop_list), ncols=ncols)
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
 
     fig.subplots_adjust(**plkwargs.axis)
 
@@ -1893,32 +1888,24 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
             nr = int(ni // 3)
             nc = int(ni % 3)
 
-            if kind == 'kde':
-                sns.kdeplot(x=degree_dfi['age'], y=degree_dfi['degree'], cmap=cmap, shade=plkwargs.shade, ax=axes[nr][nc],
-                            alpha=plkwargs.alpha, thresh=plkwargs.thresh, cbar=plkwargs.cbar)
-            elif kind == 'hist':
-                sns.histplot(x='age', y='degree', data=degree_dfi, cmap=cmap,
-                             alpha=plkwargs.alpha, stat='density', 
-                             cbar=plkwargs.cbar,
-                             ax=axes[nr][nc]
-                             )
+            axi = axes[nr][nc]
+        elif len(pop_list) > 1:
+            axi = axes[ni]
 
-            axes[nr][nc].set_xlim(plkwargs.xlim)
-            axes[nr][nc].set_ylim(min_y, max_y)
-            axes[nr][nc].set_title(f'Pop: {ni}  Layer: {layer}', fontsize=plkwargs.fontsize)
         else:
-            if kind == 'kde':
-                sns.kdeplot(x=degree_dfi['age'], y=degree_dfi['degree'], cmap=cmap, shade=plkwargs.shade, ax=axes[ni], alpha=plkwargs.alpha, thresh=plkwargs.thresh, cbar=plkwargs.cbar)
+            axi = axes
 
-            elif kind == 'hist':
-                sns.histplot(x='age', y='degree', data=degree_dfi, cmap=cmap,
-                             alpha=plkwargs.alpha, stat='density',
-                             cbar=plkwargs.cbar,
-                             ax=axes[ni]
-                             )
-            axes[ni].set_xlim(plkwargs.xlim)
-            axes[ni].set_ylim(min_y, max_y)
-            axes[ni].set_title(f'Pop: {ni},  Layer: {layer}', fontsize=plkwargs.fontsize)
+        if kind == 'kde':
+            sns.kdeplot(x=degree_dfi['age'], y=degree_dfi['degree'], cmap=cmap, shade=plkwargs.shade,
+                        ax=axi, alpha=plkwargs.alpha, thresh=plkwargs.thresh, cbar=plkwargs.cbar)
+        elif kind == 'hist':
+            sns.histplot(x='age', y='degree', data=degree_dfi, cmap=cmap,
+                         alpha=plkwargs.alpha, stat='density',
+                         cbar=plkwargs.cbar, ax=axi)
+
+        axi.set_xlim(plkwargs.xlim)
+        axi.set_ylim(min_y, max_y)
+        axi.set_title(f'Pop: {ni}  Layer: {layer}', fontsize=plkwargs.fontsize)
 
     finalize_figure(fig, plkwargs)
 

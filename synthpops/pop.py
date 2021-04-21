@@ -211,6 +211,7 @@ class Pop(sc.prettyobj):
 
         # Add summaries post hoc  --- TBD: summaries during generation
         self.compute_summary()
+        self.compute_information()
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -467,6 +468,9 @@ class Pop(sc.prettyobj):
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
         self.summary = sc.objdict()
+        self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
+        self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+
         self.summary.age_count = self.count_pop_ages()
 
         self.summary.household_sizes = self.get_household_sizes()
@@ -487,9 +491,12 @@ class Pop(sc.prettyobj):
         self.summary.workplace_sizes = self.get_workplace_sizes()
         self.summary.workplace_size_count = self.count_workplace_sizes()
 
-        # Computing an advanced summary of the population
-        self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
-        self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+    def compute_information(self):
+        """Computing an advanced description of the population."""
+        self.information = sc.objdict()
+        # self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
+        # self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+        self.summary.age_count = self.count_pop_ages()
         self.summary.layer_degrees = dict()
         self.summary.layer_stats = dict()
         self.summary.layer_degree_description = dict()
