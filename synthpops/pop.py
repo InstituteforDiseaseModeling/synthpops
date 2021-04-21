@@ -529,22 +529,23 @@ class Pop(sc.prettyobj):
             self.summary.layers['W'][p] = np.percentile(list(self.information.workplace_size_count.values()), q=p)
 
     def summarize(self):
-        """Print brief summary of the pop."""
-        print(f"This networked population is created to resemble the population of {self.location + ',' if self.location is not None else ''} {self.state_location + ',' if self.state_location is not None else ''} {self.country_location if self.country_location is not None else ''}.")
-        print(f"The number of people is {self.n:.0f}.")
-        print(f"The mean age is {self.summary.mean_age:.2f} +/- {self.summary.std_age:.2f} years old.\n")
+        """Print and return a brief summary string of the pop."""
+        msg = ""
+        msg += f"This networked population is created to resemble the population of {self.location + ',' if self.location is not None else ''} {self.state_location + ',' if self.state_location is not None else ''} {self.country_location if self.country_location is not None else ''}.\n"
+        msg += f"The number of people is {self.n:.0f}.\n"
+        msg += f"The mean age is {self.summary.mean_age:.2f} +/- {self.summary.std_age:.2f} years old.\n"
         for layer in self.layers:
             s = self.information.layer_stats[layer]
-            print(f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.")
-            print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.")
+            msg += f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.\n"
+            msg += f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.\n"
             if layer in ['H', 'S', 'W']:
-                print(f"The average {self.layer_mappings[layer].lower()} size is {self.summary.layers[layer]['mean']:.2f} +/- {self.summary.layers[layer]['std']:.2f} people. The confidence interval is ({self.summary.layers[layer][5]:.2f}-{self.summary.layers[layer][95]:.2f}).")
+                msg += f"The average {self.layer_mappings[layer].lower()} size is {self.summary.layers[layer]['mean']:.2f} +/- {self.summary.layers[layer]['std']:.2f} people. The confidence interval is ({self.summary.layers[layer][5]:.2f}-{self.summary.layers[layer][95]:.2f}).\n"
+            msg += "\n"
 
-            print()
+        msg += f"The rand_seed used to generate this population is {self.rand_seed}."
 
-        print(f"The rand_seed used to generate this population is {self.rand_seed}.")
-
-        return
+        print(msg)
+        return msg
 
     def count_pop_ages(self):
         """
