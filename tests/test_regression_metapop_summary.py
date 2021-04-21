@@ -7,6 +7,7 @@ import synthpops as sp
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import settings
+import pytest
 
 mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
 mplt.use('Agg')
@@ -33,9 +34,20 @@ pars = sc.objdict(
 )
 
 
-def test_count_layer_degree():
+@pytest.fixture(scope="module")
+def create_pop():
+    return sp.Pop(**pars)
+
+
+def test_pop_summarize(create_pop):
+    sp.logger.info("Test that pop.summarize() works.")
+    pop = create_pop
+    pop.summarize()
+
+
+def test_count_layer_degree(create_pop):
     sp.logger.info("Testing degree_df and quantile stats calculating method for degree distribution by age.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
 
     layer = 'S'
     ages = None
@@ -54,10 +66,10 @@ def test_count_layer_degree():
     return pop
 
 
-def test_plot_degree_by_age_methods(layer='S', do_show=False, do_save=False):
+def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing the different plotting methods to show the degree distribution by age for a single population.")
     # age on x axis, degree distribution on y axis
-    pop = sp.Pop(**pars)
+    pop = create_pop
     kwargs = sc.objdict(do_show=do_show, do_save=do_save)
 
     ages = None
@@ -124,13 +136,11 @@ def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     return fig, axes, fig2, axes2
 
 
-def test_plot_degree_by_age_stats(do_show=False, do_save=False):
+def test_plot_degree_by_age_stats(create_pop, do_show=False, do_save=False):
 
     sp.logger.info("Testing plots of the statistics on the degree distribution by age summaries.")
 
-    test_pars = sc.dcp(pars)
-    test_pars.n = settings.pop_sizes.medium
-    pop = sp.Pop(**test_pars)
+    pop = create_pop
     kwargs = dict(do_show=do_show, do_save=do_save)
     if kwargs['do_show']:
         plt.switch_backend(mplt_org_backend)
@@ -142,10 +152,8 @@ def test_plot_degree_by_age_stats(do_show=False, do_save=False):
 
 if __name__ == '__main__':
 
-    # test_count_layer_degree()
-
-    # test_multiple_degree_histplots(do_show=True)
-
-    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(do_show=True)
-
-    # fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    test_pop_summarize(create_pop)
+    test_count_layer_degree(create_pop)
+    test_multiple_degree_histplots(do_show=1)
+    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
+    fig, ax = test_plot_degree_by_age_stats(do_show=1)
