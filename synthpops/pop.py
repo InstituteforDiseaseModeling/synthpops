@@ -391,12 +391,12 @@ class Pop(sc.prettyobj):
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
-        # Add layer classes
+        # # Add layer classes
         self.homes_by_uids = homes_by_uids
         self.age_by_uid = age_by_uid_dic
 
-        self.households = sphh.Households(**{'households': self.homes_by_uids,
-                                             'age_by_uid': self.age_by_uid})
+        # self.households = sphh.Households(**{'households': self.homes_by_uids,
+        #                                      'age_by_uid': self.age_by_uid})
 
         return population
 

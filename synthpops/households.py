@@ -15,7 +15,8 @@ from . import data_distributions as spdata
 # __all__ = ['Household', 'Households']
 
 
-class Household(sc.objdict):
+# class Household(sc.objdict):
+class Household(dict):
     """
     A class for individual households and methods to operate on each.
 
@@ -37,13 +38,14 @@ class Household(sc.objdict):
         # set up default household values
         kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
         self.update(kwargs)
+        self.validate()
 
         return
 
-    def __repr__(self):
-        output = sc.objrepr(self)
-        output += sc.objdict.__repr__(self)
-        return output
+    # def __repr__(self):
+    #     output = sc.objrepr(self)
+    #     output += sc.objdict.__repr__(self)
+    #     return output
 
     def default_kwargs(self):
         """
@@ -56,22 +58,29 @@ class Household(sc.objdict):
         reference_age (int)      : age of the reference person used to generate the household members and their ages
 
         """
-        default_kwargs = sc.objdict()
-        default_kwargs.hhid = None
-        default_kwargs.member_uids = np.array([], dtype=int)
-        default_kwargs.member_ages = np.array([], dtype=int)
-        default_kwargs.reference_uid = None
-        default_kwargs.reference_age = None
+        default_kwargs = dict()
+        default_kwargs['hhid'] = None
+        default_kwargs['member_uids'] = np.array([], dtype=int)
+        default_kwargs['member_ages'] = np.array([], dtype=int)
+        default_kwargs['reference_uid'] = None
+        default_kwargs['reference_age'] = None
+        # default_kwargs = sc.objdict()
+        # default_kwargs.hhid = None
+        # default_kwargs.member_uids = np.array([], dtype=int)
+        # default_kwargs.member_ages = np.array([], dtype=int)
+        # default_kwargs.reference_uid = None
+        # default_kwargs.reference_age = None
 
         return default_kwargs
 
-    def __setitem__(self, key, value):
-        """Set attribute values by key."""
-        if isinstance(value, (list, np.ndarray)):
-            sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
-        else:
-            sc.objdict.__setitem__(self, key, value)
-        return
+    # def __setitem__(self, key, value):
+    #     """Set attribute values by key."""
+    #     sc.objdict.__setitem__(self, key, value)
+    #     # if isinstance(value, (list, np.ndarray)):
+    #         # sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
+    #     # else:
+    #         # sc.objdict.__setitem__(self, key, value)
+    #     return
 
     # # alternative way
     # def setitem(self, key, value):
@@ -85,35 +94,61 @@ class Household(sc.objdict):
     def set_household(self, **kwargs):
         """Set up the household -- works for a static population."""
         for key, value in kwargs.items():
-            # self.setitem(key, value)
-            self.__setitem__(key, value)
+            self[key] = value
+            # self.__setitem__(key, value)
+        self.validate()
 
         return
 
-    def get_hhid(self):
-        """Return the household id."""
-        return self.hhid
+    def __len__(self):
+        """Returns the length of the household as the number of household members."""
+        return len(self['member_uids'])
 
-    def get_household_size(self):
-        """Return number of household members."""
-        return len(self.member_uids)
+    def validate(self):
+        """
+        Check that information supplied to make a household is valid and update
+        to the correct type if necessary.
+        """
+        for key in ['member_uids', 'member_ages']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert household key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
 
-    def get_member_uids(self):
-        """Return the uids of all household members."""
-        return self.member_uids
+        for key in ['hhid', 'reference_uid', 'reference_age']:
+            if key in self.keys():
+                if not isinstance(self[key], (int)):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
+        return
 
-    def get_member_ages(self):
-        """Return the ages of all household members."""
-        return self.member_ages
+    # def get_hhid(self):
+    #     """Return the household id."""
+    #     return self.hhid
 
-    def get_reference_uid(self):
-        """Return the uid of the reference person used to generate the household members ages."""
-        return self.reference_uid
+    # def get_household_size(self):
+    #     """Return number of household members."""
+    #     return len(self.member_uids)
 
-    def get_reference_age(self):
-        """Return the age of the reference person used to generate the household members ages."""
-        return self.reference_age  # more direct
-        # return self.get('reference_age')  # using sc.objdict's method
+    # def get_member_uids(self):
+    #     """Return the uids of all household members."""
+    #     return self.member_uids
+
+    # def get_member_ages(self):
+    #     """Return the ages of all household members."""
+    #     return self.member_ages
+
+    # def get_reference_uid(self):
+    #     """Return the uid of the reference person used to generate the household members ages."""
+    #     return self.reference_uid
+
+    # def get_reference_age(self):
+    #     """Return the age of the reference person used to generate the household members ages."""
+    #     return self.reference_age  # more direct
+    #     # return self.get('reference_age')  # using sc.objdict's method
 
     # To be turned on for vital dynamics...
     # def set_hhid(self, hhid):
@@ -167,7 +202,7 @@ class Households(sc.objdict):
                 self.add_household(hh)
 
         # if there's enough information to populate households --- not a great name --- what to call the list of households?
-        elif 'households' and 'age_by_uid' in self:
+        elif 'households' in self and 'age_by_uid' in self:
             self.populate_households(self.households, self.age_by_uid)
 
         # must find a better name; shouldn't have households.households
@@ -260,7 +295,8 @@ class Households(sc.objdict):
                           )
             household = Household()
             household.set_household(**kwargs)
-            self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+            # self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+            self.households_array[household['hhid']] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
 
         self.n_households = len(self.households)
         self.populate = True
@@ -397,7 +433,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
                 uid = len(age_by_uid_dic)
             else:
                 uid = sc.uuid(length=id_len)
-            age_by_uid_dic[uid] = a
+            age_by_uid_dic[uid] = int(a)
             home_ids.append(uid)
 
         homes_by_uids.append(home_ids)
