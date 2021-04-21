@@ -42,7 +42,7 @@ def create_pop():
 def test_pop_summarize(create_pop):
     sp.logger.info("Test that pop.summarize() works.")
     pop = create_pop
-    summary_msg = pop.summarize()
+    summary_msg = pop.summarize(return_msg=True)
     assert f"The number of people is {pars.n:.0f}" in summary_msg
 
 
