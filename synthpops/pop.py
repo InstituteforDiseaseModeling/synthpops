@@ -397,9 +397,6 @@ class Pop(sc.prettyobj):
         self.homes_by_uids = homes_by_uids
         self.age_by_uid = age_by_uid_dic
 
-        # self.households = sphh.Households(**{'households': self.homes_by_uids,
-        #                                      'age_by_uid': self.age_by_uid})
-
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
 
@@ -459,14 +456,28 @@ class Pop(sc.prettyobj):
         return pop
 
     def initialize_households_list(self):
+        """Initialize a new households list."""
         self.households = []
         return
 
-    # def initialize_empty_households(self, n_households=None):
-    #     sphh.initialize_empty_households(self, n_households)
-    #     return
+    def initialize_empty_households(self, n_households=None):
+        """
+        Create a list of empty households.
+
+        Args:
+            n_households (int) : the number of households to initialize
+        """
+        sphh.initialize_empty_households(self, n_households)
+        return
 
     def populate_households(self, households, age_by_uid):
+        """
+        Populate all of the households. Store each household at the index corresponding to it's hhid.
+
+        Args:
+            households (list) : list of lists where each sublist represents a household and contains the ids of the household members
+            age_by_uid (dict) : dictionary mapping each person's id to their age
+        """
         sphh.populate_households(self, households, age_by_uid)
         return
 
@@ -480,11 +491,7 @@ class Pop(sc.prettyobj):
         Returns:
             sp.Household: A populated household.
         """
-        if not isinstance(hhid, int):
-            raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
-        if len(self.households) < hhid:
-            raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
-        return self.households[hhid]
+        return sphh.get_household(self, hhid)
 
     def add_household(self, household):
         """

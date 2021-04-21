@@ -12,10 +12,9 @@ from . import sampling as spsamp
 from . import data_distributions as spdata
 
 
-# __all__ = ['Household', 'Households']
+# __all__ = ['Household']
 
 
-# class Household(sc.objdict):
 class Household(dict):
     """
     A class for individual households and methods to operate on each.
@@ -42,11 +41,6 @@ class Household(dict):
 
         return
 
-    # def __repr__(self):
-    #     output = sc.objrepr(self)
-    #     output += sc.objdict.__repr__(self)
-    #     return output
-
     def default_kwargs(self):
         """
         Default household attributes.
@@ -64,38 +58,13 @@ class Household(dict):
         default_kwargs['member_ages'] = np.array([], dtype=int)
         default_kwargs['reference_uid'] = None
         default_kwargs['reference_age'] = None
-        # default_kwargs = sc.objdict()
-        # default_kwargs.hhid = None
-        # default_kwargs.member_uids = np.array([], dtype=int)
-        # default_kwargs.member_ages = np.array([], dtype=int)
-        # default_kwargs.reference_uid = None
-        # default_kwargs.reference_age = None
 
         return default_kwargs
-
-    # def __setitem__(self, key, value):
-    #     """Set attribute values by key."""
-    #     sc.objdict.__setitem__(self, key, value)
-    #     # if isinstance(value, (list, np.ndarray)):
-    #         # sc.objdict.__setitem__(self, key, sc.promotetoarray(value))
-    #     # else:
-    #         # sc.objdict.__setitem__(self, key, value)
-    #     return
-
-    # # alternative way
-    # def setitem(self, key, value):
-    #     """Set attribute values by key."""
-    #     if isinstance(value, (list, np.ndarray)):
-    #         self[key] = sc.promotetoarray(value)
-    #     else:
-    #         self[key] = value
-    #     return
 
     def set_household(self, **kwargs):
         """Set up the household -- works for a static population."""
         for key, value in kwargs.items():
             self[key] = value
-            # self.__setitem__(key, value)
         self.validate()
 
         return
@@ -125,191 +94,40 @@ class Household(dict):
                         raise TypeError(errmsg)
         return
 
-    # def get_hhid(self):
-    #     """Return the household id."""
-    #     return self.hhid
-
-    # def get_household_size(self):
-    #     """Return number of household members."""
-    #     return len(self.member_uids)
-
-    # def get_member_uids(self):
-    #     """Return the uids of all household members."""
-    #     return self.member_uids
-
-    # def get_member_ages(self):
-    #     """Return the ages of all household members."""
-    #     return self.member_ages
-
-    # def get_reference_uid(self):
-    #     """Return the uid of the reference person used to generate the household members ages."""
-    #     return self.reference_uid
-
-    # def get_reference_age(self):
-    #     """Return the age of the reference person used to generate the household members ages."""
-    #     return self.reference_age  # more direct
-    #     # return self.get('reference_age')  # using sc.objdict's method
-
     # To be turned on for vital dynamics...
     # def set_hhid(self, hhid):
     #     """Set the household id."""
-    #     self.__setitem__('hhid', hhid)
+    #     self['hhid'] = int(hhid)
 
     # def set_member_uids(self, member_uids):
     #     """Set the uids of all household members."""
-    #     self.__setitem__('member_uids', member_uids)
+    #     self['member_uids'] =  sc.promotetoarray(member_uids, dtype=int)
 
     # def set_member_ages(self):
     #     """Set the ages of all household members."""
-    #     self.__setitem__('member_ages', member_ages)
+    #     self['member_ages'] = sc.promotetoarray(member_ages, dtype=int)
 
     # def set_reference_uid(self, reference_uid):
     #     """Set the uid of the reference person to generate the household members ages."""
-    #     self.__setitem__('reference_uid', reference_uid)
+    #     self['reference_uid'] = int(reference_uid)
 
     # def set_reference_age(self):
     #     """Set the age of the reference person to generate the household members ages."""
-    #     self.__setitem__('reference_age', reference_age)
+    #     self['reference_age'] = int(reference_age)
 
-
-# class Households(sc.objdict):
-#     """
-#     A class for households and methods to operate on them.
-
-#     Args:
-#         kwargs (dict): data dictionary for households generation
-#     """
-#     def __init__(self, **kwargs):
-#         """
-#         Class constructor for empty container of households.
-
-#         Args:
-#             **n_households (int) : the number of households
-#             **households (list)  : list of households or list of member ids of the households
-#         """
-#         # set kwargs for the households
-#         kwargs = sc.mergedicts(self.default_kwargs(), sc.dcp(kwargs))  # pass along a copy of the kwargs
-#         self.update(kwargs)  # set update the initial values then take care of any issues
-
-#         # align n_households and households supplied
-#         self.initialize_n_households()
-
-#         self.populated = False  # have the empty households been populated yet?
-
-#         # if 'households' contains Household objects then simply add those
-#         if len(self.households) > 0 and isinstance(self.households[0], Household):
-#             for nh, hh in enumerate(self.households):
-#                 self.add_household(hh)
-
-#         # if there's enough information to populate households --- not a great name --- what to call the list of households?
-#         elif 'households' in self and 'age_by_uid' in self:
-#             self.populate_households(self.households, self.age_by_uid)
-
-#         # must find a better name; shouldn't have households.households
-#         if len(self.households) == 0:  # empty households array if we just know the number to create
-#             self.initialize_empty_households(self.n_households)
-
-#         return
-
-#     def __repr__(self):
-#         output = sc.objrepr(self)
-#         output += sc.objdict.__repr__(self)
-#         return output
-
-#     def __setitem__(self, key, value):
-#         """Set attribute values by key."""
-#         sc.objdict.__setitem__(self, key, value)
-
-#         return
-
-#     def default_kwargs(self):
-#         """
-#         Default attributes for the collection of households.
-
-#         n_households (int) : the number of households
-#         households (list)  : list of households
-#         """
-#         default_kwargs = sc.objdict()
-#         default_kwargs.n_households = 0
-#         default_kwargs.households = []
-#         default_kwargs.households_array = []
-
-#         return default_kwargs
-
-#     def initialize_n_households(self):
-#         """Align n_households and the households supplied to self."""
-#         if self.n_households < len(self.households_array):
-#             self.n_households = len(self.households_array)
-
-#         return
-
-#     def initialize_empty_households(self, n_households=None):
-#         """
-#         Array of empty households.
-
-#         Args:
-#             n_households (int) : the number of households to initialize
-#         """
-#         if n_households is not None and isinstance(n_households, int):
-#             self.n_households = n_households
-#         else:
-#             self.n_households = 0
-#         self.households_array = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
-#         return
-
-#     def add_household(self, household):
-#         """
-#         Add a household to the list of households.
-
-#         Args:
-#             household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
-#         """
-#         if not isinstance(household, Household):
-#             raise ValueError('household is not a sp.Household class.')
-#         self.households_array.append(household)
-#         return
-
-#     def populate_households(self, households, age_by_uid):
-#         """
-#         Populate all of the households. Store each household at the index corresponding to it's hhid.
-
-#         Args:
-#             households (list) : list of lists where each sublist represents a household and contains the ids of the household members
-#             age_by_uid (dict) : dictionary mapping each person's id to their age
-#         """
-#         # check there are enough households
-#         if len(self.households_array) < len(households):
-#             log.debug(f"Reinitializing list of households with {len(households)} empty households.")
-#             self.initialize_empty_households(len(households))
-
-#         log.debug("Populating households.")
-#         # now populate households
-#         for nh, hh in enumerate(households):
-#             kwargs = dict(hhid=nh,
-#                           member_uids=hh,
-#                           member_ages=[age_by_uid[i] for i in hh],
-#                           reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
-#                           reference_age=age_by_uid[hh[0]]
-#                           # reference_uid=min(hh),
-#                           # reference_age=age_by_uid[min(hh)]  # reference person is the minimal id
-#                           )
-#             household = Household()
-#             household.set_household(**kwargs)
-#             # self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
-#             self.households_array[household['hhid']] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
-
-#         self.n_households = len(self.households)
-#         self.populate = True
-
-#         return
-
-#     def get_household(self, hhid):
-#         """Return household with id: hhid."""
-#         if len(self.households_array) < hhid:
-#             raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
-#         return self.households_array[hhid]
 
 def get_household(pop, hhid):
+    """
+    Return household with id: hhid.
+
+    Args:
+        hhid (int) : household id number
+
+    Returns:
+        sp.Household: A populated household.
+    """
+    if not isinstance(hhid, int):
+        raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
     if len(pop.households) < hhid:
         raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
     return pop.households[hhid]
@@ -337,11 +155,9 @@ def initialize_empty_households(pop, n_households=None):
     """
     if n_households is not None and isinstance(n_households, int):
         pop.n_households = n_households
-        # self.n_households = n_households
     else:
-        # self.n_households = 0
         pop.n_households = 0
-    # self.households_array = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
+
     pop.households = [Household() for nh in range(pop.n_households)]
     return
 
@@ -357,10 +173,10 @@ def populate_households(pop, households, age_by_uid):
     # check there are enough households
     if len(pop.households) < len(households):
         log.debug(f"Reinitializing list of households with {len(households)} empty households.")
-        # self.initialize_empty_households(len(households))
         initialize_empty_households(pop, len(households))
 
     log.debug("Populating households.")
+
     # now populate households
     for nh, hh in enumerate(households):
         kwargs = dict(hhid=nh,
@@ -373,12 +189,8 @@ def populate_households(pop, households, age_by_uid):
                       )
         household = Household()
         household.set_household(**kwargs)
-        # self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
-        # self.households_array[household['hhid']] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
         pop.households[household['hhid']] = sc.dcp(household)
 
-    # self.n_households = len(self.households)
-    # self.populate = True
     pop.populate = True
 
     return
