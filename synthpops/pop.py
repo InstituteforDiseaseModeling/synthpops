@@ -468,8 +468,6 @@ class Pop(sc.prettyobj):
     def compute_information(self):
         """Computing an advanced description of the population."""
         self.information = sc.objdict()
-        # self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
-        # self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
         self.information.age_count = self.count_pop_ages()
         self.information.layer_degrees = dict()
         self.information.layer_stats = dict()
@@ -480,6 +478,23 @@ class Pop(sc.prettyobj):
             self.information.layer_stats[layer] = self.information.layer_degrees[layer].describe()[['age', 'degree']]
             self.information.layer_degree_description[layer] = self.information.layer_degrees[layer].groupby('age')['degree'].describe(percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])  # default percentiles to include
 
+        self.information.household_sizes = self.get_household_sizes()
+        self.information.household_size_count = self.count_household_sizes()
+
+        self.information.household_heads = self.get_household_heads()
+        self.information.household_head_ages = self.get_household_head_ages()
+        self.information.household_head_age_count = self.count_household_head_ages()
+        self.information.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
+
+        self.information.ltcf_sizes = self.get_ltcf_sizes()
+        self.information.ltcf_size_count = self.count_ltcf_sizes()
+
+        self.information.enrollment_by_age = self.count_enrollment_by_age()
+        self.information.enrollment_by_school_type = self.count_enrollment_by_school_type()
+
+        self.information.employment_by_age = self.count_employment_by_age()
+        self.information.workplace_sizes = self.get_workplace_sizes()
+        self.information.workplace_size_count = self.count_workplace_sizes()
 
         return
 
@@ -488,8 +503,6 @@ class Pop(sc.prettyobj):
         self.summary = sc.objdict()
         self.summary.average_age = spb.calculate_average_from_count(self.information.age_count)
         self.summary.std_age = spb.calculate_std_from_count(self.information.age_count)
-
-        # self.summary.age_count = self.count_pop_ages()
 
         self.summary.household_sizes = self.get_household_sizes()
         self.summary.household_size_count = self.count_household_sizes()
@@ -514,7 +527,7 @@ class Pop(sc.prettyobj):
         print(f"Number of people: {self.n:.0f}.")
         print(f"Average age: {self.summary.average_age:.2f} +/- {self.summary.std_age:.2f} years old.")
         for layer in self.layers:
-            s = self.summary.layer_stats[layer]
+            s = self.information.layer_stats[layer]
             print(f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.")
             print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.\n")
         return
@@ -555,7 +568,7 @@ class Pop(sc.prettyobj):
 
     def get_household_head_ages(self):
         """Get the age of the head of each household in the generated population post generation."""
-        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.summary.household_heads.items()}
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.information.household_heads.items()}
 
     def count_household_head_ages(self, bins=None):
         """
@@ -568,9 +581,9 @@ class Pop(sc.prettyobj):
             dict: Dictionary of the count of household head ages.
         """
         if bins is None:
-            return spb.count_values(self.summary.household_head_ages)
+            return spb.count_values(self.information.household_head_ages)
         else:
-            head_ages = list(self.summary.household_head_ages.values())
+            head_ages = list(self.information.household_head_ages.values())
             hist, bins = np.histogram(head_ages, bins=bins, density=0)
             return {i: hist[i] for i in range(len(hist))}
 
@@ -643,7 +656,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
+        return {k: self.information.enrollment_by_age[k]/self.information.age_count[k] if self.information.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -672,7 +685,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
+        return {k: self.information.employment_by_age[k]/self.information.age_count[k] if self.information.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
@@ -692,7 +705,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_values(self.summary.workplace_sizes)
+        return spb.count_values(self.information.workplace_sizes)
 
     def get_contact_counts_by_layer(self, layer='S'):
         """
