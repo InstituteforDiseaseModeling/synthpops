@@ -460,7 +460,6 @@ class Pop(sc.prettyobj):
 
     def initialize_households_list(self):
         self.households = []
-    #     self.households = sphh.Households()
         return
 
     # def initialize_empty_households(self, n_households=None):
@@ -471,7 +470,31 @@ class Pop(sc.prettyobj):
         sphh.populate_households(self, households, age_by_uid)
         return
 
+    def get_household(self, hhid):
+        """
+        Return household with id: hhid.
 
+        Args:
+            hhid (int) : household id number
+
+        Returns:
+            sp.Household: A populated household.
+        """
+        if not isinstance(hhid, int):
+            raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
+        if len(self.households) < hhid:
+            raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(self.households)} households stored in this class.")
+        return self.households[hhid]
+
+    def add_household(self, household):
+        """
+        Add a household to the list of households.
+
+        Args:
+            household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
+        """
+        sphh.add_household(self, household)
+        return
 
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
