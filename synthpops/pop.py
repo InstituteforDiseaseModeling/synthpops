@@ -504,35 +504,31 @@ class Pop(sc.prettyobj):
         self.summary.mean_age = spb.calculate_mean_from_count(self.information.age_count)
         self.summary.std_age = spb.calculate_std_from_count(self.information.age_count)
 
-        self.summary.mean_household_size = spb.calculate_mean_from_count(self.information.household_size_count)
-        self.summary.std_household_size = spb.calculate_std_from_count(self.information.household_size_count)
+        self.summary.layers = dict()
+        for layer in self.layers:
+            self.summary.layers[layer] = dict()
 
-        # self.summary.household_sizes = self.get_household_sizes()
-        # self.summary.household_size_count = self.count_household_sizes()
+        self.summary.layers['H']['mean'] = spb.calculate_mean_from_count(self.information.household_size_count)
+        self.summary.layers['H']['std'] = spb.calculate_std_from_count(self.information.household_size_count)
 
-        # self.summary.household_heads = self.get_household_heads()
-        # self.summary.household_head_ages = self.get_household_head_ages()
-        # self.summary.household_head_age_count = self.count_household_head_ages()
-        # self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
-
-        # self.summary.ltcf_sizes = self.get_ltcf_sizes()
-        # self.summary.ltcf_size_count = self.count_ltcf_sizes()
-
-        # self.summary.enrollment_by_age = self.count_enrollment_by_age()
-        # self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
-
-        # self.summary.employment_by_age = self.count_employment_by_age()
-        # self.summary.workplace_sizes = self.get_workplace_sizes()
-        # self.summary.workplace_size_count = self.count_workplace_sizes()
+        self.summary.layers['W']['mean'] = spb.calculate_mean_from_count(self.information.workplace_size_count)
+        self.summary.layers['W']['std'] = spb.calculate_std_from_count(self.information.workplace_size_count)
 
     def summarize(self):
         """Print brief summary of the pop."""
-        print(f"Number of people: {self.n:.0f}.")
-        print(f"Average age: {self.summary.average_age:.2f} +/- {self.summary.std_age:.2f} years old.")
+        print(f"This networked population is created to resemble the population of {self.location + ',' if self.location is not None else ''} {self.state_location + ',' if self.state_location is not None else ''} {self.country_location if self.country_location is not None else ''}.")
+        print(f"The number of people is {self.n:.0f}.")
+        print(f"The mean age is {self.summary.mean_age:.2f} +/- {self.summary.std_age:.2f} years old.\n")
         for layer in self.layers:
             s = self.information.layer_stats[layer]
             print(f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.")
-            print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.\n")
+            print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.")
+            if layer in ['H', 'W']:
+                print(f"The average {self.layer_mappings[layer].lower()} size is {self.summary.layers[layer]['mean']:.2f} +/- {self.summary.layers[layer]['std']:.2f} people.")
+            print()
+
+        print(f"The rand_seed used to generate this population is {self.rand_seed}.")
+
         return
 
     def count_pop_ages(self):
