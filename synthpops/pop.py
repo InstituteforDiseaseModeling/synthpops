@@ -116,27 +116,27 @@ class Pop(sc.prettyobj):
         log.debug('Pop()')
 
         # Assign all the variables
-        self.loc_pars                  = sc.objdict()
-        self.school_pars               = sc.objdict()
-        self.ltcf_pars                 = sc.objdict()
+        self.loc_pars           = sc.objdict()
+        self.school_pars        = sc.objdict()
+        self.ltcf_pars          = sc.objdict()
 
         # General parameters
-        self.n                         = int(n)
-        self.max_contacts              = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code        = with_industry_code
-        self.rand_seed                 = rand_seed
-        self.country_location          = country_location
-        self.state_location            = state_location
-        self.location                  = location
-        self.sheet_name                = sheet_name
-        self.use_default               = use_default
+        self.n                  = int(n)
+        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code = with_industry_code
+        self.rand_seed          = rand_seed
+        self.country_location   = country_location
+        self.state_location     = state_location
+        self.location           = location
+        self.sheet_name         = sheet_name
+        self.use_default        = use_default
 
         # Age distribution parameters
-        self.smooth_ages               = smooth_ages
-        self.window_length             = window_length
+        self.smooth_ages        = smooth_ages
+        self.window_length      = window_length
 
         # Household parameters
-        self.household_method          = household_method
+        self.household_method   = household_method
 
         # School parameters
         self.school_pars.with_school_types               = with_school_types
@@ -164,6 +164,13 @@ class Pop(sc.prettyobj):
         self.school_pars = sc.objdict(sc.mergedicts(self.school_pars, school_pars))
         self.ltcf_pars   = sc.objdict(sc.mergedicts(self.ltcf_pars, ltcf_pars))
 
+        # what are the layers generated?
+        if self.ltcf_pars.with_facilities:
+            self.layers = ['H', 'S', 'W', 'LTCF']
+        else:
+            self.layers = ['H', 'S', 'W']
+        self.layer_mappings = dict(H='Households', S='Schools', W='Workplaces', LTCF='Long Term Care facilities')
+
         # Handle the seed
         if self.rand_seed is not None:
             spsamp.set_seed(self.rand_seed)
@@ -176,6 +183,8 @@ class Pop(sc.prettyobj):
         else:
             print(f"========== setting country location = {country_location}")
             cfg.set_location_defaults(country_location)
+
+        self.max_age = defaults.settings.max_age
 
         # if country is specified, and state is not, we are doing a country population
         if self.state_location is None:
@@ -201,7 +210,8 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.compute_summary()
+        self.compute_information()  # compute full information
+        self.compute_summary()  # then compute condensed summary
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -285,8 +295,11 @@ class Pop(sc.prettyobj):
         # Generate households
         household_size_distr = spdata.get_household_size_distr(**loc_pars)
         hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
-        hha_brackets = spdata.get_head_age_brackets(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
-        hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default)
+
+        hha_brackets = spdata.get_head_age_brackets(**loc_pars)
+        hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars)
+
+        # hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
 
         if household_method == 'fixed_ages':
 
@@ -299,19 +312,27 @@ class Pop(sc.prettyobj):
         # Handle homes and facilities
         homes = facilities + homes
         homes_by_uids, age_by_uid_dic = sphh.assign_uids_by_homes(homes)  # include facilities to assign ids
+        age_by_uid = np.array([age_by_uid_dic[i] for i in range(self.n)])
+        self.age_by_uid = age_by_uid
+
         facilities_by_uids = homes_by_uids[0:len(facilities)]
 
         # Generate school sizes
-        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-        school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(**loc_pars)
+        # school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
+        # school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
         uids_in_school, uids_in_school_by_age, ages_in_school_count = spsch.get_uids_in_school(datadir, n_nonltcf, location, state_location, country_location, age_by_uid_dic, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
 
         if with_school_types:
-            school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
-            school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
-            school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+            school_size_distr_by_type = spdata.get_school_size_distr_by_type(**loc_pars)
+            # school_size_distr_by_type = spdata.get_school_size_distr_by_type(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+            school_size_brackets = spdata.get_school_size_brackets(**loc_pars)  # for right now the size distribution for all school types will use the same brackets or bins
+            # school_size_brackets = spdata.get_school_size_brackets(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)  # for right now the size distribution for all school types will use the same brackets or bins
+            school_type_age_ranges = spdata.get_school_type_age_ranges(**loc_pars)
+            # school_type_age_ranges = spdata.get_school_type_age_ranges(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
@@ -333,7 +354,8 @@ class Pop(sc.prettyobj):
             school_type_by_age = None
 
         # Get employment rates
-        employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
+        employment_rates = spdata.get_employment_rates(**loc_pars)
+        # employment_rates = spdata.get_employment_rates(datadir, location=location, state_location=state_location, country_location=country_location, use_default=use_default)
 
         # Find people who can be workers (removing everyone who is currently a student)
         uids_by_age_dic = spb.get_ids_by_age_dic(age_by_uid_dic)  # Make a dictionary listing out uids of people by their age
@@ -443,28 +465,97 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def compute_information(self):
+        """Computing an advanced description of the population."""
+        self.information = sc.objdict()
+        self.information.age_count = self.count_pop_ages()
+        self.information.layer_degrees = dict()
+        self.information.layer_stats = dict()
+        self.information.layer_degree_description = dict()
+
+        for layer in self.layers:
+            self.information.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
+            self.information.layer_stats[layer] = self.information.layer_degrees[layer].describe()[['age', 'degree']]
+            self.information.layer_degree_description[layer] = self.information.layer_degrees[layer].groupby('age')['degree'].describe(percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])  # default percentiles to include
+
+        self.information.household_sizes = self.get_household_sizes()
+        self.information.household_size_count = self.count_household_sizes()
+
+        self.information.household_heads = self.get_household_heads()
+        self.information.household_head_ages = self.get_household_head_ages()
+        self.information.household_head_age_count = self.count_household_head_ages()
+        self.information.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
+
+        self.information.ltcf_sizes = self.get_ltcf_sizes()
+        self.information.ltcf_size_count = self.count_ltcf_sizes()
+
+        self.information.enrollment_by_age = self.count_enrollment_by_age()
+        self.information.enrollment_by_school_type = self.count_enrollment_by_school_type()
+
+        self.information.employment_by_age = self.count_employment_by_age()
+        self.information.workplace_sizes = self.get_workplace_sizes()
+        self.information.workplace_size_count = self.count_workplace_sizes()
+
+        return
+
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
         self.summary = sc.objdict()
-        self.summary.age_count = self.count_pop_ages()
+        self.summary.mean_age = spb.calculate_mean_from_count(self.information.age_count)
+        self.summary.std_age = spb.calculate_std_from_count(self.information.age_count)
 
-        self.summary.household_sizes = self.get_household_sizes()
-        self.summary.household_size_count = self.count_household_sizes()
+        self.summary.layers = dict()
+        for layer in self.layers:
+            self.summary.layers[layer] = dict()
 
-        self.summary.household_heads = self.get_household_heads()
-        self.summary.household_head_ages = self.get_household_head_ages()
-        self.summary.household_head_age_count = self.count_household_head_ages()
-        self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
+        percentiles = [5, 95]
 
-        self.summary.ltcf_sizes = self.get_ltcf_sizes()
-        self.summary.ltcf_size_count = self.count_ltcf_sizes()
+        self.summary.layers['H']['mean'] = np.mean(list(self.information.household_sizes.values()))
+        self.summary.layers['H']['std'] = np.std(list(self.information.household_sizes.values()))
+        for p in percentiles:
+            self.summary.layers['H'][p] = np.percentile(list(self.information.household_sizes.values()), q=p)
 
-        self.summary.enrollment_by_age = self.count_enrollment_by_age()
-        self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
+        sizes = []
+        for s in self.information.enrollment_by_school_type.keys():
+            sizes.extend(self.information.enrollment_by_school_type[s])
+        self.summary.layers['S']['mean'] = np.mean(sizes)
+        self.summary.layers['S']['std'] = np.std(sizes)
+        for p in percentiles:
+            self.summary.layers['S'][p] = np.percentile(sizes, q=p)
 
-        self.summary.employment_by_age = self.count_employment_by_age()
-        self.summary.workplace_sizes = self.get_workplace_sizes()
-        self.summary.workplace_size_count = self.count_workplace_sizes()
+        self.summary.layers['W']['mean'] = np.mean(list(self.information.workplace_sizes.values()))
+        self.summary.layers['W']['std'] = np.std(list(self.information.workplace_sizes.values()))
+        for p in percentiles:
+            self.summary.layers['W'][p] = np.percentile(list(self.information.workplace_sizes.values()), q=p)
+
+    def summarize(self, return_msg=False):
+        """Print and optionally return a brief summary string of the pop."""
+        msg = ""
+        msg += f"This networked population is created to resemble the population of {self.location + ',' if self.location is not None else ''} {self.state_location + ',' if self.state_location is not None else ''} {self.country_location if self.country_location is not None else ''}.\n"
+        msg += f"The number of people is {self.n:.0f}.\n"
+        msg += f"The mean age is {self.summary.mean_age:.2f} +/- {self.summary.std_age:.2f} years old.\n"
+        msg += "\n"
+
+        for layer in self.layers:
+            s = self.information.layer_stats[layer]
+
+            msg += f"Layer {layer}: {self.layer_mappings[layer]}\n"
+            msg += f"   Number of people: {len(self.information.layer_degrees[layer]):.0f}\n"
+            msg += f"   Number of edges: {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} ({s.loc[s.index == 'mean']['degree'][0]:.1f} ± {s.loc[s.index == 'std']['degree'][0]:.1f} per person)\n"
+            msg += f"   Age (years): {s.loc[s.index == 'mean']['age'][0]:.1f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f})\n"
+
+            if layer in ['H', 'S', 'W']:
+                msg += f"   {self.layer_mappings[layer].title()} size: {self.summary.layers[layer]['mean']:.1f} ± {self.summary.layers[layer]['std']:.1f} people (range is {self.summary.layers[layer][5]:.1f}-{self.summary.layers[layer][95]:.1f}).\n"
+
+            msg += "\n"
+
+        msg += f"The rand_seed used to generate this population is {self.rand_seed}."
+
+        print(msg)
+        if return_msg:
+            return msg
+        else:
+            return
 
     def count_pop_ages(self):
         """
@@ -493,7 +584,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the count of household sizes.
         """
-        return spb.count_values(self.summary.household_sizes)
+        return spb.count_values(self.information.household_sizes)
 
     # convert to work on array
     def get_household_heads(self):
@@ -502,7 +593,7 @@ class Pop(sc.prettyobj):
 
     def get_household_head_ages(self):
         """Get the age of the head of each household in the generated population post generation."""
-        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.summary.household_heads.items()}
+        return {hhid: self.popdict[head_id]['age'] for hhid, head_id in self.information.household_heads.items()}
 
     def count_household_head_ages(self, bins=None):
         """
@@ -515,9 +606,9 @@ class Pop(sc.prettyobj):
             dict: Dictionary of the count of household head ages.
         """
         if bins is None:
-            return spb.count_values(self.summary.household_head_ages)
+            return spb.count_values(self.information.household_head_ages)
         else:
-            head_ages = list(self.summary.household_head_ages.values())
+            head_ages = list(self.information.household_head_ages.values())
             hist, bins = np.histogram(head_ages, bins=bins, density=0)
             return {i: hist[i] for i in range(len(hist))}
 
@@ -590,7 +681,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the enrollment rates by age for students in the generated population.
         """
-        return {k: self.summary.enrollment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
+        return {k: self.information.enrollment_by_age[k]/self.information.age_count[k] if self.information.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     def count_enrollment_by_school_type(self, *args, **kwargs):
         """
@@ -619,7 +710,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the employment rates by age for workers in the generated population.
         """
-        return {k: self.summary.employment_by_age[k]/self.summary.age_count[k] if self.summary.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
+        return {k: self.information.employment_by_age[k]/self.information.age_count[k] if self.information.age_count[k] > 0 else 0 for k in range(defaults.settings.max_age)}
 
     # convert to work on array
     def get_workplace_sizes(self):
@@ -639,7 +730,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict:Dictionary of the count of workplace sizes.
         """
-        return spb.count_values(self.summary.workplace_sizes)
+        return spb.count_values(self.information.workplace_sizes)
 
     def get_contact_counts_by_layer(self, layer='S'):
         """
