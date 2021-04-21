@@ -495,7 +495,7 @@ def plot_contacts(pop, **kwargs):
         population = pop.to_dict()
         age_brackets = pop.age_brackets
         age_by_brackets_dic = pop.age_by_brackets_dic
-        age_count = pop.summary.age_count
+        age_count = pop.information.age_count
 
     elif isinstance(pop, dict):
         population = sc.dcp(pop)
@@ -698,7 +698,7 @@ def plot_ages(pop, **kwargs):
 
         # get the generated age distribution
         if isinstance(pop, sppop.Pop):
-            generated_age_count = pop.summary.age_count
+            generated_age_count = pop.information.age_count
 
         elif isinstance(pop, dict):
             generated_age_count = spb.count_ages(pop)
@@ -796,7 +796,7 @@ def plot_household_sizes(pop, **kwargs):
         generated_household_size_count = dict.fromkeys(expected_household_size_dist.keys(), 0)
 
         if isinstance(pop, sppop.Pop):
-            generated_household_size_count = pop.summary.household_size_count
+            generated_household_size_count = pop.information.household_size_count
 
         elif isinstance(pop, dict):
             generated_household_sizes = sphh.get_household_sizes(pop)
@@ -1471,7 +1471,7 @@ def plot_workplace_sizes(pop, **kwargs):
         generated_work_sizes_binned = dict.fromkeys(expected_work_sizes_binned.keys())
 
         if isinstance(pop, sppop.Pop):
-            generated_work_sizes = pop.summary.workplace_sizes
+            generated_work_sizes = pop.information.workplace_sizes
 
         elif isinstance(pop, dict):
             generated_work_sizes = spw.get_workplace_sizes(pop)
@@ -1949,7 +1949,7 @@ def plot_degree_by_age_stats(pop, **kwargs):
     for nl, layer in enumerate(pop.layers):
 
         x = np.arange(pop.max_age)
-        s = pop.summary.layer_degree_description[layer]
+        s = pop.information.layer_degree_description[layer]
         ylo = [s.loc[s.index == a]['5%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
         y25 = [s.loc[s.index == a]['25%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
         y = [s.loc[s.index == a]['mean'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
