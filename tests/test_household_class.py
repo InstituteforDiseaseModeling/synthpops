@@ -131,21 +131,25 @@ def test_households_basic():
     age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
 
     pop = sp.Pop(n=settings.pop_sizes.small)
+    assert pop.get_household(1)['reference_uid'] == pop.homes_by_uids[1][0], 'Check failed on pop object.'
+    print('Check passed on pop.get_household() method.')
+
+    pop_1 = sc.dcp(pop)
+    pop_1.initialize_empty_households(n_households=5)
+    assert len(pop_1.households) == 5, 'Check failed.'
+
+    pop_1.add_household(sc.dcp(pop.get_household(1)))
+    assert len(pop_1.households) == 6, 'Check failed.'
 
     pop_2 = sc.prettyobj()
     pop_2.households = []
     sp.populate_households(pop_2, homes_by_uids, age_by_uid)
 
-
-    # assert households.n_households == len(homes_by_uids), "number of households should match."
     assert pop_2.n_households == len(homes_by_uids), "number of households should match."
     for i in range(0, len(homes_by_uids)):
         assert pop_2.households[i]['reference_uid'] == homes_by_uids[i][0]
         assert sp.get_household(pop_2, i)['reference_age'] == age_by_uid[homes_by_uids[i][0]]
         assert len(pop_2.households[i]) == len(homes_by_uids[i])
-        # assert households.get_household(i)['reference_uid'] == homes_by_uids[i][0]
-        # assert households.get_household(i)['reference_age'] == age_by_uid[homes_by_uids[i][0]]
-        # assert len(households.get_household(i)) == len(homes_by_uids[i])
     print('Check passed. Generic households can be populated during class initialization.')
 
     not_a_household = ''
