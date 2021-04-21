@@ -10,11 +10,7 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 import cmocean
 import pytest
-
-import covasim as cv
-
-mplt.rcParams['font.family'] = 'Roboto Condensed'
-mplt.rcParams['font.size'] = 7
+import settings
 
 
 # parameters to generate a test population
@@ -41,22 +37,6 @@ pars = sc.objdict(
 )
 
 
-# def test_cannot_change_attribute():
-#     sp.logger.info("Test to show that class methods can't be easily reset.")
-#     pop = sp.Pop(**pars)
-#     household = sp.Household()
-#     # with pytest.raises(ValueError) as excinfo:
-#     #     household.set_household = 1
-#     # assert "exists as an attribute, so cannot be set as key; use setattribute() instead" in str(excinfo.value), 'Check that you cannot reset an attribute or household class method failed.'
-#     print('Check passed. Could not reset household class method as an integer.')
-
-#     # households = sp.Households()
-#     # with pytest.raises(ValueError) as excinfo:
-#     #     households.add_household = 2
-#     # assert "exists as an attribute, so cannot be set as key; use setattribute() instead" in str(excinfo.value), 'Check that you cannot reset an attribute or households class method failed.'
-#     print('Check passed. Could not reset households class method as an integer.')
-
-
 def test_empty_household():
     sp.logger.info("Test creating an empty household.")
 
@@ -65,42 +45,20 @@ def test_empty_household():
     def check_phrase(key, value, passed):
         print(f"Check {'passed' if passed else 'failed'}. household {key} for an empty household is {value}.")
         assert passed
-        # if passed:
-        #     print(f"Check passed. household {key} for an empty household is {value}.")
-        # else:
-        #     print(f"Check failed. household {key} for an empty household is {value}.")
+
     check_phrase('hhid', household['hhid'], passed=household['hhid'] is None)
+    check_phrase('reference_uid', household['reference_uid'], passed=household['reference_uid'] is None)
+    check_phrase('reference_age', household['reference_age'], passed=household['reference_age'] is None)
 
-    # assert household.get_hhid() is None, check_phrase('hhid', household.get_hhid(), passed=False)
-    # check_phrase('hhid', household.get_hhid(), passed=True)
-    # assert household['hhid'] is None, check_phrase('hhid', household['hhid'], passed=False)
-    # check_phrase('hhid', household['hhid'], passed=True)
-
-    # np.testing.assert_array_equal(household.get_member_uids(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_uids.", verbose=True)
-    # check_phrase('member_uids', household.get_member_uids(), passed=True)
     np.testing.assert_array_equal(household['member_uids'], np.array([], dtype=int), err_msg="Check failed: empty array not found for member_uids.", verbose=True)
     check_phrase('member_uids', household['member_uids'], passed=True)
 
-    # np.testing.assert_array_equal(household.get_member_ages(), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
-    # check_phrase('member_ages', household.get_member_ages(), passed=True)
     np.testing.assert_array_equal(household['member_ages'], np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
     check_phrase('member_ages', household['member_ages'], passed=True)
 
-    # assert household.get_reference_uid() is None, check_phrase('reference_uid', household.get_reference_uid(), passed=False)
-    # check_phrase('reference_uid', household.get_reference_uid(), passed=True)
-    # assert household['reference_uid'] is None, check_phrase('reference_uid', household['reference_uid'], passed=False)
-    # check_phrase('reference_uid', household['reference_uid'], passed=True)
-    check_phrase('reference_uid', household['reference_uid'], passed=household['reference_uid'] is None)
-
-    # assert household.get_reference_age() is None, check_phrase('reference_age', household.get_reference_age(), passed=False)
-    # check_phrase('reference_age', household.get_reference_age(), passed=True)
-    # assert household['reference_age'] is None, check_phrase('reference_age', household['reference_age'], passed=False)
-    # check_phrase('reference_age', household['reference_age'], passed=True)
-    check_phrase('reference_age', household['reference_age'], passed=household['reference_age'] is None)
-
     print('Checks passed for an empty household.')
 
-# @pytest.mark.skip
+
 def test_make_household():
     sp.logger.info("Test creating a household after the fact.")
     pop = sp.Pop(**pars)
@@ -112,35 +70,41 @@ def test_make_household():
                             reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
                             hhid=0)
 
-    # assert household.get_hhid() == 0, f"Check failed. household hhid is {household.get_hhid()}."
     assert household['hhid'] == 0, f"Check failed. household hhid is {household['hhid']}."
     print('Check passed. household hhid is 0.')
-
-    # assert len(household.get_member_uids()) > 0 and isinstance(household.get_member_uids(), (list, np.ndarray)), 'Check failed: member_uids is empty or not a np.array.'
-    # assert len(household['member_uids']) > 0 and isinstance(household['member_uids'], (list, np.ndarray)), 'Check failed: member_uids is empty or not a np.array.'
-    # print('Check passed. household member_uids is an np.array and has at least one entry.')
-
-    # assert len(household.get_member_ages()) > 0 and isinstance(household.get_member_ages(), (list, np.ndarray)), 'Check failed: member_ages is empty or not a np.array.'
-    # assert len(household['member_ages']) > 0 and isinstance(household['member_ages'], (list, np.ndarray)), 'Check failed: member_ages is empty or not a np.array.'
-    # print('Check passed. household member_ages is an np.array and has at least one entry.')
 
     assert len(household['member_uids']) == len(household['member_ages']), 'Check failed: member_uids and member_ages have different lengths.'
     print(f"Check passed. household member_uids and member_ages have the same length ({len(household['member_uids'])}).")
 
-    assert len(household) == len(household['member_uids']), 'Check failed: len(household) does not return the household size, i.e. the number of household members.'
-    print(f"Check passed. len(household) returns the number of household members.")
+    assert isinstance(household['member_uids'], np.ndarray), 'Check failed: member_uids is not a np.array.'
+    print("Check passed. household member_uids is a np.array.")
 
-    # assert household.get_reference_uid() is not None, 'Check failed. household reference_uid is None.'
+    assert len(household) == len(household['member_uids']), 'Check failed: len(household) does not return the household size, i.e. the number of household members.'
+    print('Check passed. len(household) returns the number of household members.')
+
+    assert isinstance(household['member_ages'], np.ndarray), 'Check failed: member_ages is not a np.array.'
+    print('Check passed. household member_ages is a np.array.')
+
     assert household['reference_uid'] is not None, 'Check failed. household reference_uid is None.'
     print(f"Check passed. household reference_uid is not None and instead is {household['reference_uid']}.")
 
-    # assert household.get_reference_age() is not None, 'Check failed. household reference_age is None.'
     assert household['reference_age'] is not None, 'Check failed. household reference_age is None.'
     print(f"Check passed. household reference_age is not None and instead is {household['reference_age']}.")
 
-    # assert household.get_household_size() > 0, f"Check failed. household size is {household.get_household_size()}."
     assert len(household), f"Check failed. household size is {len(household)}."
     print(f"Check passed. household household size is {len(household)}.")
+
+    household_2 = sp.Household()
+    household_2['member_uids'] = ['a']
+    with pytest.raises(TypeError):
+        household_2.validate()
+    print('Check passed. A synthpops household must have member_uids that are passable as a np.array of ints.')
+
+    household_2 = sp.Household()
+    household_2['hhid'] = 'b'
+    with pytest.raises(TypeError):
+        household_2.validate()
+    print('Check passed. A synthpops household must have hhid that is an int or None.')
 
 
 def test_add_household():
@@ -157,7 +121,6 @@ def test_add_household():
     pop.households = []
     sp.add_household(pop, household)
 
-    # assert isinstance(households.households_array[0], sp.Household), 'Check failed. Did not add a sp.Household object to the list of households.'
     assert isinstance(pop.households[0], sp.Household), 'Check failed. Did not add a sp.Household object to the list of households.'
     print('Check passed. Added a sp.Household object to an sp.Households object.')
 
@@ -167,19 +130,19 @@ def test_households_basic():
     homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
     age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
 
-    pop = sc.prettyobj()
-    pop.households = []
-    sp.populate_households(pop, homes_by_uids, age_by_uid)
+    pop = sp.Pop(n=settings.pop_sizes.small)
 
-    # households = sp.Households(**{'households': homes_by_uids,
-    #                               'age_by_uid': age_by_uid})
+    pop_2 = sc.prettyobj()
+    pop_2.households = []
+    sp.populate_households(pop_2, homes_by_uids, age_by_uid)
+
 
     # assert households.n_households == len(homes_by_uids), "number of households should match."
-    assert pop.n_households == len(homes_by_uids), "number of households should match."
+    assert pop_2.n_households == len(homes_by_uids), "number of households should match."
     for i in range(0, len(homes_by_uids)):
-        assert pop.households[i]['reference_uid'] == homes_by_uids[i][0]
-        assert pop.households[i]['reference_age'] == age_by_uid[homes_by_uids[i][0]]
-        assert len(pop.households[i]) == len(homes_by_uids[i])
+        assert pop_2.households[i]['reference_uid'] == homes_by_uids[i][0]
+        assert sp.get_household(pop_2, i)['reference_age'] == age_by_uid[homes_by_uids[i][0]]
+        assert len(pop_2.households[i]) == len(homes_by_uids[i])
         # assert households.get_household(i)['reference_uid'] == homes_by_uids[i][0]
         # assert households.get_household(i)['reference_age'] == age_by_uid[homes_by_uids[i][0]]
         # assert len(households.get_household(i)) == len(homes_by_uids[i])
@@ -187,10 +150,16 @@ def test_households_basic():
 
     not_a_household = ''
     with pytest.raises(ValueError):
-        sp.add_household(pop, not_a_household)
-        # households.add_household(not_a_household)
-    # print('Check passed. Cannot add an object that is not a sp.Household to a sp.Households object.')
+        sp.add_household(pop_2, not_a_household)
     print('Check passed. Cannot add an object that is not a sp.Household using sp.add_household().')
+
+    with pytest.raises(TypeError):
+        sp.get_household(pop_2, 0.5)
+    print('Check passed. Cannot get a household with a non-int hhid')
+
+    with pytest.raises(ValueError):
+        sp.get_household(pop_2, len(pop_2.households) + 1)
+    print('Check passed. Cannot get a household with hhid larger than the number of households')
 
 
 @pytest.mark.skip  # necessary for vital dynamics but not working right now
@@ -201,8 +170,7 @@ def test_reset_household_values():
     pop = sc.prettyobj()
     pop.households = []
     sp.populate_households(pop, homes_by_uids, age_by_uid)
-    # households = sp.Households(**{'households': homes_by_uids,
-    #                               'age_by_uid': age_by_uid})
+
     # households.get_household(0).set_hhid(7)
     # households.get_household(0).set_member_uids([8, 8, 8])
     # households.get_household(0).set_member_ages([0, 0, 0])
