@@ -136,10 +136,12 @@ def test_households_basic():
 
     pop_1 = sc.dcp(pop)
     pop_1.initialize_empty_households(n_households=5)
-    assert len(pop_1.households) == 5, 'Check failed.'
+    assert len(pop_1.households) == 5, 'Check failed. Could not re-initialize to 5 households after generation.'
+    print('Check passed on pop.initialize_empty_households().')
 
     pop_1.add_household(sc.dcp(pop.get_household(1)))
-    assert len(pop_1.households) == 6, 'Check failed.'
+    assert len(pop_1.households) == 6, 'Check failed. Could not add a new household to pop.'
+    print('Check passed. Could add a new household with pop.add_household().')
 
     pop_2 = sc.prettyobj()
     pop_2.households = []
@@ -185,7 +187,6 @@ def test_reset_household_values():
 def test_households_initialization():
     sp.logger.info("Test households initialization methods.")
 
-    # households = sp.Households()
     pop = sc.prettyobj()
     pop.households = []
 
@@ -200,24 +201,16 @@ def test_households_initialization():
     pop.households = homes_by_uids
     pop.n_households = 2
 
-    # households.households_array = homes_by_uids
-    # households.n_households = 2
     assert pop.n_households != len(pop.households), 'Check failed. pop.n_households and len(pop.households_array) are not aligned.'
     print('Check passed. Initially households.n_households do not match len(households.households_array).')
-
-    # households.initialize_n_households()
-    # assert households.n_households == len(households.households_array), 'Check failed. households.n_households and len(households.households_array) do not match.'
-    # print('Check passed. Now households.n_households and len(households.households_array).')
 
     pop.households = []
     sp.initialize_empty_households(pop, n_households=5)
     for i in range(pop.n_households):
-        # assert isinstance(households.households_array[i], sp.Household) and households.get_household(i).get_hhid() is None, 'Check failed. households[i] is not a household object.'
         assert isinstance(pop.households[i], sp.Household) and pop.households[i]['hhid'] is None, 'Check failed. households[i] is not a household object.'
     print(f'Check passed. Initialized {pop.n_households} empty households.')
 
     # test that if there are not enough households when populating, we reinitialize that cover with the correct number
-    # households.households_array = []
     pop.households = []
     sp.populate_households(pop, homes_by_uids, age_by_uid)
     assert len(pop.households) == len(homes_by_uids), 'Check failed.'
@@ -226,13 +219,8 @@ def test_households_initialization():
 
 if __name__ == '__main__':
 
-    test_cannot_change_attribute()
     pop = test_empty_household()
     test_make_household()
     test_add_household()
     test_households_basic()
     test_households_initialization()
-
-    hhs = sp.Households()
-    # print(hhs.keys())
-

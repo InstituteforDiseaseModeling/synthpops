@@ -184,8 +184,6 @@ def populate_households(pop, households, age_by_uid):
                       member_ages=[age_by_uid[i] for i in hh],
                       reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
                       reference_age=age_by_uid[hh[0]]
-                      # reference_uid=min(hh),
-                      # reference_age=age_by_uid[min(hh)]  # reference person is the minimal id
                       )
         household = Household()
         household.set_household(**kwargs)
