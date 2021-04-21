@@ -21,8 +21,7 @@ import networkx as nx
 import logging
 
 from . import data_distributions as spdata
-from .config import datadir
-from .config import max_age
+from . import defaults
 
 from . import base as spb
 from . import sampling as spsamp
@@ -1239,7 +1238,7 @@ def count_enrollment_by_age(popdict):
     Returns:
         dict: Dictionary of the count of enrolled students by age in popdict.
     """
-    enrollment_count_by_age = dict.fromkeys(np.arange(0, max_age), 0)
+    enrollment_count_by_age = dict.fromkeys(np.arange(0, defaults.settings.max_age), 0)
     for i, person in popdict.items():
         if person['scid'] is not None and person['sc_student']:
             enrollment_count_by_age[person['age']] += 1

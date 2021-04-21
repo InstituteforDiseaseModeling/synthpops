@@ -5,7 +5,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 import numpy as np
 import sciris as sc
 from collections import Counter
-from . import config as cfg
+from . import defaults as spd
 
 
 def norm_dic(dic):
@@ -112,7 +112,8 @@ def count_ages(popdict):
     Returns:
         dict: Dictionary of the age count of the population.
     """
-    age_count = dict.fromkeys(np.arange(0, cfg.max_age), 0)
+    age_count = dict.fromkeys(np.arange(0, spd.settings.max_age), 0)
+
     for i, person in popdict.items():
         age_count[person['age']] += 1
     return age_count
@@ -162,7 +163,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
 
     ::
 
-        age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
+        age_brackets = sp.get_census_age_brackets(sp.settings_config.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
         aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)

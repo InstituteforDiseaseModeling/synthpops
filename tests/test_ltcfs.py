@@ -85,7 +85,7 @@ def test_ltcf_resident_ages(do_show=False):
     pop = sp.Pop(**test_pars)
     pop_dict = pop.to_dict()
 
-    ltcf_resident_rates_by_age = sp.get_long_term_care_facility_use_rates(sp.datadir,
+    ltcf_resident_rates_by_age = sp.get_long_term_care_facility_use_rates(sp.settings.datadir,
                                                                           country_location=pop.country_location,
                                                                           state_location=pop.state_location,
                                                                           )

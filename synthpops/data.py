@@ -6,10 +6,17 @@ from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
 import os
-from . import config as cfg
+
 from . import logger
 from . import defaults
 import warnings
+
+
+class PopulationAgeDistribution(JsonObject):
+    """Class for population age distribution with a specified number of bins."""
+    num_bins = IntegerProperty()
+    # [min_age, max_age, percentage]
+    distribution = ListProperty(DefaultProperty)
 
 
 class SchoolSizeDistributionByType(JsonObject):
@@ -51,20 +58,7 @@ class Location(JsonObject):
 
     parent = DefaultProperty()
 
-    population_age_distribution_16 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
-
-    population_age_distribution_18 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
-
-    population_age_distribution_20 = ListProperty(
-        # [min_age, max_age, percentage]
-        ListProperty(DefaultProperty)
-    )
+    population_age_distributions = ListProperty(PopulationAgeDistribution)
 
     employment_rates_by_age = ListProperty(
         # [age, percentage]
@@ -144,8 +138,8 @@ class Location(JsonObject):
     def get_population_age_distribution(self, nbrackets):
         """
         Get the age distribution of the population aggregated to nbrackets age
-        brackets. Currently there is support 16, 18, and, 20 nbrackets and
-        return a container for the age distribution with nbrackets.
+        brackets. If the data doesn't contain a distribution with the requested number
+        of brackets, an exception is raised.
 
         Args:
             nbrackets (int): the number of age brackets the age distribution is aggregated to
@@ -153,26 +147,14 @@ class Location(JsonObject):
         Returns:
             list: A list of the probability age distribution values indexed by
             the bracket number.
-        Note:
-            This will be updated shortly to support a more flexible number of
-            age brackets.
         """
-        if nbrackets not in [16, 18, 20]:
-            # DM: This is different behavior than previous versions of synthpops:
-            # in config.py we instead raised a warning but still allowed users to use different nbrackets
-            # most users may not use this, but development work certainly does so this behavior should be changed soon
-            # the warning raised:
-            # logger.warning(f'Note: current supported bracket choices are {valid_nbracket_ranges}, use {nbrackets} at your own risk.')
 
-            raise RuntimeError(f"Unsupported value for nbrackets: {nbrackets}")
+        matching_distributions = [d for d in self.population_age_distributions if d.num_bins==nbrackets]
+        if len(matching_distributions) == 0:
+            raise RuntimeError(f"The configured location data doesn't have a population age "
+                               f"distribution with [{nbrackets}] brackets.")
 
-        dists = {
-            16: self.population_age_distribution_16,
-            18: self.population_age_distribution_18,
-            20: self.population_age_distribution_20,
-        }
-
-        dist = dists[nbrackets]
+        dist = matching_distributions[0].distribution
         return dist
 
 
@@ -195,7 +177,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
         parent_obj = load_location_from_filepath(parent_file_path)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.warning(f"You may have an invalid data configuration: couldn't load parent "
+        logger.debug(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
@@ -299,12 +281,12 @@ def get_relative_path(datadir):
     Returns:
         str: Relative path for the data folder.
 
-    Notes
+    Notes:
         This method may not be necessary anymore...
     """
     base_dir = datadir
-    if len(cfg.rel_path) > 1:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    if len(defaults.settings.relative_path) > 1:
+        base_dir = os.path.join(datadir,  *defaults.settings.relative_path)
     return base_dir
 
 
@@ -330,7 +312,7 @@ def get_location_attr(location, property_name):
 def load_location_from_filepath(rel_filepath):
     """
     Loads location data object from provided relative filepath where the file path is
-    relative to cfg.datadir.
+    relative to defaults.settings.datadir.
 
     Args:
         rel_filepath (str): relative file path for the location data
@@ -338,7 +320,7 @@ def load_location_from_filepath(rel_filepath):
     Returns:
         json: The json object with location data.
     """
-    filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
+    filepath = os.path.join(get_relative_path(defaults.settings.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
@@ -401,7 +383,7 @@ def are_location_constraints_satisfied(location):
     """
 
     for f in [check_location_name,
-              check_population_age_distribution_16,
+              check_population_age_distributions,
               check_employment_rates_by_age,
               check_enrollment_rates_by_age,
               check_household_head_age_brackets,
@@ -423,6 +405,14 @@ def are_location_constraints_satisfied(location):
     return [True, None]
 
 
+def check_array_of_array_entry_lens_arr(array_of_arrays, expected_len):
+    for [k, bracket] in enumerate(array_of_arrays):
+        if not len(bracket) == expected_len:
+            return [False,
+                    f"Entry [{k}] has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
+    return [True, None]
+
+
 def check_array_of_arrays_entry_lens(location, expected_len, property_name):
     """
     Check that each array in an array of arrays has the expected length.
@@ -438,11 +428,10 @@ def check_array_of_arrays_entry_lens(location, expected_len, property_name):
         error message.
     """
     arr = get_location_attr(location, property_name)
+    status, reason = check_array_of_array_entry_lens_arr(arr, expected_len)
+    if not status:
+        return [False, f"For property {property_name}: {reason}"]
 
-    for [k, bracket] in enumerate(arr):
-        if not len(bracket) == expected_len:
-            return [False,
-                    f"Entry [{k}] in {property_name} has invalid length: [{len(bracket)}]; should be [{expected_len}]"]
     return [True, None]
 
 
@@ -462,49 +451,91 @@ def check_valid_probability_distributions(property_name, valid_properties=None):
         valid_properties = defaults.valid_probability_distributions
 
     # if a single str, make into a list so next check will work
-    if not isinstance(valid_properties, list): # pragma: no cover
-        valid_properties = [valid_properties]
+    valid_properties = sc.tolist(valid_properties)
 
     if property_name not in valid_properties: # pragma: no cover
         raise NotImplementedError(f"{property_name} is not one of the expected probability distributions. The list of expected probability distributions is {valid_properties}. If you wish to use this method on the attribute {property_name}, you can supply it as the parameter valid_properties={property_name}.")
 
 
-def check_probability_distribution_nonnegative(location, property_name, valid_properties=None):
+def check_probability_distribution_sum_age_distributions(location, arr, tolerance=1e-2, **kwargs):
     """
-    Check that fields representing probability distributions have all non negative values.
+    Check that each population age distribution has a sum equal to 1 within some
+    tolerance.
 
     Args:
-        location (json)                : the json object with location data
-        property_name (str)            : the property name
-        valid_properties (str or list) : a list of the valid probability distributions
+        location (json)   : the json object with location data
+        arr (list)        : the list of population age distributions
+        tolerance (float) : difference from the sum of 1 tolerated
+        kwargs (dict)     : dictionary of values passed to np.isclose()
 
     Returns:
-        [True, None] if the values of the probability distribution are all non negative.
-        [False, str] else. The returned str is the error message with some information about the check.  
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.
     """
-    check_valid_probability_distributions(property_name, valid_properties)
+    if tolerance is not None: # pragma: no cover
+        kwargs['atol'] = tolerance
 
-    arr = get_location_attr(location, property_name)
-    arr = np.array(arr)
+    checks, msgs = [], []
+    for i in arr: # pragma: no cover
+        if 'num_bins' in i:
+            arr_i = np.array(i.distribution)
+            arr_sum = np.sum(arr_i[:, -1])
 
-    # what are the values of the probability distribution
-    if len(arr):
+            check = np.isclose(a=1, b=arr_sum, **kwargs)
+            checks.append(check)
 
-        if arr.ndim == 2:
-            arr = arr[:, -1]  # distribution values are in the last column if arr is 2D array
+            if check:
+                msg = ''
+            else:
+                msg = f"The sum of the probability distribution for the population age distribution for {location.location_name} with num_bins = {i.num_bins} is {arr_sum:.4f}.\n"
+            msgs.append(msg)
 
-        # find the indices where the distribution is negative
-        negative = np.argwhere(arr < 0)
-        # check if any are negative
-        any_negative = len(negative)
-        check = not any_negative
-        
-        if check:
-            return [True, None]
         else:
-            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]} at the indices {negative}."]
-    else:
-        return [False, f"{location.location_name} {property_name} could not be checked for negative values."]
+            checks.append(False)
+            msgs.append(f"The probability distribution for the population age distribution for {location.location_name} does not have num_bins.")
+    msg = "".join(msgs)
+    if msg == "": # pragma: no cover
+        msg = None
+    return [sum(checks) > 0, msg]
+
+
+def check_probability_distribution_nonnegative_age_distributions(location, arr):
+    """
+    Check that each population age distribution has all non negative values.
+
+    Args:
+        location (json) : the json object with location data
+        arr (list) : the list of population age distributions
+
+    Returns:
+        [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
+        [False, str] else. The returned str is the error message with some information about the check.
+    """
+    checks, msgs = [], []
+    for i in arr: # pragma: no cover
+        if 'num_bins' in i:
+            arr_i = np.array(i.distribution)
+
+            # find the indices where the distribution is negative
+            negative = np.argwhere(arr_i < 0)
+            # check is any are negative
+            any_negative = len(negative)
+            check = not any_negative
+            checks.append(check)
+
+            if check:
+                msg = ''
+            else:
+                msg = f"The probability distribution for the population age distribution for {location.location_name} with num_bins = {i.num_bins} has some negative values, {arr_i[negative]}, at the indices {negative}.\n"
+            msgs.append(msg)
+
+        else:
+            checks.append(False)
+            msgs.append(f"The probability distribution for the population age distribution for {location.location_name} does not have num_bins.")
+    msg = "".join(msgs)
+    if msg == "": # pragma: no cover
+        msg = None
+    return [sum(checks) > 0, msg]
 
 
 def check_probability_distribution_sum(location, property_name, tolerance=1e-2, valid_properties=None, **kwargs):
@@ -520,28 +551,33 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
 
     Returns:
         [True, None] if the sum of the probability distribution is equal to 1 within the tolerance level.
-        [False, str] else. The returned str is the error message with some information about the check.  
+        [False, str] else. The returned str is the error message with some information about the check.
     """
     check_valid_probability_distributions(property_name, valid_properties)
 
+    # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
+    if tolerance is not None:
+        kwargs['atol'] = tolerance
+
     arr = get_location_attr(location, property_name)
-    arr = np.array(arr)
 
-    if len(arr):
+    if property_name == 'population_age_distributions':
+        check, msg = check_probability_distribution_sum_age_distributions(location, arr, **kwargs)
+        return check, msg
 
-        # what is the sum of the probability distribution values?
+    elif len(arr):
+
+        arr = np.array(arr)
+
         if arr.ndim == 1:  # for school size distributions
-            arr_sum = sum(arr)
+            arr_sum = sum(arr)  # what is the sum of the probability distribution values?
 
         elif arr.ndim == 2:
-            arr_sum = np.sum(arr[:, -1])  # distibution values are in the last column if arr is 2D array
+            arr_sum = np.sum(arr[:, -1])  # distribution values are in the last column if arr is 2D array
 
         else:
             raise NotImplementedError(f"Could not understand an array of shape {arr.shape}: Expected a 1D or 2D array.")
 
-        # is the absolute difference between the sum and the expected value of 1 less than the tolerance value?
-        if tolerance is not None:
-            kwargs['atol'] = tolerance
         check = np.isclose(a=1, b=arr_sum, **kwargs)
 
         if check:
@@ -551,6 +587,47 @@ def check_probability_distribution_sum(location, property_name, tolerance=1e-2, 
 We expected the sum of these probabilities to be less than {tolerance} from 1."]
     else:
         return [False, f"{location.location_name} {property_name} could not be checked for a sum close to 1."]
+
+
+def check_probability_distribution_nonnegative(location, property_name, valid_properties=None):
+    """
+    Check that fields representing probability distributions have all non negative values.
+
+    Args:
+        location (json)                : the json object with location data
+        property_name (str)            : the property name
+        valid_properties (str or list) : a list of the valid probability distributions
+
+    Returns:
+        [True, None] if the values of the probability distribution are all non negative.
+        [False, str] else. The returned str is the error message with some information about the check.
+    """
+    check_valid_probability_distributions(property_name, valid_properties)
+
+    arr = get_location_attr(location, property_name)
+
+    if property_name == 'population_age_distributions':
+        check, msg = check_probability_distribution_nonnegative_age_distributions(location, arr)
+        return check, msg
+
+    elif len(arr):
+        arr = np.array(arr)
+
+        if arr.ndim == 2:
+            arr = arr[:, -1]  # distribution values are in the last column if arr is 2D array
+
+        # find the indices where the distribution is negative
+        negative = np.argwhere(arr < 0)
+        # check if any are negative
+        any_negative = len(negative)
+        check = not any_negative
+
+        if check:
+            return [True, None]
+        else:
+            return [False, f"The probability distribution for the property: {property_name} has some negative values, {arr[negative]}, at the indices {negative}."]
+    else:
+        return [False, f"{location.location_name} {property_name} could not be checked for negative values."]
 
 
 def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False, verbose=False, **kwargs):
@@ -582,11 +659,11 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+        logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
     return checks, msgs
 
 
-def check_all_probability_distribution_nonnegative(location, die=False, verbose=False):
+def check_all_probability_distribution_nonnegative(location, die=False, verbose=True):
     """
     Run checks that a field representing probabilty distributions has all non
     negative values.
@@ -613,7 +690,7 @@ def check_all_probability_distribution_nonnegative(location, die=False, verbose=
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+        logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
     return checks, msgs
 
 
@@ -635,11 +712,11 @@ def check_location_name(location):
 
     return [False, "location_name must be specified"]
 
-# DM: this could be generalized to a single function with a parameter nbrackets
-def check_population_age_distribution_16(location):
+
+def check_population_age_distributions(location):
     """
-    Check that the population age distribution aggregated to 16 age brackets is
-    an array of length 16 and each sub array has length 3.
+    Check that the population age distributions are self-consistent in the number of brackets,
+    and each sub array has length 3.
 
     Args:
         location (json): the json object with location data
@@ -647,50 +724,12 @@ def check_population_age_distribution_16(location):
     Returns:
         [True, None] if checks pass. [False, str] if checks fail.
     """
-    if len(location.population_age_distribution_16) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_16) != 16:
-        return [False, f"Invalid length for {location.population_age_distribution_16}: "
-                       f"{len(location.population_age_distribution_16)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_16')
-
-
-def check_population_age_distribution_18(location):
-    """
-    Check that the population age distribution aggregated to 18 age brackets is
-    an array of length 18 and each sub array has length 3.
-
-    Args:
-        location (json): the json object with location data
-
-    Returns:
-        [True, None] if checks pass. [False, str] if checks fail.
-    """
-    if len(location.population_age_distribution_18) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_18) != 18:
-        return [False, f"Invalid length for {location.population_age_distribution_18}: "
-                       f"{len(location.population_age_distribution_18)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_18')
-
-
-def check_population_age_distribution_20(location):
-    """
-    Check that the population age distribution aggregated to 20 age brackets is
-    an array of length 20 and each sub array has length 3.
-
-    Args:
-        location (json): the json object with location data
-
-    Returns:
-        [True, None] if checks pass. [False, str] if checks fail.
-    """
-    if len(location.population_age_distribution_20) == 0:
-        return [True, ""]
-    if len(location.population_age_distribution_20) != 20:
-        return [False, f"Invalid length for {location.population_age_distribution_20}: "
-                       f"{len(location.population_age_distribution_20)}"]
-    return check_array_of_arrays_entry_lens(location, 3, 'population_age_distribution_20')
+    for population_age_distribution in location.population_age_distributions:
+        if len(population_age_distribution.distribution) != population_age_distribution.num_bins:
+            return [False, f"Length for {population_age_distribution} distribution doesn't match 'num_bins': "
+                           f"{len(population_age_distribution.distribution)} != {population_age_distribution.num_bins}"]
+        return check_array_of_array_entry_lens_arr(population_age_distribution.distribution, 3)
+    return [True, None]
 
 
 def check_employment_rates_by_age(location):
