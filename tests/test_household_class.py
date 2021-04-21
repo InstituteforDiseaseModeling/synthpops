@@ -63,8 +63,6 @@ def test_make_household():
     sp.logger.info("Test creating a household after the fact.")
     pop = sp.Pop(**pars)
 
-    # we don't need to store this in the pop object but this shows that we can
-    # and now the tests are being run using data stored in the pop object (pop.homes_by_uids, pop.age_by_uid)
     household = sp.Household()
     household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                             reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
