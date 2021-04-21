@@ -119,9 +119,9 @@ def count_ages(popdict):
     return age_count
 
 
-def calculate_average_from_count(count_of_values):  # pragma: no cover
+def calculate_mean_from_count(count_of_values):  # pragma: no cover
     """
-    Calculate the average from a dictionary where the keys represent the unique
+    Calculate the mean from a dictionary where the keys represent the unique
     values in a data set and the values are the number of times each key shows
     up in the data set.
 
@@ -129,7 +129,7 @@ def calculate_average_from_count(count_of_values):  # pragma: no cover
         count_of_values (dict) : count dictionary
 
     Returns:
-        float: Average for a data set from a dictionary where the keys
+        float: Mean for a data set from a dictionary where the keys
         are the unique values from the data set and the values are the number of
         times the key is in the data set.
     """

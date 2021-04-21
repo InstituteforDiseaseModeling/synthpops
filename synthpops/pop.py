@@ -501,26 +501,29 @@ class Pop(sc.prettyobj):
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
         self.summary = sc.objdict()
-        self.summary.average_age = spb.calculate_average_from_count(self.information.age_count)
+        self.summary.mean_age = spb.calculate_mean_from_count(self.information.age_count)
         self.summary.std_age = spb.calculate_std_from_count(self.information.age_count)
 
-        self.summary.household_sizes = self.get_household_sizes()
-        self.summary.household_size_count = self.count_household_sizes()
+        self.summary.mean_household_size = spb.calculate_mean_from_count(self.information.household_size_count)
+        self.summary.std_household_size = spb.calculate_std_from_count(self.information.household_size_count)
 
-        self.summary.household_heads = self.get_household_heads()
-        self.summary.household_head_ages = self.get_household_head_ages()
-        self.summary.household_head_age_count = self.count_household_head_ages()
-        self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
+        # self.summary.household_sizes = self.get_household_sizes()
+        # self.summary.household_size_count = self.count_household_sizes()
 
-        self.summary.ltcf_sizes = self.get_ltcf_sizes()
-        self.summary.ltcf_size_count = self.count_ltcf_sizes()
+        # self.summary.household_heads = self.get_household_heads()
+        # self.summary.household_head_ages = self.get_household_head_ages()
+        # self.summary.household_head_age_count = self.count_household_head_ages()
+        # self.summary.household_head_ages_by_size_count = self.get_household_head_ages_by_size()
 
-        self.summary.enrollment_by_age = self.count_enrollment_by_age()
-        self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
+        # self.summary.ltcf_sizes = self.get_ltcf_sizes()
+        # self.summary.ltcf_size_count = self.count_ltcf_sizes()
 
-        self.summary.employment_by_age = self.count_employment_by_age()
-        self.summary.workplace_sizes = self.get_workplace_sizes()
-        self.summary.workplace_size_count = self.count_workplace_sizes()
+        # self.summary.enrollment_by_age = self.count_enrollment_by_age()
+        # self.summary.enrollment_by_school_type = self.count_enrollment_by_school_type()
+
+        # self.summary.employment_by_age = self.count_employment_by_age()
+        # self.summary.workplace_sizes = self.get_workplace_sizes()
+        # self.summary.workplace_size_count = self.count_workplace_sizes()
 
     def summarize(self):
         """Print brief summary of the pop."""
@@ -559,7 +562,7 @@ class Pop(sc.prettyobj):
         Returns:
             dict: Dictionary of the count of household sizes.
         """
-        return spb.count_values(self.summary.household_sizes)
+        return spb.count_values(self.information.household_sizes)
 
     # convert to work on array
     def get_household_heads(self):
