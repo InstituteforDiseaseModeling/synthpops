@@ -192,6 +192,8 @@ class Pop(sc.prettyobj):
         self.loc_pars.datadir          = self.datadir
         self.loc_pars.use_default      = self.use_default
 
+        self.populated = False
+
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
         population = self.generate()
@@ -398,6 +400,9 @@ class Pop(sc.prettyobj):
         # self.households = sphh.Households(**{'households': self.homes_by_uids,
         #                                      'age_by_uid': self.age_by_uid})
 
+        self.initialize_households_list()
+        self.populate_households(self.homes_by_uids, self.age_by_uid)
+
         return population
 
     def pop_item(self, key):
@@ -452,6 +457,21 @@ class Pop(sc.prettyobj):
             errormsg = f'Cannot load object of {type(pop)} as a Pop object'
             raise TypeError(errormsg)
         return pop
+
+    def initialize_households_list(self):
+        self.households = []
+    #     self.households = sphh.Households()
+        return
+
+    # def initialize_empty_households(self, n_households=None):
+    #     sphh.initialize_empty_households(self, n_households)
+    #     return
+
+    def populate_households(self, households, age_by_uid):
+        sphh.populate_households(self, households, age_by_uid)
+        return
+
+
 
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
@@ -841,11 +861,6 @@ class Pop(sc.prettyobj):
         """
         fig, ax = sppl.plot_workplace_sizes(self, **kwargs)
         return fig, ax
-
-    def initialize_households(self):
-
-        self.households = sphh.Households()
-        return
 
 
 def make_population(*args, **kwargs):

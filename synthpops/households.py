@@ -310,6 +310,63 @@ class Households(sc.objdict):
         return self.households_array[hhid]
 
 
+def initialize_empty_households(pop, n_households=None):
+    """
+    Array of empty households.
+
+    Args:
+        n_households (int) : the number of households to initialize
+    """
+    if n_households is not None and isinstance(n_households, int):
+        pop.n_households = n_households
+        # self.n_households = n_households
+    else:
+        # self.n_households = 0
+        pop.n_households = 0
+    # self.households_array = [Household() for nh in range(self.n_households)]  # overwrite the household list with empty households
+    pop.households = [Household() for nh in range(pop.n_households)]
+    return
+
+
+def populate_households(pop, households, age_by_uid):
+    """
+    Populate all of the households. Store each household at the index corresponding to it's hhid.
+
+    Args:
+        households (list) : list of lists where each sublist represents a household and contains the ids of the household members
+        age_by_uid (dict) : dictionary mapping each person's id to their age
+    """
+    # check there are enough households
+    if len(pop.households) < len(households):
+        log.debug(f"Reinitializing list of households with {len(households)} empty households.")
+        # self.initialize_empty_households(len(households))
+        initialize_empty_households(pop, len(households))
+
+    log.debug("Populating households.")
+    # now populate households
+    for nh, hh in enumerate(households):
+        kwargs = dict(hhid=nh,
+                      member_uids=hh,
+                      member_ages=[age_by_uid[i] for i in hh],
+                      reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[hh[0]]
+                      # reference_uid=min(hh),
+                      # reference_age=age_by_uid[min(hh)]  # reference person is the minimal id
+                      )
+        household = Household()
+        household.set_household(**kwargs)
+        # self.households_array[household.hhid] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+        # self.households_array[household['hhid']] = sc.dcp(household)  # store the household at the index corresponding to it's hhid. Reducing the need to store any other mapping.
+        pop.households[household['hhid']] = sc.dcp(household)
+
+
+    # self.n_households = len(self.households)
+    # self.populate = True
+    pop.populate = True
+
+    return
+
+
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
