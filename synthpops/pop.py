@@ -210,8 +210,8 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.compute_summary()
-        self.compute_information()
+        self.compute_information()  # compute full information
+        self.compute_summary()  # then compute condensed summary
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -465,13 +465,31 @@ class Pop(sc.prettyobj):
             raise TypeError(errormsg)
         return pop
 
+    def compute_information(self):
+        """Computing an advanced description of the population."""
+        self.information = sc.objdict()
+        # self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
+        # self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+        self.information.age_count = self.count_pop_ages()
+        self.information.layer_degrees = dict()
+        self.information.layer_stats = dict()
+        self.information.layer_degree_description = dict()
+
+        for layer in self.layers:
+            self.information.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
+            self.information.layer_stats[layer] = self.information.layer_degrees[layer].describe()[['age', 'degree']]
+            self.information.layer_degree_description[layer] = self.information.layer_degrees[layer].groupby('age')['degree'].describe(percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])  # default percentiles to include
+
+
+        return
+
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
         self.summary = sc.objdict()
-        self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
-        self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
+        self.summary.average_age = spb.calculate_average_from_count(self.information.age_count)
+        self.summary.std_age = spb.calculate_std_from_count(self.information.age_count)
 
-        self.summary.age_count = self.count_pop_ages()
+        # self.summary.age_count = self.count_pop_ages()
 
         self.summary.household_sizes = self.get_household_sizes()
         self.summary.household_size_count = self.count_household_sizes()
@@ -490,23 +508,6 @@ class Pop(sc.prettyobj):
         self.summary.employment_by_age = self.count_employment_by_age()
         self.summary.workplace_sizes = self.get_workplace_sizes()
         self.summary.workplace_size_count = self.count_workplace_sizes()
-
-    def compute_information(self):
-        """Computing an advanced description of the population."""
-        self.information = sc.objdict()
-        # self.summary.average_age = spb.calculate_average_from_count(self.summary.age_count)
-        # self.summary.std_age = spb.calculate_std_from_count(self.summary.age_count)
-        self.summary.age_count = self.count_pop_ages()
-        self.summary.layer_degrees = dict()
-        self.summary.layer_stats = dict()
-        self.summary.layer_degree_description = dict()
-
-        for layer in self.layers:
-            self.summary.layer_degrees[layer] = spcnx.count_layer_degree(self, layer=layer)
-            self.summary.layer_stats[layer] = self.summary.layer_degrees[layer].describe()[['age', 'degree']]
-            self.summary.layer_degree_description[layer] = self.summary.layer_degrees[layer].groupby('age')['degree'].describe(percentiles=[0.05, 0.25, 0.5, 0.75, 0.95])  # default percentiles to include
-
-        return
 
     def summarize(self):
         """Print brief summary of the pop."""
