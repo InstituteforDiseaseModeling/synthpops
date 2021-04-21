@@ -508,11 +508,25 @@ class Pop(sc.prettyobj):
         for layer in self.layers:
             self.summary.layers[layer] = dict()
 
+        percentiles = [5, 95]
+
         self.summary.layers['H']['mean'] = spb.calculate_mean_from_count(self.information.household_size_count)
         self.summary.layers['H']['std'] = spb.calculate_std_from_count(self.information.household_size_count)
+        for p in percentiles:
+            self.summary.layers['H'][p] = np.percentile(list(self.information.household_size_count.values()), q=p)
+
+        sizes = []
+        for s in self.information.enrollment_by_school_type.keys():
+            sizes.extend(self.information.enrollment_by_school_type[s])
+        self.summary.layers['S']['mean'] = np.mean(sizes)
+        self.summary.layers['S']['std'] = np.std(sizes)
+        for p in percentiles:
+            self.summary.layers['S'][p] = np.percentile(sizes, q=p)
 
         self.summary.layers['W']['mean'] = spb.calculate_mean_from_count(self.information.workplace_size_count)
         self.summary.layers['W']['std'] = spb.calculate_std_from_count(self.information.workplace_size_count)
+        for p in percentiles:
+            self.summary.layers['W'][p] = np.percentile(list(self.information.workplace_size_count.values()), q=p)
 
     def summarize(self):
         """Print brief summary of the pop."""
@@ -523,8 +537,9 @@ class Pop(sc.prettyobj):
             s = self.information.layer_stats[layer]
             print(f"For layer {layer}: {self.layer_mappings[layer]} the average degree is {s.loc[s.index == 'mean']['degree'][0]: .2f} +/- {s.loc[s.index == 'std']['degree'][0]:.2f} with {self.n * s.loc[s.index == 'mean']['degree'][0] * 2:.0f} edges.")
             print(f"The average age in the {self.layer_mappings[layer].lower()} layer is {s.loc[s.index == 'mean']['age'][0]:.2f} ({s.loc[s.index == 'min']['age'][0]:.0f}-{s.loc[s.index == 'max']['age'][0]:.0f}) years old.")
-            if layer in ['H', 'W']:
-                print(f"The average {self.layer_mappings[layer].lower()} size is {self.summary.layers[layer]['mean']:.2f} +/- {self.summary.layers[layer]['std']:.2f} people.")
+            if layer in ['H', 'S', 'W']:
+                print(f"The average {self.layer_mappings[layer].lower()} size is {self.summary.layers[layer]['mean']:.2f} +/- {self.summary.layers[layer]['std']:.2f} people. The confidence interval is ({self.summary.layers[layer][5]:.2f}-{self.summary.layers[layer][95]:.2f}).")
+
             print()
 
         print(f"The rand_seed used to generate this population is {self.rand_seed}.")
