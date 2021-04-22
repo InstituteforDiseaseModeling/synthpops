@@ -137,11 +137,12 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
         sp.statistic_test(expected_data, testdata, test=st.kstest)
 
     #plot comparison
-    actual, bins = np.histogram(testdata, bins=10)
-    expected = np.histogram(expected_data, bins=bins)[0]
+    bins_count= min(10, max(expected_data)-min(expected_data))
+    expected, bins = np.histogram(expected_data, bins=bins_count)
+    actual = np.histogram(testdata, bins=bins)[0]
     kwargs["generated"] = actual
     #merge 11 bins to 10 for bar plot align at center
-    merged_bins = [round((bins[np.where(bins == i)[0][0]] + i)/2) for i in bins if np.where(bins == i)[0][0] < len(bins)-1]
+    merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
     kwargs["xvalue"] = merged_bins
     sp.plot_array(expected, **kwargs)
 
