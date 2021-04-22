@@ -9,6 +9,5 @@
   "with_facilities": false,
   "use_two_group_reduction": false,
   "average_LTCF_degree": 20,
-  "generate": true,
   "with_non_teaching_staff": true
 }
