@@ -289,8 +289,11 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
     Returns:
         None.
     """
-    print(f"expected data: \n{pd.Series(expected).describe()}")
-    print(f"actual data: \n{pd.Series(actual).describe()}")
+    # print(f"expected data: \n{pd.Series(expected).describe()}")
+    # print(f"actual data: \n{pd.Series(actual).describe()}")
+    data = {'expected': expected, 'actual': actual}
+    df = pd.DataFrame.from_dict(data)
+    # print(f"data: {df.describe()}")
     print(f"use {str(test.__name__)} to check actual distribution")
     s, p = test(expected, actual, **kwargs)
     print(f"statistics: {s} pvalue:{p}")
@@ -301,4 +304,5 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
         if die: # pragma: no cover
             raise ValueError(msg)
         elif verbose: # pragma: no cover
+            warnings.warn(f"data: \n{df.describe()}")
             warnings.warn(msg)

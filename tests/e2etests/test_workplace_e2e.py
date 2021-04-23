@@ -7,6 +7,7 @@ from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 import scipy
 from scipy import stats as st
 import numpy as np
+import networkx as nx
 import re
 
 
@@ -32,7 +33,7 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
     # expected_distr = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(**pop.loc_pars))
 
     # calculate expected count by using actual number of workplaces
-    expected_count = {k: expected_distr[k]*sum(actual_count.values())for k in expected_distr}
+    expected_count = {k: expected_distr[k] * sum(actual_count.values())for k in expected_distr}
     # perform statistical check
     sp.statistic_test([expected_count[i] for i in sorted(expected_count)], [actual_count[i] for i in sorted(actual_count)])
 
@@ -55,7 +56,7 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
     plotting_kwargs.remove("title_prefix")
     plotting_kwargs.remove("figname")
 
-    #check workplace with worksize <= max_contacts
+    # check workplace with worksize <= max_contacts
     max_contacts = create_sample_pop_e2e.max_contacts['W']
     upperbound = st.poisson.interval(alpha=0.95, mu=max_contacts)[1]
     group_size_contacts = {
@@ -65,8 +66,8 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
         f'small_medium_worksize_contacts size between {max_contacts//2}, {max_contacts}': [],  # capture size between max_contacts//2 and max_contacts
     }
     for k, v in contacts_by_id.items():
-        if len(v) <= max_contacts//2:
-            assert len([i for i in v if i != len(v)-1 ]) == 0, \
+        if len(v) <= max_contacts // 2:
+            assert len([i for i in v if i != len(v) - 1]) == 0, \
                 "Failed, not all contacts in {len(k)} are equal to {len(v)} : {v}"
         else:
             if len(v) > upperbound:
@@ -77,17 +78,53 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
                 group_size_contacts[f'small_medium_worksize_contacts size between {max_contacts//2}, {max_contacts}'] += v
             group_size_contacts[f'all_worksize_contacts size > {max_contacts//2}'] += v
 
-    file_pattern=re.compile(r'([\s><=])')
+    file_pattern = re.compile(r'([\s><=])')
     for i in group_size_contacts:
         plotting_kwargs["title_prefix"] = i
-        plotting_kwargs["figname"]= file_pattern.sub("_", i)
+        plotting_kwargs["figname"] = file_pattern.sub("_", i)
         check_truncated_poisson(testdata=group_size_contacts[i],
                                 mu=max_contacts,
-                                lowerbound=max_contacts//2,
+                                lowerbound=max_contacts // 2,
                                 skipcheck=True if "small" in i else True,
                                 **plotting_kwargs)
 
 
+def test_workplace_contact_distribution_2(create_sample_pop_e2e):
+    sp.logger.info("Not a test - exploratory --- workplaces that don't match are quite close to expected results")
+    pop = create_sample_pop_e2e
+    max_contacts = pop.max_contacts
+    max_w_size = int(max_contacts['W'] // 2)
+
+    contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w")
+
+    wpids = sorted(contacts_by_id.keys())
+
+    max_size_full_connected = 0
+
+    for nw, wpid in enumerate(wpids):
+        wnc = set(contacts_by_id[wpid])
+        wsize = len(contacts_by_id[wpid])
+
+        if len(wnc) == 1:
+
+            assert list(wnc)[0] + 1 == wsize, 'Check Failed'
+            if max_size_full_connected < wsize:
+                max_size_full_connected = wsize
+
+        else:
+            print(f"workplace id is {wpid}, no.contacts, {wnc}, size {wsize}, mu {max_w_size}")
+            N = wsize
+
+            p = (max_contacts['W'] - 1) / N
+            G = nx.erdos_renyi_graph(N, p, seed=0)
+            degree = [G.degree(i) for i in G.nodes()]
+
+            # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
+            check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            print('workplace id', wpid)
+            print('\n\n')
+
+    print('max_size_full_connected', max_size_full_connected)
 
 
 def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
@@ -134,7 +171,7 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
     # use percent point function to get inverse of cdf
     expected_data = st.poisson.ppf(q=q, mu=mu)
     if not skipcheck:
-        sp.statistic_test(expected_data, testdata, test=st.kstest)
+        sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True)
 
     #plot comparison
     bins_count= min(10, max(expected_data)-min(expected_data))
@@ -151,5 +188,10 @@ if __name__ == "__main__":
     # you can pass --do-save --do-show --artifact-dir argument to view/save the figures
     # for running individual tests, you can do this
     # testcase = 'test_employment_age_distribution'
-    testcase = 'test_work_size_distribution'
+    # testcase = 'test_work_size_distribution'
+    # testcase = 'test_workplace_contact_distribution'
+    testcase = 'test_workplace_contact_distribution_2'
     pytest.main(['-v', '-k', testcase, '--do-show'])
+
+
+
