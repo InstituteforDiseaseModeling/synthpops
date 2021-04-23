@@ -22,7 +22,6 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
         sp.get_workplace_size_brackets(**create_sample_pop_e2e.loc_pars))
 
     actual_workplace_sizes = create_sample_pop_e2e.count_workplace_sizes()
-    # actual_workplace_sizes = pop.count_workplace_sizes()
     # count the workplaces by size bracket
 
     actual_count = {k: 0 for k in set(workplace_brackets_index.values())}
@@ -30,14 +29,12 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
         actual_count[workplace_brackets_index[i]] += actual_workplace_sizes.get(i, 0)
 
     expected_distr = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(**create_sample_pop_e2e.loc_pars))
-    # expected_distr = sp.norm_dic(sp.get_workplace_size_distr_by_brackets(**pop.loc_pars))
 
     # calculate expected count by using actual number of workplaces
     expected_count = {k: expected_distr[k] * sum(actual_count.values())for k in expected_distr}
     # perform statistical check
     sp.statistic_test([expected_count[i] for i in sorted(expected_count)], [actual_count[i] for i in sorted(actual_count)])
 
-    # pop.plot_workplace_sizes(**plotting_kwargs)
     create_sample_pop_e2e.plot_workplace_sizes(**plotting_kwargs)
 
 
@@ -116,6 +113,9 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             N = wsize
 
             p = (max_contacts['W'] - 1) / N
+            # degree distribution for an ER random graph follows a binomial distribution that is truncated
+            # to the max size N. When N is large this approximates the poisson distribution. Perhaps our
+            # test could look at the zero-N truncated binomial distribution
             G = nx.erdos_renyi_graph(N, p, seed=0)
             degree = [G.degree(i) for i in G.nodes()]
 
