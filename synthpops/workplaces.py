@@ -14,6 +14,61 @@ __all__ = ['count_employment_by_age', 'get_workplace_sizes',
            ]
 
 
+class Workplace(dict):
+    """
+    A class for individual workplaces and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the workplace
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Class constructor for empty workplace.
+
+        Args:
+            **wpid (int) : workplace id
+            **member_uids (np.array) : ids of workplace members
+            **member_ages (np.array) : ages of workplace members
+            **reference_uid (int) : id of the reference person
+            **reference_age (int) : age of the reference person
+        """
+        # set up default workplace values
+        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)
+        self.update(kwargs)
+        self.validate()
+
+        return
+
+    def default_kwargs(self):
+        """
+        Default workplace attributes.
+
+        wpid (int) : workplace id
+        member_uids (np.ndarray) : uids of workplace members
+        member_ages (np.ndarray) : ages of workplace members
+        reference_uid (int) : reference person to generate the workplace members and their ages
+        reference_age (int) : age of the reference person used to generate the workplace members and their ages
+
+        """
+        default_kwargs = dict()
+        default_kwargs['wpid'] = None
+        default_kwargs['member_uids'] = np.array([], dtype=int)
+        default_kwargs['member_ages'] = np.array([], dtype=int)
+        default_kwargs['reference_uid'] = None
+        default_kwargs['reference_age'] = None
+
+        return default_kwargs
+
+    def set_workplace(self, **kwargs):
+        """Set up the workplace."""
+        for key, value in kwargs.items():
+            self[key] = value
+        self.validate()
+
+        return
+
+
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
     """
     Get IDs for everyone who could be a worker by removing those who are students and those who can't be employed officially.

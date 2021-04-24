@@ -1,6 +1,7 @@
 """
 Defaults for synthpops files and data types.
 """
+import numpy as np
 import sciris as sc
 import os
 
@@ -37,6 +38,14 @@ default_data = {
         'nbrackets': 20,
     },
 }
+
+
+default_layer_info = dict(
+    member_uids=np.array([], dtype=int),
+    member_ages=np.array([], dtype=int),
+    reference_uid=None,
+    reference_age=None
+    )
 
 
 def default_datadir_path():

@@ -7,6 +7,69 @@ import sciris as sc
 from collections import Counter
 from . import defaults as spd
 
+__all__ = ['Layer']
+
+
+class Layer(dict):
+    """
+    A generic class for individual setting group and some methods to operate on each.
+
+    Args:
+        kwargs (dict) : data dictionary for the setting group
+
+    Notes:
+        Settings currently supported include : households (H), schools (S),
+        workplaces (W), and long term care facilities (LTCF).
+    """
+
+    def __init__(self, layer, layer_id_mapping, **kwargs):
+        """
+        Class constructor for an base empty setting group.
+
+        Args:
+            layer (str) : code for the layer
+            layer_id_mapping (dict) : dictionary with codes for the layer id
+            **member_uids (np.array) : ids of group members
+            **member_ages (np.array) : ages of group members
+            **reference_uid (int) : id of the reference person
+            **reference_age (int) : age of the reference person
+        """
+        # set up default values
+        default_kwargs = spd.default_layer_info()
+        default_kwargs[layer_id_mapping[layer]] = None
+        kwargs = sc.mergedict(default_kwargs, kwargs)
+        self.update(kwargs)
+        self.validate()
+
+        return
+
+    def set_layer(self, **kwargs):
+        """"""
+        for key, value in kwargs.items():
+            self[key] = value
+        self.validate()
+
+        return
+
+    def __len__(self):
+        return len(self['member_uids'])
+
+    def validate(self):
+        for key in self.keys():
+            if key in ['member_uids', 'member_ages']:
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
+                    
+
+        
+
+
+
+__all__ += ['norm_dic', 'norm_age_group']
+
 
 def norm_dic(dic):
     """
@@ -42,6 +105,9 @@ def norm_age_group(age_dic, age_min, age_max):
 
 
 # Functions related to age distributions
+__all__ += ['get_index_by_brackets_dic', 'get_age_by_brackets_dic', 'get_ids_by_age_dic']
+
+
 def get_index_by_brackets_dic(brackets):
     """
     Create a dictionary mapping each item in the value arrays to the key. For example, if brackets
@@ -100,6 +166,10 @@ def get_ids_by_age_dic(age_by_id_dic):
     for i in age_by_id_dic:
         ids_by_age_dic[age_by_id_dic[i]].append(i)
     return ids_by_age_dic
+
+
+__all__ += ['count_ages', 'get_aggregate_ages', 
+            'get_aggregate_matrix', 'get_asymmetric_matrix']
 
 
 def count_ages(popdict):
@@ -214,6 +284,10 @@ def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
         M[a, :] = M[a, :] / float(aggregate_ages[a])
 
     return M
+
+
+__all__ += ['get_bin_edges', 'get_bin_labels',
+            'count_values', 'count_binned_values', 'binned_values_dist']
 
 
 def get_bin_edges(size_brackets):
