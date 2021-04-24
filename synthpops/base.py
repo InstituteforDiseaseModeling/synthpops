@@ -40,8 +40,8 @@ class LayerGroup(dict):
 
         return
 
-    def set_layer(self, **kwargs):
-        """"""
+    def set_layer_group(self, **kwargs):
+        """Set """
         for key, value in kwargs.items():
             self[key] = value
         self.validate()

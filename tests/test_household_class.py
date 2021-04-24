@@ -64,9 +64,9 @@ def test_make_household():
     pop = sp.Pop(**pars)
 
     household = sp.Household()
-    household.set_household(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
-                            reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
-                            hhid=0)
+    household.set_layer_group(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
+                              reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
+                              hhid=0)
 
     assert household['hhid'] == 0, f"Check failed. household hhid is {household['hhid']}."
     print('Check passed. household hhid is 0.')
