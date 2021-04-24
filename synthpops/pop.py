@@ -401,6 +401,8 @@ class Pop(sc.prettyobj):
         self.populate_households(self.homes_by_uids, self.age_by_uid)
         self.initialize_workplaces_list()
         self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
+        self.initialize_schools_list()
+        self.populate_schools(syn_school_uids, syn_teacher_uids, syn_non_teaching_staff_uids, syn_school_types, self.age_by_uid)
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()
@@ -574,6 +576,18 @@ class Pop(sc.prettyobj):
 
     def add_ltcf(self, ltcf):
         spltcf.add_ltcf(self, ltcf)
+
+    def initialize_schools_list(self):
+        self.schools = []
+        return
+
+    def initialize_empty_schools(self, n_schools=None):
+        spsch.initialize_empty_schools(self, n_schools)
+        return
+
+    def populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
+        spsch.populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid)
+        return
 
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""

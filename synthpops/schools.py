@@ -45,11 +45,12 @@ class School(spb.LayerGroup):
     """
 
     def __init__(self, **kwargs):
-        if 'scid' not in kwargs:
-            kwargs['scid'] = None
+        for key in ['scid', 'sc_type']:
+            if key not in kwargs:
+                kwargs[key] = None
 
-        for key in ['student_uids', 'teacher_uids', 'staff_uids',
-                    'student_ages', 'teacher_ages', 'staff_ages']:
+        for key in ['student_uids', 'teacher_uids', 'non_teaching_staff_uids',
+                    'student_ages', 'teacher_ages', 'non_teaching_staff_ages']:
             if key not in kwargs:
                 kwargs[key] = np.array([], dtype=int)
         super().__init__(**kwargs)
@@ -64,8 +65,8 @@ class School(spb.LayerGroup):
         Check that information supplied to make a school is valid and update
         to the correct type if necessary.
         """
-        for key in ['student_uids', 'teacher_uids', 'staff_uids',
-                    'student_ages', 'teacher_ages', 'staff_ages']:
+        for key in ['student_uids', 'teacher_uids', 'non_teaching_staff_uids',
+                    'student_ages', 'teacher_ages', 'non_teaching_staff_ages']:
             if key in self.keys():
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
@@ -77,17 +78,24 @@ class School(spb.LayerGroup):
             if key in self.keys():
                 if not isinstance(self[key], (int)):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+                        errmsg = f"Expected type int or None for school key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
+
+        for key in ['sc_type']:
+            if key in self.keys():
+                if not isinstance(self[key], str):
+                    if self[key] is not None:
+                        errmsg = f"Expected type str or None school key {key}."
                         raise TypeError(errmsg)
         return
 
     @property
     def member_uids(self):
-        return np.concatenate((self['student_uids'], self['teacher_uids'], self['staff_uids']))
+        return np.concatenate((self['student_uids'], self['teacher_uids'], self['non_teaching_staff_uids']))
 
     @property
     def member_ages(self):
-        return np.concatenate((self['student_ages'], self['teacher_ages'], self['staff_ages']))
+        return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
 
 
 def get_school(pop, scid):
@@ -98,6 +106,49 @@ def get_school(pop, scid):
     return pop.schools[scid]
 
 
+def add_school(pop, school):
+    if not isinstance(school, School):
+        raise ValueError('school is not a sp.School')
+    pop.schools.append(school)
+    return
+
+
+def initialize_empty_schools(pop, n_schools=None):
+    if n_schools is not None and isinstance(n_schools, int):
+        pop.n_schools = n_schools
+    else:
+        pop.n_schools = 0
+    pop.schools = [School() for ns in range(pop.n_schools)]
+    return
+
+
+def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
+    if len(pop.schools) < len(student_lists):
+        log.debug(f"Reinitializing list of schools")
+        initialize_empty_schools(pop, len(student_lists))
+
+    log.debug("Populating schools.")
+
+    for ns in range(len(student_lists)):
+        students = student_lists[ns]
+        teachers = teacher_lists[ns]
+        non_teaching_staff = non_teaching_staff_lists[ns]
+        sc_type = school_types[ns]
+
+        kwargs = dict(scid=ns,
+                      sc_type=sc_type,
+                      student_uids=students,
+                      student_ages=[age_by_uid[i] for i in students],
+                      teacher_uids=teachers,
+                      teacher_ages=[age_by_uid[i] for i in teachers],
+                      non_teaching_staff_uids=non_teaching_staff,
+                      non_teaching_staff_ages=[age_by_uid[i] for i in non_teaching_staff],
+                      )
+        school = School()
+        school.set_layer_group(**kwargs)
+        pop.schools[school['scid']] = sc.dcp(school)
+
+    return
 
 
 def get_school_type_labels():
@@ -1281,7 +1332,8 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
-        syn_school_types.append('s')
+        # syn_school_types.append('s')
+        syn_school_types.append(None)
         new_school = np.array(new_school)
         kids = new_school <= 19
 
