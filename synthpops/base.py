@@ -55,6 +55,10 @@ class Layer(dict):
         return len(self['member_uids'])
 
     def validate(self):
+        """
+        Check that information supplied to make a household is valid and update
+        to the correct type if necessary.
+        """
         for key in self.keys():
             if key in ['member_uids', 'member_ages']:
                 try:
@@ -62,10 +66,13 @@ class Layer(dict):
                 except:
                     errmsg = f"Could not convert key {key} to an np.array() with type int. This key only takes arrays with int values."
                     raise TypeError(errmsg)
-                    
+            else:
+                if not isinstance(self[key], int):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
 
-        
-
+        return
 
 
 __all__ += ['norm_dic', 'norm_age_group']
