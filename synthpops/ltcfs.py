@@ -445,3 +445,150 @@ def get_ltcf_sizes(popdict, keys_to_exclude=[]):
                 ltcf_sizes[person['snfid']] += 1
 
     return ltcf_sizes
+
+
+class LongTermCareFacility(spb.LayerGroup):
+    """
+    A class for individual long term care facilities and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the long term care facility
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Class constructor for empty long term care facility (ltcf).
+
+        Args:
+            **snfid (int) : ltcf id
+            **member_uids (np.array) : ids of ltcf members
+            **member_ages (np.array) : ages of ltcf members
+            **reference_uid (int) : id of the reference person
+            **reference_age (int) : age of the reference person
+        """
+        if 'snfid' not in kwargs:
+            kwargs['snfid'] = None
+        for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
+            if key not in kwargs:
+                kwargs[key] = np.array([], dtype=int)
+        super().__init__(**kwargs)
+        self.pop('member_uids', None)
+        self.pop('member_ages', None)
+        self.validate()
+
+        return
+
+    def validate(self):
+        """
+        Check that information supplied to make a long term care facility is valid and update
+        to the correct type if necessary.
+        """
+        for key in [
+                    # 'member_uids', 'member_ages',
+                    'resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
+
+        for key in ['snfid', 'reference_uid', 'reference_age']:
+            if key in self.keys():
+                if not isinstance(self[key], (int)):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
+        return
+
+    @property
+    def member_uids(self):
+        return np.append(self['resident_uids'], self['staff_uids'])
+
+    @property
+    def member_ages(self):
+        return np.append(self['resident_ages'], self['staff_ages'])
+
+
+def get_ltcf(pop, snfid):
+    """
+    Return ltcf with id: snfid.
+
+    Args:
+        snfid (int) : ltcf id number
+
+    Returns:
+        sp.LongTermCareFacility: A populated ltcf.
+    """
+    if not isinstance(snfid, int):
+        raise TypeError(f"snfid must be an int. Instead supplied wpid with type: {type(snfid)}.")
+    if len(pop.ltcfs) < snfid:
+        raise ValueError(f"Ltcf id (snfid): {snfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
+    return pop.ltcfs[snfid]
+
+
+def add_ltcf(pop, ltcf):
+    """
+    Add a ltcf to the list of ltcfs.
+
+    Args:
+        ltcf (sp.LongTermCareFacility): ltcf with at minimum the snfid, member_uids, member_ages, reference_uid, and reference_age.
+    """
+    if not isinstance(ltcf, LongTermCareFacility):
+        raise ValueError('ltcf is not a sp.LongTermCareFacility object.')
+    pop.ltcfs.append(ltcf)
+    return
+
+
+def initialize_empty_ltcfs(pop, n_ltcfs=None):
+    """
+    Array of empty ltcfs.
+
+    Args:
+        n_ltcfs (int) : the number of ltcfs to initialize
+    """
+    if n_ltcfs is not None and isinstance(n_ltcfs, int):
+        pop.n_ltcfs = n_ltcfs
+    else:
+        pop.n_ltcfs = 0
+
+    pop.ltcfs = [LongTermCareFacility() for nl in range(pop.n_ltcfs)]
+    return
+
+
+def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
+    """
+    Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
+
+    Args:
+        workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
+        age_by_uid (dict) : dictionary mapping each person's id to their age
+    """
+    # check there are enough ltcfs
+    if len(pop.ltcfs) < len(resident_lists):
+        log.debug(f"Reinitializing list of ltcfs with {len(resident_lists)} empty ltcfs.")
+        initialize_empty_ltcfs(pop, len(resident_lists))
+
+    log.debug("Populating ltcfs.")
+
+    # now populate ltcfs
+    for nl, residents in enumerate(resident_lists):
+        lf = []
+        lf.extend(residents)
+        lf.extend(staff_lists[nl])
+        kwargs = dict(snfid=nl,
+
+                      # member_uids=lf,
+                      # member_ages=[age_by_uid[i] for i in lf],
+                      resident_uids=residents,
+                      resident_ages=[age_by_uid[i] for i in residents],
+                      staff_uids=staff_lists[nl],
+                      staff_ages=[age_by_uid[i] for i in staff_lists[nl]],
+                      reference_uid=lf[0],  # by default, the reference person is the first in the ltcf in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[lf[0]]
+                      )
+        ltcf = LongTermCareFacility()
+        ltcf.set_layer_group(**kwargs)
+        pop.ltcfs[ltcf['snfid']] = sc.dcp(ltcf)
+
+    return

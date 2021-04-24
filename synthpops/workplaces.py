@@ -42,34 +42,6 @@ class Workplace(spb.LayerGroup):
         self.validate()
         return
 
-    # def default_kwargs(self):
-    #     """
-    #     Default workplace attributes.
-
-    #     wpid (int) : workplace id
-    #     member_uids (np.ndarray) : uids of workplace members
-    #     member_ages (np.ndarray) : ages of workplace members
-    #     reference_uid (int) : reference person to generate the workplace members and their ages
-    #     reference_age (int) : age of the reference person used to generate the workplace members and their ages
-
-    #     """
-    #     default_kwargs = dict()
-    #     default_kwargs['wpid'] = None
-    #     default_kwargs['member_uids'] = np.array([], dtype=int)
-    #     default_kwargs['member_ages'] = np.array([], dtype=int)
-    #     default_kwargs['reference_uid'] = None
-    #     default_kwargs['reference_age'] = None
-
-    #     return default_kwargs
-
-    # def set_workplace(self, **kwargs):
-    #     """Set up the workplace."""
-    #     for key, value in kwargs.items():
-    #         self[key] = value
-    #     self.validate()
-
-    #     return
-
     def validate(self):
         """
         Check that information supplied to make a workplace is valid and update
@@ -100,7 +72,10 @@ def get_workplace(pop, wpid):
     Return workplace with id: wpid.
 
     Args:
-        wpid (int) : 
+        wpid (int) : workplace id number
+
+    Returns:
+        sp.Workplace: A populated workplace.
     """
     if not isinstance(wpid, int):
         raise TypeError(f"wpid must be an int. Instead supplied wpid with type: {type(wpid)}.")
@@ -123,6 +98,12 @@ def add_workplace(pop, workplace):
 
 
 def initialize_empty_workplaces(pop, n_workplaces=None):
+    """
+    Array of empty workplaces.
+
+    Args:
+        n_workplaces (int) : the number of workplaces to initialize
+    """
     if n_workplaces is not None and isinstance(n_workplaces, int):
         pop.n_workplaces = n_workplaces
     else:
@@ -148,12 +129,12 @@ def populate_workplaces(pop, workplaces, age_by_uid):
     log.debug("Populating workplaces.")
 
     # now populate workplaces
-    for nh, hh in enumerate(workplaces):
-        kwargs = dict(wpid=nh,
-                      member_uids=hh,
-                      member_ages=[age_by_uid[i] for i in hh],
-                      reference_uid=hh[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
-                      reference_age=age_by_uid[hh[0]]
+    for nw, wp in enumerate(workplaces):
+        kwargs = dict(wpid=nw,
+                      member_uids=wp,
+                      member_ages=[age_by_uid[i] for i in wp],
+                      reference_uid=wp[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[wp[0]]
                       )
         workplace = Workplace()
         workplace.set_layer_group(**kwargs)

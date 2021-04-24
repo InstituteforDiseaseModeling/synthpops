@@ -402,6 +402,10 @@ class Pop(sc.prettyobj):
         self.initialize_workplaces_list()
         self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
 
+        if self.ltcf_pars.with_facilities:
+            self.initialize_ltcfs_list()
+            self.populate_ltcfs(facilities_by_uids, facilities_staff_uids, self.age_by_uid)
+
         return population
 
     def pop_item(self, key):
@@ -506,30 +510,70 @@ class Pop(sc.prettyobj):
         return
 
     def initialize_workplaces_list(self):
-        """Initialize a new households list."""
+        """Initialize a new workplaces list."""
         self.workplaces = []
         return
 
     def initialize_empty_workplaces(self, n_workplaces=None):
         """
-        Create a list of empty households.
+        Create a list of empty workplaces.
 
         Args:
-            n_households (int) : the number of households to initialize
+            n_households (int) : the number of workplaces to initialize
         """
         sphh.initialize_empty_workplaces(self, n_workplaces)
         return
 
     def populate_workplaces(self, workplaces, age_by_uid):
+        """
+        Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
+
+        Args:
+            workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
+            age_by_uid (dict) : dictionary mapping each person's id to their age
+        """
         spw.populate_workplaces(self, workplaces, age_by_uid)
         return
 
     def get_workplace(self, wpid):
+        """
+        Return workplace with id: wpid.
+
+        Args:
+            wpid (int) : workplace id number
+
+        Returns:
+            sp.Workplace: A populated workplace.
+        """
         return spw.get_workplace(self, wpid)
 
     def add_workplace(self, workplace):
+        """
+        Add a workplace to the list of workplaces.
+
+        Args:
+            workplace (sp.Workplace): workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
+        """
         spw.add_workplace(self, workplace)
         return
+
+    def initialize_ltcfs_list(self):
+        self.ltcfs = []
+        return
+
+    def initialize_empty_ltcfs(self, n_ltcfs=None):
+        spltcf.initialize_empty_ltcfs(self, n_ltcfs)
+        return
+
+    def populate_ltcfs(self, resident_lists, staff_lists, age_by_uid):
+        spltcf.populate_ltcfs(self, resident_lists, staff_lists, age_by_uid)
+        return
+
+    def get_ltcf(self, snfid):
+        return spltcf.get_ltcf(self, snfid)
+
+    def add_ltcf(self, ltcf):
+        spltcf.add_ltcf(self, ltcf)
 
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
