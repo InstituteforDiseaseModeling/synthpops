@@ -36,7 +36,6 @@ class Household(spb.LayerGroup):
             **reference_age (int)    : age of the reference person
         """
         # set up default household values
-
         # kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
         if 'hhid' not in kwargs:
             kwargs['hhid'] = None

@@ -194,8 +194,6 @@ class Pop(sc.prettyobj):
         self.loc_pars.datadir          = self.datadir
         self.loc_pars.use_default      = self.use_default
 
-        self.populated = False
-
         # Heavy lift: make the contacts and their connections
         log.debug('Generating a new population...')
         population = self.generate()
@@ -401,6 +399,8 @@ class Pop(sc.prettyobj):
 
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
+        self.initialize_workplaces_list()
+        self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
 
         return population
 
@@ -503,6 +503,32 @@ class Pop(sc.prettyobj):
             household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
         """
         sphh.add_household(self, household)
+        return
+
+    def initialize_workplaces_list(self):
+        """Initialize a new households list."""
+        self.workplaces = []
+        return
+
+    def initialize_empty_workplaces(self, n_workplaces=None):
+        """
+        Create a list of empty households.
+
+        Args:
+            n_households (int) : the number of households to initialize
+        """
+        sphh.initialize_empty_workplaces(self, n_workplaces)
+        return
+
+    def populate_workplaces(self, workplaces, age_by_uid):
+        spw.populate_workplaces(self, workplaces, age_by_uid)
+        return
+
+    def get_workplace(self, wpid):
+        return spw.get_workplace(self, wpid)
+
+    def add_workplace(self, workplace):
+        spw.add_workplace(self, workplace)
         return
 
     def compute_summary(self):

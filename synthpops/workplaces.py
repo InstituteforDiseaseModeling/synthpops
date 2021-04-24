@@ -13,8 +13,10 @@ __all__ = ['count_employment_by_age', 'get_workplace_sizes',
            'get_generated_workplace_size_distribution',
            ]
 
+__all__ += ['Workplace']
 
-class Workplace(dict):
+
+class Workplace(spb.LayerGroup):
     """
     A class for individual workplaces and methods to operate on each.
 
@@ -34,39 +36,130 @@ class Workplace(dict):
             **reference_age (int) : age of the reference person
         """
         # set up default workplace values
-        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)
-        self.update(kwargs)
+        if 'wpid' not in kwargs:
+            kwargs['wpid'] = None
+        super().__init__(**kwargs)
         self.validate()
-
         return
 
-    def default_kwargs(self):
+    # def default_kwargs(self):
+    #     """
+    #     Default workplace attributes.
+
+    #     wpid (int) : workplace id
+    #     member_uids (np.ndarray) : uids of workplace members
+    #     member_ages (np.ndarray) : ages of workplace members
+    #     reference_uid (int) : reference person to generate the workplace members and their ages
+    #     reference_age (int) : age of the reference person used to generate the workplace members and their ages
+
+    #     """
+    #     default_kwargs = dict()
+    #     default_kwargs['wpid'] = None
+    #     default_kwargs['member_uids'] = np.array([], dtype=int)
+    #     default_kwargs['member_ages'] = np.array([], dtype=int)
+    #     default_kwargs['reference_uid'] = None
+    #     default_kwargs['reference_age'] = None
+
+    #     return default_kwargs
+
+    # def set_workplace(self, **kwargs):
+    #     """Set up the workplace."""
+    #     for key, value in kwargs.items():
+    #         self[key] = value
+    #     self.validate()
+
+    #     return
+
+    def validate(self):
         """
-        Default workplace attributes.
-
-        wpid (int) : workplace id
-        member_uids (np.ndarray) : uids of workplace members
-        member_ages (np.ndarray) : ages of workplace members
-        reference_uid (int) : reference person to generate the workplace members and their ages
-        reference_age (int) : age of the reference person used to generate the workplace members and their ages
-
+        Check that information supplied to make a workplace is valid and update
+        to the correct type if necessary.
         """
-        default_kwargs = dict()
-        default_kwargs['wpid'] = None
-        default_kwargs['member_uids'] = np.array([], dtype=int)
-        default_kwargs['member_ages'] = np.array([], dtype=int)
-        default_kwargs['reference_uid'] = None
-        default_kwargs['reference_age'] = None
+        for key in ['member_uids', 'member_ages']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert workplace key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
 
-        return default_kwargs
-
-    def set_workplace(self, **kwargs):
-        """Set up the workplace."""
-        for key, value in kwargs.items():
-            self[key] = value
-        self.validate()
-
+        for key in ['wpid', 'reference_uid', 'reference_age']:
+            if key in self.keys():
+                if not isinstance(self[key], (int)):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for workplace key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
         return
+
+
+__all__ += ['get_workplace', 'add_workplace', 'initialize_empty_workplaces', 'populate_workplaces']
+
+
+def get_workplace(pop, wpid):
+    """
+    Return workplace with id: wpid.
+
+    Args:
+        wpid (int) : 
+    """
+    if not isinstance(wpid, int):
+        raise TypeError(f"wpid must be an int. Instead supplied wpid with type: {type(wpid)}.")
+    if len(pop.workplaces) < wpid:
+        raise ValueError(f"Workplace id (wpid): {wpid} out of range. There are {len(pop.workplaces)} workplaces stored in this object.")
+    return pop.workplaces[wpid]
+
+
+def add_workplace(pop, workplace):
+    """
+    Add a workplace to the list of workplaces.
+
+    Args:
+        workplace (sp.workplace): workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
+    """
+    if not isinstance(workplace, Workplace):
+        raise ValueError('workplace is not a sp.Workplace object.')
+    pop.workplaces.append(workplace)
+    return
+
+
+def initialize_empty_workplaces(pop, n_workplaces=None):
+    if n_workplaces is not None and isinstance(n_workplaces, int):
+        pop.n_workplaces = n_workplaces
+    else:
+        pop.n_workplaces = 0
+
+    pop.workplaces = [Workplace() for nw in range(pop.n_workplaces)]
+    return
+
+
+def populate_workplaces(pop, workplaces, age_by_uid):
+    """
+    Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
+
+    Args:
+        workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
+        age_by_uid (dict) : dictionary mapping each person's id to their age
+    """
+    # check there are enough workplaces
+    if len(pop.workplaces) < len(workplaces):
+        log.debug(f"Reinitializing list of workplaces with {len(workplaces)} empty workplaces.")
+        initialize_empty_workplaces(pop, len(workplaces))
+
+    log.debug("Populating workplaces.")
+
+    # now populate workplaces
+    for nh, hh in enumerate(workplaces):
+        kwargs = dict(wpid=nh,
+                      member_uids=hh,
+                      member_ages=[age_by_uid[i] for i in hh],
+                      reference_uid=hh[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[hh[0]]
+                      )
+        workplace = Workplace()
+        workplace.set_layer_group(**kwargs)
+        pop.workplaces[workplace['wpid']] = sc.dcp(workplace)
+
+    return
 
 
 def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
