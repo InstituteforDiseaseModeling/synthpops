@@ -32,7 +32,72 @@ __all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
            'get_generated_school_size_distributions', 'count_enrollment_by_age',
            'get_enrollment_rates_by_age',
            # 'get_bin_edges', 'get_bin_labels',
+           'School'
            ]
+
+
+class School(spb.LayerGroup):
+    """
+    A class for individual schools and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the school
+    """
+
+    def __init__(self, **kwargs):
+        if 'scid' not in kwargs:
+            kwargs['scid'] = None
+
+        for key in ['student_uids', 'teacher_uids', 'staff_uids',
+                    'student_ages', 'teacher_ages', 'staff_ages']:
+            if key not in kwargs:
+                kwargs[key] = np.array([], dtype=int)
+        super().__init__(**kwargs)
+        self.pop('member_uids')
+        self.pop('member_ages')
+        self.validate()
+
+        return
+
+    def validate(self):
+        """
+        Check that information supplied to make a school is valid and update
+        to the correct type if necessary.
+        """
+        for key in ['student_uids', 'teacher_uids', 'staff_uids',
+                    'student_ages', 'teacher_ages', 'staff_ages']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert school key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
+
+        for key in ['scid', 'reference_uid', 'reference_age']:
+            if key in self.keys():
+                if not isinstance(self[key], (int)):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
+        return
+
+    @property
+    def member_uids(self):
+        return np.concatenate((self['student_uids'], self['teacher_uids'], self['staff_uids']))
+
+    @property
+    def member_ages(self):
+        return np.concatenate((self['student_ages'], self['teacher_ages'], self['staff_ages']))
+
+
+def get_school(pop, scid):
+    if not isinstance(scid, int):
+        raise TypeError(f"scid must be an int.")
+    if len(pop.schools) < scid:
+        raise ValueError(f"School id (scid): {scid} out of range.")
+    return pop.schools[scid]
+
+
 
 
 def get_school_type_labels():
@@ -755,9 +820,9 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
 
     if school_mixing_type == 'random':
-        school = sc.dcp(syn_school_uids)
-        school += teachers
-        edges = generate_random_contacts_across_school(school, average_class_size)
+        school_uids = sc.dcp(syn_school_uids)
+        school_uids += teachers
+        edges = generate_random_contacts_across_school(school_uids, average_class_size)
         add_contacts_from_edgelist(popdict, edges, 'S')
 
     # random contacts across a grade in the school, most edges will across the same age group, much like middle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
@@ -900,9 +965,9 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
     syn_teacher_uids = []
 
     for n in range(len(syn_schools)):
-        school = syn_schools[n]
+        school_uids = syn_schools[n]
 
-        size = len(school)
+        size = len(school_uids)
         nteachers = int(size / float(average_student_teacher_ratio))
         nteachers = max(1, nteachers)
 
@@ -931,9 +996,9 @@ def assign_teachers_to_schools(syn_schools, syn_school_uids, employment_rates, w
 
         if logging.getLevelName(log.level)=='DEBUG':
             print(f"nteachers {nteachers}, student-teacher ratio, {(size / nteachers):.4f}")
-            print(f"school with teachers {sorted(school)}")
-            print(f"nkids: {(np.array(school) <= 19).sum()}, n20=>: {(np.array(school) > 19).sum()}")
-            print(f"kid-adult ratio: {np.divide((np.array(school) <= 19).sum() , (np.array(school) > 19).sum())}")
+            print(f"school with teachers {sorted(school_uids)}")
+            print(f"nkids: {(np.array(school_uids) <= 19).sum()}, n20=>: {(np.array(school_uids) > 19).sum()}")
+            print(f"kid-adult ratio: {np.divide((np.array(school_uids) <= 19).sum() , (np.array(school_uids) > 19).sum())}")
 
     return syn_teachers, syn_teacher_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
@@ -1282,9 +1347,9 @@ def count_enrollment_by_school_type(popdict, **kwargs):
             schools[person['scid']].setdefault('enrolled', 0)
             schools[person['scid']]['enrolled'] += 1
 
-    for i, school in schools.items():
-        enrollment_by_school_type.setdefault(school['sc_type'], [])
-        enrollment_by_school_type[school['sc_type']].append(school['enrolled'])
+    for i, school_i in schools.items():
+        enrollment_by_school_type.setdefault(school_i['sc_type'], [])
+        enrollment_by_school_type[school_i['sc_type']].append(school_i['enrolled'])
 
     if not kwargs.with_school_types:
         sc_types = set(enrollment_by_school_type.keys())

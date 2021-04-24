@@ -483,9 +483,7 @@ class LongTermCareFacility(spb.LayerGroup):
         Check that information supplied to make a long term care facility is valid and update
         to the correct type if necessary.
         """
-        for key in [
-                    # 'member_uids', 'member_ages',
-                    'resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
+        for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
             if key in self.keys():
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
@@ -577,9 +575,6 @@ def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
         lf.extend(residents)
         lf.extend(staff_lists[nl])
         kwargs = dict(snfid=nl,
-
-                      # member_uids=lf,
-                      # member_ages=[age_by_uid[i] for i in lf],
                       resident_uids=residents,
                       resident_ages=[age_by_uid[i] for i in residents],
                       staff_uids=staff_lists[nl],
