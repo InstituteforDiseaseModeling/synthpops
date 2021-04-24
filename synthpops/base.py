@@ -7,10 +7,10 @@ import sciris as sc
 from collections import Counter
 from . import defaults as spd
 
-__all__ = ['Layer']
+__all__ = ['LayerGroup']
 
 
-class Layer(dict):
+class LayerGroup(dict):
     """
     A generic class for individual setting group and some methods to operate on each.
 
@@ -22,22 +22,19 @@ class Layer(dict):
         workplaces (W), and long term care facilities (LTCF).
     """
 
-    def __init__(self, layer, layer_id_mapping, **kwargs):
+    def __init__(self, **kwargs):
         """
         Class constructor for an base empty setting group.
 
         Args:
-            layer (str) : code for the layer
-            layer_id_mapping (dict) : dictionary with codes for the layer id
             **member_uids (np.array) : ids of group members
             **member_ages (np.array) : ages of group members
             **reference_uid (int) : id of the reference person
             **reference_age (int) : age of the reference person
         """
         # set up default values
-        default_kwargs = spd.default_layer_info()
-        default_kwargs[layer_id_mapping[layer]] = None
-        kwargs = sc.mergedict(default_kwargs, kwargs)
+        default_kwargs = spd.default_layer_info
+        kwargs = sc.mergedicts(default_kwargs, kwargs)
         self.update(kwargs)
         self.validate()
 
@@ -52,6 +49,7 @@ class Layer(dict):
         return
 
     def __len__(self):
+        """Return the length as the number of members in the layer group"""
         return len(self['member_uids'])
 
     def validate(self):

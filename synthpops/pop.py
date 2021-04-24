@@ -399,8 +399,8 @@ class Pop(sc.prettyobj):
         self.homes_by_uids = homes_by_uids
         self.age_by_uid = age_by_uid_dic
 
-        self.initialize_households_list()
-        self.populate_households(self.homes_by_uids, self.age_by_uid)
+        # self.initialize_households_list()
+        # self.populate_households(self.homes_by_uids, self.age_by_uid)
 
         return population
 

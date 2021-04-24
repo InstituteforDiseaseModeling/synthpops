@@ -15,7 +15,8 @@ from . import data_distributions as spdata
 # __all__ = ['Household']
 
 
-class Household(dict):
+# class Household(dict):
+class Household(spb.LayerGroup):
     """
     A class for individual households and methods to operate on each.
 
@@ -35,43 +36,47 @@ class Household(dict):
             **reference_age (int)    : age of the reference person
         """
         # set up default household values
-        kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
-        self.update(kwargs)
+
+        # kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
+        if 'hhid' not in kwargs:
+            kwargs['hhid'] = None
+
+        super().__init__(**kwargs)
         self.validate()
 
         return
 
-    def default_kwargs(self):
-        """
-        Default household attributes.
+    # def default_kwargs(self):
+    #     """
+    #     Default household attributes.
 
-        hhid (int)               : household id
-        member_uids (np.ndarray) : uids of household members
-        member_ages (np.ndarray) : ages of household members  # maybe not needed
-        reference_uid (int)      : reference person used to generate the household members and their ages
-        reference_age (int)      : age of the reference person used to generate the household members and their ages
+    #     hhid (int)               : household id
+    #     member_uids (np.ndarray) : uids of household members
+    #     member_ages (np.ndarray) : ages of household members  # maybe not needed
+    #     reference_uid (int)      : reference person used to generate the household members and their ages
+    #     reference_age (int)      : age of the reference person used to generate the household members and their ages
 
-        """
-        default_kwargs = dict()
-        default_kwargs['hhid'] = None
-        default_kwargs['member_uids'] = np.array([], dtype=int)
-        default_kwargs['member_ages'] = np.array([], dtype=int)
-        default_kwargs['reference_uid'] = None
-        default_kwargs['reference_age'] = None
+    #     """
+    #     default_kwargs = dict()
+    #     default_kwargs['hhid'] = None
+    #     default_kwargs['member_uids'] = np.array([], dtype=int)
+    #     default_kwargs['member_ages'] = np.array([], dtype=int)
+    #     default_kwargs['reference_uid'] = None
+    #     default_kwargs['reference_age'] = None
 
-        return default_kwargs
+    #     return default_kwargs
 
-    def set_household(self, **kwargs):
-        """Set up the household -- works for a static population."""
-        for key, value in kwargs.items():
-            self[key] = value
-        self.validate()
+    # def set_household(self, **kwargs):
+    #     """Set up the household -- works for a static population."""
+    #     for key, value in kwargs.items():
+    #         self[key] = value
+    #     self.validate()
 
-        return
+    #     return
 
-    def __len__(self):
-        """Returns the length of the household as the number of household members."""
-        return len(self['member_uids'])
+    # def __len__(self):
+    #     """Returns the length of the household as the number of household members."""
+    #     return len(self['member_uids'])
 
     def validate(self):
         """
