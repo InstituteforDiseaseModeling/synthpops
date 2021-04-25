@@ -35,8 +35,25 @@ def test_basic_api():
     return pop
 
 
+def test_pop_n():
+    sp.logger.info("Testing when n is None.")
+    test_pars = sc.dcp(pars)
+    test_pars['n'] = None
+    pop = sp.Pop(**test_pars)
+    assert pop.n == sp.defaults.default_pop_size, 'Check failed.'
+    print('Check passed')
+
+    sp.logger.info("Testing when n is small.")
+    test_pars['n'] = sp.defaults.default_pop_size - 1
+    pop2 = sp.Pop(**test_pars)
+    assert pop2.n == sp.defaults.default_pop_size - 1, 'Check failed.'
+    print('Check passed')
+
+
 if __name__ == '__main__':
     T = sc.tic()
     pop = test_basic_api()
+    test_pop_n()
+
     sc.toc(T)
     print('Done.')
