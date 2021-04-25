@@ -227,30 +227,12 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
-        # max_W_size = int(max_contacts['W'] // 2)  # Divide by 2 since bi-directional contacts get added in later
-
-        # # Loop over workplaces but only generate the requested contacts
-        # for nw, workplace in enumerate(workplaces_by_uids):
-        #     for uid in workplace:
-        #         uids = set(workplace)
-        #         uids.remove(uid)
-        #         if len(uids) > max_W_size:
-        #             uids = np.random.choice(list(uids), size=max_W_size, replace=False)
-        #         popdict[uid]['contacts']['W'] = set(uids)
-        #         popdict[uid]['wpid'] = nw
-        #         if workplaces_by_industry_codes is not None:
-        #             popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
-
-        # # Add pairing contacts back in
-        # for uid in popdict.keys():
-        #     for c in popdict[uid]['contacts']['W']:
-        #         popdict[c]['contacts']['W'].add(uid)
 
         average_degree = max_contacts['W']
         for nw, workplace in enumerate(workplaces_by_uids):
             uids = np.array(workplace)
 
-            G = random_graph_model(uids, average_degree, seed=0)  # undirected graph
+            G = random_graph_model(uids, average_degree)  # undirected graph
             for u, uid in enumerate(workplace):
                 v = list(G.neighbors(u))
 
@@ -475,11 +457,9 @@ def get_contact_counts_by_layer(popdict,
                             count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
                     # for other types, only all contacts are stored
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
-    # <<<<<<< HEAD
+
                     contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
     return contact_counter, contacts_counter_by_id
-
-    # return contact_counter
 
 
 def filter_people(pop, ages=None, uids=None):
@@ -596,7 +576,3 @@ def random_graph_model(uids, average_degree, seed=None):
         G = nx.fast_gnp_random_graph(N, p, seed=seed)
 
     return G
-# =======
-#                     contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
-#     return contact_counter, contacts_counter_by_id
-# >>>>>>> mewu/workplacecontacts

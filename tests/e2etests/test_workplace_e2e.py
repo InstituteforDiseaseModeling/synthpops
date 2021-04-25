@@ -116,11 +116,12 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             # degree distribution for an ER random graph follows a binomial distribution that is truncated
             # to the max size N. When N is large this approximates the poisson distribution. Perhaps our
             # test could look at the zero-N truncated binomial distribution
-            G = nx.erdos_renyi_graph(N, p, seed=0)
+            # G = nx.erdos_renyi_graph(N, p, seed=0)
+            G = nx.fast_gnp_random_graph(N, p, seed=0)
             degree = [G.degree(i) for i in G.nodes()]
 
-            # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
-            check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
+            # check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
             print('workplace id', wpid)
             print('\n\n')
 
