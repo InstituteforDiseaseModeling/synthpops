@@ -57,9 +57,9 @@ class Household(spb.LayerGroup):
 
         for key in ['hhid', 'reference_uid', 'reference_age']:
             if key in self.keys():
-                if not isinstance(self[key], (int)):
+                if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])}."
+                        errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])} {self[key]}."
                         raise TypeError(errmsg)
         return
 
@@ -548,7 +548,7 @@ def get_household_head_ages_by_size(pop):
     loc_pars.location = None
     hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
 
-    #hha_index use age as key and bracket index as value
+    # hha_index use age as key and bracket index as value
     hha_index = spb.get_index_by_brackets_dic(hha_brackets)
     uids = get_household_heads(popdict=popdict)
     d = {}

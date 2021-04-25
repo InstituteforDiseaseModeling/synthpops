@@ -29,9 +29,22 @@ Latest versions (1.8.x)
 
 Version 1.8.0 (2021-04-21)
 --------------------------
-- *Feature*: Class structure implemented for households. Now you can do ``pop.get_household(i)`` to get the household with integer ``hhid`` with value ``i`` which will be a ```sp.Household`` object with at minimum the attributes ``hhid``, ``member_uids``, ``member_ages``, ``reference_uid``, and ``reference_age``.
+- *Feature*: Class structure implemented for each layer (households, schools, workplaces, and long term care facilities). For example, now you can do ``pop.get_household(i)`` to get the household with integer ``hhid`` with value ``i`` which will be a ```sp.Household`` object with at minimum the attributes ``hhid``, ``member_uids``, ``member_ages``, ``reference_uid``, and ``reference_age``.
 - Methods also added to ``sp.populate_households()``, ``sp.set_household()``, ``sp.add_household()``, ``sp.get_household()`` in ``sp.households.py``
+- Class also added for classroom structures in schools when schools are strictly cohorted into classrooms (school_mixing_type equals 'age_and_class_clustered').
 - *Github*: PR `347 <https://github.com/amath-idm/synthpops/pull/347>`__
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versions 1.7.x (1.7.0 – 1.7.4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.7.4 (2020-04-21)
+--------------------------
+- *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
+- Also added is ``pop.summarize()`` which will print to screen and return a string of a brief description of the population generated using SynthPops.
+- *Github* : PR `442 <https://github.com/amath-idm/synthpops/pull/442>`__ 
 
 
 Version 1.7.3 (2021-04-16)

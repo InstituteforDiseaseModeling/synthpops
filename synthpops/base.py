@@ -65,7 +65,7 @@ class LayerGroup(dict):
                     errmsg = f"Could not convert key {key} to an np.array() with type int. This key only takes arrays with int values."
                     raise TypeError(errmsg)
             else:
-                if not isinstance(self[key], int):
+                if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
                         errmsg = f"Expected type int or None for key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
@@ -192,6 +192,45 @@ def count_ages(popdict):
     for i, person in popdict.items():
         age_count[person['age']] += 1
     return age_count
+
+
+def calculate_mean_from_count(count_of_values): # pragma: no cover
+    """
+    Calculate the mean from a dictionary where the keys represent the unique
+    values in a data set and the values are the number of times each key shows
+    up in the data set.
+
+    Args:
+        count_of_values (dict) : count dictionary
+
+    Returns:
+        float: Mean for a data set from a dictionary where the keys
+        are the unique values from the data set and the values are the number of
+        times the key is in the data set.
+    """
+    prob_of_values = norm_dic(count_of_values)
+    return sum([v * prob_of_values[v] for v in count_of_values])
+
+
+def calculate_std_from_count(count_of_values): # pragma: no cover
+    """
+    Calculate the standard deviation or variance from a dictionary where the
+    keys represent the unique values in a data set and the values are the
+    number of times each key shows up in the data set.
+
+    Args:
+        count_of_values (dict) : count dictionary
+
+    Returns:
+        float: Standard deviation for a data set from a dictionary where the
+        keys are the unique values from the data set and the values are the
+        number of times the key is in the data set.
+    """
+    prob_of_values = norm_dic(count_of_values)
+    average_v = calculate_mean_from_count(count_of_values)
+
+    std_sqrd = sum([(v - average_v) ** 2 * prob_of_values[v] for v in count_of_values])
+    return np.sqrt(std_sqrd)
 
 
 def get_aggregate_ages(ages, age_by_brackets_dic):

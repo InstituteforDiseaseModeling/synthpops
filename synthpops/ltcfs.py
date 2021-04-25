@@ -493,7 +493,7 @@ class LongTermCareFacility(spb.LayerGroup):
 
         for key in ['snfid', 'reference_uid', 'reference_age']:
             if key in self.keys():
-                if not isinstance(self[key], (int)):
+                if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
                         errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)

@@ -15,7 +15,7 @@ import settings
 
 # parameters to generate a test population
 pars = sc.objdict(
-    n                               = 5e1,
+    n                               = 5e2,
     rand_seed                       = 123,
 
     country_location                = 'usa',
@@ -62,6 +62,7 @@ def test_empty_household():
 def test_make_household():
     sp.logger.info("Test creating a household after the fact.")
     pop = sp.Pop(**pars)
+    print(pars)
 
     household = sp.Household()
     household.set_layer_group(member_uids=pop.homes_by_uids[0], member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
@@ -217,8 +218,8 @@ def test_households_initialization():
 
 if __name__ == '__main__':
 
-    pop = test_empty_household()
+    # pop = test_empty_household()
     test_make_household()
-    test_add_household()
-    test_households_basic()
-    test_households_initialization()
+    # test_add_household()
+    # test_households_basic()
+    # test_households_initialization()

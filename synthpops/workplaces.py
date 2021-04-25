@@ -56,7 +56,7 @@ class Workplace(spb.LayerGroup):
 
         for key in ['wpid', 'reference_uid', 'reference_age']:
             if key in self.keys():
-                if not isinstance(self[key], (int)):
+                if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
                         errmsg = f"Expected type int or None for workplace key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)

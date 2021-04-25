@@ -4,6 +4,7 @@ This module generates the household, school, and workplace contact networks.
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 import networkx as nx
 from . import data_distributions as spdata
 from . import schools as spsch
@@ -473,3 +474,90 @@ def get_contact_counts_by_layer(popdict,
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
     return contact_counter
+
+
+def filter_people(pop, ages=None, uids=None):
+    """
+    Helper function to filter people based on their uid and age.
+
+    Args:
+        pop (sp.Pop)         : population
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+
+    Returns:
+        array: An array of the ids of people to include for further analysis.
+    """
+    output = np.arange(pop.n)
+    if uids is not None:  # catch instance where the only uids supplied is the first one, 0
+        output = np.intersect1d(output, uids)
+
+    if ages is not None:  # catch instance where the only ages supplied is age 0
+        output = np.intersect1d(output, sc.findinds(np.isin(pop.age_by_uid, ages)))
+    return output
+
+
+def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None):
+    """
+    Create a dataframe from the population of people in the layer, including
+    their uid, age, degree, and the ages of contacts in the layer.
+
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of people in the layer including uid, age,
+        degree, and the ages of contacts in the layer.
+    """
+    if uids_included is None:
+        uids_included = filter_people(pop, ages=ages, uids=uids)
+
+    layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
+
+    degree_dicts = []
+
+    for i in uids_included:
+        a = pop.age_by_uid[i]
+
+        if pop.popdict[i][layerid_mapping[layer]] is not None:
+            nc = len(pop.popdict[i]['contacts'][layer])
+            ca = [pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]]
+            degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
+
+    degree_df = pd.DataFrame(degree_dicts)
+
+    return degree_df
+
+
+def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=None):
+    """
+    Compute a description of the statistics for the degree distribution by age
+    for a layer in the population contact network. See
+    pandas.Dataframe.describe() for more details on all of the statistics
+    included by default.
+
+    Args:
+        pop (sp.Pop)         : population
+        layer (str)  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+        uids_included (list or None): pre-calculated mask of people to include
+        degree_df (dataframe) : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        percentiles (list) : list of the percentiles to include as statistics
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of the statistics for the layer
+        degree distribution by age.
+    """
+    if degree_df is None:
+        degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    if percentiles is None:
+        percentiles = [0.05, 0.25, 0.5, 0.75, 0.95]
+
+    d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
+    return d

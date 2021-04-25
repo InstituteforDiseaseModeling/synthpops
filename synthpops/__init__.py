@@ -11,5 +11,6 @@ from .ltcfs import *
 from .schools import *
 from .workplaces import *
 from .pop import *
+from .contact_networks import *
 from .data import *
 logger.debug('Finished imports')
