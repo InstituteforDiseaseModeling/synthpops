@@ -395,7 +395,7 @@ class Pop(sc.prettyobj):
 
         school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
 
-        # Add layer classes
+        # temporarily store some information
         self.homes_by_uids = homes_by_uids
         self.age_by_uid = age_by_uid_dic
         self.syn_workplace_uids = syn_workplace_uids

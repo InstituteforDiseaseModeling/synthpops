@@ -177,6 +177,8 @@ class Classroom(spb.LayerGroup):
         super().__init__(**kwargs)
         self.pop('member_uids')
         self.pop('member_ages')
+        self.pop('reference_uid')
+        self.pop('reference_age')
         self.validate()
 
         return
