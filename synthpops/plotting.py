@@ -1,10 +1,12 @@
 """
 This module provides plotting methods including methods to plot the age-specific contact matrix in different contact layers.
 """
+import itertools
 import os
 import sciris as sc
 import numpy as np
 import covasim as cv
+import pandas as pd
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -16,11 +18,13 @@ import seaborn as sns
 
 from . import config as cfg
 from . import base as spb
+from . import defaults as spd
 from . import data_distributions as spdata
 from . import ltcfs as spltcf
 from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
+from . import contact_networks as spcnx
 from . import pop as sppop
 
 
@@ -32,7 +36,9 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            'plot_ltcf_resident_sizes', 
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
-           'plot_school_sizes', 'plot_workplace_sizes']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
+           'plot_school_sizes', 'plot_workplace_sizes',
+           'plot_household_head_ages_by_size',
+           'plot_contact_counts']  # defines what will be * imported from synthpops, eveything else will need to be imported as synthpops.plotting.method_a, etc.
 
 
 class plotting_kwargs(sc.objdict):
@@ -87,6 +93,10 @@ class plotting_kwargs(sc.objdict):
         default_kwargs.rotation = 0
         default_kwargs.subplot_height = 5
         default_kwargs.subplot_width = 8
+        default_kwargs.left = 0.125
+        default_kwargs.right = 0.9
+        default_kwargs.bottom = 0.11
+        default_kwargs.top = 0.88
         default_kwargs.hspace = 0.4
         default_kwargs.wspace = 0.3
         default_kwargs.nrows = 1
@@ -129,8 +139,8 @@ class plotting_kwargs(sc.objdict):
         Check if method has some key pop parameters to call on data. If not, use
         defaults and warn user of their use and value.
         """
-        default_pop_pars = sc.objdict(datadir=cfg.datadir, location=cfg.default_location, state_location=cfg.default_state,
-                                      country_location=cfg.default_country, use_default=False)
+        default_pop_pars = sc.objdict(datadir=spd.settings.datadir, location=spd.settings.location, state_location=spd.settings.state_location,
+                                      country_location=spd.settings.country_location, use_default=False)
         default_age_pars = sc.objdict(smooth_ages=False, window_length=7)
 
         # if loc_pars exists, then update the default_pop_pars with that information
@@ -182,7 +192,7 @@ def finalize_figure(fig, plkwargs, **new_plkwargs):
     Args:
         fig (matplotlib.Figure)    : figure
         plkwargs (plotting_kwargs) : plotting kwargs class
-        new_plkwargs (dict)        : dictionary of new plotting kwargs to update with
+        **new_plkwargs (dict)        : dictionary of new plotting kwargs to update with
 
     Returns:
         Matplotlib figure.
@@ -300,7 +310,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         **density_or_frequency (str)       : Default value is 'density', see notes for more details.
         **logcolors_flag (bool)            : If True, plot heatmap in logscale
         **aggregate_flag (bool)            : If True, plot the contact matrix for aggregate age brackets, else single year age contact matrix.
-        **cmap(str or matplotlib colormap) : colormap
+        **cmap(str or Matplotlib colormap) : colormap
         **fontsize (int)                   : base font size
         **rotation (int)                   : rotation for x axis labels
         **title_prefix(str)                : optional title prefix for the figure
@@ -453,7 +463,7 @@ def plot_contacts(pop, **kwargs):
         **density_or_frequency (str)    : If 'density', then each contact counts for 1/(group size -1) of a person's contact in a group, elif 'frequency' then count each contact. This means that more people in a group leads to higher rates of contact/exposure.
         **state_location (string)       : name of the state the location is in
         **country_location (string)     : name of the country the location is in
-        **cmap (str or matplotlib cmap) : colormap
+        **cmap (str or Matplotlib cmap) : colormap
         **fontsize (int)                : base font size
         **rotation (int)                : rotation for x axis labels
         **title_prefix(str)             : optional title prefix for the figure
@@ -472,7 +482,7 @@ def plot_contacts(pop, **kwargs):
                                  aggregate_flag=True, logcolors_flag=True,
                                  cmap='cmr.freeze_r', fontsize=16, rotation=50,
                                  title_prefix=None, fig=None, ax=None, do_show=False, do_save=False,
-                                 state_location=cfg.default_state, country_location=cfg.default_country
+                                 state_location=spd.settings.state_location, country_location=spd.settings.country_location
                                  )
     method_defaults.figname = f"contact_matrix_{method_defaults.layer}"  # by defining this here, we can at least ensure that default names connect to the layer being modeled
 
@@ -485,7 +495,7 @@ def plot_contacts(pop, **kwargs):
         population = pop.to_dict()
         age_brackets = pop.age_brackets
         age_by_brackets_dic = pop.age_by_brackets_dic
-        age_count = pop.summary.age_count
+        age_count = pop.information.age_count
 
     elif isinstance(pop, dict):
         population = sc.dcp(pop)
@@ -531,6 +541,8 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         **value_text (bool)     : If True, display the values on top of the bar if specified
         **rotation (float)      : rotation angle for xticklabels
         **binned (bool)         : If True, data are binned. Else, if False, plot a simple histogram for expected data.
+        **do_show (bool)        : If True, show the plot
+        **do_save (bool)        : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -634,6 +646,8 @@ def plot_ages(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -684,7 +698,7 @@ def plot_ages(pop, **kwargs):
 
         # get the generated age distribution
         if isinstance(pop, sppop.Pop):
-            generated_age_count = pop.summary.age_count
+            generated_age_count = pop.information.age_count
 
         elif isinstance(pop, dict):
             generated_age_count = spb.count_ages(pop)
@@ -733,6 +747,8 @@ def plot_household_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -780,7 +796,7 @@ def plot_household_sizes(pop, **kwargs):
         generated_household_size_count = dict.fromkeys(expected_household_size_dist.keys(), 0)
 
         if isinstance(pop, sppop.Pop):
-            generated_household_size_count = pop.summary.household_size_count
+            generated_household_size_count = pop.information.household_size_count
 
         elif isinstance(pop, dict):
             generated_household_sizes = sphh.get_household_sizes(pop)
@@ -829,6 +845,8 @@ def plot_household_sizes(pop, **kwargs):
 #         **fontsize (float)  : Matplotlib.figure.fontsize
 #         **figname (str)     : name to save figure to disk
 #         **comparison (bool) : If True, plot comparison to the generated population
+#         **do_show (bool)    : If True, show the plot
+#         **do_save (bool)    : If True, save the plot to disk
 
 #     Returns:
 #         Matplotlib figure and axes.
@@ -877,70 +895,6 @@ def plot_household_sizes(pop, **kwargs):
 #     return fig, ax
 
 
-# def plot_household_head_ages_by_household_size(pop, **kwargs):
-#     """
-#     Plot a comparison of the expected and generated head of household ages by
-#     the household size.
-
-#     Args:
-#         pop (pop object)    : population, either synthpops.pop.Pop or dict
-#         **left (float)      : Matplotlib.figure.subplot.left
-#         **right (float)     : Matplotlib.figure.subplot.right
-#         **top (float)       : Matplotlib.figure.subplot.top
-#         **bottom (float)    : Matplotlib.figure.subplot.bottom
-#         **color_1 (str)     : color for expected data
-#         **color_2 (str)     : color for data from generated population
-#         **fontsize (float)  : Matplotlib.figure.fontsize
-#         **figname (str)     : name to save figure to disk
-#         **comparison (bool) : If True, plot comparison to the generated population
-
-#     Returns:
-#         Matplotlib figure and axes.
-
-#     Note:
-#         If using pop with type dict, args must be supplied for the location
-#         parameter to get the expected rates. Covasim.people.People pop type
-#         not yet supported.
-
-#     **Example**::
-
-#         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
-#         pop = sp.Pop(**pars)
-#         fig, ax = pop.plot_household_head_ages_by_household_size()
-
-#         popdict = pop.to_dict()
-#         kwargs = pars.copy()
-#         kwargs['datadir'] = sp.datadir
-#         fig, ax = sp.plot_household_head_ages_by_household_size(popdict, **kwargs)
-#     """
-#     plkwargs = get_plkwargs(pop)
-#     cmap = plt.get_cmap('rocket')
-
-#     # method specific plotting defaults
-#     method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
-#                            fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
-
-#     plkwargs.update_defaults(method_defaults, kwargs)
-
-#     # define after plkwargs gets updated
-#     if isinstance(pop, sppop.Pop):
-#         plkwargs.loc_pars = pop.loc_pars
-#     elif not isinstance(pop, dict):
-#         raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
-
-#     # now check for the missing plkwargs and use default values if not found
-#     plkwargs.set_default_pop_pars()
-#     if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-#         plkwargs.title_prefix = f"{plkwargs.location}_household_head_ages_by_household_size"
-
-#     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
-#     fig.subplots_adjust(**plkwargs.axis)
-
-#     fig = finalize_figure(fig, plkwargs)
-
-#     return fig, ax
-
-
 def plot_ltcf_resident_sizes(pop, **kwargs):
     """
     Plot a comparison of the expected and generated ltcf resident sizes.
@@ -956,6 +910,8 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1053,6 +1009,8 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 #         **fontsize (float)  : Matplotlib.figure.fontsize
 #         **figname (str)     : name to save figure to disk
 #         **comparison (bool) : If True, plot comparison to the generated population
+#         **do_show (bool)    : If True, show the plot
+#         **do_save (bool)    : If True, save the plot to disk
 
 #     Returns:
 #         Matplotlib figure and axes.
@@ -1100,6 +1058,8 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1191,6 +1151,8 @@ def plot_employment_rates_by_age(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1231,7 +1193,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
         plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
 
     # get the expected employment rates
-    expected_employment_rates_by_age = dict.fromkeys(np.arange(cfg.max_age), 0)
+    expected_employment_rates_by_age = dict.fromkeys(np.arange(spd.settings.max_age), 0)
     expected_employment_rates_by_age = sc.mergedicts(expected_employment_rates_by_age, spdata.get_employment_rates(**plkwargs.loc_pars))
     expected_employment_rates_by_age_values = [expected_employment_rates_by_age[a] * 100 for a in sorted(expected_employment_rates_by_age.keys())]
 
@@ -1288,9 +1250,11 @@ def plot_school_sizes(pop, **kwargs):
         **location_text_y (float)       : height to add location text to figure
         **fontsize (float)              : Matplotlib.figure.fontsize
         **rotation (float)              : rotation angle for xticklabels
-        **cmap (str)                    : colormap
+        **cmap (str or Matplotlib cmap) : colormap
         **figname (str)                 : name to save figure to disk
         **comparison (bool)             : If True, plot comparison to the generated population
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1370,7 +1334,7 @@ def plot_school_sizes(pop, **kwargs):
     if plkwargs.location is not None:
         location_text = f"{plkwargs.location.replace('_', ' ').title()}"
     else:
-        location_text = f"{cfg.default_location.replace('_', ' ').title()}"
+        location_text = f"{spd.settings.location.replace('_', ' ').title()}"
 
     # create fig, ax, set cmap
     fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
@@ -1452,6 +1416,8 @@ def plot_workplace_sizes(pop, **kwargs):
         **fontsize (float)  : Matplotlib.figure.fontsize
         **figname (str)     : name to save figure to disk
         **comparison (bool) : If True, plot comparison to the generated population
+        **do_show (bool)    : If True, show the plot
+        **do_save (bool)    : If True, save the plot to disk
 
     Returns:
         Matplotlib figure and axes.
@@ -1505,7 +1471,7 @@ def plot_workplace_sizes(pop, **kwargs):
         generated_work_sizes_binned = dict.fromkeys(expected_work_sizes_binned.keys())
 
         if isinstance(pop, sppop.Pop):
-            generated_work_sizes = pop.summary.workplace_sizes
+            generated_work_sizes = pop.information.workplace_sizes
 
         elif isinstance(pop, dict):
             generated_work_sizes = spw.get_workplace_sizes(pop)
@@ -1539,3 +1505,467 @@ def plot_workplace_sizes(pop, **kwargs):
     fig = finalize_figure(fig, plkwargs)
 
     return fig, ax
+
+
+def plot_household_head_ages_by_size(pop, **kwargs):
+    """
+    Plot a comparison of the expected and generated age distribution of the
+    household heads by the household size, presented as matrices. The age
+    distribution of household heads is binned to match the expected data.
+
+    Args:
+        pop (sp.Pop)                    : population
+        **figname (str)                 : name to save figure to disk
+        **figdir (str)                  : directory to save the plot if provided
+        **title_prefix (str)            : used to prefix the title of the plot
+        **fontsize (float)              : Matplotlib.figure.fontsize
+        **cmap (str or Matplotlib cmap) : colormap
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+
+    **Example**::
+
+        pars = {'n': 10e3, 'location': 'seattle_metro', 'state_location': 'Washington', 'country_location': 'usa'}
+        pop = sp.Pop(**pars)
+        fig, ax = plot_household_head_ages_by_size(pop)
+
+        kwargs = pars.copy()
+        kwargs['cmap'] = 'rocket'
+        fig, ax = plot_household_head_ages_by_size(pop, **kwargs)
+    """
+    plkwargs = get_plkwargs(pop)
+    # method specific plotting defaults
+    method_defaults = sc.objdict(title_prefix="Household Head Age by Size",
+                                 fontsize=14,
+                                 cmap="rocket_r",
+                                 figname="household_head_age_family_size",
+                                 height=8, width=17, rotation=45,
+                                 )
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    pop.loc_pars.location = None
+
+    # get the labels of the head of household age brackets
+    hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
+    xticklabels = [f"{hha_brackets[b][0]}-{hha_brackets[b][-1]}" for b in hha_brackets.keys()]
+
+    expected_hh_ages = spdata.get_head_age_by_size_distr(**pop.loc_pars)
+
+    # we will ignore the first row (family_size = 1) for plotting
+    # flip to make each row an age bin for calculation then flip back
+    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages), :]
+
+    expected_hh_ages_percentage = expected_hh_ages / np.sum(expected_hh_ages, axis=1)[:, np.newaxis]
+    expected_hh_ages_percentage[np.isnan(expected_hh_ages_percentage)] = 0
+
+    expected_hh_ages_percentage *= 100
+
+    actual_hh_ages = sphh.get_household_head_ages_by_size(pop)
+    actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :]
+
+    actual_hh_ages_percentage = actual_hh_ages / np.sum(actual_hh_ages, axis=1)[:, np.newaxis]
+    actual_hh_ages_percentage[np.isnan(actual_hh_ages_percentage)] = 0
+
+    actual_hh_ages_percentage *= 100
+
+    # spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
+    householdsize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
+    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) - 1)]
+    yticklabels = household_sizes
+
+    interval = 5
+
+    data_range_min = 0
+    data_range_max = max(np.max(expected_hh_ages_percentage), np.max(actual_hh_ages_percentage))
+    data_range_max = int(np.ceil(data_range_max/interval)) * interval
+    data_range = [data_range_min, data_range_max]
+
+    return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows, :],
+                        actual=actual_hh_ages_percentage[0:householdsize_rows, :],
+                        xticklabels=xticklabels, yticklabels=yticklabels,
+                        xlabel='Head of Household Age', ylabel='Household Size',
+                        cbar_ylabel='%',
+                        data_range=data_range,
+                        **plkwargs)
+
+
+def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cbar_ylabel, data_range=[0, 1], **kwargs):
+    """
+    Plot a comparison of heatmaps for expected and actual data.
+
+    Args:
+        expected (array)                : expected 2-dimenional matrix
+        actual (array)                  : actual 2-dimenional matrix
+        names_x (str)                   : name for x-axis
+        names_y (str)                   : name for y-axis
+        xlabel (str)                   : x-axis label
+        ylabel (str)                   : y-axis label
+        cbar_ylabel (str)              : colorbar y-axis label
+        data_range (list)               : data range for heatmap's [vmin,vmax], default to [0,1]
+        **title_prefix (str)            : used to prefix the title of the plot
+        **fontsize (float)              : Matplotlib.figure.fontsize
+        **cmap (str or Matplotlib cmap) : colormap
+        **left (float)                  : Matplotlib.figure.subplot.left
+        **right (float)                 : Matplotlib.figure.subplot.right
+        **top (float)                   : Matplotlib.figure.subplot.top
+        **bottom (float)                : Matplotlib.figure.subplot.bottom
+        **hspace (float)                : Matplotlib.figure.hspace
+        **wspace (float)                : Matplotlib.figure.wspace
+        **figname (str)                 : name to save figure to disk
+        **figdir (str)                  : directory to save the plot if provided
+        **do_show (bool)                : If True, show the plot
+        **do_save (bool)                : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
+    plkwargs = plotting_kwargs()
+    # method specific plotting defaults
+    method_defaults = sc.objdict(title_prefix="heatmap", fontsize=12, cmap='rocket_r',
+                                 height=8, width=17,
+                                 left=0.09, right=0.9, top=0.83, bottom=0.22, hspace=0.15, wspace=0.30,
+                                 origin='lower', interpolation='nearest', aspect="auto",
+                                 rotation=45, rotation_mode="anchor",
+                                 ha="right", divider_size="6%", divider_pad=0.1,
+                                 )
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.set_font()  # font styles to be updated
+
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+
+    im = []
+
+    im.append(axs[0].imshow(expected, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1]))
+    im.append(axs[1].imshow(actual, origin=plkwargs.origin, cmap=plkwargs.cmap, interpolation=plkwargs.interpolation, aspect=plkwargs.aspect, vmin=data_range[0], vmax=data_range[1]))
+    for ax in axs:
+        ax.set_xticks(np.arange(len(xticklabels)))
+        ax.set_yticks(np.arange(len(yticklabels)))
+        ax.set_xticklabels(xticklabels, fontsize=plkwargs.fontsize - 2)
+        ax.set_yticklabels(yticklabels, fontsize=plkwargs.fontsize - 2)
+        # Rotate the tick labels and set their alignment.
+        plt.setp(ax.get_xticklabels(), rotation=plkwargs.rotation, ha=plkwargs.ha, rotation_mode=plkwargs.rotation_mode)
+        ax.set_xlabel(xlabel, fontsize=plkwargs.fontsize - 1)
+        ax.set_ylabel(ylabel, fontsize=plkwargs.fontsize - 1)
+    axs[0].set_title('Expected', fontsize=plkwargs.fontsize + 1)
+    axs[1].set_title('Generated', fontsize=plkwargs.fontsize + 1)
+    fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize + 1)
+
+    divider = make_axes_locatable(axs[1])
+    cax = divider.new_horizontal(size=plkwargs.divider_size, pad=plkwargs.divider_pad)
+    fig.add_axes(cax)
+    cbar = fig.colorbar(im[1], cax=cax)
+    cbar.ax.tick_params(axis='y', labelsize=plkwargs.fontsize-2)
+    cbar.ax.set_ylabel(cbar_ylabel)
+
+    finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
+def plot_contact_counts(contact_counter, **kwargs):
+    """
+    Plot the number of contacts by contact types as a histogram. The
+    contact_counter is a dictionary with keys = people_types (default to school
+    layer ['sc_student', 'sc_teacher', 'sc_staff']) and each value is a
+    dictionary which stores the list of counts for each type of contact, for
+    example ['sc_teacher', 'sc_student', 'sc_staff', 'all_staff', 'all'].
+
+    Args:
+        contact_counter (dict)  : A dictionary with people_types as keys and value as list of counts for each type of contacts
+        **title_prefix(str)     : optional title prefix for the figure
+        **figname (str)         : name to save figure to disk
+        **fontsize (float)      : Matplotlib.figure.fontsize
+
+    Returns:
+        Matplotlib figure and axes of the histograms of contact distributions
+        for the corresponding contact_counter.
+    """
+    plkwargs = plotting_kwargs()
+    cmap = plt.get_cmap('cmr.freeze')
+    # method specific defaults
+    method_defaults = sc.objdict(fontsize=plkwargs.fontsize, color_1=cmap(0.4), color_2=cmap(0.4))
+
+    plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.title_prefix = plkwargs.title_prefix if hasattr(plkwargs, "title_prefix") else f""
+    plkwargs.figname = plkwargs.figname if hasattr(plkwargs, "figname") else f"contact_plot"
+
+    people_types = contact_counter.keys()
+    contact_types = contact_counter[next(iter(contact_counter))].keys()
+
+    fig, axes = plt.subplots(len(people_types), len(contact_types), figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.suptitle(f"Contact View: {plkwargs.title_prefix}", fontsize=plkwargs.fontsize)
+
+    if max(len(people_types), len(contact_types)) > 1:
+        fig.tight_layout()
+        for ax, counter in zip(axes.flatten(), list(itertools.product(people_types, contact_types))):
+            ax.hist(contact_counter[counter[0]][counter[1]], color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
+            ax.set_title(f'{counter[0]} to {counter[1]}', fontsize=plkwargs.fontsize)
+            ax.tick_params(which='major', labelsize=plkwargs.fontsize)
+            ax.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
+    else:
+        from_index = list(people_types)[0]
+        to_index = list(contact_types)[0]
+        axes.hist(contact_counter.get(from_index).get(to_index), color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
+        axes.set_title(f'{from_index} to {to_index}', fontsize=plkwargs.fontsize)
+        axes.tick_params(which='major', labelsize=plkwargs.fontsize)
+        axes.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
+
+    finalize_figure(fig, plkwargs)
+    plt.close()
+    return fig, axes
+
+
+# dev / analysis tool
+def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, kind='kde', **kwargs):
+    """
+    Method to plot the layer degree distribution by age using different seaborns
+    jointplot styles.
+
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        kind (str)                   : seaborn jointplot style
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
+    if degree_df is None:
+        degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    plkwargs = plotting_kwargs()
+    # default_cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+    default_cmap = mplt.cm.get_cmap("rocket")
+    method_defaults = sc.objdict(cmap=default_cmap, alpha=0.99, thresh=0.0001, cbar=True,
+                                 shade=True, xlim=[0, 101], height=5, ratio=5,
+                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 fontsize=10, save_dpi=400,
+                                 )
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    interval = 5
+    max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
+    min_y = min(degree_df['degree'].values)
+    max_b = max(max_y, plkwargs.xlim[-1])
+
+    if kind == 'kde':
+        g = sns.jointplot(x='age', y='degree', data=degree_df, cmap=plkwargs.cmap, alpha=plkwargs.alpha,
+                          kind=kind, shade=plkwargs.shade, thresh=plkwargs.thresh,
+                          color=plkwargs.cmap(0.9), xlim=plkwargs.xlim, ylim=[min_y, max_y],
+                          height=plkwargs.height, ratio=plkwargs.ratio, space=0, levels=20,
+                          )
+
+    elif kind == 'hist':
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), cmap=plkwargs.cmap,
+                          alpha=plkwargs.alpha, kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y],
+                          ratio=plkwargs.ratio, height=plkwargs.height, space=0,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
+
+    elif kind == 'reg':
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.3), #alpha=plkwargs.alpha,
+                          kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y], ratio=plkwargs.ratio,
+                          height=plkwargs.height, space=0,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
+
+    elif kind == 'hex':
+        g = sns.jointplot(x='age', y='degree', data=degree_df, color=plkwargs.cmap(0.8), cmap=plkwargs.cmap,
+                          alpha=plkwargs.alpha, kind=kind, xlim=plkwargs.xlim, ylim=[min_y, max_y],
+                          ratio=plkwargs.ratio, height=plkwargs.height, space=0,
+                          bins=max_b,
+                          marginal_kws=dict(bins=np.arange(0, max_b)),
+                          )
+
+    g.plot_marginals(sns.kdeplot, color=plkwargs.cmap(0.5), shade=plkwargs.shade, alpha=plkwargs.alpha * 0.8, legend=False)
+
+    g.fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize+1.5, horizontalalignment='left')
+    g.ax_joint.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    g.ax_joint.set_ylabel('Degree', fontsize=plkwargs.fontsize)
+    g.ax_joint.tick_params(labelsize=plkwargs.fontsize)
+
+    finalize_figure(g.fig, plkwargs)
+    return g
+
+
+# dev / analysis tool
+def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, **kwargs):
+    """
+    Method to plot the boxplot of the layer degree distribution by age.
+
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
+    if degree_df is None:
+        degree_df = spcnx.count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    plkwargs = plotting_kwargs()
+    cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+    method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
+                                 shade=True, xlim=[0, 101], height=7,
+                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 fontsize=10, save_dpi=400,
+                                 )
+    plkwargs.update_defaults(method_defaults, kwargs)
+    fig, ax = plt.subplots(1, 1, figsize=(plkwargs.height, plkwargs.height))
+    ax = sns.boxplot(x='age', y='degree', data=degree_df, palette=[plkwargs.cmap(0.5)], ax=ax)
+    ax.set_xticks(np.arange(plkwargs.xlim[0], plkwargs.xlim[1], 10))
+    ax.set_xlim(plkwargs.xlim)
+    ax.set_title('Workplace Degree Distribution', fontsize=plkwargs.fontsize+2)
+    ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
+    ax.set_ylabel('Degree', fontsize=plkwargs.fontsize)
+    finalize_figure(fig, plkwargs)
+
+    return fig, ax
+
+
+# dev / analysis tool
+def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwargs):
+    """
+    Method to plot the layer degree distribution by age for a list of different
+    populations using some available seaborns jointplot styles. Used for visual
+    comparison of the degree distribution for populations created with different
+    conditions (e.g. random seed or other population parameters).
+
+    Args:
+        pop_list (list)       : list of populations to visually compare
+        layer (str)           : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)  : ages of people to include
+        degree_df (dataframe) : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        kind (str)            : seaborn jointplot style
+        **cmap (colormap)     : colormap
+        **do_show (bool)      : If True, show the plot
+        **do_save (bool)      : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
+    plkwargs = plotting_kwargs()
+    method_defaults = sc.objdict(alpha=0.99, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
+                                 subplot_height=3, subplot_width=3.1, left=0.06, right=0.97, bottom=0.10)
+    plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.height = np.ceil(len(pop_list) / 3) * plkwargs.subplot_height
+    plkwargs.width = (len(pop_list) % 3 + 3) * plkwargs.subplot_width
+
+    ncols = min(3, len(pop_list))
+    nrows, ncols = sc.get_rows_cols(len(pop_list), ncols=ncols)
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+
+    fig.subplots_adjust(**plkwargs.axis)
+
+    interval = 5
+
+    for ni, pop in enumerate(pop_list):
+        cmap = sns.cubehelix_palette(light=1, as_cmap=True, rot=(ni+1) * 0.1)
+        degree_dfi = spcnx.count_layer_degree(pop, layer=layer, ages=ages)
+        max_y = int(np.ceil(max(degree_dfi['degree'].values) / interval) * interval)
+        min_y = int(np.floor(min(degree_dfi['degree'].values) / interval) * interval)
+        max_b = max(max_y, plkwargs.xlim[-1])
+
+        if len(pop_list) > 3:
+            nr = int(ni // 3)
+            nc = int(ni % 3)
+
+            axi = axes[nr][nc]
+        elif len(pop_list) > 1:
+            axi = axes[ni]
+
+        else:
+            axi = axes
+
+        if kind == 'kde':
+            sns.kdeplot(x=degree_dfi['age'], y=degree_dfi['degree'], cmap=cmap, shade=plkwargs.shade,
+                        ax=axi, alpha=plkwargs.alpha, thresh=plkwargs.thresh, cbar=plkwargs.cbar)
+        elif kind == 'hist':
+            sns.histplot(x='age', y='degree', data=degree_dfi, cmap=cmap,
+                         alpha=plkwargs.alpha, stat='density',
+                         cbar=plkwargs.cbar, ax=axi)
+
+        axi.set_xlim(plkwargs.xlim)
+        axi.set_ylim(min_y, max_y)
+        axi.set_title(f'Pop: {ni}  Layer: {layer}', fontsize=plkwargs.fontsize)
+
+    finalize_figure(fig, plkwargs)
+
+    return fig, axes
+
+
+# dev / analysis tool
+def plot_degree_by_age_stats(pop, **kwargs):
+    """
+    Method to plot percentile ranges of the layer degree distribution by age.
+
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+        degree_df (dataframe)        : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        **cmap (colormap)            : colormap
+        **do_show (bool)             : If True, show the plot
+        **do_save (bool)             : If True, save the plot to disk
+
+    Returns:
+        Matplotlib figure and axes.
+    """
+    plkwargs = plotting_kwargs()
+    method_defaults = sc.objdict(alpha=0.8, thresh=0.001, cbar=True, shade=True, xlim=[0, 101],
+                                 subplot_height=2.2, subplot_width=6, left=0.06, right=0.97,
+                                 bottom=0.08, top=0.92, hspace=0.5, )
+    plkwargs.update_defaults(method_defaults, kwargs)
+
+    nrows = len(pop.layers)
+
+    plkwargs.height = nrows * plkwargs.subplot_height
+    plkwargs.width = plkwargs.subplot_width
+
+    fig, axs = plt.subplots(nrows, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
+    fig.subplots_adjust(**plkwargs.axis)
+    cmap = sns.cubehelix_palette(light=1, as_cmap=True)
+
+    for nl, layer in enumerate(pop.layers):
+
+        x = np.arange(pop.max_age)
+        s = pop.information.layer_degree_description[layer]
+        ylo = [s.loc[s.index == a]['5%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y25 = [s.loc[s.index == a]['25%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y = [s.loc[s.index == a]['mean'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        y75 = [s.loc[s.index == a]['75%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+        yhi = [s.loc[s.index == a]['95%'].values[0] if a in s.index.values else 0 for a in range(0, pop.max_age)]
+
+        y = np.array(y)
+        color = cmap(0.3 + 0.15 * nl)
+
+        axs[nl].fill_between(x, ylo, yhi, color=color, alpha=plkwargs.alpha * 0.6, lw=0)
+        axs[nl].fill_between(x, y25, y75, color=color, alpha=plkwargs.alpha * 0.8, lw=0)
+        axs[nl].plot(x, y, color=color, lw=1.5)
+
+        axs[nl].set_xlim(plkwargs.xlim)
+        axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)
+
+    finalize_figure(fig, plkwargs)
+
+    return fig, axs

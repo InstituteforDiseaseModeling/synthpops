@@ -4,11 +4,13 @@ Functions for generating households
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 from collections import Counter
 from .config import logger as log, checkmem
 from . import base as spb
 from . import sampling as spsamp
 from . import ltcfs as spltcf
+from . import data_distributions as spdata
 
 
 def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
@@ -258,7 +260,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
 
     # at this point everyone should have been placed into a home
     sum_remaining = sum(ages_left_to_assign.values())
-    assert sum_remaining== 0, f'Check failed: generating larger households method 2. {sum_remaining} and {ages_left_to_assign}.'
+    assert sum_remaining == 0, f'Check failed: generating larger households method 2. {sum_remaining} and {ages_left_to_assign}.'
     return homes_dic, ages_left_to_assign
 
 
@@ -512,7 +514,15 @@ def get_household_heads(popdict):
         popdict (dict) : population dictionary
 
     Returns:
-        dict: Dictionary of the id of the head of the household for each household.
+        dict: Dictionary of the id of the head of the household for each
+        household.
+
+    Note:
+        In static populations the id of the head of the household is the minimum
+        id of the household members. With vital dynamics turned on and
+        populations growing or changing households over time, this method will
+        need to change and the household head or reference person will need to
+        be specified at creation and when those membership events occur.
     """
     household_heads = dict()
     for i, person in popdict.items():
@@ -522,6 +532,41 @@ def get_household_heads(popdict):
                 household_heads[person['hhid']] = i  # update the minimum id; synthpops creates the head of the household first for each household so they will have the smallest id of all members in their household
 
     return household_heads
+
+
+def get_household_head_ages_by_size(pop):
+    """
+    Calculate the count of households by size and the age of the head of the
+    household, assuming the minimal household members id is the id of the head
+    of the household.
+
+    Args:
+        pop (sp.Pop) : population object
+
+    Returns:
+        np.ndarray: An array with rows as household size and columns as
+        household head age brackets.
+    """
+    popdict = pop.popdict
+    loc_pars = sc.dcp(pop.loc_pars)
+    loc_pars.location = None
+    hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
+
+    #hha_index use age as key and bracket index as value
+    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
+    uids = get_household_heads(popdict=popdict)
+    d = {}
+    # construct tables for each houldhold head
+    for uid in uids.values():
+        d[popdict[uid]['hhid']] = {'hhid': popdict[uid]['hhid'],
+                                   'age': popdict[uid]['age'],
+                                   'family_size': len(popdict[uid]['contacts']['H']) + 1,
+                                   'hh_age_bracket': hha_index[popdict[uid]['age']]}
+    df_household_age = pd.DataFrame.from_dict(d, orient="index")
+    # aggregate by age_bracket (column) and family_size (row)
+    df_household_age = df_household_age.groupby(['hh_age_bracket', 'family_size'], as_index=False).count()\
+        .pivot(index='family_size', columns='hh_age_bracket', values='hhid').fillna(0)
+    return np.array(df_household_age.values)
 
 
 def get_generated_household_size_distribution(household_sizes):

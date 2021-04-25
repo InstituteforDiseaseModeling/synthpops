@@ -17,6 +17,7 @@ for the new baseline to take effect. You should expect to see folders by the nam
 """
 
 import os
+import re
 import sys
 import shutil
 import fnmatch
@@ -56,7 +57,7 @@ class TestRegression(unittest.TestCase):
         cls.generateBaseline = regenerate
         cls.pdfDir = sc.thisdir(__file__, "regression", "report")
         cls.expectedDir = sc.thisdir(__file__, "regression", "expected")
-        cls.datadir = sp.datadir
+        cls.datadir = sp.settings.datadir
         shutil.rmtree(cls.pdfDir, ignore_errors=True)
         os.makedirs(cls.pdfDir, exist_ok=True)
 
@@ -151,14 +152,20 @@ class TestRegression(unittest.TestCase):
             if unchanged:
                 print(f'Note: regression unchanged')
             else:
-                print(f'Warning, regression changed! Generating report...')
-                self.generate_reports(test_prefix=test_prefix, failedcases=failed_cases)
-                errormsg = f"regression test detected changes, " \
-                           f"please go to \n{self.pdfDir} " \
-                           f"to review report and test results \n " \
-                           f"\n\ndelete files in {os.path.join(self.expectedDir, test_prefix)} " \
-                           f"and regenerate expected files using cls.generateBaseline=True\n " \
-                           f"if you approve this change."
+                if len(failed_cases) < 1 :
+                    errormsg = f"Unable to verify results.\n Please make sure baseline files exists in: " \
+                               f"{os.path.join(self.expectedDir, test_prefix)} and filename prefix is {self.n}_seed_{self.seed}.\n " \
+                               f"If baseline files do not exist, please regenerate files using cls.generateBaseline=True\n" \
+                               f"and copy them to {os.path.join(self.expectedDir, test_prefix)}"
+                else:
+                    print(f'Warning, regression changed! Generating report...')
+                    self.generate_reports(test_prefix=test_prefix, failedcases=failed_cases)
+                    errormsg = f"regression test detected changes, " \
+                               f"please go to \n{self.pdfDir} " \
+                               f"to review report and test results \n " \
+                               f"\n\ndelete files in {os.path.join(self.expectedDir, test_prefix)} " \
+                               f"and regenerate expected files using cls.generateBaseline=True\n " \
+                               f"if you approve this change."
                 raise ValueError(errormsg)
 
     def get_pop_details(self, pop, dir, title_prefix, location, state_location, country_location, decimal=3):
@@ -201,7 +208,8 @@ class TestRegression(unittest.TestCase):
             expected_folder = os.path.join(self.expectedDir, test_prefix)
         if not os.path.exists(expected_folder):
             raise FileNotFoundError(f"{expected_folder} does not exist, use cls.generateBaseline = True to generate them")
-        for f in os.listdir(expected_folder):
+        expected_files = [f for f in os.listdir(expected_folder) if re.match(rf'{self.n}_seed_{self.seed}*\.*', f)]
+        for f in expected_files:
             print(f"\n{f}")
             if f.endswith(".csv"):
                 checked = True

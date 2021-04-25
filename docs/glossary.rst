@@ -9,14 +9,14 @@ Glossary
         pairwise connections between people in a given location, such as school, work, or households.
 
     node
-        In `network theory`_, the discrete object being represented. In |SP|, nodes represent
+        In `network science`_, the discrete object being represented. In |SP|, nodes represent
         people and can have attributes like age assigned.
 
     edge
-        In `network theory`_, the interactions between discrete objects. In |SP|, edges represent
-        interactions between people, with attributes like the setting in which the interactions take
-        place (for example, household, school, or work). The relationship between the
-        interaction setting and properties governing disease transmission, such as frequency of
+        In `network science`_, the interactions or connections between discrete objects. In |SP|,
+        edges represent interactions between people, with attributes like the setting in which the
+        interactions take place (for example, household, school, or work). The relationship between
+        the interaction setting and properties governing disease transmission, such as frequency of
         contact and risk associated with each contact, is mapped separately by |Cov_s| or other
         :term:`agent-based model`. |SP| reports whether the edge exists or not.
 
@@ -47,4 +47,10 @@ Glossary
         people in workplaces excluding teachers in schools. The school and workplace contact
         layers are mutually exclusive, someone cannot be both a student and a worker.
 
-.. _network theory: https://en.wikipedia.org/wiki/Network_theory
+    location
+        The location in which a set of |SP| input data are valid. This is often geographic but
+        could be administrative or specific to for example a sub-population within a geographic region.
+        Locations are organized hierarchically. Locations are defined by a location file which contain
+        data for the associated population. Child locations can inherit input data values from their parent location. Supplementing the data in these files is encouraged if available.
+
+.. _network science: https://en.wikipedia.org/wiki/Network_science

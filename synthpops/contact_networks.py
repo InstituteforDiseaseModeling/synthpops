@@ -4,6 +4,7 @@ This module generates the household, school, and workplace contact networks.
 
 import sciris as sc
 import numpy as np
+import pandas as pd
 import networkx as nx
 from . import data_distributions as spdata
 from . import schools as spsch
@@ -237,14 +238,14 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                     uids = np.random.choice(list(uids), size=max_W_size, replace=False)
                 popdict[uid]['contacts']['W'] = set(uids)
                 popdict[uid]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
+                if workplaces_by_industry_codes is not None: # pragma: no cover
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
         # Add pairing contacts back in
         for uid in popdict.keys():
             for c in popdict[uid]['contacts']['W']:
                 popdict[c]['contacts']['W'].add(uid)
-    else:
+    else: # pragma: no cover
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
@@ -378,3 +379,170 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
         popdict[id_j]['contacts'][setting].add(id_i)
 
     return popdict
+
+
+def get_contact_counts_by_layer(popdict,
+                                layer='S'):
+    """
+    Method to count the number of contacts for individuals in the population
+    based on their role in a layer and the role of their contacts. For example,
+    in schools this method can distinguish the number of contacts between
+    students, teachers, and non teaching staff in the population, as well as
+    return the number of contacts between all individuals present in a school.
+    In a population with a school layer and roles defined as students, teachers,
+    and non teaching staff, this method will return the number of contacts or
+    edges for sc_students, sc_teachers, and sc_staff to sc_student, sc_teacher,
+    sc_staff, all_staff, all. all_staff is the combination of sc_teacher and
+    sc_staff, and all is all kinds of people in schools.
+
+    Args:
+        popdict (dict)  : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+
+    Returns:
+        dict: A dictionary with keys = people_types (default to ['sc_student',
+        'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
+        the list of counts for each type of contact: default to ['sc_student',
+        'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
+        contact_counter['sc_teacher']['sc_teacher'] store the counts of each
+        teacher's contacts or edges to other teachers.
+    """
+    layer = layer.upper()
+    layer_keys = {"S": "scid",
+                  "W": "wpid",
+                  "H": "hhid",
+                  "LTCF": "snfid"}
+
+    if layer == 'S':
+        people_types = ['sc_student', 'sc_teacher', 'sc_staff']
+        contact_types = people_types + ['all_staff', 'all']
+        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
+                           dict.fromkeys(people_types)}
+        # index_switcher is a case-switch selector for the person selected by its type
+        index_switcher = {
+            'sc_student': contact_counter['sc_student'],
+            'sc_teacher': contact_counter['sc_teacher'],
+            'sc_staff': contact_counter['sc_staff']
+        }
+    elif layer in ["W", "H", "LTCF"]:
+        people_types = [layer_keys[layer]]
+        contact_types = ['all']
+        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
+                           dict.fromkeys(people_types)}
+        index_switcher = {
+            layer_keys[layer]: contact_counter[layer_keys[layer]]
+        }
+    else:
+        raise NotImplementedError(f"layer {layer} not supported.")
+
+    for uid, person in popdict.items():
+        if person[layer_keys[layer]] is not None:
+            # count_switcher is a case-switch selector for contact counts by type
+            count_switcher = {
+                'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
+                'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
+                'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
+                'all': len([c for c in person["contacts"][layer]])
+            }
+            for k1 in people_types:
+                # if this person does not belong to a particular key, we don't need to store the counts under this key
+                if person.get(k1) is not None:
+                    # store sc_teacher, sc_student, sc_staff, all_staff and all below
+                    if layer == "S":
+                        for k2 in people_types:
+                            index_switcher.get(k1)[k2].append(count_switcher.get(k2))
+                        index_switcher.get(k1)["all_staff"].append(
+                            count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                    # for other types, only all contacts are stored
+                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+
+    return contact_counter
+
+
+def filter_people(pop, ages=None, uids=None):
+    """
+    Helper function to filter people based on their uid and age.
+
+    Args:
+        pop (sp.Pop)         : population
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+
+    Returns:
+        array: An array of the ids of people to include for further analysis.
+    """
+    output = np.arange(pop.n)
+
+    if uids is not None:  # catch instance where the only uids supplied is the first one, 0
+        output = np.intersect1d(output, uids)
+
+    if ages is not None:  # catch instance where the only ages supplied is age 0
+        output = np.intersect1d(output, sc.findinds(np.isin(pop.age_by_uid, ages)))
+
+    return output
+
+
+def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None):
+    """
+    Create a dataframe from the population of people in the layer, including
+    their uid, age, degree, and the ages of contacts in the layer.
+
+    Args:
+        pop (sp.Pop)                 : population
+        layer (str)                  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array)         : ages of people to include
+        uids (list or array)         : ids of people to include
+        uids_included (list or None) : pre-calculated mask of people to include
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of people in the layer including uid, age,
+        degree, and the ages of contacts in the layer.
+    """
+    if uids_included is None:
+        uids_included = filter_people(pop, ages, uids)
+
+    layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
+
+    degree_dicts = []
+
+    for i in uids_included:
+        a = pop.age_by_uid[i]
+
+        if pop.popdict[i][layerid_mapping[layer]] is not None:
+            nc = len(pop.popdict[i]['contacts'][layer])
+            ca = [pop.age_by_uid[j] for j in pop.popdict[i]['contacts'][layer]]
+            degree_dicts.append({'uid': i, 'age': a, 'degree': nc, 'contact_ages': ca})
+
+    degree_df = pd.DataFrame(degree_dicts)
+
+    return degree_df
+
+
+def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_included=None, degree_df=None, percentiles=None):
+    """
+    Compute a description of the statistics for the degree distribution by age
+    for a layer in the population contact network. See
+    pandas.Dataframe.describe() for more details on all of the statistics
+    included by default.
+
+    Args:
+        pop (sp.Pop)         : population
+        layer (str)  : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community or other
+        ages (list or array) : ages of people to include
+        uids (list or array) : ids of people to include
+        uids_included (list or None): pre-calculated mask of people to include
+        degree_df (dataframe) : pandas dataframe of people in the layer and their uid, age, degree, and ages of their contacts in the layer
+        percentiles (list) : list of the percentiles to include as statistics
+
+    Returns:
+        pandas.DataFrame: A pandas DataFrame of the statistics for the layer
+        degree distribution by age.
+    """
+    if degree_df is None:
+        degree_df = count_layer_degree(pop, layer, ages, uids, uids_included)
+
+    if percentiles is None:
+        percentiles = [0.05, 0.25, 0.5, 0.75, 0.95]
+
+    d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
+    return d

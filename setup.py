@@ -49,7 +49,7 @@ setup(
         "matplotlib>=3.3.0",
         "numpy",
         "scipy",
-        "pandas",
+        "pandas>=1.2.3",
         "numba",
         "networkx>=2.3",
         "cmocean",
@@ -57,5 +57,7 @@ setup(
         "seaborn",
         "graphviz",
         "pydot",
+        "jsonobject",
+        "jsbeautifier"
     ],
 )
