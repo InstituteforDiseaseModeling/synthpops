@@ -98,6 +98,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     uids = [uid for uid in uids]
 
     popdict = {}
+    # also need to return schools as well and not just school contacts
+    schools = {}
 
     # Handle trimming
     do_trim = max_contacts is not None
@@ -184,6 +186,9 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
     student_in_groups, teachers_in_groups = [], []
 
     for ns, students in enumerate(schools_by_uids):
+
+        schools[ns] = {}
+
         teachers = teachers_by_uids[ns]
         if non_teaching_staff_uids is None:
             non_teaching_staff = []
@@ -200,8 +205,14 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             min_age = min(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
-            spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type)
+            popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type)
 
+            # schools[ns]['sc_type'] = this_school_type
+            # schools[ns]['school_mixing_type'] = this_school_mixing_type
+            # schools[ns]['student_groups'] = student_groups
+            # schools[ns]['teacher_groups'] = teacher_groups
+
+            print('I made some groups of students and teachers', ns, len(student_groups), len(teacher_groups), [len(st) for st in student_groups])
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
@@ -209,6 +220,13 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             # TODO: refactor into School method that creates Classrooms with the specific age/grade clustering
             # popdict, students_in_groups, teachers_in_groups = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
             popdict = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
+            student_groups = [students]
+            teacher_groups = [teachers]
+
+        schools[ns]['sc_type'] = this_school_type
+        schools[ns]['school_mixing_type'] = this_school_mixing_type
+        schools[ns]['student_groups'] = student_groups
+        schools[ns]['teacher_groups'] = teacher_groups
 
         for uid in students:
             popdict[uid]['scid'] = ns
@@ -259,7 +277,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     log.debug('...done ' + checkmem())
-    return popdict
+    print(schools)
+    return popdict, schools
 
 
 def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):

@@ -98,6 +98,9 @@ class School(spb.LayerGroup):
     def member_ages(self):
         return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
 
+    def __len__(self):
+        return len(self.member_uids)
+
 
 class Classroom(spb.LayerGroup):
     def __init__(self, **kwargs):
@@ -112,6 +115,17 @@ class Classroom(spb.LayerGroup):
         self.validate()
 
         return
+
+    @property
+    def member_uids(self):
+        return np.concatenate((self['student_uids'], self['teacher_uids']))
+
+    @property
+    def member_ages(self):
+        return np.concatenate((self['student_ages'], self['teacher_ages']))
+
+    def __len__(self):
+        return len(self.member_uids)
 
     def validate(self):
         for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
@@ -142,9 +156,11 @@ def get_classroom(pop, scid, clid):
     school = get_school(pop, scid)
     if not isinstance(clid, int):
         raise TypeError(f"clid must be an int.")
-    if len(school.classrooms) < clid:
+    # if len(school.classrooms) < clid:
+    if len(school['classrooms']) < clid:
         raise ValueError(f"Classroom id (clid): {clid} out of range.")
-    return school.classrooms[clid]
+    # return school.classrooms[clid]
+    return school['classrooms'][clid]
 
 
 def add_school(pop, school):
@@ -161,7 +177,8 @@ def add_classroom(school, classroom):
     if not isinstance(classroom, Classroom):
         raise ValueError('classroom is not a sp.Classroom')
 
-    school.classrooms.append(classroom)
+    # school.classrooms.append(classroom)
+    school['classrooms'].append(classroom)
     return
 
 
@@ -176,10 +193,13 @@ def initialize_empty_schools(pop, n_schools=None):
 
 def initialize_empty_classrooms(school, n_classrooms=None):
     if n_classrooms is not None and isinstance(n_classrooms, int):
-        school.n_classrooms = n_classrooms
+        school['n_classrooms'] = n_classrooms
+        # school.n_classrooms = n_classrooms
     else:
-        school.n_classrooms = 0
-    school.classrooms = [Classroom() for nc in range(school.n_classrooms)]
+        school['n_classrooms'] = 0
+        # school.n_classrooms = 0
+    school['classrooms'] = [Classroom() for nc in range(school['n_classrooms'])]
+    # school.classrooms = [Classroom() for nc in range(school.n_classrooms)]
 
 
 def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
@@ -212,7 +232,8 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
 
 
 def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
-    if len(school.classrooms) < len(student_lists):
+    # if len(school.classrooms) < len(student_lists):
+    if len(school['classrooms']) < len(student_lists):
         log.debug(f"Reinitializing list of classrooms")
         initialize_empty_classrooms(school, len(student_lists))
 
@@ -230,7 +251,8 @@ def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
                       )
         classroom = Classroom()
         classroom.set_layer_group(**kwargs)
-        school.classrooms[classroom['clid']] = sc.dcp(classroom)
+        # school.classrooms[classroom['clid']] = sc.dcp(classroom)
+        school['classrooms'][classroom['clid']] = sc.dcp(classroom)
     return
 
 
@@ -958,6 +980,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         school_uids += teachers
         edges = generate_random_contacts_across_school(school_uids, average_class_size)
         add_contacts_from_edgelist(popdict, edges, 'S')
+        student_groups = [syn_school_uids]
+        teacher_groups = [teachers]
 
     # random contacts across a grade in the school, most edges will across the same age group, much like middle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
     elif school_mixing_type == 'age_clustered':
@@ -965,6 +989,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree)
         edges += teacher_edges
         add_contacts_from_edgelist(popdict, edges, 'S')
+        student_groups = [syn_school_uids]
+        teacher_groups = [teachers]
 
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
@@ -993,7 +1019,8 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     all_school_uids = syn_school_uids.copy() + teachers.copy()
     additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
     add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
-    return popdict
+
+    return popdict, student_groups, teacher_groups
 
 
 def get_school_types_distr_by_age(school_type_age_ranges):

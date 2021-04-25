@@ -367,7 +367,7 @@ class Pop(sc.prettyobj):
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
         homes = homes[len(facilities_by_uids):]
 
-        population = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+        population, schools = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                                      homes_by_uids=homes_by_uids,
                                                                      schools_by_uids=syn_school_uids,
                                                                      teachers_by_uids=syn_teacher_uids,
@@ -403,6 +403,13 @@ class Pop(sc.prettyobj):
         self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
         self.initialize_schools_list()
         self.populate_schools(syn_school_uids, syn_teacher_uids, syn_non_teaching_staff_uids, syn_school_types, self.age_by_uid)
+
+        for ns in schools.keys():
+            print(ns, schools[ns])
+            # self.schools[ns]
+            if schools[ns]['school_mixing_type'] == 'age_and_class_clustered':
+                spsch.initialize_empty_classrooms(self.schools[ns], len(schools[ns]['student_groups']))
+                spsch.populate_classrooms(self.schools[ns], schools[ns]['student_groups'], schools[ns]['teacher_groups'], self.age_by_uid)
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()

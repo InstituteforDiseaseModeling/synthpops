@@ -478,6 +478,9 @@ class LongTermCareFacility(spb.LayerGroup):
 
         return
 
+    def __len__(self):
+        return len(self.member_uids)
+
     def validate(self):
         """
         Check that information supplied to make a long term care facility is valid and update
