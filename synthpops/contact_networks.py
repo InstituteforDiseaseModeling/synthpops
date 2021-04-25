@@ -249,10 +249,8 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         average_degree = max_contacts['W']
         for nw, workplace in enumerate(workplaces_by_uids):
             uids = np.array(workplace)
-            print(uids)
 
             G = random_graph_model(uids, average_degree, seed=0)  # undirected graph
-            print(G.edges())
             for u, uid in enumerate(workplace):
                 v = list(G.neighbors(u))
 
@@ -417,12 +415,16 @@ def get_contact_counts_by_layer(popdict,
         layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
 
     Returns:
-        dict: A dictionary with keys = people_types (default to ['sc_student',
+        Tuple:
+        First element is a dictionary with keys = people_types (default to ['sc_student',
         'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
         the list of counts for each type of contact: default to ['sc_student',
         'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
         contact_counter['sc_teacher']['sc_teacher'] store the counts of each
         teacher's contacts or edges to other teachers.
+        Second element is a dictionary with keys = layer_id (for example: scid, wpid...),
+        and value is list of contact contacts.
+
     """
     layer = layer.upper()
     layer_keys = {"S": "scid",
@@ -451,7 +453,7 @@ def get_contact_counts_by_layer(popdict,
         }
     else:
         raise NotImplementedError(f"layer {layer} not supported.")
-
+    contacts_counter_by_id = dict()
     for uid, person in popdict.items():
         if person[layer_keys[layer]] is not None:
             # count_switcher is a case-switch selector for contact counts by type
@@ -461,6 +463,7 @@ def get_contact_counts_by_layer(popdict,
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
+            contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
             for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
                 if person.get(k1) is not None:
@@ -472,8 +475,11 @@ def get_contact_counts_by_layer(popdict,
                             count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
                     # for other types, only all contacts are stored
                     index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+    # <<<<<<< HEAD
+                    contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
+    return contact_counter, contacts_counter_by_id
 
-    return contact_counter
+    # return contact_counter
 
 
 def filter_people(pop, ages=None, uids=None):
@@ -582,7 +588,7 @@ def random_graph_model(uids, average_degree, seed=None):
         raise ValueError(f"Expected uids to a non-empty list or array. Instead, the length of uids is {len(uids)}.")
 
     if average_degree >= N:
-        log.warning(f"Desired average degree is greater than or equal to the number of nodes. This method does not support multi-edges; returning a fully connected graph.")
+        log.debug(f"Desired average degree is greater than or equal to the number of nodes. This method does not support multi-edges; returning a fully connected graph.")
         G = nx.complete_graph(N)
 
     else:
@@ -590,3 +596,7 @@ def random_graph_model(uids, average_degree, seed=None):
         G = nx.fast_gnp_random_graph(N, p, seed=seed)
 
     return G
+# =======
+#                     contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
+#     return contact_counter, contacts_counter_by_id
+# >>>>>>> mewu/workplacecontacts
