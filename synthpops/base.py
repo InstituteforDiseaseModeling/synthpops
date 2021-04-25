@@ -41,7 +41,7 @@ class LayerGroup(dict):
         return
 
     def set_layer_group(self, **kwargs):
-        """Set """
+        """Set layer group values."""
         for key, value in kwargs.items():
             self[key] = value
         self.validate()
@@ -173,7 +173,7 @@ def get_ids_by_age_dic(age_by_id_dic):
     return ids_by_age_dic
 
 
-__all__ += ['count_ages', 'get_aggregate_ages', 
+__all__ += ['count_ages', 'get_aggregate_ages',
             'get_aggregate_matrix', 'get_asymmetric_matrix']
 
 

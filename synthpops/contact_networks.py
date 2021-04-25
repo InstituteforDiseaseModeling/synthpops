@@ -207,12 +207,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
             popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type)
 
-            # schools[ns]['sc_type'] = this_school_type
-            # schools[ns]['school_mixing_type'] = this_school_mixing_type
-            # schools[ns]['student_groups'] = student_groups
-            # schools[ns]['teacher_groups'] = teacher_groups
-
-            print('I made some groups of students and teachers', ns, len(student_groups), len(teacher_groups), [len(st) for st in student_groups])
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)

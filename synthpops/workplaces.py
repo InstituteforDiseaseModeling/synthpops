@@ -72,7 +72,8 @@ def get_workplace(pop, wpid):
     Return workplace with id: wpid.
 
     Args:
-        wpid (int) : workplace id number
+        pop (sp.Pop) : population
+        wpid (int)   : workplace id number
 
     Returns:
         sp.Workplace: A populated workplace.
@@ -89,7 +90,8 @@ def add_workplace(pop, workplace):
     Add a workplace to the list of workplaces.
 
     Args:
-        workplace (sp.workplace): workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
+        pop (sp.Pop)             : population
+        workplace (sp.workplace) : workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
     """
     if not isinstance(workplace, Workplace):
         raise ValueError('workplace is not a sp.Workplace object.')
@@ -102,6 +104,7 @@ def initialize_empty_workplaces(pop, n_workplaces=None):
     Array of empty workplaces.
 
     Args:
+        pop (sp.Pop)       : population
         n_workplaces (int) : the number of workplaces to initialize
     """
     if n_workplaces is not None and isinstance(n_workplaces, int):
@@ -118,6 +121,7 @@ def populate_workplaces(pop, workplaces, age_by_uid):
     Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
 
     Args:
+        pop (sp.Pop)      : population
         workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
         age_by_uid (dict) : dictionary mapping each person's id to their age
     """

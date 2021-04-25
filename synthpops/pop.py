@@ -368,51 +368,82 @@ class Pop(sc.prettyobj):
         homes = homes[len(facilities_by_uids):]
 
         population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
-                                                                     homes_by_uids=homes_by_uids,
-                                                                     schools_by_uids=syn_school_uids,
-                                                                     teachers_by_uids=syn_teacher_uids,
-                                                                     non_teaching_staff_uids=syn_non_teaching_staff_uids,
-                                                                     workplaces_by_uids=syn_workplace_uids,
-                                                                     facilities_by_uids=facilities_by_uids,
-                                                                     facilities_staff_uids=facilities_staff_uids,
-                                                                     use_two_group_reduction=use_two_group_reduction,
-                                                                     average_LTCF_degree=average_LTCF_degree,
-                                                                     with_school_types=with_school_types,
-                                                                     school_mixing_type=school_mixing_type,
-                                                                     average_class_size=average_class_size,
-                                                                     inter_grade_mixing=inter_grade_mixing,
-                                                                     average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                     average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                     average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                     average_additional_staff_degree=average_additional_staff_degree,
-                                                                     school_type_by_age=school_type_by_age,
-                                                                     max_contacts=max_contacts)
+                                                                                        homes_by_uids=homes_by_uids,
+                                                                                        schools_by_uids=syn_school_uids,
+                                                                                        teachers_by_uids=syn_teacher_uids,
+                                                                                        non_teaching_staff_uids=syn_non_teaching_staff_uids,
+                                                                                        workplaces_by_uids=syn_workplace_uids,
+                                                                                        facilities_by_uids=facilities_by_uids,
+                                                                                        facilities_staff_uids=facilities_staff_uids,
+                                                                                        use_two_group_reduction=use_two_group_reduction,
+                                                                                        average_LTCF_degree=average_LTCF_degree,
+                                                                                        with_school_types=with_school_types,
+                                                                                        school_mixing_type=school_mixing_type,
+                                                                                        average_class_size=average_class_size,
+                                                                                        inter_grade_mixing=inter_grade_mixing,
+                                                                                        average_student_teacher_ratio=average_student_teacher_ratio,
+                                                                                        average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                                                        average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                                                        average_additional_staff_degree=average_additional_staff_degree,
+                                                                                        school_type_by_age=school_type_by_age,
+                                                                                        max_contacts=max_contacts)
 
         # Change types
         for key, person in population.items():
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
-        # # Add layer classes
+        school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
+
+        # Add layer classes
         self.homes_by_uids = homes_by_uids
         self.age_by_uid = age_by_uid_dic
+        self.syn_workplace_uids = syn_workplace_uids
+        self.syn_school_uids = syn_school_uids
+        self.syn_teacher_uids = syn_teacher_uids
+        self.syn_non_teaching_staff_uids = syn_non_teaching_staff_uids
+        self.syn_school_types = syn_school_types
+        self.school_mixing_types = school_mixing_types
+        self.schools_in_groups = schools_in_groups
+        if self.ltcf_pars.with_facilities:
+            self.facilities_by_uids = facilities_by_uids
+            self.facilities_staff_uids = facilities_staff_uids
 
+        self.set_layer_classes()
+        self.clean_up_layer_info()
+
+        return population
+
+    def set_layer_classes(self):
+        """Add layer classes."""
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
         self.initialize_workplaces_list()
-        self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
-
-        school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
+        self.populate_workplaces(self.syn_workplace_uids, self.age_by_uid)
 
         self.initialize_schools_list()
-        self.populate_schools(syn_school_uids, syn_teacher_uids, syn_non_teaching_staff_uids, self.age_by_uid, syn_school_types, school_mixing_types)
-        self.populate_all_classrooms(schools_in_groups)
+        self.populate_schools(self.syn_school_uids, self.syn_teacher_uids,
+                              self.syn_non_teaching_staff_uids, self.age_by_uid,
+                              self.syn_school_types, self.school_mixing_types)
+
+        self.populate_all_classrooms(self.schools_in_groups)
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()
-            self.populate_ltcfs(facilities_by_uids, facilities_staff_uids, self.age_by_uid)
+            self.populate_ltcfs(self.facilities_by_uids, self.facilities_staff_uids,
+                                self.age_by_uid)
+        return
 
-        return population
+    def clean_up_layer_info(self):
+        """
+        Clean up data from the pop object after storing them in specific layer classes.
+        """
+        for key in ['syn_workplace_uids', 'syn_school_uids', 'syn_teacher_uids',
+                    'syn_non_teaching_staff_uids', 'syn_school_types',
+                    'school_mixing_types', 'schools_in_groups',
+                    'facilities_by_uids', 'facilities_staff_uids']:
+            self.pop_item(key)
+        return
 
     def pop_item(self, key):
         """Pop key from self."""
@@ -564,47 +595,130 @@ class Pop(sc.prettyobj):
         return
 
     def initialize_ltcfs_list(self):
+        """Initialize a new ltcfs list."""
         self.ltcfs = []
         return
 
     def initialize_empty_ltcfs(self, n_ltcfs=None):
+        """
+        Create a list of empty ltcfs.
+
+        Args:
+            n_ltcfs (int) : the number of ltcfs to initialize
+        """
         spltcf.initialize_empty_ltcfs(self, n_ltcfs)
         return
 
     def populate_ltcfs(self, resident_lists, staff_lists, age_by_uid):
+        """
+        Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
+
+        Args:
+            residents_list (list) : list of lists where each sublist represents a ltcf and contains the ids of the residents
+            staff_lists (list) : list of lists where each sublist represents a ltcf and contains the ids of the staff
+            age_by_uid (dict) : dictionary mapping each person's id to their age
+        """
         spltcf.populate_ltcfs(self, resident_lists, staff_lists, age_by_uid)
         return
 
     def get_ltcf(self, snfid):
+        """
+        Return ltcf with id: snfid.
+
+        Args:
+            snfid (int) : ltcf id number
+
+        Returns:
+            sp.LongTermCareFacility: A populated ltcf.
+        """
         return spltcf.get_ltcf(self, snfid)
 
     def add_ltcf(self, ltcf):
+        """
+        Add a ltcf to the list of ltcfs.
+
+        Args:
+            ltcf (sp.LongTermCareFacility): ltcf with at minimum the snfid, resident_uids, staff_uids, resident_ages, staff_ages, reference_uid, and reference_age.
+        """
         spltcf.add_ltcf(self, ltcf)
 
     def initialize_schools_list(self):
+        """Initialize a new schools list."""
         self.schools = []
         return
 
     def initialize_empty_schools(self, n_schools=None):
+        """
+        Create a list of empty schools.
+
+        Args:
+            n_schools (int) : the number of schools to initialize
+        """
         spsch.initialize_empty_schools(self, n_schools)
         return
 
     def populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types=None, school_mixing_types=None):
+        """
+        Populate all of the schools. Store each school at the index corresponding to it's scid.
+
+        Args:
+            student_lists (list)            : list of lists where each sublist represents a school and contains the ids of the students
+            teacher_lists (list)            : list of lists where each sublist represents a school and contains the ids of the teachers
+            non_teaching_staff_lists (list) : list of lists where each sublist represents a school and contains the ids of the non teaching staff
+            age_by_uid (dict)               : dictionary mapping each person's id to their age
+            school_types (list)             : list of the school types
+            school_mixing_types (list)      : list of the school mixing types
+        """
         spsch.populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types, school_mixing_types)
         return
 
     def get_school(self, scid):
+        """
+        Return school with id: scid.
+
+        Args:
+            scid (int) : school id number
+
+        Returns:
+            sp.School: A populated school.
+        """
         return spsch.get_school(self, scid)
 
     def add_school(self, school):
+        """
+        Add a school to the list of schools.
+
+        Args:
+            school (sp.School): school
+        """
         spsch.add_school(self, school)
+        return
 
     def populate_all_classrooms(self, schools_in_groups):
+        """
+        Populate all of the classrooms in schools for each school that has
+        school_mixing_type equal to 'age_and_class_clustered'. Each classroom
+        will be indexed at id clid.
+
+        Args:
+            schools_in_groups (dict) : a dictionary representing each school in terms of student_groups and teacher_groups corresponding to classrooms
+        """
         for ns in range(self.n_schools):
             spsch.initialize_empty_classrooms(self.schools[ns], len(schools_in_groups[ns]['student_groups']))
             spsch.populate_classrooms(self.schools[ns], schools_in_groups[ns]['student_groups'], schools_in_groups[ns]['teacher_groups'], self.age_by_uid)
+        return
 
     def get_classroom(self, scid, clid):
+        """
+        Return classroom with id: clid from school with id: scid.
+
+        Args:
+            scid (int) : school id number
+            clid (int) : classroom id number
+
+        Returns:
+            sp.Classroom : A populated classroom.
+        """
         return spsch.get_classroom(self, scid, clid)
 
     def compute_summary(self):

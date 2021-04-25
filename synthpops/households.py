@@ -45,14 +45,6 @@ class Household(spb.LayerGroup):
 
         return
 
-    # def set_household(self, **kwargs):
-    #     """Set up the household -- works for a static population."""
-    #     for key, value in kwargs.items():
-    #         self[key] = value
-    #     self.validate()
-
-    #     return
-
     def validate(self):
         """
         Check that information supplied to make a household is valid and update
@@ -101,7 +93,8 @@ def get_household(pop, hhid):
     Return household with id: hhid.
 
     Args:
-        hhid (int) : household id number
+        pop (sp.Pop) : population
+        hhid (int)   : household id number
 
     Returns:
         sp.Household: A populated household.
@@ -118,7 +111,8 @@ def add_household(pop, household):
     Add a household to the list of households.
 
     Args:
-        household (sp.Household): household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
+        pop (sp.Pop)             : population
+        household (sp.Household) : household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
     """
     if not isinstance(household, Household):
         raise ValueError('household is not a sp.Household object.')
@@ -131,6 +125,7 @@ def initialize_empty_households(pop, n_households=None):
     Array of empty households.
 
     Args:
+        pop (sp.Pop)       : population
         n_households (int) : the number of households to initialize
     """
     if n_households is not None and isinstance(n_households, int):
@@ -147,6 +142,7 @@ def populate_households(pop, households, age_by_uid):
     Populate all of the households. Store each household at the index corresponding to it's hhid.
 
     Args:
+        pop (sp.Pop)      : population
         households (list) : list of lists where each sublist represents a household and contains the ids of the household members
         age_by_uid (dict) : dictionary mapping each person's id to their age
     """

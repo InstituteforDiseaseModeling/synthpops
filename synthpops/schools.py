@@ -31,7 +31,6 @@ from .config import logger as log
 __all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
            'get_generated_school_size_distributions', 'count_enrollment_by_age',
            'get_enrollment_rates_by_age',
-           # 'get_bin_edges', 'get_bin_labels',
            'School',
            'Classroom',
            ]
@@ -44,8 +43,23 @@ class School(spb.LayerGroup):
     Args:
         kwargs (dict): data dictionary of the school
     """
-
     def __init__(self, **kwargs):
+        """
+        Class constructor for an base empty setting group.
+
+        Args:
+            **scid (int)                         : id of the school
+            **sc_type (str)                      : school type defined by grade/age ranges
+            **school_mixing_type (str)           : the mixing type of the school, 'random', 'age_clustered', or 'age_and_class_clustered' if str. Else, None. See sp.schools.add_school_edges() for more information.
+            **student_uids (np.array)            : ids of student members
+            **student_ages (np.array)            : ages of student members
+            **teacher_uids (np.array)            : ids of teacher members
+            **teacher_ages (np.array)            : ages of teacher members
+            **non_teaching_staff_uids (np.array) : ids of non_teaching_staff members
+            **non_teaching_staff_ages (np.array) : ages of non_teaching_staff members
+            **reference_uid (int)                : id of the reference person
+            **reference_age (int)                : age of the reference person
+        """
         for key in ['scid', 'sc_type', 'school_mixing_type']:
             if key not in kwargs:
                 kwargs[key] = None
@@ -92,16 +106,40 @@ class School(spb.LayerGroup):
 
     @property
     def member_uids(self):
+        """
+        Return ids of all school members: students, teachers, and non teaching staff.
+
+        Returns:
+            np.ndarray : school member ids
+
+        """
         return np.concatenate((self['student_uids'], self['teacher_uids'], self['non_teaching_staff_uids']))
 
     @property
     def member_ages(self):
+        """
+        Return ages of all school members: students, teachers, and non teaching staff.
+
+        Returns:
+            np.ndarray: school member ages
+        """
         return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
 
     def __len__(self):
+        """Return the length as the number of members in the school."""
         return len(self.member_uids)
 
     def get_classroom(self, clid):
+        """
+        Return the classroom indexed at clid if school_mixing_type is equal to
+        'age_and_class_clustered'.
+
+        Args:
+            clid (int) : classroom id number
+
+        Returns:
+            sp.Classroom : the classroom indexed at clid
+        """
         if self['school_mixing_type'] == 'age_and_class_clustered':
             if not isinstance(clid, int):
                 raise TypeError("clid must be an int.")
@@ -113,7 +151,24 @@ class School(spb.LayerGroup):
 
 
 class Classroom(spb.LayerGroup):
+    """
+    A class for individual classrooms and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the classroom
+    """
+
     def __init__(self, **kwargs):
+        """
+        Class constructor for an base empty setting group.
+
+        Args:
+            **clid (int)              : id of the classroom
+            **student_uids (np.array) : ids of student members
+            **student_ages (np.array) : ages of student members
+            **teacher_uids (np.array) : ids of teacher members
+            **teacher_ages (np.array) : ages of teacher members
+        """
         for key in ['clid']:
             kwargs[key] = None
         for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
@@ -126,18 +181,11 @@ class Classroom(spb.LayerGroup):
 
         return
 
-    @property
-    def member_uids(self):
-        return np.concatenate((self['student_uids'], self['teacher_uids']))
-
-    @property
-    def member_ages(self):
-        return np.concatenate((self['student_ages'], self['teacher_ages']))
-
-    def __len__(self):
-        return len(self.member_uids)
-
     def validate(self):
+        """
+        Check that information supplied to make a school is valid and update
+        to the correct type if necessary.
+        """
         for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
             if key in self.keys():
                 try:
@@ -145,6 +193,7 @@ class Classroom(spb.LayerGroup):
                 except:
                     errmsg = f"Could not convert classroom key {key} to a np.array()"
                     raise TypeError(errmsg)
+
         for key in ['clid', 'reference_uid', 'reference_age']:
             if key in self.keys():
                 if not isinstance(self[key], int):
@@ -153,8 +202,42 @@ class Classroom(spb.LayerGroup):
                         raise TypeError(errmsg)
         return
 
+    @property
+    def member_uids(self):
+        """
+        Return ids of all classroom members: students and teachers.
+
+        Returns:
+            np.ndarray : classroom member ids
+        """
+        return np.concatenate((self['student_uids'], self['teacher_uids']))
+
+    @property
+    def member_ages(self):
+        """
+        Return ages of all classroom members: students and teachers.
+
+        Returns:
+            np.ndarray : classroom member ages
+        """
+        return np.concatenate((self['student_ages'], self['teacher_ages']))
+
+    def __len__(self):
+        """Return the length as the number of members in the classroom."""
+        return len(self.member_uids)
+
 
 def get_school(pop, scid):
+    """
+    Return school with id: scid.
+
+    Args:
+        pop (sp.Pop) : population
+        scid (int)   : school id number
+
+    Returns:
+        sp.School: A populated school.
+    """
     if not isinstance(scid, int):
         raise TypeError(f"scid must be an int.")
     if len(pop.schools) < scid:
@@ -163,18 +246,29 @@ def get_school(pop, scid):
 
 
 def get_classroom(pop, scid, clid):
+    """
+    Return the classroom indexed at clid if school_mixing_type is equal to
+    'age_and_class_clustered'.
+
+    Args:
+        pop (sp.Pop) : population
+        scid (int)   : school id number
+
+    Returns:
+        sp.Classroom: A populated classroom.
+    """
     school = get_school(pop, scid)
     return school.get_classroom(clid)
-    # if not isinstance(clid, int):
-    #     raise TypeError(f"clid must be an int.")
-    # # if len(school.classrooms) < clid:
-    # if len(school['classrooms']) < clid:
-    #     raise ValueError(f"Classroom id (clid): {clid} out of range.")
-    # # return school.classrooms[clid]
-    # return school['classrooms'][clid]
 
 
 def add_school(pop, school):
+    """
+    Add a school to the list of schools.
+
+    Args:
+        pop (sp.Pop) : population
+        school (sp.School) : school
+    """
     if not isinstance(school, School):
         raise ValueError('school is not a sp.School')
     pop.schools.append(school)
@@ -182,18 +276,31 @@ def add_school(pop, school):
 
 
 def add_classroom(school, classroom):
+    """
+    Add a classroom to the school.
+
+    Args:
+        school (sp.School)       : school
+        classroom (sp.Classroom) : classroom
+    """
     if not isinstance(school, School):
         raise ValueError('school is not a sp.School')
 
     if not isinstance(classroom, Classroom):
         raise ValueError('classroom is not a sp.Classroom')
 
-    # school.classrooms.append(classroom)
     school['classrooms'].append(classroom)
     return
 
 
 def initialize_empty_schools(pop, n_schools=None):
+    """
+    Array of empty schools.
+
+    Args:
+        pop (sp.Pop)    : population
+        n_schools (int) : the number of schools to initialize
+    """
     if n_schools is not None and isinstance(n_schools, int):
         pop.n_schools = n_schools
     else:
@@ -203,6 +310,13 @@ def initialize_empty_schools(pop, n_schools=None):
 
 
 def initialize_empty_classrooms(school, n_classrooms=None):
+    """
+    Array of empty classrooms.
+
+    Args:
+        school (sp.School) : school
+        n_classrooms (int) : the number of classrooms to initialize
+    """
     if school['school_mixing_type'] == 'age_and_class_clustered':
         if n_classrooms is not None and isinstance(n_classrooms, int):
             school['n_classrooms'] = n_classrooms
@@ -214,6 +328,18 @@ def initialize_empty_classrooms(school, n_classrooms=None):
 
 
 def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types=None, school_mixing_types=None):
+    """
+    Populate all of the schools. Store each school at the index corresponding to it's scid.
+
+    Args:
+        pop (sp.Pop)                    : population
+        student_lists (list)            : list of lists where each sublist represents a school and contains the ids of the students
+        teacher_lists (list)            : list of lists where each sublist represents a school and contains the ids of the teachers
+        non_teaching_staff_lists (list) : list of lists where each sublist represents a school and contains the ids of the non teaching staff
+        age_by_uid (dict)               : dictionary mapping each person's id to their age
+        school_types (list)             : list of the school types
+        school_mixing_types (list)      : list of the school mixing types
+    """
     if len(pop.schools) < len(student_lists):
         log.debug(f"Reinitializing list of schools")
         initialize_empty_schools(pop, len(student_lists))
@@ -251,6 +377,17 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
 
 
 def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
+    """
+    Populate all of the classrooms in a school if
+    school_mixing_type == 'age_and_class_clustered'. Store each school at the
+    index corresponding to it's scid.
+
+    Args:
+        school (sp.School)   : school
+        student_lists (list) : list of lists where each sublist represents a classroom and contains the ids of the students
+        teacher_lists (list) : list of lists where each sublist represents a classroom and contains the ids of the teachers
+        age_by_uid (dict)    : dictionary mapping each person's id to their age
+    """
     if school['school_mixing_type'] == 'age_and_class_clustered':
         if len(school['classrooms']) < len(student_lists):
             log.debug(f"Reinitializing list of classrooms")
