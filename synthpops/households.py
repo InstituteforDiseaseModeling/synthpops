@@ -153,14 +153,6 @@ def generate_household_head_ages(household_sizes, hha_by_size, hha_brackets, age
         population left to place in a residence.
     """
     household_head_ages = []
-    # Notes on method for later parallelization/optimization:
-    # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
-    # any optimized method will also need to avoid ordering bias, e.g., we could count the number of households of each size, then use the
-    # conditional probability of household head age by household size in a multinomial draw to sample the ages of household heads for each size.
-    # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
-    # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
-    # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
-    # then sampling each household head's age from the conditional probability distribution and the overall age distribution expected.
 
     for nh, hs in enumerate(household_sizes):
         hs_distr = hha_by_size[hs - 1, :]
@@ -200,60 +192,6 @@ def generate_household_sizes(hh_sizes):
     household_sizes = np.array(household_sizes)
     np.random.shuffle(household_sizes)
     return household_sizes
-
-# # maybe don't keep --- generalized into generate_household_sizes
-# def generate_larger_household_sizes(hh_sizes):
-#     """
-#     Create a list of the households larger than 1 in random order so that as
-#     individuals are placed by age into homes running out of specific ages is not
-#     systemically an issue for any given household size unless certain sizes
-#     greatly outnumber households of other sizes.
-
-#     Args:
-#         hh_sizes (array) : The count of household size s at index s-1.
-
-#     Returns:
-#         Np.array: An array of household sizes to be generated and place people
-#         into households.
-#     """
-#     larger_hh_size_array = []
-#     for hs in range(2, len(hh_sizes) + 1):
-#         larger_hh_size_array.extend([hs] * hh_sizes[hs - 1])
-#     larger_hh_size_array = np.array(larger_hh_size_array)
-#     np.random.shuffle(larger_hh_size_array)
-#     return larger_hh_size_array
-
-# # maybe don't keep --- generate_household_head_ages
-# def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_brackets, ages_left_to_assign):
-#     """
-#     Generate the ages of the heads of households for households larger than 2.
-#     """
-#     larger_hha_chosen = []
-
-#     # go through every household and choose the head age
-#     # a parallelized method would be faster, however will need to think carefully about how workers will sample and remove from a fixed age count
-#     # any optimized method will also need to avoid ordering bias, e.g., we could count the number of households of each size, then use the
-#     # conditional probability of household head age by household size in a multinomial draw to sample the ages of household heads for each size.
-#     # If we're working with a fixed age count (so that we work with an age count that's already checked to match the expected age distribution),
-#     # then whatever order we choose household head ages in terms of household size will introduce bias since these are dependent sampling events
-#     # (we've changed the sampling space because of the fixed age count constraint). Creating an array of household sizes, randomly shuffling it,
-#     # then sampling each household head or reference person's age from the conditional probability distribution and the 
-
-#     for nh, hs in enumerate(larger_hh_size_array):
-#         hs_distr = hha_by_size[hs - 1, :]
-#         hbi = spsamp.fast_choice(hs_distr)
-#         hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
-
-#         while sum(hbi_distr) == 0: # pragma: no cover
-#             hbi = spsamp.fast_choice(hs_distr)
-#             hbi_distr = np.array([ages_left_to_assign[a] for a in hha_brackets[hbi]])
-
-#         hha = hha_brackets[hbi][spsamp.fast_choice(hbi_distr)]
-#         ages_left_to_assign[hha] -= 1
-
-#         larger_hha_chosen.append(hha)
-
-#     return larger_hha_chosen, ages_left_to_assign
 
 
 def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
@@ -318,7 +256,9 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
     for hs in homes_dic:
         homes_dic[hs] = np.array(homes_dic[hs]).astype(int)
 
-    assert sum(ages_left_to_assign.values()) == 0, f'Check failed: generating larger households method 2. {sum(ages_left_to_assign.values())} and {ages_left_to_assign}.'  # at this point everyone should have been placed into a home
+    # at this point everyone should have been placed into a home
+    sum_remaining = sum(ages_left_to_assign.values())
+    assert sum_remaining== 0, f'Check failed: generating larger households method 2. {sum_remaining} and {ages_left_to_assign}.'
     return homes_dic, ages_left_to_assign
 
 
@@ -424,19 +364,7 @@ def generate_larger_households_method_1(size, larger_household_sizes, heads_of_l
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
             ai = spsamp.sample_from_range(adjusted_age_dist, cm_age_brackets[bi][0], cm_age_brackets[bi][-1])  # sample from a range, defining the probabilities of the distribution and the minimum and maximum of the range
-            """ The following is an example of how you may resample from an age range that is over produced and instead
-                sample ages from an age range that is under produced in your population. This kind of customization may
-                be necessary when your age mixing matrix and the population you are interested in modeling differ in
-                important but subtle ways. For example, generally household age mixing matrices reflect mixing patterns
-                for households composed of families. This means household age mixing matrices do not generally cover
-                college or university aged individuals living together. Without this customization, this algorithm tends
-                to under produce young adults. This method also has a tendency to underproduce the elderly, and does not
-                explicitly model the elderly living in nursing homes. Customizations like this should be considered in
-                context of the specific population and culture you are trying to model. In some cultures, it is common to
-                live in non-family households, while in others family households are the most common and include
-                multi-generational family households. If you are unsure of how to proceed with customizations please
-                take a look at the references listed in the overview documentation for more information.
-            """
+
             if ai > 5 and ai <= 20:  # This is a placeholder range. Users will need to change this to fit their whatever population they are working with if using this method
                 if np.random.binomial(1, p):
                     ai = spsamp.sample_from_range(adjusted_age_dist, 25, 32)
@@ -450,10 +378,12 @@ def generate_larger_households_method_1(size, larger_household_sizes, heads_of_l
 
 def generate_all_households_method_1(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, adjusted_age_dist, ages_left_to_assign):
     """
-    Generate the ages of those living in households together. First create households of people living alone, then larger households.
-    For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
-    members have their ages sampled conditional on the reference person's age and the age mixing contact matrix in households for the
-    population under study.
+    Generate the ages of those living in households together. First create
+    households of people living alone, then larger households. For households
+    larger than 1, a reference individual's age is sampled conditional on the
+    household size, while all other household members have their ages sampled
+    conditional on the reference person's age and the age mixing contact matrix
+    in households for the population under study.
 
     Args:
         n (int)                       : The number of people in the population.
@@ -467,13 +397,37 @@ def generate_all_households_method_1(n, n_remaining, hh_sizes, hha_by_size, hha_
         ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
 
     Returns:
-        An array of all households where each household is a row and the values in the row are the ages of the household members.
-        The first age in the row is the age of the reference individual. Households are randomly shuffled by size.
+        An array of all households where each household is a row and the values
+        in the row are the ages of the household members. The first age in the
+        row is the age of the reference individual. Households are randomly
+        shuffled by size.
 
     Note:
-        This method is not guaranteed to model the population age distribution well automatically. The method called
-        inside, generate_larger_households_method_1 uses the method ltcf_resample_age to fit Seattle, Washington populations with long term
-        care facilities generated. For a method that matches the age distribution well for populations in general, please use generate_all_households_methods_2.
+        This method is not guaranteed to model the population age distribution
+        well automatically. The method called inside,
+        generate_larger_households_method_1 uses the method ltcf_resample_age to
+        fit Seattle, Washington populations with long term care facilities
+        generated. For a method that matches the age distribution well for
+        populations in general, please use generate_all_households_methods_2.
+
+        The following contains an example of how you may resample from an age
+        range that is over produced and instead sample ages from an age range
+        that is under produced in your population. This kind of customization
+        may be necessary when your age mixing matrix and the population you are
+        interested in modeling differ in important but subtle ways. For example,
+        generally household age mixing matrices reflect mixing patterns for
+        households composed of families. This means household age mixing
+        matrices do not generally cover college or university aged individuals
+        living together. Without this customization, this algorithm tends to
+        under produce young adults. This method also has a tendency to
+        underproduce the elderly, and does not explicitly model the elderly
+        living in nursing homes. Customizations like this should be considered
+        in context of the specific population and culture you are trying to
+        model. In some cultures, it is common to live in non-family households,
+        while in others family households are the most common and include
+        multi-generational family households. If you are unsure of how to
+        proceed with customizations please take a look at the references listed
+        in the overview documentation for more information.
     """
     log.debug('generate_all_households_method_1()')
     household_sizes = generate_household_sizes(hh_sizes)
