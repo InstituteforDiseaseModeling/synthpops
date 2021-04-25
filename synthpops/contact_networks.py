@@ -277,7 +277,6 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     log.debug('...done ' + checkmem())
-    print(schools)
     return popdict, schools
 
 

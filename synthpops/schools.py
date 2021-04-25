@@ -46,7 +46,7 @@ class School(spb.LayerGroup):
     """
 
     def __init__(self, **kwargs):
-        for key in ['scid', 'sc_type']:
+        for key in ['scid', 'sc_type', 'school_mixing_type']:
             if key not in kwargs:
                 kwargs[key] = None
 
@@ -101,6 +101,16 @@ class School(spb.LayerGroup):
     def __len__(self):
         return len(self.member_uids)
 
+    def get_classroom(self, clid):
+        if self['school_mixing_type'] == 'age_and_class_clustered':
+            if not isinstance(clid, int):
+                raise TypeError("clid must be an int.")
+            if len(self['classrooms']) < clid:
+                raise ValueError(f"Classroom id (clid): {clid} out of range.")
+            return self['classrooms'][clid]
+        else:
+            return
+
 
 class Classroom(spb.LayerGroup):
     def __init__(self, **kwargs):
@@ -154,13 +164,14 @@ def get_school(pop, scid):
 
 def get_classroom(pop, scid, clid):
     school = get_school(pop, scid)
-    if not isinstance(clid, int):
-        raise TypeError(f"clid must be an int.")
-    # if len(school.classrooms) < clid:
-    if len(school['classrooms']) < clid:
-        raise ValueError(f"Classroom id (clid): {clid} out of range.")
-    # return school.classrooms[clid]
-    return school['classrooms'][clid]
+    return school.get_classroom(clid)
+    # if not isinstance(clid, int):
+    #     raise TypeError(f"clid must be an int.")
+    # # if len(school.classrooms) < clid:
+    # if len(school['classrooms']) < clid:
+    #     raise ValueError(f"Classroom id (clid): {clid} out of range.")
+    # # return school.classrooms[clid]
+    # return school['classrooms'][clid]
 
 
 def add_school(pop, school):
@@ -192,31 +203,39 @@ def initialize_empty_schools(pop, n_schools=None):
 
 
 def initialize_empty_classrooms(school, n_classrooms=None):
-    if n_classrooms is not None and isinstance(n_classrooms, int):
-        school['n_classrooms'] = n_classrooms
-        # school.n_classrooms = n_classrooms
-    else:
-        school['n_classrooms'] = 0
-        # school.n_classrooms = 0
-    school['classrooms'] = [Classroom() for nc in range(school['n_classrooms'])]
-    # school.classrooms = [Classroom() for nc in range(school.n_classrooms)]
+    if school['school_mixing_type'] == 'age_and_class_clustered':
+        if n_classrooms is not None and isinstance(n_classrooms, int):
+            school['n_classrooms'] = n_classrooms
+        else:
+            school['n_classrooms'] = 0
+        school['classrooms'] = [Classroom() for nc in range(school['n_classrooms'])]
+
+    return
 
 
-def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
+def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types=None, school_mixing_types=None):
     if len(pop.schools) < len(student_lists):
         log.debug(f"Reinitializing list of schools")
         initialize_empty_schools(pop, len(student_lists))
 
     log.debug("Populating schools.")
 
+    if school_types is None:
+        school_types = [None for ns in range(len(student_lists))]
+
+    if school_mixing_types is None:
+        school_mixing_types = [None for ns in range(len(student_lists))]
+
     for ns in range(len(student_lists)):
         students = student_lists[ns]
         teachers = teacher_lists[ns]
         non_teaching_staff = non_teaching_staff_lists[ns]
         sc_type = school_types[ns]
+        school_mixing_type = school_mixing_types[ns]
 
         kwargs = dict(scid=ns,
                       sc_type=sc_type,
+                      school_mixing_type=school_mixing_type,
                       student_uids=students,
                       student_ages=[age_by_uid[i] for i in students],
                       teacher_uids=teachers,
@@ -232,27 +251,26 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
 
 
 def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
-    # if len(school.classrooms) < len(student_lists):
-    if len(school['classrooms']) < len(student_lists):
-        log.debug(f"Reinitializing list of classrooms")
-        initialize_empty_classrooms(school, len(student_lists))
+    if school['school_mixing_type'] == 'age_and_class_clustered':
+        if len(school['classrooms']) < len(student_lists):
+            log.debug(f"Reinitializing list of classrooms")
+            initialize_empty_classrooms(school, len(student_lists))
 
-    log.debug("Populating classrooms.")
+        log.debug("Populating classrooms.")
 
-    for nc in range(len(student_lists)):
-        students = student_lists[nc]
-        teachers = teacher_lists[nc]
+        for nc in range(len(student_lists)):
+            students = student_lists[nc]
+            teachers = teacher_lists[nc]
 
-        kwargs = dict(clid=nc,
-                      student_uids=students,
-                      teacher_uids=teachers,
-                      student_ages=[age_by_uid[i] for i in students],
-                      teacher_ages=[age_by_uid[i] for i in teachers]
-                      )
-        classroom = Classroom()
-        classroom.set_layer_group(**kwargs)
-        # school.classrooms[classroom['clid']] = sc.dcp(classroom)
-        school['classrooms'][classroom['clid']] = sc.dcp(classroom)
+            kwargs = dict(clid=nc,
+                          student_uids=students,
+                          teacher_uids=teachers,
+                          student_ages=[age_by_uid[i] for i in students],
+                          teacher_ages=[age_by_uid[i] for i in teachers]
+                          )
+            classroom = Classroom()
+            classroom.set_layer_group(**kwargs)
+            school['classrooms'][classroom['clid']] = sc.dcp(classroom)
     return
 
 

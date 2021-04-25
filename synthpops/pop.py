@@ -367,7 +367,7 @@ class Pop(sc.prettyobj):
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
         homes = homes[len(facilities_by_uids):]
 
-        population, schools = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+        population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
                                                                      homes_by_uids=homes_by_uids,
                                                                      schools_by_uids=syn_school_uids,
                                                                      teachers_by_uids=syn_teacher_uids,
@@ -401,15 +401,12 @@ class Pop(sc.prettyobj):
         self.populate_households(self.homes_by_uids, self.age_by_uid)
         self.initialize_workplaces_list()
         self.populate_workplaces(syn_workplace_uids, self.age_by_uid)
-        self.initialize_schools_list()
-        self.populate_schools(syn_school_uids, syn_teacher_uids, syn_non_teaching_staff_uids, syn_school_types, self.age_by_uid)
 
-        for ns in schools.keys():
-            print(ns, schools[ns])
-            # self.schools[ns]
-            if schools[ns]['school_mixing_type'] == 'age_and_class_clustered':
-                spsch.initialize_empty_classrooms(self.schools[ns], len(schools[ns]['student_groups']))
-                spsch.populate_classrooms(self.schools[ns], schools[ns]['student_groups'], schools[ns]['teacher_groups'], self.age_by_uid)
+        school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
+
+        self.initialize_schools_list()
+        self.populate_schools(syn_school_uids, syn_teacher_uids, syn_non_teaching_staff_uids, self.age_by_uid, syn_school_types, school_mixing_types)
+        self.populate_all_classrooms(schools_in_groups)
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()
@@ -592,9 +589,23 @@ class Pop(sc.prettyobj):
         spsch.initialize_empty_schools(self, n_schools)
         return
 
-    def populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
-        spsch.populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid)
+    def populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types=None, school_mixing_types=None):
+        spsch.populate_schools(self, student_lists, teacher_lists, non_teaching_staff_lists, age_by_uid, school_types, school_mixing_types)
         return
+
+    def get_school(self, scid):
+        return spsch.get_school(self, scid)
+
+    def add_school(self, school):
+        spsch.add_school(self, school)
+
+    def populate_all_classrooms(self, schools_in_groups):
+        for ns in range(self.n_schools):
+            spsch.initialize_empty_classrooms(self.schools[ns], len(schools_in_groups[ns]['student_groups']))
+            spsch.populate_classrooms(self.schools[ns], schools_in_groups[ns]['student_groups'], schools_in_groups[ns]['teacher_groups'], self.age_by_uid)
+
+    def get_classroom(self, scid, clid):
+        return spsch.get_classroom(self, scid, clid)
 
     def compute_summary(self):
         """Compute summaries and add to pop post generation."""
