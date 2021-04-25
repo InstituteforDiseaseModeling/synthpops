@@ -227,24 +227,41 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
-        max_W_size = int(max_contacts['W'] // 2)  # Divide by 2 since bi-directional contacts get added in later
+        # max_W_size = int(max_contacts['W'] // 2)  # Divide by 2 since bi-directional contacts get added in later
 
-        # Loop over workplaces but only generate the requested contacts
+        # # Loop over workplaces but only generate the requested contacts
+        # for nw, workplace in enumerate(workplaces_by_uids):
+        #     for uid in workplace:
+        #         uids = set(workplace)
+        #         uids.remove(uid)
+        #         if len(uids) > max_W_size:
+        #             uids = np.random.choice(list(uids), size=max_W_size, replace=False)
+        #         popdict[uid]['contacts']['W'] = set(uids)
+        #         popdict[uid]['wpid'] = nw
+        #         if workplaces_by_industry_codes is not None:
+        #             popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
+
+        # # Add pairing contacts back in
+        # for uid in popdict.keys():
+        #     for c in popdict[uid]['contacts']['W']:
+        #         popdict[c]['contacts']['W'].add(uid)
+
+        average_degree = max_contacts['W']
         for nw, workplace in enumerate(workplaces_by_uids):
-            for uid in workplace:
-                uids = set(workplace)
-                uids.remove(uid)
-                if len(uids) > max_W_size:
-                    uids = np.random.choice(list(uids), size=max_W_size, replace=False)
-                popdict[uid]['contacts']['W'] = set(uids)
+            uids = np.array(workplace)
+            print(uids)
+
+            G = random_graph_model(uids, average_degree, seed=0)  # undirected graph
+            print(G.edges())
+            for u, uid in enumerate(workplace):
+                v = list(G.neighbors(u))
+
+                popdict[uid]['contacts']['W'] = set(uids[v])
+                popdict[uid]['contacts']['W'].discard(uid)
                 popdict[uid]['wpid'] = nw
                 if workplaces_by_industry_codes is not None:
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
-        # Add pairing contacts back in
-        for uid in popdict.keys():
-            for c in popdict[uid]['contacts']['W']:
-                popdict[c]['contacts']['W'].add(uid)
     else:
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
@@ -546,3 +563,30 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
 
     d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d
+
+
+def random_graph_model(uids, average_degree, seed=None):
+    """
+    Generate edges for a group of individuals given their ids from an Erdos-Renyi
+    random graph model given the expected average degree.
+
+    Args:
+        uids (list, np.ndarray) : a list or array of the ids of people in the graph
+        average_degree (float)  : the average degree in the generated graph
+
+    Returns:
+        nx.Graph : Fast implementation of the Erdos-Renyi random graph model.
+    """
+    N = len(uids)
+    if N == 0:
+        raise ValueError(f"Expected uids to a non-empty list or array. Instead, the length of uids is {len(uids)}.")
+
+    if average_degree >= N:
+        log.warning(f"Desired average degree is greater than or equal to the number of nodes. This method does not support multi-edges; returning a fully connected graph.")
+        G = nx.complete_graph(N)
+
+    else:
+        p = average_degree / N
+        G = nx.fast_gnp_random_graph(N, p, seed=seed)
+
+    return G
