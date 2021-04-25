@@ -196,7 +196,7 @@ def generate_household_sizes(hh_sizes):
     return household_sizes
 
 
-def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
+def generate_larger_households_fixed_ages_method(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
     """
     Assign people to households larger than one person (excluding special
     residences like long term care facilities or agricultural workers living in
@@ -260,11 +260,11 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
 
     # at this point everyone should have been placed into a home
     sum_remaining = sum(ages_left_to_assign.values())
-    assert sum_remaining == 0, f'Check failed: generating larger households method 2. {sum_remaining} and {ages_left_to_assign}.'
+    assert sum_remaining == 0, f"Check failed: generating larger households 'fixed_ages' method. {sum_remaining} and {ages_left_to_assign}."
     return homes_dic, ages_left_to_assign
 
 
-def generate_all_households_method_2(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, ages_left_to_assign):
+def generate_all_households_fixed_ages_method(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, ages_left_to_assign):
     """
     Generate the ages of those living in households together. First create
     households of people living alone, then larger households. For households
@@ -292,7 +292,7 @@ def generate_all_households_method_2(n_remaining, hh_sizes, hha_by_size, hha_bra
         row is the age of the reference individual. Households are randomly
         shuffled by size.
     """
-    log.debug('generate_all_households_method_2()')
+    log.debug('generate_all_households_fixed_ages_method()')
     household_sizes = generate_household_sizes(hh_sizes)
 
     # generate the ages for heads of households or reference persons conditional on the household size and the age distribution
@@ -314,13 +314,13 @@ def generate_all_households_method_2(n_remaining, hh_sizes, hha_by_size, hha_bra
     # work off a copy of the household mixing matrix
     household_matrix = sc.dcp(contact_matrices['H'])
 
-    homes_dic, ages_left_to_assign = generate_larger_households_method_2(larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic)
+    homes_dic, ages_left_to_assign = generate_larger_households_fixed_ages_method(larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic)
     homes = get_all_households(homes_dic)
 
     return homes_dic, homes
 
 
-def generate_larger_households_method_1(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist, p=0.15):
+def generate_larger_households_infer_ages_method(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist, p=0.15):
     """
     Generate ages of those living in households of greater than one individual.
     Reference individual is sampled conditional on the household size. All other
@@ -343,8 +343,8 @@ def generate_larger_households_method_1(size, larger_household_sizes, heads_of_l
         and the values in the row are the ages of the household members. The
         first age in the row is the age of the reference individual.
     """
-    log.debug('generate_larger_households_method_1()')
-    # calibrated to work for Seattle metro - use method 2 for other populations
+    log.debug('generate_larger_households_infer_ages_method()')
+    # calibrated to work for Seattle metro - use fixed_ages method for other populations
     # p = 0.15  # This is a placeholder value. Users will need to change this to fit whatever population they are working with if using this method
 
     household_size_mask = larger_household_sizes == size
@@ -378,7 +378,7 @@ def generate_larger_households_method_1(size, larger_household_sizes, heads_of_l
     return homes
 
 
-def generate_all_households_method_1(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, adjusted_age_dist, ages_left_to_assign):
+def generate_all_households_infer_ages_method(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, adjusted_age_dist, ages_left_to_assign):
     """
     Generate the ages of those living in households together. First create
     households of people living alone, then larger households. For households
@@ -431,7 +431,7 @@ def generate_all_households_method_1(n, n_remaining, hh_sizes, hha_by_size, hha_
         proceed with customizations please take a look at the references listed
         in the overview documentation for more information.
     """
-    log.debug('generate_all_households_method_1()')
+    log.debug('generate_all_households_infer_ages_method()')
     household_sizes = generate_household_sizes(hh_sizes)
 
     # generate the ages for heads of households or reference persons conditional on the household size and the age distribution
@@ -462,7 +462,7 @@ def generate_all_households_method_1(n, n_remaining, hh_sizes, hha_by_size, hha_
 
     # generate the large households and ages of those people
     for size in range(2, len(hh_sizes) + 1):
-        homes_dic[size] = generate_larger_households_method_1(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist_values)
+        homes_dic[size] = generate_larger_households_infer_ages_method(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist_values)
 
     homes = get_all_households(homes_dic)
 
