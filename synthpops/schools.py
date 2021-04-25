@@ -1599,7 +1599,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
 
         syn_schools.append(new_school)
         syn_school_uids.append(new_school_uids)
-        # syn_school_types.append('s')
         syn_school_types.append(None)
         new_school = np.array(new_school)
         kids = new_school <= 19

@@ -1755,8 +1755,6 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     plkwargs.update_defaults(method_defaults, kwargs)
 
     interval = 5
-    print(degree_df.head())
-    print(degree_df)
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
     min_y = min(degree_df['degree'].values)
     max_b = max(max_y, plkwargs.xlim[-1])

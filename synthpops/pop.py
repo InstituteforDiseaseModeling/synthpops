@@ -451,7 +451,7 @@ class Pop(sc.prettyobj):
 
     def clean_up_layer_info(self):
         """
-        Clean up data from the pop object after storing them in specific layer classes.
+        Clean up temporary data from the pop object after storing them in specific layer classes.
         """
         for key in ['syn_workplace_uids', 'syn_school_uids', 'syn_teacher_uids',
                     'syn_non_teaching_staff_uids', 'syn_school_types',

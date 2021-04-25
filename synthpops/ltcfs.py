@@ -472,8 +472,8 @@ class LongTermCareFacility(spb.LayerGroup):
             if key not in kwargs:
                 kwargs[key] = np.array([], dtype=int)
         super().__init__(**kwargs)
-        self.pop('member_uids', None)
-        self.pop('member_ages', None)
+        self.pop('member_uids')
+        self.pop('member_ages')
         self.validate()
 
         return
@@ -501,11 +501,23 @@ class LongTermCareFacility(spb.LayerGroup):
 
     @property
     def member_uids(self):
-        return np.append(self['resident_uids'], self['staff_uids'])
+        """
+        Return ids of all ltcf members: residents and staff.
+
+        Returns:
+            np.ndarray : ltcf member ids
+        """
+        return np.concatenate((self['resident_uids'], self['staff_uids']))
 
     @property
     def member_ages(self):
-        return np.append(self['resident_ages'], self['staff_ages'])
+        """
+        Return ages of all ltcf members: residents and staff.
+
+        Returns:
+            np.ndarray : ltcf member ages
+        """
+        return np.concatenate((self['resident_ages'], self['staff_ages']))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""

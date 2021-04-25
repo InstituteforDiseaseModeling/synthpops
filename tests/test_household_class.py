@@ -218,8 +218,8 @@ def test_households_initialization():
 
 if __name__ == '__main__':
 
-    # pop = test_empty_household()
+    pop = test_empty_household()
     test_make_household()
-    # test_add_household()
-    # test_households_basic()
-    # test_households_initialization()
+    test_add_household()
+    test_households_basic()
+    test_households_initialization()

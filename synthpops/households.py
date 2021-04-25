@@ -12,9 +12,6 @@ from . import sampling as spsamp
 from . import data_distributions as spdata
 
 
-# __all__ = ['Household']
-
-
 class Household(spb.LayerGroup):
     """
     A class for individual households and methods to operate on each.
