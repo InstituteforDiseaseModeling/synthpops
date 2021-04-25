@@ -215,7 +215,23 @@ def populate_classroom(school, student_lists, teacher_lists, age_by_uid):
     if len(school.classrooms) < len(student_lists):
         log.debug(f"Reinitializing list of classrooms")
         initialize_empty_classrooms(school, len(student_lists))
-        
+
+    log.debug("Populating classrooms.")
+
+    for nc in range(len(student_lists)):
+        students = student_lists[nc]
+        teachers = teacher_lists[nc]
+
+        kwargs = dict(clid=nc,
+                      student_uids=students,
+                      teacher_uids=teachers,
+                      student_ages=[age_by_uid[i] for i in students],
+                      teacher_ages=[age_by_uid[i] for i in teachers]
+                      )
+        classroom = Classroom()
+        classroom.set_layer_group(**kwargs)
+        school.classrooms[classroom['clid']] = sc.dcp(classroom)
+    return
 
 
 def get_school_type_labels():
