@@ -318,13 +318,11 @@ class Pop(sc.prettyobj):
 
         if household_method == 'fixed_ages':
 
-            # homes_dic, homes = sphh.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ages_left_to_assign)
-            homes_dic, homes = sphh.generate_all_households_fixed_ages_method(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ages_left_to_assign)
+            homes_dic, homes = sphh.generate_all_households_fixed_ages(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ages_left_to_assign)
 
         else:
-            log.debug("defaulting to 'infer_ages' household generation method. See class notes for description.")
-            # homes_dic, homes = sphh.generate_all_households_method_1(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist, ages_left_to_assign)
-            homes_dic, homes = sphh.generate_all_households_infer_ages_method(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist, ages_left_to_assign)
+            log.debug("defaulting to 'infer_ages' household generation method. See method notes for description.")
+            homes_dic, homes = sphh.generate_all_households_infer_ages(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic, ltcf_adjusted_age_dist, ages_left_to_assign)
 
         # Handle homes and facilities
         homes = facilities + homes
@@ -356,6 +354,7 @@ class Pop(sc.prettyobj):
         else:
             # Get school sizes
             syn_school_sizes = spsch.generate_school_sizes(school_sizes_dist_by_brackets, school_size_brackets, uids_in_school)
+
             # Assign students to school using contact matrix method - generic schools
             syn_schools, syn_school_uids, syn_school_types = spsch.send_students_to_school(syn_school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count,
                                                                                            cm_age_brackets,

@@ -8,7 +8,6 @@ import sciris as sc
 from collections import Counter
 from .config import logger as log, checkmem
 from . import sampling as spsamp
-# from . import households as sphh
 from . import data_distributions as spdata
 from . import base as spb
 
