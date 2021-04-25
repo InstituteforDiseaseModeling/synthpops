@@ -478,9 +478,6 @@ class LongTermCareFacility(spb.LayerGroup):
 
         return
 
-    def __len__(self):
-        return len(self.member_uids)
-
     def validate(self):
         """
         Check that information supplied to make a long term care facility is valid and update
@@ -510,13 +507,18 @@ class LongTermCareFacility(spb.LayerGroup):
     def member_ages(self):
         return np.append(self['resident_ages'], self['staff_ages'])
 
+    def __len__(self):
+        """Return the length as the number of members in the ltcf."""
+        return len(self.member_uids)
+
 
 def get_ltcf(pop, snfid):
     """
     Return ltcf with id: snfid.
 
     Args:
-        snfid (int) : ltcf id number
+        pop (sp.Pop) : population
+        snfid (int)  : ltcf id number
 
     Returns:
         sp.LongTermCareFacility: A populated ltcf.
@@ -533,7 +535,8 @@ def add_ltcf(pop, ltcf):
     Add a ltcf to the list of ltcfs.
 
     Args:
-        ltcf (sp.LongTermCareFacility): ltcf with at minimum the snfid, member_uids, member_ages, reference_uid, and reference_age.
+        pop (sp.Pop)                   : population
+        ltcf (sp.LongTermCareFacility) : ltcf with at minimum the snfid, member_uids, member_ages, reference_uid, and reference_age.
     """
     if not isinstance(ltcf, LongTermCareFacility):
         raise ValueError('ltcf is not a sp.LongTermCareFacility object.')
@@ -546,6 +549,7 @@ def initialize_empty_ltcfs(pop, n_ltcfs=None):
     Array of empty ltcfs.
 
     Args:
+        pop (sp.Pop)  : population
         n_ltcfs (int) : the number of ltcfs to initialize
     """
     if n_ltcfs is not None and isinstance(n_ltcfs, int):
@@ -562,10 +566,10 @@ def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
     Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
 
     Args:
-        workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
-        age_by_uid (dict) : dictionary mapping each person's id to their age
+        residents_list (list) : list of lists where each sublist represents a ltcf and contains the ids of the residents
+        staff_lists (list)    : list of lists where each sublist represents a ltcf and contains the ids of the staff
+        age_by_uid (dict)     : dictionary mapping each person's id to their age
     """
-    # check there are enough ltcfs
     if len(pop.ltcfs) < len(resident_lists):
         log.debug(f"Reinitializing list of ltcfs with {len(resident_lists)} empty ltcfs.")
         initialize_empty_ltcfs(pop, len(resident_lists))

@@ -11,9 +11,8 @@ from . import defaults
 __all__ = ['count_employment_by_age', 'get_workplace_sizes',
            'get_employment_rates_by_age',
            'get_generated_workplace_size_distribution',
+           'Workplace',
            ]
-
-__all__ += ['Workplace']
 
 
 class Workplace(spb.LayerGroup):
@@ -91,7 +90,7 @@ def add_workplace(pop, workplace):
 
     Args:
         pop (sp.Pop)             : population
-        workplace (sp.workplace) : workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
+        workplace (sp.Workplace) : workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
     """
     if not isinstance(workplace, Workplace):
         raise ValueError('workplace is not a sp.Workplace object.')

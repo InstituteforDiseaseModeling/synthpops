@@ -15,7 +15,6 @@ from . import data_distributions as spdata
 # __all__ = ['Household']
 
 
-# class Household(dict):
 class Household(spb.LayerGroup):
     """
     A class for individual households and methods to operate on each.
@@ -35,8 +34,6 @@ class Household(spb.LayerGroup):
             **reference_uid (int)    : id of the reference person
             **reference_age (int)    : age of the reference person
         """
-        # set up default household values
-        # kwargs = sc.mergedicts(self.default_kwargs(), kwargs)  # at least define the basic household attributes
         if 'hhid' not in kwargs:
             kwargs['hhid'] = None
 
@@ -515,7 +512,7 @@ def get_household_heads(popdict):
     Returns:
         dict: Dictionary of the id of the head of the household for each
         household.
-    
+
     Note:
         In static populations the id of the head of the household is the minimum
         id of the household members. With vital dynamics turned on and
