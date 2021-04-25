@@ -32,7 +32,8 @@ __all__ = ['get_school_type_labels', 'count_enrollment_by_school_type',
            'get_generated_school_size_distributions', 'count_enrollment_by_age',
            'get_enrollment_rates_by_age',
            # 'get_bin_edges', 'get_bin_labels',
-           'School'
+           'School',
+           'Classroom',
            ]
 
 
@@ -98,6 +99,37 @@ class School(spb.LayerGroup):
         return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
 
 
+class Classroom(spb.LayerGroup):
+    def __init__(self, **kwargs):
+        for key in ['clid']:
+            kwargs[key] = None
+        for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
+            if key not in kwargs:
+                kwargs[key] = np.array([], dtype=int)
+        super().__init__(**kwargs)
+        self.pop('member_uids')
+        self.pop('member_ages')
+        self.validate()
+
+        return
+
+    def validate(self):
+        for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert classroom key {key} to a np.array()"
+                    raise TypeError(errmsg)
+        for key in ['clid', 'reference_uid', 'reference_age']:
+            if key in self.keys():
+                if not isinstance(self[key], int):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for classroom key {key}."
+                        raise TypeError(errmsg)
+        return
+
+
 def get_school(pop, scid):
     if not isinstance(scid, int):
         raise TypeError(f"scid must be an int.")
@@ -106,10 +138,30 @@ def get_school(pop, scid):
     return pop.schools[scid]
 
 
+def get_classroom(pop, scid, clid):
+    school = get_school(pop, scid)
+    if not isinstance(clid, int):
+        raise TypeError(f"clid must be an int.")
+    if len(school.classrooms) < clid:
+        raise ValueError(f"Classroom id (clid): {clid} out of range.")
+    return school.classrooms[clid]
+
+
 def add_school(pop, school):
     if not isinstance(school, School):
         raise ValueError('school is not a sp.School')
     pop.schools.append(school)
+    return
+
+
+def add_classroom(school, classroom):
+    if not isinstance(school, School):
+        raise ValueError('school is not a sp.School')
+
+    if not isinstance(classroom, Classroom):
+        raise ValueError('classroom is not a sp.Classroom')
+
+    school.classrooms.append(classroom)
     return
 
 
@@ -120,6 +172,14 @@ def initialize_empty_schools(pop, n_schools=None):
         pop.n_schools = 0
     pop.schools = [School() for ns in range(pop.n_schools)]
     return
+
+
+def initialize_empty_classrooms(school, n_classrooms=None):
+    if n_classrooms is not None and isinstance(n_classrooms, int):
+        school.n_classrooms = n_classrooms
+    else:
+        school.n_classrooms = 0
+    school.classrooms = [Classroom() for nc in range(school.n_classrooms)]
 
 
 def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists, school_types, age_by_uid):
@@ -149,6 +209,13 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
         pop.schools[school['scid']] = sc.dcp(school)
 
     return
+
+
+def populate_classroom(school, student_lists, teacher_lists, age_by_uid):
+    if len(school.classrooms) < len(student_lists):
+        log.debug(f"Reinitializing list of classrooms")
+        initialize_empty_classrooms(school, len(student_lists))
+        
 
 
 def get_school_type_labels():
