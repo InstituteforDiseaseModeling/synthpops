@@ -191,7 +191,7 @@ class TestRegression(unittest.TestCase):
                 agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
                 textfile = os.path.join(dir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.csv")
                 np.savetxt(textfile, agg_matrix, delimiter=",", fmt=fmt)
-                fig = sp.plot_contacts(pop, setting_code=setting_code, density_or_frequency=method, do_show=False)
+                fig = sp.plot_contacts(pop, layer=setting_code, density_or_frequency=method, do_show=False)
                 fig.savefig(os.path.join(self.figDir, f"{self.n}_seed_{self.seed}_{setting_code}_{method}_contact_matrix.png"))
 
     """
