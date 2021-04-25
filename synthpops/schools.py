@@ -211,7 +211,7 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
     return
 
 
-def populate_classroom(school, student_lists, teacher_lists, age_by_uid):
+def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
     if len(school.classrooms) < len(student_lists):
         log.debug(f"Reinitializing list of classrooms")
         initialize_empty_classrooms(school, len(student_lists))
