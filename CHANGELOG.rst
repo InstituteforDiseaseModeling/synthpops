@@ -27,6 +27,11 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.7.5 (2020-04-26)
+--------------------------
+- 
+
+
 Version 1.7.4 (2020-04-21)
 --------------------------
 - *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
