@@ -108,7 +108,7 @@ def test_plot_school_sizes(do_show=False, do_save=False):
     # works on popdict
     sp.logger.info("Test school size distribution plotting method on popdict.")
     popdict = pop.popdict
-    kwargs.datadir = sp.datadir
+    kwargs.datadir = sp.settings.datadir
     kwargs.do_show = False
     kwargs.figname = f"test_school_size_distributions_{kwargs.location}_popdict"
     fig2, ax2 = sp.plot_school_sizes(popdict, **kwargs)
@@ -159,7 +159,7 @@ def test_plot_schools_sizes_without_types(do_show=False, do_save=False):
     pars.with_school_types = False  # need to rerun the population
     pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.datadir = sp.datadir
+    kwargs.datadir = sp.settings.datadir
     kwargs.do_show = do_show
     kwargs.do_save = do_save
     kwargs.screen_width_factor = 0.30

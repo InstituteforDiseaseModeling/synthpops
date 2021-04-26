@@ -27,18 +27,32 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.7.4 (2020-04-21)
+--------------------------
+- *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
+- Also added is ``pop.summarize()`` which will print to screen and return a string of a brief description of the population generated using SynthPops.
+- *Github* : PR `442 <https://github.com/amath-idm/synthpops/pull/442>`__ 
+
+
+Version 1.7.3 (2021-04-16)
+--------------------------
+- *Fix*: Restructured how default location parameters are stored; now moved from ``sp.config.py`` into a dictionary available from ``sp.defaults.py``. Methods added in ``sp.defaults.py`` to reset these values to user specified information.
+- *Deprecated*: ``sp.get_config_data()`` is no longer available. The data returned from that method are now simply stored as a dictionary available as ``sp.defaults.default_data``. Previous globally available parameters, most of which were not in use: ``sp.datadir``, ``sp.localdatadir``, ``sp.rel_path``, ``sp.alt_rel_path``, ``sp.default_country``, ``sp.default_state``, ``sp.default_location``, ``sp.default_sheet_name``, ``sp.alt_location``, ``sp.default_household_size_1_included``, are either now stored in and accesible via ``sp.defaults.py`` or removed from use.
+- *Github*: PRs `436 <https://github.com/amath-idm/synthpops/pull/436>`__, `438 <https://github.com/amath-idm/synthpops/pull/438>`__
+
+
 Version 1.7.2 (2021-04-13)
 --------------------------
 - *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accomodate this flexibility.
 - *Fix*: Catching division by zero when calculating enrollment, employment, etc. rates by age and the number of people in a given age is zero (can occur when population size is very small, e.g. n~200).
-- *Github Info*: PR `401 <https://github.com/amath-idm/synthpops/pull/401>`__, `422 <https://github.com/amath-idm/synthpops/pull/422>`__
+- *Github Info*: PRs `401 <https://github.com/amath-idm/synthpops/pull/401>`__, `422 <https://github.com/amath-idm/synthpops/pull/422>`__
 
 
 Version 1.7.1 (2021-04-09)
 --------------------------
 - *Feature*: Added checks for probability distributions with methods ``sp.check_all_probability_distribution_sums()``, ``sp.check_all_probability_distrubution_nonnegative()``, ``sp.check_probability_distribution_sum()``, ``sp.check_probability_distribution_nonnegative()``. These check that probabilities sum to 1 within a tolerance level  (0.05), and have all non negative values. Added method to convert data from pandas dataframe to json array style, ``sp.convert_df_to_json_array()``. Added statistical test method ``sp.statistic_test()``. Added method to count contacts, ``sp.get_contact_counts_by_layer()``, and method to plot the results, ``sp.plot_contact_counts()``. See ``sp.contact_networks.get_contact_counts_by_layer()`` for more details on the method.
 - Added example of how to load data into the location json objects and save to file. See ``examples/create_location_data.py`` and ``examples/modify_location_data.py``.
-- *Github Info*: PR `410 <https://github.com/amath-idm/synthpops/pull/410>`__, `413 <https://github.com/amath-idm/synthpops/pull/413>`__, `423 <https://github.com/amath-idm/synthpops/pull/423>`__
+- *Github Info*: PRs `410 <https://github.com/amath-idm/synthpops/pull/410>`__, `413 <https://github.com/amath-idm/synthpops/pull/413>`__, `423 <https://github.com/amath-idm/synthpops/pull/423>`__
 
 
 Version 1.7.0 (2021-04-05)
@@ -47,7 +61,7 @@ Version 1.7.0 (2021-04-05)
 - *Feature*: Location data jsons now have fields for the data source, reference links, and citations! These fields will be fully populated shortly. Please reference the links provided for any data obtained from SynthPops as most population data are sourced from other databases and should be referenced as such.
 - *Deprecated*: Refactored data methods no longer support the reading in of data from user specified file paths. Use of methods to read in age distributions aggregated to a number of age brackets not equal to 16, 18, or 20 (officially supported values) is currently turned off. Next minor update will re-enable these features. Old methods are available in `synthpops.data_distributions_legacy.py`, however this file will be removed in upcoming versions once we have migrated all examples to use the new data methods and have fully enabled all the functionality of the original data methods. Please update your usage of SynthPops accordingly.
 - Updated documentation about the input data layers.
-- *Github Info*: PR `407 <https://github.com/amath-idm/synthpops/pull/407>`__, `303 <https://github.com/amath-idm/synthpops/pull/303>`__
+- *Github Info*: PRs `407 <https://github.com/amath-idm/synthpops/pull/407>`__, `303 <https://github.com/amath-idm/synthpops/pull/303>`__
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

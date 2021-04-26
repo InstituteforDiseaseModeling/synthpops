@@ -5,7 +5,7 @@ The module contains frequently-used functions that do not neatly fit into other 
 import numpy as np
 import sciris as sc
 from collections import Counter
-from . import config as cfg
+from . import defaults as spd
 
 
 def norm_dic(dic):
@@ -112,10 +112,50 @@ def count_ages(popdict):
     Returns:
         dict: Dictionary of the age count of the population.
     """
-    age_count = dict.fromkeys(np.arange(0, cfg.max_age), 0)
+    age_count = dict.fromkeys(np.arange(0, spd.settings.max_age), 0)
+
     for i, person in popdict.items():
         age_count[person['age']] += 1
     return age_count
+
+
+def calculate_mean_from_count(count_of_values): # pragma: no cover
+    """
+    Calculate the mean from a dictionary where the keys represent the unique
+    values in a data set and the values are the number of times each key shows
+    up in the data set.
+
+    Args:
+        count_of_values (dict) : count dictionary
+
+    Returns:
+        float: Mean for a data set from a dictionary where the keys
+        are the unique values from the data set and the values are the number of
+        times the key is in the data set.
+    """
+    prob_of_values = norm_dic(count_of_values)
+    return sum([v * prob_of_values[v] for v in count_of_values])
+
+
+def calculate_std_from_count(count_of_values): # pragma: no cover
+    """
+    Calculate the standard deviation or variance from a dictionary where the
+    keys represent the unique values in a data set and the values are the
+    number of times each key shows up in the data set.
+
+    Args:
+        count_of_values (dict) : count dictionary
+
+    Returns:
+        float: Standard deviation for a data set from a dictionary where the
+        keys are the unique values from the data set and the values are the
+        number of times the key is in the data set.
+    """
+    prob_of_values = norm_dic(count_of_values)
+    average_v = calculate_mean_from_count(count_of_values)
+
+    std_sqrd = sum([(v - average_v) ** 2 * prob_of_values[v] for v in count_of_values])
+    return np.sqrt(std_sqrd)
 
 
 def get_aggregate_ages(ages, age_by_brackets_dic):
@@ -162,7 +202,7 @@ def get_aggregate_matrix(matrix, age_by_brackets_dic):
 
     ::
 
-        age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
+        age_brackets = sp.get_census_age_brackets(sp.settings_config.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
 
         aggregate_age_count = sp.get_aggregate_ages(age_count, age_by_brackets_dic)

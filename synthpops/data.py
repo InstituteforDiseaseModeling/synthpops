@@ -6,7 +6,7 @@ from jsonobject import *
 from jsonobject.base_properties import DefaultProperty
 from jsonobject.containers import JsonDict
 import os
-from . import config as cfg
+
 from . import logger
 from . import defaults
 import warnings
@@ -177,8 +177,7 @@ def populate_parent_data_from_file_path(location, parent_file_path):
         parent_obj = load_location_from_filepath(parent_file_path)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.debug(f"You may have an invalid data configuration: couldn't load parent"
-        # logger.warning(f"You may have an invalid data configuration: couldn't load parent "
+        logger.debug(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
@@ -282,12 +281,12 @@ def get_relative_path(datadir):
     Returns:
         str: Relative path for the data folder.
 
-    Notes
+    Notes:
         This method may not be necessary anymore...
     """
     base_dir = datadir
-    if len(cfg.rel_path) > 1:
-        base_dir = os.path.join(datadir, *cfg.rel_path)
+    if len(defaults.settings.relative_path) > 1:
+        base_dir = os.path.join(datadir,  *defaults.settings.relative_path)
     return base_dir
 
 
@@ -313,7 +312,7 @@ def get_location_attr(location, property_name):
 def load_location_from_filepath(rel_filepath):
     """
     Loads location data object from provided relative filepath where the file path is
-    relative to cfg.datadir.
+    relative to defaults.settings.datadir.
 
     Args:
         rel_filepath (str): relative file path for the location data
@@ -321,7 +320,7 @@ def load_location_from_filepath(rel_filepath):
     Returns:
         json: The json object with location data.
     """
-    filepath = os.path.join(get_relative_path(cfg.datadir), rel_filepath)
+    filepath = os.path.join(get_relative_path(defaults.settings.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
@@ -660,7 +659,7 @@ def check_all_probability_distribution_sums(location, tolerance=1e-2, die=False,
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
+        logger.debug(f"Check passed. The sum of the probability distribution for {property_name} is within {tolerance} of 1. ")
     return checks, msgs
 
 
@@ -691,7 +690,7 @@ def check_all_probability_distribution_nonnegative(location, die=False, verbose=
                 raise ValueError(msg)
             elif verbose:
                 warnings.warn(msg)
-        cfg.logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
+        logger.debug(f"Check passed. The probability distribution for {property_name} has all non negative values.")
     return checks, msgs
 
 

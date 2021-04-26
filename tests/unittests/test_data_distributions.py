@@ -3,7 +3,7 @@ import pytest
 import synthpops as sp
 from synthpops import data_distributions as spdd
 
-datadir = sp.datadir
+datadir = sp.settings.datadir
 location = 'seattle_metro'
 state_location = 'Washington'
 country_location = 'usa'
