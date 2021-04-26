@@ -411,11 +411,15 @@ def get_contact_counts_by_layer(popdict,
 
     """
     layer = layer.upper()
+    # layer keys are used to identify the people in that layer
     layer_keys = {"S": "scid",
                   "W": "wpid",
                   "H": "hhid",
                   "LTCF": "snfid"}
 
+    # for all layers, 'all' contact_types will store counts for all contacts but
+    # based on each different layer, there can be more contact_types for example in school layer,
+    # there is sc_student, sc_staff etc
     if layer == 'S':
         people_types = ['sc_student', 'sc_teacher', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
@@ -427,7 +431,16 @@ def get_contact_counts_by_layer(popdict,
             'sc_teacher': contact_counter['sc_teacher'],
             'sc_staff': contact_counter['sc_staff']
         }
-    elif layer in ["W", "H", "LTCF"]:
+    elif layer == "LTCF":
+        people_types = ['snf_res', 'snf_staff']
+        contact_types = people_types + ['all']
+        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
+                           dict.fromkeys(people_types)}
+        index_switcher = {
+            'snf_res': contact_counter['snf_res'],
+            'snf_staff': contact_counter['snf_staff']
+        }
+    elif layer in ["W", "H"]:
         people_types = [layer_keys[layer]]
         contact_types = ['all']
         contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
@@ -445,19 +458,18 @@ def get_contact_counts_by_layer(popdict,
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
+                'snf_res' : len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_res']]),
+                'snf_staff': len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_staff']]),
+                'all_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]) +
+                             len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
             contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
             for k1 in people_types:
                 # if this person does not belong to a particular key, we don't need to store the counts under this key
                 if person.get(k1) is not None:
-                    # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                    if layer == "S":
-                        for k2 in people_types:
-                            index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                        index_switcher.get(k1)["all_staff"].append(
-                            count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                    # for other types, only all contacts are stored
-                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+                    #store the count per counter types
+                    for k2 in contact_types:
+                        index_switcher.get(k1)[k2].append(count_switcher.get(k2))
                     contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
     return contact_counter, contacts_counter_by_id
