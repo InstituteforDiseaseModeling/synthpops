@@ -9,6 +9,7 @@ from scipy import stats as st
 import numpy as np
 import networkx as nx
 import re
+from collections import Counter
 
 
 def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):
@@ -98,6 +99,9 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
 
     max_size_full_connected = 0
 
+    runs = 0
+    passed = 0
+    failedsize = []
     for nw, wpid in enumerate(wpids):
         wnc = set(contacts_by_id[wpid])
         wsize = len(contacts_by_id[wpid])
@@ -120,10 +124,18 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             degree = [G.degree(i) for i in G.nodes()]
 
             # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
-            check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            runs +=1
+            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            passed += int(result)
+            if not result:
+                failedsize.append(wsize)
             print('workplace id', wpid)
             print('\n\n')
-
+    print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')
+    print("size\tcount")
+    failed_counts = {i:dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
+    for k, v in failed_counts.items():
+        print(f"{k}\t{v}")
     print('max_size_full_connected', max_size_full_connected)
 
 
@@ -159,7 +171,7 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
         upperbound (float) : upperbound for truncation
 
     Returns:
-        None
+        (bool) return True if statistic check passed, else return False
     """
     sample_size = len(testdata)
     # need to exclude any value below or equal to lowerbound and any value above or equal to upperbound, so we first find the quantile location for
@@ -170,8 +182,16 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
     q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
     # use percent point function to get inverse of cdf
     expected_data = st.poisson.ppf(q=q, mu=mu)
+    result = True
     if not skipcheck:
-        sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True)
+        try:
+            sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True, die=True)
+            result = True
+        except ValueError as e:
+            if 'reject the hypothesis' in str(e):
+                result = False
+            else:
+                raise Exception(e)
 
     #plot comparison
     bins_count = int(min(10, max(expected_data)-min(expected_data)+1))
@@ -183,6 +203,7 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
     merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
     kwargs["xvalue"] = merged_bins
     sp.plot_array(expected, **kwargs)
+    return result
 
 
 if __name__ == "__main__":
