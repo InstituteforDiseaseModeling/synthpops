@@ -424,33 +424,22 @@ def get_contact_counts_by_layer(popdict,
     if layer == 'S':
         people_types = ['sc_student', 'sc_teacher', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
-        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
-                           dict.fromkeys(people_types)}
-        # index_switcher is a case-switch selector for the person selected by its type
-        index_switcher = {
-            'sc_student': contact_counter['sc_student'],
-            'sc_teacher': contact_counter['sc_teacher'],
-            'sc_staff': contact_counter['sc_staff']
-        }
     elif layer == "LTCF":
         people_types = ['snf_res', 'snf_staff']
         contact_types = people_types + ['all']
-        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
-                           dict.fromkeys(people_types)}
-        index_switcher = {
-            'snf_res': contact_counter['snf_res'],
-            'snf_staff': contact_counter['snf_staff']
-        }
     elif layer in ["W", "H"]:
         people_types = [layer_keys[layer]]
         contact_types = ['all']
-        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
-                           dict.fromkeys(people_types)}
-        index_switcher = {
-            layer_keys[layer]: contact_counter[layer_keys[layer]]
-        }
     else:
         raise NotImplementedError(f"layer {layer} not supported.")
+
+    # initialize the contact counter between each people type and contact type as empty list
+    contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
+                       dict.fromkeys(people_types)}
+    # index_switcher is a case-switch selector for the person selected by its type
+    index_switcher = {k: contact_counter[k] for k in people_types}
+
+    # also store all contacts count per layer id in contacts_counter_by_id
     contacts_counter_by_id = dict()
     for uid, person in popdict.items():
         if person[layer_keys[layer]] is not None:

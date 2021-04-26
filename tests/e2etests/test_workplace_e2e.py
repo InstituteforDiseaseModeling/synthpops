@@ -174,7 +174,8 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
         sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True)
 
     #plot comparison
-    bins_count= min(10, max(expected_data)-min(expected_data))
+    bins_count = int(min(10, max(expected_data)-min(expected_data)+1))
+    print(f"bins:{bins_count}")
     expected, bins = np.histogram(expected_data, bins=bins_count)
     actual = np.histogram(testdata, bins=bins)[0]
     kwargs["generated"] = actual
