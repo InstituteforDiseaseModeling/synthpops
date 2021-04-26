@@ -14,7 +14,7 @@ mplt.use('Agg')
 
 
 pars = sc.objdict(
-    n                       = settings.pop_sizes.small_medium,
+    n                       = settings.pop_sizes.medium_large,
     rand_seed               = 123,
     smooth_ages             = 1,
 
@@ -107,7 +107,7 @@ def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_sav
 def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing a plotting dev tool to compare the degree distribution by age for multiple populations.")
 
-    npops = 5
+    npops = 6
     pop_list = []
 
     for ni in range(npops):
@@ -153,8 +153,8 @@ def test_plot_degree_by_age_stats(create_pop, do_show=False, do_save=False):
 
 if __name__ == '__main__':
 
-    test_pop_summarize(create_pop)
-    test_count_layer_degree(create_pop)
+    # test_pop_summarize(create_pop)
+    # test_count_layer_degree(create_pop)
     test_multiple_degree_histplots(do_show=1)
-    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
-    fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    # gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
+    # fig, ax = test_plot_degree_by_age_stats(do_show=1)
