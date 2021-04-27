@@ -92,7 +92,8 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     pop = create_sample_pop_e2e
     max_contacts = pop.max_contacts
     max_w_size = int(max_contacts['W'] // 2)
-
+    wsize_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
+    wsize_index = sp.get_index_by_brackets_dic(wsize_brackets)
     contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w")
 
     wpids = sorted(contacts_by_id.keys())
@@ -128,14 +129,14 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
             passed += int(result)
             if not result:
-                failedsize.append(wsize)
+                failedsize.append(wsize_index[wsize])
             print('workplace id', wpid)
             print('\n\n')
     print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')
-    print("size\tcount")
+    print("size brackets:\tcount")
     failed_counts = {i:dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
     for k, v in failed_counts.items():
-        print(f"{k}\t{v}")
+        print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}")
     print('max_size_full_connected', max_size_full_connected)
 
 
