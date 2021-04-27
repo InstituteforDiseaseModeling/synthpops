@@ -426,7 +426,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
 
         while len(nodes) > 0:
             cluster_size = np.random.poisson(average_class_size)
-            # print('a', a, 'cluster_size', cluster_size, len(nodes))
+            print('a', a, 'cluster_size', cluster_size, len(nodes))
 
             if cluster_size > len(nodes):
                 print('a', a, 'cluster_size', cluster_size, len(nodes))

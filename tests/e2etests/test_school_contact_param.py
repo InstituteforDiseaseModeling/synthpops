@@ -59,7 +59,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
 
         counts.extend(contacts['sc_student']['sc_student'])
-        print('here')
+        # print('here', collections.Counter(counts))
 
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
     # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution
