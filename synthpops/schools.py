@@ -388,6 +388,8 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
     randomly distributed so that clustering is roughly average_class_size/size
     of the grade.
 
+    The last classroom created may be much smaller than the average_class_size.
+
     Args:
         syn_school_uids (list)     : list of uids of students in the school
         syn_school_ages (list)     : list of the ages of the students in the school
@@ -812,7 +814,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
-    all_school_uids = syn_school_uids.copy() + teachers.copy()
+    all_school_uids = syn_school_uids.copy() + teachers.copy()  # seems like maybe a repeated line
     additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
     add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
     return popdict
