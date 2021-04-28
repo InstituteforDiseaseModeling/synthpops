@@ -8,7 +8,6 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 import settings
 import pytest
-from math import isclose
 from collections import Counter
 
 mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
@@ -156,8 +155,8 @@ def test_plot_degree_by_age_stats(create_pop, do_show=False, do_save=False):
 def test_count_layer_degree_by_age(create_pop):
     pop = create_pop
     layer = 'W'
-    brackets = sp.get_census_age_brackets(**pop.loc_pars)
-    ageindex = sp.get_age_by_brackets_dic(brackets)
+    brackets = pop.age_brackets
+    ageindex = pop.age_by_brackets_dic
     total = np.zeros(len(brackets))
     contacts = np.zeros(len(brackets))
     #brute force check for contact count
@@ -169,7 +168,7 @@ def test_count_layer_degree_by_age(create_pop):
         expected = contacts[b]
         actual =  degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
         print(f"expected contacts for {brackets[b]} is {expected}" )
-        assert isclose(expected, actual), f"expecred: {expected} actual:{actual}"
+        assert expected==actual, f"expecred: {expected} actual:{actual}"
 
 
 def test_filter_age(create_pop):

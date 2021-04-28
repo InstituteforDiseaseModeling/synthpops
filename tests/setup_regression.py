@@ -17,12 +17,6 @@ try:
 except Exception as E:
     print(f'Note: could not import fpdf, report not available ({E})')
 
-@pytest.fixture(scope='session')
-def create_default_pop():
-    pars = sc.objdict(
-        n=20001,
-        rand_seed=1001)
-    return sp.Pop(**pars)
 
 @pytest.fixture(scope='function')
 def get_regression_dir(request):

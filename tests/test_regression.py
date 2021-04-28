@@ -14,7 +14,7 @@ import sciris as sc
 import synthpops as sp
 from synthpops import data_distributions as spdd
 from synthpops import base as spb
-from setup_regression import create_default_pop, regression_run, regression_validate, get_regression_dir
+from setup_regression import regression_run, regression_validate, get_regression_dir
 # Whether to regenerate files
 regenerate = False
 # regenerate = True
