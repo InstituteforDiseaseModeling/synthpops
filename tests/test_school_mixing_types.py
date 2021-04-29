@@ -8,7 +8,7 @@ import pytest
 
 # parameters to generate a test population
 pars = sc.objdict(
-        n                               = settings.pop_sizes.medium,
+        n                               = settings.pop_sizes.small_medium,
         rand_seed                       = 123,
 
         with_facilities                 = 1,
@@ -22,6 +22,14 @@ pars = sc.objdict(
 
 @pytest.mark.parametrize("average_class_size", [12, 20, 30, 50, 100])
 def test_random_schools(average_class_size):
+    """
+    There is a lower bound to the average_class_size and how well clustering
+    and density will match when group sizes are small and any change in discrete
+    numbers changes these values significantly. It does not mean that the networks
+    created are wrong, but rather that at such low sizes, it becomes difficult
+    to test their validity with the same thresholds as graphs with higher average
+    degrees.
+    """
     sp.logger.info("Test random school networks.")
     test_pars = sc.dcp(pars)
     test_pars['average_class_size'] = average_class_size
@@ -55,8 +63,8 @@ def test_random_schools(average_class_size):
         assert expected_density * lowerbound < density < expected_density * upperbound, 'Check failed on random graph densities.'
 
         # check that the distribution of edges is random and clustered as expected for a random graph
-        assert expected_density * lowerbound < clustering < expected_density * upperbound, f'Check failed on random graph clustering. {clustering} {density} {expected_density} {np.mean([g[c].degree(n) for n in g[c].nodes()])} {len(g[c].nodes())}'
-        print(f"Check passed. School {c} with random mixing has clustering {clustering:.3f} and density {density:.3f} close to expected value {expected_density:.3f}. {len(g[c].nodes())}")
+        assert expected_density * lowerbound < clustering < expected_density * upperbound, f'Check failed on random graph clustering. {clustering} {density} {expected_density} {np.mean([g[c].degree(n) for n in g[c].nodes()])}'
+        print(f"Check passed. School {c} with random mixing has clustering {clustering:.3f} and density {density:.3f} close to expected value {expected_density:.3f}.")
 
 
 if __name__ == '__main__':
