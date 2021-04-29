@@ -79,7 +79,7 @@ def get_workplace(pop, wpid):
     """
     if not isinstance(wpid, int):
         raise TypeError(f"wpid must be an int. Instead supplied wpid with type: {type(wpid)}.")
-    if len(pop.workplaces) < wpid:
+    if len(pop.workplaces) <= wpid:
         raise ValueError(f"Workplace id (wpid): {wpid} out of range. There are {len(pop.workplaces)} workplaces stored in this object.")
     return pop.workplaces[wpid]
 
@@ -123,6 +123,9 @@ def populate_workplaces(pop, workplaces, age_by_uid):
         pop (sp.Pop)      : population
         workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
         age_by_uid (dict) : dictionary mapping each person's id to their age
+    Notes:
+        If number of workplaces (n) is fewer than existing workplaces, it will only replace the first n workplaces. Otherwise the
+        existing workplaces will be overwritten by the input workplaces.
     """
     # check there are enough workplaces
     if len(pop.workplaces) < len(workplaces):
