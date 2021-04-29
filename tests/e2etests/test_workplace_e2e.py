@@ -126,7 +126,7 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
 
             # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
             runs +=1
-            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1, skipcheck=0, do_show=0)
             passed += int(result)
             if not result:
                 failedsize.append(wsize_index[wsize])
@@ -203,7 +203,8 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
     #merge 11 bins to 10 for bar plot align at center
     merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
     kwargs["xvalue"] = merged_bins
-    sp.plot_array(expected, **kwargs)
+    if kwargs["do_show"]:
+        sp.plot_array(expected, **kwargs)
     return result
 
 
@@ -213,8 +214,10 @@ if __name__ == "__main__":
     # testcase = 'test_employment_age_distribution'
     # testcase = 'test_work_size_distribution'
     # testcase = 'test_workplace_contact_distribution'
-    testcase = 'test_workplace_contact_distribution_2'
-    pytest.main(['-v', '-k', testcase, '--do-show'])
+    # testcase = 'test_workplace_contact_distribution_2'
+    # pytest.main(['-v', '-k', testcase, '--do-show'])
 
+    pop = sp.Pop(n=20e3)
+    test_workplace_contact_distribution_2(pop)
 
 
