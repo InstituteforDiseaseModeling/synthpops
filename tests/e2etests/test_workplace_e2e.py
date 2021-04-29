@@ -103,9 +103,11 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     runs = 0
     passed = 0
     failedsize = []
+    allsize = []
     for nw, wpid in enumerate(wpids):
         wnc = set(contacts_by_id[wpid])
         wsize = len(contacts_by_id[wpid])
+        allsize.append(wsize_index[wsize])
 
         if len(wnc) == 1:
 
@@ -130,13 +132,15 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             passed += int(result)
             if not result:
                 failedsize.append(wsize_index[wsize])
+                sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
             print('workplace id', wpid)
             print('\n\n')
     print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')
     print("size brackets:\tcount")
     failed_counts = {i:dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
+    all_counts = {i: dict(Counter(allsize))[i] for i in sorted(dict(Counter(allsize)).keys())}
     for k, v in failed_counts.items():
-        print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}")
+        print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}, {v/all_counts[k] * 100:.2f}")
     print('max_size_full_connected', max_size_full_connected)
 
 
