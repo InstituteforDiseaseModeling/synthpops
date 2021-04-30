@@ -51,22 +51,21 @@ def test_average_class_size(average_class_size, school_mixing_type, do_show, do_
     plotting_kwargs.append("title_prefix", f"Average Class Size = {average_class_size} {pop.school_pars.school_mixing_type}")
     plotting_kwargs.append("figname", f"contact_average_class_size_{average_class_size}_{pop.school_pars.school_mixing_type}")
     # sp.plot_contact_counts(contacts, **plotting_kwargs)
+
     counts = []
     if not pop.school_pars.with_school_types:
         counts.extend(contacts['sc_student']['all'])
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
 
-    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'random'):
-
+    elif (pop.school_pars.with_school_types) & (pop.school_pars.school_mixing_type == 'random'):
         counts.extend(contacts['sc_student']['all'])
+        counts.extend(contacts['sc_teacher']['all'])
 
-    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_clustered'):
-
+    elif (pop.school_pars.with_school_types) & (pop.school_pars.school_mixing_type == 'age_clustered'):
         counts.extend(contacts['sc_student']['sc_student'])
 
-    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_and_class_clustered'):
-
+    elif (pop.school_pars.with_school_types) & (pop.school_pars.school_mixing_type == 'age_and_class_clustered'):
         counts.extend(contacts['sc_student']['sc_student'])
         if pop.school_pars.average_class_size < pop.school_pars.average_student_teacher_ratio:
             average_class_size = pop.school_pars.average_student_teacher_ratio
@@ -241,6 +240,8 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
 
 if __name__ == "__main__":
     pytest.main(['-vs', __file__])
+
+    # # run an example in main and plot!
     # average_class_size = 30
     # school_mixing_type = 'random'
     # do_show = 1

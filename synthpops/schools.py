@@ -341,6 +341,7 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
             # add each edge to the overall school graph
             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
 
+    # make sure all students are in the graph by adding those without an edge yet
     for uid in syn_school_uids:
         if not G.has_node(uid):
             G.add_node(uid)
