@@ -29,8 +29,10 @@ Latest versions (1.7.x)
 
 Version 1.7.5 (2020-04-30)
 --------------------------
+- ``sp.contact_networks.get_contact_counts_by_layer()`` now returns two dictionaries, one that gives the number of contacts between different roles in settings, like the number of contacts for students to teachers in schools, as well as the number of contacts per group in a setting, for example the number of contacts people have in the workplace with `wpid == 0`.
+- ``sp.sampling.statistic_test()`` with `verbose = True` prints to screen details about the expected and actual distributions when the test fails. 
 - *Fix*: Default `n` value now assigned in ``sp.defaults.py`` when ``sp.Pop`` supplied `n = None` and when `n` is lower than ``sp.defaults.default_pop_size``
-- *Github*: PRs `448 <https://github.com/amath-idm/synthpops/pull/448>`__
+- *Github*: PRs `435 <https://github.com/amath-idm/synthpops/pull/435>`__, `448 <https://github.com/amath-idm/synthpops/pull/448>`__
 
 
 Version 1.7.4 (2020-04-21)
