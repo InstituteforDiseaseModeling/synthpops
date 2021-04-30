@@ -242,7 +242,7 @@ def get_school(pop, scid):
     """
     if not isinstance(scid, int):
         raise TypeError(f"scid must be an int.")
-    if len(pop.schools) < scid:
+    if len(pop.schools) <= scid:
         raise ValueError(f"School id (scid): {scid} out of range.")
     return pop.schools[scid]
 

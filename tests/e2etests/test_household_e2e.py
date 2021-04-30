@@ -21,10 +21,10 @@ def test_age_distribution():
 
 
 def test_household_distribution( create_sample_pop_e2e):
-    actual_households_count = Counter([len(i.member_uids) for i in create_sample_pop_e2e.households.households_array])
+    actual_households_count = Counter([len(i['member_uids']) for i in create_sample_pop_e2e.households])
     actual_households_size = [actual_households_count[i] for i in sorted(actual_households_count)]
     expected_households_dist = sp.get_household_size_distr(**create_sample_pop_e2e.loc_pars)
-    expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.households.n_households for i in sorted(expected_households_dist)]
+    expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.n_households for i in sorted(expected_households_dist)]
     sp.statistic_test(expected_households_size, actual_households_size)
 
 
