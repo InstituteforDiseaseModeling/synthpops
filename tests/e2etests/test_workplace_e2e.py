@@ -161,7 +161,7 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     generated_expected = sum([[i] * expected_employment_age_count[i] for i in expected_employment_age_count], [])
     # run statistical tests for employment by age distribution
     # TODO: Need to refine the data for fair comparison
-    sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest)
+    sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest, verbose=True)
     # plot enrollment by age
     create_sample_pop_e2e.plot_employment_rates_by_age(**plotting_kwargs)
 
