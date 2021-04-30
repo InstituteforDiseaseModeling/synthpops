@@ -20,14 +20,15 @@ import sciris as sc
 from setup_e2e import get_fig_dir
 
 pars = dict(
-    n                       = 35e3,
+    n                       = 15e3,
     rand_seed               = 1,
     with_non_teaching_staff = 1
 )
 
 
+@pytest.mark.parametrize("school_mixing_type", ['random', 'age_clustered', 'age_and_class_clustered'])
 @pytest.mark.parametrize("average_class_size", [10, 50])
-def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, quantiles=None):
+def test_average_class_size(average_class_size, school_mixing_type, do_show, do_save, get_fig_dir, quantiles=None):
     """
     Test case to check average_class_size by taking average of student-student contacts
 
@@ -39,11 +40,10 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     """
     sp.logger.info(f"Test average_class_size: {average_class_size}.")
     testpars = dict(
-        average_class_size = average_class_size,
-        average_student_teacher_ratio = 30,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
-        with_school_types = 1,
-        # school_mixing_type = 'age_and_class_clustered',
-        school_mixing_type = 'age_clustered',
+        average_class_size            = average_class_size,
+        average_student_teacher_ratio = 20,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
+        with_school_types             = 1,
+        school_mixing_type            = school_mixing_type,
     )
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
@@ -57,6 +57,10 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
 
+    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'random'):
+
+        counts.extend(contacts['sc_student']['all'])
+
     elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_clustered'):
 
         counts.extend(contacts['sc_student']['sc_student'])
@@ -64,7 +68,6 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_and_class_clustered'):
 
         counts.extend(contacts['sc_student']['sc_student'])
-
         if pop.school_pars.average_class_size < pop.school_pars.average_student_teacher_ratio:
             average_class_size = pop.school_pars.average_student_teacher_ratio
 
@@ -237,8 +240,9 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
 
 
 if __name__ == "__main__":
-    # pytest.main(['-vs', __file__])
-    average_class_size = 40
-    do_show = 1
-    do_save = 0
-    test_average_class_size(average_class_size, do_show, do_save, get_fig_dir)
+    pytest.main(['-vs', __file__])
+    # average_class_size = 30
+    # school_mixing_type = 'random'
+    # do_show = 1
+    # do_save = 0
+    # test_average_class_size(average_class_size, school_mixing_type, do_show, do_save, get_fig_dir)
