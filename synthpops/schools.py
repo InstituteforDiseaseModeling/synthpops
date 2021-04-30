@@ -326,9 +326,6 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         if average_class_size > len(uids_in_school_by_age[a]):
             age_groups_smaller_than_degree = True
 
-    # if age_groups_smaller_than_degree:
-        # print('age_counter', age_counter)
-
     # create a graph of contacts in the school
     G = nx.Graph()
 
@@ -348,28 +345,10 @@ def generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages,
         if not G.has_node(uid):
             G.add_node(uid)
 
-    # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
-    print(age_by_uid_dic[79])
-    if 79 in syn_school_uids:
-        print(len(uids_in_school_by_age[age_by_uid_dic[79]]))
+    # flag was turned on to indicate that the average degree is too low. How can we add more edges? do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary. Loop again to remove edges if it's too many.
     if age_groups_smaller_than_degree:
 
-        # add some extra edges
-        # print(len(G.edges()))
-        # print(sorted(age_keys))
-        degree = [G.degree(ii) for ii in G.nodes()]
-        # if len(degree) > 0:
-        #     if min(degree) < 5:
-        #         print('sorted 1',sorted(degree))
-        # # print(Counter(degree))
         G = add_random_contacts_from_graph(G, average_class_size)
-        # print(len(G.edges()))
-        if 79 in syn_school_uids:
-            print(G.degree(79))
-
-
-        degree_2 = [G.degree(ii) for ii in G.nodes()]
-
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
@@ -817,16 +796,11 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         edges = generate_random_classes_by_grade_in_school(syn_school_uids, syn_school_ages, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing)
         H = nx.Graph()
         H.add_edges_from(edges)
-        # print('h degree', sorted([H.degree(i) for i in H.nodes()]))
-
-        # print(len(H.edges()))
 
         teacher_edges = generate_edges_for_teachers_in_random_classes(syn_school_uids, syn_school_ages, teachers, age_by_uid_dic, average_student_teacher_ratio, average_teacher_teacher_degree)
         edges += teacher_edges
         H.add_edges_from(teacher_edges)
-        # print(len(H.edges()))
-        if 79 in syn_school_uids:
-            print(H.degree(79))
+
         add_contacts_from_edgelist(popdict, edges, 'S')
 
     # completely clustered into classes by age, one teacher per class at least
@@ -841,15 +815,12 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
         sum_diff = sum([len(group) for group in student_groups]) - sum([len(group) for group in student_groups_2])
         assert sum_diff == 0, f'Check failed. sum of the differences between student groups is not zero. Total school enrollment changed between the step of creating student groups and assigning teachers to each group. sum is {sum_diff}'
 
-        # n_expected_edges = 0
-        # n_expected_edges_list = []
         for ng in range(len(student_groups)):
             student_group = student_groups[ng]
             teacher_group = teacher_groups[ng]
             group = student_group
             group += teacher_group
-            # n_expected_edges += len(group) * (len(group) - 1) / 2
-            # n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
+
             add_contacts_from_group(popdict, group, 'S')
 
         log.debug('average_class_size', average_class_size, 'class_group sizes', [len(group) for group in student_groups])
@@ -861,12 +832,6 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
     all_school_uids = syn_school_uids.copy() + teachers.copy()  # seems like maybe a repeated line
     additional_staff_edges = generate_random_contacts_for_additional_school_members(all_school_uids, non_teaching_staff, average_additional_staff_degree)
     add_contacts_from_edgelist(popdict, additional_staff_edges, 'S')
-
-    for i in syn_school_uids:
-        k = len(popdict[i]['contacts']['S'])
-        if k == 0:
-            print(i,'k', H.degree(i))
-
 
     return popdict
 
