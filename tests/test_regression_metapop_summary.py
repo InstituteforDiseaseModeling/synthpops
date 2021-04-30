@@ -15,7 +15,7 @@ mplt.use('Agg')
 
 
 pars = sc.objdict(
-    n                       = settings.pop_sizes.medium_large,
+    n                       = settings.pop_sizes.medium,
     rand_seed               = 123,
     smooth_ages             = 1,
 
@@ -31,7 +31,6 @@ pars = sc.objdict(
                                'hs': 'random',
                                'uv': 'random'
                                },
-
 )
 
 
@@ -181,8 +180,9 @@ def test_filter_age(create_pop):
             expected_pids.append(p[0])
     assert set(expected_pids) == set(pids)
 
+
 def test_information(create_pop):
-    pop =  create_pop
+    pop = create_pop
     # spot check if values match with popdict
 
     assert pop.information.age_count[20] == len([i for i in pop.popdict.values() if i['age']==20]), \
@@ -202,16 +202,18 @@ def test_information(create_pop):
     assert sum(pop.information.enrollment_by_school_type[None]) == \
            len([i for i in pop.popdict.values() if i["scid"] is not None and i["sc_type"]is not None and i["sc_student"] is not None]), \
            f"pop.information.enrollment_by_school_type not matching popdict."
-    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if i["wpid"] is not None and i["age"]==20]), \
+    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["snf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"]==20)]), \
         f"pop.information.employment_by_age not matching popdict."
+
     assert len(pop.information.workplace_sizes) == len(Counter([i["wpid"] for i in pop.popdict.values() if i["wpid"] is not None])), \
         f"pop.information.workplace_sizes not matching popdict."
 
 
 if __name__ == '__main__':
 
-    # test_pop_summarize(create_pop)
-    # test_count_layer_degree(create_pop)
+    test_pop_summarize(create_pop)
+    test_count_layer_degree(create_pop)
     test_multiple_degree_histplots(do_show=1)
-    # gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
-    # fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
+    fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    test_information(create_pop)

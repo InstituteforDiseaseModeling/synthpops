@@ -164,7 +164,7 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
             size = len(potential_student_ages)
             school_age_count = {a: ages_in_school_count[a] for a in school_type_age_range}
             other_schools = [ns for ns in range(len(syn_schools)) if syn_school_types[ns] == school_type]
-            log.debug('other schools to merge with', other_schools)
+            log.debug(f"other schools to merge with {other_schools}")
 
             # school is too small, try to merge it without another school of the same type
             if size < school_size_brackets[0][0] & len(other_schools):
@@ -824,7 +824,7 @@ def add_school_edges(popdict, syn_school_uids, syn_school_ages, teachers, non_te
 
             add_contacts_from_group(popdict, group, 'S')
 
-        log.debug('average_class_size', average_class_size, 'class_group sizes', [len(group) for group in student_groups])
+        log.debug(f"average_class_size, {average_class_size}, 'class_group sizes', {[len(group) for group in student_groups]}")
 
         # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teachers, average_teacher_teacher_degree)
@@ -1027,10 +1027,10 @@ def assign_additional_staff_to_schools(syn_school_uids, syn_teacher_uids, worker
 
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
-    log.debug(f"list of number of students per school: {n_students_list}")
-    log.debug(f"list of number of teachers per school: {n_teachers_list}")
-    log.debug(f"list of number of all staff expected per school: {n_all_staff_list}")
-    log.debug(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
+    # log.debug(f"list of number of students per school: {n_students_list}")
+    # log.debug(f"list of number of teachers per school: {n_teachers_list}")
+    # log.debug(f"list of number of all staff expected per school: {n_all_staff_list}")
+    # log.debug(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
     if min_n_non_teaching_staff <= 0:
         errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
         log.debug(errormsg)
