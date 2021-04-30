@@ -529,6 +529,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         expected (array)        : Array of expected values
         fig (matplotlib.figure) : Matplotlib.figure object
         ax (matplotlib.axis)    : Matplotlib.axes object
+        **xvalue(array)        : Array of values used in X-axis, must be the same length as expected
         **generated (array)     : Array of values generated using a model
         **names (list or dict)  : names to display on x-axis, default is set to the indexes of data
         **figname (str)         : name to save figure to disk
@@ -554,7 +555,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
                            fontsize=12, color_1='mediumseagreen', color_2='#236a54',
                            expect_label='Expected', value_text=False, rotation=0,
                            tick_interval=10, tick_threshold=30, binned=True,
-                           fig=fig, ax=ax, figname='example_figure')
+                           fig=fig, ax=ax, figname='example_figure', xvalue=None)
 
     plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.set_font()  # font styles to be updated
@@ -564,7 +565,8 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
 
     title = plkwargs.title_prefix.replace('_', ' ').title() if plkwargs.generated is None else f"{plkwargs.title_prefix.replace('_', ' ').title()} Comparison"
     ax.set_title(title, fontsize=plkwargs.fontsize + 2)
-    x = np.arange(len(expected))
+
+    x = np.arange(len(expected)) if plkwargs.xvalue is None else np.array(plkwargs.xvalue)
 
     if not plkwargs.binned:
         ax.hist(expected, label=plkwargs.expect_label.title(), color=plkwargs.color_1)
