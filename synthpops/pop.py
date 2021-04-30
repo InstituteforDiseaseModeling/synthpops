@@ -747,7 +747,7 @@ class Pop(sc.prettyobj):
             different people types in the layer. See
             sp.contact_networks.get_contact_counts_by_layer() for method details.
         """
-        return spcnx.get_contact_counts_by_layer(self.popdict, layer)
+        return spcnx.get_contact_counts_by_layer(self.popdict, layer)[0]
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
