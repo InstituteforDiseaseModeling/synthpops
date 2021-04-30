@@ -103,9 +103,11 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     runs = 0
     passed = 0
     failedsize = []
+    allsize = []
     for nw, wpid in enumerate(wpids):
         wnc = set(contacts_by_id[wpid])
         wsize = len(contacts_by_id[wpid])
+        allsize.append(wsize_index[wsize])
 
         if len(wnc) == 1:
 
@@ -126,17 +128,19 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
 
             # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
             runs +=1
-            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1, skipcheck=0, do_show=0)
             passed += int(result)
             if not result:
                 failedsize.append(wsize_index[wsize])
+                sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
             print('workplace id', wpid)
             print('\n\n')
     print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')
     print("size brackets:\tcount")
     failed_counts = {i:dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
+    all_counts = {i: dict(Counter(allsize))[i] for i in sorted(dict(Counter(allsize)).keys())}
     for k, v in failed_counts.items():
-        print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}")
+        print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}, {v/all_counts[k] * 100:.2f}")
     print('max_size_full_connected', max_size_full_connected)
 
 
@@ -157,7 +161,7 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     generated_expected = sum([[i] * expected_employment_age_count[i] for i in expected_employment_age_count], [])
     # run statistical tests for employment by age distribution
     # TODO: Need to refine the data for fair comparison
-    sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest)
+    sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest, verbose=True)
     # plot enrollment by age
     create_sample_pop_e2e.plot_employment_rates_by_age(**plotting_kwargs)
 
@@ -203,7 +207,8 @@ def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skip
     #merge 11 bins to 10 for bar plot align at center
     merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
     kwargs["xvalue"] = merged_bins
-    sp.plot_array(expected, **kwargs)
+    if kwargs["do_show"]:
+        sp.plot_array(expected, **kwargs)
     return result
 
 
@@ -213,8 +218,10 @@ if __name__ == "__main__":
     # testcase = 'test_employment_age_distribution'
     # testcase = 'test_work_size_distribution'
     # testcase = 'test_workplace_contact_distribution'
-    testcase = 'test_workplace_contact_distribution_2'
-    pytest.main(['-v', '-k', testcase, '--do-show'])
+    # testcase = 'test_workplace_contact_distribution_2'
+    # pytest.main(['-v', '-k', testcase, '--do-show'])
 
+    pop = sp.Pop(n=20e3)
+    test_workplace_contact_distribution_2(pop)
 
 
