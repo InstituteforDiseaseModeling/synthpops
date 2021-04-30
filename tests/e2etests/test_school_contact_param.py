@@ -21,7 +21,7 @@ from setup_e2e import get_fig_dir
 
 pars = dict(
     n                       = 35e3,
-    # rand_seed               = 1,
+    rand_seed               = 1,
     with_non_teaching_staff = 1
 )
 
@@ -42,7 +42,8 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         average_class_size = average_class_size,
         average_student_teacher_ratio = 30,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
         with_school_types = 1,
-        school_mixing_type = 'age_and_class_clustered',
+        # school_mixing_type = 'age_and_class_clustered',
+        school_mixing_type = 'age_clustered',
     )
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
@@ -56,13 +57,16 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
         counts.extend(contacts['sc_teacher']['all'])
         counts.extend(contacts['sc_staff']['all'])
 
-    elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
+    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_clustered'):
+
+        counts.extend(contacts['sc_student']['sc_student'])
+
+    elif (pop.school_pars.with_school_types == True) & (pop.school_pars.school_mixing_type == 'age_and_class_clustered'):
 
         counts.extend(contacts['sc_student']['sc_student'])
 
         if pop.school_pars.average_class_size < pop.school_pars.average_student_teacher_ratio:
             average_class_size = pop.school_pars.average_student_teacher_ratio
-        # print('here', collections.Counter(counts))
 
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
     # visual check with scipy.stats.probplot -- temporary, just to show that the null hypothesis should pass here for the distribution

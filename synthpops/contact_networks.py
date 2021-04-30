@@ -9,7 +9,7 @@ import networkx as nx
 from . import data_distributions as spdata
 from . import schools as spsch
 from .config import logger as log, checkmem
-
+import collections
 
 def make_contacts_from_microstructure_objects(age_by_uid_dic,
                                               homes_by_uids,
@@ -234,6 +234,21 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
             popdict[uid]['sc_type'] = this_school_type
             popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
+
+    student_student_contacts = {}
+    for i, person in popdict.items():
+        if person['scid'] is not None:
+            if person['sc_student'] == 1:
+                con = [c for c in person['contacts']['S'] if popdict[c]['sc_student'] == 1]
+                student_student_contacts[i] = len(con)
+
+    cc = collections.Counter(student_student_contacts.values())
+    kk = sorted(cc.keys())
+    for i in student_student_contacts:
+        if student_student_contacts[i] == 0:
+            print(i, popdict[i]['age'], popdict[i]['scid'])
+    # for c in kk:
+        # print(c, cc[c])
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
