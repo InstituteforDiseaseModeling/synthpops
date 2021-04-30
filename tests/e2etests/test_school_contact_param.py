@@ -20,8 +20,8 @@ import sciris as sc
 from setup_e2e import get_fig_dir
 
 pars = dict(
-    n                       = 15e3,
-    rand_seed               = 1,
+    n                       = 35e3,
+    # rand_seed               = 1,
     with_non_teaching_staff = 1
 )
 
@@ -40,7 +40,7 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     sp.logger.info(f"Test average_class_size: {average_class_size}.")
     testpars = dict(
         average_class_size = average_class_size,
-        average_student_teacher_ratio = 20,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
+        average_student_teacher_ratio = 30,  # DM: note that this parameter will overide the average class size parameter when school mixing types are something other than random or undefined (which defaults to random) --- method refactor work for schools will clarify these relationships
         with_school_types = 1,
         school_mixing_type = 'age_and_class_clustered',
     )
@@ -59,6 +59,9 @@ def test_average_class_size(average_class_size, do_show, do_save, get_fig_dir, q
     elif pop.school_pars.with_school_types and pop.school_pars.school_mixing_type == 'age_and_class_clustered':
 
         counts.extend(contacts['sc_student']['sc_student'])
+
+        if pop.school_pars.average_class_size < pop.school_pars.average_student_teacher_ratio:
+            average_class_size = pop.school_pars.average_student_teacher_ratio
         # print('here', collections.Counter(counts))
 
     sp.check_poisson(actual=counts, expected=average_class_size, label='average_class_size', check='dist')
@@ -231,7 +234,7 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
 
 if __name__ == "__main__":
     # pytest.main(['-vs', __file__])
-    average_class_size = 30
+    average_class_size = 40
     do_show = 1
     do_save = 0
     test_average_class_size(average_class_size, do_show, do_save, get_fig_dir)

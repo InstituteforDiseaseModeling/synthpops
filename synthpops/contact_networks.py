@@ -95,6 +95,16 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         school_mixing_type_dic = sc.dcp(school_mixing_type)
         school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
 
+    age_and_class_clustered_flag = False
+    for school_type in school_mixing_type_dic:
+        if school_mixing_type_dic[school_type] == 'age_and_class_clustered':
+            age_and_class_clustered_flag = True
+
+    if age_and_class_clustered_flag:
+        # log.info("Schools with mixing type 'age_and_class_clustered' will use the average_student_teacher_ratio for the average classroom size.")
+        if average_class_size < average_student_teacher_ratio:
+            log.info(f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}.\n Schools with mixing type 'age_and_class_clustered' will use the larger of the average_class_size and the average_student_teacher_ratio.")
+
     uids = age_by_uid_dic.keys()
     uids = [uid for uid in uids]
 
