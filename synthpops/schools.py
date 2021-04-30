@@ -164,11 +164,10 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
             size = len(potential_student_ages)
             school_age_count = {a: ages_in_school_count[a] for a in school_type_age_range}
             other_schools = [ns for ns in range(len(syn_schools)) if syn_school_types[ns] == school_type]
-            log.debug(f"other schools to merge with {other_schools}")
+            log.info(f"other schools to merge with {other_schools} {school_type} {size} {school_size_brackets[0][0]}")
 
             # school is too small, try to merge it without another school of the same type
-            if size < school_size_brackets[0][0] & len(other_schools):
-
+            if (size < school_size_brackets[0][0]) & (len(other_schools) > 0):
                 log.debug(f'School size ({size+1}) smaller than minimum school size {school_size_brackets[0][0]}. Will try now to merge with another school of the same type already made.')
 
                 # another random school of the same type
@@ -490,7 +489,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
             ng = spsamp.fast_choice(np.ones(len(groups)))  # choose one of the other classes to add to
             groups[ng].append(i)
 
-    if return_edges:
+    if return_edges: # pragma: no cover
         for ng in range(len(groups)):
             group = groups[ng]
             Gn = nx.complete_graph(len(group))
@@ -500,7 +499,7 @@ def generate_clustered_classes_by_grade_in_school(syn_school_uids, syn_school_ag
                 node_j = group[j]
                 G.add_edge(node_i, node_j)
 
-    if logging.getLevelName(log.level)=='DEBUG':
+    if logging.getLevelName(log.level)=='DEBUG': # pragma: no cover
         if return_edges:
             ecount = np.zeros((len(age_keys), len(age_keys)))
             for e in G.edges():

@@ -21,7 +21,7 @@ from setup_e2e import get_fig_dir
 
 pars = dict(
     n                       = 15e3,
-    rand_seed               = 1,
+    rand_seed               = 123,
     with_non_teaching_staff = 1
 )
 
@@ -239,11 +239,11 @@ def get_teacher_staff_ratio(popdict, varname, varvalue, do_show, do_save, fig_di
 
 
 if __name__ == "__main__":
-    pytest.main(['-vs', __file__])
+    # pytest.main(['-vs', __file__])
 
     # # run an example in main and plot!
-    # average_class_size = 30
-    # school_mixing_type = 'random'
-    # do_show = 1
-    # do_save = 0
-    # test_average_class_size(average_class_size, school_mixing_type, do_show, do_save, get_fig_dir)
+    average_class_size = 30
+    school_mixing_type = 'random'
+    do_show = 1
+    do_save = 0
+    test_average_class_size(average_class_size, school_mixing_type, do_show, do_save, get_fig_dir)

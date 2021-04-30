@@ -15,7 +15,7 @@ mplt.use('Agg')
 
 
 pars = sc.objdict(
-    n                       = settings.pop_sizes.medium,
+    n                       = settings.pop_sizes.small_medium,
     rand_seed               = 123,
     smooth_ages             = 1,
 
