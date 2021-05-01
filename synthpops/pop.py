@@ -6,17 +6,17 @@ import numpy as np
 import sciris as sc
 from .config import logger as log
 from . import version as spv
+from . import defaults
+from . import base as spb
 from . import config as cfg
 from . import sampling as spsamp
-from . import base as spb
 from . import data_distributions as spdata
-from . import contact_networks as spcnx
 from . import ltcfs as spltcf
 from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
+from . import contact_networks as spcnx
 from . import plotting as sppl
-from . import defaults
 
 
 __all__ = ['Pop', 'make_population', 'generate_synthetic_population']
