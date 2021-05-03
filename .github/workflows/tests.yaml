@@ -39,7 +39,7 @@ jobs:
         if: failure()
         with:
           name: report
-          path: tests/unittests/regression/report/
+          path: tests/regression/report/
       - name: Create coverage report
         id: cv
         working-directory: ./tests

@@ -121,15 +121,33 @@ class Pop(sc.prettyobj):
         self.ltcf_pars          = sc.objdict()
 
         # General parameters
-        self.n                                           = int(n)
-        self.max_contacts                                = sc.mergedicts({'W': 20}, max_contacts)
-        self.with_industry_code                          = with_industry_code
-        self.rand_seed                                   = rand_seed
-        self.country_location                            = country_location
-        self.state_location                              = state_location
-        self.location                                    = location
-        self.sheet_name                                  = sheet_name
-        self.use_default                                 = use_default
+        # <<<<<<< HEAD
+        # self.n                                           = int(n)
+        # self.max_contacts                                = sc.mergedicts({'W': 20}, max_contacts)
+        # self.with_industry_code                          = with_industry_code
+        # self.rand_seed                                   = rand_seed
+        # self.country_location                            = country_location
+        # self.state_location                              = state_location
+        # self.location                                    = location
+        # self.sheet_name                                  = sheet_name
+        # self.use_default                                 = use_default
+        # =======
+        if n is None:
+            log.warning(f"Pop size n not given, generating a population with a default size of {defaults.default_pop_size} people.")
+            n = defaults.default_pop_size
+        elif n < defaults.default_pop_size:
+            log.warning(f"Pop size n: {n} is too small for synthpops to make contact networks that statistically represent real world populations. Resultant networks may not look realistic.")
+
+        self.n                  = int(n)
+        self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
+        self.with_industry_code = with_industry_code
+        self.rand_seed          = rand_seed
+        self.country_location   = country_location
+        self.state_location     = state_location
+        self.location           = location
+        self.sheet_name         = sheet_name
+        self.use_default        = use_default
+        # >>>>>>> master
 
         # Age distribution parameters
         self.smooth_ages                                 = smooth_ages
@@ -1012,7 +1030,7 @@ class Pop(sc.prettyobj):
             different people types in the layer. See
             sp.contact_networks.get_contact_counts_by_layer() for method details.
         """
-        return spcnx.get_contact_counts_by_layer(self.popdict, layer)
+        return spcnx.get_contact_counts_by_layer(self.popdict, layer)[0]
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""

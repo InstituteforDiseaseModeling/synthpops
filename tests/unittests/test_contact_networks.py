@@ -26,13 +26,14 @@ def create_simple_pop(scope="module"):
 
 @pytest.mark.parametrize("layer", ["S", "W", "H","LTCF"])
 def test_get_contact_counts_by_layer(layer, create_simple_pop):
-    result = cn.get_contact_counts_by_layer(create_simple_pop.popdict, layer)
-    assert len(result) > 0
+    contact, contact_by_id = cn.get_contact_counts_by_layer(create_simple_pop.popdict, layer)
+    assert len(contact) > 0
+    assert len(contact_by_id) > 0
     layer_map = {"S": "sc_teacher",
                   "W": "wpid",
                   "H": "hhid",
-                  "LTCF": "snfid"}
-    assert len(result.get(layer_map[layer])) > 0
+                  "LTCF": "snf_res"}
+    assert len(contact.get(layer_map[layer])) > 0
 
 if __name__ == '__main__':
 

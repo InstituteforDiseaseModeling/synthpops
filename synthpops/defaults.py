@@ -5,6 +5,9 @@ import numpy as np
 import sciris as sc
 import os
 
+
+default_pop_size = 200
+
 # specify default valid probability distributions - users can easily supply
 # their own list if interested in other properties
 valid_probability_distributions = [
