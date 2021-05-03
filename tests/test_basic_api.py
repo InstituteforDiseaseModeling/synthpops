@@ -9,6 +9,8 @@ import os
 import sciris as sc
 import synthpops as sp
 import settings
+import pytest
+import logging
 
 regenerate = False
 outfile = 'basic_api.pop'
@@ -43,10 +45,15 @@ def test_pop_n():
     assert pop.n == sp.defaults.default_pop_size, 'Check failed.'
     print('Check passed')
 
+
+def test_small_pop_n(caplog):
     sp.logger.info("Testing when n is small.")
+    test_pars = sc.dcp(pars)
     test_pars['n'] = sp.defaults.default_pop_size - 1
-    pop2 = sp.Pop(**test_pars)
-    assert pop2.n == sp.defaults.default_pop_size - 1, 'Check failed.'
+    with caplog.at_level(logging.WARNING):
+        pop2 = sp.Pop(**test_pars)
+        assert pop2.n == sp.defaults.default_pop_size - 1, 'Check failed.'
+        assert len(caplog.text) != 0, 'Check failed. No warning message about small pop size n.'
     print('Check passed')
 
 

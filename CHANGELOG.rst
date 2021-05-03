@@ -27,7 +27,7 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.5 (2020-04-30)
+Version 1.7.5 (2020-05-03)
 --------------------------
 - ``sp.contact_networks.get_contact_counts_by_layer()`` now returns two dictionaries, one that gives the number of contacts between different roles in settings, like the number of contacts for students to teachers in schools, as well as the number of contacts per group in a setting, for example the number of contacts people have in the workplace with `wpid == 0`.
 - ``sp.sampling.statistic_test()`` with `verbose = True` prints to screen details about the expected and actual distributions when the test fails. 
