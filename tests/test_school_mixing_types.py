@@ -54,19 +54,20 @@ def test_random_schools(average_class_size):
     for c in range(len(g)):
 
         expected_density = sp.get_expected_density(average_class_size, len(g[c].nodes()))
-
-        # expected_density = min(pop.school_pars.average_class_size / len(g[c].nodes()), 1)
+        # for Erdos-Renyi random graphs, expected clustering is approximated by the average degree / number of nodes. Expected clustering is the average of the clustering coefficients over all nodes in the graph, where node i has clustering coefficient: 2 * ei / ki * (ki - 1).
+        expected_clustering = average_class_size / len(g[c].nodes())
+        expected_clustering = min(expected_clustering, 1)
         density = nx.density(g[c])
         clustering = nx.transitivity(g[c])
 
-        lowerbound = 0.85
-        upperbound = 1.15
+        lowerbound = 0.9
+        upperbound = 1.1
         # check overall density of edges is as expected
         assert expected_density * lowerbound < density < expected_density * upperbound, 'Check failed on random graph densities.'
 
         # check that the distribution of edges is random and clustered as expected for a random graph
-        assert expected_density * lowerbound < clustering < expected_density * upperbound, f'Check failed on random graph clustering. {clustering} {density} {expected_density} {np.mean([g[c].degree(n) for n in g[c].nodes()])}'
-        print(f"Check passed. School {c} with random mixing has clustering {clustering:.3f} and density {density:.3f} close to expected value {expected_density:.3f}.")
+        assert expected_clustering * lowerbound < clustering < expected_clustering * upperbound, f'Check failed on random graph clustering. {clustering} {density} {expected_density}, {expected_clustering} {np.mean([g[c].degree(n) for n in g[c].nodes()])}'
+        print(f"Check passed. School {c} with random mixing has clustering {clustering:.3f} and density {density:.3f} close to expected values {expected_density:.3f}, {expected_clustering:.3f}.")
 
 
 if __name__ == '__main__':
