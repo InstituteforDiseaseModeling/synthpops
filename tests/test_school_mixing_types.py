@@ -53,12 +53,14 @@ def test_random_schools(average_class_size):
 
     for c in range(len(g)):
 
-        expected_density = min(pop.school_pars.average_class_size / len(g[c].nodes()), 1)
+        expected_density = sp.get_expected_density(average_class_size, len(g[c].nodes()))
+
+        # expected_density = min(pop.school_pars.average_class_size / len(g[c].nodes()), 1)
         density = nx.density(g[c])
         clustering = nx.transitivity(g[c])
 
-        lowerbound = 0.9
-        upperbound = 1.1
+        lowerbound = 0.85
+        upperbound = 1.15
         # check overall density of edges is as expected
         assert expected_density * lowerbound < density < expected_density * upperbound, 'Check failed on random graph densities.'
 
