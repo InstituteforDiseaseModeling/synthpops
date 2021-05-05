@@ -245,7 +245,7 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
         for uid in popdict.keys():
             for c in popdict[uid]['contacts']['W']:
                 popdict[c]['contacts']['W'].add(uid)
-    else:
+    else: # pragma: no cover
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
@@ -465,7 +465,6 @@ def get_contact_counts_by_layer(popdict,
     return contact_counter, contacts_counter_by_id
 
 
-
 def filter_people(pop, ages=None, uids=None):
     """
     Helper function to filter people based on their uid and age.
@@ -553,3 +552,26 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
 
     d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d
+
+
+def get_expected_density(average_degree, n_nodes):
+    """
+    Calculate the expected density of an undirected graph with no self-loops
+    given graph properties. The expected density of an undirected graph with
+    no self-loops is defined as the number of edges as a fraction of the
+    number of maximal edges possible.
+
+    Reference: Newman, M. E. J. (2010). Networks: An Introduction (pp 134-135).
+    Oxford University Press.
+
+    Args:
+        average_degree (float) : average expected degree
+        n_nodes (int) : number of nodes in the graph
+
+    Returns:
+        float: The expected graph density.
+    """
+    E = n_nodes * average_degree / 2
+    Emax = n_nodes * (n_nodes - 1) / 2
+    density = min(E / Emax, 1)  # capture when the average density is greater than the number of nodes - 1
+    return density

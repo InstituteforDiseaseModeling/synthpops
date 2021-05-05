@@ -9,7 +9,7 @@ import pytest
 @pytest.fixture
 def create_simple_pop(scope="module"):
     pars = sc.objdict(
-        n=5e+3,
+        n=5e3,
         rand_seed=1,
         country_location='usa',
         state_location='Washington',

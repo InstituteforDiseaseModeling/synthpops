@@ -39,7 +39,7 @@ def test_age_and_class_clustered(do_show=False):
     Returns:
         None
     """
-    pop = sp.Pop(n=20000, **pars)
+    pop = sp.Pop(n=15000, **pars)
     # create AgeClassClusteredSchool class objects from population
     # and check if there is overlapping for teachers/students
     schools = form_classes(pop.popdict, ['pk', 'es', 'ms'])
