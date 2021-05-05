@@ -738,7 +738,7 @@ class Pop(sc.prettyobj):
         """
         return spb.count_values(self.information.workplace_sizes)
 
-    def get_contact_counts_by_layer(self, layer='S'):
+    def get_contact_counts_by_layer(self, layer='S', **kwargs):
         """
         Get the number of contacts by layer.
 
@@ -747,7 +747,7 @@ class Pop(sc.prettyobj):
             different people types in the layer. See
             sp.contact_networks.get_contact_counts_by_layer() for method details.
         """
-        return spcnx.get_contact_counts_by_layer(self.popdict, layer)[0]
+        return spcnx.get_contact_counts_by_layer(self.popdict, layer, **kwargs)
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
