@@ -27,7 +27,7 @@ Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.8.0 (2021-05-03)
+Version 1.8.0 (2021-05-05)
 --------------------------
 - *Feature*: Class structure implemented for each layer (households, schools, workplaces, and long term care facilities). For example, now you can do ``pop.get_household(i)`` to get the household with integer ``hhid`` with value ``i`` which will be a ```sp.Household`` object with at minimum the attributes ``hhid``, ``member_uids``, ``member_ages``, ``reference_uid``, and ``reference_age``.
 - Methods also added to ``sp.populate_households()``, ``sp.set_household()``, ``sp.add_household()``, ``sp.get_household()`` in ``sp.households.py``
@@ -36,11 +36,18 @@ Version 1.8.0 (2021-05-03)
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Versions 1.7.x (1.7.0 – 1.7.5)
+Versions 1.7.x (1.7.0 – 1.7.6)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.5 (2020-05-03)
+Version 1.7.6 (2021-05-05)
+--------------------------
+- Updated random graph model to use networkx's fast Erdos-Renyi graph generator implementation, which speeds up generation time for the model.
+- *Regression Information*: The fast Erdos Renyi graph implementation changes the edges chosen, though not the statistical properties of the degree distribution.
+- *Github*: PRs: `449 <https://github.com/amath-idm/synthpops/pull/449>`__
+
+
+Version 1.7.5 (2021-05-03)
 --------------------------
 - ``sp.contact_networks.get_contact_counts_by_layer()`` now returns two dictionaries, one that gives the number of contacts between different roles in settings, like the number of contacts for students to teachers in schools, as well as the number of contacts per group in a setting, for example the number of contacts people have in the workplace with `wpid == 0`.
 - ``sp.sampling.statistic_test()`` with `verbose = True` prints to screen details about the expected and actual distributions when the test fails. 
@@ -48,7 +55,7 @@ Version 1.7.5 (2020-05-03)
 - *Github*: PRs `435 <https://github.com/amath-idm/synthpops/pull/435>`__, `448 <https://github.com/amath-idm/synthpops/pull/448>`__
 
 
-Version 1.7.4 (2020-04-21)
+Version 1.7.4 (2021-04-21)
 --------------------------
 - *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
 - Also added is ``pop.summarize()`` which will print to screen and return a string of a brief description of the population generated using SynthPops.

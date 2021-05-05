@@ -13,7 +13,7 @@ import settings
 
 # parameters to generate a test population
 pars = sc.objdict(
-        n                               = settings.pop_sizes.small_medium,
+        n                               = settings.pop_sizes.small,
         rand_seed                       = 123,
         with_non_teaching_staff         = 1,
 

@@ -54,7 +54,7 @@ def test_alternatives():
 
 def test_api(do_plot=False):
     ''' More examples of basic API usage '''
-    pop = sp.Pop(n=settings.pop_sizes.medium)  # default parameters, 8k people
+    pop = sp.Pop(n=settings.pop_sizes.small)  # default parameters, 8k people
     pop.save('test_api.pop')  # save as pickle
     pop.to_json('test_api.json')  # save as JSON
 

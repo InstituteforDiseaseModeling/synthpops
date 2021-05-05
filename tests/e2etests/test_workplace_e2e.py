@@ -80,7 +80,7 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
     for i in group_size_contacts:
         plotting_kwargs["title_prefix"] = i
         plotting_kwargs["figname"] = file_pattern.sub("_", i)
-        check_truncated_poisson(testdata=group_size_contacts[i],
+        sp.check_truncated_poisson(testdata=group_size_contacts[i],
                                 mu=max_contacts,
                                 lowerbound=max_contacts // 2,
                                 skipcheck=True if "small" in i else True,
@@ -94,7 +94,7 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     max_w_size = int(max_contacts['W'] // 2)
     wsize_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
     wsize_index = sp.get_index_by_brackets_dic(wsize_brackets)
-    contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w")
+    contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w", with_layer_ids=True)
 
     wpids = sorted(contacts_by_id.keys())
 
@@ -123,12 +123,14 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             # degree distribution for an ER random graph follows a binomial distribution that is truncated
             # to the max size N. When N is large this approximates the poisson distribution. Perhaps our
             # test could look at the zero-N truncated binomial distribution
-            G = nx.erdos_renyi_graph(N, p, seed=0)
+            # G = nx.erdos_renyi_graph(N, p, seed=0)
+            G = nx.fast_gnp_random_graph(N, p, seed=0)
             degree = [G.degree(i) for i in G.nodes()]
 
             # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
+            # check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
             runs +=1
-            result = check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1, skipcheck=0, do_show=0)
+            result = sp.check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1, skipcheck=0, do_show=0)
             passed += int(result)
             if not result:
                 failedsize.append(wsize_index[wsize])
@@ -166,50 +168,51 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     create_sample_pop_e2e.plot_employment_rates_by_age(**plotting_kwargs)
 
 
-def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skipcheck=False, **kwargs):
-    """
-    test if data fits in truncated poisson distribution between upperbound and lowerbound using kstest
-    Args:
-        testdata (array) : data to be tested
-        mu (float) : expected mean for the poisson distribution
-        lowerbound (float) : lowerbound for truncation
-        upperbound (float) : upperbound for truncation
+# def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skipcheck=False, **kwargs):
+#     """
+#     test if data fits in truncated poisson distribution between upperbound and lowerbound using kstest
+#     Args:
+#         testdata (array) : data to be tested
+#         mu (float) : expected mean for the poisson distribution
+#         lowerbound (float) : lowerbound for truncation
+#         upperbound (float) : upperbound for truncation
 
-    Returns:
-        (bool) return True if statistic check passed, else return False
-    """
-    sample_size = len(testdata)
-    # need to exclude any value below or equal to lowerbound and any value above or equal to upperbound, so we first find the quantile location for
-    # lowerbound and upperbound then only generate poisson cdf values in between these 2 locations
-    minquantile = st.poisson.cdf(lowerbound, mu=mu) if lowerbound else 0
-    maxquantile = st.poisson.cdf(upperbound, mu=mu) if upperbound else 1
-    # create uniformly distributed number between minquantile and maxquantile (in the cdf quantile space)
-    q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
-    # use percent point function to get inverse of cdf
-    expected_data = st.poisson.ppf(q=q, mu=mu)
-    result = True
-    if not skipcheck:
-        try:
-            sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True, die=True)
-            result = True
-        except ValueError as e:
-            if 'reject the hypothesis' in str(e):
-                result = False
-            else:
-                raise Exception(e)
+#     Returns:
+#         (bool) return True if statistic check passed, else return False
+#     """
+#     sample_size = len(testdata)
+#     # need to exclude any value below or equal to lowerbound and any value above or equal to upperbound, so we first find the quantile location for
+#     # lowerbound and upperbound then only generate poisson cdf values in between these 2 locations
+#     minquantile = st.poisson.cdf(lowerbound, mu=mu) if lowerbound else 0
+#     maxquantile = st.poisson.cdf(upperbound, mu=mu) if upperbound else 1
+#     # create uniformly distributed number between minquantile and maxquantile (in the cdf quantile space)
+#     q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
+#     # use percent point function to get inverse of cdf
+#     expected_data = st.poisson.ppf(q=q, mu=mu)
+#     result = True
+#     if not skipcheck:
+#         try:
+#             sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True, die=True)
+#             result = True
+#         except ValueError as e:
+#             if 'reject the hypothesis' in str(e):
+#                 result = False
+#             else:
+#                 raise Exception(e)
 
-    #plot comparison
-    bins_count = int(min(10, max(expected_data)-min(expected_data)+1))
-    print(f"bins:{bins_count}")
-    expected, bins = np.histogram(expected_data, bins=bins_count)
-    actual = np.histogram(testdata, bins=bins)[0]
-    kwargs["generated"] = actual
-    #merge 11 bins to 10 for bar plot align at center
-    merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
-    kwargs["xvalue"] = merged_bins
-    if kwargs["do_show"]:
-        sp.plot_array(expected, **kwargs)
-    return result
+#     #plot comparison
+#     bins_count = int(min(10, max(expected_data)-min(expected_data)+1))
+#     print(f"bins:{bins_count}")
+
+#     expected, bins = np.histogram(expected_data, bins=bins_count)
+#     actual = np.histogram(testdata, bins=bins)[0]
+#     kwargs["generated"] = actual
+#     #merge 11 bins to 10 for bar plot align at center
+#     merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
+#     kwargs["xvalue"] = merged_bins
+#     if kwargs["do_show"]:
+#         sp.plot_array(expected, **kwargs)
+#     return result
 
 
 if __name__ == "__main__":
@@ -218,10 +221,8 @@ if __name__ == "__main__":
     # testcase = 'test_employment_age_distribution'
     # testcase = 'test_work_size_distribution'
     # testcase = 'test_workplace_contact_distribution'
-    # testcase = 'test_workplace_contact_distribution_2'
-    # pytest.main(['-v', '-k', testcase, '--do-show'])
+    testcase = 'test_workplace_contact_distribution_2'
+    pytest.main(['-v', '-k', testcase, '--do-show'])
 
-    pop = sp.Pop(n=20e3)
-    test_workplace_contact_distribution_2(pop)
-
-
+    # pop = sp.Pop(n=20e3)
+    # test_workplace_contact_distribution_2(pop)

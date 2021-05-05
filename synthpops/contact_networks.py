@@ -244,25 +244,22 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
-        max_W_size = int(max_contacts['W'] // 2)  # Divide by 2 since bi-directional contacts get added in later
 
-        # Loop over workplaces but only generate the requested contacts
+        average_degree = max_contacts['W']
         for nw, workplace in enumerate(workplaces_by_uids):
-            for uid in workplace:
-                uids = set(workplace)
-                uids.remove(uid)
-                if len(uids) > max_W_size:
-                    uids = np.random.choice(list(uids), size=max_W_size, replace=False)
-                popdict[uid]['contacts']['W'] = set(uids)
+            uids = np.array(workplace)
+
+            G = random_graph_model(uids, average_degree)  # undirected graph
+            for u, uid in enumerate(workplace):
+                v = list(G.neighbors(u))
+
+                popdict[uid]['contacts']['W'] = set(uids[v])
+                popdict[uid]['contacts']['W'].discard(uid)  # this shouldn't be needed
                 popdict[uid]['wpid'] = nw
                 if workplaces_by_industry_codes is not None:
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
-        # Add pairing contacts back in
-        for uid in popdict.keys():
-            for c in popdict[uid]['contacts']['W']:
-                popdict[c]['contacts']['W'].add(uid)
-    else:
+    else: # pragma: no cover
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
@@ -398,8 +395,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     return popdict
 
 
-def get_contact_counts_by_layer(popdict,
-                                layer='S'):
+def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
     """
     Method to count the number of contacts for individuals in the population
     based on their role in a layer and the role of their contacts. For example,
@@ -413,19 +409,20 @@ def get_contact_counts_by_layer(popdict,
     sc_staff, and all is all kinds of people in schools.
 
     Args:
-        popdict (dict)  : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
-        layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        popdict (dict)        : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        layer (str)           : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        with_layer_ids (bool) : If True, return additional dictionary on contacts by layer group id
 
     Returns:
-        Tuple:
-        First element is a dictionary with keys = people_types (default to ['sc_student',
-        'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
-        the list of counts for each type of contact: default to ['sc_student',
-        'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
-        contact_counter['sc_teacher']['sc_teacher'] store the counts of each
-        teacher's contacts or edges to other teachers.
-        Second element is a dictionary with keys = layer_id (for example: scid, wpid...),
-        and value is list of contact contacts.
+        If with_layer_ids is False: A dictionary with keys = people_types
+        (default to ['sc_student', 'sc_teacher', 'sc_staff']) and each value is
+        a dictionary which stores the list of counts for each type of contact:
+        default to ['sc_student', 'sc_teacher', 'sc_staff', 'all_staff', 'all']
+        for example: contact_counter['sc_teacher']['sc_teacher'] store the
+        counts of each teacher's contacts or edges to other teachers. If
+        with_layer_ids is True: additionally return a dictionary with keys =
+        layer_id (for example: scid, wpid...), and value is list of contact
+        contacts.
 
     """
     layer = layer.upper()
@@ -471,16 +468,25 @@ def get_contact_counts_by_layer(popdict,
                              len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
-            contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
-            for k1 in people_types:
-                # if this person does not belong to a particular key, we don't need to store the counts under this key
-                if person.get(k1) is not None:
-                    #store the count per counter types
-                    for k2 in contact_types:
-                        index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                    contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
-    return contact_counter, contacts_counter_by_id
+            if with_layer_ids:
+                contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
+                for k1 in people_types:
+                    # if this person does not belong to a particular key, we don't need to store the counts under this key
+                    if person.get(k1) is not None:
+                        # store sc_teacher, sc_student, sc_staff, all_staff and all below
+                        if layer == "S":
+                            for k2 in people_types:
+                                index_switcher.get(k1)[k2].append(count_switcher.get(k2))
+                            index_switcher.get(k1)["all_staff"].append(
+                                count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                        # for other types, only all contacts are stored
+                        index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
+                    contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
+    if with_layer_ids:
+        return contact_counter, contacts_counter_by_id
+    else:
+        return contact_counter
 
 
 def filter_people(pop, ages=None, uids=None):
@@ -568,3 +574,53 @@ def compute_layer_degree_description(pop, layer='H', ages=None, uids=None, uids_
 
     d = degree_df.groupby('age')['degree'].describe(percentiles=percentiles)
     return d
+
+
+def random_graph_model(uids, average_degree, seed=None):
+    """
+    Generate edges for a group of individuals given their ids from an Erdos-Renyi
+    random graph model given the expected average degree.
+
+    Args:
+        uids (list, np.ndarray) : a list or array of the ids of people in the graph
+        average_degree (float)  : the average degree in the generated graph
+
+    Returns:
+        nx.Graph : Fast implementation of the Erdos-Renyi random graph model.
+    """
+    N = len(uids)
+    if N == 0:
+        raise ValueError(f"Expected uids to a non-empty list or array. Instead, the length of uids is {len(uids)}.")
+
+    if average_degree >= N:
+        log.debug(f"Desired average degree is greater than or equal to the number of nodes. This method does not support multi-edges; returning a fully connected graph.")
+        G = nx.complete_graph(N)
+
+    else:
+        p = average_degree / N
+        G = nx.fast_gnp_random_graph(N, p, seed=seed)
+
+    return G
+
+
+def get_expected_density(average_degree, n_nodes):
+    """
+    Calculate the expected density of an undirected graph with no self-loops
+    given graph properties. The expected density of an undirected graph with
+    no self-loops is defined as the number of edges as a fraction of the
+    number of maximal edges possible.
+
+    Reference: Newman, M. E. J. (2010). Networks: An Introduction (pp 134-135).
+    Oxford University Press.
+
+    Args:
+        average_degree (float) : average expected degree
+        n_nodes (int) : number of nodes in the graph
+
+    Returns:
+        float: The expected graph density.
+    """
+    E = n_nodes * average_degree / 2
+    Emax = n_nodes * (n_nodes - 1) / 2
+    density = min(E / Emax, 1)  # capture when the average density is greater than the number of nodes - 1
+    return density

@@ -19,6 +19,7 @@ from setup_regression import regression_run, regression_validate, get_regression
 regenerate = False
 # regenerate = True
 
+
 def test_regression_make_population(get_regression_dir, create_default_pop, regression_run, regression_validate):
     pop = create_default_pop
     for layer in pop.layers:

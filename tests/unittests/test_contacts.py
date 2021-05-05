@@ -214,7 +214,7 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
     return popdict
 
 
-def test_make_population(location='seattle_metro', state_location='Washington', n=10000):
+def test_make_population(location='seattle_metro', state_location='Washington', n=5000):
     contacts = sp.make_population(datadir=datadir, location=location, state_location=state_location,
                                   country_location=country_location, n=n, with_industry_code=False)
     uids = contacts.keys()
