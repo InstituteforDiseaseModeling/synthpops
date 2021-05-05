@@ -8,7 +8,7 @@ import pytest
 
 # parameters to generate a test population
 pars = sc.objdict(
-        n                               = settings.pop_sizes.small_medium,
+        n                               = settings.pop_sizes.small,
         rand_seed                       = 123,
 
         with_facilities                 = 1,
@@ -20,7 +20,7 @@ pars = sc.objdict(
 )
 
 
-@pytest.mark.parametrize("average_class_size", [12, 20, 30, 50, 100])
+@pytest.mark.parametrize("average_class_size", [12, 25, 70])
 def test_random_schools(average_class_size):
     """
     There is a lower bound to the average_class_size and how well clustering

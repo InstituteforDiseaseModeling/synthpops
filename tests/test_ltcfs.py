@@ -13,7 +13,7 @@ import settings
 
 
 pars = sc.objdict(
-            n                       = settings.pop_sizes.medium_large,
+            n                       = settings.pop_sizes.medium,
             rand_seed               = 123,
 
             with_facilities         = 1,

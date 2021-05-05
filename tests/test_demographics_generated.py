@@ -9,7 +9,7 @@ import settings
 
 # parameters to generate a test population
 pars = sc.objdict(
-    n                  = settings.pop_sizes.medium_large,
+    n                  = settings.pop_sizes.medium,
     rand_seed          = 123,
 
     country_location   = 'usa',
