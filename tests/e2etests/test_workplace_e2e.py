@@ -80,7 +80,7 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
     for i in group_size_contacts:
         plotting_kwargs["title_prefix"] = i
         plotting_kwargs["figname"] = file_pattern.sub("_", i)
-        check_truncated_poisson(testdata=group_size_contacts[i],
+        sp.check_truncated_poisson(testdata=group_size_contacts[i],
                                 mu=max_contacts,
                                 lowerbound=max_contacts // 2,
                                 skipcheck=True if "small" in i else True,
@@ -94,7 +94,7 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     max_w_size = int(max_contacts['W'] // 2)
     wsize_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
     wsize_index = sp.get_index_by_brackets_dic(wsize_brackets)
-    contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w")
+    contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w", with_layer_ids=True)
 
     wpids = sorted(contacts_by_id.keys())
 

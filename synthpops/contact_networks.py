@@ -392,19 +392,20 @@ def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
     sc_staff, and all is all kinds of people in schools.
 
     Args:
-        popdict (dict)  : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
-        layer (str)     : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        popdict (dict)        : popdict of a Pop object, Dictionary keys are the IDs of individuals in the population and the values are a dictionary
+        layer (str)           : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
+        with_layer_ids (bool) : If True, return additional dictionary on contacts by layer group id
 
     Returns:
-        Tuple:
-        First element is a dictionary with keys = people_types (default to ['sc_student',
-        'sc_teacher', 'sc_staff']) and each value is a dictionary which stores
-        the list of counts for each type of contact: default to ['sc_student',
-        'sc_teacher', 'sc_staff', 'all_staff', 'all'] for example:
-        contact_counter['sc_teacher']['sc_teacher'] store the counts of each
-        teacher's contacts or edges to other teachers.
-        Second element is a dictionary with keys = layer_id (for example: scid, wpid...),
-        and value is list of contact contacts.
+        If with_layer_ids is False: A dictionary with keys = people_types
+        (default to ['sc_student', 'sc_teacher', 'sc_staff']) and each value is
+        a dictionary which stores the list of counts for each type of contact:
+        default to ['sc_student', 'sc_teacher', 'sc_staff', 'all_staff', 'all']
+        for example: contact_counter['sc_teacher']['sc_teacher'] store the
+        counts of each teacher's contacts or edges to other teachers. If
+        with_layer_ids is True: additionally return a dictionary with keys =
+        layer_id (for example: scid, wpid...), and value is list of contact
+        contacts.
 
     """
     layer = layer.upper()
