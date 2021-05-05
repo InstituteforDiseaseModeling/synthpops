@@ -378,8 +378,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     return popdict
 
 
-def get_contact_counts_by_layer(popdict,
-                                layer='S'):
+def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
     """
     Method to count the number of contacts for individuals in the population
     based on their role in a layer and the role of their contacts. For example,
@@ -451,21 +450,25 @@ def get_contact_counts_by_layer(popdict,
                              len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
-            contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
-            for k1 in people_types:
-                # if this person does not belong to a particular key, we don't need to store the counts under this key
-                if person.get(k1) is not None:
-                    # store sc_teacher, sc_student, sc_staff, all_staff and all below
-                    if layer == "S":
-                        for k2 in people_types:
-                            index_switcher.get(k1)[k2].append(count_switcher.get(k2))
-                        index_switcher.get(k1)["all_staff"].append(
-                            count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
-                    # for other types, only all contacts are stored
-                    index_switcher.get(k1)["all"].append(count_switcher.get('all'))
+            if with_layer_ids:
+                contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
+                for k1 in people_types:
+                    # if this person does not belong to a particular key, we don't need to store the counts under this key
+                    if person.get(k1) is not None:
+                        # store sc_teacher, sc_student, sc_staff, all_staff and all below
+                        if layer == "S":
+                            for k2 in people_types:
+                                index_switcher.get(k1)[k2].append(count_switcher.get(k2))
+                            index_switcher.get(k1)["all_staff"].append(
+                                count_switcher.get('sc_teacher') + count_switcher.get('sc_staff'))
+                        # for other types, only all contacts are stored
+                        index_switcher.get(k1)["all"].append(count_switcher.get('all'))
 
                     contacts_counter_by_id[person[layer_keys[layer]]].append(count_switcher.get('all'))
-    return contact_counter, contacts_counter_by_id
+    if with_layer_ids:
+        return contact_counter, contacts_counter_by_id
+    else:
+        return contact_counter
 
 
 def filter_people(pop, ages=None, uids=None):
