@@ -9,7 +9,7 @@ import pytest
 @pytest.fixture
 def create_simple_pop(scope="module"):
     pars = sc.objdict(
-        n=5e+3,
+        n=5e3,
         rand_seed=1,
         country_location='usa',
         state_location='Washington',
@@ -32,7 +32,7 @@ def test_get_contact_counts_by_layer(layer, create_simple_pop):
     layer_map = {"S": "sc_teacher",
                   "W": "wpid",
                   "H": "hhid",
-                  "LTCF": "snfid"}
+                  "LTCF": "snf_res"}
     assert len(contact.get(layer_map[layer])) > 0
 
 if __name__ == '__main__':

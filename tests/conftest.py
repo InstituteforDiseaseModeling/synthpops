@@ -1,6 +1,8 @@
 # allow pytest to run with --do_save --do_show --artifact parameter
 # see https://docs.pytest.org/en/stable/example/parametrize.html
 import pytest
+import sciris as sc
+import synthpops as sp
 
 def pytest_addoption(parser):
     parser.addoption("--do-save", action="store_true", help="save all images produced by tests")
@@ -40,3 +42,11 @@ def artifact_dir(request):
 #         metafunc.parametrize("do_show",  metafunc.config.option.do_show)
 #     if 'artifact_dir' in metafunc.fixturenames and metafunc.config.getoption("artifact_dir"):
 #         metafunc.parametrize("artifact_dir", metafunc.config.option.artifact_dir)
+
+@pytest.fixture(scope='session')
+def create_default_pop():
+    pars = sc.objdict(
+        n=20001,
+        rand_seed=1001,
+        with_non_teaching_staff=True)
+    return sp.Pop(**pars)

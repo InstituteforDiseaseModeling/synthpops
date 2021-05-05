@@ -237,12 +237,12 @@ def make_contacts_from_microstructure_objects(age_by_uid_dic,
                 v = list(G.neighbors(u))
 
                 popdict[uid]['contacts']['W'] = set(uids[v])
-                popdict[uid]['contacts']['W'].discard(uid)
+                popdict[uid]['contacts']['W'].discard(uid)  # this shouldn't be needed
                 popdict[uid]['wpid'] = nw
                 if workplaces_by_industry_codes is not None:
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
-    else:
+    else: # pragma: no cover
         for nw, workplace in enumerate(workplaces_by_uids):
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
@@ -409,32 +409,34 @@ def get_contact_counts_by_layer(popdict,
 
     """
     layer = layer.upper()
+    # layer keys are used to identify the people in that layer
     layer_keys = {"S": "scid",
                   "W": "wpid",
                   "H": "hhid",
                   "LTCF": "snfid"}
 
+    # for all layers, 'all' contact_types will store counts for all contacts but
+    # based on each different layer, there can be more contact_types for example in school layer,
+    # there is sc_student, sc_staff etc
     if layer == 'S':
         people_types = ['sc_student', 'sc_teacher', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
-        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
-                           dict.fromkeys(people_types)}
-        # index_switcher is a case-switch selector for the person selected by its type
-        index_switcher = {
-            'sc_student': contact_counter['sc_student'],
-            'sc_teacher': contact_counter['sc_teacher'],
-            'sc_staff': contact_counter['sc_staff']
-        }
-    elif layer in ["W", "H", "LTCF"]:
+    elif layer == "LTCF":
+        people_types = ['snf_res', 'snf_staff']
+        contact_types = people_types + ['all']
+    elif layer in ["W", "H"]:
         people_types = [layer_keys[layer]]
         contact_types = ['all']
-        contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
-                           dict.fromkeys(people_types)}
-        index_switcher = {
-            layer_keys[layer]: contact_counter[layer_keys[layer]]
-        }
     else:
         raise NotImplementedError(f"layer {layer} not supported.")
+
+    # initialize the contact counter between each people type and contact type as empty list
+    contact_counter = {k: dict(zip(contact_types, ([] for _ in contact_types))) for k in
+                       dict.fromkeys(people_types)}
+    # index_switcher is a case-switch selector for the person selected by its type
+    index_switcher = {k: contact_counter[k] for k in people_types}
+
+    # also store all contacts count per layer id in contacts_counter_by_id
     contacts_counter_by_id = dict()
     for uid, person in popdict.items():
         if person[layer_keys[layer]] is not None:
@@ -443,6 +445,10 @@ def get_contact_counts_by_layer(popdict,
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
+                'snf_res' : len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_res']]),
+                'snf_staff': len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_staff']]),
+                'all_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]) +
+                             len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
             contacts_counter_by_id.setdefault(person[layer_keys[layer]], [])
@@ -576,3 +582,26 @@ def random_graph_model(uids, average_degree, seed=None):
         G = nx.fast_gnp_random_graph(N, p, seed=seed)
 
     return G
+
+
+def get_expected_density(average_degree, n_nodes):
+    """
+    Calculate the expected density of an undirected graph with no self-loops
+    given graph properties. The expected density of an undirected graph with
+    no self-loops is defined as the number of edges as a fraction of the
+    number of maximal edges possible.
+
+    Reference: Newman, M. E. J. (2010). Networks: An Introduction (pp 134-135).
+    Oxford University Press.
+
+    Args:
+        average_degree (float) : average expected degree
+        n_nodes (int) : number of nodes in the graph
+
+    Returns:
+        float: The expected graph density.
+    """
+    E = n_nodes * average_degree / 2
+    Emax = n_nodes * (n_nodes - 1) / 2
+    density = min(E / Emax, 1)  # capture when the average density is greater than the number of nodes - 1
+    return density
