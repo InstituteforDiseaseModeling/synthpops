@@ -216,8 +216,8 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        # self.compute_information()  # compute full information
-        # self.compute_summary()  # then compute condensed summary
+        self.compute_information()  # compute full information
+        self.compute_summary()  # then compute condensed summary
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -426,7 +426,8 @@ class Pop(sc.prettyobj):
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
         school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
-
+        print('here', school_types, len(school_types))
+        print('school_uid_lists', len(school_uid_lists))
         # # temporarily store some information
         self.homes_by_uids = homes_by_uids
         self.workplace_uid_lists = workplace_uid_lists
@@ -441,7 +442,7 @@ class Pop(sc.prettyobj):
             self.facilities_staff_uid_lists = facilities_staff_uid_lists
 
         self.set_layer_classes()
-        # self.clean_up_layer_info()
+        self.clean_up_layer_info()
 
         return population
 
@@ -458,7 +459,7 @@ class Pop(sc.prettyobj):
                               self.non_teaching_staff_uid_lists, self.age_by_uid,
                               self.school_types, self.school_mixing_types)
 
-        # self.populate_all_classrooms(self.schools_in_groups)
+        self.populate_all_classrooms(self.schools_in_groups)
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()

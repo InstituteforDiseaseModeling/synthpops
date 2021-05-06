@@ -282,7 +282,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
-    age_by_uid_dic = dict()
+    age_by_uid = dict()
     homes_by_uids = []
 
     for h, home in enumerate(homes):
@@ -290,15 +290,15 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
         home_ids = []
         for a in home:
             if use_int:
-                uid = len(age_by_uid_dic)
+                uid = len(age_by_uid)
             else:
                 uid = sc.uuid(length=id_len)
-            age_by_uid_dic[uid] = int(a)
+            age_by_uid[uid] = int(a)
             home_ids.append(uid)
 
         homes_by_uids.append(home_ids)
 
-    return homes_by_uids, age_by_uid_dic
+    return homes_by_uids, age_by_uid
 
 
 def generate_age_count(n, age_distr):
@@ -552,7 +552,7 @@ def get_household_head_ages_by_size(pop):
     hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
 
     # hha_index use age as key and bracket index as value
-    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
+    hha_index = spb.get_index_by_brackets(hha_brackets)
     uids = get_household_heads(popdict=popdict)
     d = {}
     # construct tables for each houldhold head

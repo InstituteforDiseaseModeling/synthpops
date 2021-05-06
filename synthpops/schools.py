@@ -387,6 +387,9 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
     if school_mixing_types is None:
         school_mixing_types = [None for ns in range(len(student_lists))]
 
+    print(len(student_lists))
+    # print(student_lists)
+
     for ns in range(len(student_lists)):
         students = student_lists[ns]
         teachers = teacher_lists[ns]
@@ -556,9 +559,9 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         new_student_ages.append(aindex)
         new_student_uids.append(uid)
 
-        school_types = sorted(school_types_distr_by_age[aindex].keys())
-        prob = [school_types_distr_by_age[aindex][s] for s in school_types]
-        school_type = np.random.choice(school_types, p=prob, size=1)[0]
+        school_types_possible = sorted(school_types_distr_by_age[aindex].keys())
+        prob = [school_types_distr_by_age[aindex][s] for s in school_types_possible]
+        school_type = np.random.choice(school_types_possible, p=prob, size=1)[0]
         school_type_age_range = school_type_age_ranges[school_type]
 
         school_size_distr = school_size_distr_by_type[school_type]
