@@ -66,16 +66,22 @@ class LayerGroup(dict):
                     errmsg = f"Could not convert key {key} to an np.array() with type int. This key only takes arrays with int values."
                     raise TypeError(errmsg)
             else:
-                if not isinstance(self[key], (int, np.int32, np.int64)):
+                # if not isinstance(self[key], (int, np.int32, np.int64)):
+                if not isinstance(self[key], int):
                     if self[key] is not None:
                         errmsg = f"error: Expected type int or None for {layer_str} key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
 
         return
 
-    def member_ages(self, pop):
+    def member_ages(self, pop, subgroup_member_uids=None):
         """Return the ages of members in the layer group given the pop object."""
-        return pop.age_by_uid[self.member_uids]
+        if subgroup_member_uids is None:
+            return pop.age_by_uid[self.member_uids]
+        else:
+            subgroup_member_uids = sc.tolist(subgroup_member_uids)
+            # elif isinstance(subgroup_member_uids, (list, np.ndarray)):
+            return pop.age_by_uid[subgroup_member_uids]
 
 
 __all__ += ['norm_dic', 'norm_age_group']

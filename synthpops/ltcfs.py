@@ -7,6 +7,7 @@ import numpy as np
 import sciris as sc
 from collections import Counter
 from .config import logger as log, checkmem
+from . import defaults as spd
 from . import sampling as spsamp
 from . import households as sphh
 from . import data_distributions as spdata
@@ -455,7 +456,7 @@ class LongTermCareFacility(spb.LayerGroup):
         kwargs (dict): data dictionary of the long term care facility
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, snfid=None, resident_uids=np.aray([], dtype=int), staff_uids=np.array([], dtype=int), **kwargs):
         """
         Class constructor for empty long term care facility (ltcf).
 
@@ -466,14 +467,14 @@ class LongTermCareFacility(spb.LayerGroup):
             **reference_uid (int) : id of the reference person
             **reference_age (int) : age of the reference person
         """
-        if 'snfid' not in kwargs:
-            kwargs['snfid'] = None
-        for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
-            if key not in kwargs:
-                kwargs[key] = np.array([], dtype=int)
+        # if 'snfid' not in kwargs:
+        #     kwargs['snfid'] = None
+        # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
+        #     if key not in kwargs:
+        #         kwargs[key] = np.array([], dtype=int)
         super().__init__(**kwargs)
-        self.pop('member_uids')
-        self.pop('member_ages')
+        # self.pop('member_uids')
+        # self.pop('member_ages')
         self.validate()
 
         return
@@ -483,20 +484,23 @@ class LongTermCareFacility(spb.LayerGroup):
         Check that information supplied to make a long term care facility is valid and update
         to the correct type if necessary.
         """
-        for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
-            if key in self.keys():
-                try:
-                    self[key] = sc.promotetoarray(self[key], dtype=int)
-                except:
-                    errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
-                    raise TypeError(errmsg)
+        # # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
+        # for key in ['resident_uids', 'staff_uids']:
+        #     if key in self.keys():
+        #         try:
+        #             self[key] = sc.promotetoarray(self[key], dtype=int)
+        #         except:
+        #             errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
+        #             raise TypeError(errmsg)
 
-        for key in ['snfid', 'reference_uid', 'reference_age']:
-            if key in self.keys():
-                if not isinstance(self[key], (int, np.int32, np.int64)):
-                    if self[key] is not None:
-                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
-                        raise TypeError(errmsg)
+        # # for key in ['snfid', 'reference_uid', 'reference_age']:
+        # for key in ['snfid']:
+        #     if key in self.keys():
+        #         if not isinstance(self[key], (int, np.int32, np.int64)):
+        #             if self[key] is not None:
+        #                 errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+        #                 raise TypeError(errmsg)
+        super().validate(layer_str='ltcf')
         return
 
     @property
@@ -510,14 +514,15 @@ class LongTermCareFacility(spb.LayerGroup):
         return np.concatenate((self['resident_uids'], self['staff_uids']))
 
     @property
-    def member_ages(self):
+    def member_ages(self, pop):
         """
         Return ages of all ltcf members: residents and staff.
 
         Returns:
             np.ndarray : ltcf member ages
         """
-        return np.concatenate((self['resident_ages'], self['staff_ages']))
+        return np.concatenate((self.member_ages(pop, self['resident_uids']), self.member_ages(pop, self['staff_uids'])))
+        # return np.concatenate((self['resident_ages'], self['staff_ages']))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""
@@ -537,7 +542,7 @@ def get_ltcf(pop, snfid):
     """
     if not isinstance(snfid, int):
         raise TypeError(f"snfid must be an int. Instead supplied wpid with type: {type(snfid)}.")
-    if len(pop.ltcfs) < snfid:
+    if len(pop.ltcfs) <= snfid:
         raise ValueError(f"Ltcf id (snfid): {snfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
     return pop.ltcfs[snfid]
 
