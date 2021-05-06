@@ -1,0 +1,6 @@
+include LICENSE
+global-include *.rst
+global-include *.md
+recursive-include covasim *.json
+recursive-include covasim *.obj
+global-exclude *.py[cod] __pycache__
