@@ -117,22 +117,24 @@ def initialize_empty_workplaces(pop, n_workplaces=None):
     return
 
 
-def populate_workplaces(pop, workplaces, age_by_uid):
+def populate_workplaces(pop, workplaces):
+    # age_by_uid):
     """
     Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
 
     Args:
         pop (sp.Pop)      : population
         workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
-        age_by_uid (dict) : dictionary mapping each person's id to their age
+        # age_by_uid (dict) : dictionary mapping each person's id to their age
     Notes:
         If number of workplaces (n) is fewer than existing workplaces, it will only replace the first n workplaces. Otherwise the
         existing workplaces will be overwritten by the input workplaces.
     """
     # check there are enough workplaces
-    if len(pop.workplaces) < len(workplaces):
-        log.debug(f"Reinitializing list of workplaces with {len(workplaces)} empty workplaces.")
-        initialize_empty_workplaces(pop, len(workplaces))
+    # if len(pop.workplaces) < len(workplaces):
+    #     log.debug(f"Reinitializing list of workplaces with {len(workplaces)} empty workplaces.")
+    #     initialize_empty_workplaces(pop, len(workplaces))
+    initialize_empty_workplaces(pop, len(workplaces))
 
     log.debug("Populating workplaces.")
 
@@ -140,9 +142,9 @@ def populate_workplaces(pop, workplaces, age_by_uid):
     for nw, wp in enumerate(workplaces):
         kwargs = dict(wpid=nw,
                       member_uids=wp,
-                      member_ages=[age_by_uid[i] for i in wp],
-                      reference_uid=wp[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
-                      reference_age=age_by_uid[wp[0]]
+                      # member_ages=[age_by_uid[i] for i in wp],
+                      # reference_uid=wp[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
+                      # reference_age=age_by_uid[wp[0]]
                       )
         workplace = Workplace()
         workplace.set_layer_group(**kwargs)

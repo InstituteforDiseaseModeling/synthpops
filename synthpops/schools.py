@@ -43,7 +43,9 @@ class School(spb.LayerGroup):
     Args:
         kwargs (dict): data dictionary of the school
     """
-    def __init__(self, **kwargs):
+    def __init__(self, scid=None, sc_type=None, school_mixing_type=None,
+                 student_uids=np.array([], dtype=int), teacher_uids=np.array([], dtype=int),
+                 non_teaching_staff_uids=np.array([], dtype=int), **kwargs):
         """
         Class constructor for an base empty setting group.
 
@@ -52,25 +54,29 @@ class School(spb.LayerGroup):
             **sc_type (str)                      : school type defined by grade/age ranges
             **school_mixing_type (str)           : the mixing type of the school, 'random', 'age_clustered', or 'age_and_class_clustered' if str. Else, None. See sp.schools.add_school_edges() for more information.
             **student_uids (np.array)            : ids of student members
-            **student_ages (np.array)            : ages of student members
+            # **student_ages (np.array)            : ages of student members
             **teacher_uids (np.array)            : ids of teacher members
-            **teacher_ages (np.array)            : ages of teacher members
+            # **teacher_ages (np.array)            : ages of teacher members
             **non_teaching_staff_uids (np.array) : ids of non_teaching_staff members
-            **non_teaching_staff_ages (np.array) : ages of non_teaching_staff members
-            **reference_uid (int)                : id of the reference person
-            **reference_age (int)                : age of the reference person
+            # **non_teaching_staff_ages (np.array) : ages of non_teaching_staff members
+            # **reference_uid (int)                : id of the reference person
+            # **reference_age (int)                : age of the reference person
         """
-        for key in ['scid', 'sc_type', 'school_mixing_type']:
-            if key not in kwargs:
-                kwargs[key] = None
+        # for key in ['scid', 'sc_type', 'school_mixing_type']:
+        #     if key not in kwargs:
+        #         kwargs[key] = None
 
-        for key in ['student_uids', 'teacher_uids', 'non_teaching_staff_uids',
-                    'student_ages', 'teacher_ages', 'non_teaching_staff_ages']:
-            if key not in kwargs:
-                kwargs[key] = np.array([], dtype=int)
-        super().__init__(**kwargs)
-        self.pop('member_uids')
-        self.pop('member_ages')
+        # for key in ['student_uids', 'teacher_uids', 'non_teaching_staff_uids',
+        #             # 'student_ages', 'teacher_ages', 'non_teaching_staff_ages'
+        #             ]:
+        #     if key not in kwargs:
+        #         kwargs[key] = np.array([], dtype=int)
+        # super().__init__(**kwargs)
+        super().__init__(scid=scid, sc_type=sc_type, school_mixing_type=school_mixing_type,
+                         student_uids=student_uids, teacher_uids=teacher_uids,
+                         non_teaching_staff_uids=non_teaching_staff_uids, **kwargs)
+        # self.pop('member_uids')
+        # self.pop('member_ages')
         self.validate()
 
         return
@@ -81,7 +87,8 @@ class School(spb.LayerGroup):
         to the correct type if necessary.
         """
         for key in ['student_uids', 'teacher_uids', 'non_teaching_staff_uids',
-                    'student_ages', 'teacher_ages', 'non_teaching_staff_ages']:
+                    # 'student_ages', 'teacher_ages', 'non_teaching_staff_ages'
+                    ]:
             if key in self.keys():
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
@@ -89,7 +96,8 @@ class School(spb.LayerGroup):
                     errmsg = f"Could not convert school key {key} to an np.array() with type int. This key only takes arrays with int values."
                     raise TypeError(errmsg)
 
-        for key in ['scid', 'reference_uid', 'reference_age']:
+        # for key in ['scid', 'reference_uid', 'reference_age']:
+        for key in ['scid']:
             if key in self.keys():
                 if not isinstance(self[key], (int)):
                     if self[key] is not None:
@@ -115,15 +123,27 @@ class School(spb.LayerGroup):
         """
         return np.concatenate((self['student_uids'], self['teacher_uids'], self['non_teaching_staff_uids']))
 
-    @property
-    def member_ages(self):
+    # @property
+    def member_ages(self, age_by_uid):
         """
         Return ages of all school members: students, teachers, and non teaching staff.
 
         Returns:
             np.ndarray: school member ages
         """
-        return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
+        # return np.concatenate((self['student_ages'], self['teacher_ages'], self['non_teaching_staff_ages']))
+        return np.concatenate((self.member_ages(age_by_uid, self['student_uids']),
+                               self.member_ages(age_by_uid, self['teacher_uids']),
+                               self.member_ages(age_by_uid, self['non_teaching_staff_uids'])))
+
+    def student_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['student_uids'])
+
+    def teacher_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['teacher_uids'])
+
+    def non_teaching_staff_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['non_teaching_staff_uids'])
 
     def __len__(self):
         """Return the length as the number of members in the school."""
@@ -158,27 +178,29 @@ class Classroom(spb.LayerGroup):
         kwargs (dict): data dictionary of the classroom
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, clid=None, student_uids=np.array([], dtype=int), teacher_uids=np.array([], dtype=int), **kwargs):
         """
         Class constructor for an base empty setting group.
 
         Args:
             **clid (int)              : id of the classroom
             **student_uids (np.array) : ids of student members
-            **student_ages (np.array) : ages of student members
+            # **student_ages (np.array) : ages of student members
             **teacher_uids (np.array) : ids of teacher members
-            **teacher_ages (np.array) : ages of teacher members
+            # **teacher_ages (np.array) : ages of teacher members
         """
-        for key in ['clid']:
-            kwargs[key] = None
-        for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
-            if key not in kwargs:
-                kwargs[key] = np.array([], dtype=int)
-        super().__init__(**kwargs)
-        self.pop('member_uids')
-        self.pop('member_ages')
-        self.pop('reference_uid')
-        self.pop('reference_age')
+        # for key in ['clid']:
+            # kwargs[key] = None
+        # for key in ['student_uids', 'teacher_uids']:
+        # 'student_ages', 'teacher_ages'
+            # ]:
+            # if key not in kwargs:
+                # kwargs[key] = np.array([], dtype=int)
+        super().__init__(clid=clid, student_uids=student_uids, teacher_uids=teacher_uids, **kwargs)
+        # self.pop('member_uids')
+        # self.pop('member_ages')
+        # self.pop('reference_uid')
+        # self.pop('reference_age')
         self.validate()
 
         return
@@ -188,7 +210,8 @@ class Classroom(spb.LayerGroup):
         Check that information supplied to make a school is valid and update
         to the correct type if necessary.
         """
-        for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
+        # for key in ['student_uids', 'teacher_uids', 'student_ages', 'teacher_ages']:
+        for key in ['student_uids', 'teacher_uids']:
             if key in self.keys():
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
@@ -196,7 +219,8 @@ class Classroom(spb.LayerGroup):
                     errmsg = f"Could not convert classroom key {key} to a np.array()"
                     raise TypeError(errmsg)
 
-        for key in ['clid', 'reference_uid', 'reference_age']:
+        # for key in ['clid', 'reference_uid', 'reference_age']:
+        for key in ['clid']:
             if key in self.keys():
                 if not isinstance(self[key], int):
                     if self[key] is not None:
@@ -215,14 +239,22 @@ class Classroom(spb.LayerGroup):
         return np.concatenate((self['student_uids'], self['teacher_uids']))
 
     @property
-    def member_ages(self):
+    def member_ages(self, age_by_uid):
         """
         Return ages of all classroom members: students and teachers.
 
         Returns:
             np.ndarray : classroom member ages
         """
-        return np.concatenate((self['student_ages'], self['teacher_ages']))
+        # return np.concatenate((self['student_ages'], self['teacher_ages']))
+        return np.concatenate((self.member_ages(age_by_uid, self['student_uids']),
+                               self.member_ages(age_by_uid, self['teacher_uids'])))
+
+    def student_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['student_uids'])
+
+    def teacher_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['teacher_uids'])
 
     def __len__(self):
         """Return the length as the number of members in the classroom."""
@@ -342,9 +374,10 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
         school_types (list)             : list of the school types
         school_mixing_types (list)      : list of the school mixing types
     """
-    if len(pop.schools) < len(student_lists):
-        log.debug(f"Reinitializing list of schools")
-        initialize_empty_schools(pop, len(student_lists))
+    # if len(pop.schools) < len(student_lists):
+    #     log.debug(f"Reinitializing list of schools")
+    #     initialize_empty_schools(pop, len(student_lists))
+    initialize_empty_schools(pop, len(student_lists))
 
     log.debug("Populating schools.")
 
@@ -365,11 +398,11 @@ def populate_schools(pop, student_lists, teacher_lists, non_teaching_staff_lists
                       sc_type=sc_type,
                       school_mixing_type=school_mixing_type,
                       student_uids=students,
-                      student_ages=[age_by_uid[i] for i in students],
+                      # student_ages=[age_by_uid[i] for i in students],
                       teacher_uids=teachers,
-                      teacher_ages=[age_by_uid[i] for i in teachers],
+                      # teacher_ages=[age_by_uid[i] for i in teachers],
                       non_teaching_staff_uids=non_teaching_staff,
-                      non_teaching_staff_ages=[age_by_uid[i] for i in non_teaching_staff],
+                      # non_teaching_staff_ages=[age_by_uid[i] for i in non_teaching_staff],
                       )
         school = School()
         school.set_layer_group(**kwargs)
@@ -404,8 +437,8 @@ def populate_classrooms(school, student_lists, teacher_lists, age_by_uid):
             kwargs = dict(clid=nc,
                           student_uids=students,
                           teacher_uids=teachers,
-                          student_ages=[age_by_uid[i] for i in students],
-                          teacher_ages=[age_by_uid[i] for i in teachers]
+                          # student_ages=[age_by_uid[i] for i in students],
+                          # teacher_ages=[age_by_uid[i] for i in teachers]
                           )
             classroom = Classroom()
             classroom.set_layer_group(**kwargs)

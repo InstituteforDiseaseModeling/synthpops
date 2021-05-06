@@ -430,9 +430,9 @@ class Pop(sc.prettyobj):
         # # temporarily store some information
         self.homes_by_uids = homes_by_uids
         self.workplace_uid_lists = workplace_uid_lists
-        self.school_uids = school_uid_lists
-        self.teacher_uids = teacher_uid_lists
-        self.non_teaching_staff_uids = non_teaching_staff_uid_lists
+        self.school_uid_lists = school_uid_lists
+        self.teacher_uid_lists = teacher_uid_lists
+        self.non_teaching_staff_uid_lists = non_teaching_staff_uid_lists
         self.school_types = school_types
         self.school_mixing_types = school_mixing_types
         self.schools_in_groups = schools_in_groups
@@ -453,10 +453,10 @@ class Pop(sc.prettyobj):
         self.populate_workplaces(self.workplace_uid_lists)
             # , self.age_by_uid)
 
-        # self.initialize_schools_list()
-        # self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
-        #                       self.non_teaching_staff_uid_lists, self.age_by_uid,
-        #                       self.school_types, self.school_mixing_types)
+        self.initialize_schools_list()
+        self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
+                              self.non_teaching_staff_uid_lists, self.age_by_uid,
+                              self.school_types, self.school_mixing_types)
 
         # self.populate_all_classrooms(self.schools_in_groups)
 

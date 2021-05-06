@@ -472,7 +472,8 @@ class LongTermCareFacility(spb.LayerGroup):
         # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
         #     if key not in kwargs:
         #         kwargs[key] = np.array([], dtype=int)
-        super().__init__(**kwargs)
+        super().__init__(snfid=snfid, resident_uids=resident_uids, staff_uids=staff_uids, **kwargs)
+        # super().__init__(**kwargs)
         # self.pop('member_uids')
         # self.pop('member_ages')
         self.validate()
@@ -594,9 +595,10 @@ def populate_ltcfs(pop, resident_lists, staff_lists):
         staff_lists (list)    : list of lists where each sublist represents a ltcf and contains the ids of the staff
         age_by_uid (dict)     : dictionary mapping each person's id to their age
     """
-    if len(pop.ltcfs) < len(resident_lists):
-        log.debug(f"Reinitializing list of ltcfs with {len(resident_lists)} empty ltcfs.")
-        initialize_empty_ltcfs(pop, len(resident_lists))
+    # if len(pop.ltcfs) < len(resident_lists):
+    #     log.debug(f"Reinitializing list of ltcfs with {len(resident_lists)} empty ltcfs.")
+    #     initialize_empty_ltcfs(pop, len(resident_lists))
+    initialize_empty_ltcfs(pop, len(resident_lists))
 
     log.debug("Populating ltcfs.")
 
