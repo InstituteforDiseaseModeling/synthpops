@@ -132,7 +132,7 @@ def assign_facility_staff(datadir, location, state_location, country_location, l
         workers_by_age_to_assign_count (dict) : A dictionary mapping age to the count of employed individuals of that age.
         potential_worker_uids (dict)          : dictionary of potential workers mapping their id to their age
         facilities (list)                     : A list of lists where each sublist is a facility with the resident IDs
-        age_by_uid (dict)                 : dictionary mapping id to age for all individuals in the population
+        age_by_uid (dict)                     : dictionary mapping id to age for all individuals in the population
         use_default (bool)                    : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from default_location, default_state, default_country.
 
     Returns:
@@ -244,7 +244,7 @@ def ltcf_resample_age(exp_age_distr, a):
 
 # Household construction methods
 
-def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, single_year_age_distr):
+def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, single_year_age_distr):
     """
     Generate ages of those living in households of greater than one individual.
     Reference individual is sampled conditional on the household size. All other
@@ -253,14 +253,14 @@ def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_
     population under study.
 
     Args:
-        size (int)                    : The household size.
-        hh_sizes (array)              : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)           : The age brackets for the heads of household.
-        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrix_dic (dict)     : A dictionary of the age-specific contact matrix for different physical contact settings.
-        single_year_age_distr (dict)  : The age distribution.
+        size (int)                   : The household size.
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        cm_age_brackets (dict)       : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets (dict)    : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)      : A dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
         An array of households for size ``size`` where each household is a row
@@ -279,8 +279,8 @@ def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_
         homes[h][0] = hha
 
         b = cm_age_by_brackets[hha]
-        b = min(b, contact_matrix_dic['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
-        b_prob = contact_matrix_dic['H'][b, :]
+        b = min(b, contact_matrices['H'].shape[0]-1)  # Ensure it doesn't go past the end of the array
+        b_prob = contact_matrices['H'][b, :]
 
         for n in range(1, size):
             bi = spsamp.sample_single_arr(b_prob)
@@ -311,7 +311,7 @@ def generate_larger_households_method_1(size, hh_sizes, hha_by_size_counts, hha_
     return homes
 
 
-def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, single_year_age_distr):
+def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, single_year_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
     For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
@@ -319,14 +319,14 @@ def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_bracke
     population under study.
 
     Args:
-        N (int)                       : The number of people in the population.
-        hh_sizes (array)              : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)           : The age brackets for the heads of household.
-        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrix_dic (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
-        single_year_age_distr (dict)  : The age distribution.
+        N (int)                      : The number of people in the population.
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        cm_age_brackets (dict)       : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets (dict)    : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)      : The dictionary of the age-specific contact matrix for different physical contact settings.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
         An array of all households where each household is a row and the values in the row are the ages of the household members.
@@ -347,7 +347,7 @@ def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_bracke
 
     # generate larger households and the ages of people living in them
     for s in range(2, len(hh_sizes) + 1):
-        homes_dic[s] = generate_larger_households_method_1(s, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, single_year_age_distr)
+        homes_dic[s] = generate_larger_households_method_1(s, hh_sizes, hha_by_size_counts, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, single_year_age_distr)
 
     homes = []
     for s in homes_dic:
@@ -357,7 +357,7 @@ def generate_all_households_method_1(N, hh_sizes, hha_by_size_counts, hha_bracke
     return homes_dic, homes
 
 
-def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, ltcf_adjusted_age_distr):
+def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_distr):
     """
     Generate the ages of those living in households together. First create households of people living alone, then larger households.
     For households larger than 1, a reference individual's age is sampled conditional on the household size, while all other household
@@ -371,8 +371,8 @@ def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brack
         hha_by_size_counts (matrix)    : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
         hha_brackets (dict)            : The age brackets for the heads of household.
         cm_age_brackets (dict)         : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets (dict)  : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrix_dic (dict)      : The dictionary of the age-specific contact matrix for different physical contact settings.
+        cm_age_by_brackets (dict)      : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)        : The dictionary of the age-specific contact matrix for different physical contact settings.
         ltcf_adjusted_age_distr (dict) : The age distribution.
 
     Returns:
@@ -407,7 +407,7 @@ def generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brack
     larger_hha_count = Counter(larger_hha_chosen)
 
     # make copy of the household matrix that you can modify to help with sampling
-    household_matrix = contact_matrix_dic['H'].copy()
+    household_matrix = contact_matrices['H'].copy()
 
     homes_dic, ages_left_to_assign = sphh.generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, ages_left_to_assign, homes_dic)
 
@@ -428,22 +428,22 @@ def get_ltcf_sizes(popdict, keys_to_exclude=[]):
 
     Notes:
         keys_to_exclude is an empty list by default, but can contain the
-        different long term care facility roles: 'snf_res' for residents and
-        'snf_staff' for staff. If either role is included in the parameter
+        different long term care facility roles: 'ltcf_res' for residents and
+        'ltcf_staff' for staff. If either role is included in the parameter
         keys_to_exclude, then individuals with that value equal to 1 will not
         be counted.
     """
     ltcf_sizes = dict()
     for i, person in popdict.items():
-        if person['snfid'] is not None:
-            ltcf_sizes.setdefault(person['snfid'], 0)
+        if person['ltcfid'] is not None:
+            ltcf_sizes.setdefault(person['ltcfid'], 0)
 
             # include facility residents
-            if person['snf_res'] is not None and 'snf_res' not in keys_to_exclude:
-                ltcf_sizes[person['snfid']] += 1
+            if person['ltcf_res'] is not None and 'ltcf_res' not in keys_to_exclude:
+                ltcf_sizes[person['ltcfid']] += 1
             # include facility staff
-            elif person['snf_staff'] is not None and 'snf_staff' not in keys_to_exclude:
-                ltcf_sizes[person['snfid']] += 1
+            elif person['ltcf_staff'] is not None and 'ltcf_staff' not in keys_to_exclude:
+                ltcf_sizes[person['ltcfid']] += 1
 
     return ltcf_sizes
 
@@ -456,26 +456,16 @@ class LongTermCareFacility(spb.LayerGroup):
         kwargs (dict): data dictionary of the long term care facility
     """
 
-    def __init__(self, snfid=None, resident_uids=np.array([], dtype=int), staff_uids=np.array([], dtype=int), **kwargs):
+    def __init__(self, ltcfid=None, resident_uids=np.array([], dtype=int), staff_uids=np.array([], dtype=int), **kwargs):
         """
         Class constructor for empty long term care facility (ltcf).
 
         Args:
-            **snfid (int) : ltcf id
-            **member_uids (np.array) : ids of ltcf members
-            **member_ages (np.array) : ages of ltcf members
-            # **reference_uid (int) : id of the reference person
-            # **reference_age (int) : age of the reference person
+            **ltcfid (int)             : ltcf id
+            **resident_uids (np.array) : ids of ltcf members
+            **staff_uids (np.array)    : ages of ltcf members
         """
-        # if 'snfid' not in kwargs:
-        #     kwargs['snfid'] = None
-        # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
-        #     if key not in kwargs:
-        #         kwargs[key] = np.array([], dtype=int)
-        super().__init__(snfid=snfid, resident_uids=resident_uids, staff_uids=staff_uids, **kwargs)
-        # super().__init__(**kwargs)
-        # self.pop('member_uids')
-        # self.pop('member_ages')
+        super().__init__(ltcfid=ltcfid, resident_uids=resident_uids, staff_uids=staff_uids, **kwargs)
         self.validate()
 
         return
@@ -485,23 +475,21 @@ class LongTermCareFacility(spb.LayerGroup):
         Check that information supplied to make a long term care facility is valid and update
         to the correct type if necessary.
         """
-        # # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
         for key in ['resident_uids', 'staff_uids']:
             if key in self.keys():
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
+
                 except:
                     errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
                     raise TypeError(errmsg)
 
-        # for key in ['snfid', 'reference_uid', 'reference_age']:
-        for key in ['snfid']:
+        for key in ['ltcfid']:
             if key in self.keys():
                 if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
                         errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
-        # super().validate(layer_str='ltcf')
         return
 
     @property
@@ -523,7 +511,6 @@ class LongTermCareFacility(spb.LayerGroup):
             np.ndarray : ltcf member ages
         """
         return np.concatenate((self.member_ages(age_by_uid, self['resident_uids']), self.member_ages(age_by_uid, self['staff_uids'])))
-        # return np.concatenate((self['resident_ages'], self['staff_ages']))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""
@@ -536,22 +523,22 @@ class LongTermCareFacility(spb.LayerGroup):
         return self.member_ages(age_by_uid, self['staff_uids'])
 
 
-def get_ltcf(pop, snfid):
+def get_ltcf(pop, ltcfid):
     """
-    Return ltcf with id: snfid.
+    Return ltcf with id: ltcfid.
 
     Args:
         pop (sp.Pop) : population
-        snfid (int)  : ltcf id number
+        ltcfid (int) : ltcf id number
 
     Returns:
         sp.LongTermCareFacility: A populated ltcf.
     """
-    if not isinstance(snfid, int):
-        raise TypeError(f"snfid must be an int. Instead supplied wpid with type: {type(snfid)}.")
-    if len(pop.ltcfs) <= snfid:
-        raise ValueError(f"Ltcf id (snfid): {snfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
-    return pop.ltcfs[snfid]
+    if not isinstance(ltcfid, int):
+        raise TypeError(f"ltcfid must be an int. Instead supplied wpid with type: {type(ltcfid)}.")
+    if len(pop.ltcfs) <= ltcfid:
+        raise ValueError(f"Ltcf id (ltcfid): {ltcfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
+    return pop.ltcfs[ltcfid]
 
 
 def add_ltcf(pop, ltcf):
@@ -560,7 +547,7 @@ def add_ltcf(pop, ltcf):
 
     Args:
         pop (sp.Pop)                   : population
-        ltcf (sp.LongTermCareFacility) : ltcf with at minimum the snfid, member_uids, member_ages, reference_uid, and reference_age.
+        ltcf (sp.LongTermCareFacility) : ltcf with at minimum the ltcfid, member_uids, member_ages, reference_uid, and reference_age.
     """
     if not isinstance(ltcf, LongTermCareFacility):
         raise ValueError('ltcf is not a sp.LongTermCareFacility object.')
@@ -585,19 +572,15 @@ def initialize_empty_ltcfs(pop, n_ltcfs=None):
     return
 
 
-# def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
 def populate_ltcfs(pop, resident_lists, staff_lists):
     """
-    Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
+    Populate all of the ltcfs. Store each ltcf at the index corresponding to it's ltcfid.
 
     Args:
+        pop (sp.Pop)          : population
         residents_list (list) : list of lists where each sublist represents a ltcf and contains the ids of the residents
         staff_lists (list)    : list of lists where each sublist represents a ltcf and contains the ids of the staff
-        age_by_uid (dict)     : dictionary mapping each person's id to their age
     """
-    # if len(pop.ltcfs) < len(resident_lists):
-    #     log.debug(f"Reinitializing list of ltcfs with {len(resident_lists)} empty ltcfs.")
-    #     initialize_empty_ltcfs(pop, len(resident_lists))
     initialize_empty_ltcfs(pop, len(resident_lists))
 
     log.debug("Populating ltcfs.")
@@ -607,16 +590,12 @@ def populate_ltcfs(pop, resident_lists, staff_lists):
         lf = []
         lf.extend(residents)
         lf.extend(staff_lists[nl])
-        kwargs = dict(snfid=nl,
+        kwargs = dict(ltcfid=nl,
                       resident_uids=residents,
-                      # resident_ages=[age_by_uid[i] for i in residents],
                       staff_uids=staff_lists[nl],
-                      # staff_ages=[age_by_uid[i] for i in staff_lists[nl]],
-                      reference_uid=lf[0],  # by default, the reference person is the first in the ltcf in synthpops - with vital dynamics this may change
-                      # reference_age=age_by_uid[lf[0]]
                       )
         ltcf = LongTermCareFacility()
         ltcf.set_layer_group(**kwargs)
-        pop.ltcfs[ltcf['snfid']] = sc.dcp(ltcf)
+        pop.ltcfs[ltcf['ltcfid']] = sc.dcp(ltcf)
 
     return

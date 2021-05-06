@@ -196,14 +196,14 @@ def test_information(create_pop):
         f"pop.information.household_heads not matching popdict."
     assert pop.information.household_head_ages[0] == pop.popdict[pop.information.household_heads[0]]['age'], \
         f"pop.information.household_head_ages not matching popdict."
-    assert len(pop.information.ltcf_sizes) == len(Counter([i["snfid"] for i in pop.popdict.values() if i["snfid"] is not None])), \
+    assert len(pop.information.ltcf_sizes) == len(Counter([i["ltcfid"] for i in pop.popdict.values() if i["ltcfid"] is not None])), \
         f"pop.information.ltcf_sizes not matching popdict."
     assert pop.information.enrollment_by_age[5] == len([i for i in pop.popdict.values() if i["scid"] is not None and i["age"]==5]), \
         f"pop.information.enrollment_by_age not matching popdict."
     assert sum(pop.information.enrollment_by_school_type[None]) == \
            len([i for i in pop.popdict.values() if i["scid"] is not None and i["sc_type"]is not None and i["sc_student"] is not None]), \
            f"pop.information.enrollment_by_school_type not matching popdict."
-    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["snf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"] == 20)]), \
+    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["ltcf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"] == 20)]), \
         f"pop.information.employment_by_age not matching popdict."
     assert len(pop.information.workplace_sizes) == len(Counter([i["wpid"] for i in pop.popdict.values() if i["wpid"] is not None])), \
         f"pop.information.workplace_sizes not matching popdict."

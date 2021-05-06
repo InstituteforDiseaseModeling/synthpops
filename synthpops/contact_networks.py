@@ -11,15 +11,14 @@ from . import schools as spsch
 from .config import logger as log, checkmem
 
 
-# def make_contacts_from_microstructure_objects(age_by_uid_dic,
 def make_contacts(age_by_uid,
                   homes_by_uids,
-                  schools_by_uids=None,
-                  teachers_by_uids=None,
-                  non_teaching_staff_uids=None,
-                  workplaces_by_uids=None,
-                  facilities_by_uids=None,
-                  facilities_staff_uids=None,
+                  students_by_uid_lists=None,
+                  teachers_by_uid_lists=None,
+                  non_teaching_staff_uid_lists=None,
+                  workplace_by_uid_lists=None,
+                  facilities_by_uid_lists=None,
+                  facilities_staff_uid_lists=None,
                   use_two_group_reduction=False,
                   average_LTCF_degree=20,
                   with_school_types=False,
@@ -109,7 +108,7 @@ def make_contacts(age_by_uid,
     trim_keys = max_contacts.keys()
 
     # Handle LTCF
-    use_ltcf = facilities_by_uids is not None
+    use_ltcf = facilities_by_uid_lists is not None
     if use_ltcf:
         layer_keys = ['H', 'S', 'W', 'C', 'LTCF']
     else:
@@ -128,8 +127,8 @@ def make_contacts(age_by_uid,
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
         if use_ltcf:
-            popdict[uid]['snf_res'] = None
-            popdict[uid]['snf_staff'] = None
+            popdict[uid]['ltcf_res'] = None
+            popdict[uid]['ltcf_staff'] = None
         popdict[uid]['hhid'] = None
         popdict[uid]['scid'] = None
         popdict[uid]['sc_student'] = None
@@ -140,22 +139,22 @@ def make_contacts(age_by_uid,
         popdict[uid]['wpid'] = None
         popdict[uid]['wpindcode'] = None
         if use_ltcf:
-            popdict[uid]['snfid'] = None
+            popdict[uid]['ltcfid'] = None
         for k in layer_keys:
             popdict[uid]['contacts'][k] = set()
 
     # read in facility residents and staff
     if use_ltcf:
-        for nf, facility in enumerate(facilities_by_uids):
-            facility_staff = facilities_staff_uids[nf]
+        for nf, facility in enumerate(facilities_by_uid_lists):
+            facility_staff = facilities_staff_uid_lists[nf]
 
             for u in facility:
-                popdict[u]['snf_res'] = 1
-                popdict[u]['snfid'] = nf
+                popdict[u]['ltcf_res'] = 1
+                popdict[u]['ltcfid'] = nf
 
             for u in facility_staff:
-                popdict[u]['snf_staff'] = 1
-                popdict[u]['snfid'] = nf
+                popdict[u]['ltcf_staff'] = 1
+                popdict[u]['ltcfid'] = nf
 
             if use_two_group_reduction:
                 popdict = create_reduced_contacts_with_group_types(popdict, facility, facility_staff, 'LTCF',
@@ -174,7 +173,6 @@ def make_contacts(age_by_uid,
                     popdict[uid]['contacts']['LTCF'] = popdict[uid]['contacts']['LTCF'].union(set(facility_staff))
                     popdict[uid]['contacts']['LTCF'].remove(uid)
 
-
     log.debug('...households ' + checkmem())
     for nh, household in enumerate(homes_by_uids):
         for uid in household:
@@ -186,17 +184,17 @@ def make_contacts(age_by_uid,
 
     student_in_groups, teachers_in_groups = [], []
 
-    for ns, students in enumerate(schools_by_uids):
+    for ns, students in enumerate(students_by_uid_lists):
 
         schools[ns] = {}
 
-        teachers = teachers_by_uids[ns]
-        if non_teaching_staff_uids is None:
+        teachers = teachers_by_uid_lists[ns]
+        if non_teaching_staff_uid_lists is None:
             non_teaching_staff = []
-        elif non_teaching_staff_uids == []:
+        elif non_teaching_staff_uid_lists == []:
             non_teaching_staff = []
         else:
-            non_teaching_staff = non_teaching_staff_uids[ns]
+            non_teaching_staff = non_teaching_staff_uid_lists[ns]
 
         this_school_type = None
         this_school_mixing_type = None
@@ -252,7 +250,7 @@ def make_contacts(age_by_uid,
     if do_trim and 'W' in trim_keys:
 
         average_degree = max_contacts['W']
-        for nw, workplace in enumerate(workplaces_by_uids):
+        for nw, workplace in enumerate(workplace_by_uid_lists):
             uids = np.array(workplace)
 
             G = random_graph_model(uids, average_degree)  # undirected graph
@@ -266,7 +264,7 @@ def make_contacts(age_by_uid,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     else: # pragma: no cover
-        for nw, workplace in enumerate(workplaces_by_uids):
+        for nw, workplace in enumerate(workplace_by_uid_lists):
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
                 popdict[uid]['contacts']['W'].remove(uid)
@@ -436,7 +434,7 @@ def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
     layer_keys = {"S": "scid",
                   "W": "wpid",
                   "H": "hhid",
-                  "LTCF": "snfid"}
+                  "LTCF": "ltcfid"}
 
     # for all layers, 'all' contact_types will store counts for all contacts but
     # based on each different layer, there can be more contact_types for example in school layer,
@@ -445,7 +443,7 @@ def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
         people_types = ['sc_student', 'sc_teacher', 'sc_staff']
         contact_types = people_types + ['all_staff', 'all']
     elif layer == "LTCF":
-        people_types = ['snf_res', 'snf_staff']
+        people_types = ['ltcf_res', 'ltcf_staff']
         contact_types = people_types + ['all']
     elif layer in ["W", "H"]:
         people_types = [layer_keys[layer]]
@@ -468,8 +466,8 @@ def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
                 'sc_student': len([c for c in person["contacts"]["S"] if popdict[c]['sc_student']]),
                 'sc_teacher': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]),
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
-                'snf_res' : len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_res']]),
-                'snf_staff': len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_staff']]),
+                'ltcf_res': len([c for c in person["contacts"]["LTCF"] if popdict[c]['ltcf_res']]),
+                'ltcf_staff': len([c for c in person["contacts"]["LTCF"] if popdict[c]['ltcf_staff']]),
                 'all_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]) + len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
@@ -534,7 +532,7 @@ def count_layer_degree(pop, layer='H', ages=None, uids=None, uids_included=None)
     if uids_included is None:
         uids_included = filter_people(pop, ages=ages, uids=uids)
 
-    layerid_mapping = {'H': 'hhid', 'LTCF': 'snfid', 'S': 'scid', 'W': 'wpid'}
+    layerid_mapping = {'H': 'hhid', 'LTCF': 'ltcfid', 'S': 'scid', 'W': 'wpid'}
 
     degree_dicts = []
 

@@ -32,7 +32,7 @@ def test_get_contact_counts_by_layer(layer, create_simple_pop):
     layer_map = {"S": "sc_teacher",
                   "W": "wpid",
                   "H": "hhid",
-                  "LTCF": "snf_res"}
+                  "LTCF": "ltcf_res"}
     assert len(contact.get(layer_map[layer])) > 0
 
 if __name__ == '__main__':

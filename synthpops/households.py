@@ -27,12 +27,9 @@ class Household(spb.LayerGroup):
         Args:
             **hhid (int)             : household id
             **member_uids (np.array) : ids of household members
-            **member_ages (np.array) : ages of household members
             **reference_uid (int)    : id of the reference person
             **reference_age (int)    : age of the reference person
         """
-        # if 'hhid' not in kwargs:
-        #     kwargs['hhid'] = None
         super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
         self.validate()
 
@@ -43,21 +40,6 @@ class Household(spb.LayerGroup):
         Check that information supplied to make a household is valid and update
         to the correct type if necessary.
         """
-        # for key in ['member_uids', 'member_ages']:
-        # for key in ['member_uids']:
-        #     if key in self.keys():
-        #         try:
-        #             self[key] = sc.promotetoarray(self[key], dtype=int)
-        #         except:
-        #             errmsg = f"Could not convert household key {key} to an np.array() with type int. This key only takes arrays with int values."
-        #             raise TypeError(errmsg)
-
-        # for key in ['hhid', 'reference_uid', 'reference_age']:
-        #     if key in self.keys():
-        #         if not isinstance(self[key], (int, np.int32, np.int64)):
-        #             if self[key] is not None:
-        #                 errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])} {self[key]}."
-        #                 raise TypeError(errmsg)
         super().validate(layer_str='household')
         return
 
@@ -141,14 +123,9 @@ def populate_households(pop, households, age_by_uid):
         households (list) : list of lists where each sublist represents a household and contains the ids of the household members
         age_by_uid (dict) : dictionary mapping each person's id to their age
     """
-    # # check there are enough households
-    # if len(pop.households) < len(households):
-    #     log.debug(f"Reinitializing list of households with {len(households)} empty households.")
-    #     initialize_empty_households(pop, len(households))
-
     # initialize an empty set of households
     # if previously you had 10 households and now you want to repopulate with
-    # this method and only supply 5 households, this method will overwrite the list
+    # this method and only supply 5 households, this method will overwrite the list to produce only 5 households
     initialize_empty_households(pop, len(households))
 
     log.debug("Populating households.")
@@ -157,7 +134,6 @@ def populate_households(pop, households, age_by_uid):
     for nh, hh in enumerate(households):
         kwargs = dict(hhid=nh,
                       member_uids=hh,
-                      # member_ages=[age_by_uid[i] for i in hh],
                       reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
                       reference_age=age_by_uid[hh[0]]
                       )
@@ -402,7 +378,7 @@ def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_
     return larger_hha_chosen, ages_left_to_assign
 
 
-def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
+def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, ages_left_to_assign, homes_dic):
     """
     Assign people to households larger than one person (excluding special
     residences like long term care facilities or agricultural workers living in
@@ -413,7 +389,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         hha_by_size (matrix)          : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
         hha_brackets (dict)           : The age brackets for the heads of household.
         cm_age_brackets (dict)        : The age brackets for the contact matrix.
-        cm_age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
+        cm_age_by_brackets (dict)     : A dictionary mapping age to the age bracket range it falls within.
         household_matrix (dict)       : The age-specific contact matrix for the household ontact setting.
         larger_homes_age_count (dict) : Age count of people left to place in households larger than one person.
 
@@ -425,7 +401,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
     for nh, hs in enumerate(larger_hh_size_array):
 
         hha = larger_hha_chosen[nh]
-        b = cm_age_by_brackets_dic[hha]
+        b = cm_age_by_brackets[hha]
 
         home = np.zeros(hs)
         home[0] = hha

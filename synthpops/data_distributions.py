@@ -460,7 +460,7 @@ def get_contact_matrix(datadir, setting_code, sheet_name=None, file_path=None, d
             raise NotImplementedError("Contact matrix did not open. Check inputs.")
 
 # TODO: still open question on how to handle these.
-def get_contact_matrix_dic(datadir=None, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
+def get_contact_matrices(datadir=None, sheet_name=None, file_path_dic=None, delimiter=' ', header=None, use_default=False):
     # need review for additional countries
     """
     Create a dict of setting specific age contact matrices. If use_default, then
@@ -482,19 +482,19 @@ def get_contact_matrix_dic(datadir=None, sheet_name=None, file_path_dic=None, de
         population, given by the sheet name. Keys map to the different possible
         physical contact settings for which data are available.
     """
-    matrix_dic = {}
+    matrices = {}
     if file_path_dic is None:
         file_path_dic = dict.fromkeys(['H', 'S', 'W', 'C'], None)
     try:
         for setting_code in ['H', 'S', 'W', 'C']:
-            matrix_dic[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name, file_path_dic[setting_code], delimiter, header)
+            matrices[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name, file_path_dic[setting_code], delimiter, header)
     except:
         if use_default:
             for setting_code in ['H', 'S', 'W', 'C']:
-                matrix_dic[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name=defaults.settings.sheet_name)
+                matrices[setting_code] = get_contact_matrix(datadir, setting_code, sheet_name=defaults.settings.sheet_name)
         else:
             raise NotImplementedError(f"Data unavailable for the location specified. Please check input strings or set use_default to True to use default values from the {defaults.settings.sheet_name}.")
-    return matrix_dic
+    return matrices
 
 
 def get_school_enrollment_rates(datadir=None, location=None, state_location=None, country_location=None, file_path=None, use_default=False):
@@ -651,9 +651,9 @@ def get_default_school_types_by_age_single():
     school_types_distr_by_age = get_default_school_types_distr_by_age()
     school_types_by_age_single = {}
     for a in range(101):
-        values_to_keys_dic = {school_types_distr_by_age[a][k]: k for k in school_types_distr_by_age[a]}
-        max_v = max(values_to_keys_dic.keys())
-        max_k = values_to_keys_dic[max_v]
+        values_to_keys = {school_types_distr_by_age[a][k]: k for k in school_types_distr_by_age[a]}
+        max_v = max(values_to_keys.keys())
+        max_k = values_to_keys[max_v]
         if max_v != 0:
             school_types_by_age_single[a] = max_k
 

@@ -31,12 +31,8 @@ class Workplace(spb.LayerGroup):
             **wpid (int) : workplace id
             **member_uids (np.array) : ids of workplace members
             **member_ages (np.array) : ages of workplace members
-            **reference_uid (int) : id of the reference person
-            **reference_age (int) : age of the reference person
         """
         # set up default workplace values
-        # if 'wpid' not in kwargs:
-        #     kwargs['wpid'] = None
         super().__init__(wpid=wpid, **kwargs)
         self.validate()
 
@@ -47,20 +43,6 @@ class Workplace(spb.LayerGroup):
         Check that information supplied to make a workplace is valid and update
         to the correct type if necessary.
         """
-        # for key in ['member_uids', 'member_ages']:
-        #     if key in self.keys():
-        #         try:
-        #             self[key] = sc.promotetoarray(self[key], dtype=int)
-        #         except:
-        #             errmsg = f"Could not convert workplace key {key} to an np.array() with type int. This key only takes arrays with int values."
-        #             raise TypeError(errmsg)
-
-        # for key in ['wpid', 'reference_uid', 'reference_age']:
-        #     if key in self.keys():
-        #         if not isinstance(self[key], (int, np.int32, np.int64)):
-        #             if self[key] is not None:
-        #                 errmsg = f"Expected type int or None for workplace key {key}. Instead the type of this value is {type(self[key])}."
-        #                 raise TypeError(errmsg)
         super().validate(layer_str='workplace')
         return
 
@@ -118,22 +100,18 @@ def initialize_empty_workplaces(pop, n_workplaces=None):
 
 
 def populate_workplaces(pop, workplaces):
-    # age_by_uid):
     """
     Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
 
     Args:
         pop (sp.Pop)      : population
         workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
-        # age_by_uid (dict) : dictionary mapping each person's id to their age
+
     Notes:
         If number of workplaces (n) is fewer than existing workplaces, it will only replace the first n workplaces. Otherwise the
         existing workplaces will be overwritten by the input workplaces.
     """
-    # check there are enough workplaces
-    # if len(pop.workplaces) < len(workplaces):
-    #     log.debug(f"Reinitializing list of workplaces with {len(workplaces)} empty workplaces.")
-    #     initialize_empty_workplaces(pop, len(workplaces))
+    # make sure there are enough workplaces
     initialize_empty_workplaces(pop, len(workplaces))
 
     log.debug("Populating workplaces.")
@@ -142,9 +120,6 @@ def populate_workplaces(pop, workplaces):
     for nw, wp in enumerate(workplaces):
         kwargs = dict(wpid=nw,
                       member_uids=wp,
-                      # member_ages=[age_by_uid[i] for i in wp],
-                      # reference_uid=wp[0],  # by default, the reference person is the first in the workplace in synthpops - with vital dynamics this may change
-                      # reference_age=age_by_uid[wp[0]]
                       )
         workplace = Workplace()
         workplace.set_layer_group(**kwargs)
@@ -153,21 +128,21 @@ def populate_workplaces(pop, workplaces):
     return
 
 
-def get_uids_potential_workers(student_uid_lists, employment_rates, age_by_uid_dic):
+def get_uids_potential_workers(student_uid_lists, employment_rates, age_by_uid):
     """
     Get IDs for everyone who could be a worker by removing those who are students and those who can't be employed officially.
 
     Args:
         student_uid_lists (list) : A list of lists where each sublist represents a school with the IDs of students in the school.
         employment_rates (dict)  : The employment rates by age.
-        age_by_uid_dic (dict)    : A dictionary mapping ID to age for individuals in the population.
+        age_by_uid (dict)    : A dictionary mapping ID to age for individuals in the population.
 
     Returns:
         A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
         workers with that age, and a dictionary mapping age to the count of potential workers left to assign to a workplace for that age.
     """
     log.debug('get_uids_potential_workers()')
-    potential_worker_uids = deepcopy(age_by_uid_dic)
+    potential_worker_uids = deepcopy(age_by_uid)
     potential_worker_uids_by_age = {}
     potential_worker_ages_left_count = {}
 
@@ -181,8 +156,8 @@ def get_uids_potential_workers(student_uid_lists, employment_rates, age_by_uid_d
         for uid in students:
             potential_worker_uids.pop(uid, None)
 
-    for uid in age_by_uid_dic:
-        if age_by_uid_dic[uid] not in employment_rates:
+    for uid in age_by_uid:
+        if age_by_uid[uid] not in employment_rates:
             potential_worker_uids.pop(uid, None)
 
     for uid in potential_worker_uids:
@@ -235,14 +210,14 @@ def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_bra
     return workplace_sizes
 
 
-def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic):
+def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age):
     """
     Get the number of people to assign to a workplace by age using those left who can potentially go to work and employment rates by age.
 
     Args:
         employment_rates (dict)                 : A dictionary of employment rates by age.
         potential_worker_ages_left_count (dict) : A dictionary of the count of workers to assign by age.
-        uids_by_age_dic (dict)                  : A dictionary mapping age to the list of ids with that age.
+        uids_by_age (dict)                      : A dictionary mapping age to the list of ids with that age.
 
     Returns:
         A dictionary with a count of workers to assign to a workplace.
@@ -252,7 +227,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     for a in potential_worker_ages_left_count:
         if a in employment_rates:
             try:
-                c = int(employment_rates[a] * len(uids_by_age_dic[a]))
+                c = int(employment_rates[a] * len(uids_by_age[a]))
             except:
                 c = 0
             number_of_people_who_can_be_assigned = min(c, potential_worker_ages_left_count[a])
@@ -261,7 +236,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     return workers_by_age_to_assign_count
 
 
-def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, age_brackets, age_by_brackets_dic, contact_matrix_dic):
+def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid, age_brackets, age_by_brackets, contact_matrices):
     """
     Assign the rest of the workers to non-school workplaces.
 
@@ -270,10 +245,10 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         potential_worker_uids (dict)          : dictionary of potential workers mapping their id to their age
         potential_worker_uids_by_age (dict)   : dictionary mapping age to the list of worker ids with that age
         workers_by_age_to_assign_count (dict) : dictionary of the count of workers left to assign by age
-        age_by_uid_dic (dict)                 : dictionary mapping id to age for all individuals in the population
+        age_by_uid (dict)                     : dictionary mapping id to age for all individuals in the population
         age_brackets (dict)                   : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)            : dictionary mapping age to the age bracket range it falls in
-        contact_matrix_dic (dict)             : dictionary of age specific contact matrix for different physical contact settings
+        age_by_brackets (dict)                : dictionary mapping age to the age bracket range it falls in
+        contact_matrices (dict)               : dictionary of age specific contact matrix for different physical contact settings
 
     Returns:
         List of lists where each sublist is a workplace with the ages of workers, list of lists where each sublist is a workplace with the ids of workers,
@@ -287,7 +262,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
     sorted_worker_age_keys = sorted(worker_age_keys)
 
     # make a copy of the workplace matrix to sample from and modify as people get placed into workplaces and removed from the pool of potential workers
-    w_contact_matrix = contact_matrix_dic['W'].copy()
+    w_contact_matrix = contact_matrices['W'].copy()
 
     # off turn likelihood to meet those unemployed in the workplace because the matrices are not an exact match for the population under study
     for b in age_brackets:
@@ -320,7 +295,7 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         new_work.append(aindex)
         new_work_uids.append(uid)
 
-        bindex = age_by_brackets_dic[aindex]
+        bindex = age_by_brackets[aindex]
         bindex = min(bindex, w_contact_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array
         b_prob = w_contact_matrix[bindex, :]
         sum_b_prob = np.sum(b_prob)
@@ -397,7 +372,7 @@ def count_employment_by_age(popdict):
     """
     employment_count_by_age = dict.fromkeys(np.arange(0, defaults.settings.max_age), 0)
     for i, person in popdict.items():
-        if person['snf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
+        if person['ltcf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
             employment_count_by_age[person['age']] += 1
 
     return employment_count_by_age

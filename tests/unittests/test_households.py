@@ -245,15 +245,14 @@ class HouseholdsTest(unittest.TestCase):
 
     def test_contact_matrix_has_all_layers(self):
         """
-        Test get_contact_matrix_dic method to make sure it contains all layers
+        Test get_contact_matrices method to make sure it contains all layers
         'H', 'S', 'W', 'C'.
 
         Returns:
             None
         """
-        contact_matrix = sp.get_contact_matrix_dic(
-            # datadir=sp.datadir,
-            datadir = sp.settings.datadir,
+        contact_matrix = sp.get_contact_matrices(
+            datadir=sp.settings.datadir,
             sheet_name="United States of America"
         )
         for layer in ['H', 'S', 'W', 'C']:

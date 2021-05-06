@@ -279,12 +279,12 @@ class Pop(sc.prettyobj):
         staff_age_max                   = self.school_pars.staff_age_max
 
         # Load the contact matrix
-        contact_matrix_dic = spdata.get_contact_matrix_dic(datadir, sheet_name=sheet_name)
+        contact_matrices = spdata.get_contact_matrices(datadir, sheet_name=sheet_name)
         # Store expected contact matrices
-        self.contact_matrix_dic = contact_matrix_dic
+        self.contact_matrices = contact_matrices
 
         # Load age brackets, and mapping dictionary that matches contact matrices
-        contact_matrix_shape = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape
+        contact_matrix_shape = contact_matrices[list(contact_matrices.keys())[0]].shape
         contact_matrix_row = contact_matrix_shape[0]
 
         cm_age_brackets = spdata.get_census_age_brackets(**loc_pars, nbrackets=contact_matrix_row)
@@ -304,15 +304,13 @@ class Pop(sc.prettyobj):
         hha_brackets = spdata.get_head_age_brackets(**loc_pars)
         hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars)
 
-        # hha_by_size = spdata.get_head_age_by_size_distr(datadir, country_location=country_location, state_location=state_location, use_default=use_default, household_size_1_included=cfg.default_household_size_1_included)
-
         if household_method == 'fixed_ages':
 
-            homes_dic, homes = spltcf.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, ltcf_adjusted_age_distr)
+            homes_dic, homes = spltcf.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_distr)
 
         else:
             log.debug("defaulting to 'infer_ages' household generation method. See class notes for description.")
-            homes_dic, homes = spltcf.generate_all_households_method_1(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic, ltcf_adjusted_age_distr)
+            homes_dic, homes = spltcf.generate_all_households_method_1(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_distr)
 
         # Handle homes and facilities
         homes = facilities + homes
@@ -338,19 +336,25 @@ class Pop(sc.prettyobj):
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
             school_type_by_age = spsch.get_school_types_by_age_single(school_types_distr_by_age)
 
-            school_age_lists, school_uid_lists, school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type, school_size_brackets, uids_in_school, uids_in_school_by_age,
-                                                                                                             ages_in_school_count,
-                                                                                                             school_types_distr_by_age,
-                                                                                                             school_type_age_ranges)
+            student_age_lists, student_uid_lists, school_types = spsch.send_students_to_school_with_school_types(school_size_distr_by_type,
+                                                                                                                 school_size_brackets,
+                                                                                                                 uids_in_school,
+                                                                                                                 uids_in_school_by_age,
+                                                                                                                 ages_in_school_count,
+                                                                                                                 school_types_distr_by_age,
+                                                                                                                 school_type_age_ranges)
 
         else:
             # Get school sizes
             school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
             # Assign students to school using contact matrix method - generic schools
-            school_age_lists, school_uid_lists, school_types = spsch.send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age, ages_in_school_count,
-                                                                                           cm_age_brackets,
-                                                                                           cm_age_by_brackets,
-                                                                                           contact_matrix_dic)
+            student_age_lists, student_uid_lists, school_types = spsch.send_students_to_school(school_sizes,
+                                                                                               uids_in_school,
+                                                                                               uids_in_school_by_age,
+                                                                                               ages_in_school_count,
+                                                                                               cm_age_brackets,
+                                                                                               cm_age_by_brackets,
+                                                                                               contact_matrices)
 
             school_type_by_age = None
 
@@ -359,31 +363,57 @@ class Pop(sc.prettyobj):
 
         # Find people who can be workers (removing everyone who is currently a student)
         uids_by_age = spb.get_ids_by_age(age_by_uid)  # Make a dictionary listing out uids of people by their age
-        potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(school_uid_lists, employment_rates, age_by_uid)
+        potential_worker_uids, potential_worker_uids_by_age, potential_worker_ages_left_count = spw.get_uids_potential_workers(student_uid_lists,
+                                                                                                                               employment_rates,
+                                                                                                                               age_by_uid)
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age)
 
         # Removing facilities residents from potential workers
-        potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spltcf.remove_ltcf_residents_from_potential_workers(facilities_by_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid)
+        potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spltcf.remove_ltcf_residents_from_potential_workers(facilities_by_uid_lists,
+                                                                                                                                                  potential_worker_uids,
+                                                                                                                                                  potential_worker_uids_by_age,
+                                                                                                                                                  workers_by_age_to_assign_count,
+                                                                                                                                                  age_by_uid)
 
         # Assign teachers and update school lists
-        teacher_age_lists, teacher_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(school_age_lists, school_uid_lists,
-                                                                                                                                                                     employment_rates, workers_by_age_to_assign_count,
-                                                                                                                                                                     potential_worker_uids, potential_worker_uids_by_age,
+        teacher_age_lists, teacher_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(student_age_lists,
+                                                                                                                                                                     student_uid_lists,
+                                                                                                                                                                     employment_rates,
+                                                                                                                                                                     workers_by_age_to_assign_count,
+                                                                                                                                                                     potential_worker_uids,
+                                                                                                                                                                     potential_worker_uids_by_age,
                                                                                                                                                                      potential_worker_ages_left_count,
                                                                                                                                                                      average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                                                                                                                     teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max)
+                                                                                                                                                                     teacher_age_min=teacher_age_min,
+                                                                                                                                                                     teacher_age_max=teacher_age_max)
         # Assign non teaching staff and update who's available to work at other places
-        non_teaching_staff_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(school_uid_lists, teacher_uid_lists,
-                                                                                                                                                                     workers_by_age_to_assign_count, potential_worker_uids,
-                                                                                                                                                                     potential_worker_uids_by_age, potential_worker_ages_left_count,
+        non_teaching_staff_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_additional_staff_to_schools(student_uid_lists,
+                                                                                                                                                                     teacher_uid_lists,
+                                                                                                                                                                     workers_by_age_to_assign_count,
+                                                                                                                                                                     potential_worker_uids,
+                                                                                                                                                                     potential_worker_uids_by_age,
+                                                                                                                                                                     potential_worker_ages_left_count,
                                                                                                                                                                      average_student_teacher_ratio=average_student_teacher_ratio,
                                                                                                                                                                      average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                                                                                                                     staff_age_min=staff_age_min, staff_age_max=staff_age_max,
+                                                                                                                                                                     staff_age_min=staff_age_min,
+                                                                                                                                                                     staff_age_max=staff_age_max,
                                                                                                                                                                      with_non_teaching_staff=with_non_teaching_staff)
 
         # Get facility staff
         if with_facilities:
-            facilities_staff_uid_lists = spltcf.assign_facility_staff(datadir, location, state_location, country_location, ltcf_staff_age_min, ltcf_staff_age_max, facilities, workers_by_age_to_assign_count, potential_worker_uids_by_age, potential_worker_uids, facilities_by_uid_lists, age_by_uid, use_default=use_default)
+            facilities_staff_uid_lists = spltcf.assign_facility_staff(datadir,
+                                                                      location,
+                                                                      state_location,
+                                                                      country_location,
+                                                                      ltcf_staff_age_min,
+                                                                      ltcf_staff_age_max,
+                                                                      facilities,
+                                                                      workers_by_age_to_assign_count,
+                                                                      potential_worker_uids_by_age,
+                                                                      potential_worker_uids,
+                                                                      facilities_by_uid_lists,
+                                                                      age_by_uid,
+                                                                      use_default=use_default)
         else:
             facilities_staff_uid_lists = []
         # Generate non-school workplace sizes needed to send everyone to work
@@ -392,7 +422,14 @@ class Pop(sc.prettyobj):
         workplace_sizes = spw.generate_workplace_sizes(workplace_size_distr_by_brackets, workplace_size_brackets, workers_by_age_to_assign_count)
 
         # Assign all workers who are not staff at schools to workplaces
-        workplace_age_lists, workplace_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid, cm_age_brackets, cm_age_by_brackets, contact_matrix_dic)
+        workplace_age_lists, workplace_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes,
+                                                                                                                                                                   potential_worker_uids,
+                                                                                                                                                                   potential_worker_uids_by_age,
+                                                                                                                                                                   workers_by_age_to_assign_count,
+                                                                                                                                                                   age_by_uid,
+                                                                                                                                                                   cm_age_brackets,
+                                                                                                                                                                   cm_age_by_brackets,
+                                                                                                                                                                   contact_matrices)
 
         # remove facilities from homes --- have already assigned each person a uid
         homes_by_uids = homes_by_uids[len(facilities_by_uid_lists):]
@@ -401,12 +438,12 @@ class Pop(sc.prettyobj):
         # population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid=age_by_uid,
         population, schools_in_groups = spcnx.make_contacts(age_by_uid=age_by_uid,
                                                             homes_by_uids=homes_by_uids,
-                                                            schools_by_uids=school_uid_lists,
-                                                            teachers_by_uids=teacher_uid_lists,
-                                                            non_teaching_staff_uids=non_teaching_staff_uid_lists,
-                                                            workplaces_by_uids=workplace_uid_lists,
-                                                            facilities_by_uids=facilities_by_uid_lists,
-                                                            facilities_staff_uids=facilities_staff_uid_lists,
+                                                            students_by_uid_lists=student_uid_lists,
+                                                            teachers_by_uid_lists=teacher_uid_lists,
+                                                            non_teaching_staff_uid_lists=non_teaching_staff_uid_lists,
+                                                            workplace_by_uid_lists=workplace_uid_lists,
+                                                            facilities_by_uid_lists=facilities_by_uid_lists,
+                                                            facilities_staff_uid_lists=facilities_staff_uid_lists,
                                                             use_two_group_reduction=use_two_group_reduction,
                                                             average_LTCF_degree=average_LTCF_degree,
                                                             with_school_types=with_school_types,
@@ -426,12 +463,11 @@ class Pop(sc.prettyobj):
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
         school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
-        print('here', school_types, len(school_types))
-        print('school_uid_lists', len(school_uid_lists))
-        # # temporarily store some information
+
+        # temporarily store some information
         self.homes_by_uids = homes_by_uids
         self.workplace_uid_lists = workplace_uid_lists
-        self.school_uid_lists = school_uid_lists
+        self.student_uid_lists = student_uid_lists
         self.teacher_uid_lists = teacher_uid_lists
         self.non_teaching_staff_uid_lists = non_teaching_staff_uid_lists
         self.school_types = school_types
@@ -451,12 +487,10 @@ class Pop(sc.prettyobj):
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
         self.initialize_workplaces_list()
-        self.populate_workplaces(self.workplace_uid_lists
-                                 # , self.age_by_uid
-                                 )
+        self.populate_workplaces(self.workplace_uid_lists)
 
         self.initialize_schools_list()
-        self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
+        self.populate_schools(self.student_uid_lists, self.teacher_uid_lists,
                               self.non_teaching_staff_uid_lists, self.age_by_uid,
                               self.school_types, self.school_mixing_types)
 
@@ -464,16 +498,14 @@ class Pop(sc.prettyobj):
 
         if self.ltcf_pars.with_facilities:
             self.initialize_ltcfs_list()
-            self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists,
-                                # self.age_by_uid
-                                )
+            self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists)
         return
 
     def clean_up_layer_info(self):
         """
         Clean up temporary data from the pop object after storing them in specific layer classes.
         """
-        for key in ['workplace_uid_lists', 'school_uid_lists', 'teacher_uid_lists',
+        for key in ['workplace_uid_lists', 'student_uid_lists', 'teacher_uid_lists',
                     'non_teaching_staff_uid_lists', 'school_types',
                     'school_mixing_types', 'schools_in_groups',
                     'facilities_by_uid_lists', 'facilities_staff_uid_lists']:
@@ -596,7 +628,6 @@ class Pop(sc.prettyobj):
         sphh.initialize_empty_workplaces(self, n_workplaces)
         return
 
-    # def populate_workplaces(self, workplaces, age_by_uid):
     def populate_workplaces(self, workplaces):
         """
         Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
@@ -605,7 +636,6 @@ class Pop(sc.prettyobj):
             workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
             age_by_uid (dict) : dictionary mapping each person's id to their age
         """
-        # spw.populate_workplaces(self, workplaces, age_by_uid)
         spw.populate_workplaces(self, workplaces)
         return
 
@@ -646,38 +676,35 @@ class Pop(sc.prettyobj):
         spltcf.initialize_empty_ltcfs(self, n_ltcfs)
         return
 
-    # def populate_ltcfs(self, resident_lists, staff_lists, age_by_uid):
     def populate_ltcfs(self, resident_lists, staff_lists):
         """
-        Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
+        Populate all of the ltcfs. Store each ltcf at the index corresponding to it's ltcfid.
 
         Args:
             residents_list (list) : list of lists where each sublist represents a ltcf and contains the ids of the residents
             staff_lists (list)    : list of lists where each sublist represents a ltcf and contains the ids of the staff
-            age_by_uid (dict)     : dictionary mapping each person's id to their age
         """
-        # spltcf.populate_ltcfs(self, resident_lists, staff_lists, age_by_uid)
         spltcf.populate_ltcfs(self, resident_lists, staff_lists)
         return
 
-    def get_ltcf(self, snfid):
+    def get_ltcf(self, ltcfid):
         """
-        Return ltcf with id: snfid.
+        Return ltcf with id: ltcfid.
 
         Args:
-            snfid (int) : ltcf id number
+            ltcfid (int) : ltcf id number
 
         Returns:
             sp.LongTermCareFacility: A populated ltcf.
         """
-        return spltcf.get_ltcf(self, snfid)
+        return spltcf.get_ltcf(self, ltcfid)
 
     def add_ltcf(self, ltcf):
         """
         Add a ltcf to the list of ltcfs.
 
         Args:
-            ltcf (sp.LongTermCareFacility): ltcf with at minimum the snfid, resident_uids, staff_uids, resident_ages, staff_ages, reference_uid, and reference_age.
+            ltcf (sp.LongTermCareFacility): ltcf with at minimum the ltcfid, resident_uids, staff_uids, resident_ages, staff_ages, reference_uid, and reference_age.
         """
         spltcf.add_ltcf(self, ltcf)
 
