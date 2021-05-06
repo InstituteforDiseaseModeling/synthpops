@@ -216,9 +216,6 @@ def make_contacts(age_by_uid,
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
             school_edges = spsch.generate_random_contacts_across_school(school, average_class_size)
-            # temporary way to get groups of students by classroom and their corresponding teachers
-            # TODO: refactor into School method that creates Classrooms with the specific age/grade clustering
-            # popdict, students_in_groups, teachers_in_groups = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
             popdict = spsch.add_contacts_from_edgelist(popdict, school_edges, 'S')
             student_groups = [students]
             teacher_groups = [teachers]

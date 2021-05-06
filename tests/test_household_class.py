@@ -57,8 +57,6 @@ def test_empty_household():
     empty_age_by_uid = []
 
     np.testing.assert_array_equal(household.member_ages(empty_age_by_uid), np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
-    # np.testing.assert_array_equal(household['member_ages'], np.array([], dtype=int), err_msg="Check failed: empty array not found for member_ages.", verbose=True)
-    # check_phrase('member_ages', household['member_ages'], passed=True)
     check_phrase('member_ages', household.member_ages(empty_age_by_uid), passed=True)
 
     print('Checks passed for an empty household.')

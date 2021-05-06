@@ -28,7 +28,6 @@ class LayerGroup(dict):
 
         Args:
             **member_uids (np.array) : ids of group members
-            **member_ages (np.array) : ages of group members
         """
         # set up default values
         default_kwargs = spd.default_layer_info
@@ -74,7 +73,6 @@ class LayerGroup(dict):
         """Return the ages of members in the layer group given the pop object."""
         if len(age_by_uid) == 0:
             print("age_by_uid is empty. Returning an empty array for member_ages.")
-            # raise ValueError("Error: age_by_uid is empty.")
             return np.array([])
 
         if subgroup_member_uids is None:

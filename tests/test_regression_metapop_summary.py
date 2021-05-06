@@ -211,8 +211,8 @@ def test_information(create_pop):
 
 if __name__ == '__main__':
 
-    # test_pop_summarize(create_pop)
-    # test_count_layer_degree(create_pop)
+    test_pop_summarize(create_pop)
+    test_count_layer_degree(create_pop)
     test_multiple_degree_histplots(do_show=1)
-    # gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
+    gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
     fig, ax = test_plot_degree_by_age_stats(do_show=1)

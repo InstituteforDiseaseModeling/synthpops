@@ -502,7 +502,6 @@ class LongTermCareFacility(spb.LayerGroup):
         """
         return np.concatenate((self['resident_uids'], self['staff_uids']))
 
-    # @property
     def member_ages(self, age_by_uid):
         """
         Return ages of all ltcf members: residents and staff.

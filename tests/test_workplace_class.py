@@ -42,7 +42,6 @@ def test_populate_workplaces(create_small_pop, create_adult_pools):
     # populate fewer or more workplaces
     for n in [min(5, len(pop.workplaces)), max(5, len(pop.workplaces))+1]:
         workplaces = []
-        # age_by_uid = {k: pop.popdict[k]['age'] for k in pop.popdict.keys()}
         for i in range(0, n):
             workplaces.append([j[0] for j in list(get_adults(create_adult_pools, random.randint(1, 3)))])
             spw.populate_workplaces(pop, workplaces)

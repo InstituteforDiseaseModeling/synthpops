@@ -103,7 +103,6 @@ class School(spb.LayerGroup):
         """
         return np.concatenate((self['student_uids'], self['teacher_uids'], self['non_teaching_staff_uids']))
 
-    # @property
     def member_ages(self, age_by_uid):
         """
         Return ages of all school members: students, teachers, and non teaching staff.
@@ -142,7 +141,7 @@ class School(spb.LayerGroup):
         if self['school_mixing_type'] == 'age_and_class_clustered':
             if not isinstance(clid, int):
                 raise TypeError("clid must be an int.")
-            if len(self['classrooms']) < clid:
+            if len(self['classrooms']) <= clid:
                 raise IndexError(f"Classroom id (clid): {clid} out of range.")
             return self['classrooms'][clid]
         else:
@@ -203,7 +202,6 @@ class Classroom(spb.LayerGroup):
         """
         return np.concatenate((self['student_uids'], self['teacher_uids']))
 
-    @property
     def member_ages(self, age_by_uid):
         """
         Return ages of all classroom members: students and teachers.

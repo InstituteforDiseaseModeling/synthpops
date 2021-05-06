@@ -188,7 +188,6 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         age_brackets = spdd.get_census_age_brackets(
-            # datadir=sp.datadir,
             datadir=sp.settings.datadir,
             state_location="Washington",
             country_location="usa",
