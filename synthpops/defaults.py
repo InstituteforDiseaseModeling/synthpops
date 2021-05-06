@@ -45,9 +45,6 @@ default_data = {
 
 default_layer_info = dict(
     member_uids=np.array([], dtype=int),
-    # member_ages=np.array([], dtype=int),
-    # reference_uid=None,
-    # reference_age=None
     )
 
 
@@ -72,7 +69,6 @@ settings.relative_path = []
 settings.max_age = 101
 settings.nbrackets = 20
 settings.valid_nbracket_ranges = [16, 18, 20]
-# settings.household_size_1_included = 1
 
 settings.country_location = None
 settings.state_location = None

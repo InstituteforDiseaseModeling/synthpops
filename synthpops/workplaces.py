@@ -74,7 +74,7 @@ def add_workplace(pop, workplace):
 
     Args:
         pop (sp.Pop)             : population
-        workplace (sp.Workplace) : workplace with at minimum the wpid, member_uids, member_ages, reference_uid, and reference_age.
+        workplace (sp.Workplace) : workplace with at minimum the wpid and member_uids.
     """
     if not isinstance(workplace, Workplace):
         raise ValueError('workplace is not a sp.Workplace object.')

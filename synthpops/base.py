@@ -29,8 +29,6 @@ class LayerGroup(dict):
         Args:
             **member_uids (np.array) : ids of group members
             **member_ages (np.array) : ages of group members
-            # **reference_uid (int) : id of the reference person
-            # **reference_age (int) : age of the reference person
         """
         # set up default values
         default_kwargs = spd.default_layer_info
@@ -58,7 +56,6 @@ class LayerGroup(dict):
         to the correct type if necessary.
         """
         for key in self.keys():
-            # if key in ['member_uids', 'member_ages']:
             if key in ['member_uids']:
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
@@ -100,7 +97,6 @@ def norm_dic(dic):
     Returns:
         A normalized dictionary.
     """
-    # total = np.sum([dic[i] for i in dic], dtype=float)
     total = float(sum(dic.values()))
     if total == 0.0:
         return dic

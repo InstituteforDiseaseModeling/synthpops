@@ -488,7 +488,7 @@ class LongTermCareFacility(spb.LayerGroup):
             if key in self.keys():
                 if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+                        errmsg = f"Error: Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
         return
 
@@ -547,7 +547,7 @@ def add_ltcf(pop, ltcf):
 
     Args:
         pop (sp.Pop)                   : population
-        ltcf (sp.LongTermCareFacility) : ltcf with at minimum the ltcfid, member_uids, member_ages, reference_uid, and reference_age.
+        ltcf (sp.LongTermCareFacility) : ltcf with at minimum the ltcfid, resident_uids and staff_uids.
     """
     if not isinstance(ltcf, LongTermCareFacility):
         raise ValueError('ltcf is not a sp.LongTermCareFacility object.')

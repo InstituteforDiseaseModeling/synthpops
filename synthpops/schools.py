@@ -81,14 +81,14 @@ class School(spb.LayerGroup):
             if key in self.keys():
                 if not isinstance(self[key], (int)):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for school key {key}. Instead the type of this value is {type(self[key])}."
+                        errmsg = f"Error: Expected type int or None for school key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
 
         for key in ['sc_type']:
             if key in self.keys():
                 if not isinstance(self[key], str):
                     if self[key] is not None:
-                        errmsg = f"Expected type str or None school key {key}."
+                        errmsg = f"Error: Expected type str or None school key {key}."
                         raise TypeError(errmsg)
         return
 
@@ -189,7 +189,7 @@ class Classroom(spb.LayerGroup):
             if key in self.keys():
                 if not isinstance(self[key], int):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for classroom key {key}."
+                        errmsg = f"Error: Expected type int or None for classroom key {key}."
                         raise TypeError(errmsg)
         return
 
