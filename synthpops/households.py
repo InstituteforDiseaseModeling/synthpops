@@ -142,10 +142,15 @@ def populate_households(pop, households, age_by_uid):
         households (list) : list of lists where each sublist represents a household and contains the ids of the household members
         age_by_uid (dict) : dictionary mapping each person's id to their age
     """
-    # check there are enough households
-    if len(pop.households) < len(households):
-        log.debug(f"Reinitializing list of households with {len(households)} empty households.")
-        initialize_empty_households(pop, len(households))
+    # # check there are enough households
+    # if len(pop.households) < len(households):
+    #     log.debug(f"Reinitializing list of households with {len(households)} empty households.")
+    #     initialize_empty_households(pop, len(households))
+
+    # initialize an empty set of households
+    # if previously you had 10 households and now you want to repopulate with
+    # this method and only supply 5 households, this method will overwrite the list
+    initialize_empty_households(pop, len(households))
 
     log.debug("Populating households.")
 
