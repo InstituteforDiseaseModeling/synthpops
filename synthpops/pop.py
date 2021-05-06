@@ -385,30 +385,31 @@ class Pop(sc.prettyobj):
         # Assign all workers who are not staff at schools to workplaces
         syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spw.assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic, cm_age_brackets, cm_age_by_brackets_dic, contact_matrix_dic)
 
-        # remove facilities from homes to write households as a separate file
+        # remove facilities from homes --- have already assigned each person a uid
         homes_by_uids = homes_by_uids[len(facilities_by_uids):]
         homes = homes[len(facilities_by_uids):]
 
-        population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
-                                                                                        homes_by_uids=homes_by_uids,
-                                                                                        schools_by_uids=syn_school_uids,
-                                                                                        teachers_by_uids=syn_teacher_uids,
-                                                                                        non_teaching_staff_uids=syn_non_teaching_staff_uids,
-                                                                                        workplaces_by_uids=syn_workplace_uids,
-                                                                                        facilities_by_uids=facilities_by_uids,
-                                                                                        facilities_staff_uids=facilities_staff_uids,
-                                                                                        use_two_group_reduction=use_two_group_reduction,
-                                                                                        average_LTCF_degree=average_LTCF_degree,
-                                                                                        with_school_types=with_school_types,
-                                                                                        school_mixing_type=school_mixing_type,
-                                                                                        average_class_size=average_class_size,
-                                                                                        inter_grade_mixing=inter_grade_mixing,
-                                                                                        average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                                        average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                                        average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                                        average_additional_staff_degree=average_additional_staff_degree,
-                                                                                        school_type_by_age=school_type_by_age,
-                                                                                        max_contacts=max_contacts)
+        # population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid_dic=age_by_uid_dic,
+        population, schools_in_groups = spcnx.make_contacts(age_by_uid_dic=age_by_uid_dic,
+                                                            homes_by_uids=homes_by_uids,
+                                                            schools_by_uids=syn_school_uids,
+                                                            teachers_by_uids=syn_teacher_uids,
+                                                            non_teaching_staff_uids=syn_non_teaching_staff_uids,
+                                                            workplaces_by_uids=syn_workplace_uids,
+                                                            facilities_by_uids=facilities_by_uids,
+                                                            facilities_staff_uids=facilities_staff_uids,
+                                                            use_two_group_reduction=use_two_group_reduction,
+                                                            average_LTCF_degree=average_LTCF_degree,
+                                                            with_school_types=with_school_types,
+                                                            school_mixing_type=school_mixing_type,
+                                                            average_class_size=average_class_size,
+                                                            inter_grade_mixing=inter_grade_mixing,
+                                                            average_student_teacher_ratio=average_student_teacher_ratio,
+                                                            average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                                            average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                                            average_additional_staff_degree=average_additional_staff_degree,
+                                                            school_type_by_age=school_type_by_age,
+                                                            max_contacts=max_contacts)
 
         # Change types
         for key, person in population.items():
