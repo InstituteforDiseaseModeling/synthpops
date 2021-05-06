@@ -32,8 +32,7 @@ class Household(spb.LayerGroup):
             **reference_age (int)    : age of the reference person
         """
         # if 'hhid' not in kwargs:
-        #     kwargs['hhid'] = None
-
+            # kwargs['hhid'] = None
         super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
         self.validate()
 
@@ -158,7 +157,7 @@ def populate_households(pop, households, age_by_uid):
     for nh, hh in enumerate(households):
         kwargs = dict(hhid=nh,
                       member_uids=hh,
-                      member_ages=[age_by_uid[i] for i in hh],
+                      # member_ages=[age_by_uid[i] for i in hh],
                       reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
                       reference_age=age_by_uid[hh[0]]
                       )

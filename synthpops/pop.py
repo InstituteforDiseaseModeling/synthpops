@@ -216,8 +216,8 @@ class Pop(sc.prettyobj):
         log.debug('Pop(): done.')
 
         # Add summaries post hoc  --- TBD: summaries during generation
-        self.compute_information()  # compute full information
-        self.compute_summary()  # then compute condensed summary
+        # self.compute_information()  # compute full information
+        # self.compute_summary()  # then compute condensed summary
 
         # Plotting defaults
         self.plkwargs = sppl.plotting_kwargs()
@@ -363,7 +363,7 @@ class Pop(sc.prettyobj):
         workers_by_age_to_assign_count = spw.get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_count, uids_by_age_dic)
 
         # Removing facilities residents from potential workers
-        potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spltcf.remove_ltcf_residents_from_potential_workers(facilities_by_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic)
+        potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spltcf.remove_ltcf_residents_from_potential_workers(facilities_by_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count, age_by_uid_dic)
 
         # Assign teachers and update school lists
         teacher_age_lists, teacher_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count = spsch.assign_teachers_to_schools(school_age_lists, school_uid_lists,
@@ -427,21 +427,21 @@ class Pop(sc.prettyobj):
 
         school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
 
-        # temporarily store some information
+        # # temporarily store some information
         self.homes_by_uids = homes_by_uids
-        self.workplace_uid_lists = workplace_uid_lists
-        self.school_uids = school_uid_lists
-        self.teacher_uids = teacher_uid_lists
-        self.non_teaching_staff_uids = non_teaching_staff_uid_lists
-        self.school_types = school_types
-        self.school_mixing_types = school_mixing_types
-        self.schools_in_groups = schools_in_groups
-        if self.ltcf_pars.with_facilities:
-            self.facilities_by_uid_lists = facilities_by_uid_lists
-            self.facilities_staff_uid_lists = facilities_staff_uid_lists
+        # self.workplace_uid_lists = workplace_uid_lists
+        # self.school_uids = school_uid_lists
+        # self.teacher_uids = teacher_uid_lists
+        # self.non_teaching_staff_uids = non_teaching_staff_uid_lists
+        # self.school_types = school_types
+        # self.school_mixing_types = school_mixing_types
+        # self.schools_in_groups = schools_in_groups
+        # if self.ltcf_pars.with_facilities:
+        #     self.facilities_by_uid_lists = facilities_by_uid_lists
+        #     self.facilities_staff_uid_lists = facilities_staff_uid_lists
 
         self.set_layer_classes()
-        self.clean_up_layer_info()
+        # self.clean_up_layer_info()
 
         return population
 
@@ -449,20 +449,20 @@ class Pop(sc.prettyobj):
         """Add layer classes."""
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
-        self.initialize_workplaces_list()
-        self.populate_workplaces(self.workplace_uid_lists, self.age_by_uid)
+        # self.initialize_workplaces_list()
+        # self.populate_workplaces(self.workplace_uid_lists, self.age_by_uid)
 
-        self.initialize_schools_list()
-        self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
-                              self.non_teaching_staff_uid_lists, self.age_by_uid,
-                              self.school_types, self.school_mixing_types)
+        # self.initialize_schools_list()
+        # self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
+        #                       self.non_teaching_staff_uid_lists, self.age_by_uid,
+        #                       self.school_types, self.school_mixing_types)
 
-        self.populate_all_classrooms(self.schools_in_groups)
+        # self.populate_all_classrooms(self.schools_in_groups)
 
-        if self.ltcf_pars.with_facilities:
-            self.initialize_ltcfs_list()
-            self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists,
-                                self.age_by_uid)
+        # if self.ltcf_pars.with_facilities:
+        #     self.initialize_ltcfs_list()
+        #     self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists,
+        #                         self.age_by_uid)
         return
 
     def clean_up_layer_info(self):

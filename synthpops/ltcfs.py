@@ -456,7 +456,7 @@ class LongTermCareFacility(spb.LayerGroup):
         kwargs (dict): data dictionary of the long term care facility
     """
 
-    def __init__(self, snfid=None, resident_uids=np.aray([], dtype=int), staff_uids=np.array([], dtype=int), **kwargs):
+    def __init__(self, snfid=None, resident_uids=np.array([], dtype=int), staff_uids=np.array([], dtype=int), **kwargs):
         """
         Class constructor for empty long term care facility (ltcf).
 
