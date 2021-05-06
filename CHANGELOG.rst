@@ -27,6 +27,13 @@ Latest versions (1.7.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.7.7 (2021-05-05)
+--------------------------
+- Made changes to allow SynthPops to be installed via ``pip``.
+- Most significantly, changed the default data folder from ``synthpops/data`` to ``synthpops/synthpops/data``.
+- *Github*: PRs: `465 <https://github.com/amath-idm/synthpops/pull/465>`__
+
+
 Version 1.7.6 (2021-05-05)
 --------------------------
 - Updated random graph model to use networkx's fast Erdos-Renyi graph generator implementation, which speeds up generation time for the model.
