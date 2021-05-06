@@ -121,17 +121,6 @@ class Pop(sc.prettyobj):
         self.ltcf_pars          = sc.objdict()
 
         # General parameters
-        # <<<<<<< HEAD
-        # self.n                                           = int(n)
-        # self.max_contacts                                = sc.mergedicts({'W': 20}, max_contacts)
-        # self.with_industry_code                          = with_industry_code
-        # self.rand_seed                                   = rand_seed
-        # self.country_location                            = country_location
-        # self.state_location                              = state_location
-        # self.location                                    = location
-        # self.sheet_name                                  = sheet_name
-        # self.use_default                                 = use_default
-        # =======
         if n is None:
             log.warning(f"Pop size n not given, generating a population with a default size of {defaults.default_pop_size} people.")
             n = defaults.default_pop_size
@@ -147,7 +136,6 @@ class Pop(sc.prettyobj):
         self.location           = location
         self.sheet_name         = sheet_name
         self.use_default        = use_default
-        # >>>>>>> master
 
         # Age distribution parameters
         self.smooth_ages                                 = smooth_ages

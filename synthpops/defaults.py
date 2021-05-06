@@ -45,9 +45,9 @@ default_data = {
 
 default_layer_info = dict(
     member_uids=np.array([], dtype=int),
-    member_ages=np.array([], dtype=int),
-    reference_uid=None,
-    reference_age=None
+    # member_ages=np.array([], dtype=int),
+    # reference_uid=None,
+    # reference_age=None
     )
 
 

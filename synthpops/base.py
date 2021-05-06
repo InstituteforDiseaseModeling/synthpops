@@ -29,8 +29,8 @@ class LayerGroup(dict):
         Args:
             **member_uids (np.array) : ids of group members
             **member_ages (np.array) : ages of group members
-            **reference_uid (int) : id of the reference person
-            **reference_age (int) : age of the reference person
+            # **reference_uid (int) : id of the reference person
+            # **reference_age (int) : age of the reference person
         """
         # set up default values
         default_kwargs = spd.default_layer_info
@@ -58,7 +58,8 @@ class LayerGroup(dict):
         to the correct type if necessary.
         """
         for key in self.keys():
-            if key in ['member_uids', 'member_ages']:
+            # if key in ['member_uids', 'member_ages']:
+            if key in ['member_uids']:
                 try:
                     self[key] = sc.promotetoarray(self[key], dtype=int)
                 except:
@@ -71,6 +72,10 @@ class LayerGroup(dict):
                         raise TypeError(errmsg)
 
         return
+
+    def member_ages(self, pop):
+        """Return the ages of members in the layer group given the pop object."""
+        return pop.age_by_uid[self.member_uids]
 
 
 __all__ += ['norm_dic', 'norm_age_group']

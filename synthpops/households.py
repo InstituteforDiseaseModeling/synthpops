@@ -20,7 +20,7 @@ class Household(spb.LayerGroup):
         kwargs (dict): data dictionary of the household
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, hhid=None, reference_uid=None, reference_age=None, **kwargs):
         """
         Class constructor for empty household.
 
