@@ -23,7 +23,7 @@ class Workplace(spb.LayerGroup):
         kwargs (dict): data dictionary of the workplace
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, wpid=None, **kwargs):
         """
         Class constructor for empty workplace.
 
@@ -35,10 +35,11 @@ class Workplace(spb.LayerGroup):
             **reference_age (int) : age of the reference person
         """
         # set up default workplace values
-        if 'wpid' not in kwargs:
-            kwargs['wpid'] = None
-        super().__init__(**kwargs)
+        # if 'wpid' not in kwargs:
+        #     kwargs['wpid'] = None
+        super().__init__(wpid=wpid, **kwargs)
         self.validate()
+
         return
 
     def validate(self):
@@ -46,20 +47,21 @@ class Workplace(spb.LayerGroup):
         Check that information supplied to make a workplace is valid and update
         to the correct type if necessary.
         """
-        for key in ['member_uids', 'member_ages']:
-            if key in self.keys():
-                try:
-                    self[key] = sc.promotetoarray(self[key], dtype=int)
-                except:
-                    errmsg = f"Could not convert workplace key {key} to an np.array() with type int. This key only takes arrays with int values."
-                    raise TypeError(errmsg)
+        # for key in ['member_uids', 'member_ages']:
+        #     if key in self.keys():
+        #         try:
+        #             self[key] = sc.promotetoarray(self[key], dtype=int)
+        #         except:
+        #             errmsg = f"Could not convert workplace key {key} to an np.array() with type int. This key only takes arrays with int values."
+        #             raise TypeError(errmsg)
 
-        for key in ['wpid', 'reference_uid', 'reference_age']:
-            if key in self.keys():
-                if not isinstance(self[key], (int, np.int32, np.int64)):
-                    if self[key] is not None:
-                        errmsg = f"Expected type int or None for workplace key {key}. Instead the type of this value is {type(self[key])}."
-                        raise TypeError(errmsg)
+        # for key in ['wpid', 'reference_uid', 'reference_age']:
+        #     if key in self.keys():
+        #         if not isinstance(self[key], (int, np.int32, np.int64)):
+        #             if self[key] is not None:
+        #                 errmsg = f"Expected type int or None for workplace key {key}. Instead the type of this value is {type(self[key])}."
+        #                 raise TypeError(errmsg)
+        super().validate(layer_str='workplace')
         return
 
 
@@ -149,14 +151,14 @@ def populate_workplaces(pop, workplaces, age_by_uid):
     return
 
 
-def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic):
+def get_uids_potential_workers(student_uid_lists, employment_rates, age_by_uid_dic):
     """
     Get IDs for everyone who could be a worker by removing those who are students and those who can't be employed officially.
 
     Args:
-        syn_school_uids (list)  : A list of lists where each sublist represents a school with the IDs of students in the school.
-        employment_rates (dict) : The employment rates by age.
-        age_by_uid_dic (dict)   : A dictionary mapping ID to age for individuals in the population.
+        student_uid_lists (list) : A list of lists where each sublist represents a school with the IDs of students in the school.
+        employment_rates (dict)  : The employment rates by age.
+        age_by_uid_dic (dict)    : A dictionary mapping ID to age for individuals in the population.
 
     Returns:
         A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential
@@ -173,8 +175,8 @@ def get_uids_potential_workers(syn_school_uids, employment_rates, age_by_uid_dic
             potential_worker_ages_left_count[a] = 0
 
     # remove students from any potential workers since the model assumes student and worker status are exclusive
-    for school in syn_school_uids:
-        for uid in school:
+    for students in student_uid_lists:
+        for uid in students:
             potential_worker_uids.pop(uid, None)
 
     for uid in age_by_uid_dic:
@@ -204,7 +206,7 @@ def generate_workplace_sizes(workplace_size_distr_by_bracket, workplace_size_bra
 
     Args:
         workplace_size_distr_by_bracket (dict) : The distribution of binned workplace sizes.
-        worplace_size_brackets (dict)          : A dictionary of workplace size brackets.
+        worlplace_size_brackets (dict)         : A dictionary of workplace size brackets.
         workers_by_age_to_assign_count (dict)  : A dictionary mapping age to the count of employed individuals of that age.
 
     Returns:
@@ -277,8 +279,8 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
         mapping age to the count of workers left to assign.
     """
     log.debug('assign_rest_of_workers()')
-    syn_workplaces = []
-    syn_workplace_uids = []
+    workplace_age_lists = []
+    workplace_uid_lists = []
     worker_age_keys = workers_by_age_to_assign_count.keys()
     sorted_worker_age_keys = sorted(worker_age_keys)
 
@@ -374,9 +376,9 @@ def assign_rest_of_workers(workplace_sizes, potential_worker_uids, potential_wor
                         b_prob = b_prob / np.sum(b_prob)
 
         log.debug(f'  Progress: {n}, {Counter(new_work)}')
-        syn_workplaces.append(new_work)
-        syn_workplace_uids.append(new_work_uids)
-    return syn_workplaces, syn_workplace_uids, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
+        workplace_age_lists.append(new_work)
+        workplace_uid_lists.append(new_work_uids)
+    return workplace_age_lists, workplace_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
 def count_employment_by_age(popdict):
