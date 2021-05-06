@@ -52,7 +52,7 @@ class LayerGroup(dict):
         """Return the length as the number of members in the layer group"""
         return len(self['member_uids'])
 
-    def validate(self):
+    def validate(self, layer_str=''):
         """
         Check that information supplied to make a household is valid and update
         to the correct type if necessary.
@@ -68,7 +68,7 @@ class LayerGroup(dict):
             else:
                 if not isinstance(self[key], (int, np.int32, np.int64)):
                     if self[key] is not None:
-                        errmsg = f"Expected type int or None for key {key}. Instead the type of this value is {type(self[key])}."
+                        errmsg = f"error: Expected type int or None for {layer_str} key {key}. Instead the type of this value is {type(self[key])}."
                         raise TypeError(errmsg)
 
         return
@@ -115,10 +115,10 @@ def norm_age_group(age_dic, age_min, age_max):
 
 
 # Functions related to age distributions
-__all__ += ['get_index_by_brackets_dic', 'get_age_by_brackets_dic', 'get_ids_by_age_dic']
+__all__ += ['get_index_by_brackets', 'get_age_by_brackets_dic', 'get_ids_by_age_dic']
 
 
-def get_index_by_brackets_dic(brackets):
+def get_index_by_brackets(brackets):
     """
     Create a dictionary mapping each item in the value arrays to the key. For example, if brackets
     are age brackets, then this function will map each age to the age bracket or bin that it belongs to,
@@ -131,11 +131,11 @@ def get_index_by_brackets_dic(brackets):
         dict: A dictionary mapping indices to the brackets or bins each index belongs to.
 
     """
-    by_brackets_dic = {}
+    index_by_brackets = {}
     for b in brackets:
         for a in brackets[b]:
-            by_brackets_dic[a] = b
-    return by_brackets_dic
+            index_by_brackets[a] = b
+    return index_by_brackets
 
 
 def get_age_by_brackets_dic(age_brackets):
@@ -156,7 +156,7 @@ def get_age_by_brackets_dic(age_brackets):
         age_brackets = sp.get_census_age_brackets(sp.datadir,state_location='Washington',country_location='usa')
         age_by_brackets_dic = sp.get_age_by_brackets_dic(age_brackets)
     """
-    return get_index_by_brackets_dic(age_brackets)
+    return get_index_by_brackets(age_brackets)
 
 
 def get_ids_by_age_dic(age_by_id_dic):

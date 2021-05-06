@@ -31,10 +31,10 @@ class Household(spb.LayerGroup):
             **reference_uid (int)    : id of the reference person
             **reference_age (int)    : age of the reference person
         """
-        if 'hhid' not in kwargs:
-            kwargs['hhid'] = None
+        # if 'hhid' not in kwargs:
+        #     kwargs['hhid'] = None
 
-        super().__init__(**kwargs)
+        super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
         self.validate()
 
         return
@@ -44,20 +44,22 @@ class Household(spb.LayerGroup):
         Check that information supplied to make a household is valid and update
         to the correct type if necessary.
         """
-        for key in ['member_uids', 'member_ages']:
-            if key in self.keys():
-                try:
-                    self[key] = sc.promotetoarray(self[key], dtype=int)
-                except:
-                    errmsg = f"Could not convert household key {key} to an np.array() with type int. This key only takes arrays with int values."
-                    raise TypeError(errmsg)
+        # for key in ['member_uids', 'member_ages']:
+        # for key in ['member_uids']:
+        #     if key in self.keys():
+        #         try:
+        #             self[key] = sc.promotetoarray(self[key], dtype=int)
+        #         except:
+        #             errmsg = f"Could not convert household key {key} to an np.array() with type int. This key only takes arrays with int values."
+        #             raise TypeError(errmsg)
 
-        for key in ['hhid', 'reference_uid', 'reference_age']:
-            if key in self.keys():
-                if not isinstance(self[key], (int, np.int32, np.int64)):
-                    if self[key] is not None:
-                        errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])} {self[key]}."
-                        raise TypeError(errmsg)
+        # for key in ['hhid', 'reference_uid', 'reference_age']:
+        #     if key in self.keys():
+        #         if not isinstance(self[key], (int, np.int32, np.int64)):
+        #             if self[key] is not None:
+        #                 errmsg = f"Expected type int or None for household key {key}. Instead the type of this value is {type(self[key])} {self[key]}."
+        #                 raise TypeError(errmsg)
+        super().validate(layer_str='household')
         return
 
     # To be turned on for vital dynamics...
@@ -95,7 +97,7 @@ def get_household(pop, hhid):
     """
     if not isinstance(hhid, int):
         raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
-    if len(pop.households) < hhid:
+    if len(pop.households) <= hhid:
         raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
     return pop.households[hhid]
 
