@@ -464,8 +464,8 @@ class LongTermCareFacility(spb.LayerGroup):
             **snfid (int) : ltcf id
             **member_uids (np.array) : ids of ltcf members
             **member_ages (np.array) : ages of ltcf members
-            **reference_uid (int) : id of the reference person
-            **reference_age (int) : age of the reference person
+            # **reference_uid (int) : id of the reference person
+            # **reference_age (int) : age of the reference person
         """
         # if 'snfid' not in kwargs:
         #     kwargs['snfid'] = None
@@ -485,22 +485,22 @@ class LongTermCareFacility(spb.LayerGroup):
         to the correct type if necessary.
         """
         # # for key in ['resident_uids', 'staff_uids', 'resident_ages', 'staff_ages']:
-        # for key in ['resident_uids', 'staff_uids']:
-        #     if key in self.keys():
-        #         try:
-        #             self[key] = sc.promotetoarray(self[key], dtype=int)
-        #         except:
-        #             errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
-        #             raise TypeError(errmsg)
+        for key in ['resident_uids', 'staff_uids']:
+            if key in self.keys():
+                try:
+                    self[key] = sc.promotetoarray(self[key], dtype=int)
+                except:
+                    errmsg = f"Could not convert ltcf key {key} to an np.array() with type int. This key only takes arrays with int values."
+                    raise TypeError(errmsg)
 
-        # # for key in ['snfid', 'reference_uid', 'reference_age']:
-        # for key in ['snfid']:
-        #     if key in self.keys():
-        #         if not isinstance(self[key], (int, np.int32, np.int64)):
-        #             if self[key] is not None:
-        #                 errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
-        #                 raise TypeError(errmsg)
-        super().validate(layer_str='ltcf')
+        # for key in ['snfid', 'reference_uid', 'reference_age']:
+        for key in ['snfid']:
+            if key in self.keys():
+                if not isinstance(self[key], (int, np.int32, np.int64)):
+                    if self[key] is not None:
+                        errmsg = f"Expected type int or None for ltcf key {key}. Instead the type of this value is {type(self[key])}."
+                        raise TypeError(errmsg)
+        # super().validate(layer_str='ltcf')
         return
 
     @property
@@ -513,20 +513,26 @@ class LongTermCareFacility(spb.LayerGroup):
         """
         return np.concatenate((self['resident_uids'], self['staff_uids']))
 
-    @property
-    def member_ages(self, pop):
+    # @property
+    def member_ages(self, age_by_uid):
         """
         Return ages of all ltcf members: residents and staff.
 
         Returns:
             np.ndarray : ltcf member ages
         """
-        return np.concatenate((self.member_ages(pop, self['resident_uids']), self.member_ages(pop, self['staff_uids'])))
+        return np.concatenate((self.member_ages(age_by_uid, self['resident_uids']), self.member_ages(age_by_uid, self['staff_uids'])))
         # return np.concatenate((self['resident_ages'], self['staff_ages']))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""
         return len(self.member_uids)
+
+    def resident_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['resident_uids'])
+
+    def staff_ages(self, age_by_uid):
+        return self.member_ages(age_by_uid, self['staff_uids'])
 
 
 def get_ltcf(pop, snfid):
@@ -578,7 +584,8 @@ def initialize_empty_ltcfs(pop, n_ltcfs=None):
     return
 
 
-def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
+# def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
+def populate_ltcfs(pop, resident_lists, staff_lists):
     """
     Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
 
@@ -600,11 +607,11 @@ def populate_ltcfs(pop, resident_lists, staff_lists, age_by_uid):
         lf.extend(staff_lists[nl])
         kwargs = dict(snfid=nl,
                       resident_uids=residents,
-                      resident_ages=[age_by_uid[i] for i in residents],
+                      # resident_ages=[age_by_uid[i] for i in residents],
                       staff_uids=staff_lists[nl],
-                      staff_ages=[age_by_uid[i] for i in staff_lists[nl]],
+                      # staff_ages=[age_by_uid[i] for i in staff_lists[nl]],
                       reference_uid=lf[0],  # by default, the reference person is the first in the ltcf in synthpops - with vital dynamics this may change
-                      reference_age=age_by_uid[lf[0]]
+                      # reference_age=age_by_uid[lf[0]]
                       )
         ltcf = LongTermCareFacility()
         ltcf.set_layer_group(**kwargs)

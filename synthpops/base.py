@@ -36,7 +36,6 @@ class LayerGroup(dict):
         default_kwargs = spd.default_layer_info
         kwargs = sc.mergedicts(default_kwargs, kwargs)
         self.update(kwargs)
-        print(self)
         self.validate()
 
         return

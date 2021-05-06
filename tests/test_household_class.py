@@ -67,18 +67,15 @@ def test_empty_household():
 def test_make_household():
     sp.logger.info("Test creating a household after the fact.")
     pop = sp.Pop(**pars)
-    print(pars)
 
     household = sp.Household()
     household.set_layer_group(member_uids=pop.homes_by_uids[0],
-                              # member_ages=[pop.age_by_uid[i] for i in pop.homes_by_uids[0]],
                               reference_uid=min(pop.homes_by_uids[0]), reference_age=pop.age_by_uid[min(pop.homes_by_uids[0])],
                               hhid=0)
 
     assert household['hhid'] == 0, f"Check failed. household hhid is {household['hhid']}."
     print('Check passed. household hhid is 0.')
 
-    # assert len(household['member_uids']) == len(household['member_ages']), 'Check failed: member_uids and member_ages have different lengths.'
     assert len(household['member_uids']) == len(household.member_ages(pop.age_by_uid)), 'Check failed: member_uids and member_ages have different lengths.'
     print(f"Check passed. household member_uids and member_ages have the same length ({len(household['member_uids'])}).")
 
@@ -88,7 +85,6 @@ def test_make_household():
     assert len(household) == len(household['member_uids']), 'Check failed: len(household) does not return the household size, i.e. the number of household members.'
     print('Check passed. len(household) returns the number of household members.')
 
-    # assert isinstance(household['member_ages'], np.ndarra), 'Check failed: member_ages is not a np.array.'
     assert isinstance(household.member_ages(pop.age_by_uid), np.ndarray), 'Check failed: member_ages is not a np.array.'
     print('Check passed. household member_ages is a np.array.')
 
@@ -118,7 +114,7 @@ def test_add_household():
     sp.logger.info("Test creating a sp.Household object and adding it to an empty sp.Households class after generation.")
     home = [1, 2, 3]
     age_by_uid = {1: 88, 2: 45, 3: 47}
-    household = sp.Household(member_uids=home, #member_ages=[age_by_uid[i] for i in home],
+    household = sp.Household(member_uids=home,
                              reference_uid=home[0], reference_age=age_by_uid[home[0]],
                              hhid=0)
 

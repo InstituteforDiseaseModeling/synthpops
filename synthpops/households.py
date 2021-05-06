@@ -32,7 +32,7 @@ class Household(spb.LayerGroup):
             **reference_age (int)    : age of the reference person
         """
         # if 'hhid' not in kwargs:
-            # kwargs['hhid'] = None
+        #     kwargs['hhid'] = None
         super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
         self.validate()
 

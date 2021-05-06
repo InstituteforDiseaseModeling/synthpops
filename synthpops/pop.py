@@ -429,16 +429,16 @@ class Pop(sc.prettyobj):
 
         # # temporarily store some information
         self.homes_by_uids = homes_by_uids
-        # self.workplace_uid_lists = workplace_uid_lists
-        # self.school_uids = school_uid_lists
-        # self.teacher_uids = teacher_uid_lists
-        # self.non_teaching_staff_uids = non_teaching_staff_uid_lists
-        # self.school_types = school_types
-        # self.school_mixing_types = school_mixing_types
-        # self.schools_in_groups = schools_in_groups
-        # if self.ltcf_pars.with_facilities:
-        #     self.facilities_by_uid_lists = facilities_by_uid_lists
-        #     self.facilities_staff_uid_lists = facilities_staff_uid_lists
+        self.workplace_uid_lists = workplace_uid_lists
+        self.school_uids = school_uid_lists
+        self.teacher_uids = teacher_uid_lists
+        self.non_teaching_staff_uids = non_teaching_staff_uid_lists
+        self.school_types = school_types
+        self.school_mixing_types = school_mixing_types
+        self.schools_in_groups = schools_in_groups
+        if self.ltcf_pars.with_facilities:
+            self.facilities_by_uid_lists = facilities_by_uid_lists
+            self.facilities_staff_uid_lists = facilities_staff_uid_lists
 
         self.set_layer_classes()
         # self.clean_up_layer_info()
@@ -449,8 +449,9 @@ class Pop(sc.prettyobj):
         """Add layer classes."""
         self.initialize_households_list()
         self.populate_households(self.homes_by_uids, self.age_by_uid)
-        # self.initialize_workplaces_list()
-        # self.populate_workplaces(self.workplace_uid_lists, self.age_by_uid)
+        self.initialize_workplaces_list()
+        self.populate_workplaces(self.workplace_uid_lists)
+            # , self.age_by_uid)
 
         # self.initialize_schools_list()
         # self.populate_schools(self.school_uid_lists, self.teacher_uid_lists,
@@ -459,10 +460,11 @@ class Pop(sc.prettyobj):
 
         # self.populate_all_classrooms(self.schools_in_groups)
 
-        # if self.ltcf_pars.with_facilities:
-        #     self.initialize_ltcfs_list()
-        #     self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists,
-        #                         self.age_by_uid)
+        if self.ltcf_pars.with_facilities:
+            self.initialize_ltcfs_list()
+            self.populate_ltcfs(self.facilities_by_uid_lists, self.facilities_staff_uid_lists,
+                                # self.age_by_uid
+                                )
         return
 
     def clean_up_layer_info(self):
@@ -592,7 +594,8 @@ class Pop(sc.prettyobj):
         sphh.initialize_empty_workplaces(self, n_workplaces)
         return
 
-    def populate_workplaces(self, workplaces, age_by_uid):
+    # def populate_workplaces(self, workplaces, age_by_uid):
+    def populate_workplaces(self, workplaces):
         """
         Populate all of the workplaces. Store each workplace at the index corresponding to it's wpid.
 
@@ -600,7 +603,8 @@ class Pop(sc.prettyobj):
             workplaces (list) : list of lists where each sublist represents a workplace and contains the ids of the workplace members
             age_by_uid (dict) : dictionary mapping each person's id to their age
         """
-        spw.populate_workplaces(self, workplaces, age_by_uid)
+        # spw.populate_workplaces(self, workplaces, age_by_uid)
+        spw.populate_workplaces(self, workplaces)
         return
 
     def get_workplace(self, wpid):
@@ -640,7 +644,8 @@ class Pop(sc.prettyobj):
         spltcf.initialize_empty_ltcfs(self, n_ltcfs)
         return
 
-    def populate_ltcfs(self, resident_lists, staff_lists, age_by_uid):
+    # def populate_ltcfs(self, resident_lists, staff_lists, age_by_uid):
+    def populate_ltcfs(self, resident_lists, staff_lists):
         """
         Populate all of the ltcfs. Store each ltcf at the index corresponding to it's snfid.
 
@@ -649,7 +654,8 @@ class Pop(sc.prettyobj):
             staff_lists (list)    : list of lists where each sublist represents a ltcf and contains the ids of the staff
             age_by_uid (dict)     : dictionary mapping each person's id to their age
         """
-        spltcf.populate_ltcfs(self, resident_lists, staff_lists, age_by_uid)
+        # spltcf.populate_ltcfs(self, resident_lists, staff_lists, age_by_uid)
+        spltcf.populate_ltcfs(self, resident_lists, staff_lists)
         return
 
     def get_ltcf(self, snfid):
