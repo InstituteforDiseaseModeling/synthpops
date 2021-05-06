@@ -36,6 +36,22 @@ def test_initialize_empty_workplaces(create_small_pop):
         assert len(pop.workplaces) == pop.n_workplaces == n
 
 
+def test_make_workplace(create_small_pop):
+    pop = sc.dcp(create_small_pop)
+    work = spw.Workplace()
+    params = sc.objdict(wpid=pop.workplaces[0]['wpid'],
+                        member_uids=pop.workplaces[0]['member_uids'],
+                        member_ages=pop.workplaces[0]['member_ages'],
+                        reference_uid=pop.workplaces[0]['reference_uid'],
+                        reference_age=pop.workplaces[0]['reference_age'])
+    work.set_layer_group(**params)
+    for i in params:
+        errmsg = f"{i} not equal!, expected: {pop.workplaces[0][i]} actual: {work[i]}"
+        if hasattr(work[i], "__len__"):
+            assert len(work[i]) == len(pop.workplaces[0][i]), errmsg
+        else:
+            assert work[i] == pop.workplaces[0][i], errmsg
+
 def test_populate_workplaces(create_small_pop, create_adult_pools):
     pop = sc.dcp(create_small_pop)
     original_workplace_n = len(pop.workplaces)
