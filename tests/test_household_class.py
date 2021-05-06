@@ -166,7 +166,7 @@ def test_households_basic():
         sp.get_household(pop_2, 0.5)
     print('Check passed. Cannot get a household with a non-int hhid')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         sp.get_household(pop_2, len(pop_2.households) + 1)
     print('Check passed. Cannot get a household with hhid larger than the number of households')
 

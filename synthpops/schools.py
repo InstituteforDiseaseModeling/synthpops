@@ -143,7 +143,7 @@ class School(spb.LayerGroup):
             if not isinstance(clid, int):
                 raise TypeError("clid must be an int.")
             if len(self['classrooms']) < clid:
-                raise ValueError(f"Classroom id (clid): {clid} out of range.")
+                raise IndexError(f"Classroom id (clid): {clid} out of range.")
             return self['classrooms'][clid]
         else:
             return
@@ -239,7 +239,7 @@ def get_school(pop, scid):
     if not isinstance(scid, int):
         raise TypeError(f"scid must be an int.")
     if len(pop.schools) <= scid:
-        raise ValueError(f"School id (scid): {scid} out of range.")
+        raise IndexError(f"School id (scid): {scid} out of range.")
     return pop.schools[scid]
 
 

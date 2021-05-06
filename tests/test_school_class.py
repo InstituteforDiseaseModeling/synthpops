@@ -19,6 +19,7 @@ def create_age_and_class_clustered_pop():
                   with_school_types=1,
                   school_mixing_type='age_and_class_clustered')
 
+
 def test_get_school(create_small_pop):
     # valid
     pop = create_small_pop
@@ -29,12 +30,13 @@ def test_get_school(create_small_pop):
 
     #Invalid
     max_scid = max([s['scid'] for s in pop.schools])
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         sps.get_school(pop, max_scid+1)
 
     bad_scid = "scid1"
     with pytest.raises(TypeError):
         sps.get_school(pop, bad_scid)
+
 
 def test_get_class(create_age_and_class_clustered_pop):
     pop = create_age_and_class_clustered_pop

@@ -537,7 +537,7 @@ def get_ltcf(pop, ltcfid):
     if not isinstance(ltcfid, int):
         raise TypeError(f"ltcfid must be an int. Instead supplied wpid with type: {type(ltcfid)}.")
     if len(pop.ltcfs) <= ltcfid:
-        raise ValueError(f"Ltcf id (ltcfid): {ltcfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
+        raise IndexError(f"Ltcf id (ltcfid): {ltcfid} out of range. There are {len(pop.ltcfs)} ltcfs stored in this object.")
     return pop.ltcfs[ltcfid]
 
 

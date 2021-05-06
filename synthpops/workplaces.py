@@ -28,7 +28,7 @@ class Workplace(spb.LayerGroup):
         Class constructor for empty workplace.
 
         Args:
-            **wpid (int) : workplace id
+            **wpid (int)             : workplace id
             **member_uids (np.array) : ids of workplace members
             **member_ages (np.array) : ages of workplace members
         """
@@ -64,7 +64,7 @@ def get_workplace(pop, wpid):
     if not isinstance(wpid, int):
         raise TypeError(f"wpid must be an int. Instead supplied wpid with type: {type(wpid)}.")
     if len(pop.workplaces) <= wpid:
-        raise ValueError(f"Workplace id (wpid): {wpid} out of range. There are {len(pop.workplaces)} workplaces stored in this object.")
+        raise IndexError(f"Workplace id (wpid): {wpid} out of range. There are {len(pop.workplaces)} workplaces stored in this object.")
     return pop.workplaces[wpid]
 
 
@@ -135,7 +135,7 @@ def get_uids_potential_workers(student_uid_lists, employment_rates, age_by_uid):
     Args:
         student_uid_lists (list) : A list of lists where each sublist represents a school with the IDs of students in the school.
         employment_rates (dict)  : The employment rates by age.
-        age_by_uid (dict)    : A dictionary mapping ID to age for individuals in the population.
+        age_by_uid (dict)        : A dictionary mapping ID to age for individuals in the population.
 
     Returns:
         A dictionary of potential workers mapping their ID to their age, a dictionary mapping age to the list of IDs for potential

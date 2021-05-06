@@ -58,9 +58,6 @@ def test_add_workplace(create_small_pop, create_adult_pools):
     max_pid = max([i['wpid'] for i in pop.workplaces])
     new_workers = [i for i in list(get_adults(create_adult_pools, random.randint(3, 5)))]
     param = {'member_uids': new_workers[0],
-             # 'member_ages': new_workers[1],
-             # 'reference_uid': new_workers[0][0],
-             # 'reference_age': new_workers[1][0],
              'wpid': max_pid+1}
     workplace = Workplace(**param)
     pop = create_small_pop
@@ -71,9 +68,6 @@ def test_add_workplace(create_small_pop, create_adult_pools):
 def test_validate_workplace(create_small_pop):
     # check for invalid parameters
     param = {'member_uids': [1],
-             # 'member_ages': [60],
-             # 'reference_uid': 1,
-             # 'reference_age': 60,
              'wpid': 1}
     invalidparam1 = param.copy()
     invalidparam1['wpid'] = "w1"
@@ -99,5 +93,5 @@ def test_get_workplace(create_small_pop):
 def test_get_workplace_invalid(create_small_pop):
     pop = create_small_pop
     max_pid = max([i['wpid'] for i in pop.workplaces])
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         spw.get_workplace(pop, max_pid+1)

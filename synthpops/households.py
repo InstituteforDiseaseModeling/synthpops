@@ -79,7 +79,7 @@ def get_household(pop, hhid):
     if not isinstance(hhid, int):
         raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
     if len(pop.households) <= hhid:
-        raise ValueError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
+        raise IndexError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
     return pop.households[hhid]
 
 
