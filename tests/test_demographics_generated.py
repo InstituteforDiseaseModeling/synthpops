@@ -91,10 +91,10 @@ def test_older_ages_have_household_contacts():
 
     contact_matrix_nbrackets = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape[0]
     cm_age_brackets = sp.get_census_age_brackets(**sc.mergedicts(loc_pars, {'nbrackets': contact_matrix_nbrackets}))
-    cm_age_by_brackets_dic = sp.get_age_by_brackets_dic(cm_age_brackets)
+    cm_age_by_brackets = sp.get_age_by_brackets(cm_age_brackets)
 
     age_threshold = 80
-    age_threshold_bracket = cm_age_by_brackets_dic[age_threshold]
+    age_threshold_bracket = cm_age_by_brackets[age_threshold]
 
     expected_older_contact = np.sum(contact_matrix_dic['H'][age_threshold_bracket:, age_threshold_bracket:])
 

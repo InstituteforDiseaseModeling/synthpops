@@ -34,6 +34,7 @@ pars = sc.objdict(
 
 )
 
+
 @pytest.fixture(scope="module")
 def create_pop():
     return sp.Pop(**pars)
@@ -155,25 +156,25 @@ def test_count_layer_degree_by_age(create_pop):
     pop = create_pop
     layer = 'W'
     brackets = pop.age_brackets
-    ageindex = pop.age_by_brackets_dic
+    ageindex = pop.age_by_brackets
     total = np.zeros(len(brackets))
     contacts = np.zeros(len(brackets))
-    #brute force check for contact count
+    # brute force check for contact count
     for p in pop.popdict.values():
         total[ageindex[p["age"]]] += 1
         contacts[ageindex[p["age"]]] += len(p["contacts"][layer])
     for b in brackets:
         degree_df = sp.count_layer_degree(pop, layer, brackets[b])
         expected = contacts[b]
-        actual =  degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
-        print(f"expected contacts for {brackets[b]} is {expected}" )
-        assert expected==actual, f"expecred: {expected} actual:{actual}"
+        actual = degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
+        print(f"expected contacts for {brackets[b]} is {expected}")
+        assert expected == actual, f"expecred: {expected} actual:{actual}"
 
 
 def test_filter_age(create_pop):
     pop = sp.Pop(**pars)
     ages = [15, 16, 17, 18, 19]
-    pids= sp.filter_people(pop, ages=ages)
+    pids = sp.filter_people(pop, ages=ages)
     expected_pids = []
     for p in pop.popdict.items():
         if p[1]['age'] in ages:

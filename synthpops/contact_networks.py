@@ -12,7 +12,7 @@ from .config import logger as log, checkmem
 
 
 # def make_contacts_from_microstructure_objects(age_by_uid_dic,
-def make_contacts(age_by_uid_dic,
+def make_contacts(age_by_uid,
                   homes_by_uids,
                   schools_by_uids=None,
                   teachers_by_uids=None,
@@ -39,7 +39,7 @@ def make_contacts(age_by_uid_dic,
     school ID (scid), workplace ID (wpid), workplace industry code (wpindcode) if available, and contacts in different layers.
 
     Args:
-        age_by_uid_dic (dict)                             : dictionary mapping id to age for all individuals in the population
+        age_by_uid     (dict)                             : dictionary mapping id to age for all individuals in the population
         homes_by_uids (list)                              : A list of lists where each sublist is a household and the IDs of the household members.
         schools_by_uids (list)                            : A list of lists, where each sublist represents a school and the ids of the students and teachers within it
         teachers_by_uids (list)                           : A list of lists, where each sublist represents a school and the ids of the teachers within it
@@ -96,7 +96,7 @@ def make_contacts(age_by_uid_dic,
         school_mixing_type_dic = sc.dcp(school_mixing_type)
         school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
 
-    uids = age_by_uid_dic.keys()
+    uids = age_by_uid.keys()
     uids = [uid for uid in uids]
 
     popdict = {}
@@ -118,12 +118,12 @@ def make_contacts(age_by_uid_dic,
     log.debug('  starting...' + checkmem())
 
     # TODO: include age-based sex ratios
-    sexes = np.random.randint(2, size=len(age_by_uid_dic))
+    sexes = np.random.randint(2, size=len(age_by_uid))
 
 
-    for u, uid in enumerate(age_by_uid_dic):
+    for u, uid in enumerate(age_by_uid):
         popdict[uid] = {}
-        popdict[uid]['age'] = int(age_by_uid_dic[uid])
+        popdict[uid]['age'] = int(age_by_uid[uid])
         popdict[uid]['sex'] = sexes[u]
         popdict[uid]['loc'] = None
         popdict[uid]['contacts'] = {}
@@ -182,7 +182,6 @@ def make_contacts(age_by_uid_dic,
             popdict[uid]['contacts']['H'].remove(uid)
             popdict[uid]['hhid'] = nh
 
-
     log.debug('...students ' + checkmem())
 
     student_in_groups, teachers_in_groups = [], []
@@ -203,11 +202,18 @@ def make_contacts(age_by_uid_dic,
         this_school_mixing_type = None
 
         if with_school_types:
-            student_ages = [age_by_uid_dic[i] for i in students]
+            student_ages = [age_by_uid[i] for i in students]
             min_age = min(student_ages)
             this_school_type = school_type_by_age[min_age]
             this_school_mixing_type = school_mixing_type_dic[this_school_type]
-            popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages, teachers, non_teaching_staff, age_by_uid_dic, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing, average_student_teacher_ratio, average_teacher_teacher_degree, average_additional_staff_degree, this_school_mixing_type)
+            popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages,
+                                                                             teachers, non_teaching_staff, age_by_uid,
+                                                                             grade_age_mapping, age_grade_mapping,
+                                                                             average_class_size, inter_grade_mixing,
+                                                                             average_student_teacher_ratio,
+                                                                             average_teacher_teacher_degree,
+                                                                             average_additional_staff_degree,
+                                                                             this_school_mixing_type)
 
         else:
             school = students.copy() + teachers.copy() + non_teaching_staff.copy()
@@ -241,7 +247,6 @@ def make_contacts(age_by_uid_dic,
             popdict[uid]['sc_staff'] = 1
             popdict[uid]['sc_type'] = this_school_type
             popdict[uid]['sc_mixing_type'] = this_school_mixing_type
-
 
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
@@ -465,8 +470,7 @@ def get_contact_counts_by_layer(popdict, layer='S', with_layer_ids=False):
                 'sc_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'snf_res' : len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_res']]),
                 'snf_staff': len([c for c in person["contacts"]["LTCF"] if popdict[c]['snf_staff']]),
-                'all_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]) +
-                             len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
+                'all_staff': len([c for c in person["contacts"]["S"] if popdict[c]['sc_teacher']]) + len([c for c in person["contacts"]["S"] if popdict[c]['sc_staff']]),
                 'all': len([c for c in person["contacts"][layer]])
             }
             if with_layer_ids:

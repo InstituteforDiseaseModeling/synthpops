@@ -223,12 +223,12 @@ def get_smoothed_single_year_age_distr(datadir=None, location=None, state_locati
     """
     age_bracket_distr = read_age_bracket_distr(datadir, location, state_location, country_location, nbrackets, file_path, use_default)
     age_brackets = get_census_age_brackets(datadir, country_location=country_location, state_location=state_location, location=location, nbrackets=nbrackets)
-    age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+    age_by_brackets = spb.get_age_by_brackets(age_brackets)
 
-    raw_age_distr = dict.fromkeys(age_by_brackets_dic.keys(), 0)
+    raw_age_distr = dict.fromkeys(age_by_brackets.keys(), 0)
 
     for a in raw_age_distr.keys():
-        b = age_by_brackets_dic[a]
+        b = age_by_brackets[a]
         raw_age_distr[a] = age_bracket_distr[b] / len(age_brackets[b])
 
     smoothed_age_distr = raw_age_distr.copy()
