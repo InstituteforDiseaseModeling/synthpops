@@ -47,7 +47,7 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
     plotting_kwargs = sc.objdict(do_show=do_show,
                                  do_save=do_save,
                                  figdir=get_fig_dir_by_module)
-    contacts, contacts_by_id = cn.get_contact_counts_by_layer(create_sample_pop_e2e.popdict, layer="w")
+    contacts, contacts_by_id = cn.get_contact_counts_by_layer(create_sample_pop_e2e.popdict, layer="w", with_layer_ids=1)
     plotting_kwargs.append("title_prefix", f"Total Workers = {len(contacts.get('wpid').get('all'))}")
     plotting_kwargs.append("figname", f"workers_contact_count")
     sp.plot_contact_counts(contacts, **plotting_kwargs)
