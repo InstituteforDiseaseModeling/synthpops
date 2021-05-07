@@ -550,7 +550,12 @@ def add_ltcf(pop, ltcf):
     """
     if not isinstance(ltcf, LongTermCareFacility):
         raise ValueError('ltcf is not a sp.LongTermCareFacility object.')
+
+    # ensure ltcfid to match the index in the list
+    if ltcf['ltcfid'] != len(pop.ltcfs):
+        ltcf['ltcfid'] = len(pop.ltcfs)
     pop.ltcfs.append(ltcf)
+    pop.n_ltcfs = len(pop.ltcfs)
     return
 
 
