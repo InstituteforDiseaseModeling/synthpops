@@ -267,6 +267,10 @@ def add_school(pop, school):
     """
     if not isinstance(school, School):
         raise ValueError('school is not a sp.School')
+
+    # ensure scid to match the index in the list
+    if school['scid'] != len(pop.schools):
+        school['scid'] = len(pop.schools)
     pop.schools.append(school)
     return
 
@@ -285,6 +289,9 @@ def add_classroom(school, classroom):
     if not isinstance(classroom, Classroom):
         raise ValueError('classroom is not a sp.Classroom')
 
+    # ensure scid to match the index in the list
+    if classroom['scid'] != len(school['classrooms']):
+        school['scid'] = len(school['classrooms'])
     school['classrooms'].append(classroom)
     return
 
