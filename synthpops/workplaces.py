@@ -30,7 +30,6 @@ class Workplace(spb.LayerGroup):
         Args:
             **wpid (int)             : workplace id
             **member_uids (np.array) : ids of workplace members
-            **member_ages (np.array) : ages of workplace members
         """
         # set up default workplace values
         super().__init__(wpid=wpid, **kwargs)
