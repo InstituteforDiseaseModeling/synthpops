@@ -20,7 +20,7 @@ pars = dict(
     with_facilities         = 1,
     with_non_teaching_staff = 1,  # also include non teaching staff
     with_school_types       = 1,
-    school_mixing_type      = {'pk': 'age_and_class_clustered',
+    school_mixing_type      = {'pk': 'random',
                                'es': 'age_and_class_clustered', 
                                'ms': 'age_and_class_clustered', 
                                'hs': 'age_clustered',
