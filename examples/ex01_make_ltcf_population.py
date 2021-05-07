@@ -2,7 +2,6 @@
 Make a population using synthpops with long term care facilities.
 """
 import synthpops as sp
-import matplotlib.pyplot as plt
 
 pars = dict(
     n                = 10e3,
