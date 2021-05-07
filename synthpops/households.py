@@ -93,6 +93,10 @@ def add_household(pop, household):
     """
     if not isinstance(household, Household):
         raise ValueError('household is not a sp.Household object.')
+
+    # force hhid to match the index in the list
+    if household['hhid'] != len(pop.households):
+        household['hhid'] = len(pop.households)
     pop.households.append(household)
     return
 
