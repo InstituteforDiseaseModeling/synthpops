@@ -12,9 +12,9 @@ import numpy as np # pragma: no cover
 import pandas as pd # pragma: no cover
 import sciris as sc # pragma: no cover
 from collections import Counter # pragma: no cover
-from . import base as spb # pragma: no cover
-from . import config as cfg # pragma: no cover
-from . import defaults
+from synthpops import base as spb # pragma: no cover
+from synthpops import config as cfg # pragma: no cover
+from synthpops import defaults
 
 
 def get_relative_path(datadir): # pragma: no cover

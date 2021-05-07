@@ -11,7 +11,7 @@ pars = sc.objdict(
             property_name = 'population_age_distributions',  # name of the property to compare to
             filepath      = os.path.join(
                                          sp.settings.datadir,
-                                         'unittests',
+                                         os.pardir, os.pardir, 'data', 'unittests',
                                          'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
             cols_ind      = [],  # list of column indices to include in array in conversion
             int_cols_ind  = [],  # list of column induces to convert to ints
