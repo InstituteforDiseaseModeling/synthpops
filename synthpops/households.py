@@ -98,6 +98,7 @@ def add_household(pop, household):
     if household['hhid'] != len(pop.households):
         household['hhid'] = len(pop.households)
     pop.households.append(household)
+    pop.n_households = len(pop.households)
     return
 
 

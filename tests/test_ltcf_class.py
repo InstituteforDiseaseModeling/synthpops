@@ -6,9 +6,11 @@ import sciris as sc
 from synthpops import ltcfs
 from synthpops.ltcfs import LongTermCareFacility
 
+
 @pytest.fixture(scope="module")
 def create_small_pop():
     return sp.Pop(n=settings.pop_sizes.small, with_facilities=1)
+
 
 def test_make_ltcf(create_small_pop):
     pop = create_small_pop
@@ -26,21 +28,24 @@ def test_make_ltcf(create_small_pop):
         else:
             assert ltcf[i] == pop.ltcfs[x][i], errmsg
 
+
 def test_initialize_empty_ltcfs(create_small_pop):
     pop = sc.dcp(create_small_pop)
     for n in [0, 5]:
         ltcfs.initialize_empty_ltcfs(pop, n_ltcfs=n)
         assert len(pop.ltcfs) == pop.n_ltcfs == n
 
+
 def test_add_ltcf(create_small_pop):
     pop = sc.dcp(create_small_pop)
     n = len(pop.ltcfs)
     ltcf = sc.dcp(pop.ltcfs[0])
     ltcfs.add_ltcf(pop, ltcf)
-    assert ltcf['ltcfid']==pop.ltcfs[n]['ltcfid']
-    assert set(pop.ltcfs[n-1]['staff_uids']) == set(pop.ltcfs[n]['staff_uids'])
-    assert set(pop.ltcfs[n-1]['resident_uids']) == set(pop.ltcfs[n]['resident_uids'])
+    assert ltcf['ltcfid'] == pop.ltcfs[n]['ltcfid']
+    assert set(ltcf['staff_uids']) == set(pop.ltcfs[n]['staff_uids'])
+    assert set(ltcf['resident_uids']) == set(pop.ltcfs[n]['resident_uids'])
     assert len(pop.ltcfs) == n + 1 == pop.n_ltcfs, "after added, ltcf should be increased by 1"
+
 
 def test_get_ltcf(create_small_pop):
     pop = create_small_pop

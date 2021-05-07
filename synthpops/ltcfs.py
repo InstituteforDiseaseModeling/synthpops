@@ -555,6 +555,7 @@ def add_ltcf(pop, ltcf):
     if ltcf['ltcfid'] != len(pop.ltcfs):
         ltcf['ltcfid'] = len(pop.ltcfs)
     pop.ltcfs.append(ltcf)
+    pop.n_ltcfs = len(pop.ltcfs)
     return
 
 

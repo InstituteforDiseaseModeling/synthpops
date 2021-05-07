@@ -82,6 +82,7 @@ def add_workplace(pop, workplace):
     if workplace['wpid'] != len(pop.workplaces):
         workplace['wpid'] = len(pop.workplaces)
     pop.workplaces.append(workplace)
+    pop.n_workplaces = len(pop.workplaces)
     return
 
 
