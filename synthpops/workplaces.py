@@ -30,7 +30,6 @@ class Workplace(spb.LayerGroup):
         Args:
             **wpid (int)             : workplace id
             **member_uids (np.array) : ids of workplace members
-            **member_ages (np.array) : ages of workplace members
         """
         # set up default workplace values
         super().__init__(wpid=wpid, **kwargs)
@@ -78,7 +77,12 @@ def add_workplace(pop, workplace):
     """
     if not isinstance(workplace, Workplace):
         raise ValueError('workplace is not a sp.Workplace object.')
+
+    # ensure wpid to match the index in the list
+    if workplace['wpid'] != len(pop.workplaces):
+        workplace['wpid'] = len(pop.workplaces)
     pop.workplaces.append(workplace)
+    pop.n_workplaces = len(pop.workplaces)
     return
 
 

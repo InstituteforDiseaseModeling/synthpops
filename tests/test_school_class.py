@@ -20,6 +20,37 @@ def create_age_and_class_clustered_pop():
                   school_mixing_type='age_and_class_clustered')
 
 
+def test_initialize_empty_school(create_small_pop):
+    pop = sc.dcp(create_small_pop)
+    for n in[0, 5]:
+        sps.initialize_empty_schools(pop, n_schools=n)
+        assert len(pop.schools) == pop.n_schools == n
+
+def test_(create_age_and_class_clustered_pop):
+    pop = sc.dcp(create_age_and_class_clustered_pop)
+    sps.initialize_empty_classrooms(pop.schools[0], 5)
+    assert len(pop.schools[0]['classrooms']) == pop.schools[0]['n_classrooms'] == 5
+
+def test_make_school(create_age_and_class_clustered_pop):
+    pop = sc.dcp(create_age_and_class_clustered_pop)
+    school = sp.School()
+    x = random.randint(0, len(pop.schools)-1)
+    print(x)
+    params = sc.objdict(scid=pop.schools[x]['scid'],
+                            sc_type=pop.schools[x]['sc_type'],
+                            school_mixing_type=pop.schools[x]['school_mixing_type'],
+                            student_uids=pop.schools[x]['student_uids'],
+                            teacher_uids=pop.schools[x]['teacher_uids'],
+                            non_teaching_staff_uids=pop.schools[x]['non_teaching_staff_uids'])
+    school.set_layer_group(**params)
+    for i in params:
+        errmsg = f"{i} not equal!, expected: {pop.schools[x][i]} actual: {school[i]}"
+        if hasattr(school[i], "__len__"):
+            assert len(school[i]) == len(pop.schools[x][i]), errmsg
+        else:
+            assert school[i]==pop.schools[x][i], errmsg
+
+
 def test_get_school(create_small_pop):
     # valid
     pop = create_small_pop
