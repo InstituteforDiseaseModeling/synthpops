@@ -1,3 +1,5 @@
+print('Note -- these tests currently deprecated')
+
 import numpy as np
 import pandas as pd
 import sciris as sc
@@ -5,7 +7,6 @@ import synthpops as sp
 import os
 import unittest
 
-print('ok')
 sp.settings.datadir = sc.thisdir(__file__, 'unittests')
 
 # for Testconvert_df_to_json_array()
