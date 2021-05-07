@@ -2,3 +2,4 @@ include LICENSE
 recursive-include synthpops *.json *.obj
 global-exclude *.py[cod] __pycache__
 global-prune synthpops_process_raw_data
+global-prune examples_to_be_refactored
