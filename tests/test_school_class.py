@@ -34,24 +34,21 @@ def test_(create_age_and_class_clustered_pop):
 def test_make_school(create_age_and_class_clustered_pop):
     pop = sc.dcp(create_age_and_class_clustered_pop)
     school = sp.School()
-    params = sc.objdict(scid=pop.schools[0]['scid'],
-                            sc_type=pop.schools[0]['sc_type'],
-                            school_mixing_type=pop.schools[0]['school_mixing_type'],
-                            student_uids=pop.schools[0]['student_uids'],
-                            student_ages=pop.schools[0]['student_ages'],
-                            teacher_uids=pop.schools[0]['teacher_uids'],
-                            teacher_ages=pop.schools[0]['teacher_ages'],
-                            non_teaching_staff_uids=pop.schools[0]['non_teaching_staff_uids'],
-                            non_teaching_staff_ages=pop.schools[0]['non_teaching_staff_ages'],
-                            reference_uid=pop.schools[0]['reference_uid'],
-                            reference_age=pop.schools[0]['reference_age'])
+    x = random.randint(0, len(pop.schools)-1)
+    print(x)
+    params = sc.objdict(scid=pop.schools[x]['scid'],
+                            sc_type=pop.schools[x]['sc_type'],
+                            school_mixing_type=pop.schools[x]['school_mixing_type'],
+                            student_uids=pop.schools[x]['student_uids'],
+                            teacher_uids=pop.schools[x]['teacher_uids'],
+                            non_teaching_staff_uids=pop.schools[x]['non_teaching_staff_uids'])
     school.set_layer_group(**params)
     for i in params:
-        errmsg = f"{i} not equal!, expected: {pop.schools[0][i]} actual: {school[i]}"
+        errmsg = f"{i} not equal!, expected: {pop.schools[x][i]} actual: {school[i]}"
         if hasattr(school[i], "__len__"):
-            assert len(school[i]) == len(pop.schools[0][i]), errmsg
+            assert len(school[i]) == len(pop.schools[x][i]), errmsg
         else:
-            assert school[i]==pop.schools[0][i], errmsg
+            assert school[i]==pop.schools[x][i], errmsg
 
 
 def test_get_school(create_small_pop):
