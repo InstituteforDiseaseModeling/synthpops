@@ -337,13 +337,11 @@ def statistic_test(expected, actual, test=st.chisquare, verbose=True, die=False,
     Returns:
         None.
     """
-    # print(f"expected data: \n{pd.Series(expected).describe()}")
-    # print(f"actual data: \n{pd.Series(actual).describe()}")
     # data = {'expected': expected, 'actual': actual}
     df_expected = pd.DataFrame(expected, columns=['expected'])
     df_actual = pd.DataFrame(actual, columns=['actual'])
     details = pd.merge(df_expected.describe(), df_actual.describe(), left_index=True, right_index=True, suffixes=('expected', 'actual'))
-    # print(f"data: {df.describe()}")
+
     print(f"use {str(test.__name__)} to check actual distribution")
     s, p = test(expected, actual, **kwargs)
     print(f"statistics: {s} pvalue:{p}")

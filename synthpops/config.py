@@ -108,7 +108,8 @@ def set_location_defaults(country_location=None):
         # spd.reset_settings_by_key('household_size_1_included', default_household_size_1_included)
 
     elif country_location is None:
-        logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")
+        logger.debug(f"Setting default location information with {spd.default_data['defaults']}.")
+        # logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")  # we may want to set as a warning instead
         loc = data['defaults']
         spd.reset_settings(loc)
     else:

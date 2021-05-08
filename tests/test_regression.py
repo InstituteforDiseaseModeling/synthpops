@@ -64,7 +64,7 @@ def get_pop_contact_matrix(pop, layer, method):
     """
     age_brackets = spdd.get_census_age_brackets(**pop.loc_pars)
     matrix = sp.calculate_contact_matrix(pop.popdict, method, layer)
-    ageindex = spb.get_age_by_brackets_dic(age_brackets)
+    ageindex = spb.get_age_by_brackets(age_brackets)
     agg_matrix = spb.get_aggregate_matrix(matrix, ageindex)
     return agg_matrix
 

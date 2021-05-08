@@ -62,8 +62,8 @@ def test_age_brackets_used_with_contact_matrix():
 
     loc_pars = pop.loc_pars
 
-    contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=sheet_name)
-    contact_matrix_nbrackets = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape[0]
+    contact_matrices = sp.get_contact_matrices(sp.settings.datadir, sheet_name=sheet_name)
+    contact_matrix_nbrackets = contact_matrices[list(contact_matrices.keys())[0]].shape[0]
     cm_age_brackets = sp.get_census_age_brackets(**sc.mergedicts(loc_pars, {'nbrackets': contact_matrix_nbrackets}))
     assert contact_matrix_nbrackets == len(cm_age_brackets), f'Check failed, len(contact_matrix_nbrackets): {contact_matrix_nbrackets} does not match len(cm_age_brackets): {len(cm_age_brackets)}.'
     print(f'Check passed. The age brackets loaded match the number of age brackets for the contact matrices used for the location.')
@@ -87,16 +87,16 @@ def test_older_ages_have_household_contacts():
     pop_dict = pop.to_dict()
     loc_pars = pop.loc_pars
 
-    contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=pop.sheet_name)
+    contact_matrices = sp.get_contact_matrices(sp.settings.datadir, sheet_name=pop.sheet_name)
 
-    contact_matrix_nbrackets = contact_matrix_dic[list(contact_matrix_dic.keys())[0]].shape[0]
+    contact_matrix_nbrackets = contact_matrices[list(contact_matrices.keys())[0]].shape[0]
     cm_age_brackets = sp.get_census_age_brackets(**sc.mergedicts(loc_pars, {'nbrackets': contact_matrix_nbrackets}))
-    cm_age_by_brackets_dic = sp.get_age_by_brackets_dic(cm_age_brackets)
+    cm_age_by_brackets = sp.get_age_by_brackets(cm_age_brackets)
 
     age_threshold = 80
-    age_threshold_bracket = cm_age_by_brackets_dic[age_threshold]
+    age_threshold_bracket = cm_age_by_brackets[age_threshold]
 
-    expected_older_contact = np.sum(contact_matrix_dic['H'][age_threshold_bracket:, age_threshold_bracket:])
+    expected_older_contact = np.sum(contact_matrices['H'][age_threshold_bracket:, age_threshold_bracket:])
 
     matrix = sp.calculate_contact_matrix(pop_dict, layer='H')
 

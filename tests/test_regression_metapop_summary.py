@@ -95,8 +95,8 @@ def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_sav
 
     # hex seaborn joint
     # extra features: can limit the ages or uids, then just don't include the degree_df and it will calculate a new one with those filters applied
-    age = np.arange(3, 76)
-    kwargs.xlim = [3, 75]
+    ages = np.arange(3, 76)
+    kwargs.xlim = [3, 76]
     ghex = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, kind='hex', **kwargs)
 
     ages = np.arange(15, 76)
@@ -156,25 +156,25 @@ def test_count_layer_degree_by_age(create_pop):
     pop = create_pop
     layer = 'W'
     brackets = pop.age_brackets
-    ageindex = pop.age_by_brackets_dic
+    ageindex = pop.age_by_brackets
     total = np.zeros(len(brackets))
     contacts = np.zeros(len(brackets))
-    #brute force check for contact count
+    # brute force check for contact count
     for p in pop.popdict.values():
         total[ageindex[p["age"]]] += 1
         contacts[ageindex[p["age"]]] += len(p["contacts"][layer])
     for b in brackets:
         degree_df = sp.count_layer_degree(pop, layer, brackets[b])
         expected = contacts[b]
-        actual =  degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
-        print(f"expected contacts for {brackets[b]} is {expected}" )
-        assert expected==actual, f"expecred: {expected} actual:{actual}"
+        actual = degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
+        print(f"expected contacts for {brackets[b]} is {expected}")
+        assert expected == actual, f"expecred: {expected} actual:{actual}"
 
 
 def test_filter_age(create_pop):
     pop = sp.Pop(**pars)
     ages = [15, 16, 17, 18, 19]
-    pids= sp.filter_people(pop, ages=ages)
+    pids = sp.filter_people(pop, ages=ages)
     expected_pids = []
     for p in pop.popdict.items():
         if p[1]['age'] in ages:
@@ -196,14 +196,14 @@ def test_information(create_pop):
         f"pop.information.household_heads not matching popdict."
     assert pop.information.household_head_ages[0] == pop.popdict[pop.information.household_heads[0]]['age'], \
         f"pop.information.household_head_ages not matching popdict."
-    assert len(pop.information.ltcf_sizes) == len(Counter([i["snfid"] for i in pop.popdict.values() if i["snfid"] is not None])), \
+    assert len(pop.information.ltcf_sizes) == len(Counter([i["ltcfid"] for i in pop.popdict.values() if i["ltcfid"] is not None])), \
         f"pop.information.ltcf_sizes not matching popdict."
     assert pop.information.enrollment_by_age[5] == len([i for i in pop.popdict.values() if i["scid"] is not None and i["age"]==5]), \
         f"pop.information.enrollment_by_age not matching popdict."
     assert sum(pop.information.enrollment_by_school_type[None]) == \
            len([i for i in pop.popdict.values() if i["scid"] is not None and i["sc_type"]is not None and i["sc_student"] is not None]), \
            f"pop.information.enrollment_by_school_type not matching popdict."
-    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["snf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"] == 20)]), \
+    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["ltcf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"] == 20)]), \
         f"pop.information.employment_by_age not matching popdict."
     assert len(pop.information.workplace_sizes) == len(Counter([i["wpid"] for i in pop.popdict.values() if i["wpid"] is not None])), \
         f"pop.information.workplace_sizes not matching popdict."

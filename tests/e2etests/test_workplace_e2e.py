@@ -19,7 +19,7 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
                                  do_save=do_save,
                                  figdir=get_fig_dir_by_module)
 
-    workplace_brackets_index = sp.get_index_by_brackets_dic(
+    workplace_brackets_index = sp.get_index_by_brackets(
         sp.get_workplace_size_brackets(**create_sample_pop_e2e.loc_pars))
 
     actual_workplace_sizes = create_sample_pop_e2e.count_workplace_sizes()
@@ -81,10 +81,10 @@ def test_workplace_contact_distribution(do_show, do_save, create_sample_pop_e2e,
         plotting_kwargs["title_prefix"] = i
         plotting_kwargs["figname"] = file_pattern.sub("_", i)
         sp.check_truncated_poisson(testdata=group_size_contacts[i],
-                                mu=max_contacts,
-                                lowerbound=max_contacts // 2,
-                                skipcheck=True if "small" in i else True,
-                                **plotting_kwargs)
+                                   mu=max_contacts,
+                                   lowerbound=max_contacts // 2,
+                                   skipcheck=True if "small" in i else True,
+                                   **plotting_kwargs)
 
 
 def test_workplace_contact_distribution_2(create_sample_pop_e2e):
@@ -93,7 +93,7 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
     max_contacts = pop.max_contacts
     max_w_size = int(max_contacts['W'] // 2)
     wsize_brackets = sp.get_workplace_size_brackets(**pop.loc_pars)
-    wsize_index = sp.get_index_by_brackets_dic(wsize_brackets)
+    wsize_index = sp.get_index_by_brackets(wsize_brackets)
     contacts, contacts_by_id = cn.get_contact_counts_by_layer(pop.popdict, layer="w", with_layer_ids=True)
 
     wpids = sorted(contacts_by_id.keys())
@@ -128,8 +128,8 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             degree = [G.degree(i) for i in G.nodes()]
 
             # sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
-            # check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
-            runs +=1
+            # sp.check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1)
+            runs += 1
             result = sp.check_truncated_poisson(contacts_by_id[wpid], mu=max_contacts['W'] - 2, lowerbound=max_contacts['W'] // 2, upperbound=wsize - 1, skipcheck=0, do_show=0)
             passed += int(result)
             if not result:
@@ -139,7 +139,7 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             print('\n\n')
     print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')
     print("size brackets:\tcount")
-    failed_counts = {i:dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
+    failed_counts = {i: dict(Counter(failedsize))[i] for i in sorted(dict(Counter(failedsize)).keys())}
     all_counts = {i: dict(Counter(allsize))[i] for i in sorted(dict(Counter(allsize)).keys())}
     for k, v in failed_counts.items():
         print(f"{min(wsize_brackets[k])}-{max(wsize_brackets[k])}:\t{v}, {v/all_counts[k] * 100:.2f}")
@@ -166,53 +166,6 @@ def test_employment_age_distribution(do_show, do_save, create_sample_pop_e2e, ge
     sp.statistic_test(expected=generated_expected, actual=generated_actual, test=st.kstest, verbose=True)
     # plot enrollment by age
     create_sample_pop_e2e.plot_employment_rates_by_age(**plotting_kwargs)
-
-
-# def check_truncated_poisson(testdata, mu, lowerbound=None, upperbound=None, skipcheck=False, **kwargs):
-#     """
-#     test if data fits in truncated poisson distribution between upperbound and lowerbound using kstest
-#     Args:
-#         testdata (array) : data to be tested
-#         mu (float) : expected mean for the poisson distribution
-#         lowerbound (float) : lowerbound for truncation
-#         upperbound (float) : upperbound for truncation
-
-#     Returns:
-#         (bool) return True if statistic check passed, else return False
-#     """
-#     sample_size = len(testdata)
-#     # need to exclude any value below or equal to lowerbound and any value above or equal to upperbound, so we first find the quantile location for
-#     # lowerbound and upperbound then only generate poisson cdf values in between these 2 locations
-#     minquantile = st.poisson.cdf(lowerbound, mu=mu) if lowerbound else 0
-#     maxquantile = st.poisson.cdf(upperbound, mu=mu) if upperbound else 1
-#     # create uniformly distributed number between minquantile and maxquantile (in the cdf quantile space)
-#     q = np.random.uniform(low=minquantile, high=maxquantile, size=sample_size)
-#     # use percent point function to get inverse of cdf
-#     expected_data = st.poisson.ppf(q=q, mu=mu)
-#     result = True
-#     if not skipcheck:
-#         try:
-#             sp.statistic_test(expected_data, testdata, test=st.kstest, verbose=True, die=True)
-#             result = True
-#         except ValueError as e:
-#             if 'reject the hypothesis' in str(e):
-#                 result = False
-#             else:
-#                 raise Exception(e)
-
-#     #plot comparison
-#     bins_count = int(min(10, max(expected_data)-min(expected_data)+1))
-#     print(f"bins:{bins_count}")
-
-#     expected, bins = np.histogram(expected_data, bins=bins_count)
-#     actual = np.histogram(testdata, bins=bins)[0]
-#     kwargs["generated"] = actual
-#     #merge 11 bins to 10 for bar plot align at center
-#     merged_bins = [round((bins[idx] + bins[idx+1])/2,2) for idx, val in enumerate(bins) if idx < len(bins)-1]
-#     kwargs["xvalue"] = merged_bins
-#     if kwargs["do_show"]:
-#         sp.plot_array(expected, **kwargs)
-#     return result
 
 
 if __name__ == "__main__":
