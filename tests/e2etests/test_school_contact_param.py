@@ -47,7 +47,7 @@ def test_average_class_size(average_class_size, school_mixing_type, do_show, do_
     pop = sp.Pop(**pars, **testpars)
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir)
 
-    contacts = cn.get_contact_counts_by_layer(pop.popdict, with_layer_ids=1)[0]
+    contacts = sp.get_contact_counts_by_layer(pop.popdict, with_layer_ids=1)[0]
     plotting_kwargs.append("title_prefix", f"Average Class Size = {average_class_size} {pop.school_pars.school_mixing_type}")
     plotting_kwargs.append("figname", f"contact_average_class_size_{average_class_size}_{pop.school_pars.school_mixing_type}")
     sp.plot_contact_counts(contacts, **plotting_kwargs)
