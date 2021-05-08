@@ -72,7 +72,7 @@ def test_information_in_generation():
     print("Check passed. Ltcfs created.")
 
     # count only LTCF residents
-    ltcf_sizes_res = pop.get_ltcf_sizes(keys_to_exclude=['snf_staff'])
+    ltcf_sizes_res = pop.get_ltcf_sizes(keys_to_exclude=['ltcf_staff'])
     assert sum(ltcf_sizes_res.values()) < sum(pop.information.ltcf_sizes.values()), "Check failed. Ltcf residents is greater than or equal to all people in ltcfs."
     print("Check passed. Ltcf residents created separately.")
 
@@ -81,7 +81,7 @@ def test_information_in_generation():
     print("Check passed. Everyone lives either in a household or ltcf.")
 
     # count only LTCF staff
-    ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['snf_res'])
+    ltcf_sizes_staff = pop.get_ltcf_sizes(keys_to_exclude=['ltcf_res'])
     assert sum(ltcf_sizes_res.values()) + sum(ltcf_sizes_staff.values()) == sum(pop.information.ltcf_sizes.values()), "Check failed. The sum of ltcf residets and staff counted separately does not equal the count of them together."
     print("Check passed. Ltcf staff created separately.\n")
 
@@ -137,10 +137,10 @@ def test_contact_matrices_used():
     sp.logger.info("Test that the contact matrices used in generation match the expected data.")
     pop = sp.Pop(**pars)
 
-    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=pop.sheet_name)
-    for k in expected_contact_matrix_dic.keys():
+    expected_contact_matrices = sp.get_contact_matrices(sp.settings.datadir, sheet_name=pop.sheet_name)
+    for k in expected_contact_matrices.keys():
         err_msg = f"Check failed for contact setting {k}."
-        np.testing.assert_array_equal(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k], err_msg=err_msg)
+        np.testing.assert_array_equal(pop.contact_matrices[k], expected_contact_matrices[k], err_msg=err_msg)
 
     print("Contact matrices check passed.")
 
@@ -154,23 +154,22 @@ def test_change_sheet_name():
     test_pars.sheet_name = 'Senegal'
     pop = sp.Pop(**test_pars)
 
-    expected_contact_matrix_dic = sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name=test_pars.sheet_name)
+    expected_contact_matrices = sp.get_contact_matrices(sp.settings.datadir, sheet_name=test_pars.sheet_name)
 
     # check that the correct contact matrices are used in population generation
-    for k in expected_contact_matrix_dic.keys():
+    for k in expected_contact_matrices.keys():
         err_msg = f"Check failed for contact setting {k}."
-        np.testing.assert_array_equal(pop.contact_matrix_dic[k], expected_contact_matrix_dic[k], err_msg=err_msg)
+        np.testing.assert_array_equal(pop.contact_matrices[k], expected_contact_matrices[k], err_msg=err_msg)
 
     print(f"Check passed. {test_pars.sheet_name} contact matrices used in population generation.")
 
 
-def test_get_contact_matrix_dic_error_handling():
-    """Test error handling for sp.get_contact_matrix_dic()."""
+def test_get_contact_matrices_error_handling():
+    """Test error handling for sp.get_contact_matrices()."""
     with pytest.raises(RuntimeError) as excinfo:
-        sp.get_contact_matrix_dic(sp.settings.datadir, sheet_name="notexist")
+        sp.get_contact_matrices(sp.settings.datadir, sheet_name="notexist")
     assert "Data unavailable for the location specified" in str(excinfo.value), \
         "Error message for non existent sheet should be meaningful"
-
 
 
 if __name__ == '__main__':
@@ -178,4 +177,4 @@ if __name__ == '__main__':
     test_information_in_generation()
     test_contact_matrices_used()
     test_change_sheet_name()
-    test_get_contact_matrix_dic_error_handling()
+    test_get_contact_matrices_error_handling()

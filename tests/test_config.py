@@ -7,6 +7,7 @@ import tempfile
 import os
 import pytest
 
+
 @pytest.fixture(scope="function")
 def test_cleanup_set_default():
     yield
@@ -14,6 +15,7 @@ def test_cleanup_set_default():
     sp.set_datadir(sp.default_datadir_path())
     assert sp.settings.country_location == 'usa', 'Reset failed.'
     assert sp.settings.datadir == sp.default_datadir_path(), 'Reset failed for datadir.'
+
 
 def test_version():
     sp.logger.info("Testing that version info is returned.")
@@ -50,6 +52,10 @@ def test_validate_datadir():
     sp.logger.info("Testing that synthpops.settings.datadir can be found.")
     sp.validate_datadir()
     sp.validate_datadir(verbose=False)
+    sp.reset_settings_by_key('datadir', 0)
+    with pytest.raises(FileNotFoundError):
+        sp.validate_datadir()
+    sp.set_datadir(sp.default_datadir_path())
 
 
 def test_set_datadir(test_cleanup_set_default):
@@ -70,6 +76,7 @@ def test_set_datadir(test_cleanup_set_default):
     if os.path.exists(newpath):
         os.removedirs(newpath)
     test_cleanup_set_default
+
 
 def test_log_level():
     """Test resetting the log level"""

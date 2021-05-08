@@ -292,7 +292,7 @@ def calculate_contact_matrix(population, density_or_frequency='density', layer='
     return M
 
 
-def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, **kwargs):
+def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets, **kwargs):
     """
     Plots the age specific contact matrix where the matrix element matrix_ij is
     the contact rate or frequency for the average individual in age group i with
@@ -305,7 +305,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         age_count (dict)                   : dictionary with the count of individuals in the population for each age
         aggregate_age_count (dict)         : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)                : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets_dic (dict)         : dictionary mapping age to the age bracket range it falls in
+        age_by_brackets (dict)         : dictionary mapping age to the age bracket range it falls in
         **layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
         **density_or_frequency (str)       : Default value is 'density', see notes for more details.
         **logcolors_flag (bool)            : If True, plot heatmap in logscale
@@ -373,7 +373,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
                                      W='Work', LTCF='Long Term Care Facilities')
 
     if plkwargs.aggregate_flag:
-        aggregate_M = spb.get_aggregate_matrix(matrix, age_by_brackets_dic)
+        aggregate_M = spb.get_aggregate_matrix(matrix, age_by_brackets)
         asymmetric_M = spb.get_asymmetric_matrix(aggregate_M, aggregate_age_count)
     else:
         asymmetric_M = spb.get_asymmetric_matrix(matrix, age_count)
@@ -494,22 +494,22 @@ def plot_contacts(pop, **kwargs):
     if isinstance(pop, sppop.Pop):
         population = pop.to_dict()
         age_brackets = pop.age_brackets
-        age_by_brackets_dic = pop.age_by_brackets_dic
+        age_by_brackets = pop.age_by_brackets
         age_count = pop.information.age_count
 
     elif isinstance(pop, dict):
         population = sc.dcp(pop)
         age_count = spb.count_ages(population)
         age_brackets = spdata.get_census_age_brackets(**plkwargs.loc_pars)
-        age_by_brackets_dic = spb.get_age_by_brackets_dic(age_brackets)
+        age_by_brackets = spb.get_age_by_brackets(age_brackets)
 
     else:
         raise NotImplementedError(f"This method is not yet implemented for pop type: {type(pop)}")
 
-    aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets_dic)
+    aggregate_age_count = spb.get_aggregate_ages(age_count, age_by_brackets)
     matrix = calculate_contact_matrix(population, plkwargs.density_or_frequency, plkwargs.layer)
 
-    fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets_dic, **plkwargs)
+    fig, ax = plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, age_by_brackets, **plkwargs)
 
     finalize_figure(fig, plkwargs)  # set figpath, and save and / or show figure
 
@@ -529,6 +529,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
         expected (array)        : Array of expected values
         fig (matplotlib.figure) : Matplotlib.figure object
         ax (matplotlib.axis)    : Matplotlib.axes object
+        **xvalue(array)        : Array of values used in X-axis, must be the same length as expected
         **generated (array)     : Array of values generated using a model
         **names (list or dict)  : names to display on x-axis, default is set to the indexes of data
         **figname (str)         : name to save figure to disk
@@ -554,7 +555,7 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
                            fontsize=12, color_1='mediumseagreen', color_2='#236a54',
                            expect_label='Expected', value_text=False, rotation=0,
                            tick_interval=10, tick_threshold=30, binned=True,
-                           fig=fig, ax=ax, figname='example_figure')
+                           fig=fig, ax=ax, figname='example_figure', xvalue=None)
 
     plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.set_font()  # font styles to be updated
@@ -564,7 +565,8 @@ def plot_array(expected, fig=None, ax=None, **kwargs):
 
     title = plkwargs.title_prefix.replace('_', ' ').title() if plkwargs.generated is None else f"{plkwargs.title_prefix.replace('_', ' ').title()} Comparison"
     ax.set_title(title, fontsize=plkwargs.fontsize + 2)
-    x = np.arange(len(expected))
+
+    x = np.arange(len(expected)) if plkwargs.xvalue is None else np.array(plkwargs.xvalue)
 
     if not plkwargs.binned:
         ax.hist(expected, label=plkwargs.expect_label.title(), color=plkwargs.color_1)

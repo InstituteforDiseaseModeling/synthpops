@@ -78,8 +78,12 @@ def checkmem(unit='mb', fmt='0.2f', start=0, to_string=True):
 def version_info():
     print(f'Loading SynthPops v{spv.__version__} ({spv.__versiondate__}) from {spd.settings.thisdir}')
     print(f'Data folder: {spd.settings.datadir}')
-    print(f'Git information:')
-    sc.pp(sc.gitinfo(__file__))
+    try:
+        gitinfo = sc.gitinfo(__file__)
+        print(f'Git information:')
+        sc.pp(gitinfo)
+    except:
+        pass # Don't worry if git info isn't available
     return
 
 
@@ -87,7 +91,7 @@ def set_metadata(obj):
     ''' Set standard metadata for an object '''
     obj.version = spv.__version__
     obj.created = sc.now()
-    obj.git_info = sc.gitinfo(__file__)
+    obj.git_info = sc.gitinfo(__file__, verbose=False)
     return
 
 
@@ -104,7 +108,8 @@ def set_location_defaults(country_location=None):
         # spd.reset_settings_by_key('household_size_1_included', default_household_size_1_included)
 
     elif country_location is None:
-        logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")
+        logger.debug(f"Setting default location information with {spd.default_data['defaults']}.")
+        # logger.warning(f"Setting default location information with {spd.default_data['defaults']}.")  # we may want to set as a warning instead
         loc = data['defaults']
         spd.reset_settings(loc)
     else:

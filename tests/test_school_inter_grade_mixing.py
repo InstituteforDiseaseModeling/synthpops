@@ -15,17 +15,15 @@ import settings
 
 # parameters to generate a test population
 pars = sc.objdict(
-        # n                               = settings.pop_sizes.small_medium,
-        n = 30e3,
-        rand_seed                       = 23,
+        n                       = 30e3,  # catches small school size logic  --- we should find a way to add a unit test for this instead
+        rand_seed               = 23,
+        with_facilities         = 1,
+        with_non_teaching_staff = 1,
+        with_school_types       = 1,
 
-        with_facilities                 = 1,
-        with_non_teaching_staff         = 1,
-        with_school_types               = 1,
-
-        school_mixing_type              = 'age_clustered',
-        inter_grade_mixing              = 0.1,
-        average_class_size = 30,
+        school_mixing_type      = 'age_clustered',
+        inter_grade_mixing      = 0.1,
+        average_class_size      = 30,
 
 )
 
