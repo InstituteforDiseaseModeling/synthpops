@@ -16,11 +16,11 @@ mplt.use('Agg')
 
 # parameters to generate a test population
 pars = sc.objdict(
-    n                       = settings.pop_sizes.small,
+    n                       = settings.pop_sizes.small_medium,
     rand_seed               = 123,
 
     smooth_ages             = True,
-
+    household_method        = 'fixed_ages',
     with_facilities         = 1,
     with_non_teaching_staff = 1,
     with_school_types       = 1,
