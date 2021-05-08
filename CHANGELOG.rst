@@ -27,7 +27,7 @@ Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.8.0 (2021-05-06)
+Version 1.8.0 (2021-05-07)
 --------------------------
 - This is a big one!
 - *Feature*: Class structures implemented for each layer and added to pop objects generated via `pop = sp.Pop()`. For example, now you can do ``pop.get_household(i)`` to get the household with integer ``hhid`` with value ``i`` which will be a ``sp.Household`` object with at minimum the attributes ``hhid``, ``member_uids``, ``reference_uid``, and ``reference_age``.
@@ -41,11 +41,11 @@ Version 1.8.0 (2021-05-06)
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Versions 1.7.x (1.7.0 – 1.7.6)
+Versions 1.7.x (1.7.0 – 1.7.7)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.7 (2021-05-05)
+Version 1.7.7 (2021-05-07)
 --------------------------
 - Made changes to allow SynthPops to be installed via ``pip``.
 - Updated examples in the folder ``synthpops/examples``.
