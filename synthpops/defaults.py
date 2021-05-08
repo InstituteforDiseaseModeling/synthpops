@@ -1,8 +1,12 @@
 """
 Defaults for synthpops files and data types.
 """
+import numpy as np
 import sciris as sc
 import os
+
+
+default_pop_size = 200
 
 # specify default valid probability distributions - users can easily supply
 # their own list if interested in other properties
@@ -39,10 +43,15 @@ default_data = {
 }
 
 
+default_layer_info = dict(
+    member_uids=np.array([], dtype=int),
+    )
+
+
 def default_datadir_path():
     """Return the path to synthpops internal data folder."""
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(thisdir, os.pardir, 'data')
+    return os.path.join(thisdir, 'data')
 
 
 # available globally if needed or via defaults.py --- stores information about
@@ -60,7 +69,6 @@ settings.relative_path = []
 settings.max_age = 101
 settings.nbrackets = 20
 settings.valid_nbracket_ranges = [16, 18, 20]
-# settings.household_size_1_included = 1
 
 settings.country_location = None
 settings.state_location = None
@@ -103,4 +111,4 @@ def reset_default_settings():
     Returns:
         None
     """
-    reset_settings(default_data['defaults'])
+    reset_settings(default_data['defaults']) # pragma: no cover

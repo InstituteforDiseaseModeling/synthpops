@@ -8,6 +8,7 @@ import matplotlib as mplt
 import matplotlib.pyplot as plt
 import settings
 import pytest
+from collections import Counter
 
 mplt_org_backend = mplt.rcParamsDefault['backend']  # interactive backend for user
 mplt.use('Agg')
@@ -94,8 +95,8 @@ def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_sav
 
     # hex seaborn joint
     # extra features: can limit the ages or uids, then just don't include the degree_df and it will calculate a new one with those filters applied
-    age = np.arange(3, 76)
-    kwargs.xlim = [3, 75]
+    ages = np.arange(3, 76)
+    kwargs.xlim = [3, 76]
     ghex = sp.plotting.plot_degree_by_age(pop, layer=layer, ages=ages, uids=uids, uids_included=uids_included, kind='hex', **kwargs)
 
     ages = np.arange(15, 76)
@@ -107,7 +108,7 @@ def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_sav
 def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing a plotting dev tool to compare the degree distribution by age for multiple populations.")
 
-    npops = 5
+    npops = 3
     pop_list = []
 
     for ni in range(npops):
@@ -149,6 +150,63 @@ def test_plot_degree_by_age_stats(create_pop, do_show=False, do_save=False):
     plt.switch_backend('agg')
 
     return fig, ax
+
+
+def test_count_layer_degree_by_age(create_pop):
+    pop = create_pop
+    layer = 'W'
+    brackets = pop.age_brackets
+    ageindex = pop.age_by_brackets
+    total = np.zeros(len(brackets))
+    contacts = np.zeros(len(brackets))
+    # brute force check for contact count
+    for p in pop.popdict.values():
+        total[ageindex[p["age"]]] += 1
+        contacts[ageindex[p["age"]]] += len(p["contacts"][layer])
+    for b in brackets:
+        degree_df = sp.count_layer_degree(pop, layer, brackets[b])
+        expected = contacts[b]
+        actual = degree_df.sum(axis=0)['degree'] if len(degree_df) > 0 else 0
+        print(f"expected contacts for {brackets[b]} is {expected}")
+        assert expected == actual, f"expecred: {expected} actual:{actual}"
+
+
+def test_filter_age(create_pop):
+    pop = sp.Pop(**pars)
+    ages = [15, 16, 17, 18, 19]
+    pids = sp.filter_people(pop, ages=ages)
+    expected_pids = []
+    for p in pop.popdict.items():
+        if p[1]['age'] in ages:
+            expected_pids.append(p[0])
+    assert set(expected_pids) == set(pids)
+
+
+def test_information(create_pop):
+    pop = create_pop
+    # spot check if values match with popdict
+
+    assert pop.information.age_count[20] == len([i for i in pop.popdict.values() if i['age']==20]), \
+        f"pop.information.age_count not matching popdict."
+    assert len(pop.information.household_sizes) == len(Counter([i["hhid"] for i in pop.popdict.values() if i["hhid"] is not None])), \
+        f"pop.information.household_sizes not matching popdict."
+    assert pop.information.household_size_count[1] == Counter([len(i['contacts']['H'])+1 for i in pop.popdict.values() if i["hhid"] is not None])[1], \
+        f"pop.information.household_size_count not matching popdict."
+    assert len(pop.information.household_heads) == len(pop.information.household_sizes), \
+        f"pop.information.household_heads not matching popdict."
+    assert pop.information.household_head_ages[0] == pop.popdict[pop.information.household_heads[0]]['age'], \
+        f"pop.information.household_head_ages not matching popdict."
+    assert len(pop.information.ltcf_sizes) == len(Counter([i["ltcfid"] for i in pop.popdict.values() if i["ltcfid"] is not None])), \
+        f"pop.information.ltcf_sizes not matching popdict."
+    assert pop.information.enrollment_by_age[5] == len([i for i in pop.popdict.values() if i["scid"] is not None and i["age"]==5]), \
+        f"pop.information.enrollment_by_age not matching popdict."
+    assert sum(pop.information.enrollment_by_school_type[None]) == \
+           len([i for i in pop.popdict.values() if i["scid"] is not None and i["sc_type"]is not None and i["sc_student"] is not None]), \
+           f"pop.information.enrollment_by_school_type not matching popdict."
+    assert pop.information.employment_by_age[20] == len([i for i in pop.popdict.values() if ((i["wpid"] is not None) | (i["ltcf_staff"] == 1) | (i["sc_teacher"] == 1) | (i["sc_staff"] == 1)) & (i["age"] == 20)]), \
+        f"pop.information.employment_by_age not matching popdict."
+    assert len(pop.information.workplace_sizes) == len(Counter([i["wpid"] for i in pop.popdict.values() if i["wpid"] is not None])), \
+        f"pop.information.workplace_sizes not matching popdict."
 
 
 if __name__ == '__main__':

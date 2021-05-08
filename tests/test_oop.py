@@ -67,7 +67,6 @@ def test_api(do_plot=False):
 
     popdict = pop.to_dict()  # export from class to standard python object; current default synthpops output
     if do_plot:
-        # pop.plot() # do the most obvious plotting thing, whatever that may be...
         pop.plot_people()  # equivalent to cv.Sim.people.plot()
         pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
         pop.plot_contacts(density_or_frequency='frequency', logcolors_flag=False, aggregate_flag=False)  # test other options

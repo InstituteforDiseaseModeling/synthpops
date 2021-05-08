@@ -130,9 +130,9 @@ class HouseholdsTest(unittest.TestCase):
                          msg=f"Each person should be in one household. Total household pop: {sum(sizes)}, "
                              f"Population size: {len(my_seapop_500)}.")
 
-    def verify_age_bracket_dictionary_correct(self, age_by_brackets_dic):
+    def verify_age_bracket_dictionary_correct(self, age_by_brackets):
         """
-        Validation method for the result from get_age_by_brackets_dic including:
+        Validation method for the result from get_age_by_brackets including:
 
         (1) Each age should have a single bucket index
         (2) Buckets index increment is 1
@@ -146,8 +146,8 @@ class HouseholdsTest(unittest.TestCase):
         """
         if self.is_debugging:
             age_bb_json = {}
-            for k in age_by_brackets_dic:
-                age_bb_json[int(k)] = age_by_brackets_dic[k]
+            for k in age_by_brackets:
+                age_bb_json[int(k)] = age_by_brackets[k]
             with open(f"DEBUG_{self._testMethodName}_age_dict.json", "w") as outfile:
                 json.dump(age_bb_json, outfile, indent=4, sort_keys=True)
 
@@ -157,11 +157,11 @@ class HouseholdsTest(unittest.TestCase):
         previous_age = None
 
         # # Induce error for testing the test
-        # age_by_brackets_dic[30] = 6
-        # age_by_brackets_dic[31] = 8
+        # age_by_brackets[30] = 6
+        # age_by_brackets[31] = 8
 
         for age in ages:
-            bucket = age_by_brackets_dic[age]
+            bucket = age_by_brackets[age]
             self.assertEqual(type(bucket), int,
                              msg=f"Each age should have a single bucket id (int). got: {bucket}")
             if bucket > expected_bucket:
@@ -180,7 +180,7 @@ class HouseholdsTest(unittest.TestCase):
 
     def test_seattle_age_brackets(self):
         """
-        Test for method get_census_age_brackets and get_age_by_brackets_dic. It
+        Test for method get_census_age_brackets and get_age_by_brackets. It
         calls helper method verify_age_bracket_dictionary_correct for
         verification.
 
@@ -189,8 +189,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         age_brackets = spdd.get_census_age_brackets(
-            # datadir=sp.datadir,
-            datadir = sp.settings.datadir,
+            datadir=sp.settings.datadir,
             state_location="Washington",
             country_location="usa",
             use_default=False
@@ -201,14 +200,14 @@ class HouseholdsTest(unittest.TestCase):
         if self.is_debugging:
             with open(f"DEBUG_{self._testMethodName}_age_brackets.json", "w") as outfile:
                 json.dump(age_brackets_json, outfile, indent=4)
-        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+        age_by_brackets = sp.get_age_by_brackets(
             age_brackets=age_brackets
         )
-        self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
+        self.verify_age_bracket_dictionary_correct(age_by_brackets)
 
     def test_custom_age_brackets(self):
         """
-        Use custom age_brackets to make sure method get_age_by_brackets_dic
+        Use custom age_brackets to make sure method get_age_by_brackets
         behaves correctly. The validation logic is in
         verify_age_bracket_dictionary_correct method.
 
@@ -235,26 +234,25 @@ class HouseholdsTest(unittest.TestCase):
             9: retirement,
             10: managed_care
         }
-        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+        age_by_brackets = sp.get_age_by_brackets(
             age_brackets=my_age_brackets
         )
 
         self.verify_age_bracket_dictionary_correct(
-            age_by_brackets_dic=age_by_brackets_dic
+            age_by_brackets=age_by_brackets
         )
         pass
 
     def test_contact_matrix_has_all_layers(self):
         """
-        Test get_contact_matrix_dic method to make sure it contains all layers
+        Test get_contact_matrices method to make sure it contains all layers
         'H', 'S', 'W', 'C'.
 
         Returns:
             None
         """
-        contact_matrix = sp.get_contact_matrix_dic(
-            # datadir=sp.datadir,
-            datadir = sp.settings.datadir,
+        contact_matrix = sp.get_contact_matrices(
+            datadir=sp.settings.datadir,
             sheet_name="United States of America"
         )
         for layer in ['H', 'S', 'W', 'C']:

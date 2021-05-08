@@ -13,6 +13,145 @@ from . import ltcfs as spltcf
 from . import data_distributions as spdata
 
 
+class Household(spb.LayerGroup):
+    """
+    A class for individual households and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the household
+    """
+
+    def __init__(self, hhid=None, reference_uid=None, reference_age=None, **kwargs):
+        """
+        Class constructor for empty household.
+
+        Args:
+            **hhid (int)             : household id
+            **member_uids (np.array) : ids of household members
+            **reference_uid (int)    : id of the reference person
+            **reference_age (int)    : age of the reference person
+        """
+        super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
+        self.validate()
+
+        return
+
+    def validate(self):
+        """
+        Check that information supplied to make a household is valid and update
+        to the correct type if necessary.
+        """
+        super().validate(layer_str='household')
+        return
+
+    # To be turned on for vital dynamics...
+    # def set_hhid(self, hhid):
+    #     """Set the household id."""
+    #     self['hhid'] = int(hhid)
+
+    # def set_member_uids(self, member_uids):
+    #     """Set the uids of all household members."""
+    #     self['member_uids'] =  sc.promotetoarray(member_uids, dtype=int)
+
+    # def set_member_ages(self):
+    #     """Set the ages of all household members."""
+    #     self['member_ages'] = sc.promotetoarray(member_ages, dtype=int)
+
+    # def set_reference_uid(self, reference_uid):
+    #     """Set the uid of the reference person to generate the household members ages."""
+    #     self['reference_uid'] = int(reference_uid)
+
+    # def set_reference_age(self):
+    #     """Set the age of the reference person to generate the household members ages."""
+    #     self['reference_age'] = int(reference_age)
+
+
+def get_household(pop, hhid):
+    """
+    Return household with id: hhid.
+
+    Args:
+        pop (sp.Pop) : population
+        hhid (int)   : household id number
+
+    Returns:
+        sp.Household: A populated household.
+    """
+    if not isinstance(hhid, int):
+        raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
+    if len(pop.households) <= hhid:
+        raise IndexError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
+    return pop.households[hhid]
+
+
+def add_household(pop, household):
+    """
+    Add a household to the list of households.
+
+    Args:
+        pop (sp.Pop)             : population
+        household (sp.Household) : household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
+    """
+    if not isinstance(household, Household):
+        raise ValueError('household is not a sp.Household object.')
+
+    # ensure hhid to match the index in the list
+    if household['hhid'] != len(pop.households):
+        household['hhid'] = len(pop.households)
+    pop.households.append(household)
+    pop.n_households = len(pop.households)
+    return
+
+
+def initialize_empty_households(pop, n_households=None):
+    """
+    Array of empty households.
+
+    Args:
+        pop (sp.Pop)       : population
+        n_households (int) : the number of households to initialize
+    """
+    if n_households is not None and isinstance(n_households, int):
+        pop.n_households = n_households
+    else:
+        pop.n_households = 0
+
+    pop.households = [Household() for nh in range(pop.n_households)]
+    return
+
+
+def populate_households(pop, households, age_by_uid):
+    """
+    Populate all of the households. Store each household at the index corresponding to it's hhid.
+
+    Args:
+        pop (sp.Pop)      : population
+        households (list) : list of lists where each sublist represents a household and contains the ids of the household members
+        age_by_uid (dict) : dictionary mapping each person's id to their age
+    """
+    # initialize an empty set of households
+    # if previously you had 10 households and now you want to repopulate with
+    # this method and only supply 5 households, this method will overwrite the list to produce only 5 households
+    initialize_empty_households(pop, len(households))
+
+    log.debug("Populating households.")
+
+    # now populate households
+    for nh, hh in enumerate(households):
+        kwargs = dict(hhid=nh,
+                      member_uids=hh,
+                      reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[hh[0]]
+                      )
+        household = Household()
+        household.set_layer_group(**kwargs)
+        pop.households[household['hhid']] = sc.dcp(household)
+
+    pop.populate = True
+
+    return
+
+
 def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
@@ -31,8 +170,8 @@ def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
     hh_sizes = np.zeros(len(hh_size_distr))
 
     for s in hh_size_distr:
-        hh_sizes[s-1] = int(hh_size_distr[s] * f)
-    N_gen = np.sum([hh_sizes[s-1] * s for s in hh_size_distr], dtype=int)
+        hh_sizes[s - 1] = int(hh_size_distr[s] * f)
+    N_gen = np.sum([hh_sizes[s - 1] * s for s in hh_size_distr], dtype=int)
 
     # Check what population size was created from the drawn count of household sizes
     people_to_add_or_remove = N_gen - N
@@ -50,7 +189,7 @@ def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
                 new_household_size = people_to_add
             people_to_add -= new_household_size
 
-            hh_sizes[new_household_size-1] += 1
+            hh_sizes[new_household_size - 1] += 1
 
     # created households that result in too many people
     elif people_to_add_or_remove > 0:
@@ -62,7 +201,7 @@ def generate_household_size_count_from_fixed_pop_size(N, hh_size_distr):
                 new_household_size_to_remove = people_to_remove
 
             people_to_remove -= new_household_size_to_remove
-            hh_sizes[new_household_size_to_remove-1] -= 1
+            hh_sizes[new_household_size_to_remove - 1] -= 1
 
     hh_sizes = hh_sizes.astype(int)
     return hh_sizes
@@ -81,7 +220,8 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
     log.debug('assign_uids_by_homes()')
-    age_by_uid_dic = dict()
+
+    age_by_uid = dict()
     homes_by_uids = []
 
     for h, home in enumerate(homes):
@@ -89,15 +229,15 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
         home_ids = []
         for a in home:
             if use_int:
-                uid = len(age_by_uid_dic)
+                uid = len(age_by_uid)
             else:
                 uid = sc.uuid(length=id_len)
-            age_by_uid_dic[uid] = a
+            age_by_uid[uid] = int(a)
             home_ids.append(uid)
 
         homes_by_uids.append(home_ids)
 
-    return homes_by_uids, age_by_uid_dic
+    return homes_by_uids, age_by_uid
 
 
 def generate_age_count(n, age_distr):
@@ -196,7 +336,7 @@ def generate_household_sizes(hh_sizes):
     return household_sizes
 
 
-def generate_larger_households_fixed_ages(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
+def generate_larger_households_fixed_ages(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, ages_left_to_assign, homes_dic):
     """
     Assign people to households larger than one person (excluding special
     residences like long term care facilities or agricultural workers living in
@@ -207,7 +347,7 @@ def generate_larger_households_fixed_ages(larger_hh_size_array, larger_hha_chose
         hha_by_size (matrix)          : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
         hha_brackets (dict)           : The age brackets for the heads of household.
         cm_age_brackets (dict)        : The age brackets for the contact matrix.
-        cm_age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
+        cm_age_by_brackets (dict)     : A dictionary mapping age to the age bracket range it falls within.
         household_matrix (dict)       : The age-specific contact matrix for the household ontact setting.
         ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
 
@@ -219,7 +359,7 @@ def generate_larger_households_fixed_ages(larger_hh_size_array, larger_hha_chose
     for nh, hs in enumerate(larger_hh_size_array):
 
         hha = larger_hha_chosen[nh]
-        b = cm_age_by_brackets_dic[hha]
+        b = cm_age_by_brackets[hha]
 
         home = np.zeros(hs)
         home[0] = hha
@@ -264,7 +404,7 @@ def generate_larger_households_fixed_ages(larger_hh_size_array, larger_hha_chose
     return homes_dic, ages_left_to_assign
 
 
-def generate_all_households_fixed_ages(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, ages_left_to_assign):
+def generate_all_households_fixed_ages(n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ages_left_to_assign):
     """
     Generate the ages of those living in households together. First create
     households of people living alone, then larger households. For households
@@ -282,8 +422,8 @@ def generate_all_households_fixed_ages(n_remaining, hh_sizes, hha_by_size, hha_b
         hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
         hha_brackets (dict)           : The age brackets for the heads of household.
         cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrix_dic (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
+        cm_age_by_brackets (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
         ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
 
     Returns:
@@ -314,13 +454,13 @@ def generate_all_households_fixed_ages(n_remaining, hh_sizes, hha_by_size, hha_b
     # work off a copy of the household mixing matrix
     household_matrix = sc.dcp(contact_matrices['H'])
 
-    homes_dic, ages_left_to_assign = generate_larger_households_fixed_ages(larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic)
+    homes_dic, ages_left_to_assign = generate_larger_households_fixed_ages(larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, ages_left_to_assign, homes_dic)
     homes = get_all_households(homes_dic)
 
     return homes_dic, homes
 
 
-def generate_larger_households_infer_ages(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist, p=0.15):
+def generate_larger_households_infer_ages(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, adjusted_age_dist, p=0.15):
     """
     Generate ages of those living in households of greater than one individual.
     Reference individual is sampled conditional on the household size. All other
@@ -329,14 +469,14 @@ def generate_larger_households_infer_ages(size, larger_household_sizes, heads_of
     population under study.
 
     Args:
-        size (int)                    : The household size.
-        hh_sizes (array)              : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)           : The age brackets for the heads of household.
-        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrix_dic (dict)     : A dictionary of the age-specific contact matrix for different physical contact settings.
-        single_year_age_distr (dict)  : The age distribution.
+        size (int)                   : The household size.
+        hh_sizes (array)             : The count of household size s at index s-1.
+        hha_by_size_counts (matrix)  : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)          : The age brackets for the heads of household.
+        cm_age_brackets (dict)       : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets (dict)    : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        household_matrix (dict)      : Age-specific contact matrix for contacts in the household setting.
+        single_year_age_distr (dict) : The age distribution.
 
     Returns:
         An array of households for size ``size`` where each household is a row
@@ -359,7 +499,7 @@ def generate_larger_households_infer_ages(size, larger_household_sizes, heads_of
 
         homes[nh][0] = hha
 
-        b = cm_age_by_brackets_dic[hha]
+        b = cm_age_by_brackets[hha]
         b = min(b, household_matrix.shape[0] - 1)  # Ensure it doesn't go past the end of the array - likely not needed
         b_prob = household_matrix[b, :]
 
@@ -378,7 +518,7 @@ def generate_larger_households_infer_ages(size, larger_household_sizes, heads_of
     return homes
 
 
-def generate_all_households_infer_ages(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, contact_matrices, adjusted_age_dist, ages_left_to_assign):
+def generate_all_households_infer_ages(n, n_remaining, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, adjusted_age_dist, ages_left_to_assign):
     """
     Generate the ages of those living in households together. First create
     households of people living alone, then larger households. For households
@@ -388,15 +528,15 @@ def generate_all_households_infer_ages(n, n_remaining, hh_sizes, hha_by_size, hh
     in households for the population under study.
 
     Args:
-        n (int)                       : The number of people in the population.
-        n_remaining (int)             : The number of people in the population left to place in a residence.
-        hh_sizes (array)              : The count of household size s at index s-1.
-        hha_by_size_counts (matrix)   : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
-        hha_brackets (dict)           : The age brackets for the heads of household.
-        cm_age_brackets (dict)        : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
-        cm_age_by_brackets_dic (dict) : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
-        contact_matrices (dict)       : The dictionary of the age-specific contact matrix for different physical contact settings.
-        ages_left_to_assign (dict)    : Age count of people left to place in households larger than one person.
+        n (int)                     : The number of people in the population.
+        n_remaining (int)           : The number of people in the population left to place in a residence.
+        hh_sizes (array)            : The count of household size s at index s-1.
+        hha_by_size_counts (matrix) : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
+        hha_brackets (dict)         : The age brackets for the heads of household.
+        cm_age_brackets (dict)      : The dictionary mapping age bracket keys to age bracket range matching the household contact matrix.
+        cm_age_by_brackets (dict)   : The dictionary mapping age to the age bracket range it falls within matching the household contact matrix.
+        contact_matrices (dict)     : The dictionary of the age-specific contact matrix for different physical contact settings.
+        ages_left_to_assign (dict)  : Age count of people left to place in households larger than one person.
 
     Returns:
         An array of all households where each household is a row and the values
@@ -462,7 +602,7 @@ def generate_all_households_infer_ages(n, n_remaining, hh_sizes, hha_by_size, hh
 
     # generate the large households and ages of those people
     for size in range(2, len(hh_sizes) + 1):
-        homes_dic[size] = generate_larger_households_infer_ages(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, adjusted_age_dist_values)
+        homes_dic[size] = generate_larger_households_infer_ages(size, larger_household_sizes, heads_of_larger_households, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, adjusted_age_dist_values)
 
     homes = get_all_households(homes_dic)
 
@@ -552,8 +692,8 @@ def get_household_head_ages_by_size(pop):
     loc_pars.location = None
     hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
 
-    #hha_index use age as key and bracket index as value
-    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
+    # hha_index use age as key and bracket index as value
+    hha_index = spb.get_index_by_brackets(hha_brackets)
     uids = get_household_heads(popdict=popdict)
     d = {}
     # construct tables for each houldhold head
@@ -563,6 +703,7 @@ def get_household_head_ages_by_size(pop):
                                    'family_size': len(popdict[uid]['contacts']['H']) + 1,
                                    'hh_age_bracket': hha_index[popdict[uid]['age']]}
     df_household_age = pd.DataFrame.from_dict(d, orient="index")
+
     # aggregate by age_bracket (column) and family_size (row)
     df_household_age = df_household_age.groupby(['hh_age_bracket', 'family_size'], as_index=False).count()\
         .pivot(index='family_size', columns='hh_age_bracket', values='hhid').fillna(0)
