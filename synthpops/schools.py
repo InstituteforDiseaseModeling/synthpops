@@ -25,6 +25,7 @@ from . import defaults
 
 from . import base as spb
 from . import sampling as spsamp
+from . import contact_networks as spcnx
 from .config import logger as log
 
 
@@ -1118,14 +1119,11 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
 
     """
     edges = []
-    p = average_class_size / len(all_school_uids)
-    G = nx.erdos_renyi_graph(len(all_school_uids), p)  # replace with nx's fast ER implementation
-    for n, e in enumerate(G.edges()):
-        i, j = e
-        node_i = all_school_uids[i]
-        node_j = all_school_uids[j]
-        e = (node_i, node_j)
-        edges.append(e)
+    G = spcnx.random_graph_model(all_school_uids, average_class_size)  # undirected graph
+    for u, uid in enumerate(all_school_uids):
+        es = [(uid, all_school_uids[v]) for v in G.neighbors(u)]
+        edges.extend(es)
+
     return edges
 
 
