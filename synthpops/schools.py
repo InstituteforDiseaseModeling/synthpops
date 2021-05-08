@@ -1116,7 +1116,6 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
 
     Returns:
         List of edges between individuals in school.
-
     """
     edges = []
     G = spcnx.random_graph_model(all_school_uids, average_class_size)  # undirected graph
@@ -1445,14 +1444,14 @@ def assign_additional_staff_to_schools(student_uid_lists, teacher_uid_lists, wor
     return non_teaching_staff_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def add_random_contacts_from_graph(G, expected_average_degree):
+def add_random_contacts_from_graph(G, average_degree):
     """
     Add additional edges at random to achieve the expected or desired average
     degree.
 
     Args:
-        G (networkx Graph)            : networkx Graph object
-        expected_average_degree (int) : expected or desired average degree
+        G (networkx Graph)   : networkx Graph object
+        average_degree (int) : expected or desired average degree
 
     Returns:
         Updated networkx Graph object with additional edges added at random.
@@ -1466,9 +1465,9 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     if len(nodes) == 0:
         return G
 
-    p = expected_average_degree / len(nodes)
+    p = average_degree / len(nodes)
 
-    G2 = nx.erdos_renyi_graph(len(nodes), p)  # will return a graph with nodes relabeled from 0 through len(nodes)-1
+    G2 = spcnx.random_graph_model(nodes, average_degree)
 
     for node in nodes:
         ordered_node_id = ordered_node_ids[node]
@@ -1494,6 +1493,8 @@ def add_random_contacts_from_graph(G, expected_average_degree):
                 neighbor = ids_to_ordered_nodes[j]
                 if G.has_edge(node, neighbor):
                     G.remove_edge(node, neighbor)
+
+    print(len(G2.edges()))
 
     return G
 
