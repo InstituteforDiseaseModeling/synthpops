@@ -712,9 +712,7 @@ def generate_random_classes_by_grade_in_school(student_uids, student_ages, age_b
     for a in uids_in_school_by_age:
 
         # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
-        p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
-
-        Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
+        Ga = spcnx.random_graph_model(uids_in_school_by_age[a], average_class_size)
         for e in Ga.edges():
             i, j = e
 
@@ -923,14 +921,14 @@ def generate_edges_between_teachers(teacher_uids, average_teacher_teacher_degree
         edges = [e for e in eiter]
 
     else:
-        p = average_teacher_teacher_degree / len(teacher_uids)
-        G = nx.erdos_renyi_graph(len(teacher_uids), p)
+        G = spcnx.random_graph_model(teacher_uids, average_teacher_teacher_degree)
         for e in G.edges():
             i, j = e
             teacher_i = teacher_uids[i]
             teacher_j = teacher_uids[j]
             e = (teacher_i, teacher_j)
             edges.append(e)
+
     return edges
 
 
@@ -1493,8 +1491,6 @@ def add_random_contacts_from_graph(G, average_degree):
                 neighbor = ids_to_ordered_nodes[j]
                 if G.has_edge(node, neighbor):
                     G.remove_edge(node, neighbor)
-
-    print(len(G2.edges()))
 
     return G
 
