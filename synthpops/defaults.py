@@ -51,7 +51,7 @@ default_layer_info = dict(
 def default_datadir_path():
     """Return the path to synthpops internal data folder."""
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(thisdir, os.pardir, 'data')
+    return os.path.join(thisdir, 'data')
 
 
 # available globally if needed or via defaults.py --- stores information about

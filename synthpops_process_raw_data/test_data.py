@@ -1,3 +1,5 @@
+print('Note -- these tests currently deprecated')
+
 import numpy as np
 import pandas as pd
 import sciris as sc
@@ -5,13 +7,13 @@ import synthpops as sp
 import os
 import unittest
 
+sp.settings.datadir = sc.thisdir(__file__, 'unittests')
+
 # for Testconvert_df_to_json_array()
 pars = sc.objdict(
             location_name = 'usa-Washington',  # name of the location
             property_name = 'population_age_distributions',  # name of the property to compare to
-            filepath      = os.path.join(
-                                         sp.settings.datadir,
-                                         'unittests',
+            filepath      = os.path.join(sp.settings.datadir,
                                          'Washington_age_bracket_distr_16.dat'),  # path to the file to convert to array
             cols_ind      = [],  # list of column indices to include in array in conversion
             int_cols_ind  = [],  # list of column induces to convert to ints
