@@ -5,22 +5,24 @@ import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import settings
+import pytest
 
 
 default_nbrackets = sp.settings.nbrackets
 
 pars = sc.objdict(
-    n                               = settings.pop_sizes.small,
+    n                               = settings.pop_sizes.large * 3,
     rand_seed                       = 0,
 
     household_method                = 'fixed_ages',
+
     location                        = 'Dakar',
     state_location                  = 'Dakar',
     country_location                = 'Senegal',
     use_default                     = False,
 )
 
-
+# @pytest.mark.skip
 def test_Dakar():
     """."""
 
@@ -35,7 +37,8 @@ def test_Dakar():
     # pop.plot_employment_rates_by_age()
     # pop.plot_workplace_sizes()
     pop.plot_household_head_ages_by_size()  # update the household head age by size matrix to go up to 50
-    # pop.plot_contacts(layer='H', density_or_frequency='frequency', logcolors_flag=1, aggregate_flag=1)  # test other options
+    pop.plot_contacts(layer='H', density_or_frequency='frequency', logcolors_flag=1, aggregate_flag=1)  # test other options
+
     sp.set_location_defaults()
 
 if __name__ == '__main__':
