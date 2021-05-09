@@ -360,6 +360,7 @@ def get_head_age_by_size_distr(datadir=None, location=None, state_location=None,
                                           country_location=defaults.settings.country_location,
                                           use_default=False)
     dist = [d[1:] for d in location_data.household_head_age_distribution_by_family_size]
+    print(np.array(dist))
     return np.array(dist)
 
 

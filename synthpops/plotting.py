@@ -1548,7 +1548,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
 
-    pop.loc_pars.location = None
+    # pop.loc_pars.location = None
 
     # get the labels of the head of household age brackets
     hha_brackets = spdata.get_head_age_brackets(**pop.loc_pars)
