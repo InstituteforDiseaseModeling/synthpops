@@ -11,7 +11,7 @@ import synthpops as sp
 
 # parameters to generate a default population
 sample_pars = sc.objdict(
-    n                               = 80001,
+    n                               = 20001,
     rand_seed                       = 1,
     country_location                = 'usa',
     state_location                  = 'Washington',

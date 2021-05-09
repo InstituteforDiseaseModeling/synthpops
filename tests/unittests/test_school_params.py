@@ -9,7 +9,7 @@ import synthpops as sp
 import pytest
 
 pars = dict(
-    n=1e4,
+    n=5e3,
     rand_seed=1,
     max_contacts=None,
     country_location='usa',

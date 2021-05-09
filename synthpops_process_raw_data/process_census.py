@@ -10,8 +10,8 @@ each US state using SynthPops functions.
 
 import numpy as np
 import pandas as pd
-from . import base as spb
-from . import data_distributions as spdata
+from synthpops import base as spb
+from synthpops import data_distributions as spdata
 from . import data_distributions_legacy
 import os
 

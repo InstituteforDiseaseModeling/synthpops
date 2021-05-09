@@ -12,6 +12,145 @@ from . import sampling as spsamp
 from . import data_distributions as spdata
 
 
+class Household(spb.LayerGroup):
+    """
+    A class for individual households and methods to operate on each.
+
+    Args:
+        kwargs (dict): data dictionary of the household
+    """
+
+    def __init__(self, hhid=None, reference_uid=None, reference_age=None, **kwargs):
+        """
+        Class constructor for empty household.
+
+        Args:
+            **hhid (int)             : household id
+            **member_uids (np.array) : ids of household members
+            **reference_uid (int)    : id of the reference person
+            **reference_age (int)    : age of the reference person
+        """
+        super().__init__(hhid=hhid, reference_uid=reference_uid, reference_age=reference_age, **kwargs)
+        self.validate()
+
+        return
+
+    def validate(self):
+        """
+        Check that information supplied to make a household is valid and update
+        to the correct type if necessary.
+        """
+        super().validate(layer_str='household')
+        return
+
+    # To be turned on for vital dynamics...
+    # def set_hhid(self, hhid):
+    #     """Set the household id."""
+    #     self['hhid'] = int(hhid)
+
+    # def set_member_uids(self, member_uids):
+    #     """Set the uids of all household members."""
+    #     self['member_uids'] =  sc.promotetoarray(member_uids, dtype=int)
+
+    # def set_member_ages(self):
+    #     """Set the ages of all household members."""
+    #     self['member_ages'] = sc.promotetoarray(member_ages, dtype=int)
+
+    # def set_reference_uid(self, reference_uid):
+    #     """Set the uid of the reference person to generate the household members ages."""
+    #     self['reference_uid'] = int(reference_uid)
+
+    # def set_reference_age(self):
+    #     """Set the age of the reference person to generate the household members ages."""
+    #     self['reference_age'] = int(reference_age)
+
+
+def get_household(pop, hhid):
+    """
+    Return household with id: hhid.
+
+    Args:
+        pop (sp.Pop) : population
+        hhid (int)   : household id number
+
+    Returns:
+        sp.Household: A populated household.
+    """
+    if not isinstance(hhid, int):
+        raise TypeError(f"hhid must be an int. Instead supplied hhid with type: {type(hhid)}.")
+    if len(pop.households) <= hhid:
+        raise IndexError(f"Household id (hhid): {hhid} out of range. There are {len(pop.households)} households stored in this object.")
+    return pop.households[hhid]
+
+
+def add_household(pop, household):
+    """
+    Add a household to the list of households.
+
+    Args:
+        pop (sp.Pop)             : population
+        household (sp.Household) : household with at minimum the hhid, member_uids, member_ages, reference_uid, and reference_age.
+    """
+    if not isinstance(household, Household):
+        raise ValueError('household is not a sp.Household object.')
+
+    # ensure hhid to match the index in the list
+    if household['hhid'] != len(pop.households):
+        household['hhid'] = len(pop.households)
+    pop.households.append(household)
+    pop.n_households = len(pop.households)
+    return
+
+
+def initialize_empty_households(pop, n_households=None):
+    """
+    Array of empty households.
+
+    Args:
+        pop (sp.Pop)       : population
+        n_households (int) : the number of households to initialize
+    """
+    if n_households is not None and isinstance(n_households, int):
+        pop.n_households = n_households
+    else:
+        pop.n_households = 0
+
+    pop.households = [Household() for nh in range(pop.n_households)]
+    return
+
+
+def populate_households(pop, households, age_by_uid):
+    """
+    Populate all of the households. Store each household at the index corresponding to it's hhid.
+
+    Args:
+        pop (sp.Pop)      : population
+        households (list) : list of lists where each sublist represents a household and contains the ids of the household members
+        age_by_uid (dict) : dictionary mapping each person's id to their age
+    """
+    # initialize an empty set of households
+    # if previously you had 10 households and now you want to repopulate with
+    # this method and only supply 5 households, this method will overwrite the list to produce only 5 households
+    initialize_empty_households(pop, len(households))
+
+    log.debug("Populating households.")
+
+    # now populate households
+    for nh, hh in enumerate(households):
+        kwargs = dict(hhid=nh,
+                      member_uids=hh,
+                      reference_uid=hh[0],  # by default, the reference person is the first in the household in synthpops - with vital dynamics this may change
+                      reference_age=age_by_uid[hh[0]]
+                      )
+        household = Household()
+        household.set_layer_group(**kwargs)
+        pop.households[household['hhid']] = sc.dcp(household)
+
+    pop.populate = True
+
+    return
+
+
 def generate_household_sizes_from_fixed_pop_size(N, hh_size_distr):
     """
     Given a number of people and a household size distribution, generate the number of homes of each size needed to place everyone in a household.
@@ -124,7 +263,7 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
     Returns:
         A copy of the generated households with IDs in place of ages, and a dictionary mapping ID to age.
     """
-    age_by_uid_dic = dict()
+    age_by_uid = dict()
     homes_by_uids = []
 
     for h, home in enumerate(homes):
@@ -132,15 +271,15 @@ def assign_uids_by_homes(homes, id_len=16, use_int=True):
         home_ids = []
         for a in home:
             if use_int:
-                uid = len(age_by_uid_dic)
+                uid = len(age_by_uid)
             else:
                 uid = sc.uuid(length=id_len)
-            age_by_uid_dic[uid] = a
+            age_by_uid[uid] = int(a)
             home_ids.append(uid)
 
         homes_by_uids.append(home_ids)
 
-    return homes_by_uids, age_by_uid_dic
+    return homes_by_uids, age_by_uid
 
 
 def generate_age_count(n, age_distr):
@@ -244,7 +383,7 @@ def generate_larger_households_head_ages(larger_hh_size_array, hha_by_size, hha_
     return larger_hha_chosen, ages_left_to_assign
 
 
-def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets_dic, household_matrix, ages_left_to_assign, homes_dic):
+def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen, hha_brackets, cm_age_brackets, cm_age_by_brackets, household_matrix, ages_left_to_assign, homes_dic):
     """
     Assign people to households larger than one person (excluding special
     residences like long term care facilities or agricultural workers living in
@@ -255,7 +394,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
         hha_by_size (matrix)          : A matrix in which each row contains the age distribution of the reference person for household size s at index s-1.
         hha_brackets (dict)           : The age brackets for the heads of household.
         cm_age_brackets (dict)        : The age brackets for the contact matrix.
-        cm_age_by_brackets_dic (dict) : A dictionary mapping age to the age bracket range it falls within.
+        cm_age_by_brackets (dict)     : A dictionary mapping age to the age bracket range it falls within.
         household_matrix (dict)       : The age-specific contact matrix for the household ontact setting.
         larger_homes_age_count (dict) : Age count of people left to place in households larger than one person.
 
@@ -267,7 +406,7 @@ def generate_larger_households_method_2(larger_hh_size_array, larger_hha_chosen,
     for nh, hs in enumerate(larger_hh_size_array):
 
         hha = larger_hha_chosen[nh]
-        b = cm_age_by_brackets_dic[hha]
+        b = cm_age_by_brackets[hha]
 
         home = np.zeros(hs)
         home[0] = hha
@@ -357,7 +496,7 @@ def get_household_heads(popdict):
     Returns:
         dict: Dictionary of the id of the head of the household for each
         household.
-    
+
     Note:
         In static populations the id of the head of the household is the minimum
         id of the household members. With vital dynamics turned on and
@@ -393,8 +532,8 @@ def get_household_head_ages_by_size(pop):
     loc_pars.location = None
     hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
 
-    #hha_index use age as key and bracket index as value
-    hha_index = spb.get_index_by_brackets_dic(hha_brackets)
+    # hha_index use age as key and bracket index as value
+    hha_index = spb.get_index_by_brackets(hha_brackets)
     uids = get_household_heads(popdict=popdict)
     d = {}
     # construct tables for each houldhold head

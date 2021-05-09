@@ -23,11 +23,52 @@ Legend for changelog
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-Latest versions (1.7.x)
+Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.7.4 (2020-04-21)
+Version 1.8.0 (2021-05-07)
+--------------------------
+- This is a big one!
+- *Feature*: Class structures implemented for each layer and added to pop objects generated via `pop = sp.Pop()`. For example, now you can do ``pop.get_household(i)`` to get the household with integer ``hhid`` with value ``i`` which will be a ``sp.Household`` object with at minimum the attributes ``hhid``, ``member_uids``, ``reference_uid``, and ``reference_age``.
+- Base class for layer groups available in ``sp.base.py``; see class ``sp.base.LayerGroup()`` for more info. Important to note that this class has a method ``member_ages()`` which takes in a mapping of person ids to age to return the ages of individuals in a layer group. Optional parameter `subgroup_member_uids` allows you to return the ages for a subgroup of individuals.
+- The specific layer classes implemented are ``sp.Household``, ``sp.School``, ``sp.Classroom``, ``sp.Workplace``, ``sp.LongTermCareFacility``. Each is based off of ``sp.LayerGroup``.
+- Class also added for classroom structures in schools when schools are strictly cohorted into classrooms (school_mixing_type equals 'age_and_class_clustered').
+- Method name changes: ``sp.get_age_by_brackets_dic()`` -> ``sp.get_age_by_brackets()``, ``sp.get_index_by_brackets_dic()`` -> ``sp.get_index_by_brackets()``, ``sp.get_ids_by_age_dic()`` -> ``sp.get_ids_by_age()``, ``sp.make_contacts_from_microstructure_objects()`` -> ``sp.make_contacts()``, ``sp.get_contact_matrix_dic()`` -> ``sp.get_contact_matrices()``, 
+- ``sp.make_contacts()`` now returns a tuple; a dictionary version of the population and a dictionary version of schools to identify classrooms and other other groupings in schools. These are then used to populate the school and classroom structures in ``sp.Pop.generate()``.
+- *Regression Information*: Attribute names related to Long Term Care Facilities have changed to be more consistent with class name; ``snfid`` -> ``ltcfid``, ``snf_res`` -> ``ltcf_res``, ``snf_staff`` -> ``ltcf_staff``.
+- *Github*: PR `347 <https://github.com/amath-idm/synthpops/pull/347>`__
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versions 1.7.x (1.7.0 – 1.7.7)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.7.7 (2021-05-07)
+--------------------------
+- Made changes to allow SynthPops to be installed via ``pip``.
+- Updated examples in the folder ``synthpops/examples``.
+- Most significantly, changed the default data folder from ``synthpops/data`` to ``synthpops/synthpops/data``.
+- *Github*: PRs: `465 <https://github.com/amath-idm/synthpops/pull/465>`__
+
+
+Version 1.7.6 (2021-05-05)
+--------------------------
+- Updated random graph model to use networkx's fast Erdos-Renyi graph generator implementation, which speeds up generation time for the model.
+- *Regression Information*: The fast Erdos Renyi graph implementation changes the edges chosen, though not the statistical properties of the degree distribution.
+- *Github*: PRs: `449 <https://github.com/amath-idm/synthpops/pull/449>`__
+
+
+Version 1.7.5 (2021-05-03)
+--------------------------
+- ``sp.contact_networks.get_contact_counts_by_layer()`` now returns two dictionaries, one that gives the number of contacts between different roles in settings, like the number of contacts for students to teachers in schools, as well as the number of contacts per group in a setting, for example the number of contacts people have in the workplace with `wpid == 0`.
+- ``sp.sampling.statistic_test()`` with `verbose = True` prints to screen details about the expected and actual distributions when the test fails. 
+- *Fix*: Default `n` value now assigned in ``sp.defaults.py`` when ``sp.Pop`` supplied `n = None` and when `n` is lower than ``sp.defaults.default_pop_size``
+- *Github*: PRs `435 <https://github.com/amath-idm/synthpops/pull/435>`__, `448 <https://github.com/amath-idm/synthpops/pull/448>`__
+
+
+Version 1.7.4 (2021-04-21)
 --------------------------
 - *Feature*: new summary information added to pop objects: ``pop.summary.average_age``, ``pop.summary.layer_degrees``, ``pop.summary.layer_stats``, and ``pop.summary.layer_degree_description``, using the pandas DataFrame describe method. These give information on the overall degree distribution as well as the degree distribution by age for different layers generated using synthpops. Methods added to calculate these are generalized so in principle if other layers are added to the population post hoc or if connections change, these information can be re-calculated.
 - Also added is ``pop.summarize()`` which will print to screen and return a string of a brief description of the population generated using SynthPops.
