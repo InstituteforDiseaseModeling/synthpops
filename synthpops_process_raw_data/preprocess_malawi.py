@@ -5,7 +5,8 @@ import sciris as sc
 import synthpops as sp
 import os
 
-dir_path = os.path.join('/Users', 'dina', 'Dropbox (MOBS)', 'IDM', 'COVID-19', 'SynthPops', 'Malawi')
+
+dir_path = os.path.join(sp.settings.datadir, 'Malawi')
 file_path = os.path.join(dir_path, 'Series A. Population Tables.xlsx')
 
 df = pd.read_excel(file_path, sheet_name='A5', header=1, skiprows=[2, 3], skipfooter=303)
