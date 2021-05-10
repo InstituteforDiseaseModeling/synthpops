@@ -48,9 +48,7 @@ def process_labor_tables():
     """Function to process labor tables for employment rates."""
     file_path = os.path.join(dir_path, 'Series D. Economic Tables.xlsx')
     df = pd.read_excel(file_path, sheet_name='D1', header=1, skiprows=[2, 3])
-    # ages = df['Age in single Years'].values[1:]
-    # print(df)
-    # print(df.columns)
+
     age_labels_binned = df['Age'][1:]
     age_count_binned = np.array(df['Population'][1:])
     employed_ages_binned = np.array(df['Economically Active (Labour Force)'][1:])
@@ -60,7 +58,7 @@ def process_labor_tables():
         b = bl.split(' - ')
         b0, b1 = int(b[0]), int(b[1])
 
-        for a in np.arange(b0, b1+1):
+        for a in np.arange(b0, b1 + 1):
             employment_rates[a] = employment_rates_binned[bi]
             print(a, employment_rates[a])
     data = dict(age=np.arange(101), percent=np.array([employment_rates[a] for a in range(101)]))
@@ -69,8 +67,37 @@ def process_labor_tables():
     new_df.to_csv(new_file_path, index=False)
 
 
+def process_education_tables():
+    """Function to process education tables for enrollment rates."""
+    file_path = os.path.join(dir_path, 'Series C. Education Tables.xlsx')
+    df = pd.read_excel(file_path, sheet_name='TABLE C2', header=1, skiprows=[2, 3], skipfooter=24)
+
+    age_labels_binned = np.array(df['Age and Sex (5 Years and Older)'])
+    age_count_binned = np.array(df['Total '])
+    enrolled_ages_binned = np.array(df['Unnamed: 5'])
+    enrollment_rates_binned = enrolled_ages_binned / age_count_binned
+    enrollment_rates = dict.fromkeys(np.arange(101), 0.)
+    for bi, bl in enumerate(age_labels_binned):
+        try:
+            b = bl.split(' - ')
+            b0, b1 = int(b[0]), int(b[1])
+        except:
+            b = bl.split('+')
+            b0 = int(b[0])
+            b1 = 64
+
+        for a in np.arange(b0, b1 + 1):
+            enrollment_rates[a] = enrollment_rates_binned[bi]
+            print(a, enrollment_rates[a])
+    data = dict(age=np.arange(101), percent=np.array([enrollment_rates[a] for a in range(101)]))
+    new_df = pd.DataFrame.from_dict(data)
+    new_file_path = os.path.join(dir_path, 'Malawi_enrollment_rates_by_age.csv')
+    new_df.to_csv(new_file_path, index=False)
+
+
 if __name__ == '__main__':
     print(f"processing files from {dir_path}.")
     # process_age_tables()
-    process_labor_tables()
+    # process_labor_tables()
+    process_education_tables()
 
