@@ -1556,7 +1556,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     # we will ignore the first row (family_size = 1) for plotting
     # flip to make each row an age bin for calculation then flip back
-    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages), :]
+    expected_hh_ages = expected_hh_ages[0:len(expected_hh_ages), :]
 
     expected_hh_ages_percentage = expected_hh_ages / np.sum(expected_hh_ages, axis=1)[:, np.newaxis]
     expected_hh_ages_percentage[np.isnan(expected_hh_ages_percentage)] = 0
@@ -1564,7 +1564,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
     expected_hh_ages_percentage *= 100
 
     actual_hh_ages = sphh.get_household_head_ages_by_size(pop)
-    actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :]
+    actual_hh_ages = actual_hh_ages[0:len(expected_hh_ages), :]
 
     actual_hh_ages_percentage = actual_hh_ages / np.sum(actual_hh_ages, axis=1)[:, np.newaxis]
     actual_hh_ages_percentage[np.isnan(actual_hh_ages_percentage)] = 0
@@ -1573,14 +1573,14 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     # spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
     householdsize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
-    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) - 1)]
+    household_sizes = [i + 1 for i in range(0, len(expected_hh_ages_percentage) - 1)]
     yticklabels = household_sizes
 
     interval = 5
 
     data_range_min = 0
     data_range_max = max(np.max(expected_hh_ages_percentage), np.max(actual_hh_ages_percentage))
-    data_range_max = int(np.ceil(data_range_max/interval)) * interval
+    data_range_max = int(np.ceil(data_range_max / interval)) * interval
     data_range = [data_range_min, data_range_max]
 
     return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows, :],
