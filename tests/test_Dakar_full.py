@@ -20,6 +20,7 @@ pars = sc.objdict(
     location         = 'Dakar',
     state_location   = 'Dakar',
     country_location = 'Senegal',
+    sheet_name       = 'Senegal',
     use_default      = False,
 )
 
