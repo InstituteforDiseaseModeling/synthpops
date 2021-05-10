@@ -110,23 +110,17 @@ class School(spb.LayerGroup):
         Returns:
             np.ndarray: school member ages
         """
-        # return np.concatenate((self.member_ages(age_by_uid, self['student_uids']),
-        #                        self.member_ages(age_by_uid, self['teacher_uids']),
-        #                        self.member_ages(age_by_uid, self['non_teaching_staff_uids'])))
         return np.concatenate((self.student_ages(age_by_uid),
                                self.teacher_ages(age_by_uid),
                                self.non_teaching_staff_ages(age_by_uid)))
 
     def student_ages(self, age_by_uid):
-        # return self.member_ages(age_by_uid, self['student_uids'])
         return super().member_ages(age_by_uid, self['student_uids'])
 
     def teacher_ages(self, age_by_uid):
-        # return self.member_ages(age_by_uid, self['teacher_uids'])
         return super().member_ages(age_by_uid, self['teacher_uids'])
 
     def non_teaching_staff_ages(self, age_by_uid):
-        # return self.member_ages(age_by_uid, self['non_teaching_staff_uids'])
         return super().member_ages(age_by_uid, self['non_teaching_staff_uids'])
 
     def __len__(self):

@@ -509,17 +509,17 @@ class LongTermCareFacility(spb.LayerGroup):
         Returns:
             np.ndarray : ltcf member ages
         """
-        return np.concatenate((self.member_ages(age_by_uid, self['resident_uids']), self.member_ages(age_by_uid, self['staff_uids'])))
+        return np.concatenate((self.resident_ages(age_by_uid), self.staff_ages(age_by_uid)))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""
         return len(self.member_uids)
 
     def resident_ages(self, age_by_uid):
-        return self.member_ages(age_by_uid, self['resident_uids'])
+        return super().member_ages(age_by_uid, self['resident_uids'])
 
     def staff_ages(self, age_by_uid):
-        return self.member_ages(age_by_uid, self['staff_uids'])
+        return super().member_ages(age_by_uid, self['staff_uids'])
 
 
 def get_ltcf(pop, ltcfid):

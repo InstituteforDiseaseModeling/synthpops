@@ -24,10 +24,10 @@ pars = sc.objdict(
     use_default      = False,
 )
 
-# @pytest.mark.skip
-def test_Dakar():
-    """."""
 
+def test_Dakar():
+    """Test Dakar population constructed."""
+    sp.logger.info("Not a real test yet --- used for exploration and checks.")
     pop = sp.Pop(**pars)
 
     print(pop.summarize())
