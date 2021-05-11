@@ -150,12 +150,12 @@ class plotting_kwargs(sc.objdict):
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
         for k in default_pop_pars:
             if k not in self:
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
+                cfg.logger.debug(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
                 self[k] = default_pop_pars[k]
 
         for k in default_age_pars:
             if k not in self:
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
+                cfg.logger.debug(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
                 self[k] = default_age_pars[k]
 
         # loc_pars not in self yet
@@ -166,6 +166,17 @@ class plotting_kwargs(sc.objdict):
             self.window_length = 1
 
         return
+
+    def make_title(self, suffix):
+        """Create the title for the figure depending on the location information."""
+        if 'title_prefix' not in self or self.title_prefix is None:
+            if self.location is not None:
+                self.title_prefix = f"{self.location}_{suffix}"
+            elif self.state_location is not None:
+                self.title_prefix = f"{self.state_location}_{suffix}"
+            else:
+                self.title_prefix = f"{self.country_location}_{suffix}"
+        self.title_prefix = self.title_prefix.replace('_', ' ')
 
     def restore_defaults(self):
         """Reset matplotlib defaults."""
@@ -420,6 +431,8 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     if plkwargs.fontsize > 20:
         plkwargs.rotation = 90
 
+    plkwargs.make_title("Age Mixing")
+
     for i in range(len(ax)):
         divider = make_axes_locatable(ax[i])
         cax.append(divider.new_horizontal(size="4%", pad=0.15))
@@ -435,7 +448,9 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         ax[i].set_xlabel('Age', fontsize=plkwargs.fontsize + 6)
         ax[i].set_ylabel('Age of Contacts', fontsize=plkwargs.fontsize + 6)
         ax[i].set_title(
-            (plkwargs.title_prefix if plkwargs.title_prefix is not None else '') + plkwargs.titles[plkwargs.layer] + ' Age Mixing', fontsize=plkwargs.fontsize + 10)
+            plkwargs.title_prefix,
+            # (plkwargs.title_prefix if plkwargs.title_prefix is not None else '') + plkwargs.titles[plkwargs.layer] + ' Age Mixing',
+            fontsize=plkwargs.fontsize + 10)
 
         if plkwargs.aggregate_flag:
             tick_labels = [str(age_brackets[b][0]) + '-' + str(age_brackets[b][-1]) for b in age_brackets]
@@ -688,8 +703,10 @@ def plot_ages(pop, **kwargs):
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_age_distribution"
+    plkwargs.make_title("age_distribution")
+
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     plkwargs.title_prefix = f"{plkwargs.location}_age_distribution"
 
     # get the expected age distribution
     expected_age_dist = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, dict(window_length= plkwargs.window_length)))
@@ -787,8 +804,10 @@ def plot_household_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_household_sizes"
+    plkwargs.make_title("household_sizes")
+
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     plkwargs.title_prefix = f"{plkwargs.location}_household_sizes"
 
     # get the expected household size distribution
     expected_household_size_dist = spdata.get_household_size_distr(**plkwargs.loc_pars)
@@ -951,8 +970,10 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_ltcf_resident_sizes"
+    plkwargs.make_title("ltcf_resident_sizes")
+
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     plkwargs.title_prefix = f"{plkwargs.location}_ltcf_resident_sizes"
 
     # get the expected ltcf resident sizes
     expected_ltcf_resident_sizes_binned = spdata.get_long_term_care_facility_residents_distr(**plkwargs.loc_pars)
@@ -1098,8 +1119,14 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_enrollment_rates_by_age"
+    plkwargs.make_title("enrollment_rates_by_age")
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     if plkwargs.location is not None:
+    #         plkwargs.title_prefix = f"{plkwargs.location}_enrollment_rates_by_age"
+    #     elif plkwargs.state_location is not None:
+    #         plkwargs.title_prefix = f"{plkwargs.state_location}_enrollment_rates_by_age"
+    #     else:
+    #         plkwargs.title_prefix = f"{plkwargs.country_location}_enrollment_rates_by_age"
 
     # get the expected enrollment rates
     expected_enrollment_rates_by_age = spdata.get_school_enrollment_rates(**plkwargs.loc_pars)
@@ -1191,8 +1218,10 @@ def plot_employment_rates_by_age(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
+    plkwargs.make_title("employment_rates_by_age")
+
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
 
     # get the expected employment rates
     expected_employment_rates_by_age = dict.fromkeys(np.arange(spd.settings.max_age), 0)
@@ -1333,10 +1362,12 @@ def plot_school_sizes(pop, **kwargs):
     plkwargs.nrows = n_school_types
 
     # location text
-    if plkwargs.location is not None:
-        location_text = f"{plkwargs.location.replace('_', ' ').title()}"
-    else:
-        location_text = f"{spd.settings.location.replace('_', ' ').title()}"
+    # if plkwargs.location is not None:
+    #     location_text = f"{plkwargs.location.replace('_', ' ').title()}"
+    # else:
+    #     location_text = f"{spd.settings.location.replace('_', ' ').title()}"
+    plkwargs.make_title()
+    location_text = plkwargs.title_prefix
 
     # create fig, ax, set cmap
     fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
@@ -1749,10 +1780,11 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     default_cmap = mplt.cm.get_cmap("rocket")
     method_defaults = sc.objdict(cmap=default_cmap, alpha=0.99, thresh=0.0001, cbar=True,
                                  shade=True, xlim=[0, 101], height=5, ratio=5,
-                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 # title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.make_title(f"Degree by Age for Layer: {layer}")
 
     interval = 5
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
@@ -1825,15 +1857,16 @@ def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_includ
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
                                  shade=True, xlim=[0, 101], height=7,
-                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 # title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.make_title(f"Degree by Age for Layer: {layer}")
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.height, plkwargs.height))
     ax = sns.boxplot(x='age', y='degree', data=degree_df, palette=[plkwargs.cmap(0.5)], ax=ax)
     ax.set_xticks(np.arange(plkwargs.xlim[0], plkwargs.xlim[1], 10))
     ax.set_xlim(plkwargs.xlim)
-    ax.set_title('Workplace Degree Distribution', fontsize=plkwargs.fontsize+2)
+    ax.set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize+2)
     ax.set_xlabel('Age', fontsize=plkwargs.fontsize)
     ax.set_ylabel('Degree', fontsize=plkwargs.fontsize)
     finalize_figure(fig, plkwargs)
@@ -1905,7 +1938,8 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
 
         axi.set_xlim(plkwargs.xlim)
         axi.set_ylim(min_y, max_y)
-        axi.set_title(f'Pop: {ni}  Layer: {layer}', fontsize=plkwargs.fontsize)
+        plkwargs.make_title(f"Pop: {ni}  Layer: {layer}")
+        axi.set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     finalize_figure(fig, plkwargs)
 
@@ -1964,7 +1998,8 @@ def plot_degree_by_age_stats(pop, **kwargs):
         axs[nl].plot(x, y, color=color, lw=1.5)
 
         axs[nl].set_xlim(plkwargs.xlim)
-        axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)
+        plkwargs.make_title(pop.layer_mappings[layer])
+        axs[nl].set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     finalize_figure(fig, plkwargs)
 
