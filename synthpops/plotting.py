@@ -167,8 +167,10 @@ class plotting_kwargs(sc.objdict):
 
         return
 
-    def make_title(self, suffix):
+    def make_title(self, suffix=None):
         """Create the title for the figure depending on the location information."""
+        if suffix is None:
+            suffix = ""
         if 'title_prefix' not in self or self.title_prefix is None:
             if self.location is not None:
                 self.title_prefix = f"{self.location}_{suffix}"
