@@ -1488,8 +1488,9 @@ def plot_workplace_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_workplace_sizes"
+    plkwargs.make_title("workplace_sizes")
+    # if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
+    #     plkwargs.title_prefix = f"{plkwargs.location}_workplace_sizes"
 
     # get the expected workplace sizes
     temp_loc_pars = sc.dcp(plkwargs.loc_pars)  # to be removed once data for location is merged
