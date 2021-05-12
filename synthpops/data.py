@@ -174,11 +174,10 @@ def populate_parent_data_from_file_path(location, parent_file_path):
     # DM: parameter name of location should change to better reflect what this parameter actually is: the location data object
     logger.debug(f"Loading parent location from filepath [{parent_file_path}]")
     try:
-        parent_obj = load_location_from_filepath(parent_file_path)
+        parent_obj = load_location_from_filepath(parent_file_path, check_constraints=False)
         location = populate_parent_data_from_json_obj(location, parent_obj)
     except:
-        logger.debug(f"You may have an invalid data configuration: couldn't load parent"
-        # logger.warning(f"You may have an invalid data configuration: couldn't load parent "
+        logger.warning(f"You may have an invalid data configuration: couldn't load parent "
                     f"from filepath [{parent_file_path}] for location [{location.location_name}]")
     return location
 
@@ -239,7 +238,7 @@ def populate_parent_data(location):
     raise RuntimeError(f'Invalid type for parent field: [{type(parent)}]')
 
 
-def load_location_from_json(json_obj):
+def load_location_from_json(json_obj, check_constraints=None):
     """
     Load location data from json object with some checks made.
 
@@ -249,12 +248,18 @@ def load_location_from_json(json_obj):
     Returns:
         json: The json object with location data.
     """
+    if check_constraints is None:
+        check_constraints = True
+
     location = Location(json_obj)
-    check_location_constraints_satisfied(location)
-    check_all_probability_distribution_sums(location)
-    check_all_probability_distribution_nonnegative(location)
 
     populate_parent_data(location)
+
+    if check_constraints:
+        check_location_constraints_satisfied(location)
+        check_all_probability_distribution_sums(location)
+        check_all_probability_distribution_nonnegative(location)
+
     return location
 
 
@@ -310,7 +315,7 @@ def get_location_attr(location, property_name):
         return [False, None]
 
 
-def load_location_from_filepath(rel_filepath):
+def load_location_from_filepath(rel_filepath, check_constraints=None):
     """
     Loads location data object from provided relative filepath where the file path is
     relative to defaults.settings.datadir.
@@ -321,11 +326,14 @@ def load_location_from_filepath(rel_filepath):
     Returns:
         json: The json object with location data.
     """
+    if check_constraints is None:
+        check_constraints = True
+
     filepath = os.path.join(get_relative_path(defaults.settings.datadir), rel_filepath)
     logger.debug(f"Opening location from filepath [{filepath}]")
     f = open(filepath, 'r')
     json_obj = json.load(f)
-    return load_location_from_json(json_obj)
+    return load_location_from_json(json_obj, check_constraints=check_constraints)
 
 
 def save_location_to_filepath(location, abs_filepath):
