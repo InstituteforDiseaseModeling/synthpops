@@ -5,6 +5,7 @@ import numpy as np
 import networkx as nx
 import settings
 import pytest
+import logging
 
 # parameters to generate a test population
 pars = sc.objdict(
@@ -68,6 +69,28 @@ def test_random_schools(average_class_size):
         # check that the distribution of edges is random and clustered as expected for a random graph
         assert expected_clustering * lowerbound < clustering < expected_clustering * upperbound, f'Check failed on random graph clustering. {clustering} {density} {expected_density}, {expected_clustering} {np.mean([g[c].degree(n) for n in g[c].nodes()])}'
         print(f"Check passed. School {c} with random mixing has clustering {clustering:.3f} and density {density:.3f} close to expected values {expected_density:.3f}, {expected_clustering:.3f}.")
+
+
+@pytest.mark.parametrize("average_class_size", [10, 30])
+def test_age_and_class_cluster_params(average_class_size, caplog):
+    test_pars = sc.dcp(pars)
+    test_pars['school_mixing_type'] = 'age_and_class_clustered'
+    test_pars['average_class_size'] = average_class_size
+    with caplog.at_level(logging.INFO):
+        pop = sp.Pop(**test_pars)
+        class_size = []
+        s_t_ratio = []
+        for i in [s['classrooms'] for s in pop.schools]:
+            for j in i:
+                class_size.append(len(j['student_uids']))
+                s_t_ratio.append(len(j['student_uids'] / len(j['teacher_uids'])))
+        actual_class_size = sum(class_size) / len(class_size)
+        print(f"average class size: {actual_class_size}")
+        print(f"average student teacher ratio: {sum(s_t_ratio) / len(s_t_ratio)}")
+        if average_class_size < test_pars['average_student_teacher_ratio']:
+            assert 'use the larger of the average_class_size and the average_student_teacher_ratio' in caplog.text
+            assert average_class_size < actual_class_size, f'should be using average_student_teacher_ratio' \
+                                                           f' which is larger than {average_class_size} but result is {actual_class_size}'
 
 
 if __name__ == '__main__':
