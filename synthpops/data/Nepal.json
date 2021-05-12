@@ -269,7 +269,7 @@
     [50, 54],
     [55, 59],
     [60, 64],
-    [65, 74]
+    [65, 100]
   ],
   "household_head_age_distribution_by_family_size": [
     [1, 4, 100, 365, 612, 746, 851, 788, 734, 625, 547, 454, 775],
@@ -318,7 +318,11 @@
   }, {
     "school_type": "es",
     "size_distribution": [1.00]
-  }],
+  }, {
+    "school_type": "ss",
+    "size_distribution": [1.00]
+  }
+],
 "school_types_by_age": [{
     "school_type": "pk",
     "age_range": [3, 5]
