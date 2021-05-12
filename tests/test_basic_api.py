@@ -56,6 +56,7 @@ def test_small_pop_n(caplog):
         pop2 = sp.Pop(**test_pars)
         assert pop2.n == sp.defaults.default_pop_size - 1, 'Check failed.'
         assert len(caplog.text) != 0, 'Check failed. No warning message about small pop size n.'
+        assert len(pop2.ltcfs) == pop2.n_ltcf == 0, 'Check failed. LTCF should not be created by small pop size n.'
     print('Check passed')
 
 

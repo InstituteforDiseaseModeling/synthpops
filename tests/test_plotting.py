@@ -339,6 +339,8 @@ def test_plot_contact_counts_on_pop(create_pop, do_show=False, do_save=False):
     sp.logger.info("Test plot_contact_counts on sp.Pop object.")
     pop = create_pop
     contact_counter = pop.get_contact_counts_by_layer(layer='S')
+    assert len(contact_counter['sc_student'])>0, 'contact counter for student should not return 0.'
+    assert len(contact_counter['sc_teacher']) > 0, 'contact counter for teacher should not return 0.'
     kwargs = sc.objdict()
     kwargs.do_show = do_show
     kwargs.do_save = do_save
@@ -356,20 +358,20 @@ if __name__ == '__main__':
     T = sc.tic()
     pop = sp.Pop(**pars)
     figs = test_plots(create_pop=pop, do_plot=True)
-    test_calculate_contact_matrix_errors(create_pop=pop)
-    test_catch_pop_type_errors()
-    test_restoring_matplotlib_defaults()
-    test_plot_array()
-    test_pop_without_plkwargs(create_pop=pop)
-    fig0, ax0, pop0 = test_plot_ages(create_pop=pop, do_show=True)
-    fig1, ax1, people1 = test_plot_with_cvpeople(create_pop=pop, do_show=True, do_save=True)
-    fig2, ax2, pop2 = test_plot_household_sizes_dist(create_pop=pop, do_show=True)
-    fig3, ax3, pop3 = test_plot_ltcf_resident_sizes(create_pop=pop, do_show=True)
-    fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(create_pop=pop, do_show=True)
-    fig5, ax5, pop5 = test_plot_employment_rates_by_age(create_pop=pop, do_show=True)
-    fig6, ax6, pop6 = test_plot_workplace_sizes(create_pop=pop, do_show=True)
-    fig7, ax7, pop7 = test_household_head_ages_by_size(create_pop=pop, do_show=True)
-    test_plot_contact_counts(do_show=True)
+    # test_calculate_contact_matrix_errors(create_pop=pop)
+    # test_catch_pop_type_errors()
+    # test_restoring_matplotlib_defaults()
+    # test_plot_array()
+    # test_pop_without_plkwargs(create_pop=pop)
+    # fig0, ax0, pop0 = test_plot_ages(create_pop=pop, do_show=True)
+    # fig1, ax1, people1 = test_plot_with_cvpeople(create_pop=pop, do_show=True, do_save=True)
+    # fig2, ax2, pop2 = test_plot_household_sizes_dist(create_pop=pop, do_show=True)
+    # fig3, ax3, pop3 = test_plot_ltcf_resident_sizes(create_pop=pop, do_show=True)
+    # fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(create_pop=pop, do_show=True)
+    # fig5, ax5, pop5 = test_plot_employment_rates_by_age(create_pop=pop, do_show=True)
+    # fig6, ax6, pop6 = test_plot_workplace_sizes(create_pop=pop, do_show=True)
+    # fig7, ax7, pop7 = test_household_head_ages_by_size(create_pop=pop, do_show=True)
+    # test_plot_contact_counts(do_show=True)
     test_plot_contact_counts_on_pop(create_pop=pop, do_show=True)
 
     sc.toc(T)
