@@ -27,7 +27,7 @@ Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.8.1 (2021-05-10)
+Version 1.8.4 (2021-05-13)
 --------------------------
 - *Fix*: Refactored population generation methods to first determine the ages to be generated or expected to be generated, then have this be an input for methods to generate long term care facility residents' ages, and then methods to generate households and household member ages for the rest of the population residing in that layer. Addresses small n population bug identified with the household_method of 'fixed_ages' (issues `311 <https://github.com/amath-idm/synthpops/issues/311>`__ / `333 <https://github.com/amath-idm/synthpops/issues/333>`__) and allows for arbitrarily small populations (n > 0) to be created, although with smaller n matching the age distribution expected gets harder. 
 - *Fix*: Also fixes zero division errors when calculating pop properties like the enrollment and employment rates by age when there is at least one age with a count of zero people in the population (issue `383 <https://github.com/amath-idm/synthpops/issues/383>`__).
@@ -39,6 +39,19 @@ Version 1.8.1 (2021-05-10)
 - *Deprecated*: ``sp.households.generate_household_head_age_by_size``, ``sp.households.generate_living_alone``, ``sp.households.generate_living_alone_method_2``
 - *Regression Information*: Refactoring population generation methods to first determine the ages to be generated and then place people in residences produces a stochastic change in the regression population. Take a look at how the generated age distributions compare to the expected via pop.plot_ages().
 - *Github Info*: PRs: `384 <https://github.com/amath-idm/synthpops/pull/384>`__
+
+
+Version 1.8.2 (2021-05-12)
+--------------------------
+- *Fix*: Fix changes when constraints and other checks are performed in the data loading step. Now all checks should be performed only once after synthpops has checked the location and all of its parent locations for the necessary data to create the networked populations.
+- *Github*: PR `485 <https://github.com/amath-idm/synthpops/pull/485>`__
+
+
+Version 1.8.1 (2021-05-09)
+--------------------------
+- *Fix*: Minor fix to how the expected data are called when plotting the head of household age distributions by household size in ``sp.plotting.plot_household_head_ages_by_size()``. Temporarily this method set the location parameter to None when the ability to traverse up parent locations was not yet functional. With that implemented now, we can keep information about all levels of the location and synthpops will look for the first data set available starting from the child location and moving upwards through all parent locations.
+- *Github*: PR `478 <https://github.com/amath-idm/synthpops/pull/478>`__
+>>>>>>> master
 
 
 Version 1.8.0 (2021-05-07)
