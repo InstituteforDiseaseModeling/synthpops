@@ -101,7 +101,12 @@ def make_contacts(pop,
         if school_mixing_type_dic[school_type] == 'age_and_class_clustered':
             age_and_class_clustered_flag = True
 
-    average_class_size_by_mixing_type = dict.fromkeys(set(school_mixing_type_dic.values()), average_class_size)
+    if not isinstance(average_class_size, dict):
+        average_class_size_by_mixing_type = dict.fromkeys(set(school_mixing_type_dic.values()), average_class_size)
+
+    elif isinstance(average_class_size, dict):
+        average_class_size_by_mixing_type = sc.dcp(average_class_size)
+        average_class_size_by_mixing_type = sc.mergedicts(dict.fromkeys(set(school_mixing_type_dic.values())), average_class_size_by_mixing_type)
 
     if age_and_class_clustered_flag:
         if average_class_size < average_student_teacher_ratio:
@@ -109,9 +114,12 @@ def make_contacts(pop,
             average_class_size_by_mixing_type['age_and_class_clustered'] = actual_classroom_size
             warning_msg = f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}. \n In schools with mixing type 'age_and_class_clustered', synthpops will use the larger of the two to define the classroom sizes."
             log.warning(warning_msg)
-            # log.info(f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}.\n Schools with mixing type 'age_and_class_clustered' will use the larger of the average_class_size and the average_student_teacher_ratio.")
 
-    pop.average_class_size = average_class_size_by_mixing_type
+    if len(list(average_class_size_by_mixing_type.keys())) > 1:
+        pop.average_class_size = average_class_size_by_mixing_type
+    else:
+        pop.average_class_size = list(average_class_size_by_mixing_type.values())[0]
+
     uids = age_by_uid.keys()
 
     uids = [uid for uid in uids]
@@ -262,6 +270,8 @@ def make_contacts(pop,
             popdict[uid]['sc_type'] = this_school_type
             popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
+    pop.schools_in_groups = schools
+
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
 
@@ -289,7 +299,8 @@ def make_contacts(pop,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     log.debug('...done ' + checkmem())
-    return popdict, schools
+    # return popdict, schools
+    return popdict
 
 
 def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):

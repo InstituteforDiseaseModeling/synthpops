@@ -18,7 +18,6 @@ outfile = 'basic_api.pop'
 
 pars = settings.get_full_feature_pars()
 
-
 def test_basic_api():
     ''' Basic SynthPops test '''
     sp.logger.info('Testing basic API')

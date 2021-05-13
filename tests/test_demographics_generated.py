@@ -22,6 +22,7 @@ pars = sc.objdict(
 
     with_facilities    = 1,
     with_school_types  = 1,
+    average_class_size = 18,
 
     school_mixing_type = {'pk': 'age_and_class_clustered',
                           'es': 'age_and_class_clustered',
