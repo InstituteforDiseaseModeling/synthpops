@@ -88,11 +88,9 @@ def test_age_and_class_cluster_params(average_class_size, caplog):
         print(f"average class size: {actual_class_size}")
         print(f"average student teacher ratio: {sum(s_t_ratio) / len(s_t_ratio)}")
         if average_class_size < test_pars['average_student_teacher_ratio']:
-            # assert 'use the larger of the average_class_size and the average_student_teacher_ratio' in caplog.text
             assert f"average_class_size: {average_class_size} < average_student_teacher_ratio: {test_pars['average_student_teacher_ratio']}. \n In schools with mixing type 'age_and_class_clustered', synthpops will use the larger of the two to define the classroom sizes." in caplog.text
             assert average_class_size < actual_class_size, f'should be using average_student_teacher_ratio' \
                                                            f' which is larger than {average_class_size} but result is {actual_class_size}'
-
 
 
 if __name__ == '__main__':

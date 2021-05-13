@@ -462,8 +462,7 @@ class Pop(sc.prettyobj):
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
-        schools_in_groups = self.schools_in_groups
-        school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
+        school_mixing_types = [self.schools_in_groups[ns]['school_mixing_type'] for ns in range(len(self.schools_in_groups))]
 
         # temporarily store some information
         self.homes_by_uids = homes_by_uids
@@ -473,7 +472,6 @@ class Pop(sc.prettyobj):
         self.non_teaching_staff_uid_lists = non_teaching_staff_uid_lists
         self.school_types = school_types
         self.school_mixing_types = school_mixing_types
-        # self.schools_in_groups = schools_in_groups
         if self.ltcf_pars.with_facilities:
             self.facilities_by_uid_lists = facilities_by_uid_lists
             self.facilities_staff_uid_lists = facilities_staff_uid_lists
