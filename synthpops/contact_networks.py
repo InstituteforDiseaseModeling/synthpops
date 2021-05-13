@@ -11,7 +11,8 @@ from . import schools as spsch
 from .config import logger as log, checkmem
 import collections
 
-def make_contacts(age_by_uid,
+def make_contacts(pop,
+                  age_by_uid,
                   homes_by_uids,
                   students_by_uid_lists=None,
                   teachers_by_uid_lists=None,
@@ -79,8 +80,8 @@ def make_contacts(age_by_uid,
     log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}
 
-    grade_age_mapping = {i: i+5 for i in range(13)}
-    age_grade_mapping = {i+5: i for i in range(13)}
+    grade_age_mapping = {i: i + 5 for i in range(13)}
+    age_grade_mapping = {i + 5: i for i in range(13)}
     age_grade_mapping[3] = 0
     age_grade_mapping[4] = 0
 
@@ -100,10 +101,17 @@ def make_contacts(age_by_uid,
         if school_mixing_type_dic[school_type] == 'age_and_class_clustered':
             age_and_class_clustered_flag = True
 
+    average_class_size_by_mixing_type = dict.fromkeys(set(school_mixing_type_dic.values()), average_class_size)
+
     if age_and_class_clustered_flag:
         if average_class_size < average_student_teacher_ratio:
-            log.info(f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}.\n Schools with mixing type 'age_and_class_clustered' will use the larger of the average_class_size and the average_student_teacher_ratio.")
+            actual_classroom_size = max(average_class_size, average_student_teacher_ratio)
+            average_class_size_by_mixing_type['age_and_class_clustered'] = actual_classroom_size
+            warning_msg = f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}. \n In schools with mixing type 'age_and_class_clustered', synthpops will use the larger of the two to define the classroom sizes."
+            log.warning(warning_msg)
+            # log.info(f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}.\n Schools with mixing type 'age_and_class_clustered' will use the larger of the average_class_size and the average_student_teacher_ratio.")
 
+    pop.average_class_size = average_class_size_by_mixing_type
     uids = age_by_uid.keys()
 
     uids = [uid for uid in uids]
@@ -128,7 +136,6 @@ def make_contacts(age_by_uid,
 
     # TODO: include age-based sex ratios
     sexes = np.random.randint(2, size=len(age_by_uid))
-
 
     for u, uid in enumerate(age_by_uid):
         popdict[uid] = {}
@@ -217,7 +224,9 @@ def make_contacts(age_by_uid,
             popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages,
                                                                              teachers, non_teaching_staff, age_by_uid,
                                                                              grade_age_mapping, age_grade_mapping,
-                                                                             average_class_size, inter_grade_mixing,
+                                                                             # average_class_size,
+                                                                             average_class_size_by_mixing_type[this_school_mixing_type],
+                                                                             inter_grade_mixing,
                                                                              average_student_teacher_ratio,
                                                                              average_teacher_teacher_degree,
                                                                              average_additional_staff_degree,

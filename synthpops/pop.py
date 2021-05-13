@@ -436,7 +436,8 @@ class Pop(sc.prettyobj):
         homes = homes[len(facilities_by_uid_lists):]
 
         # population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid=age_by_uid,
-        population, schools_in_groups = spcnx.make_contacts(age_by_uid=age_by_uid,
+        population, schools_in_groups = spcnx.make_contacts(self,
+                                                            age_by_uid=age_by_uid,
                                                             homes_by_uids=homes_by_uids,
                                                             students_by_uid_lists=student_uid_lists,
                                                             teachers_by_uid_lists=teacher_uid_lists,

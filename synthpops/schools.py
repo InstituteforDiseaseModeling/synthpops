@@ -1187,8 +1187,9 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
 
-        actual_classroom_size = [average_student_teacher_ratio if average_class_size < average_student_teacher_ratio else average_class_size][0]
-
+        # actual_classroom_size = [average_student_teacher_ratio if average_class_size < average_student_teacher_ratio else average_class_size][0]
+        actual_classroom_size = max(average_class_size, average_student_teacher_ratio)
+        # print('actual_classroom_size', actual_classroom_size, average_class_size, average_student_teacher_ratio)
         student_groups = generate_clustered_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size=actual_classroom_size, return_edges=False)
         student_groups_2 = sc.dcp(student_groups)
         student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teacher_uids, average_student_teacher_ratio, average_teacher_teacher_degree)
