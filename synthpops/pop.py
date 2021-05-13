@@ -497,8 +497,9 @@ class Pop(sc.prettyobj):
 
             sum_ltcf_res = sum([len(f) for f in self.facilities_by_uid_lists])
             if sum_ltcf_res == 0:
-                log.warning(f"Heads up: Population and long term care facility use rates were too low, no facilities were created for this population. If you wish to include people living in this type of layer, consider using a larger population size or checking your data.")
+                log.warning(f"Heads up: Population size and long term care facility use rates were too low, no facilities were created for this population. If you wish to include people living in this type of layer, consider using a larger population size or checking your data on long term care facility use rates. Changing pop.with_facilities to False.")
                 self.layers.remove('LTCF')
+                self.ltcf_pars.with_facilities = False
 
         self.set_layer_classes()
         self.clean_up_layer_info()
