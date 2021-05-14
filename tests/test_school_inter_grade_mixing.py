@@ -15,7 +15,7 @@ import settings
 
 # parameters to generate a test population
 pars = sc.objdict(
-        n                       = 30e3,  # catches small school size logic  --- we should find a way to add a unit test for this instead
+        n                       = settings.pop_sizes.medium,
         rand_seed               = 23,
         with_facilities         = 1,
         with_non_teaching_staff = 1,

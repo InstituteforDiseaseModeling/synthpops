@@ -23,7 +23,6 @@ def test_basic_api():
     ''' Basic SynthPops test '''
     sp.logger.info('Testing basic API')
 
-    # pop = sp.make_population(**pars)
     pop = sp.Pop(**pars)
     popdict = pop.popdict
     age_distr = sp.read_age_bracket_distr(sp.settings.datadir, country_location='usa', state_location='Washington', location='seattle_metro')

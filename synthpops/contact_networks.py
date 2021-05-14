@@ -300,7 +300,6 @@ def make_contacts(pop,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     log.debug('...done ' + checkmem())
-    # return popdict, schools
     return popdict
 
 
@@ -360,8 +359,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
             # if the person's degree is too high, cut out some contacts
             if len(group_1_neighbors) > average_degree:
                 ncut = len(group_1_neighbors) - average_degree  # rough number to cut
-                # ncut = spsamp.pt(ncut)  # sample from poisson that number
-                # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
+
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
                     G.remove_edge(i, j)
@@ -369,7 +367,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     else:
         share_k_matrix = np.ones((2, 2))
-        share_k_matrix *= average_degree/np.sum(sizes)
+        share_k_matrix *= average_degree / np.sum(sizes)
 
         if p_matrix is None:
             p_matrix = share_k_matrix.copy()

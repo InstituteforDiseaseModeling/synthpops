@@ -1026,7 +1026,7 @@ def generate_edges_for_teachers_in_random_classes(student_uids, student_ages, te
     return edges
 
 
-def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False):
+def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, average_teacher_teacher_degree=4, return_edges=False):
     """
     Generate edges for teachers, including to both students and other teachers
     at the same school. Students and teachers are clustered into disjoint
@@ -1035,7 +1035,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, avera
     Args:
         groups (list)                          : list of lists of students, clustered into groups mostly by grade
         teacher_uids (list)                    : list of teachers in the school
-        average_student_teacher_ratio (float)  : average number of students per teacher
         average_teacher_teacher_degree (float) : average number of contacts with other teachers
         return_edges (bool)                    : If True, return edges, else return two groups of contacts - students and teachers for each class
 
@@ -1173,12 +1172,9 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     # random contacts across a grade in the school, most edges will across the same age group, much like middle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
     elif school_mixing_type == 'age_clustered':
         edges = generate_random_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing)
-        H = nx.Graph()
-        H.add_edges_from(edges)
 
         teacher_edges = generate_edges_for_teachers_in_random_classes(student_uids, student_ages, teacher_uids, age_by_uid, average_student_teacher_ratio, average_teacher_teacher_degree)
         edges += teacher_edges
-        H.add_edges_from(teacher_edges)
 
         add_contacts_from_edgelist(popdict, edges, 'S')
         student_groups = [student_uids]
@@ -1187,12 +1183,9 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
 
-        # actual_classroom_size = [average_student_teacher_ratio if average_class_size < average_student_teacher_ratio else average_class_size][0]
-        actual_classroom_size = max(average_class_size, average_student_teacher_ratio)
-        # print('actual_classroom_size', actual_classroom_size, average_class_size, average_student_teacher_ratio)
-        student_groups = generate_clustered_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size=actual_classroom_size, return_edges=False)
+        student_groups = generate_clustered_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size=average_class_size, return_edges=False)
         student_groups_2 = sc.dcp(student_groups)
-        student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teacher_uids, average_student_teacher_ratio, average_teacher_teacher_degree)
+        student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teacher_uids, average_teacher_teacher_degree=average_teacher_teacher_degree)
 
         sum_diff = sum([len(group) for group in student_groups]) - sum([len(group) for group in student_groups_2])
         assert sum_diff == 0, f'Check failed. sum of the differences between student groups is not zero. Total school enrollment changed between the step of creating student groups and assigning teachers to each group. sum is {sum_diff}'

@@ -30,8 +30,10 @@ Latest versions (1.8.x)
 Version 1.8.4 (2021-05-14)
 --------------------------
 - *Fix*: Catching rare events when schools are created with fewer than the smallest expected school size because there are no more students left to place in a school.
-- Warning users when average class size and the average student teacher ratio parameters are incompatible as well as how synthpops handles these situations.
-- *Regression Information*: Refactoring how school contacts are chosen when cohorting students into classrooms and how different parameters for schools intersect here.
+- *Feature*: Additional functionality to allow for the average classroom size to be different based on school mixing type (random, age_clustered, or age_and_class_clustered). 
+- Warning users when average class size and the average student teacher ratio parameters are incompatible as well as how synthpops handles these situations. 
+- *Fix*: Logic on how average class size and the average student teacher ratio parameters interact to create cohorts of students when the mixing type is age_and_class_clustered. The cohort size is drawn from a poisson on the larger of the two values. Why? Because for schools where students are cohorted into classrooms, there should be at least one teacher per classroom (average student teacher ratio), but there may be more than one (if average class size > average student teacher ratio).
+- *Regression Information*: Refactoring related to schools as described above.
 - *Github*: PR `459 <https://github.com/amath-idm/synthpops/pull/459>`__
 
 
