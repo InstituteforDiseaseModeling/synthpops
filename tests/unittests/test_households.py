@@ -3,6 +3,7 @@ This file includes tests for the household settings,
 When investigation is needed, set the self.is_debugging = True
 
 """
+import pytest
 import unittest
 import numpy as np
 import json
@@ -380,7 +381,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         hh_distro = self.get_seattle_household_size_distro()
-        hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(500, hh_distro)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(500, hh_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -425,7 +426,7 @@ class HouseholdsTest(unittest.TestCase):
             6: 0.05,
             7: 0.175
         }
-        hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(500, custom_distro)
+        hh_sizes = sp.generate_household_size_count_from_fixed_pop_size(500, custom_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -706,6 +707,7 @@ class HouseholdsTest(unittest.TestCase):
         generated = sp.generate_age_count(n=5000, age_distr=dist)
         self.verify_buckets(dist, list(generated.values()))
 
+    @pytest.mark.skip  # separate method for households larger than 1 is deprecated and will be removed soon
     def test_generate_larger_household_sizes(self):
         """
         Test generate_larger_household_sizes method if hh_size =1, it expectes
@@ -725,6 +727,25 @@ class HouseholdsTest(unittest.TestCase):
                 print(f"actual hh_size:{collections.Counter(size)}")
                 self.assertEqual(sum(size[1:]), len(result))
 
+    def test_generate_household_sizes(self):
+        """
+        Test generate_larger_household_sizes method if hh_size =1, it expectes
+        method to return an empty array, otherwise an array of counts which the
+        total should match the the hh_size[1:].
+
+        Returns:
+            None
+        """
+        size1 = sp.generate_household_sizes(hh_sizes=[])
+        self.assertEqual(len(size1), 0)
+        for i in range(2, 10):
+            size = np.random.randint(low=1, high=50, size=i)
+            with self.subTest(size=size):
+                print(f"hh_size:{size}")
+                result = sp.generate_household_sizes(hh_sizes=size)
+                print(f"actual hh_size:{collections.Counter(size)}")
+                self.assertEqual(sum(size), len(result))
+
     def test_generate_household_sizes_from_fixed_pop_size(self):
         """
         Test generate_household_sizes_from_fixed_pop_size the test data is
@@ -741,7 +762,7 @@ class HouseholdsTest(unittest.TestCase):
         # 900 is divisble by the expected value (3.0) but 901 is not
         # this creates test cases for N_gen = N and N_gen < N condition
         for i in [900, 901]:
-            hh = sp.generate_household_sizes_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
+            hh = sp.generate_household_size_count_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
             # verify the total number of people matches N
             self.assertEqual(i, sum([(n+1)*hh[n] for n in range(0, len(hh))]))
             # verify distribution
@@ -754,7 +775,7 @@ class HouseholdsTest(unittest.TestCase):
                        3: 0.2,
                        4: 0.29,
                        5: 0.11}
-        hh2 = sp.generate_household_sizes_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
+        hh2 = sp.generate_household_size_count_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
         self.assertEqual(900, sum([(n+1)*hh2[n] for n in range(0, len(hh2))]))
         self.verify_buckets(uneven_dist.values(), hh2)
 

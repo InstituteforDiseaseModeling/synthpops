@@ -286,11 +286,12 @@ def make_contacts(pop,
                 popdict[uid]['contacts']['W'] = set(uids[v])
                 popdict[uid]['contacts']['W'].discard(uid)  # this shouldn't be needed
                 popdict[uid]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
+                if workplaces_by_industry_codes is not None: # pragma: no cover
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     else: # pragma: no cover
         for nw, workplace in enumerate(workplace_by_uid_lists):
+
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
                 popdict[uid]['contacts']['W'].remove(uid)
@@ -338,7 +339,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     r2 = [int(i) for i in group_2]
 
     n1 = list(np.arange(len(r1)).astype(int))
-    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1) + len(r2)).astype(int))
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
