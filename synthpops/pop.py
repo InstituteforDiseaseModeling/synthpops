@@ -115,17 +115,18 @@ class Pop(sc.prettyobj):
         '''
         log.debug('Pop()')
 
-        # Assign all the variables
-        self.loc_pars           = sc.objdict()
-        self.school_pars        = sc.objdict()
-        self.ltcf_pars          = sc.objdict()
-
         # General parameters
         if n is None:
             log.warning(f"Pop size n not given, generating a population with a default size of {defaults.default_pop_size} people.")
             n = defaults.default_pop_size
+
         elif n < defaults.default_pop_size:
             log.warning(f"Pop size n: {n} is too small for synthpops to make contact networks that statistically represent real world populations. Resultant networks may not look realistic.")
+
+        # Assign all the variables
+        self.loc_pars           = sc.objdict()
+        self.school_pars        = sc.objdict()
+        self.ltcf_pars          = sc.objdict()
 
         self.n                  = int(n)
         self.max_contacts       = sc.mergedicts({'W': 20}, max_contacts)
@@ -278,6 +279,20 @@ class Pop(sc.prettyobj):
         staff_age_min                   = self.school_pars.staff_age_min
         staff_age_max                   = self.school_pars.staff_age_max
 
+        # Load and store the expected age distribution of the population
+        age_bracket_dist = spdata.read_age_bracket_distr(**loc_pars)  # age distribution defined by bins or age brackets
+        expected_age_dist = spdata.get_smoothed_single_year_age_distr(**loc_pars, window_length=self.window_length)
+        self.expected_age_dist = expected_age_dist
+        expected_age_dist_values = [expected_age_dist[a] for a in expected_age_dist]
+        self.expected_age_dist_values = expected_age_dist_values
+
+        # Load and store the age brackets
+        age_brackets = spdata.get_census_age_brackets(**loc_pars)
+        self.age_brackets = age_brackets
+        # mapping
+        age_by_brackets = spb.get_age_by_brackets(age_brackets)
+        self.age_by_brackets = age_by_brackets
+
         # Load the contact matrix
         contact_matrices = spdata.get_contact_matrices(datadir, sheet_name=sheet_name)
         # Store expected contact matrices
@@ -288,29 +303,32 @@ class Pop(sc.prettyobj):
         contact_matrix_row = contact_matrix_shape[0]
 
         cm_age_brackets = spdata.get_census_age_brackets(**loc_pars, nbrackets=contact_matrix_row)
+        self.cm_age_brackets = cm_age_brackets
         cm_age_by_brackets = spb.get_age_by_brackets(cm_age_brackets)
+        self.cm_age_by_brackets = cm_age_by_brackets
 
-        # Generate LTCFs
-        n_nonltcf, age_brackets, age_by_brackets, ltcf_adjusted_age_distr, facilities = spltcf.generate_ltcfs(n, with_facilities, datadir, country_location, state_location, location, use_default, smooth_ages, window_length)
+        # Generate an age count for the population --- this will get passed around to methods generating the different layers where people live: long term care facilities, households, agricultural living quarters, other group living arrangements
+        age_count = sphh.generate_age_count_multinomial(n, expected_age_dist_values)
 
-        # Store expected age data
-        self.age_brackets = age_brackets
-        self.age_by_brackets = age_by_brackets
+        # Ages left to assign to a residence
+        ages_left_to_assign = sc.dcp(age_count)
+
+        # Generate LTCFs and remove some people from the age count of people left to place in a resident by age
+        n_nonltcf, ltcf_adjusted_age_dist, ltcf_adjusted_age_dist_values, ages_left_to_assign, facilities = spltcf.generate_ltcfs(n, with_facilities, loc_pars, expected_age_dist, ages_left_to_assign)
 
         # Generate households
-        household_size_distr = spdata.get_household_size_distr(**loc_pars)
-        hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(n_nonltcf, household_size_distr)
-
+        household_size_dist = spdata.get_household_size_distr(**loc_pars)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(n_nonltcf, household_size_dist)
         hha_brackets = spdata.get_head_age_brackets(**loc_pars)
         hha_by_size = spdata.get_head_age_by_size_distr(**loc_pars)
 
         if household_method == 'fixed_ages':
 
-            homes_dic, homes = spltcf.generate_all_households_method_2(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_distr)
+            homes_dic, homes = sphh.generate_all_households_fixed_ages(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ages_left_to_assign)
 
         else:
-            log.debug("defaulting to 'infer_ages' household generation method. See class notes for description.")
-            homes_dic, homes = spltcf.generate_all_households_method_1(n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_distr)
+            log.debug("defaulting to 'infer_ages' household generation method. See method notes for description.")
+            homes_dic, homes = sphh.generate_all_households_infer_ages(n, n_nonltcf, hh_sizes, hha_by_size, hha_brackets, cm_age_brackets, cm_age_by_brackets, contact_matrices, ltcf_adjusted_age_dist, ages_left_to_assign)
 
         # Handle homes and facilities
         homes = facilities + homes
@@ -321,8 +339,8 @@ class Pop(sc.prettyobj):
         facilities_by_uid_lists = homes_by_uids[0:len(facilities)]
 
         # Generate school sizes
-        school_sizes_count_by_brackets = spdata.get_school_size_distr_by_brackets(**loc_pars)
-        school_size_brackets = spdata.get_school_size_brackets(**loc_pars)
+        school_sizes_dist_by_brackets = spdata.get_school_size_distr_by_brackets(**loc_pars)  # without school type
+        school_size_brackets = spdata.get_school_size_brackets(**loc_pars)  # for right now the size distribution for all school types will use the same brackets or bins
 
         # Figure out who's going to school as a student with enrollment rates (gets called inside sp.get_uids_in_school)
         uids_in_school, uids_in_school_by_age, ages_in_school_count = spsch.get_uids_in_school(datadir, n_nonltcf, location, state_location, country_location, age_by_uid, homes_by_uids, use_default=use_default)  # this will call in school enrollment rates
@@ -330,7 +348,6 @@ class Pop(sc.prettyobj):
         if with_school_types:
             school_size_distr_by_type = spdata.get_school_size_distr_by_type(**loc_pars)
 
-            school_size_brackets = spdata.get_school_size_brackets(**loc_pars)  # for right now the size distribution for all school types will use the same brackets or bins
             school_type_age_ranges = spdata.get_school_type_age_ranges(**loc_pars)
 
             school_types_distr_by_age = spsch.get_school_types_distr_by_age(school_type_age_ranges)
@@ -346,7 +363,8 @@ class Pop(sc.prettyobj):
 
         else:
             # Get school sizes
-            school_sizes = spsch.generate_school_sizes(school_sizes_count_by_brackets, school_size_brackets, uids_in_school)
+            school_sizes = spsch.generate_school_sizes(school_sizes_dist_by_brackets, school_size_brackets, uids_in_school)
+
             # Assign students to school using contact matrix method - generic schools
             student_age_lists, student_uid_lists, school_types = spsch.send_students_to_school(school_sizes,
                                                                                                uids_in_school,
@@ -476,6 +494,12 @@ class Pop(sc.prettyobj):
         if self.ltcf_pars.with_facilities:
             self.facilities_by_uid_lists = facilities_by_uid_lists
             self.facilities_staff_uid_lists = facilities_staff_uid_lists
+
+            sum_ltcf_res = sum([len(f) for f in self.facilities_by_uid_lists])
+            if sum_ltcf_res == 0:
+                log.warning(f"Heads up: Population size and long term care facility use rates were too low, no facilities were created for this population. If you wish to include people living in this type of layer, consider using a larger population size or checking your data on long term care facility use rates. Changing pop.with_facilities to False.")
+                self.layers.remove('LTCF')
+                self.ltcf_pars.with_facilities = False
 
         self.set_layer_classes()
         self.clean_up_layer_info()
@@ -1073,6 +1097,7 @@ class Pop(sc.prettyobj):
             pop_size   = self.n,
             pop_type   = 'synthpops',
             beta_layer = {k: 1 for k in 'hscwl'},
+            rand_seed  = self.rand_seed,
         )
         sim = cv.Sim(pars, popfile=self.popdict)
         ppl = cv.make_people(sim)  # Create the corresponding population

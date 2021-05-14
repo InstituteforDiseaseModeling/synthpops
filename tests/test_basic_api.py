@@ -38,6 +38,7 @@ def test_basic_api():
 
 
 def test_pop_n():
+    """Test when n is None."""
     sp.logger.info("Testing when n is None.")
     test_pars = sc.dcp(pars)
     test_pars['n'] = None
@@ -47,6 +48,7 @@ def test_pop_n():
 
 
 def test_small_pop_n(caplog):
+    """Test for when n is too small to make a population that makes sense."""
     sp.logger.info("Testing when n is small.")
     test_pars = sc.dcp(pars)
     test_pars['n'] = sp.defaults.default_pop_size - 1

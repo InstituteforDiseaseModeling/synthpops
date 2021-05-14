@@ -79,8 +79,8 @@ def make_contacts(age_by_uid,
     log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}
 
-    grade_age_mapping = {i: i+5 for i in range(13)}
-    age_grade_mapping = {i+5: i for i in range(13)}
+    grade_age_mapping = {i: i + 5 for i in range(13)}
+    age_grade_mapping = {i + 5: i for i in range(13)}
     age_grade_mapping[3] = 0
     age_grade_mapping[4] = 0
 
@@ -118,7 +118,6 @@ def make_contacts(age_by_uid,
 
     # TODO: include age-based sex ratios
     sexes = np.random.randint(2, size=len(age_by_uid))
-
 
     for u, uid in enumerate(age_by_uid):
         popdict[uid] = {}
@@ -257,11 +256,12 @@ def make_contacts(age_by_uid,
                 popdict[uid]['contacts']['W'] = set(uids[v])
                 popdict[uid]['contacts']['W'].discard(uid)  # this shouldn't be needed
                 popdict[uid]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
+                if workplaces_by_industry_codes is not None: # pragma: no cover
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     else: # pragma: no cover
         for nw, workplace in enumerate(workplace_by_uid_lists):
+
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
                 popdict[uid]['contacts']['W'].remove(uid)
@@ -308,7 +308,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     r2 = [int(i) for i in group_2]
 
     n1 = list(np.arange(len(r1)).astype(int))
-    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1) + len(r2)).astype(int))
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
