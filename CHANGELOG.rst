@@ -51,7 +51,6 @@ Version 1.8.1 (2021-05-09)
 --------------------------
 - *Fix*: Minor fix to how the expected data are called when plotting the head of household age distributions by household size in ``sp.plotting.plot_household_head_ages_by_size()``. Temporarily this method set the location parameter to None when the ability to traverse up parent locations was not yet functional. With that implemented now, we can keep information about all levels of the location and synthpops will look for the first data set available starting from the child location and moving upwards through all parent locations.
 - *Github*: PR `478 <https://github.com/amath-idm/synthpops/pull/478>`__
->>>>>>> master
 
 
 Version 1.8.0 (2021-05-07)
