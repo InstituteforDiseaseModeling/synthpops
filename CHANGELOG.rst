@@ -27,7 +27,7 @@ Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.8.3 (2021-05-12)
+Version 1.8.4 (2021-05-14)
 --------------------------
 - *Fix*: Catching rare events when schools are created with fewer than the smallest expected school size because there are no more students left to place in a school.
 - Warning users when average class size and the average student teacher ratio parameters are incompatible as well as how synthpops handles these situations.
