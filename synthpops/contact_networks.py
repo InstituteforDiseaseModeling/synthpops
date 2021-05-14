@@ -11,6 +11,7 @@ from . import schools as spsch
 from .config import logger as log, checkmem
 import collections
 
+
 def make_contacts(pop,
                   age_by_uid,
                   homes_by_uids,
@@ -232,7 +233,6 @@ def make_contacts(pop,
             popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages,
                                                                              teachers, non_teaching_staff, age_by_uid,
                                                                              grade_age_mapping, age_grade_mapping,
-                                                                             # average_class_size,
                                                                              average_class_size_by_mixing_type[this_school_mixing_type],
                                                                              inter_grade_mixing,
                                                                              average_student_teacher_ratio,
