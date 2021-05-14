@@ -44,8 +44,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "line_profiler==3.1", # Temporary -- build issue with line_profiler 3.2
-        "sciris>=1.0.0",
+        "sciris>=1.1.1",
         "covasim>=2.0.0",
         "matplotlib>=3.3.0",
         "numpy",

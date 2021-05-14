@@ -7,7 +7,8 @@ write = False
 return_popdict = True
 use_default = False
 
-datadir = sp.datadir
+# datadir = sp.datadir
+datadir = sp.settings.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
@@ -240,10 +241,10 @@ def test_make_population_with_industry_code():
 
 #     for i in popdict:
 #         person = reduced_contacts[i]
-#         if person['snf_res'] == 1:
+#         if person['ltcf_res'] == 1:
 
 #             contacts = person['contacts']['LTCF']
-#             staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+#             staff_contacts = [j for j in contacts if popdict[j]['ltcf_staff'] == 1]
 
 #             if len(staff_contacts) == 0:
 #                 errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
@@ -258,10 +259,10 @@ def check_all_residents_are_connected_to_staff(popdict):
     flag = True
     for i in popdict:
         person = popdict[i]
-        if person['snf_res'] == 1:
+        if person['ltcf_res'] == 1:
 
             contacts = person['contacts']['LTCF']
-            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+            staff_contacts = [j for j in contacts if popdict[j]['ltcf_staff'] == 1]
 
             if len(staff_contacts) == 0:
                 flag = False

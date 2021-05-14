@@ -13,7 +13,7 @@ import settings
 
 
 pars = sc.objdict(
-            n                       = settings.pop_sizes.medium_large,
+            n                       = settings.pop_sizes.small_medium,
             rand_seed               = 123,
 
             with_facilities         = 1,
@@ -42,12 +42,12 @@ def test_ltcf_resident_to_staff_ratios(do_show=False):
 
     ltcfs = {}
     for i, person in popdict.items():
-        if person['snfid'] is not None:
-            ltcfs.setdefault(person['snfid'], {'residents': [], 'staff': []})
-            if person['snf_res'] is not None:
-                ltcfs[person['snfid']]['residents'].append(i)
-            elif person['snf_staff']:
-                ltcfs[person['snfid']]['staff'].append(i)
+        if person['ltcfid'] is not None:
+            ltcfs.setdefault(person['ltcfid'], {'residents': [], 'staff': []})
+            if person['ltcf_res'] is not None:
+                ltcfs[person['ltcfid']]['residents'].append(i)
+            elif person['ltcf_staff']:
+                ltcfs[person['ltcfid']]['staff'].append(i)
 
     gen_ratios = []
     for l in ltcfs:
@@ -85,7 +85,7 @@ def test_ltcf_resident_ages(do_show=False):
     pop = sp.Pop(**test_pars)
     pop_dict = pop.to_dict()
 
-    ltcf_resident_rates_by_age = sp.get_long_term_care_facility_use_rates(sp.datadir,
+    ltcf_resident_rates_by_age = sp.get_long_term_care_facility_use_rates(sp.settings.datadir,
                                                                           country_location=pop.country_location,
                                                                           state_location=pop.state_location,
                                                                           )
@@ -94,7 +94,7 @@ def test_ltcf_resident_ages(do_show=False):
     age_count = pop.count_pop_ages()
 
     for i, person in pop_dict.items():
-        if person['snf_res']:
+        if person['ltcf_res']:
             ltcf_resident_ages[person['age']] += 1
 
     gen_ltcf_rates = {a: ltcf_resident_ages[a] / age_count[a] for a in ltcf_resident_ages}

@@ -3,6 +3,7 @@ This file includes tests for the household settings,
 When investigation is needed, set the self.is_debugging = True
 
 """
+import pytest
 import unittest
 import numpy as np
 import json
@@ -17,7 +18,7 @@ from synthpops import data_distributions as spdd
 # and each test case will validate the properties of the population named "seapop_500"
 seapop_500 = sp.generate_synthetic_population(
     n=500,
-    datadir=sp.datadir,
+    datadir=sp.settings.datadir,
     location='seattle_metro',
     state_location='Washington',
     country_location='usa',
@@ -39,7 +40,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         np.random.seed(0)
         self.is_debugging = False
-        self.d_datadir = sp.datadir
+        self.d_datadir = sp.settings.datadir
         self.d_location = "seattle_metro"
         self.d_state_location = "Washington"
         self.d_country_location = "usa"
@@ -129,9 +130,9 @@ class HouseholdsTest(unittest.TestCase):
                          msg=f"Each person should be in one household. Total household pop: {sum(sizes)}, "
                              f"Population size: {len(my_seapop_500)}.")
 
-    def verify_age_bracket_dictionary_correct(self, age_by_brackets_dic):
+    def verify_age_bracket_dictionary_correct(self, age_by_brackets):
         """
-        Validation method for the result from get_age_by_brackets_dic including:
+        Validation method for the result from get_age_by_brackets including:
 
         (1) Each age should have a single bucket index
         (2) Buckets index increment is 1
@@ -145,8 +146,8 @@ class HouseholdsTest(unittest.TestCase):
         """
         if self.is_debugging:
             age_bb_json = {}
-            for k in age_by_brackets_dic:
-                age_bb_json[int(k)] = age_by_brackets_dic[k]
+            for k in age_by_brackets:
+                age_bb_json[int(k)] = age_by_brackets[k]
             with open(f"DEBUG_{self._testMethodName}_age_dict.json", "w") as outfile:
                 json.dump(age_bb_json, outfile, indent=4, sort_keys=True)
 
@@ -156,11 +157,11 @@ class HouseholdsTest(unittest.TestCase):
         previous_age = None
 
         # # Induce error for testing the test
-        # age_by_brackets_dic[30] = 6
-        # age_by_brackets_dic[31] = 8
+        # age_by_brackets[30] = 6
+        # age_by_brackets[31] = 8
 
         for age in ages:
-            bucket = age_by_brackets_dic[age]
+            bucket = age_by_brackets[age]
             self.assertEqual(type(bucket), int,
                              msg=f"Each age should have a single bucket id (int). got: {bucket}")
             if bucket > expected_bucket:
@@ -179,7 +180,7 @@ class HouseholdsTest(unittest.TestCase):
 
     def test_seattle_age_brackets(self):
         """
-        Test for method get_census_age_brackets and get_age_by_brackets_dic. It
+        Test for method get_census_age_brackets and get_age_by_brackets. It
         calls helper method verify_age_bracket_dictionary_correct for
         verification.
 
@@ -188,7 +189,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         age_brackets = spdd.get_census_age_brackets(
-            datadir=sp.datadir,
+            datadir=sp.settings.datadir,
             state_location="Washington",
             country_location="usa",
             use_default=False
@@ -199,14 +200,14 @@ class HouseholdsTest(unittest.TestCase):
         if self.is_debugging:
             with open(f"DEBUG_{self._testMethodName}_age_brackets.json", "w") as outfile:
                 json.dump(age_brackets_json, outfile, indent=4)
-        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+        age_by_brackets = sp.get_age_by_brackets(
             age_brackets=age_brackets
         )
-        self.verify_age_bracket_dictionary_correct(age_by_brackets_dic)
+        self.verify_age_bracket_dictionary_correct(age_by_brackets)
 
     def test_custom_age_brackets(self):
         """
-        Use custom age_brackets to make sure method get_age_by_brackets_dic
+        Use custom age_brackets to make sure method get_age_by_brackets
         behaves correctly. The validation logic is in
         verify_age_bracket_dictionary_correct method.
 
@@ -233,25 +234,25 @@ class HouseholdsTest(unittest.TestCase):
             9: retirement,
             10: managed_care
         }
-        age_by_brackets_dic = sp.get_age_by_brackets_dic(
+        age_by_brackets = sp.get_age_by_brackets(
             age_brackets=my_age_brackets
         )
 
         self.verify_age_bracket_dictionary_correct(
-            age_by_brackets_dic=age_by_brackets_dic
+            age_by_brackets=age_by_brackets
         )
         pass
 
     def test_contact_matrix_has_all_layers(self):
         """
-        Test get_contact_matrix_dic method to make sure it contains all layers
+        Test get_contact_matrices method to make sure it contains all layers
         'H', 'S', 'W', 'C'.
 
         Returns:
             None
         """
-        contact_matrix = sp.get_contact_matrix_dic(
-            datadir=sp.datadir,
+        contact_matrix = sp.get_contact_matrices(
+            datadir=sp.settings.datadir,
             sheet_name="United States of America"
         )
         for layer in ['H', 'S', 'W', 'C']:
@@ -380,7 +381,7 @@ class HouseholdsTest(unittest.TestCase):
         """
         self.is_debugging = False
         hh_distro = self.get_seattle_household_size_distro()
-        hh_sizes = sphh.generate_household_sizes_from_fixed_pop_size(500, hh_distro)
+        hh_sizes = sphh.generate_household_size_count_from_fixed_pop_size(500, hh_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -425,7 +426,7 @@ class HouseholdsTest(unittest.TestCase):
             6: 0.05,
             7: 0.175
         }
-        hh_sizes = sp.generate_household_sizes_from_fixed_pop_size(500, custom_distro)
+        hh_sizes = sp.generate_household_size_count_from_fixed_pop_size(500, custom_distro)
 
         hh_size_list = list(hh_sizes)  # Comes as np.ndarray
         fewest_houses = min(hh_size_list)
@@ -494,7 +495,8 @@ class HouseholdsTest(unittest.TestCase):
             age brackets by genders
         """
         sea_sex_age_brackets = sp.read_gender_fraction_by_age_bracket(
-            datadir=sp.datadir,
+            # datadir=sp.datadir,
+            datadir = sp.settings.datadir,
             state_location=self.d_state_location,
             location=self.d_location,
             country_location=self.d_country_location
@@ -510,7 +512,8 @@ class HouseholdsTest(unittest.TestCase):
             age distribution by brackets for location set as class variables
         """
         sea_age_brackets = spdd.read_age_bracket_distr(
-            sp.datadir,
+            # sp.datadir,
+            sp.settings.datadir,
             location=self.d_location,
             state_location=self.d_state_location,
             country_location=self.d_country_location
@@ -527,7 +530,8 @@ class HouseholdsTest(unittest.TestCase):
             list of ages.
         """
         census_age_brackets = sp.get_census_age_brackets(
-            sp.datadir,
+            # sp.datadir,
+            sp.settings.datadir,
             state_location=self.d_state_location,
             country_location=self.d_country_location
         )
@@ -703,6 +707,7 @@ class HouseholdsTest(unittest.TestCase):
         generated = sp.generate_age_count(n=5000, age_distr=dist)
         self.verify_buckets(dist, list(generated.values()))
 
+    @pytest.mark.skip  # separate method for households larger than 1 is deprecated and will be removed soon
     def test_generate_larger_household_sizes(self):
         """
         Test generate_larger_household_sizes method if hh_size =1, it expectes
@@ -722,6 +727,25 @@ class HouseholdsTest(unittest.TestCase):
                 print(f"actual hh_size:{collections.Counter(size)}")
                 self.assertEqual(sum(size[1:]), len(result))
 
+    def test_generate_household_sizes(self):
+        """
+        Test generate_larger_household_sizes method if hh_size =1, it expectes
+        method to return an empty array, otherwise an array of counts which the
+        total should match the the hh_size[1:].
+
+        Returns:
+            None
+        """
+        size1 = sp.generate_household_sizes(hh_sizes=[])
+        self.assertEqual(len(size1), 0)
+        for i in range(2, 10):
+            size = np.random.randint(low=1, high=50, size=i)
+            with self.subTest(size=size):
+                print(f"hh_size:{size}")
+                result = sp.generate_household_sizes(hh_sizes=size)
+                print(f"actual hh_size:{collections.Counter(size)}")
+                self.assertEqual(sum(size), len(result))
+
     def test_generate_household_sizes_from_fixed_pop_size(self):
         """
         Test generate_household_sizes_from_fixed_pop_size the test data is
@@ -738,7 +762,7 @@ class HouseholdsTest(unittest.TestCase):
         # 900 is divisble by the expected value (3.0) but 901 is not
         # this creates test cases for N_gen = N and N_gen < N condition
         for i in [900, 901]:
-            hh = sp.generate_household_sizes_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
+            hh = sp.generate_household_size_count_from_fixed_pop_size(N=i, hh_size_distr=even_dist)
             # verify the total number of people matches N
             self.assertEqual(i, sum([(n+1)*hh[n] for n in range(0, len(hh))]))
             # verify distribution
@@ -751,7 +775,7 @@ class HouseholdsTest(unittest.TestCase):
                        3: 0.2,
                        4: 0.29,
                        5: 0.11}
-        hh2 = sp.generate_household_sizes_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
+        hh2 = sp.generate_household_size_count_from_fixed_pop_size(N=900, hh_size_distr=uneven_dist)
         self.assertEqual(900, sum([(n+1)*hh2[n] for n in range(0, len(hh2))]))
         self.verify_buckets(uneven_dist.values(), hh2)
 

@@ -124,10 +124,17 @@ def test_brackets_unavailable():
     specific_location = "Dakar"
     state_location = "Dakar"
     country_location = "Senegal"
-    location_data= sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
+    location_data = sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
     assert len(location_data.get_population_age_distribution(nbrackets=16)) == 16
     assert len(location_data.get_population_age_distribution(nbrackets=18)) == 18
-    assert len(location_data.get_population_age_distribution(nbrackets=20)) == 0
+
+    specific_location = "portland_metro"
+    state_location = "Oregon"
+    country_location = "usa"
+    location_data = sp.load_location(specific_location, state_location, country_location, revert_to_default=False)
+    assert len(location_data.get_population_age_distribution(nbrackets=16)) == 16
+    assert len(location_data.get_population_age_distribution(nbrackets=18)) == 18
+    assert len(location_data.get_population_age_distribution(nbrackets=20)) == 20
     with pytest.raises(RuntimeError) as err:
         location_data.get_population_age_distribution(nbrackets=21)
         assert "Unsupported value for nbrackets" in str(err.value)

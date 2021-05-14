@@ -7,7 +7,7 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
-datadir = sp.datadir
+datadir = sp.settings.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
@@ -214,7 +214,7 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
     return popdict
 
 
-def test_make_population(location='seattle_metro', state_location='Washington', n=10000):
+def test_make_population(location='seattle_metro', state_location='Washington', n=5000):
     contacts = sp.make_population(datadir=datadir, location=location, state_location=state_location,
                                   country_location=country_location, n=n, with_industry_code=False)
     uids = contacts.keys()
@@ -254,7 +254,8 @@ def test_make_population(location='seattle_metro', state_location='Washington', 
 if __name__ == '__main__':
     sc.tic()
 
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     location = 'seattle_metro'
     state_location = 'Washington'

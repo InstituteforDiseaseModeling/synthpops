@@ -3,7 +3,7 @@ import synthpops as sp
 
 if __name__ == '__main__':
     sp.validate()
-    datadir = sp.datadir
+    datadir = sp.settings_config.datadir
 
     state_location = 'Washington'
     location = 'seattle_metro'

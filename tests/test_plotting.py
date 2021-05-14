@@ -20,7 +20,7 @@ pars = sc.objdict(
     rand_seed               = 123,
 
     smooth_ages             = True,
-
+    household_method        = 'fixed_ages',
     with_facilities         = 1,
     with_non_teaching_staff = 1,
     with_school_types       = 1,
@@ -31,24 +31,27 @@ pars = sc.objdict(
                                'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
+@pytest.fixture(scope="module")
+def create_pop():
+    return sp.Pop(**pars)
 
-def test_plots(do_plot=False):
+def test_plots(create_pop, do_plot=False):
     ''' Basic plots '''
     if not do_plot:
         plt.switch_backend('agg')  # Plot but don't show
-    pop = sp.Pop(n=settings.pop_sizes.small_medium)  # default parameters, 5k people
+    pop = create_pop  # default parameters, 5k people
     fig1 = pop.plot_people()  # equivalent to cv.Sim.people.plot()
     fig2 = pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
     return [fig1, fig2]
 
 
-def test_calculate_contact_matrix_errors():
+def test_calculate_contact_matrix_errors(create_pop):
     """
     Test that synthpops.plotting.calculate_contact_matrix raises an error when
     density_or_frequency is neither 'density' nor 'frequency'.
     """
     sp.logger.info("Catch ValueError when density_or_frequency is not 'density' or 'frequency'.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     with pytest.raises(ValueError):
         pop.plot_contacts(density_or_frequency='neither')
 
@@ -119,7 +122,7 @@ def test_plot_array():
     print('Check passed. Figure made with sp.plot_array() with other options.')
 
 
-def test_pop_without_plkwargs():
+def test_pop_without_plkwargs(create_pop):
     """
     Test that plotting_kwargs will be added to sp.Pop class objects if it does
     not have it already.
@@ -129,7 +132,7 @@ def test_pop_without_plkwargs():
         tell the method where to look for expected data.
     """
     sp.logger.info("Test that plotting_kwargs will be added to sp.Pop object if it does not have it already.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
 
     # reset plkwargs to None
     pop.plkwargs = None
@@ -143,7 +146,7 @@ def test_pop_without_plkwargs():
     print('Check passed. Figure 1 made.')
 
 
-def test_plot_with_cvpeople(do_show=False, do_save=False):
+def test_plot_with_cvpeople(create_pop, do_show=False, do_save=False):
     """
     Test plotting method works on covasim.people.People object.
 
@@ -152,7 +155,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
         tell the method where to look for expected data.
     """
     sp.logger.info("Test that the age comparison plotting method works on cv.people.People and plotting styles can be easily updated.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     popdict = pop.to_dict()
     cvpopdict = cv.make_synthpop(population=popdict, community_contacts=2)  # array based
 
@@ -164,7 +167,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     )
     people = cv.People(people_pars, strict=False, uid=cvpopdict['uid'], age=cvpopdict['age'], sex=cvpopdict['sex'])
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
-    kwargs.datadir = sp.datadir
+    kwargs.datadir = sp.settings.datadir
     kwargs.figname = f"test_ages_{kwargs.location}_cvpeople"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
@@ -182,7 +185,7 @@ def test_plot_with_cvpeople(do_show=False, do_save=False):
     return fig, ax, people
 
 
-def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
+def summary_plotting_helper(pop, pars, plotting_method_name='plot_ages', do_show=False, do_save=False):
     """
     Generic function to set up test data and logic for different plotting methods.
 
@@ -201,7 +204,6 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
         example to see how to do this.
     """
     sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with sp.Pop object.")
-    pop = sp.Pop(**pars)
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.figname = f"test_{plotting_method_name}_{kwargs.location}_pop"
     kwargs.do_show = do_show
@@ -219,7 +221,7 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
 
     sp.logger.info(f"Test that the plotting method: {plotting_method_name} works with a population dictionary.")
     popdict = pop.to_dict()
-    kwargs.datadir = sp.datadir  # extra information required
+    kwargs.datadir = sp.settings.datadir  # extra informaiton required
     kwargs.figname = f"test_{plotting_method_name}_{kwargs.location}_popdict"
     kwargs.do_show = False
 
@@ -241,45 +243,45 @@ def summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=Fals
     return fig, ax, pop
 
 
-def test_plot_ages(do_show=False, do_save=False):
+def test_plot_ages(create_pop, do_show=False, do_save=False):
     """Test that the age comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_ages', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_household_sizes_dist(do_show=False, do_save=False):
+def test_plot_household_sizes_dist(create_pop, do_show=False, do_save=False):
     """Test that the household sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_household_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_ltcf_resident_sizes(do_show=False, do_save=False):
+def test_plot_ltcf_resident_sizes(create_pop, do_show=False, do_save=False):
     """Test that the long term care facility resident sizes comparison plotting method in sp.Pop class works."""
     test_pars = sc.dcp(pars)
     test_pars.n = settings.pop_sizes.large
-    fig, ax, pop = summary_plotting_helper(test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, test_pars, plotting_method_name='plot_ltcf_resident_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_enrollment_rates_by_age(do_show=False, do_save=False):
+def test_plot_enrollment_rates_by_age(create_pop, do_show=False, do_save=False):
     """Test that the enrollment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_enrollment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_employment_rates_by_age(do_show=False, do_save=False):
+def test_plot_employment_rates_by_age(create_pop, do_show=False, do_save=False):
     """Test that the employment rates comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_employment_rates_by_age', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_plot_workplace_sizes(do_show=False, do_save=False):
+def test_plot_workplace_sizes(create_pop, do_show=False, do_save=False):
     """Test that the workplace sizes comparison plotting method in sp.Pop class works."""
-    fig, ax, pop = summary_plotting_helper(pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
+    fig, ax, pop = summary_plotting_helper(create_pop, pars, plotting_method_name='plot_workplace_sizes', do_show=do_show, do_save=do_save)
     return fig, ax, pop
 
 
-def test_household_head_ages_by_size(do_show=False, do_save=False):
+def test_household_head_ages_by_size(create_pop, do_show=False, do_save=False):
     """
     Test that the household head age distribution by household size comparison plotting method in sp.Pop class works.
 
@@ -291,7 +293,7 @@ def test_household_head_ages_by_size(do_show=False, do_save=False):
         Matplotlib figure, axes, and pop object.
     """
     sp.logger.info("Test the age distribution of household heads by the household size.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.figname = f"test_household_head_ages_by_size_{kwargs.location}_pop"
     kwargs.do_show = do_show
@@ -333,9 +335,9 @@ def test_plot_contact_counts(do_show=False, do_save=False):
     print('Check passed. Figures made.')
 
 
-def test_plot_contact_counts_on_pop(do_show=False, do_save=False):
+def test_plot_contact_counts_on_pop(create_pop, do_show=False, do_save=False):
     sp.logger.info("Test plot_contact_counts on sp.Pop object.")
-    pop = sp.Pop(**pars)
+    pop = create_pop
     contact_counter = pop.get_contact_counts_by_layer(layer='S')
     kwargs = sc.objdict()
     kwargs.do_show = do_show
@@ -352,23 +354,23 @@ def test_plot_contact_counts_on_pop(do_show=False, do_save=False):
 if __name__ == '__main__':
 
     T = sc.tic()
-
-    figs = test_plots(do_plot=True)
-    test_calculate_contact_matrix_errors()
+    pop = sp.Pop(**pars)
+    figs = test_plots(create_pop=pop, do_plot=True)
+    test_calculate_contact_matrix_errors(create_pop=pop)
     test_catch_pop_type_errors()
     test_restoring_matplotlib_defaults()
     test_plot_array()
-    test_pop_without_plkwargs()
-    fig0, ax0, pop0 = test_plot_ages(do_show=True)
-    fig1, ax1, people1 = test_plot_with_cvpeople(do_show=True, do_save=True)
-    fig2, ax2, pop2 = test_plot_household_sizes_dist(do_show=True)
-    fig3, ax3, pop3 = test_plot_ltcf_resident_sizes(do_show=True)
-    fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(do_show=True)
-    fig5, ax5, pop5 = test_plot_employment_rates_by_age(do_show=True)
-    fig6, ax6, pop6 = test_plot_workplace_sizes(do_show=True)
-    fig7, ax7, pop7 = test_household_head_ages_by_size(do_show=True)
+    test_pop_without_plkwargs(create_pop=pop)
+    fig0, ax0, pop0 = test_plot_ages(create_pop=pop, do_show=True)
+    fig1, ax1, people1 = test_plot_with_cvpeople(create_pop=pop, do_show=True, do_save=True)
+    fig2, ax2, pop2 = test_plot_household_sizes_dist(create_pop=pop, do_show=True)
+    fig3, ax3, pop3 = test_plot_ltcf_resident_sizes(create_pop=pop, do_show=True)
+    fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(create_pop=pop, do_show=True)
+    fig5, ax5, pop5 = test_plot_employment_rates_by_age(create_pop=pop, do_show=True)
+    fig6, ax6, pop6 = test_plot_workplace_sizes(create_pop=pop, do_show=True)
+    fig7, ax7, pop7 = test_household_head_ages_by_size(create_pop=pop, do_show=True)
     test_plot_contact_counts(do_show=True)
-    test_plot_contact_counts_on_pop(do_show=True)
+    test_plot_contact_counts_on_pop(create_pop=pop, do_show=True)
 
     sc.toc(T)
     print('Done.')
