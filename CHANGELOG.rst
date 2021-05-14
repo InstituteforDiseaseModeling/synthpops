@@ -27,7 +27,7 @@ Latest versions (1.8.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.8.4 (2021-05-13)
+Version 1.8.3 (2021-05-14)
 --------------------------
 - *Fix*: Refactored population generation methods to first determine the ages to be generated or expected to be generated, then have this be an input for methods to generate long term care facility residents' ages, and then methods to generate households and household member ages for the rest of the population residing in that layer. Addresses small n population bug identified with the household_method of 'fixed_ages' (issues `311 <https://github.com/amath-idm/synthpops/issues/311>`__ / `333 <https://github.com/amath-idm/synthpops/issues/333>`__) and allows for arbitrarily small populations (n > 0) to be created, although with smaller n matching the age distribution expected gets harder. 
 - *Fix*: Also fixes zero division errors when calculating pop properties like the enrollment and employment rates by age when there is at least one age with a count of zero people in the population (issue `383 <https://github.com/amath-idm/synthpops/issues/383>`__).
