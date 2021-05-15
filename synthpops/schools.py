@@ -25,6 +25,7 @@ from . import defaults
 
 from . import base as spb
 from . import sampling as spsamp
+from . import contact_networks as spcnx
 from .config import logger as log
 
 
@@ -115,12 +116,15 @@ class School(spb.LayerGroup):
                                self.member_ages(age_by_uid, self['non_teaching_staff_uids'])))
 
     def student_ages(self, age_by_uid):
+        """Return student ages in the school."""
         return self.member_ages(age_by_uid, self['student_uids'])
 
     def teacher_ages(self, age_by_uid):
+        """Return teacher ages in the school."""
         return self.member_ages(age_by_uid, self['teacher_uids'])
 
     def non_teaching_staff_ages(self, age_by_uid):
+        """Return non-teaching staff ages in the school."""
         return self.member_ages(age_by_uid, self['non_teaching_staff_uids'])
 
     def __len__(self):
@@ -213,9 +217,11 @@ class Classroom(spb.LayerGroup):
                                self.member_ages(age_by_uid, self['teacher_uids'])))
 
     def student_ages(self, age_by_uid):
+        """Return student ages in the classroom."""
         return self.member_ages(age_by_uid, self['student_uids'])
 
     def teacher_ages(self, age_by_uid):
+        """Return teacher ages in the classroom."""
         return self.member_ages(age_by_uid, self['teacher_uids'])
 
     def __len__(self):
@@ -538,6 +544,29 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         if size >= len(potential_student_ages):
             size = len(potential_student_ages)
             school_age_count = {a: ages_in_school_count[a] for a in school_type_age_range}
+            other_schools = [ns for ns in range(len(student_uid_lists)) if school_types[ns] == school_type]
+            log.debug(f"other schools to merge with {other_schools} {school_type} {size} {school_size_brackets[0][0]}")
+
+            # school is too small, try to merge it without another school of the same type
+            if (size < school_size_brackets[0][0]) & (len(other_schools) > 0):
+                log.debug(f'School size ({size+1}) smaller than minimum school size {school_size_brackets[0][0]}. Will try now to merge with another school of the same type already made.')
+
+                # another random school of the same type
+                rns = other_schools[spsamp.fast_choice(np.ones(len(other_schools)))]
+
+                for n, a in enumerate(school_type_age_range):
+                    count = len(uids_in_school_by_age[a])
+                    school_uids_in_age = uids_in_school_by_age[a]
+                    uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
+                    ages_in_school_count[a] -= count
+                    new_student_ages.extend([a for i in range(count)])
+                    new_student_uids.extend(school_uids_in_age)
+
+                for uid in new_student_uids:
+                    uids_in_school.pop(uid, None)
+                ages_in_school_distr = spb.norm_dic(ages_in_school_count)
+                student_age_lists[rns].extend(new_student_ages)
+                student_uid_lists[rns].extend(new_student_uids)
 
         else:
             chosen = np.random.choice(potential_student_ages, size=size, replace=False)
@@ -683,22 +712,21 @@ def generate_random_classes_by_grade_in_school(student_uids, student_ages, age_b
     for a in uids_in_school_by_age:
 
         # for Erdos Renyi graph of N nodes and average degree k, p is essentially the density of all possible edges --> p = # edges / # all possible edges. With average degree k, # of edges is roughly N * k / 2 and # of all possible edges is N * (N-1) / 2, which leads us to k = (N - 1) * p or, in Stirling's Approx. k = N * p, that is p = k / N
-        p = float(average_class_size) / len(uids_in_school_by_age[a])  # density of contacts within each grade
-
-        Ga = nx.erdos_renyi_graph(len(uids_in_school_by_age[a]), p)  # creates a well mixed graph across the grade/age
+        Ga = spcnx.random_graph_model(uids_in_school_by_age[a], average_class_size)
         for e in Ga.edges():
             i, j = e
 
             # add each edge to the overall school graph
             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
 
-    # flag was turned on to indicate that the average degree is too low. How can we add more edges? Maybe do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary? Loop again to remove edges if it's too many.
+    # make sure all students are in the graph by adding those without an edge yet
+    missing_uids = set(student_uids) - set(G.nodes())
+    G.add_nodes_from(missing_uids)
+
+    # flag was turned on to indicate that the average degree is too low. How can we add more edges? do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary. Loop again to remove edges if it's too many.
     if age_groups_smaller_than_degree:
 
-        # add some extra edges
         G = add_random_contacts_from_graph(G, average_class_size)
-
-    # log.debug(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
 
     # rewire some edges between people within the same grade/age to now being edges across grades/ages
     E = list(G.edges())
@@ -737,7 +765,7 @@ def generate_random_classes_by_grade_in_school(student_uids, student_ages, age_b
             G.add_edges_from([new_ei, new_ej])
 
     # calculate school age mixing and print some debugging statements
-    if logging.getLevelName(log.level) == 'DEBUG':
+    if logging.getLevelName(log.level) == 'DEBUG': # pragma: no cover
         print(f"clustering within age/grade clustered school: {nx.transitivity(G)}")
         print(f"missed rewiring {missed_rewiring} edge pairs out of {nE} possible pairs.")
         ecount = np.zeros((len(age_keys), len(age_keys)))
@@ -762,6 +790,8 @@ def generate_clustered_classes_by_grade_in_school(student_uids, student_ages, ag
     Generate edges for contacts mostly within the same age/grade. Edges are
     randomly distributed so that clustering is roughly average_class_size/size
     of the grade.
+
+    The last classroom created may be much smaller than the average_class_size.
 
     Args:
         student_uids (list)        : list of uids of students in the school
@@ -803,6 +833,7 @@ def generate_clustered_classes_by_grade_in_school(student_uids, student_ages, ag
             cluster_size = np.random.poisson(average_class_size)
 
             if cluster_size > len(nodes):
+                # gather the last group of nodes into a pool to choose from afterwards
                 nodes_left += list(nodes)
                 break
 
@@ -811,16 +842,14 @@ def generate_clustered_classes_by_grade_in_school(student_uids, student_ages, ag
                 groups.append(group)
             nodes = nodes[cluster_size:]
 
+    # shuffle the students left over to place into classrooms
     np.random.shuffle(nodes_left)
-
-    if len(groups) == 0:
-        groups.append(nodes_left)
-        nodes_left = []
 
     while len(nodes_left) > 0:
         cluster_size = np.random.poisson(average_class_size)
 
         if cluster_size > len(nodes_left):
+            cluster_size = len(nodes_left)
             break
 
         group = nodes_left[:cluster_size]
@@ -828,11 +857,17 @@ def generate_clustered_classes_by_grade_in_school(student_uids, student_ages, ag
             groups.append(group)
         nodes_left = nodes_left[cluster_size:]
 
-    for i in nodes_left:
-        ng = np.random.choice(a=np.arange(len(groups)))  # choose one of the other classes to add to
-        groups[ng].append(i)
+    # with some school sizes and parameter values you may not have made any classrooms yet
+    if len(groups) == 0:
+        groups.append(nodes_left[:cluster_size])
+        nodes_left = nodes_left[cluster_size:]
 
-    if return_edges:
+    else:
+        for i in nodes_left:
+            ng = spsamp.fast_choice(np.ones(len(groups)))  # choose one of the other classes to add to
+            groups[ng].append(i)
+
+    if return_edges: # pragma: no cover
         for ng in range(len(groups)):
             group = groups[ng]
             Gn = nx.complete_graph(len(group))
@@ -842,7 +877,8 @@ def generate_clustered_classes_by_grade_in_school(student_uids, student_ages, ag
                 node_j = group[j]
                 G.add_edge(node_i, node_j)
 
-    if logging.getLevelName(log.level) == 'DEBUG':
+    if logging.getLevelName(log.level) == 'DEBUG': # pragma: no cover
+
         if return_edges:
             ecount = np.zeros((len(age_keys), len(age_keys)))
             for e in G.edges():
@@ -884,14 +920,14 @@ def generate_edges_between_teachers(teacher_uids, average_teacher_teacher_degree
         edges = [e for e in eiter]
 
     else:
-        p = average_teacher_teacher_degree / len(teacher_uids)
-        G = nx.erdos_renyi_graph(len(teacher_uids), p)
+        G = spcnx.random_graph_model(teacher_uids, average_teacher_teacher_degree)
         for e in G.edges():
             i, j = e
             teacher_i = teacher_uids[i]
             teacher_j = teacher_uids[j]
             e = (teacher_i, teacher_j)
             edges.append(e)
+
     return edges
 
 
@@ -989,7 +1025,7 @@ def generate_edges_for_teachers_in_random_classes(student_uids, student_ages, te
     return edges
 
 
-def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, average_student_teacher_ratio=20, average_teacher_teacher_degree=4, return_edges=False): 
+def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, average_teacher_teacher_degree=4, return_edges=False):
     """
     Generate edges for teachers, including to both students and other teachers
     at the same school. Students and teachers are clustered into disjoint
@@ -998,7 +1034,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, avera
     Args:
         groups (list)                          : list of lists of students, clustered into groups mostly by grade
         teacher_uids (list)                    : list of teachers in the school
-        average_student_teacher_ratio (float)  : average number of students per teacher
         average_teacher_teacher_degree (float) : average number of contacts with other teachers
         return_edges (bool)                    : If True, return edges, else return two groups of contacts - students and teachers for each class
 
@@ -1008,7 +1043,6 @@ def generate_edges_for_teachers_in_clustered_classes(groups, teacher_uids, avera
     """
     edges = []
     teacher_groups = []
-
     np.random.shuffle(groups)  # shuffle the clustered groups of students / classes so that the classes aren't ordered from youngest to oldest
 
     available_teachers = sc.dcp(teacher_uids)
@@ -1078,17 +1112,13 @@ def generate_random_contacts_across_school(all_school_uids, average_class_size):
 
     Returns:
         List of edges between individuals in school.
-
     """
     edges = []
-    p = average_class_size / len(all_school_uids)
-    G = nx.erdos_renyi_graph(len(all_school_uids), p)  # replace with nx's fast ER implementation
-    for n, e in enumerate(G.edges()):
-        i, j = e
-        node_i = all_school_uids[i]
-        node_j = all_school_uids[j]
-        e = (node_i, node_j)
-        edges.append(e)
+    G = spcnx.random_graph_model(all_school_uids, average_class_size)  # undirected graph
+    for u, uid in enumerate(all_school_uids):
+        es = [(uid, all_school_uids[v]) for v in G.neighbors(u)]
+        edges.extend(es)
+
     return edges
 
 
@@ -1125,6 +1155,7 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     """
     # completely random contacts across the school, no guarantee of contact with a teacher, much like universities
     available_school_mixing_types = ['random', 'age_clustered', 'age_and_class_clustered']
+
     if school_mixing_type not in available_school_mixing_types:
         print(f"school_mixing_type: {school_mixing_type} 'does not exist. Please change this to one of: {available_school_mixing_types}")
 
@@ -1140,8 +1171,10 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     # random contacts across a grade in the school, most edges will across the same age group, much like middle schools or high schools, the inter_grade_mixing parameter is a tuning parameter, students get at least one teacher as a contact
     elif school_mixing_type == 'age_clustered':
         edges = generate_random_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size, inter_grade_mixing)
+
         teacher_edges = generate_edges_for_teachers_in_random_classes(student_uids, student_ages, teacher_uids, age_by_uid, average_student_teacher_ratio, average_teacher_teacher_degree)
         edges += teacher_edges
+
         add_contacts_from_edgelist(popdict, edges, 'S')
         student_groups = [student_uids]
         teacher_groups = [teacher_uids]
@@ -1149,25 +1182,25 @@ def add_school_edges(popdict, student_uids, student_ages, teacher_uids, non_teac
     # completely clustered into classes by age, one teacher per class at least
     elif school_mixing_type == 'age_and_class_clustered':
 
-        student_groups = generate_clustered_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size, return_edges=False)
-        student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teacher_uids, average_student_teacher_ratio, average_teacher_teacher_degree)
+        student_groups = generate_clustered_classes_by_grade_in_school(student_uids, student_ages, age_by_uid, grade_age_mapping, age_grade_mapping, average_class_size=average_class_size, return_edges=False)
+        student_groups_2 = sc.dcp(student_groups)
+        student_groups, teacher_groups = generate_edges_for_teachers_in_clustered_classes(student_groups, teacher_uids, average_teacher_teacher_degree=average_teacher_teacher_degree)
 
-        n_expected_edges = 0
-        n_expected_edges_list = []
+        sum_diff = sum([len(group) for group in student_groups]) - sum([len(group) for group in student_groups_2])
+        assert sum_diff == 0, f'Check failed. sum of the differences between student groups is not zero. Total school enrollment changed between the step of creating student groups and assigning teachers to each group. sum is {sum_diff}'
+
         for ng in range(len(student_groups)):
             student_group = student_groups[ng]
             teacher_group = teacher_groups[ng]
             group = student_group
             group += teacher_group
-            n_expected_edges += len(group) * (len(group) - 1) / 2
-            n_expected_edges_list.append(len(group) * (len(group) - 1) / 2)
+
             add_contacts_from_group(popdict, group, 'S')
+
+        log.debug(f"average_class_size, {average_class_size}, 'class_group sizes', {[len(group) for group in student_groups]}")
 
         # additional edges between teachers in different classes - makes distinct clusters connected - this may add edges again between teachers in the same class
         teacher_edges = generate_edges_between_teachers(teacher_uids, average_teacher_teacher_degree)
-        n_expected_edges += len(teacher_edges)
-        # log.debug(f"n_expected_edges_list: {n_expected_edges_list}")
-
         add_contacts_from_edgelist(popdict, teacher_edges, 'S')
 
     all_school_uids = []
@@ -1187,7 +1220,6 @@ def get_school_types_distr_by_age(school_type_age_ranges):
     Return:
         A dictionary of default probabilities for the school type likely for
         each age.
-
     """
     school_types_distr_by_age = {}
     for a in range(101):
@@ -1372,10 +1404,10 @@ def assign_additional_staff_to_schools(student_uid_lists, teacher_uid_lists, wor
 
     min_n_non_teaching_staff = min(n_non_teaching_staff_list)
 
-    log.debug(f"list of number of students per school: {n_students_list}")
-    log.debug(f"list of number of teachers per school: {n_teachers_list}")
-    log.debug(f"list of number of all staff expected per school: {n_all_staff_list}")
-    log.debug(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
+    # log.debug(f"list of number of students per school: {n_students_list}")
+    # log.debug(f"list of number of teachers per school: {n_teachers_list}")
+    # log.debug(f"list of number of all staff expected per school: {n_all_staff_list}")
+    # log.debug(f"list of number of non teaching staff expected per school: {n_non_teaching_staff_list}")
     if min_n_non_teaching_staff <= 0:
         errormsg = f"At least one school expects only 1 non teaching staff member. Either check the average_student_teacher_ratio ({average_student_teacher_ratio}) and the average_student_all_staff_ratio ({average_student_all_staff_ratio}) if you do not expect this to be the case, or some of the generated schools may have too few staff members."
         log.debug(errormsg)
@@ -1403,14 +1435,14 @@ def assign_additional_staff_to_schools(student_uid_lists, teacher_uid_lists, wor
     return non_teaching_staff_uid_lists, potential_worker_uids, potential_worker_uids_by_age, workers_by_age_to_assign_count
 
 
-def add_random_contacts_from_graph(G, expected_average_degree):
+def add_random_contacts_from_graph(G, average_degree):
     """
     Add additional edges at random to achieve the expected or desired average
     degree.
 
     Args:
-        G (networkx Graph)            : networkx Graph object
-        expected_average_degree (int) : expected or desired average degree
+        G (networkx Graph)   : networkx Graph object
+        average_degree (int) : expected or desired average degree
 
     Returns:
         Updated networkx Graph object with additional edges added at random.
@@ -1424,9 +1456,9 @@ def add_random_contacts_from_graph(G, expected_average_degree):
     if len(nodes) == 0:
         return G
 
-    p = expected_average_degree / len(nodes)
+    p = average_degree / len(nodes)
 
-    G2 = nx.erdos_renyi_graph(len(nodes), p)  # will return a graph with nodes relabeled from 0 through len(nodes)-1
+    G2 = spcnx.random_graph_model(nodes, average_degree)
 
     for node in nodes:
         ordered_node_id = ordered_node_ids[node]
