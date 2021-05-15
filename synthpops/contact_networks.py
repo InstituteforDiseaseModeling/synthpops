@@ -9,7 +9,6 @@ import networkx as nx
 from . import data_distributions as spdata
 from . import schools as spsch
 from .config import logger as log, checkmem
-import collections
 
 
 def make_contacts(pop,
