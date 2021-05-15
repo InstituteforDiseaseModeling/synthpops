@@ -720,9 +720,8 @@ def generate_random_classes_by_grade_in_school(student_uids, student_ages, age_b
             G.add_edge(uids_in_school_by_age[a][i], uids_in_school_by_age[a][j])
 
     # make sure all students are in the graph by adding those without an edge yet
-    for uid in student_uids:
-        if not G.has_node(uid):
-            G.add_node(uid)
+    missing_uids = set(student_uids) - set(G.nodes())
+    G.add_nodes_from(missing_uids)
 
     # flag was turned on to indicate that the average degree is too low. How can we add more edges? do the following: create a second random graph across the entire school. Loop over everyone and grab edges as necessary. Loop again to remove edges if it's too many.
     if age_groups_smaller_than_degree:

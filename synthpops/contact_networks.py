@@ -105,7 +105,7 @@ def make_contacts(pop,
     if not isinstance(average_class_size, dict):
         average_class_size_by_mixing_type = dict.fromkeys(set(school_mixing_type_dic.values()), average_class_size)
 
-    elif isinstance(average_class_size, dict):
+    else:
         average_class_size_by_mixing_type = sc.dcp(average_class_size)
         average_class_size_by_mixing_type = sc.mergedicts(dict.fromkeys(set(school_mixing_type_dic.values())), average_class_size_by_mixing_type)
 
@@ -121,9 +121,7 @@ def make_contacts(pop,
     else:
         pop.average_class_size = list(average_class_size_by_mixing_type.values())[0]
 
-    uids = age_by_uid.keys()
-
-    uids = [uid for uid in uids]
+    uids = list(age_by_uid.keys())
 
     popdict = {}
     # also need to return schools as well and not just school contacts
