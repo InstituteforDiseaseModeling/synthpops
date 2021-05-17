@@ -798,7 +798,6 @@ def check_household_head_age_distributions_by_family_size(location):
 
     for [k, household_head_age_distribution] in enumerate(location.household_head_age_distribution_by_family_size):
         expected_len = 1 + num_household_age_brackets
-        # expected_len = num_household_age_brackets
         actual_len = len(household_head_age_distribution)
         if not actual_len == expected_len:
             return [False,

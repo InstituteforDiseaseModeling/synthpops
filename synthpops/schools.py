@@ -108,6 +108,9 @@ class School(spb.LayerGroup):
         """
         Return ages of all school members: students, teachers, and non teaching staff.
 
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
         Returns:
             np.ndarray: school member ages
         """
@@ -116,15 +119,39 @@ class School(spb.LayerGroup):
                                self.non_teaching_staff_ages(age_by_uid)))
 
     def student_ages(self, age_by_uid):
-        """Return student ages in the school."""
+        """
+        Return student ages in the school.
+
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
+        Returns:
+            np.ndarray: school student ages
+        """
         return super().member_ages(age_by_uid, self['student_uids'])
 
     def teacher_ages(self, age_by_uid):
-        """Return teacher ages in the school."""
+        """
+        Return teacher ages in the school.
+
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
+        Returns:
+            np.ndarray: school teacher ages
+        """
         return super().member_ages(age_by_uid, self['teacher_uids'])
 
     def non_teaching_staff_ages(self, age_by_uid):
-        """Return non-teaching staff ages in the school."""
+        """
+        Return non-teaching staff ages in the school.
+
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
+        Returns:
+            np.ndarray: school non-teaching staff ages
+        """
         return super().member_ages(age_by_uid, self['non_teaching_staff_uids'])
 
     def __len__(self):
@@ -210,19 +237,38 @@ class Classroom(spb.LayerGroup):
         """
         Return ages of all classroom members: students and teachers.
 
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
         Returns:
             np.ndarray : classroom member ages
         """
-        return np.concatenate((self.member_ages(age_by_uid, self['student_uids']),
-                               self.member_ages(age_by_uid, self['teacher_uids'])))
+        return np.concatenate((self.student_ages(age_by_uid),
+                               self.teacher_ages(age_by_uid)))
 
     def student_ages(self, age_by_uid):
-        """Return student ages in the classroom."""
-        return self.member_ages(age_by_uid, self['student_uids'])
+        """
+        Return student ages in the classroom.
+
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
+        Returns:
+            np.ndarray: classroom student ages
+        """
+        return super().member_ages(age_by_uid, self['student_uids'])
 
     def teacher_ages(self, age_by_uid):
-        """Return teacher ages in the classroom."""
-        return self.member_ages(age_by_uid, self['teacher_uids'])
+        """
+        Return teacher ages in the classroom.
+
+        Args:
+            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
+
+        Returns:
+            np.ndarray: classroom teacher ages
+        """
+        return super().member_ages(age_by_uid, self['teacher_uids'])
 
     def __len__(self):
         """Return the length as the number of members in the classroom."""

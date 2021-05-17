@@ -2,7 +2,12 @@
   "location_name": "Malawi",
   "data_provenance_notices": [],
   "reference_links": [],
-  "citations": ["http://www.sdnp.org.mw/Education2010/Edu-system.html", "https://www.epdc.org/sites/default/files/documents/EPDC_NEP_2018_Malawi.pdf", "https://www.ilo.org/wcmsp5/groups/public/---ed_emp/---emp_ent/---led/documents/publication/wcms_205845.pdf", "https://www.genesis-analytics.com/uploads/downloads/Malawi_MSME-Survey-2020-05-22.pdf"],
+  "citations": [
+    "http://www.sdnp.org.mw/Education2010/Edu-system.html",
+    "https://www.epdc.org/sites/default/files/documents/EPDC_NEP_2018_Malawi.pdf",
+    "https://www.ilo.org/wcmsp5/groups/public/---ed_emp/---emp_ent/---led/documents/publication/wcms_205845.pdf",
+    "https://www.genesis-analytics.com/uploads/downloads/Malawi_MSME-Survey-2020-05-22.pdf"
+  ],
   "notes": ["Secondary school age ranges are unclear. Most sources indicate an 8-4-4 year form of education, however if students take longer to graduate from secondary school then 14-17 years old may be too narrow an age range."],
   "parent": "",
   "population_age_distributions": [{

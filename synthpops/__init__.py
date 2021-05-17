@@ -5,7 +5,6 @@ from .config import *  # depends on defaults, version
 from .data import *  # depends on defaults, config
 from .sampling import *  # depends on base
 from .data_distributions import *  # depends on defaults, base, config, data
-# from .process_census import * # depends on data_distributions
 from .households import * # depends on base, sampling, data_distributions
 from .ltcfs import *  # depends on base, sampling, data_distributions, households
 from .schools import *  # depends on defaults, base, sampling, data_distributions

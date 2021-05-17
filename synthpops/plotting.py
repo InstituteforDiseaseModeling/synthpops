@@ -168,7 +168,16 @@ class plotting_kwargs(sc.objdict):
         return
 
     def make_title(self, suffix=None):
-        """Create the title for the figure depending on the location information."""
+        """
+        Create the title for the figure depending on the location information
+        available and stores it in self.title_prefix.
+
+        Args:
+            suffix (str) : suffix for the title
+
+        Returns:
+            None.
+        """
         if suffix is None:
             suffix = ""
         if 'title_prefix' not in self or self.title_prefix is None:
@@ -433,7 +442,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
     if plkwargs.fontsize > 20:
         plkwargs.rotation = 90
 
-    plkwargs.make_title("Age Mixing")
+    plkwargs.make_title(f" {plkwargs.titles[plkwargs.layer]} Age Mixing")
 
     for i in range(len(ax)):
         divider = make_axes_locatable(ax[i])
@@ -451,7 +460,6 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         ax[i].set_ylabel('Age of Contacts', fontsize=plkwargs.fontsize + 6)
         ax[i].set_title(
             plkwargs.title_prefix,
-            # (plkwargs.title_prefix if plkwargs.title_prefix is not None else '') + plkwargs.titles[plkwargs.layer] + ' Age Mixing',
             fontsize=plkwargs.fontsize + 10)
 
         if plkwargs.aggregate_flag:
@@ -844,72 +852,6 @@ def plot_household_sizes(pop, **kwargs):
     fig = finalize_figure(fig, plkwargs)
 
     return fig, ax
-
-
-# # TBC: placeholder for now
-# def plot_household_head_ages(pop, **kwargs):
-#     """
-#     Plot a comparison of the expected and generated head of household ages.
-
-#     Args:
-#         pop (pop object)    : population, either synthpops.pop.Pop or dict
-#         **left (float)      : Matplotlib.figure.subplot.left
-#         **right (float)     : Matplotlib.figure.subplot.right
-#         **top (float)       : Matplotlib.figure.subplot.top
-#         **bottom (float)    : Matplotlib.figure.subplot.bottom
-#         **color_1 (str)     : color for expected data
-#         **color_2 (str)     : color for data from generated population
-#         **fontsize (float)  : Matplotlib.figure.fontsize
-#         **figname (str)     : name to save figure to disk
-#         **comparison (bool) : If True, plot comparison to the generated population
-#         **do_show (bool)    : If True, show the plot
-#         **do_save (bool)    : If True, save the plot to disk
-
-#     Returns:
-#         Matplotlib figure and axes.
-
-#     Note:
-#         If using pop with type dict, args must be supplied for the location
-#         parameter to get the expected rates. Covasim.people.People pop type
-#         not yet supported.
-
-#     **Example**::
-
-#         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
-#         pop = sp.Pop(**pars)
-#         fig, ax = pop.plot_household_head_ages()
-
-#         popdict = pop.to_dict()
-#         kwargs = pars.copy()
-#         kwargs['datadir'] = sp.datadir
-#         fig, ax = sp.plot_household_head_ages(popdict, **kwargs)
-#     """
-#     plkwargs = get_plkwargs(pop)
-#     cmap = plt.get_cmap('rocket')
-
-#     # method specific plotting defaults
-#     method_defaults = dict(left=0.10, right=0.95, top=0.90, bottom=0.10, color_1=cmap(0.63), color_2=cmap(0.45),
-#                            fontsize=12, figname='enrollment_rates_by_age', comparison=True, binned=True)
-
-#     plkwargs.update_defaults(method_defaults, kwargs)
-
-#     # define after plkwargs gets updated
-#     if isinstance(pop, sppop.Pop):
-#         plkwargs.loc_pars = pop.loc_pars
-#     elif not isinstance(pop, dict):
-#         raise ValueError(f"This method does not yet support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
-
-#     # now check for the missing plkwargs and use default values if not found
-#     plkwargs.set_default_pop_pars()
-#     if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-#         plkwargs.title_prefix = f"{plkwargs.location}_household_head_ages_by_household_size"
-
-#     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.width, plkwargs.height), dpi=plkwargs.display_dpi)
-#     fig.subplots_adjust(**plkwargs.axis)
-
-#     fig = finalize_figure(fig, plkwargs)
-
-#     return fig, ax
 
 
 def plot_ltcf_resident_sizes(pop, **kwargs):
@@ -1668,7 +1610,7 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
     cax = divider.new_horizontal(size=plkwargs.divider_size, pad=plkwargs.divider_pad)
     fig.add_axes(cax)
     cbar = fig.colorbar(im[1], cax=cax)
-    cbar.ax.tick_params(axis='y', labelsize=plkwargs.fontsize-2)
+    cbar.ax.tick_params(axis='y', labelsize=plkwargs.fontsize - 2)
     cbar.ax.set_ylabel(cbar_ylabel)
 
     finalize_figure(fig, plkwargs)
@@ -1836,7 +1778,6 @@ def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_includ
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
                                  shade=True, xlim=[0, 101], height=7,
-                                 # title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
@@ -1894,7 +1835,7 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
     interval = 5
 
     for ni, pop in enumerate(pop_list):
-        cmap = sns.cubehelix_palette(light=1, as_cmap=True, rot=(ni+1) * 0.1)
+        cmap = sns.cubehelix_palette(light=1, as_cmap=True, rot=(ni + 1) * 0.1)
         degree_dfi = spcnx.count_layer_degree(pop, layer=layer, ages=ages)
         max_y = int(np.ceil(max(degree_dfi['degree'].values) / interval) * interval)
         min_y = int(np.floor(min(degree_dfi['degree'].values) / interval) * interval)
