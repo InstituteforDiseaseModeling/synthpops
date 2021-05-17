@@ -17,6 +17,7 @@
     "Education Directory, Washington Office of Superintendent of Public Instruction"
   ],
   "notes": [
+    "Seattle-Tacoma-Bellevue aliased to seattle_metro, Washington, usa",
     "Long term care facility resident to care staff ratios are taken from the Kaiser Health News analysis of data from the Centers for Medicare & Medicaid Services based on staffing levels, January-March 2018.",
     "The age distribution binned to 20 age brackets is estimated for the age groups 85-89 years old, 90-94 years old, 95 years old and over using the relative proportions from the Older Population: 2010 report. These data are available for the national population from the 2010 census and thus represent an estimate of the patterns for different subnational populations within the US currently.",
     "The supported mapping of student ages to school types is currently a strict 1-1 mapping. This creates a description where different school types are not overlapping in the grades of students taught. However, school types in Washington state are more complex than this and there are some schools covering a different range of grades than presented here (i.e., K-8 or 6-12 vs K-5, 6-8, 9-12, etc.). The data on schools and school types represent a majority (85%+) of the students enrolled in the county for the school year 2019-2020.",

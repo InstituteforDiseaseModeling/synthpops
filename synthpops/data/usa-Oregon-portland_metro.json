@@ -8,7 +8,7 @@
     "United States Census Bureau",
     "American Community Survey 2019: Portland-Vancouver-Hillsboro, OR"
   ],
-  "notes": [],
+  "notes": ["Portland-Vancouver-Hillsboro, OR aliased to portland_metro, Oregon, usa"],
   "parent": "usa-Oregon.json",
   "population_age_distributions": [{
     "num_bins": 16,
