@@ -226,7 +226,7 @@ def get_workers_by_age_to_assign(employment_rates, potential_worker_ages_left_co
     Returns:
         A dictionary with a count of workers to assign to a workplace.
     """
-
+    log.debug('get_workers_by_age_to_assign()')
     workers_by_age_to_assign_count = dict.fromkeys(np.arange(101), 0)
     for a in potential_worker_ages_left_count:
         if a in employment_rates:
@@ -376,7 +376,7 @@ def count_employment_by_age(popdict):
     """
     employment_count_by_age = dict.fromkeys(np.arange(0, defaults.settings.max_age), 0)
     for i, person in popdict.items():
-        if person['ltcf_staff'] is not None or person['sc_teacher'] is not None or person['sc_staff'] is not None or person['wpid'] is not None:
+        if person['ltcf_staff'] or person['sc_teacher'] or person['sc_staff'] or person['wpid']:
             employment_count_by_age[person['age']] += 1
 
     return employment_count_by_age
@@ -393,7 +393,7 @@ def get_employment_rates_by_age(employment_count_by_age, age_count):
     Returns:
         dict: Dictionary of the employment rates by age.
     """
-    return {a: employment_count_by_age[a] / age_count[a] for a in sorted(age_count.keys())}
+    return {a: employment_count_by_age[a] / age_count[a] if age_count[a] > 0 else 0 for a in sorted(age_count.keys())}
 
 
 def get_workplace_sizes(popdict):

@@ -722,7 +722,7 @@ def plot_ages(pop, **kwargs):
             generated_age_count = spb.count_ages(pop)
 
         elif isinstance(pop, cv.people.People):
-            generated_age_count = Counter(pop.age)
+            generated_age_count = sc.mergedicts(generated_age_count, Counter(pop.age))  # with smaller populations, pop.age might not have all ages
 
         generated_age_dist = spb.norm_dic(generated_age_count)
         generated_age_dist_values = [generated_age_dist[k] * 100 for k in sorted(generated_age_dist.keys())]

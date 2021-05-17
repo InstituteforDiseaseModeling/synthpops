@@ -333,7 +333,8 @@ def get_asymmetric_matrix(symmetric_matrix, aggregate_ages):
     """
     M = sc.dcp(symmetric_matrix)
     for a in aggregate_ages:
-        M[a, :] = M[a, :] / float(aggregate_ages[a])
+        if aggregate_ages[a]:
+            M[a, :] = M[a, :] / float(aggregate_ages[a])
 
     return M
 

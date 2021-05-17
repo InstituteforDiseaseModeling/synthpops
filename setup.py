@@ -32,7 +32,7 @@ CLASSIFIERS = [
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry, Cliff Kerr, Meikang Wu, Mary Fisher, and Daniel Klein on behalf of the IDM COVID-19 Response Team",
+    author="Dina Mistry, Cliff Kerr, Meikang Wu, Mary Fisher, Ace Thompson, and Daniel Klein on behalf of the IDM COVID-19 Response Team",
     author_email="covid@idmod.org",
     description="Synthetic contact network generation",
     long_description=long_description,
@@ -44,7 +44,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "sciris>=1.0.0",
+        "sciris>=1.1.1",
         "covasim>=2.0.0",
         "matplotlib>=3.3.0",
         "numpy",

@@ -11,7 +11,8 @@ from . import schools as spsch
 from .config import logger as log, checkmem
 
 
-def make_contacts(age_by_uid,
+def make_contacts(pop,
+                  age_by_uid,
                   homes_by_uids,
                   students_by_uid_lists=None,
                   teachers_by_uid_lists=None,
@@ -79,8 +80,8 @@ def make_contacts(age_by_uid,
     log.debug('make_contacts_from_microstructure_objects()')
     popdict = {}
 
-    grade_age_mapping = {i: i+5 for i in range(13)}
-    age_grade_mapping = {i+5: i for i in range(13)}
+    grade_age_mapping = {i: i + 5 for i in range(13)}
+    age_grade_mapping = {i + 5: i for i in range(13)}
     age_grade_mapping[3] = 0
     age_grade_mapping[4] = 0
 
@@ -95,8 +96,31 @@ def make_contacts(age_by_uid,
         school_mixing_type_dic = sc.dcp(school_mixing_type)
         school_mixing_type_dic = sc.mergedicts(dict.fromkeys(school_types, 'random'), school_mixing_type_dic)  # if the dictionary given doesn't specify the mixing type for an expected school type, set the mixing type for that school type to random by default
 
-    uids = age_by_uid.keys()
-    uids = [uid for uid in uids]
+    age_and_class_clustered_flag = False
+    for school_type in school_mixing_type_dic:
+        if school_mixing_type_dic[school_type] == 'age_and_class_clustered':
+            age_and_class_clustered_flag = True
+
+    if not isinstance(average_class_size, dict):
+        average_class_size_by_mixing_type = dict.fromkeys(set(school_mixing_type_dic.values()), average_class_size)
+
+    else:
+        average_class_size_by_mixing_type = sc.dcp(average_class_size)
+        average_class_size_by_mixing_type = sc.mergedicts(dict.fromkeys(set(school_mixing_type_dic.values())), average_class_size_by_mixing_type)
+
+    if age_and_class_clustered_flag:
+        if average_class_size < average_student_teacher_ratio:
+            actual_classroom_size = max(average_class_size, average_student_teacher_ratio)
+            average_class_size_by_mixing_type['age_and_class_clustered'] = actual_classroom_size
+            warning_msg = f"average_class_size: {average_class_size} < average_student_teacher_ratio: {average_student_teacher_ratio}. \n In schools with mixing type 'age_and_class_clustered', synthpops will use the larger of the two to define the classroom sizes."
+            log.warning(warning_msg)
+
+    if len(list(average_class_size_by_mixing_type.keys())) > 1:
+        pop.average_class_size = average_class_size_by_mixing_type
+    else:
+        pop.average_class_size = list(average_class_size_by_mixing_type.values())[0]
+
+    uids = list(age_by_uid.keys())
 
     popdict = {}
     # also need to return schools as well and not just school contacts
@@ -118,7 +142,6 @@ def make_contacts(age_by_uid,
 
     # TODO: include age-based sex ratios
     sexes = np.random.randint(2, size=len(age_by_uid))
-
 
     for u, uid in enumerate(age_by_uid):
         popdict[uid] = {}
@@ -207,7 +230,8 @@ def make_contacts(age_by_uid,
             popdict, student_groups, teacher_groups = spsch.add_school_edges(popdict, students, student_ages,
                                                                              teachers, non_teaching_staff, age_by_uid,
                                                                              grade_age_mapping, age_grade_mapping,
-                                                                             average_class_size, inter_grade_mixing,
+                                                                             average_class_size_by_mixing_type[this_school_mixing_type],
+                                                                             inter_grade_mixing,
                                                                              average_student_teacher_ratio,
                                                                              average_teacher_teacher_degree,
                                                                              average_additional_staff_degree,
@@ -243,6 +267,8 @@ def make_contacts(age_by_uid,
             popdict[uid]['sc_type'] = this_school_type
             popdict[uid]['sc_mixing_type'] = this_school_mixing_type
 
+    pop.schools_in_groups = schools
+
     log.debug('...workplaces ' + checkmem())
     if do_trim and 'W' in trim_keys:
 
@@ -257,11 +283,12 @@ def make_contacts(age_by_uid,
                 popdict[uid]['contacts']['W'] = set(uids[v])
                 popdict[uid]['contacts']['W'].discard(uid)  # this shouldn't be needed
                 popdict[uid]['wpid'] = nw
-                if workplaces_by_industry_codes is not None:
+                if workplaces_by_industry_codes is not None: # pragma: no cover
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     else: # pragma: no cover
         for nw, workplace in enumerate(workplace_by_uid_lists):
+
             for uid in workplace:
                 popdict[uid]['contacts']['W'] = set(workplace)
                 popdict[uid]['contacts']['W'].remove(uid)
@@ -270,7 +297,7 @@ def make_contacts(age_by_uid,
                     popdict[uid]['wpindcode'] = int(workplaces_by_industry_codes[nw])
 
     log.debug('...done ' + checkmem())
-    return popdict, schools
+    return popdict
 
 
 def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting, average_degree=20, p_matrix=None, force_cross_edges=True):
@@ -308,7 +335,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
     r2 = [int(i) for i in group_2]
 
     n1 = list(np.arange(len(r1)).astype(int))
-    n2 = list(np.arange(len(r1), len(r1)+len(r2)).astype(int))
+    n2 = list(np.arange(len(r1), len(r1) + len(r2)).astype(int))
 
     group = r1 + r2
     sizes = [len(r1), len(r2)]
@@ -329,8 +356,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
             # if the person's degree is too high, cut out some contacts
             if len(group_1_neighbors) > average_degree:
                 ncut = len(group_1_neighbors) - average_degree  # rough number to cut
-                # ncut = spsamp.pt(ncut)  # sample from poisson that number
-                # ncut = min(len(group_1_neighbors), ncut)  # make sure the number isn't greater than the people available to cut
+
                 for k in range(ncut):
                     j = np.random.choice(group_1_neighbors)
                     G.remove_edge(i, j)
@@ -338,7 +364,7 @@ def create_reduced_contacts_with_group_types(popdict, group_1, group_2, setting,
 
     else:
         share_k_matrix = np.ones((2, 2))
-        share_k_matrix *= average_degree/np.sum(sizes)
+        share_k_matrix *= average_degree / np.sum(sizes)
 
         if p_matrix is None:
             p_matrix = share_k_matrix.copy()

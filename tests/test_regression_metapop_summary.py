@@ -31,7 +31,6 @@ pars = sc.objdict(
                                'hs': 'random',
                                'uv': 'random'
                                },
-
 )
 
 
@@ -108,7 +107,7 @@ def test_plot_degree_by_age_methods(create_pop, layer='S', do_show=False, do_sav
 def test_multiple_degree_histplots(layer='S', do_show=False, do_save=False):
     sp.logger.info("Testing a plotting dev tool to compare the degree distribution by age for multiple populations.")
 
-    npops = 3
+    npops = 4
     pop_list = []
 
     for ni in range(npops):
@@ -216,3 +215,4 @@ if __name__ == '__main__':
     test_multiple_degree_histplots(do_show=1)
     gkde, ghist, greg, ghexs, axboxplot = test_plot_degree_by_age_methods(create_pop, do_show=1)
     fig, ax = test_plot_degree_by_age_stats(do_show=1)
+    test_information(create_pop)
