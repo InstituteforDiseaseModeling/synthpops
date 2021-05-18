@@ -98,7 +98,9 @@ def process_education_tables():
 if __name__ == '__main__':
     print(f"processing files from {dir_path}.")
 
+    
+
     # process_age_tables()
     # process_labor_tables()
-    process_education_tables()
+    # process_education_tables()
 

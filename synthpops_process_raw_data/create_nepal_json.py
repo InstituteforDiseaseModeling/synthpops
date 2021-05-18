@@ -1,4 +1,4 @@
-"""Create zimbabwe json."""
+"""Create nepal json."""
 import sciris as sc
 import synthpops as sp
 import numpy as np
@@ -12,8 +12,6 @@ def process_age_dists():
     filepath = os.path.join(sp.settings.datadir, 'Nepal.json')
     location_data = sp.Location()
     location_data.location_name = 'Nepal'
-
-    # location_data = sp.load_location_from_filepath(filepath)
 
     raw_data_path = os.path.join(sp.settings.datadir, 'Nepal')
     age_count_df = pd.read_csv(os.path.join(raw_data_path, 'Nepal-2019.csv'))
@@ -61,8 +59,7 @@ def process_age_dists():
     location_data.population_age_distributions[1].num_bins = len(age_dist_arr_16)
     location_data.population_age_distributions[1].distribution = age_dist_arr_16
 
-    new_path = os.path.join(sp.settings.datadir, 'Nepal.json')
-    sp.save_location_to_filepath(location_data, new_path)
+    sp.save_location_to_filepath(location_data, filepath)
 
 
 def process_employment_rates():
@@ -89,8 +86,7 @@ def process_employment_rates():
     employment_rates_df = pd.DataFrame.from_dict(dict(age=np.arange(len(employment_rates)), percent=[employment_rates[a] for a in sorted(employment_rates.keys())]))
     location_data.employment_rates_by_age = sp.convert_df_to_json_array(employment_rates_df, cols=employment_rates_df.columns, int_cols=['age'])
 
-    new_path = os.path.join(sp.settings.datadir, 'Nepal.json')
-    sp.save_location_to_filepath(location_data, new_path)
+    sp.save_location_to_filepath(location_data, filepath)
 
 
 def process_enrollment_rates():
@@ -112,8 +108,7 @@ def process_enrollment_rates():
 
     enrollment_rates_df = pd.DataFrame.from_dict(dict(age=np.arange(len(enrollment_rates)), percent=[enrollment_rates[a] for a in sorted(enrollment_rates.keys())]))
     location_data.enrollment_rates_by_age = sp.convert_df_to_json_array(enrollment_rates_df, cols=enrollment_rates_df.columns, int_cols=['age'])
-    new_path = os.path.join(sp.settings.datadir, 'Nepal.json')
-    sp.save_location_to_filepath(location_data, new_path)
+    sp.save_location_to_filepath(location_data, filepath)
 
 if __name__ == '__main__':
 
@@ -122,5 +117,4 @@ if __name__ == '__main__':
     # process_enrollment_rates()
     filepath = os.path.join(sp.settings.datadir, 'Nepal.json')
     location_data = sp.load_location_from_filepath(filepath)
-
     print('loaded.')
