@@ -1,46 +1,15 @@
 '''
-Alternate representation of a population as a People object.
+Alternate representation of a population as a People object. Originally based on
+the corresponding Covasim classes and functions.
 '''
 
 import numpy as np
-import numba as nb
 import pylab as pl
 import sciris as sc
 import pandas as pd
-from collections import defaultdict
-from . import age_household_data as ahdata
-from . import version as spv
+from . import utils as spu
+from .. import version as spv
 
-
-#%% Global settings
-default_int   = np.int64
-default_float = np.float64
-nbint         = nb.int64
-nbfloat       = nb.float64
-cache         = True
-
-# Default age data, based on Seattle 2018 census data -- used in population.py
-default_age_data = np.array([
-    [ 0,  4, 0.0605],
-    [ 5,  9, 0.0607],
-    [10, 14, 0.0566],
-    [15, 19, 0.0557],
-    [20, 24, 0.0612],
-    [25, 29, 0.0843],
-    [30, 34, 0.0848],
-    [35, 39, 0.0764],
-    [40, 44, 0.0697],
-    [45, 49, 0.0701],
-    [50, 54, 0.0681],
-    [55, 59, 0.0653],
-    [60, 64, 0.0591],
-    [65, 69, 0.0453],
-    [70, 74, 0.0312],
-    [75, 79, 0.02016], # Calculated based on 0.0504 total for >=75
-    [80, 84, 0.01344],
-    [85, 89, 0.01008],
-    [90, 99, 0.00672],
-])
 
 #%% Define people classes
 
@@ -233,10 +202,6 @@ class BasePeople(FlexPretty):
         ''' Count the number of people for a given key '''
         return (self[key]>0).sum()
 
-    def count_by_strain(self, key, strain):
-        ''' Count the number of people for a given key '''
-        return (self[key][strain,:]>0).sum()
-
 
     def count_not(self, key):
         ''' Count the number of people who do not have a property for a given key '''
@@ -258,35 +223,9 @@ class BasePeople(FlexPretty):
             errormsg = f'The parameter "pop_size" must be included in a population; keys supplied were:\n{sc.newlinejoin(pars.keys())}'
             raise sc.KeyNotFoundError(errormsg)
         pars['pop_size'] = int(pars['pop_size'])
-        pars.setdefault('n_strains', 1)
         pars.setdefault('location', None)
         self.pars = pars # Actually store the pars
         return
-
-
-    def keys(self):
-        ''' Returns keys for all properties of the people object '''
-        return self.meta.all_states[:]
-
-
-    def person_keys(self):
-        ''' Returns keys specific to a person (e.g., their age) '''
-        return self.meta.person[:]
-
-
-    def state_keys(self):
-        ''' Returns keys for different states of a person (e.g., symptomatic) '''
-        return self.meta.states[:]
-
-
-    def date_keys(self):
-        ''' Returns keys for different event dates (e.g., date a person became symptomatic) '''
-        return self.meta.dates[:]
-
-
-    def dur_keys(self):
-        ''' Returns keys for different durations (e.g., the duration from exposed to infectious) '''
-        return self.meta.durs[:]
 
 
     def layer_keys(self):
@@ -317,16 +256,8 @@ class BasePeople(FlexPretty):
 
         # Check that the length of each array is consistent
         expected_len = len(self)
-        expected_strains = self.pars['n_strains']
         for key in self.keys():
-            if self[key].ndim == 1:
-                actual_len = len(self[key])
-            else: # If it's 2D, strains need to be checked separately
-                actual_strains, actual_len = self[key].shape
-                if actual_strains != expected_strains:
-                    if verbose:
-                        print(f'Resizing "{key}" from {actual_strains} to {expected_strains}')
-                    self._resize_arrays(keys=key, new_size=(expected_strains, expected_len))
+            actual_len = len(self[key])
             if actual_len != expected_len: # pragma: no cover
                 if die:
                     errormsg = f'Length of key "{key}" did not match population size ({actual_len} vs. {expected_len})'
@@ -346,7 +277,7 @@ class BasePeople(FlexPretty):
     def _resize_arrays(self, new_size=None, keys=None):
         ''' Resize arrays if any mismatches are found '''
 
-        # Handle None or tuple input (representing strains and pop_size)
+        # Handle None or tuple input
         if new_size is None:
             new_size = len(self)
         pop_size = new_size if not isinstance(new_size, tuple) else new_size[1]
@@ -370,7 +301,7 @@ class BasePeople(FlexPretty):
 
     def to_arr(self):
         ''' Return as numpy array '''
-        arr = np.empty((len(self), len(self.keys())), dtype=default_float)
+        arr = np.empty((len(self), len(self.keys())), dtype=spu.default_float)
         for k,key in enumerate(self.keys()):
             if key == 'uid':
                 arr[:,k] = np.arange(len(self))
@@ -504,8 +435,8 @@ class BasePeople(FlexPretty):
             if 'beta' not in new_layer.keys() or len(new_layer['beta']) != n:
                 if beta is None:
                     beta = 1.0
-                beta = default_float(beta)
-                new_layer['beta'] = np.ones(n, dtype=default_float)*beta
+                beta = spu.default_float(beta)
+                new_layer['beta'] = np.ones(n, dtype=spu.default_float)*beta
 
             # Create the layer if it doesn't yet exist
             if lkey not in self.contacts:
@@ -575,11 +506,9 @@ class Person(sc.prettyobj):
     '''
     def __init__(self, pars=None, uid=None, age=-1, sex=-1, contacts=None):
         self.uid         = uid # This person's unique identifier
-        self.age         = default_float(age) # Age of the person (in years)
-        self.sex         = default_int(sex) # Female (0) or male (1)
+        self.age         = spu.default_float(age) # Age of the person (in years)
+        self.sex         = spu.default_int(sex) # Female (0) or male (1)
         self.contacts    = contacts # Contacts
-        # self.infected = [] #: Record the UIDs of all people this person infected
-        # self.infected_by = None #: Store the UID of the person who caused the infection. If None but person is infected, then it was an externally seeded infection
         return
 
 
@@ -733,9 +662,9 @@ class Layer(FlexDict):
 
     def __init__(self, label=None, **kwargs):
         self.meta = {
-            'p1':    default_int,   # Person 1
-            'p2':    default_int,   # Person 2
-            'beta':  default_float, # Default transmissibility for this contact type
+            'p1':    spu.default_int,   # Person 1
+            'p2':    spu.default_int,   # Person 2
+            'beta':  spu.default_float, # Default transmissibility for this contact type
         }
         self.basekey = 'p1' # Assign a base key for calculating lengths and performing other operations
         self.label = label
@@ -909,9 +838,9 @@ class Layer(FlexDict):
             inds = np.array(inds, dtype=np.int64)
 
         # Find the contacts
-        contact_inds = find_contacts(self['p1'], self['p2'], inds)
+        contact_inds = spu.find_contacts(self['p1'], self['p2'], inds)
         if as_array:
-            contact_inds = np.fromiter(contact_inds, dtype=default_int)
+            contact_inds = np.fromiter(contact_inds, dtype=spu.default_int)
             contact_inds.sort()  # Sorting ensures that the results are reproducible for a given seed as well as being identical to previous versions of Covasim
 
         return contact_inds
@@ -937,12 +866,12 @@ class Layer(FlexDict):
         pop_size   = len(people) # Total number of people
         n_contacts = len(self) # Total number of contacts
         n_new = int(np.round(n_contacts*frac)) # Since these get looped over in both directions later
-        inds = choose(n_contacts, n_new)
+        inds = spu.choose(n_contacts, n_new)
 
         # Create the contacts, not skipping self-connections
-        self['p1'][inds]   = np.array(choose_r(max_n=pop_size, n=n_new), dtype=default_int) # Choose with replacement
-        self['p2'][inds]   = np.array(choose_r(max_n=pop_size, n=n_new), dtype=default_int)
-        self['beta'][inds] = np.ones(n_new, dtype=default_float)
+        self['p1'][inds]   = np.array(spu.choose_r(max_n=pop_size, n=n_new), dtype=spu.default_int) # Choose with replacement
+        self['p2'][inds]   = np.array(spu.choose_r(max_n=pop_size, n=n_new), dtype=spu.default_int)
+        self['beta'][inds] = np.ones(n_new, dtype=spu.default_float)
         return
 
 
@@ -1010,7 +939,8 @@ class People(BasePeople):
 
     #%% Analysis methods
 
-    def plot(self, *args, **kwargs):
+    def plot(self, bins=None, width=1.0, alpha=0.6, fig_args=None, axis_args=None,
+                plot_args=None, do_show=None, fig=None):
         '''
         Plot statistics of the population -- age distribution, numbers of contacts,
         and overall weight of contacts (number of contacts multiplied by beta per
@@ -1027,7 +957,99 @@ class People(BasePeople):
             do_show   (bool)  : whether to show the plot
             fig       (fig)   : handle of existing figure to plot into
         '''
-        fig = plot_people(people=self, *args, **kwargs)
+        # Handle inputs
+        if bins is None:
+            bins = np.arange(0,101)
+
+        # Set defaults
+        color     = [0.1,0.1,0.1] # Color for the age distribution
+        n_rows    = 4 # Number of rows of plots
+        offset    = 0.5 # For ensuring the full bars show up
+        gridspace = 10 # Spacing of gridlines
+        zorder    = 10 # So plots appear on top of gridlines
+
+        # Handle other arguments
+        fig_args  = sc.mergedicts(dict(figsize=(18,11)), fig_args)
+        axis_args = sc.mergedicts(dict(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.3, hspace=0.35), axis_args)
+        plot_args = sc.mergedicts(dict(lw=1.5, alpha=0.6, c=color, zorder=10), plot_args)
+
+        # Compute statistics
+        min_age = min(bins)
+        max_age = max(bins)
+        edges = np.append(bins, np.inf) # Add an extra bin to end to turn them into edges
+        age_counts = np.histogram(self.age, edges)[0]
+
+        # Create the figure
+        if fig is None:
+            fig = pl.figure(**fig_args)
+        pl.subplots_adjust(**axis_args)
+
+        # Plot age histogram
+        pl.subplot(n_rows,2,1)
+        pl.bar(bins, age_counts, color=color, alpha=alpha, width=width, zorder=zorder)
+        pl.xlim([min_age-offset,max_age+offset])
+        pl.xticks(np.arange(0, max_age+1, gridspace))
+        pl.grid(True)
+        pl.xlabel('Age')
+        pl.ylabel('Number of people')
+        pl.title(f'Age distribution ({len(self):n} people total)')
+
+        # Plot cumulative distribution
+        pl.subplot(n_rows,2,2)
+        age_sorted = sorted(self.age)
+        y = np.linspace(0, 100, len(age_sorted)) # Percentage, not hard-coded!
+        pl.plot(age_sorted, y, '-', **plot_args)
+        pl.xlim([0,max_age])
+        pl.ylim([0,100]) # Percentage
+        pl.xticks(np.arange(0, max_age+1, gridspace))
+        pl.yticks(np.arange(0, 101, gridspace)) # Percentage
+        pl.grid(True)
+        pl.xlabel('Age')
+        pl.ylabel('Cumulative proportion (%)')
+        pl.title(f'Cumulative age distribution (mean age: {self.age.mean():0.2f} years)')
+
+        # Calculate contacts
+        lkeys = self.layer_keys()
+        n_layers = len(lkeys)
+        contact_counts = sc.objdict()
+        for lk in lkeys:
+            layer = self.contacts[lk]
+            p1ages = self.age[layer['p1']]
+            p2ages = self.age[layer['p2']]
+            contact_counts[lk] = np.histogram(p1ages, edges)[0] + np.histogram(p2ages, edges)[0]
+
+        # Plot contacts
+        layer_colors = sc.gridcolors(n_layers)
+        share_ax = None
+        for w,w_type in enumerate(['total', 'percapita', 'weighted']): # Plot contacts in different ways
+            for i,lk in enumerate(lkeys):
+                if w_type == 'total':
+                    weight = 1
+                    total_contacts = 2*len(self.contacts[lk]) # x2 since each contact is undirected
+                    ylabel = 'Number of contacts'
+                    title = f'Total contacts for layer "{lk}": {total_contacts:n}'
+                elif w_type == 'percapita':
+                    weight = np.divide(1.0, age_counts, where=age_counts>0)
+                    mean_contacts = 2*len(self.contacts[lk])/len(self) # Factor of 2 since edges are bi-directional
+                    ylabel = 'Per capita number of contacts'
+                    title = f'Mean contacts for layer "{lk}": {mean_contacts:0.2f}'
+                elif w_type == 'weighted':
+                    weight = self.pars['beta_layer'][lk]*self.pars['beta']
+                    total_weight = np.round(weight*2*len(self.contacts[lk]))
+                    ylabel = 'Weighted number of contacts'
+                    title = f'Total weight for layer "{lk}": {total_weight:n}'
+
+                ax = pl.subplot(n_rows, n_layers, n_layers*(w+1)+i+1, sharey=share_ax)
+                pl.bar(bins, contact_counts[lk]*weight, color=layer_colors[i], width=width, zorder=zorder, alpha=alpha)
+                pl.xlim([min_age-offset,max_age+offset])
+                pl.xticks(np.arange(0, max_age+1, gridspace))
+                pl.grid(True)
+                pl.xlabel('Age')
+                pl.ylabel(ylabel)
+                pl.title(title)
+                if w_type == 'weighted':
+                    share_ax = ax # Update shared axis
+
         return fig
 
 
@@ -1072,14 +1094,7 @@ class People(BasePeople):
             sex = 'female' if p.sex == 0 else 'male'
 
             intro = f'\nThis is the story of {uid}, a {p.age:.0f} year old {sex}'
-
-            if not p.susceptible:
-                if np.isnan(p.date_symptomatic):
-                    print(f'{intro}, who had asymptomatic COVID.')
-                else:
-                    print(f'{intro}, who had symptomatic COVID.')
-            else:
-                print(f'{intro}, who did not contract COVID.')
+            print(intro)
 
             total_contacts = 0
             no_contacts = []
@@ -1096,648 +1111,4 @@ class People(BasePeople):
                 print(f'{uid} has no contacts in the {nc_string} layer(s)')
             print(f'{uid} has {total_contacts} contacts in total')
 
-            events = []
-
-            dates = {
-                'date_critical'       : 'became critically ill and needed ICU care',
-                'date_dead'           : 'died ☹',
-                'date_diagnosed'      : 'was diagnosed with COVID',
-                'date_end_quarantine' : 'ended quarantine',
-                'date_infectious'     : 'became infectious',
-                'date_known_contact'  : 'was notified they may have been exposed to COVID',
-                'date_pos_test'       : 'recieved their positive test result',
-                'date_quarantined'    : 'entered quarantine',
-                'date_recovered'      : 'recovered',
-                'date_severe'         : 'developed severe symptoms and needed hospitalization',
-                'date_symptomatic'    : 'became symptomatic',
-                'date_tested'         : 'was tested for COVID',
-            }
-
-            for attribute, message in dates.items():
-                date = getattr(p,attribute)
-                if not np.isnan(date):
-                    events.append((date, message))
-
-            for infection in self.infection_log:
-                lkey = infection['layer']
-                llabel = label_lkey(lkey)
-                if infection['target'] == uid:
-                    if lkey:
-                        events.append((infection['date'], f'was infected with COVID by {infection["source"]} via the {llabel} layer'))
-                    else:
-                        events.append((infection['date'], 'was infected with COVID as a seed infection'))
-
-                if infection['source'] == uid:
-                    x = len([a for a in self.infection_log if a['source'] == infection['target']])
-                    events.append((infection['date'],f'gave COVID to {infection["target"]} via the {llabel} layer ({x} secondary infections)'))
-
-            if len(events):
-                for day, event in sorted(events, key=lambda x: x[0]):
-                    print(f'On day {day:.0f}, {uid} {event}')
-            else:
-                print(f'Nothing happened to {uid} during the simulation.')
         return
-
-
-
-
-'''
-Defines functions for making the population.
-'''
-
-
-# Specify all externally visible functions this file defines
-__all__ = ['make_people', 'make_randpop', 'make_random_contacts',
-           'make_microstructured_contacts', 'make_hybrid_contacts',
-           'make_synthpop']
-
-
-def make_people(sim, popdict=None, save_pop=False, popfile=None, die=True, reset=False, verbose=None, **kwargs):
-    '''
-    Make the actual people for the simulation. Usually called via sim.initialize(),
-    but can be called directly by the user.
-
-    Args:
-        sim      (Sim)  : the simulation object; population parameters are taken from the sim object
-        popdict  (dict) : if supplied, use this population dictionary instead of generating a new one
-        save_pop (bool) : whether to save the population to disk
-        popfile  (bool) : if so, the filename to save to
-        die      (bool) : whether or not to fail if synthetic populations are requested but not available
-        reset    (bool) : whether to force population creation even if self.popdict/self.people exists
-        verbose  (bool) : level of detail to print
-        kwargs   (dict) : passed to make_randpop() or make_synthpop()
-
-    Returns:
-        people (People): people
-    '''
-
-    # Set inputs and defaults
-    pop_size = int(sim['pop_size']) # Shorten
-    pop_type = sim['pop_type'] # Shorten
-    if verbose is None:
-        verbose = sim['verbose']
-    if popfile is None:
-        popfile = sim.popfile
-
-    # Actually create the population
-    if sim.people and not reset:
-        return sim.people # If it's already there, just return
-    elif sim.popdict and not reset:
-        popdict = sim.popdict # Use stored one
-        sim.popdict = None # Once loaded, remove
-    elif popdict is None: # Main use case: no popdict is supplied
-        # Create the population
-        if pop_type in ['random', 'clustered', 'hybrid']:
-            popdict = make_randpop(sim, microstructure=pop_type, **kwargs)
-        elif pop_type == 'synthpops':
-            popdict = make_synthpop(sim, **kwargs)
-        elif pop_type is None: # pragma: no cover
-            errormsg = 'You have set pop_type=None. This is fine, but you must ensure sim.popdict exists before calling make_people().'
-            raise ValueError(errormsg)
-        else: # pragma: no cover
-            errormsg = f'Population type "{pop_type}" not found; choices are random, clustered, hybrid, or synthpops'
-            raise ValueError(errormsg)
-
-    # Actually create the people
-    people = People(sim.pars, uid=popdict['uid'], age=popdict['age'], sex=popdict['sex'], contacts=popdict['contacts']) # List for storing the people
-
-    average_age = sum(popdict['age']/pop_size)
-    sc.printv(f'Created {pop_size} people, average age {average_age:0.2f} years', 2, verbose)
-
-    if save_pop:
-        if popfile is None: # pragma: no cover
-            errormsg = 'Please specify a file to save to using the popfile kwarg'
-            raise FileNotFoundError(errormsg)
-        else:
-            filepath = sc.makefilepath(filename=popfile)
-            sc.saveobj(filepath, people)
-            if verbose:
-                print(f'Saved population of type "{pop_type}" with {pop_size:n} people to {filepath}')
-
-    return people
-
-
-def make_randpop(sim, use_age_data=True, use_household_data=True, sex_ratio=0.5, microstructure=False):
-    '''
-    Make a random population, with contacts.
-
-    This function returns a "popdict" dictionary, which has the following (required) keys:
-
-        - uid: an array of (usually consecutive) integers of length N, uniquely identifying each agent
-        - age: an array of floats of length N, the age in years of each agent
-        - sex: an array of integers of length N (not currently used, so does not have to be binary)
-        - contacts: list of length N listing the contacts; see make_random_contacts() for details
-        - layer_keys: a list of strings representing the different contact layers in the population; see make_random_contacts() for details
-
-    Args:
-        sim (Sim): the simulation object
-        use_age_data (bool): whether to use location-specific age data
-        use_household_data (bool): whether to use location-specific household size data
-        sex_ratio (float): proportion of the population that is male (not currently used)
-        microstructure (bool): whether or not to use the microstructuring algorithm to group contacts
-
-    Returns:
-        popdict (dict): a dictionary representing the population, with the following keys for a population of N agents with M contacts between them:
-    '''
-
-    pop_size = int(sim['pop_size']) # Number of people
-
-    # Load age data and household demographics based on 2018 Seattle demographics by default, or country if available
-    age_data = default_age_data
-    location = sim['location']
-    if location is not None:
-        if sim['verbose']:
-            print(f'Loading location-specific data for "{location}"')
-        if use_age_data:
-            try:
-                age_data = ahdata.get_age_distribution(location)
-            except ValueError as E:
-                print(f'Could not load age data for requested location "{location}" ({str(E)}), using default')
-        if use_household_data:
-            try:
-                household_size = ahdata.get_household_size(location)
-                if 'h' in sim['contacts']:
-                    sim['contacts']['h'] = household_size - 1 # Subtract 1 because e.g. each person in a 3-person household has 2 contacts
-                else:
-                    keystr = ', '.join(list(sim['contacts'].keys()))
-                    print(f'Warning; not loading household size for "{location}" since no "h" key; keys are "{keystr}". Try "hybrid" population type?')
-            except ValueError as E:
-                if sim['verbose']>=2: # These don't exist for many locations, so skip the warning by default
-                    print(f'Could not load household size data for requested location "{location}" ({str(E)}), using default')
-
-    # Handle sexes and ages
-    uids           = np.arange(pop_size, dtype=default_int)
-    sexes          = np.random.binomial(1, sex_ratio, pop_size)
-    age_data_min   = age_data[:,0]
-    age_data_max   = age_data[:,1] + 1 # Since actually e.g. 69.999
-    age_data_range = age_data_max - age_data_min
-    age_data_prob  = age_data[:,2]
-    age_data_prob /= age_data_prob.sum() # Ensure it sums to 1
-    age_bins       = n_multinomial(age_data_prob, pop_size) # Choose age bins
-    ages           = age_data_min[age_bins] + age_data_range[age_bins]*np.random.random(pop_size) # Uniformly distribute within this age bin
-
-    # Store output
-    popdict = {}
-    popdict['uid'] = uids
-    popdict['age'] = ages
-    popdict['sex'] = sexes
-
-    # Actually create the contacts
-    if   microstructure == 'random':    contacts, layer_keys    = make_random_contacts(pop_size, sim['contacts'])
-    elif microstructure == 'clustered': contacts, layer_keys, _ = make_microstructured_contacts(pop_size, sim['contacts'])
-    elif microstructure == 'hybrid':    contacts, layer_keys, _ = make_hybrid_contacts(pop_size, ages, sim['contacts'])
-    else: # pragma: no cover
-        errormsg = f'Microstructure type "{microstructure}" not found; choices are random, clustered, or hybrid'
-        raise NotImplementedError(errormsg)
-
-    popdict['contacts']   = contacts
-    popdict['layer_keys'] = layer_keys
-
-    return popdict
-
-
-def make_random_contacts(pop_size, contacts, overshoot=1.2, dispersion=None):
-    '''
-    Make random static contacts.
-
-    Args:
-        pop_size (int): number of agents to create contacts between (N)
-        contacts (dict): a dictionary with one entry per layer describing the average number of contacts per person for that layer
-        overshoot (float): to avoid needing to take multiple Poisson draws
-        dispersion (float): if not None, use a negative binomial distribution with this dispersion parameter instead of Poisson to make the contacts
-
-    Returns:
-        contacts_list (list): a list of length N, where each entry is a dictionary by layer, and each dictionary entry is the UIDs of the agent's contacts
-        layer_keys (list): a list of layer keys, which is the same as the keys of the input "contacts" dictionary
-    '''
-
-    # Preprocessing
-    pop_size = int(pop_size) # Number of people
-    contacts = sc.dcp(contacts)
-    layer_keys = list(contacts.keys())
-    contacts_list = []
-
-    # Precalculate contacts
-    n_across_layers = np.sum(list(contacts.values()))
-    n_all_contacts  = int(pop_size*n_across_layers*overshoot) # The overshoot is used so we won't run out of contacts if the Poisson draws happen to be higher than the expected value
-    all_contacts    = choose_r(max_n=pop_size, n=n_all_contacts) # Choose people at random
-    p_counts = {}
-    for lkey in layer_keys:
-        if dispersion is None:
-            p_count = n_poisson(contacts[lkey], pop_size) # Draw the number of Poisson contacts for this person
-        else:
-            p_count = n_neg_binomial(rate=contacts[lkey], dispersion=dispersion, n=pop_size) # Or, from a negative binomial
-        p_counts[lkey] = np.array((p_count/2.0).round(), dtype=default_int)
-
-    # Make contacts
-    count = 0
-    for p in range(pop_size):
-        contact_dict = {}
-        for lkey in layer_keys:
-            n_contacts = p_counts[lkey][p]
-            contact_dict[lkey] = all_contacts[count:count+n_contacts] # Assign people
-            count += n_contacts
-        contacts_list.append(contact_dict)
-
-    return contacts_list, layer_keys
-
-
-def make_microstructured_contacts(pop_size, contacts):
-    ''' Create microstructured contacts -- i.e. for households '''
-
-    # Preprocessing -- same as above
-    pop_size = int(pop_size) # Number of people
-    contacts = sc.dcp(contacts)
-    contacts.pop('c', None) # Remove community
-    layer_keys = list(contacts.keys())
-    contacts_list = [{c:[] for c in layer_keys} for p in range(pop_size)] # Pre-populate
-
-    for layer_name, cluster_size in contacts.items():
-
-        # Initialize
-        cluster_dict = dict() # Add dictionary for this layer
-        n_remaining = pop_size # Make clusters - each person belongs to one cluster
-        contacts_dict = defaultdict(set) # Use defaultdict of sets for convenience while initializing. Could probably change this as part of performance optimization
-
-        # Loop over the clusters
-        cluster_id = -1
-        while n_remaining > 0:
-            cluster_id += 1 # Assign cluster id
-            this_cluster =  poisson(cluster_size)  # Sample the cluster size
-            if this_cluster > n_remaining:
-                this_cluster = n_remaining
-
-            # Indices of people in this cluster
-            cluster_indices = (pop_size-n_remaining)+np.arange(this_cluster)
-            cluster_dict[cluster_id] = cluster_indices
-            for i in cluster_indices: # Add symmetric pairwise contacts in each cluster
-                for j in cluster_indices:
-                    if j > i:
-                        contacts_dict[i].add(j)
-
-            n_remaining -= this_cluster
-
-        for key in contacts_dict.keys():
-            contacts_list[key][layer_name] = np.array(list(contacts_dict[key]), dtype=default_int)
-
-        clusters = {layer_name: cluster_dict}
-
-    return contacts_list, layer_keys, clusters
-
-
-def make_hybrid_contacts(pop_size, ages, contacts, school_ages=None, work_ages=None):
-    '''
-    Create "hybrid" contacts -- microstructured contacts for households and
-    random contacts for schools and workplaces, both of which have extremely
-    basic age structure. A combination of both make_random_contacts() and
-    make_microstructured_contacts().
-    '''
-
-    # Handle inputs and defaults
-    layer_keys = ['h', 's', 'w', 'c']
-    contacts = sc.mergedicts({'h':4, 's':20, 'w':20, 'c':20}, contacts) # Ensure essential keys are populated
-    if school_ages is None:
-        school_ages = [6, 22]
-    if work_ages is None:
-        work_ages   = [22, 65]
-
-    # Create the empty contacts list -- a list of {'h':[], 's':[], 'w':[]}
-    contacts_list = [{key:[] for key in layer_keys} for i in range(pop_size)]
-
-    # Start with the household contacts for each person
-    h_contacts, _, clusters = make_microstructured_contacts(pop_size, {'h':contacts['h']})
-
-    # Make community contacts
-    c_contacts, _ = make_random_contacts(pop_size, {'c':contacts['c']})
-
-    # Get the indices of people in each age bin
-    ages = np.array(ages)
-    s_inds = sc.findinds((ages >= school_ages[0]) * (ages < school_ages[1]))
-    w_inds = sc.findinds((ages >= work_ages[0])   * (ages < work_ages[1]))
-
-    # Create the school and work contacts for each person
-    s_contacts, _ = make_random_contacts(len(s_inds), {'s':contacts['s']})
-    w_contacts, _ = make_random_contacts(len(w_inds), {'w':contacts['w']})
-
-    # Construct the actual lists of contacts
-    for i     in range(pop_size):   contacts_list[i]['h']   =        h_contacts[i]['h']  # Copy over household contacts -- present for everyone
-    for i,ind in enumerate(s_inds): contacts_list[ind]['s'] = s_inds[s_contacts[i]['s']] # Copy over school contacts
-    for i,ind in enumerate(w_inds): contacts_list[ind]['w'] = w_inds[w_contacts[i]['w']] # Copy over work contacts
-    for i     in range(pop_size):   contacts_list[i]['c']   =        c_contacts[i]['c']  # Copy over community contacts -- present for everyone
-
-    return contacts_list, layer_keys, clusters
-
-
-
-def make_synthpop(sim=None, population=None, layer_mapping=None, community_contacts=None, **kwargs):
-    '''
-    Make a population using SynthPops, including contacts. Usually called automatically,
-    but can also be called manually. Either a simulation object or a population must
-    be supplied; if a population is supplied, transform it into the correct format;
-    otherwise, create the population and then transform it.
-
-    Args:
-        sim (Sim): a Covasim simulation object
-        population (list): a pre-generated SynthPops population (otherwise, create a new one)
-        layer_mapping (dict): a custom mapping from SynthPops layers to Covasim layers
-        community_contacts (int): if a simulation is not supplied, create this many community contacts on average
-        kwargs (dict): passed to sp.make_population()
-
-    **Example**::
-
-        sim = cv.Sim(pop_type='synthpops')
-        sim.popdict = cv.make_synthpop(sim)
-        sim.run()
-    '''
-    try:
-        import synthpops as sp # Optional import
-    except ModuleNotFoundError as E: # pragma: no cover
-        errormsg = 'Please install the optional SynthPops module first, e.g. pip install synthpops' # Also caught in make_people()
-        raise ModuleNotFoundError(errormsg) from E
-
-    # Handle layer mapping
-    default_layer_mapping = {'H':'h', 'S':'s', 'W':'w', 'C':'c', 'LTCF':'l'} # Remap keys from old names to new names
-    layer_mapping = sc.mergedicts(default_layer_mapping, layer_mapping)
-
-    # Handle other input arguments
-    if population is None:
-        if sim is None: # pragma: no cover
-            errormsg = 'Either a simulation or a population must be supplied'
-            raise ValueError(errormsg)
-        pop_size = sim['pop_size']
-        population = sp.make_population(n=pop_size, rand_seed=sim['rand_seed'], **kwargs)
-
-    if community_contacts is None:
-        if sim is not None:
-            community_contacts = sim['contacts']['c']
-        else: # pragma: no cover
-            errormsg = 'If a simulation is not supplied, the number of community contacts must be specified'
-            raise ValueError(errormsg)
-
-    # Create the basic lists
-    pop_size = len(population)
-    uids, ages, sexes, contacts = [], [], [], []
-    for uid,person in population.items():
-        uids.append(uid)
-        ages.append(person['age'])
-        sexes.append(person['sex'])
-
-    # Replace contact UIDs with ints
-    uid_mapping = {uid:u for u,uid in enumerate(uids)}
-    for uid in uids:
-        iid = uid_mapping[uid] # Integer UID
-        person = population.pop(uid)
-        uid_contacts = sc.dcp(person['contacts'])
-        int_contacts = {}
-        for spkey in uid_contacts.keys():
-            try:
-                lkey = layer_mapping[spkey] # Map the SynthPops key into a Covasim layer key
-            except KeyError: # pragma: no cover
-                errormsg = f'Could not find key "{spkey}" in layer mapping "{layer_mapping}"'
-                raise sc.KeyNotFoundError(errormsg)
-            int_contacts[lkey] = []
-            for cid in uid_contacts[spkey]: # Contact ID
-                icid = uid_mapping[cid] # Integer contact ID
-                if icid>iid: # Don't add duplicate contacts
-                    int_contacts[lkey].append(icid)
-            int_contacts[lkey] = np.array(int_contacts[lkey], dtype=default_int)
-        contacts.append(int_contacts)
-
-    # Add community contacts
-    c_contacts, _ = make_random_contacts(pop_size, {'c':community_contacts})
-    for i in range(int(pop_size)):
-        contacts[i]['c'] = c_contacts[i]['c'] # Copy over community contacts -- present for everyone
-
-    # Finalize
-    popdict = {}
-    popdict['uid']        = np.array(list(uid_mapping.values()), dtype=default_int)
-    popdict['age']        = np.array(ages)
-    popdict['sex']        = np.array(sexes)
-    popdict['contacts']   = sc.dcp(contacts)
-    popdict['layer_keys'] = list(layer_mapping.values())
-
-    return popdict
-
-
-#%% Other plotting functions
-def plot_people(people, bins=None, width=1.0, alpha=0.6, fig_args=None, axis_args=None,
-                plot_args=None, do_show=None, fig=None):
-    ''' Plot statistics of a population -- see People.plot() for documentation '''
-
-    # Handle inputs
-    if bins is None:
-        bins = np.arange(0,101)
-
-    # Set defaults
-    color     = [0.1,0.1,0.1] # Color for the age distribution
-    n_rows    = 4 # Number of rows of plots
-    offset    = 0.5 # For ensuring the full bars show up
-    gridspace = 10 # Spacing of gridlines
-    zorder    = 10 # So plots appear on top of gridlines
-
-    # Handle other arguments
-    fig_args  = sc.mergedicts(dict(figsize=(18,11)), fig_args)
-    axis_args = sc.mergedicts(dict(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.3, hspace=0.35), axis_args)
-    plot_args = sc.mergedicts(dict(lw=1.5, alpha=0.6, c=color, zorder=10), plot_args)
-
-    # Compute statistics
-    min_age = min(bins)
-    max_age = max(bins)
-    edges = np.append(bins, np.inf) # Add an extra bin to end to turn them into edges
-    age_counts = np.histogram(people.age, edges)[0]
-
-    # Create the figure
-    if fig is None:
-        fig = pl.figure(**fig_args)
-    pl.subplots_adjust(**axis_args)
-
-    # Plot age histogram
-    pl.subplot(n_rows,2,1)
-    pl.bar(bins, age_counts, color=color, alpha=alpha, width=width, zorder=zorder)
-    pl.xlim([min_age-offset,max_age+offset])
-    pl.xticks(np.arange(0, max_age+1, gridspace))
-    pl.grid(True)
-    pl.xlabel('Age')
-    pl.ylabel('Number of people')
-    pl.title(f'Age distribution ({len(people):n} people total)')
-
-    # Plot cumulative distribution
-    pl.subplot(n_rows,2,2)
-    age_sorted = sorted(people.age)
-    y = np.linspace(0, 100, len(age_sorted)) # Percentage, not hard-coded!
-    pl.plot(age_sorted, y, '-', **plot_args)
-    pl.xlim([0,max_age])
-    pl.ylim([0,100]) # Percentage
-    pl.xticks(np.arange(0, max_age+1, gridspace))
-    pl.yticks(np.arange(0, 101, gridspace)) # Percentage
-    pl.grid(True)
-    pl.xlabel('Age')
-    pl.ylabel('Cumulative proportion (%)')
-    pl.title(f'Cumulative age distribution (mean age: {people.age.mean():0.2f} years)')
-
-    # Calculate contacts
-    lkeys = people.layer_keys()
-    n_layers = len(lkeys)
-    contact_counts = sc.objdict()
-    for lk in lkeys:
-        layer = people.contacts[lk]
-        p1ages = people.age[layer['p1']]
-        p2ages = people.age[layer['p2']]
-        contact_counts[lk] = np.histogram(p1ages, edges)[0] + np.histogram(p2ages, edges)[0]
-
-    # Plot contacts
-    layer_colors = sc.gridcolors(n_layers)
-    share_ax = None
-    for w,w_type in enumerate(['total', 'percapita', 'weighted']): # Plot contacts in different ways
-        for i,lk in enumerate(lkeys):
-            if w_type == 'total':
-                weight = 1
-                total_contacts = 2*len(people.contacts[lk]) # x2 since each contact is undirected
-                ylabel = 'Number of contacts'
-                title = f'Total contacts for layer "{lk}": {total_contacts:n}'
-            elif w_type == 'percapita':
-                weight = np.divide(1.0, age_counts, where=age_counts>0)
-                mean_contacts = 2*len(people.contacts[lk])/len(people) # Factor of 2 since edges are bi-directional
-                ylabel = 'Per capita number of contacts'
-                title = f'Mean contacts for layer "{lk}": {mean_contacts:0.2f}'
-            elif w_type == 'weighted':
-                weight = people.pars['beta_layer'][lk]*people.pars['beta']
-                total_weight = np.round(weight*2*len(people.contacts[lk]))
-                ylabel = 'Weighted number of contacts'
-                title = f'Total weight for layer "{lk}": {total_weight:n}'
-
-            ax = pl.subplot(n_rows, n_layers, n_layers*(w+1)+i+1, sharey=share_ax)
-            pl.bar(bins, contact_counts[lk]*weight, color=layer_colors[i], width=width, zorder=zorder, alpha=alpha)
-            pl.xlim([min_age-offset,max_age+offset])
-            pl.xticks(np.arange(0, max_age+1, gridspace))
-            pl.grid(True)
-            pl.xlabel('Age')
-            pl.ylabel(ylabel)
-            pl.title(title)
-            if w_type == 'weighted':
-                share_ax = ax # Update shared axis
-
-    return fig
-
-
-#%% Numba and mathematical functions
-
-@nb.njit((nbint[:], nbint[:], nb.int64[:]), cache=cache)
-def find_contacts(p1, p2, inds): # pragma: no cover
-    """
-    Numba for Layer.find_contacts()
-
-    A set is returned here rather than a sorted array so that custom tracing interventions can efficiently
-    add extra people. For a version with sorting by default, see Layer.find_contacts(). Indices must be
-    an int64 array since this is what's returned by true() etc. functions by default.
-    """
-    pairing_partners = set()
-    inds = set(inds)
-    for i in range(len(p1)):
-        if p1[i] in inds:
-            pairing_partners.add(p2[i])
-        if p2[i] in inds:
-            pairing_partners.add(p1[i])
-    return pairing_partners
-
-
-@nb.njit((nbint, nbint), cache=cache) # Numba hugely increases performance
-def choose(max_n, n):
-    '''
-    Choose a subset of items (e.g., people) without replacement.
-
-    Args:
-        max_n (int): the total number of items
-        n (int): the number of items to choose
-
-    **Example**::
-
-        choices = cv.choose(5, 2) # choose 2 out of 5 people with equal probability (without repeats)
-    '''
-    return np.random.choice(max_n, n, replace=False)
-
-
-@nb.njit((nbint, nbint), cache=cache) # Numba hugely increases performance
-def choose_r(max_n, n):
-    '''
-    Choose a subset of items (e.g., people), with replacement.
-
-    Args:
-        max_n (int): the total number of items
-        n (int): the number of items to choose
-
-    **Example**::
-
-        choices = cv.choose_r(5, 10) # choose 10 out of 5 people with equal probability (with repeats)
-    '''
-    return np.random.choice(max_n, n, replace=True)
-
-
-def n_multinomial(probs, n): # No speed gain from Numba
-    '''
-    An array of multinomial trials.
-
-    Args:
-        probs (array): probability of each outcome, which usually should sum to 1
-        n (int): number of trials
-
-    Returns:
-        Array of integer outcomes
-
-    **Example**::
-
-        outcomes = cv.multinomial(np.ones(6)/6.0, 50)+1 # Return 50 die-rolls
-    '''
-    return np.searchsorted(np.cumsum(probs), np.random.random(n))
-
-
-@nb.njit((nbfloat,), cache=cache) # Numba hugely increases performance
-def poisson(rate):
-    '''
-    A Poisson trial.
-
-    Args:
-        rate (float): the rate of the Poisson process
-
-    **Example**::
-
-        outcome = cv.poisson(100) # Single Poisson trial with mean 100
-    '''
-    return np.random.poisson(rate, 1)[0]
-
-
-@nb.njit((nbfloat, nbint), cache=cache) # Numba hugely increases performance
-def n_poisson(rate, n):
-    '''
-    An array of Poisson trials.
-
-    Args:
-        rate (float): the rate of the Poisson process (mean)
-        n (int): number of trials
-
-    **Example**::
-
-        outcomes = cv.n_poisson(100, 20) # 20 Poisson trials with mean 100
-    '''
-    return np.random.poisson(rate, n)
-
-
-def n_neg_binomial(rate, dispersion, n, step=1): # Numba not used due to incompatible implementation
-    '''
-    An array of negative binomial trials. See cv.sample() for more explanation.
-
-    Args:
-        rate (float): the rate of the process (mean, same as Poisson)
-        dispersion (float):  dispersion parameter; lower is more dispersion, i.e. 0 = infinite, ∞ = Poisson
-        n (int): number of trials
-        step (float): the step size to use if non-integer outputs are desired
-
-    **Example**::
-
-        outcomes = cv.n_neg_binomial(100, 1, 50) # 50 negative binomial trials with mean 100 and dispersion roughly equal to mean (large-mean limit)
-        outcomes = cv.n_neg_binomial(1, 100, 20) # 20 negative binomial trials with mean 1 and dispersion still roughly equal to mean (approximately Poisson)
-    '''
-    nbn_n = dispersion
-    nbn_p = dispersion/(rate/step + dispersion)
-    samples = np.random.negative_binomial(n=nbn_n, p=nbn_p, size=n)*step
-    return samples

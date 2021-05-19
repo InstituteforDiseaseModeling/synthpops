@@ -9,7 +9,32 @@ from . import country_age_data    as cad
 from . import state_age_data      as sad
 from . import household_size_data as hsd
 
-__all__ = ['get_country_aliases', 'map_entries', 'show_locations', 'get_age_distribution', 'get_household_size']
+
+__all__ = ['default_age_data', 'get_country_aliases', 'map_entries', 'show_locations', 'get_age_distribution', 'get_household_size']
+
+
+# Default age data, based on Seattle 2018 census data -- used in population.py
+default_age_data = np.array([
+    [ 0,  4, 0.0605],
+    [ 5,  9, 0.0607],
+    [10, 14, 0.0566],
+    [15, 19, 0.0557],
+    [20, 24, 0.0612],
+    [25, 29, 0.0843],
+    [30, 34, 0.0848],
+    [35, 39, 0.0764],
+    [40, 44, 0.0697],
+    [45, 49, 0.0701],
+    [50, 54, 0.0681],
+    [55, 59, 0.0653],
+    [60, 64, 0.0591],
+    [65, 69, 0.0453],
+    [70, 74, 0.0312],
+    [75, 79, 0.02016], # Calculated based on 0.0504 total for >=75
+    [80, 84, 0.01344],
+    [85, 89, 0.01008],
+    [90, 99, 0.00672],
+])
 
 
 def get_country_aliases():

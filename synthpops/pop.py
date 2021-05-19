@@ -5,7 +5,6 @@ This module provides the layer for communicating with the agent-based model Cova
 import numpy as np
 import sciris as sc
 from .config import logger as log
-from . import version as spv
 from . import config as cfg
 from . import sampling as spsamp
 from . import base as spb
@@ -17,6 +16,7 @@ from . import schools as spsch
 from . import workplaces as spw
 from . import plotting as sppl
 from . import defaults
+from . import people as spp
 
 
 __all__ = ['Pop', 'make_population', 'generate_synthetic_population']
@@ -1090,16 +1090,8 @@ class Pop(sc.prettyobj):
 
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
-        import covasim as cv  # Optional import
 
-        pars = dict(
-            pop_size   = self.n,
-            pop_type   = 'synthpops',
-            beta_layer = {k: 1 for k in 'hscwl'},
-            rand_seed  = self.rand_seed,
-        )
-        sim = cv.Sim(pars, popfile=self.popdict)
-        ppl = cv.make_people(sim)  # Create the corresponding population
+        ppl = spp.make_people(self.popdict, rand_seed=self.rand_seed)  # Create the corresponding population
         fig = ppl.plot(*args, **kwargs)
         return fig
 
