@@ -8,21 +8,35 @@ import settings
 import pytest
 
 
-default_nbrackets = sp.settings.nbrackets
+# default_nbrackets = sp.settings.nbrackets
 
 pars = sc.objdict(
     n                = settings.pop_sizes.small,
-    rand_seed        = 0,
+    rand_seed        = 123,
 
     household_method = 'fixed_ages',
     smooth_ages      = 1,
 
     country_location = 'Malawi',
-    sheet_name       = 'Zambia',
+    sheet_name       = 'Zambia',  # no malawi contact patterns in prem et al. 2017
     use_default      = True,
 )
 
-if __name__ == '__main__':
+
+def test_Malawi():
+    """Test Malawi population constructed."""
+    sp.logger.info("Test that Malawi contact networks can be made. Not a guarantee that the population made matches age mixing patterns well yet.")
+
+    # reset the default location to pull other data
+    sp.set_location_defaults(country_location="Senegal")
+    # make a basic population
+    pop = sp.Pop(**pars)
+    assert pop.country_location == 'Malawi', "population location information is not set to Malawi"
+    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+
+
+def pop_exploration():
+    sp.logger.info("Exploration of the Malawi population generation with default methods and missing data filled in with Senegal data")
     sp.set_location_defaults(country_location="Senegal")
     pop = sp.Pop(**pars)
     print(pop.summarize())
@@ -30,3 +44,17 @@ if __name__ == '__main__':
     pop.plot_enrollment_rates_by_age()
     sp.set_location_defaults()
     plt.show()
+    # sp.reset_default_settings()  #
+
+if __name__ == '__main__':
+    test_Malawi()
+    pop_exploration()
+    # sp.logger.info("Not a real test yet --- used for exploration and checks.")
+    # sp.set_location_defaults(country_location="Senegal")
+    # pop = sp.Pop(**pars)
+    # print(pop.summarize())
+    # pop.plot_ages()
+    # pop.plot_enrollment_rates_by_age()
+    # sp.set_location_defaults()
+    # plt.show()
+    # sp.reset_default_settings()  #

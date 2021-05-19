@@ -11,7 +11,7 @@ import pytest
 default_nbrackets = sp.settings.nbrackets
 
 pars = sc.objdict(
-    n                = settings.pop_sizes.large * 2,
+    n                = settings.pop_sizes.medium_large,
     rand_seed        = 0,
 
     household_method = 'fixed_ages',
@@ -23,9 +23,18 @@ pars = sc.objdict(
     with_school_types = 1,
 )
 
-if __name__ == '__main__':
-    sp.set_location_defaults(country_location="Senegal")
 
+def test_Nepal():
+    """Test Nepal population constructed."""
+    sp.logger.info("Test that Nepal contact networks can be made. Not a guarantee that the population made matches age mixing patterns well yet.")
+
+    # make a basic population
+    pop = sp.Pop(**pars)
+    assert pop.country_location == 'Nepal', "population location information is not set to Malawi"
+    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+
+def pop_exploration():
+    sp.logger.info("Exploration of the Nepal population generation with default methods")
     pop = sp.Pop(**pars)
     print(pop.summarize())
     pop.plot_ages()
@@ -37,6 +46,25 @@ if __name__ == '__main__':
     pop.plot_workplace_sizes()
     sp.set_location_defaults()
     plt.show()
+    # sp.reset_default_settings()  # reset defaults
+
+
+if __name__ == '__main__':
+    test_Nepal()
+    pop_exploration()
+    # sp.set_location_defaults(country_location="Senegal")
+
+    # pop = sp.Pop(**pars)
+    # print(pop.summarize())
+    # pop.plot_ages()
+    # pop.plot_household_sizes()
+    # pop.plot_enrollment_rates_by_age()
+    # pop.plot_contacts(layer='H', density_or_frequency='density', logcolors_flag=0, title_prefix="Nepal Age Mixing")
+    # pop.plot_school_sizes(with_school_types=1)
+    # pop.plot_employment_rates_by_age()
+    # pop.plot_workplace_sizes()
+    # sp.set_location_defaults()
+    # plt.show()
 
 
 

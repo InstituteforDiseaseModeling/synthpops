@@ -313,41 +313,20 @@ class LongTermCareFacility(spb.LayerGroup):
         """
         Return ages of all ltcf members: residents and staff.
 
-        Args:
-            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
-
         Returns:
-            np.ndarray : long term care facility member ages
+            np.ndarray : ltcf member ages
         """
-        return np.concatenate((self.resident_ages(age_by_uid), self.staff_ages(age_by_uid)))
+        return np.concatenate((self.member_ages(age_by_uid, self['resident_uids']), self.member_ages(age_by_uid, self['staff_uids'])))
 
     def __len__(self):
         """Return the length as the number of members in the ltcf."""
         return len(self.member_uids)
 
     def resident_ages(self, age_by_uid):
-        """
-        Return resident ages in the long term care facility.
-
-        Args:
-            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
-
-        Returns:
-            np.ndarray: long term care facility resident ages
-        """
-        return super().member_ages(age_by_uid, self['resident_uids'])
+        return self.member_ages(age_by_uid, self['resident_uids'])
 
     def staff_ages(self, age_by_uid):
-        """
-        Return staff ages in the long term care facility.
-
-        Args:
-            age_by_uid (np.ndarray) : array of ages in the population, indexed by the uid of each individual
-
-        Returns:
-            np.ndarray: long term care facility staff ages
-        """
-        return super().member_ages(age_by_uid, self['staff_uids'])
+        return self.member_ages(age_by_uid, self['staff_uids'])
 
 
 def get_ltcf(pop, ltcfid):
