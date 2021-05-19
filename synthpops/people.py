@@ -2,23 +2,45 @@
 Alternate representation of a population as a People object.
 '''
 
-#%% Imports
 import numpy as np
-import pandas as pd
+import numba as nb
 import pylab as pl
 import sciris as sc
+import pandas as pd
 from collections import defaultdict
-from . import utils as cvu
-from . import misc as cvm
-from . import data as cvdata
-from . import defaults as cvd
-from . import parameters as cvpar
-from . import people as cvppl
-from . import version as cvv
-from . import base as cvb
-from . import immunity as cvi
+from . import age_household_data as ahdata
+from . import version as spv
 
 
+#%% Global settings
+default_int   = np.int64
+default_float = np.float64
+nbint         = nb.int64
+nbfloat       = nb.float64
+cache         = True
+
+# Default age data, based on Seattle 2018 census data -- used in population.py
+default_age_data = np.array([
+    [ 0,  4, 0.0605],
+    [ 5,  9, 0.0607],
+    [10, 14, 0.0566],
+    [15, 19, 0.0557],
+    [20, 24, 0.0612],
+    [25, 29, 0.0843],
+    [30, 34, 0.0848],
+    [35, 39, 0.0764],
+    [40, 44, 0.0697],
+    [45, 49, 0.0701],
+    [50, 54, 0.0681],
+    [55, 59, 0.0653],
+    [60, 64, 0.0591],
+    [65, 69, 0.0453],
+    [70, 74, 0.0312],
+    [75, 79, 0.02016], # Calculated based on 0.0504 total for >=75
+    [80, 84, 0.01344],
+    [85, 89, 0.01008],
+    [90, 99, 0.00672],
+])
 
 #%% Define people classes
 
@@ -348,7 +370,7 @@ class BasePeople(FlexPretty):
 
     def to_arr(self):
         ''' Return as numpy array '''
-        arr = np.empty((len(self), len(self.keys())), dtype=cvd.default_float)
+        arr = np.empty((len(self), len(self.keys())), dtype=default_float)
         for k,key in enumerate(self.keys()):
             if key == 'uid':
                 arr[:,k] = np.arange(len(self))
@@ -482,8 +504,8 @@ class BasePeople(FlexPretty):
             if 'beta' not in new_layer.keys() or len(new_layer['beta']) != n:
                 if beta is None:
                     beta = 1.0
-                beta = cvd.default_float(beta)
-                new_layer['beta'] = np.ones(n, dtype=cvd.default_float)*beta
+                beta = default_float(beta)
+                new_layer['beta'] = np.ones(n, dtype=default_float)*beta
 
             # Create the layer if it doesn't yet exist
             if lkey not in self.contacts:
@@ -553,8 +575,8 @@ class Person(sc.prettyobj):
     '''
     def __init__(self, pars=None, uid=None, age=-1, sex=-1, contacts=None):
         self.uid         = uid # This person's unique identifier
-        self.age         = cvd.default_float(age) # Age of the person (in years)
-        self.sex         = cvd.default_int(sex) # Female (0) or male (1)
+        self.age         = default_float(age) # Age of the person (in years)
+        self.sex         = default_int(sex) # Female (0) or male (1)
         self.contacts    = contacts # Contacts
         # self.infected = [] #: Record the UIDs of all people this person infected
         # self.infected_by = None #: Store the UID of the person who caused the infection. If None but person is infected, then it was an externally seeded infection
@@ -711,9 +733,9 @@ class Layer(FlexDict):
 
     def __init__(self, label=None, **kwargs):
         self.meta = {
-            'p1':    cvd.default_int,   # Person 1
-            'p2':    cvd.default_int,   # Person 2
-            'beta':  cvd.default_float, # Default transmissibility for this contact type
+            'p1':    default_int,   # Person 1
+            'p2':    default_int,   # Person 2
+            'beta':  default_float, # Default transmissibility for this contact type
         }
         self.basekey = 'p1' # Assign a base key for calculating lengths and performing other operations
         self.label = label
@@ -887,9 +909,9 @@ class Layer(FlexDict):
             inds = np.array(inds, dtype=np.int64)
 
         # Find the contacts
-        contact_inds = cvu.find_contacts(self['p1'], self['p2'], inds)
+        contact_inds = find_contacts(self['p1'], self['p2'], inds)
         if as_array:
-            contact_inds = np.fromiter(contact_inds, dtype=cvd.default_int)
+            contact_inds = np.fromiter(contact_inds, dtype=default_int)
             contact_inds.sort()  # Sorting ensures that the results are reproducible for a given seed as well as being identical to previous versions of Covasim
 
         return contact_inds
@@ -915,12 +937,12 @@ class Layer(FlexDict):
         pop_size   = len(people) # Total number of people
         n_contacts = len(self) # Total number of contacts
         n_new = int(np.round(n_contacts*frac)) # Since these get looped over in both directions later
-        inds = cvu.choose(n_contacts, n_new)
+        inds = choose(n_contacts, n_new)
 
         # Create the contacts, not skipping self-connections
-        self['p1'][inds]   = np.array(cvu.choose_r(max_n=pop_size, n=n_new), dtype=cvd.default_int) # Choose with replacement
-        self['p2'][inds]   = np.array(cvu.choose_r(max_n=pop_size, n=n_new), dtype=cvd.default_int)
-        self['beta'][inds] = np.ones(n_new, dtype=cvd.default_float)
+        self['p1'][inds]   = np.array(choose_r(max_n=pop_size, n=n_new), dtype=default_int) # Choose with replacement
+        self['p2'][inds]   = np.array(choose_r(max_n=pop_size, n=n_new), dtype=default_int)
+        self['beta'][inds] = np.ones(n_new, dtype=default_float)
         return
 
 
@@ -932,7 +954,7 @@ Defines the Person class and functions associated with making people.
 
 __all__ = ['People']
 
-class People(cvb.BasePeople):
+class People(BasePeople):
     '''
     A class to perform all the operations on the people. This class is usually
     not invoked directly, but instead is created automatically by the sim. The
@@ -961,53 +983,14 @@ class People(cvb.BasePeople):
 
         # Handle pars and population size
         self.set_pars(pars)
-        self.version = cvv.__version__ # Store version info
+        self.version = spv.__version__ # Store version info
 
         # Other initialization
         self.t = 0 # Keep current simulation time
         self._lock = False # Prevent further modification of keys
-        self.meta = cvd.PeopleMeta() # Store list of keys and dtypes
         self.contacts = None
         self.init_contacts() # Initialize the contacts
         self.infection_log = [] # Record of infections - keys for ['source','target','date','layer']
-
-        # Set person properties -- all floats except for UID
-        for key in self.meta.person:
-            if key == 'uid':
-                self[key] = np.arange(self.pars['pop_size'], dtype=cvd.default_int)
-            else:
-                self[key] = np.full(self.pars['pop_size'], np.nan, dtype=cvd.default_float)
-
-        # Set health states -- only susceptible is true by default -- booleans except exposed by strain which should return the strain that ind is exposed to
-        for key in self.meta.states:
-            val = (key in ['susceptible', 'naive']) # Default value is True for susceptible and naive, false otherwise
-            self[key] = np.full(self.pars['pop_size'], val, dtype=bool)
-
-        # Set strain states, which store info about which strain a person is exposed to
-        for key in self.meta.strain_states:
-            self[key] = np.full(self.pars['pop_size'], np.nan, dtype=cvd.default_float)
-        for key in self.meta.by_strain_states:
-            self[key] = np.full((self.pars['n_strains'], self.pars['pop_size']), False, dtype=bool)
-
-        # Set immunity and antibody states
-        for key in self.meta.imm_states:  # Everyone starts out with no immunity
-            self[key] = np.zeros((self.pars['n_strains'], self.pars['pop_size']), dtype=cvd.default_float)
-        for key in self.meta.nab_states:  # Everyone starts out with no antibodies
-            self[key] = np.full(self.pars['pop_size'], np.nan, dtype=cvd.default_float)
-        for key in self.meta.vacc_states:
-            self[key] = np.zeros(self.pars['pop_size'], dtype=cvd.default_int)
-
-        # Set dates and durations -- both floats
-        for key in self.meta.dates + self.meta.durs:
-            self[key] = np.full(self.pars['pop_size'], np.nan, dtype=cvd.default_float)
-
-        # Store the dtypes used in a flat dict
-        self._dtypes = {key:self[key].dtype for key in self.keys()} # Assign all to float by default
-        if strict:
-            self.lock() # If strict is true, stop further keys from being set (does not affect attributes)
-
-        # Store flows to be computed during simulation
-        self.init_flows()
 
         # Although we have called init(), we still need to call initialize()
         self.initialized = False
@@ -1023,504 +1006,7 @@ class People(cvb.BasePeople):
             else:
                 self[key] = value
 
-        self._pending_quarantine = defaultdict(list)  # Internal cache to record people that need to be quarantined on each timestep {t:(person, quarantine_end_day)}
-
         return
-
-
-    def init_flows(self):
-        ''' Initialize flows to be zero '''
-        self.flows = {key:0 for key in cvd.new_result_flows}
-        self.flows_strain = {}
-        for key in cvd.new_result_flows_by_strain:
-            self.flows_strain[key] = np.zeros(self.pars['n_strains'], dtype=cvd.default_float)
-        return
-
-
-    def initialize(self):
-        ''' Perform initializations '''
-        self.set_prognoses()
-        self.validate()
-        self.initialized = True
-        return
-
-
-    def set_prognoses(self):
-        '''
-        Set the prognoses for each person based on age during initialization. Need
-        to reset the seed because viral loads are drawn stochastically.
-        '''
-
-        pars = self.pars # Shorten
-        if 'prognoses' not in pars or 'rand_seed' not in pars:
-            errormsg = 'This people object does not have the required parameters ("prognoses" and "rand_seed"). Create a sim (or parameters), then do e.g. people.set_pars(sim.pars).'
-            raise sc.KeyNotFoundError(errormsg)
-
-        def find_cutoff(age_cutoffs, age):
-            '''
-            Find which age bin each person belongs to -- e.g. with standard
-            age bins 0, 10, 20, etc., ages [5, 12, 4, 58] would be mapped to
-            indices [0, 1, 0, 5]. Age bins are not guaranteed to be uniform
-            width, which is why this can't be done as an array operation.
-            '''
-            return np.nonzero(age_cutoffs <= age)[0][-1]  # Index of the age bin to use
-
-        cvu.set_seed(pars['rand_seed'])
-
-        progs = pars['prognoses'] # Shorten the name
-        inds = np.fromiter((find_cutoff(progs['age_cutoffs'], this_age) for this_age in self.age), dtype=cvd.default_int, count=len(self)) # Convert ages to indices
-        self.symp_prob[:]   = progs['symp_probs'][inds] # Probability of developing symptoms
-        self.severe_prob[:] = progs['severe_probs'][inds]*progs['comorbidities'][inds] # Severe disease probability is modified by comorbidities
-        self.crit_prob[:]   = progs['crit_probs'][inds] # Probability of developing critical disease
-        self.death_prob[:]  = progs['death_probs'][inds] # Probability of death
-        self.rel_sus[:]     = progs['sus_ORs'][inds]  # Default susceptibilities
-        self.rel_trans[:]   = progs['trans_ORs'][inds] * cvu.sample(**self.pars['beta_dist'], size=len(inds))  # Default transmissibilities, with viral load drawn from a distribution
-
-        return
-
-
-    def update_states_pre(self, t):
-        ''' Perform all state updates at the current timestep '''
-
-        # Initialize
-        self.t = t
-        self.is_exp     = self.true('exposed') # For storing the interim values since used in every subsequent calculation
-
-        # Perform updates
-        self.init_flows()
-        self.flows['new_infectious']    += self.check_infectious() # For people who are exposed and not infectious, check if they begin being infectious
-        self.flows['new_symptomatic']   += self.check_symptomatic()
-        self.flows['new_severe']        += self.check_severe()
-        self.flows['new_critical']      += self.check_critical()
-        self.flows['new_recoveries']    += self.check_recovery()
-        new_deaths, new_known_deaths    = self.check_death()
-        self.flows['new_deaths']        += new_deaths
-        self.flows['new_known_deaths']  += new_known_deaths
-
-        return
-
-
-    def update_states_post(self):
-        ''' Perform post-timestep updates '''
-        self.flows['new_diagnoses']   += self.check_diagnosed()
-        self.flows['new_quarantined'] += self.check_quar()
-        del self.is_exp  # Tidy up
-
-        return
-
-
-    def update_contacts(self):
-        ''' Refresh dynamic contacts, e.g. community '''
-        # Figure out if anything needs to be done -- e.g. {'h':False, 'c':True}
-        for lkey, is_dynam in self.pars['dynam_layer'].items():
-            if is_dynam:
-                self.contacts[lkey].update(self)
-
-        return self.contacts
-
-
-    #%% Methods for updating state
-
-    def check_inds(self, current, date, filter_inds=None):
-        ''' Return indices for which the current state is false and which meet the date criterion '''
-        if filter_inds is None:
-            not_current = cvu.false(current)
-        else:
-            not_current = cvu.ifalsei(current, filter_inds)
-        has_date = cvu.idefinedi(date, not_current)
-        inds     = cvu.itrue(self.t >= date[has_date], has_date)
-        return inds
-
-
-    def check_infectious(self):
-        ''' Check if they become infectious '''
-        inds = self.check_inds(self.infectious, self.date_infectious, filter_inds=self.is_exp)
-        self.infectious[inds] = True
-        self.infectious_strain[inds] = self.exposed_strain[inds]
-        for strain in range(self.pars['n_strains']):
-            this_strain_inds = cvu.itrue(self.infectious_strain[inds] == strain, inds)
-            n_this_strain_inds = len(this_strain_inds)
-            self.flows_strain['new_infectious_by_strain'][strain] += n_this_strain_inds
-            self.infectious_by_strain[strain, this_strain_inds] = True
-        return len(inds)
-
-
-    def check_symptomatic(self):
-        ''' Check for new progressions to symptomatic '''
-        inds = self.check_inds(self.symptomatic, self.date_symptomatic, filter_inds=self.is_exp)
-        self.symptomatic[inds] = True
-        return len(inds)
-
-
-    def check_severe(self):
-        ''' Check for new progressions to severe '''
-        inds = self.check_inds(self.severe, self.date_severe, filter_inds=self.is_exp)
-        self.severe[inds] = True
-        return len(inds)
-
-
-    def check_critical(self):
-        ''' Check for new progressions to critical '''
-        inds = self.check_inds(self.critical, self.date_critical, filter_inds=self.is_exp)
-        self.critical[inds] = True
-        return len(inds)
-
-
-    def check_recovery(self, inds=None, filter_inds='is_exp'):
-        '''
-        Check for recovery.
-
-        More complex than other functions to allow for recovery to be manually imposed
-        for a specified set of indices.
-        '''
-
-        # Handle more flexible options for setting indices
-        if filter_inds == 'is_exp':
-            filter_inds = self.is_exp
-        if inds is None:
-            inds = self.check_inds(self.recovered, self.date_recovered, filter_inds=filter_inds)
-
-        # Now reset all disease states
-        self.exposed[inds]          = False
-        self.infectious[inds]       = False
-        self.symptomatic[inds]      = False
-        self.severe[inds]           = False
-        self.critical[inds]         = False
-        self.recovered[inds]        = True
-        self.recovered_strain[inds] = self.exposed_strain[inds]
-        self.infectious_strain[inds] = np.nan
-        self.exposed_strain[inds]    = np.nan
-        self.exposed_by_strain[:, inds] = False
-        self.infectious_by_strain[:, inds] = False
-
-
-        # Handle immunity aspects
-        if self.pars['use_waning']:
-
-            # Before letting them recover, store information about the strain they had, store symptoms and pre-compute nabs array
-            mild_inds   = self.check_inds(self.susceptible, self.date_symptomatic, filter_inds=inds)
-            severe_inds = self.check_inds(self.susceptible, self.date_severe,      filter_inds=inds)
-
-            # Reset additional states
-            self.susceptible[inds] = True
-            self.diagnosed[inds]   = False # Reset their diagnosis state because they might be reinfected
-            self.prior_symptoms[inds]        = self.pars['rel_imm_symp']['asymp']
-            self.prior_symptoms[mild_inds]   = self.pars['rel_imm_symp']['mild']
-            self.prior_symptoms[severe_inds] = self.pars['rel_imm_symp']['severe']
-            if len(inds):
-                cvi.init_nab(self, inds, prior_inf=True)
-
-        return len(inds)
-
-
-    def check_death(self):
-        ''' Check whether or not this person died on this timestep  '''
-        inds = self.check_inds(self.dead, self.date_dead, filter_inds=self.is_exp)
-        self.dead[inds]             = True
-        diag_inds = inds[self.diagnosed[inds]] # Check whether the person was diagnosed before dying
-        self.known_dead[diag_inds]  = True
-        self.susceptible[inds]      = False
-        self.exposed[inds]          = False
-        self.infectious[inds]       = False
-        self.symptomatic[inds]      = False
-        self.severe[inds]           = False
-        self.critical[inds]         = False
-        self.known_contact[inds]    = False
-        self.quarantined[inds]      = False
-        self.recovered[inds]        = False
-        self.infectious_strain[inds] = np.nan
-        self.exposed_strain[inds]    = np.nan
-        self.recovered_strain[inds]  = np.nan
-        return len(inds), len(diag_inds)
-
-
-    def check_diagnosed(self):
-        '''
-        Check for new diagnoses. Since most data are reported with diagnoses on
-        the date of the test, this function reports counts not for the number of
-        people who received a positive test result on a day, but rather, the number
-        of people who were tested on that day who are schedule to be diagnosed in
-        the future.
-        '''
-
-        # Handle people who tested today who will be diagnosed in future
-        test_pos_inds = self.check_inds(self.diagnosed, self.date_pos_test, filter_inds=None) # Find people who will be diagnosed in future
-        self.date_pos_test[test_pos_inds] = np.nan # Clear date of having will-be-positive test
-
-        # Handle people who were actually diagnosed today
-        diag_inds  = self.check_inds(self.diagnosed, self.date_diagnosed, filter_inds=None) # Find who was actually diagnosed on this timestep
-        self.diagnosed[diag_inds]   = True # Set these people to be diagnosed
-        quarantined = cvu.itruei(self.quarantined, diag_inds)
-        self.date_end_quarantine[quarantined] = self.t # Set end quarantine date to match when the person left quarantine (and entered isolation)
-        self.quarantined[diag_inds] = False # If you are diagnosed, you are isolated, not in quarantine
-
-        return len(test_pos_inds)
-
-
-    def check_quar(self):
-        ''' Update quarantine state '''
-
-        n_quarantined = 0 # Number of people entering quarantine
-        for ind,end_day in self._pending_quarantine[self.t]:
-            if self.quarantined[ind]:
-                self.date_end_quarantine[ind] = max(self.date_end_quarantine[ind], end_day) # Extend quarantine if required
-            elif not (self.dead[ind] or self.recovered[ind] or self.diagnosed[ind]): # Unclear whether recovered should be included here # elif not (self.dead[ind] or self.diagnosed[ind]):
-                self.quarantined[ind] = True
-                self.date_quarantined[ind] = self.t
-                self.date_end_quarantine[ind] = end_day
-                n_quarantined += 1
-
-        # If someone on quarantine has reached the end of their quarantine, release them
-        end_inds = self.check_inds(~self.quarantined, self.date_end_quarantine, filter_inds=None) # Note the double-negative here (~)
-        self.quarantined[end_inds] = False # Release from quarantine
-
-        return n_quarantined
-
-
-    #%% Methods to make events occur (infection and diagnosis)
-
-    def make_naive(self, inds):
-        '''
-        Make a set of people naive. This is used during dynamic resampling.
-        '''
-        for key in self.meta.states:
-            if key in ['susceptible', 'naive']:
-                self[key][inds] = True
-            else:
-                self[key][inds] = False
-
-        # Reset strain states
-        for key in self.meta.strain_states:
-            self[key][inds] = np.nan
-        for key in self.meta.by_strain_states:
-            self[key][:, inds] = False
-
-        # Reset immunity and antibody states
-        for key in self.meta.imm_states:
-            self[key][:, inds] = 0
-        for key in self.meta.nab_states:
-            self[key][inds] = np.nan
-        for key in self.meta.vacc_states:
-            self[key][inds] = 0
-
-        # Reset dates
-        for key in self.meta.dates + self.meta.durs:
-            self[key][inds] = np.nan
-
-        return
-
-
-    def make_nonnaive(self, inds, set_recovered=False, date_recovered=0):
-        '''
-        Make a set of people non-naive.
-
-        This can be done either by setting only susceptible and naive states,
-        or else by setting them as if they have been infected and recovered.
-        '''
-        self.make_naive(inds) # First make them naive and reset all other states
-
-        # Make them non-naive
-        for key in ['susceptible', 'naive']:
-            self[key][inds] = False
-
-        if set_recovered:
-            self.date_recovered[inds] = date_recovered # Reset date recovered
-            self.check_recovered(inds=inds, filter_inds=None) # Set recovered
-
-        return
-
-
-
-    def infect(self, inds, hosp_max=None, icu_max=None, source=None, layer=None, strain=0):
-        '''
-        Infect people and determine their eventual outcomes.
-
-            * Every infected person can infect other people, regardless of whether they develop symptoms
-            * Infected people that develop symptoms are disaggregated into mild vs. severe (=requires hospitalization) vs. critical (=requires ICU)
-            * Every asymptomatic, mildly symptomatic, and severely symptomatic person recovers
-            * Critical cases either recover or die
-
-        Method also deduplicates input arrays in case one agent is infected many times
-        and stores who infected whom in infection_log list.
-
-        Args:
-            inds     (array): array of people to infect
-            hosp_max (bool):  whether or not there is an acute bed available for this person
-            icu_max  (bool):  whether or not there is an ICU bed available for this person
-            source   (array): source indices of the people who transmitted this infection (None if an importation or seed infection)
-            layer    (str):   contact layer this infection was transmitted on
-            strain   (int):   the strain people are being infected by
-
-        Returns:
-            count (int): number of people infected
-        '''
-
-        # Remove duplicates
-        inds, unique = np.unique(inds, return_index=True)
-        if source is not None:
-            source = source[unique]
-
-        # Keep only susceptibles
-        keep = self.susceptible[inds] # Unique indices in inds and source that are also susceptible
-        inds = inds[keep]
-        if source is not None:
-            source = source[keep]
-
-        if self.pars['use_waning']:
-            cvi.check_immunity(self, strain, sus=False, inds=inds)
-
-        # Deal with strain parameters
-        strain_keys = ['rel_symp_prob', 'rel_severe_prob', 'rel_crit_prob', 'rel_death_prob']
-        infect_pars = {k:self.pars[k] for k in strain_keys}
-        if strain:
-            strain_label = self.pars['strain_map'][strain]
-            for k in strain_keys:
-                infect_pars[k] *= self.pars['strain_pars'][strain_label][k]
-
-        n_infections = len(inds)
-        durpars      = self.pars['dur']
-
-        # Update states, strain info, and flows
-        self.susceptible[inds]    = False
-        self.naive[inds]          = False
-        self.recovered[inds]      = False
-        self.diagnosed[inds]      = False
-        self.exposed[inds]        = True
-        self.exposed_strain[inds] = strain
-        self.exposed_by_strain[strain, inds] = True
-        self.flows['new_infections']   += len(inds)
-        self.flows['new_reinfections'] += len(cvu.defined(self.date_recovered[inds])) # Record reinfections
-        self.flows_strain['new_infections_by_strain'][strain] += len(inds)
-        # print('HI DEBUG', self.t, len(inds), len(cvu.defined(self.date_recovered[inds])))
-        # self.date_recovered[inds] = np.nan # Reset date they recovered - we only store the last recovery # TODO CK
-
-        # Record transmissions
-        for i, target in enumerate(inds):
-            self.infection_log.append(dict(source=source[i] if source is not None else None, target=target, date=self.t, layer=layer))
-
-        # Calculate how long before this person can infect other people
-        self.dur_exp2inf[inds] = cvu.sample(**durpars['exp2inf'], size=n_infections)
-        self.date_exposed[inds]   = self.t
-        self.date_infectious[inds] = self.dur_exp2inf[inds] + self.t
-
-        # Reset all other dates
-        for key in ['date_symptomatic', 'date_severe', 'date_critical', 'date_diagnosed', 'date_recovered']:
-            self[key][inds] = np.nan
-
-        # Use prognosis probabilities to determine what happens to them
-        symp_probs = infect_pars['rel_symp_prob']*self.symp_prob[inds]*(1-self.symp_imm[strain, inds]) # Calculate their actual probability of being symptomatic
-        is_symp = cvu.binomial_arr(symp_probs) # Determine if they develop symptoms
-        symp_inds = inds[is_symp]
-        asymp_inds = inds[~is_symp] # Asymptomatic
-
-        # CASE 1: Asymptomatic: may infect others, but have no symptoms and do not die
-        dur_asym2rec = cvu.sample(**durpars['asym2rec'], size=len(asymp_inds))
-        self.date_recovered[asymp_inds] = self.date_infectious[asymp_inds] + dur_asym2rec  # Date they recover
-        self.dur_disease[asymp_inds] = self.dur_exp2inf[asymp_inds] + dur_asym2rec  # Store how long this person had COVID-19
-
-        # CASE 2: Symptomatic: can either be mild, severe, or critical
-        n_symp_inds = len(symp_inds)
-        self.dur_inf2sym[symp_inds] = cvu.sample(**durpars['inf2sym'], size=n_symp_inds) # Store how long this person took to develop symptoms
-        self.date_symptomatic[symp_inds] = self.date_infectious[symp_inds] + self.dur_inf2sym[symp_inds] # Date they become symptomatic
-        sev_probs = infect_pars['rel_severe_prob'] * self.severe_prob[symp_inds]*(1-self.sev_imm[strain, symp_inds]) # Probability of these people being severe
-        # print(self.sev_imm[strain, inds])
-        is_sev = cvu.binomial_arr(sev_probs) # See if they're a severe or mild case
-        sev_inds = symp_inds[is_sev]
-        mild_inds = symp_inds[~is_sev] # Not severe
-
-        # CASE 2.1: Mild symptoms, no hospitalization required and no probability of death
-        dur_mild2rec = cvu.sample(**durpars['mild2rec'], size=len(mild_inds))
-        self.date_recovered[mild_inds] = self.date_symptomatic[mild_inds] + dur_mild2rec  # Date they recover
-        self.dur_disease[mild_inds] = self.dur_exp2inf[mild_inds] + self.dur_inf2sym[mild_inds] + dur_mild2rec  # Store how long this person had COVID-19
-
-        # CASE 2.2: Severe cases: hospitalization required, may become critical
-        self.dur_sym2sev[sev_inds] = cvu.sample(**durpars['sym2sev'], size=len(sev_inds)) # Store how long this person took to develop severe symptoms
-        self.date_severe[sev_inds] = self.date_symptomatic[sev_inds] + self.dur_sym2sev[sev_inds]  # Date symptoms become severe
-        crit_probs = infect_pars['rel_crit_prob'] * self.crit_prob[sev_inds] * (self.pars['no_hosp_factor'] if hosp_max else 1.) # Probability of these people becoming critical - higher if no beds available
-        is_crit = cvu.binomial_arr(crit_probs)  # See if they're a critical case
-        crit_inds = sev_inds[is_crit]
-        non_crit_inds = sev_inds[~is_crit]
-
-        # CASE 2.2.1 Not critical - they will recover
-        dur_sev2rec = cvu.sample(**durpars['sev2rec'], size=len(non_crit_inds))
-        self.date_recovered[non_crit_inds] = self.date_severe[non_crit_inds] + dur_sev2rec  # Date they recover
-        self.dur_disease[non_crit_inds] = self.dur_exp2inf[non_crit_inds] + self.dur_inf2sym[non_crit_inds] + self.dur_sym2sev[non_crit_inds] + dur_sev2rec  # Store how long this person had COVID-19
-
-        # CASE 2.2.2: Critical cases: ICU required, may die
-        self.dur_sev2crit[crit_inds] = cvu.sample(**durpars['sev2crit'], size=len(crit_inds))
-        self.date_critical[crit_inds] = self.date_severe[crit_inds] + self.dur_sev2crit[crit_inds]  # Date they become critical
-        death_probs = infect_pars['rel_death_prob'] * self.death_prob[crit_inds] * (self.pars['no_icu_factor'] if icu_max else 1.)# Probability they'll die
-        is_dead = cvu.binomial_arr(death_probs)  # Death outcome
-        dead_inds = crit_inds[is_dead]
-        alive_inds = crit_inds[~is_dead]
-
-        # CASE 2.2.2.1: Did not die
-        dur_crit2rec = cvu.sample(**durpars['crit2rec'], size=len(alive_inds))
-        self.date_recovered[alive_inds] = self.date_critical[alive_inds] + dur_crit2rec # Date they recover
-        self.dur_disease[alive_inds] = self.dur_exp2inf[alive_inds] + self.dur_inf2sym[alive_inds] + self.dur_sym2sev[alive_inds] + self.dur_sev2crit[alive_inds] + dur_crit2rec  # Store how long this person had COVID-19
-
-        # CASE 2.2.2.2: Did die
-        dur_crit2die = cvu.sample(**durpars['crit2die'], size=len(dead_inds))
-        self.date_dead[dead_inds] = self.date_critical[dead_inds] + dur_crit2die # Date of death
-        self.dur_disease[dead_inds] = self.dur_exp2inf[dead_inds] + self.dur_inf2sym[dead_inds] + self.dur_sym2sev[dead_inds] + self.dur_sev2crit[dead_inds] + dur_crit2die   # Store how long this person had COVID-19
-        self.date_recovered[dead_inds] = np.nan # If they did die, remove them from recovered
-
-        return n_infections # For incrementing counters
-
-
-    def test(self, inds, test_sensitivity=1.0, loss_prob=0.0, test_delay=0):
-        '''
-        Method to test people. Typically not to be called by the user directly;
-        see the test_num() and test_prob() interventions.
-
-        Args:
-            inds: indices of who to test
-            test_sensitivity (float): probability of a true positive
-            loss_prob (float): probability of loss to follow-up
-            test_delay (int): number of days before test results are ready
-        '''
-
-        inds = np.unique(inds)
-        self.tested[inds] = True
-        self.date_tested[inds] = self.t # Only keep the last time they tested
-
-        is_infectious = cvu.itruei(self.infectious, inds)
-        pos_test      = cvu.n_binomial(test_sensitivity, len(is_infectious))
-        is_inf_pos    = is_infectious[pos_test]
-
-        not_diagnosed = is_inf_pos[np.isnan(self.date_diagnosed[is_inf_pos])]
-        not_lost      = cvu.n_binomial(1.0-loss_prob, len(not_diagnosed))
-        final_inds    = not_diagnosed[not_lost]
-
-        # Store the date the person will be diagnosed, as well as the date they took the test which will come back positive
-        self.date_diagnosed[final_inds] = self.t + test_delay
-        self.date_pos_test[final_inds] = self.t
-
-        return
-
-
-    def schedule_quarantine(self, inds, start_date=None, period=None):
-        '''
-        Schedule a quarantine. Typically not called by the user directly except
-        via a custom intervention; see the contact_tracing() intervention instead.
-
-        This function will create a request to quarantine a person on the start_date for
-        a period of time. Whether they are on an existing quarantine that gets extended, or
-        whether they are no longer eligible for quarantine, will be checked when the start_date
-        is reached.
-
-        Args:
-            inds (int): indices of who to quarantine, specified by check_quar()
-            start_date (int): day to begin quarantine (defaults to the current day, `sim.t`)
-            period (int): quarantine duration (defaults to ``pars['quar_period']``)
-        '''
-
-        start_date = self.t if start_date is None else int(start_date)
-        period = self.pars['quar_period'] if period is None else int(period)
-        for ind in inds:
-            self._pending_quarantine[start_date].append((ind, start_date + period))
-        return
-
 
     #%% Analysis methods
 
@@ -1712,12 +1198,8 @@ def make_people(sim, popdict=None, save_pop=False, popfile=None, die=True, reset
             errormsg = f'Population type "{pop_type}" not found; choices are random, clustered, hybrid, or synthpops'
             raise ValueError(errormsg)
 
-    # Ensure prognoses are set
-    if sim['prognoses'] is None:
-        sim['prognoses'] = cvpar.get_prognoses(sim['prog_by_age'], version=sim._default_ver)
-
     # Actually create the people
-    people = cvppl.People(sim.pars, uid=popdict['uid'], age=popdict['age'], sex=popdict['sex'], contacts=popdict['contacts']) # List for storing the people
+    people = People(sim.pars, uid=popdict['uid'], age=popdict['age'], sex=popdict['sex'], contacts=popdict['contacts']) # List for storing the people
 
     average_age = sum(popdict['age']/pop_size)
     sc.printv(f'Created {pop_size} people, average age {average_age:0.2f} years', 2, verbose)
@@ -1728,7 +1210,7 @@ def make_people(sim, popdict=None, save_pop=False, popfile=None, die=True, reset
             raise FileNotFoundError(errormsg)
         else:
             filepath = sc.makefilepath(filename=popfile)
-            cvm.save(filepath, people)
+            sc.saveobj(filepath, people)
             if verbose:
                 print(f'Saved population of type "{pop_type}" with {pop_size:n} people to {filepath}')
 
@@ -1761,19 +1243,19 @@ def make_randpop(sim, use_age_data=True, use_household_data=True, sex_ratio=0.5,
     pop_size = int(sim['pop_size']) # Number of people
 
     # Load age data and household demographics based on 2018 Seattle demographics by default, or country if available
-    age_data = cvd.default_age_data
+    age_data = default_age_data
     location = sim['location']
     if location is not None:
         if sim['verbose']:
             print(f'Loading location-specific data for "{location}"')
         if use_age_data:
             try:
-                age_data = cvdata.get_age_distribution(location)
+                age_data = ahdata.get_age_distribution(location)
             except ValueError as E:
                 print(f'Could not load age data for requested location "{location}" ({str(E)}), using default')
         if use_household_data:
             try:
-                household_size = cvdata.get_household_size(location)
+                household_size = ahdata.get_household_size(location)
                 if 'h' in sim['contacts']:
                     sim['contacts']['h'] = household_size - 1 # Subtract 1 because e.g. each person in a 3-person household has 2 contacts
                 else:
@@ -1784,14 +1266,14 @@ def make_randpop(sim, use_age_data=True, use_household_data=True, sex_ratio=0.5,
                     print(f'Could not load household size data for requested location "{location}" ({str(E)}), using default')
 
     # Handle sexes and ages
-    uids           = np.arange(pop_size, dtype=cvd.default_int)
+    uids           = np.arange(pop_size, dtype=default_int)
     sexes          = np.random.binomial(1, sex_ratio, pop_size)
     age_data_min   = age_data[:,0]
     age_data_max   = age_data[:,1] + 1 # Since actually e.g. 69.999
     age_data_range = age_data_max - age_data_min
     age_data_prob  = age_data[:,2]
     age_data_prob /= age_data_prob.sum() # Ensure it sums to 1
-    age_bins       = cvu.n_multinomial(age_data_prob, pop_size) # Choose age bins
+    age_bins       = n_multinomial(age_data_prob, pop_size) # Choose age bins
     ages           = age_data_min[age_bins] + age_data_range[age_bins]*np.random.random(pop_size) # Uniformly distribute within this age bin
 
     # Store output
@@ -1838,14 +1320,14 @@ def make_random_contacts(pop_size, contacts, overshoot=1.2, dispersion=None):
     # Precalculate contacts
     n_across_layers = np.sum(list(contacts.values()))
     n_all_contacts  = int(pop_size*n_across_layers*overshoot) # The overshoot is used so we won't run out of contacts if the Poisson draws happen to be higher than the expected value
-    all_contacts    = cvu.choose_r(max_n=pop_size, n=n_all_contacts) # Choose people at random
+    all_contacts    = choose_r(max_n=pop_size, n=n_all_contacts) # Choose people at random
     p_counts = {}
     for lkey in layer_keys:
         if dispersion is None:
-            p_count = cvu.n_poisson(contacts[lkey], pop_size) # Draw the number of Poisson contacts for this person
+            p_count = n_poisson(contacts[lkey], pop_size) # Draw the number of Poisson contacts for this person
         else:
-            p_count = cvu.n_neg_binomial(rate=contacts[lkey], dispersion=dispersion, n=pop_size) # Or, from a negative binomial
-        p_counts[lkey] = np.array((p_count/2.0).round(), dtype=cvd.default_int)
+            p_count = n_neg_binomial(rate=contacts[lkey], dispersion=dispersion, n=pop_size) # Or, from a negative binomial
+        p_counts[lkey] = np.array((p_count/2.0).round(), dtype=default_int)
 
     # Make contacts
     count = 0
@@ -1881,7 +1363,7 @@ def make_microstructured_contacts(pop_size, contacts):
         cluster_id = -1
         while n_remaining > 0:
             cluster_id += 1 # Assign cluster id
-            this_cluster =  cvu.poisson(cluster_size)  # Sample the cluster size
+            this_cluster =  poisson(cluster_size)  # Sample the cluster size
             if this_cluster > n_remaining:
                 this_cluster = n_remaining
 
@@ -1896,7 +1378,7 @@ def make_microstructured_contacts(pop_size, contacts):
             n_remaining -= this_cluster
 
         for key in contacts_dict.keys():
-            contacts_list[key][layer_name] = np.array(list(contacts_dict[key]), dtype=cvd.default_int)
+            contacts_list[key][layer_name] = np.array(list(contacts_dict[key]), dtype=default_int)
 
         clusters = {layer_name: cluster_dict}
 
@@ -2018,7 +1500,7 @@ def make_synthpop(sim=None, population=None, layer_mapping=None, community_conta
                 icid = uid_mapping[cid] # Integer contact ID
                 if icid>iid: # Don't add duplicate contacts
                     int_contacts[lkey].append(icid)
-            int_contacts[lkey] = np.array(int_contacts[lkey], dtype=cvd.default_int)
+            int_contacts[lkey] = np.array(int_contacts[lkey], dtype=default_int)
         contacts.append(int_contacts)
 
     # Add community contacts
@@ -2028,7 +1510,7 @@ def make_synthpop(sim=None, population=None, layer_mapping=None, community_conta
 
     # Finalize
     popdict = {}
-    popdict['uid']        = np.array(list(uid_mapping.values()), dtype=cvd.default_int)
+    popdict['uid']        = np.array(list(uid_mapping.values()), dtype=default_int)
     popdict['age']        = np.array(ages)
     popdict['sex']        = np.array(sexes)
     popdict['contacts']   = sc.dcp(contacts)
@@ -2135,6 +1617,127 @@ def plot_people(people, bins=None, width=1.0, alpha=0.6, fig_args=None, axis_arg
             if w_type == 'weighted':
                 share_ax = ax # Update shared axis
 
-    cvset.handle_show(do_show)
-
     return fig
+
+
+#%% Numba and mathematical functions
+
+@nb.njit((nbint[:], nbint[:], nb.int64[:]), cache=cache)
+def find_contacts(p1, p2, inds): # pragma: no cover
+    """
+    Numba for Layer.find_contacts()
+
+    A set is returned here rather than a sorted array so that custom tracing interventions can efficiently
+    add extra people. For a version with sorting by default, see Layer.find_contacts(). Indices must be
+    an int64 array since this is what's returned by true() etc. functions by default.
+    """
+    pairing_partners = set()
+    inds = set(inds)
+    for i in range(len(p1)):
+        if p1[i] in inds:
+            pairing_partners.add(p2[i])
+        if p2[i] in inds:
+            pairing_partners.add(p1[i])
+    return pairing_partners
+
+
+@nb.njit((nbint, nbint), cache=cache) # Numba hugely increases performance
+def choose(max_n, n):
+    '''
+    Choose a subset of items (e.g., people) without replacement.
+
+    Args:
+        max_n (int): the total number of items
+        n (int): the number of items to choose
+
+    **Example**::
+
+        choices = cv.choose(5, 2) # choose 2 out of 5 people with equal probability (without repeats)
+    '''
+    return np.random.choice(max_n, n, replace=False)
+
+
+@nb.njit((nbint, nbint), cache=cache) # Numba hugely increases performance
+def choose_r(max_n, n):
+    '''
+    Choose a subset of items (e.g., people), with replacement.
+
+    Args:
+        max_n (int): the total number of items
+        n (int): the number of items to choose
+
+    **Example**::
+
+        choices = cv.choose_r(5, 10) # choose 10 out of 5 people with equal probability (with repeats)
+    '''
+    return np.random.choice(max_n, n, replace=True)
+
+
+def n_multinomial(probs, n): # No speed gain from Numba
+    '''
+    An array of multinomial trials.
+
+    Args:
+        probs (array): probability of each outcome, which usually should sum to 1
+        n (int): number of trials
+
+    Returns:
+        Array of integer outcomes
+
+    **Example**::
+
+        outcomes = cv.multinomial(np.ones(6)/6.0, 50)+1 # Return 50 die-rolls
+    '''
+    return np.searchsorted(np.cumsum(probs), np.random.random(n))
+
+
+@nb.njit((nbfloat,), cache=cache) # Numba hugely increases performance
+def poisson(rate):
+    '''
+    A Poisson trial.
+
+    Args:
+        rate (float): the rate of the Poisson process
+
+    **Example**::
+
+        outcome = cv.poisson(100) # Single Poisson trial with mean 100
+    '''
+    return np.random.poisson(rate, 1)[0]
+
+
+@nb.njit((nbfloat, nbint), cache=cache) # Numba hugely increases performance
+def n_poisson(rate, n):
+    '''
+    An array of Poisson trials.
+
+    Args:
+        rate (float): the rate of the Poisson process (mean)
+        n (int): number of trials
+
+    **Example**::
+
+        outcomes = cv.n_poisson(100, 20) # 20 Poisson trials with mean 100
+    '''
+    return np.random.poisson(rate, n)
+
+
+def n_neg_binomial(rate, dispersion, n, step=1): # Numba not used due to incompatible implementation
+    '''
+    An array of negative binomial trials. See cv.sample() for more explanation.
+
+    Args:
+        rate (float): the rate of the process (mean, same as Poisson)
+        dispersion (float):  dispersion parameter; lower is more dispersion, i.e. 0 = infinite, ∞ = Poisson
+        n (int): number of trials
+        step (float): the step size to use if non-integer outputs are desired
+
+    **Example**::
+
+        outcomes = cv.n_neg_binomial(100, 1, 50) # 50 negative binomial trials with mean 100 and dispersion roughly equal to mean (large-mean limit)
+        outcomes = cv.n_neg_binomial(1, 100, 20) # 20 negative binomial trials with mean 1 and dispersion still roughly equal to mean (approximately Poisson)
+    '''
+    nbn_n = dispersion
+    nbn_p = dispersion/(rate/step + dispersion)
+    samples = np.random.negative_binomial(n=nbn_n, p=nbn_p, size=n)*step
+    return samples
