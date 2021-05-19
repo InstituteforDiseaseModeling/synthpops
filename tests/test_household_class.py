@@ -128,8 +128,9 @@ def test_add_household():
 
 def test_households_basic():
     sp.logger.info("Test creating generic households.")
-    homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 9]]
-    age_by_uid = {1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58, 9: 99}
+    homes_by_uids = [[1, 2, 3], [4], [7, 6, 5, 8, 0]]
+    sp.logger.info("age_by_uid must be zero-based indexed.")
+    age_by_uid = {0:99, 1: 88, 2: 45, 3: 47, 4: 38, 5: 12, 6: 19, 7: 55, 8: 58}
 
     pop = sp.Pop(n=settings.pop_sizes.small)
     assert pop.get_household(1)['reference_uid'] == pop.homes_by_uids[1][0], 'Check failed on pop object.'
@@ -167,6 +168,10 @@ def test_households_basic():
     with pytest.raises(IndexError):
         sp.get_household(pop_2, len(pop_2.households) + 1)
     print('Check passed. Cannot get a household with hhid larger than the number of households')
+
+    sp.logger.info("Check member_ages")
+    assert set(pop_2.households[0].member_ages(np.array([v for v in age_by_uid.values()]))) == set([88, 45, 47]), \
+        'Check failed for member_ages.'
 
 
 @pytest.mark.skip  # necessary for vital dynamics but not working right now
