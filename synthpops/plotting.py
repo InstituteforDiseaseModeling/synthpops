@@ -6,14 +6,13 @@ import os
 import sciris as sc
 import numpy as np
 import covasim as cv
-import pandas as pd
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
-import cmasher as cmr
-import cmocean as cmo
+import cmasher as cmr # Uses implicit import
+import cmocean as cmo # Uses implicit import
 import seaborn as sns
 
 from . import config as cfg
@@ -33,7 +32,7 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            'plot_household_sizes',
            # 'plot_household_head_ages',
            # 'plot_household_head_ages_by_household_size',
-           'plot_ltcf_resident_sizes', 
+           'plot_ltcf_resident_sizes',
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plot_workplace_sizes',

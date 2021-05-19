@@ -33,6 +33,7 @@ def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', save_po
         people (People): people
     '''
     if popdict is not None:
+        popdict = sc.dcp(popdict) # Otherwise, modifies in place
         n = len(popdict)
 
     pars = dict(
