@@ -1,11 +1,11 @@
 """
 This module provides plotting methods including methods to plot the age-specific contact matrix in different contact layers.
 """
+
 import itertools
 import os
 import sciris as sc
 import numpy as np
-import covasim as cv
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -25,6 +25,7 @@ from . import schools as spsch
 from . import workplaces as spw
 from . import contact_networks as spcnx
 from . import pop as sppop
+from . import people as spp
 
 
 __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
@@ -682,7 +683,7 @@ def plot_ages(pop, **kwargs):
         plkwargs.smooth_ages = pop.smooth_ages
         plkwargs.window_length = pop.window_length
 
-    elif not isinstance(pop, (dict, cv.people.People)):
+    elif not isinstance(pop, (dict, spp.People)):
         raise NotImplementedError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for missing plkwargs and use default values if not found
@@ -704,7 +705,7 @@ def plot_ages(pop, **kwargs):
         elif isinstance(pop, dict):
             generated_age_count = spb.count_ages(pop)
 
-        elif isinstance(pop, cv.people.People):
+        elif isinstance(pop, spp.People):
             generated_age_count = sc.mergedicts(generated_age_count, Counter(pop.age))  # with smaller populations, pop.age might not have all ages
 
         generated_age_dist = spb.norm_dic(generated_age_count)

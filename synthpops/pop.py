@@ -1,5 +1,5 @@
 """
-This module provides the layer for communicating with the agent-based model Covasim.
+This module provides the main class for interacting with SynthPops, the Pop class.
 """
 
 import numpy as np
