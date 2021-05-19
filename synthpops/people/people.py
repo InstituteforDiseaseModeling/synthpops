@@ -234,7 +234,7 @@ class BasePeople(FlexPretty):
             keys = list(self.contacts.keys())
         except: # If not fully initialized
             try:
-                keys = list(self.pars['beta_layer'].keys())
+                keys = list(self.pars['contacts'].keys())
             except:  # pragma: no cover # If not even partially initialized
                 keys = []
         return keys
@@ -908,7 +908,7 @@ class People(BasePeople):
         ppl2 = cv.People(sim.pars)
     '''
 
-    def __init__(self, pars, strict=True, **kwargs):
+    def __init__(self, pars, strict=False, **kwargs):
 
         # Handle pars and population size
         self.set_pars(pars)
@@ -1034,7 +1034,10 @@ class People(BasePeople):
                     ylabel = 'Per capita number of contacts'
                     title = f'Mean contacts for layer "{lk}": {mean_contacts:0.2f}'
                 elif w_type == 'weighted':
-                    weight = self.pars['beta_layer'][lk]*self.pars['beta']
+                    try:
+                        weight = self.pars['beta_layer'][lk]*self.pars['beta']
+                    except:
+                        weight = 1
                     total_weight = np.round(weight*2*len(self.contacts[lk]))
                     ylabel = 'Weighted number of contacts'
                     title = f'Total weight for layer "{lk}": {total_weight:n}'
