@@ -12,7 +12,7 @@ from . import loaders as spl
 # Specify all externally visible functions this file defines
 __all__ = ['make_people', 'make_randpop', 'make_random_contacts',
            'make_microstructured_contacts', 'make_hybrid_contacts',
-           'make_synthpop']
+           'parse_synthpop']
 
 
 def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', save_pop=False, popfile=None, die=True, verbose=None, **kwargs):
@@ -54,14 +54,11 @@ def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', save_po
         # Create the population
         if pop_type in ['random', 'clustered', 'hybrid']:
             popdict = make_randpop(pars, microstructure=pop_type, **kwargs)
-        elif pop_type == 'synthpops':
-            popdict = make_synthpop(pars, **kwargs)
-        elif pop_type is None: # pragma: no cover
-            errormsg = 'You have set pop_type=None. This is fine, but you must ensure sim.popdict exists before calling make_people().'
-            raise ValueError(errormsg)
         else: # pragma: no cover
             errormsg = f'Population type "{pop_type}" not found; choices are random, clustered, hybrid, or synthpops'
             raise ValueError(errormsg)
+    else:
+        popdict = parse_synthpop(popdict)
 
     # Actually create the people
     people = spp.People(pars, uid=popdict['uid'], age=popdict['age'], sex=popdict['sex'], contacts=popdict['contacts']) # List for storing the people
@@ -294,7 +291,7 @@ def make_hybrid_contacts(pop_size, ages, contacts, school_ages=None, work_ages=N
 
 
 
-def make_synthpop(sim=None, population=None, layer_mapping=None, community_contacts=None, **kwargs):
+def parse_synthpop(population, layer_mapping=None, community_contacts=0, **kwargs):
     '''
     Make a population using SynthPops, including contacts. Usually called automatically,
     but can also be called manually. Either a simulation object or a population must
@@ -314,30 +311,9 @@ def make_synthpop(sim=None, population=None, layer_mapping=None, community_conta
         sim.popdict = cv.make_synthpop(sim)
         sim.run()
     '''
-    try:
-        import synthpops as sp # Optional import
-    except ModuleNotFoundError as E: # pragma: no cover
-        errormsg = 'Please install the optional SynthPops module first, e.g. pip install synthpops' # Also caught in make_people()
-        raise ModuleNotFoundError(errormsg) from E
-
     # Handle layer mapping
     default_layer_mapping = {'H':'h', 'S':'s', 'W':'w', 'C':'c', 'LTCF':'l'} # Remap keys from old names to new names
     layer_mapping = sc.mergedicts(default_layer_mapping, layer_mapping)
-
-    # Handle other input arguments
-    if population is None:
-        if sim is None: # pragma: no cover
-            errormsg = 'Either a simulation or a population must be supplied'
-            raise ValueError(errormsg)
-        pop_size = sim['pop_size']
-        population = sp.make_population(n=pop_size, rand_seed=sim['rand_seed'], **kwargs)
-
-    if community_contacts is None:
-        if sim is not None:
-            community_contacts = sim['contacts']['c']
-        else: # pragma: no cover
-            errormsg = 'If a simulation is not supplied, the number of community contacts must be specified'
-            raise ValueError(errormsg)
 
     # Create the basic lists
     pop_size = len(population)

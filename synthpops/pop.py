@@ -1088,10 +1088,14 @@ class Pop(sc.prettyobj):
         """
         return spcnx.get_contact_counts_by_layer(self.popdict, layer, **kwargs)
 
+    def to_people(self):
+        ''' Convert to the alternative People representation of a population '''
+        ppl = spp.make_people(popdict=self.popdict, rand_seed=self.rand_seed)  # Create the corresponding population
+        return ppl
+
     def plot_people(self, *args, **kwargs):
         """Placeholder example of plotting the people in a population."""
-
-        ppl = spp.make_people(self.popdict, rand_seed=self.rand_seed)  # Create the corresponding population
+        ppl = self.to_people()
         fig = ppl.plot(*args, **kwargs)
         return fig
 
