@@ -27,6 +27,12 @@ Latest versions (1.9.x)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.9.1 (2021-05-19)
+--------------------------
+- Adding new json data objects plus some scripts to show users how to make their own from individual raw data files.
+- *Github Info*: PR `494 <https://github.com/amath-idm/synthpops/pull/494>`__
+
+
 Version 1.9.0 (2021-05-16)
 --------------------------
 - Data folder cleaned up and removed individual csv data files now that synthpops has json data files instead for the collection of data used for each location.
