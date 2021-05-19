@@ -93,7 +93,7 @@ def test_add_school(create_small_pop):
     assert set(pop.schools[scid]['student_uids']) == set(pop.schools[scid+1]['student_uids'])
 
 
-@pytest.skip("need investigation")
+@pytest.mark.skip("need investigation")
 def test_member_ages():
     pop_2 = sc.prettyobj()
     pop_2.schools = []
