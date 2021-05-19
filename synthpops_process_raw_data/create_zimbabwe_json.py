@@ -80,6 +80,45 @@ def get_household_size_dist_arr(location_data):
     return household_size_dist_arr
 
 
+def get_school_type_age_ranges(location_data):
+    """
+    Read in the school type and age range data from csv files and format the
+    data to add to the location_data json object.
+
+    Args:
+        location_data (sp.Location) : json-based data object for the location
+
+    Returns:
+        dict : An dictionary mapping school type to the distinct age range for
+        each school type.
+    """
+    df = pd.read_csv(os.path.join(sp.settings.datadir, location_data.location_name, f"{location_data.location_name}_school_type_age_ranges.csv"))
+    arr = sp.convert_df_to_json_array(df, cols=df.columns, int_cols=['age_min', 'age_max'])
+
+    school_type_age_ranges = []
+    for si in range(len(arr)):
+        s = sp.SchoolTypeByAge()
+        school_type = arr[si][0]
+        s.school_type = school_type
+        s.age_range = [arr[si][1], arr[si][2]]
+        school_type_age_ranges.append(s)
+    return school_type_age_ranges
+
+
+def get_reference_links(location_data):
+    """
+    Read in list of reference links for sources.
+
+    Args:
+        location_data (sp.Location) : json-based data object for the location
+
+    Returns:
+        list : A list of the reference links for the original data.
+    """
+    df = pd.read_csv(os.path.join(sp.settings.datadir, location_data.location_name, 'sources.txt'))
+    return df.reference_links.values
+
+
 if __name__ == '__main__':
 
     location_name = "Zimbabwe"
@@ -90,7 +129,7 @@ if __name__ == '__main__':
     # path to the new json we want to create for Zimbabwe
     json_filepath = os.path.join(sp.settings.datadir, f'{location_name}.json')
 
-    # check if the file already exists
+    # check if the file already exists and if not, create one
     try:
         location_data = sp.load_location_from_filepath(json_filepath)
     except:
@@ -124,9 +163,19 @@ if __name__ == '__main__':
     # populate the household size distribution field
     location_data.household_size_distribution = household_size_dist_arr
 
-    # # filepath = os.path.join(sp.settings.datadir, f'{location_name}.json')
+    # get age ranges by school type
+    school_types_by_age = get_school_type_age_ranges(location_data)
+    # populate the school types by age --- defines an age range for each school type
+    location_data.school_types_by_age = school_types_by_age
+
+    # get reference links
+    reference_links = get_reference_links(location_data)
+
+    # populate the reference links --- you might do this step repeatedly as you find more data and populate your json
+    for link in reference_links:
+        location_data.reference_links.append(link)
+
     sp.save_location_to_filepath(location_data, json_filepath)
 
     # check that you can reload the newly created json
     new_location_data = sp.load_location_from_filepath(os.path.join(sp.settings.datadir, f"{location_name}.json"))
-
