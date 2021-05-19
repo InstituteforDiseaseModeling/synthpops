@@ -292,7 +292,7 @@ def make_hybrid_contacts(pop_size, ages, contacts, school_ages=None, work_ages=N
 
 
 
-def parse_synthpop(population, layer_mapping=None, community_contacts=0, **kwargs):
+def parse_synthpop(population, layer_mapping=None, community_contacts=0):
     '''
     Make a population using SynthPops, including contacts. Usually called automatically,
     but can also be called manually. Either a simulation object or a population must
@@ -300,17 +300,9 @@ def parse_synthpop(population, layer_mapping=None, community_contacts=0, **kwarg
     otherwise, create the population and then transform it.
 
     Args:
-        sim (Sim): a Covasim simulation object
-        population (list): a pre-generated SynthPops population (otherwise, create a new one)
+        population (list): a pre-generated SynthPops population
         layer_mapping (dict): a custom mapping from SynthPops layers to Covasim layers
-        community_contacts (int): if a simulation is not supplied, create this many community contacts on average
-        kwargs (dict): passed to sp.make_population()
-
-    **Example**::
-
-        sim = cv.Sim(pop_type='synthpops')
-        sim.popdict = cv.make_synthpop(sim)
-        sim.run()
+        community_contacts (int): create this many community contacts on average
     '''
     # Handle layer mapping
     default_layer_mapping = {'H':'h', 'S':'s', 'W':'w', 'C':'c', 'LTCF':'l'} # Remap keys from old names to new names
