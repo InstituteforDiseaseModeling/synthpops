@@ -7,6 +7,7 @@ import numpy as np
 import pylab as pl
 import sciris as sc
 import pandas as pd
+import networkx as nx
 from . import utils as spu
 from .. import version as spv
 
@@ -52,12 +53,20 @@ class FlexPretty(sc.prettyobj):
         else:
             return string
 
+
 class BasePeople(FlexPretty):
     '''
     A class to handle all the boilerplate for people -- note that as with the
     BaseSim vs Sim classes, everything interesting happens in the People class,
     whereas this class exists to handle the less interesting implementation details.
     '''
+
+    def __init__(self):
+        super().__init__()
+        self._lock = False # Prevent further modification of keys
+        self._keys = []
+        return
+
 
     def __getitem__(self, key):
         ''' Allow people['attr'] instead of getattr(people, 'attr')
@@ -80,7 +89,16 @@ class BasePeople(FlexPretty):
             errormsg = f'Key "{key}" is not a current attribute of people, and the people object is locked; see people.unlock()'
             raise AttributeError(errormsg)
         self.__dict__[key] = value
+        self._keys.append(key)
         return
+
+
+    def keys(self):
+        ''' Get the keys that have been set '''
+        curr_keys = self.__dict__.keys()
+        new_keys = [k for k in self._keys if k in curr_keys] # Remove any keys that have been removed
+        self._keys = new_keys # Trim any that were removed
+        return sc.dcp(new_keys)
 
 
     def lock(self):
@@ -357,20 +375,6 @@ class BasePeople(FlexPretty):
         '''
         Convert all people to a networkx MultiDiGraph, including all properties of
         the people (nodes) and contacts (edges).
-
-        **Example**::
-
-            import covasim as cv
-            import networkx as nx
-            sim = cv.Sim(pop_size=50, pop_type='hybrid', contacts=dict(h=3, s=10, w=10, c=5)).run()
-            G = sim.people.to_graph()
-            nodes = G.nodes(data=True)
-            edges = G.edges(keys=True)
-            node_colors = [n['age'] for i,n in nodes]
-            layer_map = dict(h='#37b', s='#e11', w='#4a4', c='#a49')
-            edge_colors = [layer_map[G[i][j][k]['layer']] for i,j,k in edges]
-            edge_weights = [G[i][j][k]['beta']*5 for i,j,k in edges]
-            nx.draw(G, node_color=node_colors, edge_color=edge_colors, width=edge_weights, alpha=0.5)
         '''
         import networkx as nx
 
@@ -383,7 +387,10 @@ class BasePeople(FlexPretty):
         # Include global layer weights
         for u,v,k in G.edges(keys=True):
             edge = G[u][v][k]
-            edge['beta'] *= self.pars['beta_layer'][edge['layer']]
+            try:
+                edge['beta'] *= self.pars['beta_layer'][edge['layer']]
+            except:
+                pass
 
         return G
 
@@ -909,20 +916,15 @@ class People(BasePeople):
     '''
 
     def __init__(self, pars, strict=False, **kwargs):
+        super().__init__()
 
         # Handle pars and population size
         self.set_pars(pars)
         self.version = spv.__version__ # Store version info
 
         # Other initialization
-        self.t = 0 # Keep current simulation time
-        self._lock = False # Prevent further modification of keys
         self.contacts = None
         self.init_contacts() # Initialize the contacts
-        self.infection_log = [] # Record of infections - keys for ['source','target','date','layer']
-
-        # Although we have called init(), we still need to call initialize()
-        self.initialized = False
 
         # Handle contacts, if supplied (note: they usually are)
         if 'contacts' in kwargs:
@@ -1053,6 +1055,26 @@ class People(BasePeople):
                 if w_type == 'weighted':
                     share_ax = ax # Update shared axis
 
+        return fig
+
+
+    def plot_graph(self):
+        '''
+        Convert to networkx and draw. WARNING: extremely slow for more than ~100 people!
+
+        **Example**::
+
+            pop = sp.Pop(n=50)
+            pop.to_people().plot_graph()
+        '''
+        G = self.to_graph()
+        nodes = G.nodes(data=True)
+        edges = G.edges(keys=True)
+        node_colors = [n['age'] for i,n in nodes]
+        layer_map = dict(h='#37b', s='#e11', w='#4a4', c='#a49')
+        edge_colors = [layer_map[G[i][j][k]['layer']] for i,j,k in edges]
+        edge_weights = [G[i][j][k]['beta']*5 for i,j,k in edges]
+        fig = nx.draw(G, node_color=node_colors, edge_color=edge_colors, width=edge_weights, alpha=0.5)
         return fig
 
 
