@@ -199,7 +199,7 @@ def get_age_distribution(location=None):
 
 def get_household_size(location=None):
     '''
-    Load household size distribution for a given country or countries.
+    Load average household size distribution for a given country or countries.
 
     Args:
         location (str or list): name of the country or countries to load the age distribution for
