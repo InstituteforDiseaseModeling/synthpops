@@ -506,10 +506,8 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
     sorted_size_brackets = sorted(school_size_brackets.keys())
 
-    ages_in_school_distr = spb.norm_dic(ages_in_school_count)  # maybe not needed
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
     age_keys = list(ages_in_school_count.keys())
-    # for a in uids_in_school_by_age.keys():
-        # print(a, len(uids_in_school_by_age[a]))
 
     while len(uids_in_school):
 
@@ -517,9 +515,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         new_student_uids = []
 
         aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
-        # aindex = age_keys[spsamp.fast_choice(ages_in_school_count.values())]
-        print(ages_in_school_count.values())
-        print(aindex)
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
         uids_in_school.pop(uid, None)
@@ -1567,7 +1562,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
         new_school_uids = []
 
         aindex = spsamp.fast_choice(ages_in_school_distr.values())
-        # aindex = spsamp.fast_choice(ages_in_school_count.values())
         bindex = age_by_brackets[aindex]
 
         # reference students under 20 to prevent older adults from being reference students (otherwise we end up with schools with too many adults and kids mixing because the matrices represent the average of the patterns and not the bimodal mixing of adult students together at school and a small number of teachers at school with their students)
@@ -1575,7 +1569,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
             if np.random.binomial(1, p=0.7):
 
                 aindex = spsamp.fast_choice(ages_in_school_distr.values())
-                # aindex = spsamp.fast_choice(ages_in_school_count.values())
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
@@ -1623,7 +1616,6 @@ def send_students_to_school(school_sizes, uids_in_school, uids_in_school_by_age,
                 while left_in_bracket[bi] == 0 or np.abs(bindex - bi) > 1:
                     bi = spsamp.sample_single_arr(b_prob)
 
-                # ai = spsamp.sample_from_range([ages_in_school_count[bi][bii] for bii in age_brackets[bi]])
                 ai = spsamp.sample_from_range(ages_in_school_distr, age_brackets[bi][0], age_brackets[bi][-1])
                 uid = uids_in_school_by_age[ai][0]  # grab the next student in line
 
