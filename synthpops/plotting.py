@@ -638,7 +638,7 @@ def plot_ages(pop, **kwargs):
     Plot a comparison of the expected and generated age distribution.
 
     Args:
-        pop (pop object)    : population, either synthpops.pop.Pop, covasim.people.People, or dict
+        pop (pop object)    : population, either synthpops.pop.Pop, sp.people.People, or dict
         **left (float)      : Matplotlib.figure.subplot.left
         **right (float)     : Matplotlib.figure.subplot.right
         **top (float)       : Matplotlib.figure.subplot.top
@@ -655,7 +655,7 @@ def plot_ages(pop, **kwargs):
         Matplotlib figure and axes.
 
     Note:
-        If using pop with type covasim.people.Pop or dict, args must be supplied
+        If using pop with type sp.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
     **Example**::
@@ -757,7 +757,7 @@ def plot_household_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -855,7 +855,7 @@ def plot_household_sizes(pop, **kwargs):
 
 #     Note:
 #         If using pop with type dict, args must be supplied for the location
-#         parameter to get the expected rates. Covasim.people.People pop type
+#         parameter to get the expected rates. sp.people.People pop type
 #         not yet supported.
 
 #     **Example**::
@@ -920,7 +920,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1019,7 +1019,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
 #     Note:
 #         If using pop with type dict, args must be supplied for the location
-#         parameter to get the expected rates. Covasim.people.People pop type
+#         parameter to get the expected rates. sp.people.People pop type
 #         not yet supported.
 
 #     **Example**::
@@ -1068,7 +1068,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1161,7 +1161,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1262,7 +1262,7 @@ def plot_school_sizes(pop, **kwargs):
         Matplotlib figure and axes.
 
     Note:
-        If using pop with type covasim.people.Pop or dict, args must be supplied
+        If using pop with type sp.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
     **Example**::
@@ -1426,7 +1426,7 @@ def plot_workplace_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::

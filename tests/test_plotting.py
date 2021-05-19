@@ -4,7 +4,6 @@ Test plotting functions
 import numpy as np
 import sciris as sc
 import synthpops as sp
-import covasim as cv
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import settings
@@ -156,16 +155,7 @@ def test_plot_with_cvpeople(create_pop, do_show=False, do_save=False):
     """
     sp.logger.info("Test that the age comparison plotting method works on cv.people.People and plotting styles can be easily updated.")
     pop = create_pop
-    popdict = pop.to_dict()
-    cvpopdict = cv.make_synthpop(population=popdict, community_contacts=2)  # array based
-
-    # Actually create the people
-    people_pars = dict(
-        pop_size=pars.n,
-        beta_layer={k: 1.0 for k in 'hswcl'},  # Since this is used to define hat layers exist
-        beta=1.0,  # TODO: this is required for plotting (people.plot()), but shouldn't be (in covasim)
-    )
-    people = cv.People(people_pars, strict=False, uid=cvpopdict['uid'], age=cvpopdict['age'], sex=cvpopdict['sex'])
+    people = pop.to_people()
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.settings.datadir
     kwargs.figname = f"test_ages_{kwargs.location}_cvpeople"

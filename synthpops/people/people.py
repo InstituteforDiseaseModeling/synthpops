@@ -371,12 +371,14 @@ class BasePeople(FlexPretty):
         return
 
 
-    def to_graph(self): # pragma: no cover
+    def to_graph(self, full_output=False): # pragma: no cover
         '''
         Convert all people to a networkx MultiDiGraph, including all properties of
         the people (nodes) and contacts (edges).
+
+        Args:
+            full_output (bool): if true, return nodes and edges along with the graph object
         '''
-        import networkx as nx
 
         # Copy data from people into graph
         G = self.contacts.to_graph()
@@ -392,7 +394,12 @@ class BasePeople(FlexPretty):
             except:
                 pass
 
-        return G
+        if not full_output:
+            return G
+        else:
+            nodes = G.nodes(data=True)
+            edges = G.edges(keys=True)
+            return G, nodes, edges
 
 
     def init_contacts(self, reset=False):
@@ -1067,15 +1074,13 @@ class People(BasePeople):
             pop = sp.Pop(n=50)
             pop.to_people().plot_graph()
         '''
-        G = self.to_graph()
-        nodes = G.nodes(data=True)
-        edges = G.edges(keys=True)
+        G, nodes, edges = self.to_graph(full_output=True)
         node_colors = [n['age'] for i,n in nodes]
         layer_map = dict(h='#37b', s='#e11', w='#4a4', c='#a49')
         edge_colors = [layer_map[G[i][j][k]['layer']] for i,j,k in edges]
         edge_weights = [G[i][j][k]['beta']*5 for i,j,k in edges]
-        fig = nx.draw(G, node_color=node_colors, edge_color=edge_colors, width=edge_weights, alpha=0.5)
-        return fig
+        nx.draw(G, node_color=node_colors, edge_color=edge_colors, width=edge_weights, alpha=0.5)
+        return
 
 
     def story(self, uid, *args):
