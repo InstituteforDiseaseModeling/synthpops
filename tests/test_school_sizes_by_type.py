@@ -138,6 +138,8 @@ def test_separate_school_types_for_seattle_metro(do_show=False, do_save=False):
     sp.logger.info("Creating schools where pre-k and elementary schools are separate and school sizes are the same for all school types. Note: For small population sizes, the expected and generated size distributions may not match very well given that the model is stochastic and demographics are based on much larger populations.")
     test_pars = sc.dcp(pars)
     test_pars.location = None  # seattle_metro results with school size distribution the same for all types
+    test_pars.state_location = None  # no state information; will call default data for seattle metro but create figure without location information in title
+    test_pars.country_location = None  # no country information; will call default data for seattle metro but create figure without location information in title
     pop = sp.Pop(**test_pars)
     kwargs = sc.objdict(sc.dcp(test_pars))
     kwargs.do_show = do_show
