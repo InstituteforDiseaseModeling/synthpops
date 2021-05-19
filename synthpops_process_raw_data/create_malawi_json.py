@@ -193,6 +193,7 @@ if __name__ == '__main__':
     # add note
     location_data.notes.append(note)
 
+    # save the loaded json file
     sp.save_location_to_filepath(location_data, json_filepath)
 
     # check that you can reload the newly created json

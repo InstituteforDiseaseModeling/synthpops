@@ -1,12 +1,8 @@
 {
   "location_name": "Nepal",
   "data_provenance_notices": [],
-  "reference_links": [
-    "https://opendatanepal.com/dataset?res_format=CSV&organization=ministry-of-education",
-    "https://opendatanepal.com/dataset/university-wise-student-enrollment-of-higher-education-by-types-of-campuses/resource/5193053a-b6fe-45e7-a6ba-8aae99ced378",
-    "https://www.unicef.org/nepal/sites/unicef.org.nepal/files/2020-08/Nepal%20ECED%20Costing%20Study.pdf"
-  ],
-  "citations": ["SMALL AND MEDIUM-SIZED ENTERPRISES IN NEPAL: EXAMINING CONSTRAINTS ON EXPORTING, Paras Kharel and Kshitiz Dahal, 2020", "Report on the Nepal Labour Force Survey 2017/18"],
+  "reference_links": [],
+  "citations": [],
   "notes": [],
   "parent": null,
   "population_age_distributions": [{
@@ -327,7 +323,7 @@
     "size_distribution": [1.00]
   }
 ],
-"school_types_by_age": [{
+  "school_types_by_age": [{
     "school_type": "pk",
     "age_range": [3, 5]
   }, {
@@ -347,8 +343,8 @@
     "age_range": [19, 100]
   }],
   "workplace_size_counts_by_num_personnel": [
-    [5,   19,  0.9773],
-    [20,  99,  0.0157],
-    [100, 199, 0.0070]
+    [5, 19, 0.9773],
+    [20, 99, 0.0157],
+    [100, 199, 0.007]
   ]
 }
