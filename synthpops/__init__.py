@@ -9,6 +9,7 @@ from .households import *
 from .ltcfs import *
 from .schools import *
 from .workplaces import *
+from .people import *
 from .pop import *
 from .contact_networks import *
 from .data import *
