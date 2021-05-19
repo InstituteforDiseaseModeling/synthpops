@@ -63,7 +63,6 @@ def process_age_dists(location_data):
     location_data.population_age_distributions[1].num_bins = len(age_dist_arr_16)
     location_data.population_age_distributions[1].distribution = age_dist_arr_16
 
-    # sp.save_location_to_filepath(location_data, filepath)
     return location_data
 
 
@@ -125,6 +124,7 @@ def process_enrollment_rates(location_data):
 
     enrollment_rates_df = pd.DataFrame.from_dict(dict(age=np.arange(len(enrollment_rates)), percent=[enrollment_rates[a] for a in sorted(enrollment_rates.keys())]))
     location_data.enrollment_rates_by_age = sp.convert_df_to_json_array(enrollment_rates_df, cols=enrollment_rates_df.columns, int_cols=['age'])
+
     return location_data
 
 
@@ -143,6 +143,7 @@ def get_household_size_dist_arr(location_data):
     df = pd.read_csv(os.path.join(sp.settings.datadir, location_data.location_name, f'{location_data.location_name}_household_sizes.csv'))
     household_size_dist_arr = sp.convert_df_to_json_array(df, cols=df.columns, int_cols=['household_size'])
     location_data.household_size_distribution = household_size_dist_arr
+
     return location_data
 
 
@@ -168,8 +169,8 @@ def get_school_type_age_ranges(location_data):
         s.school_type = school_type
         s.age_range = [arr[si][1], arr[si][2]]
         school_type_age_ranges.append(s)
-    # return school_type_age_ranges
     location_data.school_types_by_age = school_type_age_ranges
+
     return location_data
 
 
@@ -187,7 +188,6 @@ def get_workplace_size_dist_arr(location_data):
     """
     df = pd.read_csv(os.path.join(sp.settings.datadir, location_data.location_name, f"{location_data.location_name}_workplace_sizes.csv"))
     workplace_size_dist_arr = sp.convert_df_to_json_array(df, cols=df.columns, int_cols=['workplace_size_min', 'workplace_size_max'])
-    # return workplace_size_dist_arr
     location_data.workplace_size_counts_by_num_personnel = workplace_size_dist_arr
     return location_data
 
@@ -231,5 +231,3 @@ if __name__ == '__main__':
 
     # check that you can reload the newly created json
     new_location_data = sp.load_location_from_filepath(os.path.join(sp.settings.datadir, f"{location_name}.json"))
-
-    print(new_location_data)

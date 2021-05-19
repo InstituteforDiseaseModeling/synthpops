@@ -8,8 +8,6 @@ import settings
 import pytest
 
 
-# default_nbrackets = sp.settings.nbrackets
-
 pars = sc.objdict(
     n                = settings.pop_sizes.small,
     rand_seed        = 123,
@@ -32,7 +30,7 @@ def test_Malawi():
     # make a basic population
     pop = sp.Pop(**pars)
     assert pop.country_location == 'Malawi', "population location information is not set to Malawi"
-    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+    sp.reset_default_settings()  # reset defaults
 
 
 def pop_exploration():
@@ -44,17 +42,9 @@ def pop_exploration():
     pop.plot_enrollment_rates_by_age()
     sp.set_location_defaults()
     plt.show()
-    # sp.reset_default_settings()  #
+    sp.reset_default_settings()  # reset defaults
+
 
 if __name__ == '__main__':
     test_Malawi()
     pop_exploration()
-    # sp.logger.info("Not a real test yet --- used for exploration and checks.")
-    # sp.set_location_defaults(country_location="Senegal")
-    # pop = sp.Pop(**pars)
-    # print(pop.summarize())
-    # pop.plot_ages()
-    # pop.plot_enrollment_rates_by_age()
-    # sp.set_location_defaults()
-    # plt.show()
-    # sp.reset_default_settings()  #

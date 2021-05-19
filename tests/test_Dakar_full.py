@@ -30,7 +30,7 @@ def test_Dakar():
     pop = sp.Pop(**pars)
     assert pop.location == 'Dakar', 'population location information is not set to Dakar'
 
-    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+    sp.reset_default_settings()  # reset defaults
 
 
 def pop_exploration():
@@ -48,7 +48,7 @@ def pop_exploration():
     pop.plot_contacts(layer='S', density_or_frequency='frequency', logcolors_flag=1, aggregate_flag=1)  # test other options
     pop.plot_contacts(layer='W', density_or_frequency='frequency', logcolors_flag=1, aggregate_flag=1)  # test other options
     plt.show()
-    sp.reset_default_settings()  # reset defaults so that any tests run in parallel are not impacted
+    sp.reset_default_settings()  # reset defaults
 
 
 if __name__ == '__main__':
