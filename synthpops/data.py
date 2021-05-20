@@ -263,7 +263,7 @@ def load_location_from_json(json_obj, check_constraints=None):
     return location
 
 
-def load_location_from_json_str(json_str):
+def load_location_from_json_str(json_str, check_constraints=None):
     """
     Load location data from json str with some checks made.
 
@@ -274,7 +274,7 @@ def load_location_from_json_str(json_str):
         json: The json object with location data.
     """
     json_obj = json.loads(json_str)
-    return load_location_from_json(json_obj)
+    return load_location_from_json(json_obj, check_constraints=check_constraints)
 
 
 def get_relative_path(datadir):

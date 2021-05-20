@@ -27,6 +27,12 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.10.1 (2021-05-20)
+---------------------------
+- *Fix*: Reinstating previous tests on methods within ``sp.data.py`` and updating ``sp.load_location_from_json_str()`` to take an optional parameter to control when checks on data loading are performed.
+- *Github Info*: PR `502 <https://github.com/amath-idm/synthpops/pull/502>`__
+
+
 Version 1.10.0 (2021-05-20)
 ---------------------------
 - *Feature*: Ports Covasim's ``People`` class to SynthPops, and adds a new method to the ``Pop`` object, ``to_people()``. 

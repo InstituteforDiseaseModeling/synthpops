@@ -2,7 +2,7 @@
   "location_name": "A",
   "reference_links": ["https://data.census.gov/cedsci"],
   "citations": ["American Community Survey 2018: Seattle-Tacoma-Bellevue, WA"],
-  "parent": "unittests/test_location_B.json",
+  "parent": "test_location_B.json",
   "population_age_distributions": [{
     "num_bins": 16,
     "distribution": [
