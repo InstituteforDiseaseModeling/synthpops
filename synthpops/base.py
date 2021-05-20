@@ -70,7 +70,16 @@ class LayerGroup(dict):
         return
 
     def member_ages(self, age_by_uid, subgroup_member_uids=None):
-        """Return the ages of members in the layer group given the pop object."""
+        """
+        Return the ages of members in the layer group given the pop object.
+
+        Args:
+            age_by_uid (np.ndarray) : mapping of age to uid
+            subgroup_member_uids (np.ndarray, list) : subgroup of uids to return ages for
+
+        Returns:
+            nd.ndarray : ages of members in group or subgroup
+        """
         if len(age_by_uid) == 0:
             print("age_by_uid is empty. Returning an empty array for member_ages.")
             return np.array([])
