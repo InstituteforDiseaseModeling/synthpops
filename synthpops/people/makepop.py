@@ -15,7 +15,7 @@ __all__ = ['make_people', 'make_randpop', 'make_random_contacts',
            'parse_synthpop']
 
 
-def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', save_pop=False, popfile=None, die=True, verbose=None, **kwargs):
+def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', location=None, save_pop=False, popfile=None, die=True, verbose=None, **kwargs):
     '''
     Make the actual people for the simulation. Usually called via sim.initialize(),
     but can be called directly by the user.
@@ -40,6 +40,7 @@ def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', save_po
             pop_size   = n,
             pop_type   = pop_type,
             rand_seed  = rand_seed,
+            location   = location,
             verbose    = 0,
             contacts   = dict(h=2.0, s=20,  w=16,  c=20),
         )

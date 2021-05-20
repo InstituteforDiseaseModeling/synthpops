@@ -11,6 +11,8 @@ import networkx as nx
 from . import utils as spu
 from .. import version as spv
 
+__all__ = ['FlexPretty', 'BasePeople', 'Person', 'FlexDict', 'Contacts', 'Layer', 'People']
+
 
 #%% Define people classes
 
@@ -177,7 +179,7 @@ class BasePeople(FlexPretty):
     def set(self, key, value, die=True):
         ''' Ensure sizes and dtypes match '''
         current = self[key]
-        value = np.array(value, dtype=self._dtypes[key]) # Ensure it's the right type
+        value = np.array(value, dtype=current.dtype) # Ensure it's the right type
         if die and len(value) != len(current): # pragma: no cover
             errormsg = f'Length of new array does not match current ({len(value)} vs. {len(current)})'
             raise IndexError(errormsg)
@@ -331,7 +333,7 @@ class BasePeople(FlexPretty):
     def person(self, ind):
         ''' Method to create person from the people '''
         p = Person()
-        for key in self.meta.all_states:
+        for key in self.keys():
             data = self[key]
             if data.ndim == 1:
                 val = data[ind]
@@ -895,8 +897,6 @@ Defines the Person class and functions associated with making people.
 '''
 
 
-__all__ = ['People']
-
 class People(BasePeople):
     '''
     A class to perform all the operations on the people. This class is usually
@@ -1079,8 +1079,9 @@ class People(BasePeople):
         layer_map = dict(h='#37b', s='#e11', w='#4a4', c='#a49')
         edge_colors = [layer_map[G[i][j][k]['layer']] for i,j,k in edges]
         edge_weights = [G[i][j][k]['beta']*5 for i,j,k in edges]
+        fig = pl.figure()
         nx.draw(G, node_color=node_colors, edge_color=edge_colors, width=edge_weights, alpha=0.5)
-        return
+        return fig
 
 
     def story(self, uid, *args):
