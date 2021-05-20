@@ -1,19 +1,18 @@
 """
 This module provides plotting methods including methods to plot the age-specific contact matrix in different contact layers.
 """
+
 import itertools
 import os
 import sciris as sc
 import numpy as np
-import covasim as cv
-import pandas as pd
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from collections import Counter
-import cmasher as cmr
-import cmocean as cmo
+import cmasher as cmr # Uses implicit import
+import cmocean as cmo # Uses implicit import
 import seaborn as sns
 
 from . import config as cfg
@@ -26,6 +25,7 @@ from . import schools as spsch
 from . import workplaces as spw
 from . import contact_networks as spcnx
 from . import pop as sppop
+from . import people as spp
 
 
 __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
@@ -33,7 +33,7 @@ __all__ = ['plotting_kwargs', 'calculate_contact_matrix', 'plot_contacts',
            'plot_household_sizes',
            # 'plot_household_head_ages',
            # 'plot_household_head_ages_by_household_size',
-           'plot_ltcf_resident_sizes', 
+           'plot_ltcf_resident_sizes',
            # 'plot_ltcf_resident_staff_ratios',
            'plot_enrollment_rates_by_age', 'plot_employment_rates_by_age',
            'plot_school_sizes', 'plot_workplace_sizes',
@@ -150,12 +150,12 @@ class plotting_kwargs(sc.objdict):
         # sometimes when not working with a pop object you might be missing location information directly as kwargs and need to use defaults or set the information
         for k in default_pop_pars:
             if k not in self:
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
+                cfg.logger.debug(f"kwargs is missing key: {k}. Using the default value: {default_pop_pars[k]}.")
                 self[k] = default_pop_pars[k]
 
         for k in default_age_pars:
             if k not in self:
-                cfg.logger.info(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
+                cfg.logger.debug(f"kwargs is missing key: {k}. Using the default value: {default_age_pars[k]}.")
                 self[k] = default_age_pars[k]
 
         # loc_pars not in self yet
@@ -165,6 +165,35 @@ class plotting_kwargs(sc.objdict):
         if not self.smooth_ages:
             self.window_length = 1
 
+        return
+
+    def make_title(self, suffix=None, override=False):
+        """
+        Create the title for the figure depending on the location information
+        and if there already exists a preset title_prefix.
+
+        Args:
+            suffix (str) : title suffix
+            override (bool): If True, override the title_prefix already stored in self and create a new one.
+
+        Returns:
+            None.
+        """
+        if suffix is None:
+            suffix = ""
+
+        location_text = [self[k] for k in ['location', 'state_location', 'country_location'] if self[k] is not None]
+        if len(location_text):
+            location_text = location_text[0]
+        else:
+            location_text = ""
+        if override is False:
+            if 'title_prefix' not in self or self.title_prefix is None:
+                self.title_prefix = f"{location_text}_{suffix}"
+        else:
+            self.title_prefix = f"{location_text}_{suffix}"
+
+        self.title_prefix = self.title_prefix.replace('_', ' ').title()
         return
 
     def restore_defaults(self):
@@ -305,7 +334,7 @@ def plot_contact_matrix(matrix, age_count, aggregate_age_count, age_brackets, ag
         age_count (dict)                   : dictionary with the count of individuals in the population for each age
         aggregate_age_count (dict)         : dictionary with the count of individuals in the population in each age bracket
         age_brackets (dict)                : dictionary mapping age bracket keys to age bracket range
-        age_by_brackets (dict)         : dictionary mapping age to the age bracket range it falls in
+        age_by_brackets (dict)             : dictionary mapping age to the age bracket range it falls in
         **layer (str)                      : name of the physial contact layer: H for households, S for schools, W for workplaces, C for community, etc.
         **density_or_frequency (str)       : Default value is 'density', see notes for more details.
         **logcolors_flag (bool)            : If True, plot heatmap in logscale
@@ -638,7 +667,7 @@ def plot_ages(pop, **kwargs):
     Plot a comparison of the expected and generated age distribution.
 
     Args:
-        pop (pop object)    : population, either synthpops.pop.Pop, covasim.people.People, or dict
+        pop (pop object)    : population, either synthpops.pop.Pop, sp.people.People, or dict
         **left (float)      : Matplotlib.figure.subplot.left
         **right (float)     : Matplotlib.figure.subplot.right
         **top (float)       : Matplotlib.figure.subplot.top
@@ -655,7 +684,7 @@ def plot_ages(pop, **kwargs):
         Matplotlib figure and axes.
 
     Note:
-        If using pop with type covasim.people.Pop or dict, args must be supplied
+        If using pop with type sp.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
     **Example**::
@@ -683,13 +712,12 @@ def plot_ages(pop, **kwargs):
         plkwargs.smooth_ages = pop.smooth_ages
         plkwargs.window_length = pop.window_length
 
-    elif not isinstance(pop, (dict, cv.people.People)):
+    elif not isinstance(pop, (dict, spp.People)):
         raise NotImplementedError(f"This method does not support pop objects with the type {type(pop)}. Please look at the notes and try another supported pop type.")
 
     # now check for missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_age_distribution"
+    plkwargs.make_title("age distribution")
 
     # get the expected age distribution
     expected_age_dist = spdata.get_smoothed_single_year_age_distr(**sc.mergedicts(plkwargs.loc_pars, dict(window_length=plkwargs.window_length)))
@@ -705,7 +733,7 @@ def plot_ages(pop, **kwargs):
         elif isinstance(pop, dict):
             generated_age_count = spb.count_ages(pop)
 
-        elif isinstance(pop, cv.people.People):
+        elif isinstance(pop, spp.People):
             generated_age_count = sc.mergedicts(generated_age_count, Counter(pop.age))  # with smaller populations, pop.age might not have all ages
 
         generated_age_dist = spb.norm_dic(generated_age_count)
@@ -757,7 +785,7 @@ def plot_household_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -787,8 +815,7 @@ def plot_household_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_household_sizes"
+    plkwargs.make_title("household sizes")
 
     # get the expected household size distribution
     expected_household_size_dist = spdata.get_household_size_distr(**plkwargs.loc_pars)
@@ -854,7 +881,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -885,8 +912,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_ltcf_resident_sizes"
+    plkwargs.make_title("long term care facility resident sizes")
 
     # get the expected ltcf resident sizes
     expected_ltcf_resident_sizes_binned = spdata.get_long_term_care_facility_residents_distr(**plkwargs.loc_pars)
@@ -953,7 +979,7 @@ def plot_ltcf_resident_sizes(pop, **kwargs):
 
 #     Note:
 #         If using pop with type dict, args must be supplied for the location
-#         parameter to get the expected rates. Covasim.people.People pop type
+#         parameter to get the expected rates. sp.people.People pop type
 #         not yet supported.
 
 #     **Example**::
@@ -1002,7 +1028,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1032,8 +1058,7 @@ def plot_enrollment_rates_by_age(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_enrollment_rates_by_age"
+    plkwargs.make_title("enrollment rates by age")
 
     # get the expected enrollment rates
     expected_enrollment_rates_by_age = spdata.get_school_enrollment_rates(**plkwargs.loc_pars)
@@ -1095,7 +1120,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1125,8 +1150,7 @@ def plot_employment_rates_by_age(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_employment_rates_by_age"
+    plkwargs.make_title("employment rates by age")
 
     # get the expected employment rates
     expected_employment_rates_by_age = dict.fromkeys(np.arange(spd.settings.max_age), 0)
@@ -1196,7 +1220,7 @@ def plot_school_sizes(pop, **kwargs):
         Matplotlib figure and axes.
 
     Note:
-        If using pop with type covasim.people.Pop or dict, args must be supplied
+        If using pop with type sp.people.Pop or dict, args must be supplied
         for the location parameters to get the expected distribution.
 
     **Example**::
@@ -1266,11 +1290,8 @@ def plot_school_sizes(pop, **kwargs):
     n_school_types = len(sorted_school_types)
     plkwargs.nrows = n_school_types
 
-    # location text
-    if plkwargs.location is not None:
-        location_text = f"{plkwargs.location.replace('_', ' ').title()}"
-    else:
-        location_text = f"{spd.settings.location.replace('_', ' ').title()}"
+    plkwargs.make_title()  # make title_prefix with just location information
+    location_text = plkwargs.title_prefix
 
     # create fig, ax, set cmap
     fig, ax = plt.subplots(n_school_types, 1, figsize=(plkwargs.display_width, plkwargs.display_height), dpi=plkwargs.display_dpi)
@@ -1360,7 +1381,7 @@ def plot_workplace_sizes(pop, **kwargs):
 
     Note:
         If using pop with type dict, args must be supplied for the location
-        parameter to get the expected rates. Covasim.people.People pop type
+        parameter to get the expected rates. sp.people.People pop type
         not yet supported.
 
     **Example**::
@@ -1391,8 +1412,7 @@ def plot_workplace_sizes(pop, **kwargs):
 
     # now check for the missing plkwargs and use default values if not found
     plkwargs.set_default_pop_pars()
-    if 'title_prefix' not in plkwargs or plkwargs.title_prefix is None:
-        plkwargs.title_prefix = f"{plkwargs.location}_workplace_sizes"
+    plkwargs.make_title("workplace sizes")
 
     # get the expected workplace sizes
     temp_loc_pars = sc.dcp(plkwargs.loc_pars)  # to be removed once data for location is merged
@@ -1490,7 +1510,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     # we will ignore the first row (family_size = 1) for plotting
     # flip to make each row an age bin for calculation then flip back
-    expected_hh_ages = expected_hh_ages[1:len(expected_hh_ages), :]
+    expected_hh_ages = expected_hh_ages[0:len(expected_hh_ages), :]  # include all household sizes, including 1
 
     expected_hh_ages_percentage = expected_hh_ages / np.sum(expected_hh_ages, axis=1)[:, np.newaxis]
     expected_hh_ages_percentage[np.isnan(expected_hh_ages_percentage)] = 0
@@ -1498,7 +1518,7 @@ def plot_household_head_ages_by_size(pop, **kwargs):
     expected_hh_ages_percentage *= 100
 
     actual_hh_ages = sphh.get_household_head_ages_by_size(pop)
-    actual_hh_ages = actual_hh_ages[1:len(expected_hh_ages), :]
+    actual_hh_ages = actual_hh_ages[0:len(expected_hh_ages), :]  # include all household sizes, including 1
 
     actual_hh_ages_percentage = actual_hh_ages / np.sum(actual_hh_ages, axis=1)[:, np.newaxis]
     actual_hh_ages_percentage[np.isnan(actual_hh_ages_percentage)] = 0
@@ -1507,14 +1527,14 @@ def plot_household_head_ages_by_size(pop, **kwargs):
 
     # spdata.get_head_age_by_size_distr returns an extra row so we need to match number of rows
     householdsize_rows = min(len(actual_hh_ages_percentage), len(expected_hh_ages_percentage))
-    household_sizes = [i + 2 for i in range(0, len(expected_hh_ages_percentage) - 1)]
+    household_sizes = [i + 1 for i in range(0, len(expected_hh_ages_percentage) - 1)]
     yticklabels = household_sizes
 
     interval = 5
 
     data_range_min = 0
     data_range_max = max(np.max(expected_hh_ages_percentage), np.max(actual_hh_ages_percentage))
-    data_range_max = int(np.ceil(data_range_max/interval)) * interval
+    data_range_max = int(np.ceil(data_range_max / interval)) * interval
     data_range = [data_range_min, data_range_max]
 
     return plot_heatmap(expected=expected_hh_ages_percentage[0:householdsize_rows, :],
@@ -1593,7 +1613,7 @@ def plot_heatmap(expected, actual, xticklabels, yticklabels, xlabel, ylabel, cba
     cax = divider.new_horizontal(size=plkwargs.divider_size, pad=plkwargs.divider_pad)
     fig.add_axes(cax)
     cbar = fig.colorbar(im[1], cax=cax)
-    cbar.ax.tick_params(axis='y', labelsize=plkwargs.fontsize-2)
+    cbar.ax.tick_params(axis='y', labelsize=plkwargs.fontsize - 2)
     cbar.ax.set_ylabel(cbar_ylabel)
 
     finalize_figure(fig, plkwargs)
@@ -1640,14 +1660,14 @@ def plot_contact_counts(contact_counter, **kwargs):
             ax.hist(contact_counter[counter[0]][counter[1]], color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
             ax.set_title(f'{counter[0]} to {counter[1]}', fontsize=plkwargs.fontsize)
             ax.tick_params(which='major', labelsize=plkwargs.fontsize)
-            ax.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
+            ax.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize - 1)
     else:
         from_index = list(people_types)[0]
         to_index = list(contact_types)[0]
         axes.hist(contact_counter.get(from_index).get(to_index), color=plkwargs.color_1, edgecolor=plkwargs.color_2, rwidth=0.8)
         axes.set_title(f'{from_index} to {to_index}', fontsize=plkwargs.fontsize)
         axes.tick_params(which='major', labelsize=plkwargs.fontsize)
-        axes.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize-1)
+        axes.set_xlabel('No. of contacts', fontsize=plkwargs.fontsize - 1)
 
     finalize_figure(fig, plkwargs)
     plt.close()
@@ -1683,10 +1703,12 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
     default_cmap = mplt.cm.get_cmap("rocket")
     method_defaults = sc.objdict(cmap=default_cmap, alpha=0.99, thresh=0.0001, cbar=True,
                                  shade=True, xlim=[0, 101], height=5, ratio=5,
-                                 title_prefix=f"Degree by Age for Layer: {layer}",
+                                 # title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.set_default_pop_pars()
+    plkwargs.make_title(f"Degree by Age for Layer: {layer}")
 
     interval = 5
     max_y = int(np.ceil(max(degree_df['degree'].values) / interval) * interval)
@@ -1724,7 +1746,7 @@ def plot_degree_by_age(pop, layer='H', ages=None, uids=None, uids_included=None,
 
     g.plot_marginals(sns.kdeplot, color=plkwargs.cmap(0.5), shade=plkwargs.shade, alpha=plkwargs.alpha * 0.8, legend=False)
 
-    g.fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize+1.5, horizontalalignment='left')
+    g.fig.suptitle(plkwargs.title_prefix, fontsize=plkwargs.fontsize + 1.5)
     g.ax_joint.set_xlabel('Age', fontsize=plkwargs.fontsize)
     g.ax_joint.set_ylabel('Degree', fontsize=plkwargs.fontsize)
     g.ax_joint.tick_params(labelsize=plkwargs.fontsize)
@@ -1759,10 +1781,11 @@ def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_includ
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
                                  shade=True, xlim=[0, 101], height=7,
-                                 title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
+    plkwargs.set_default_pop_pars()
+    plkwargs.make_title(f"Degree by Age for Layer: {layer}")
 
     fig, ax = plt.subplots(1, 1, figsize=(plkwargs.height, plkwargs.height))
     ax = sns.boxplot(x='age', y='degree', data=degree_df, palette=[plkwargs.cmap(0.5)], ax=ax)
@@ -1842,7 +1865,8 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
 
         axi.set_xlim(plkwargs.xlim)
         axi.set_ylim(min_y, max_y)
-        axi.set_title(f'Pop: {ni}  Layer: {layer}', fontsize=plkwargs.fontsize)
+        plkwargs.make_title(f"Pop: {ni} Layer: {layer}", override=True)
+        axi.set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     finalize_figure(fig, plkwargs)
 
@@ -1902,7 +1926,8 @@ def plot_degree_by_age_stats(pop, **kwargs):
         axs[nl].plot(x, y, color=color, lw=1.5)
 
         axs[nl].set_xlim(plkwargs.xlim)
-        axs[nl].set_title(pop.layer_mappings[layer], fontsize=plkwargs.fontsize)
+        plkwargs.make_title(pop.layer_mappings[layer], override=True)
+        axs[nl].set_title(plkwargs.title_prefix, fontsize=plkwargs.fontsize)
 
     finalize_figure(fig, plkwargs)
 

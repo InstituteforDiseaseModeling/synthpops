@@ -54,3 +54,15 @@ def test_get_ltcf(create_small_pop):
     assert pop.ltcfs[x]['ltcfid'] == ltcf['ltcfid']
     assert set(pop.ltcfs[x]['staff_uids']) == set(ltcf['staff_uids'])
     assert set(pop.ltcfs[x]['resident_uids']) == set(ltcf['resident_uids'])
+
+def test_member_ages(create_small_pop):
+    pop = create_small_pop
+    x = random.randint(0, len(pop.ltcfs) - 1)
+    ltcf = ltcfs.get_ltcf(pop, x)
+    assert set(ltcf.resident_ages(pop.age_by_uid)) == \
+           set([p['age'] for p in  pop.popdict.values() if p['ltcfid']==x and p['ltcf_res']]), 'Check resident_ages failed.'
+    assert set(ltcf.staff_ages(pop.age_by_uid)) == \
+           set([p['age'] for p in pop.popdict.values() if p['ltcfid'] == x and p['ltcf_staff']]), 'Check staff_ages failed.'
+    assert set(ltcf.member_ages(pop.age_by_uid)) == \
+           set([p['age'] for p in pop.popdict.values() if p['ltcfid'] == x]), 'Check member_ages failed.'
+
