@@ -54,11 +54,17 @@ def test_small_pop_n(caplog):
     sp.logger.info("Testing when n is small.")
     test_pars = sc.dcp(pars)
     test_pars['n'] = sp.defaults.default_pop_size - 1
+    test_pars['with_facilities'] = True
     with caplog.at_level(logging.WARNING):
         pop2 = sp.Pop(**test_pars)
         assert pop2.n == sp.defaults.default_pop_size - 1, 'Check failed.'
         assert len(caplog.text) != 0, 'Check failed. No warning message about small pop size n.'
-        assert len(pop2.ltcfs) == pop2.n_ltcfs == 0, 'Check failed. LTCF should not be created by small pop size n.'
+        assert pop2.ltcf_pars.with_facilities == False, 'Check failed. LTCF should not be created by small pop size n.'
+        # more checks that no ltcfs were generated
+        with pytest.raises(AttributeError):
+            ltcfs = pop2.ltcfs
+        with pytest.raises(AttributeError):
+            n_ltcfs = pop2.n_ltcfs
     print('Check passed')
 
 
