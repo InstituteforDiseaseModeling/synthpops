@@ -36,6 +36,26 @@ Version 1.10.0 (2021-05-20)
 - *Github*: PR `497 <https://github.com/amath-idm/synthpops/pull/497>`__
 
 
+Version 1.9.3 (2021-05-20)
+--------------------------
+- *Feature*: Minor feature update - plotting methods will now automatically search for location information to include in the figure titles. In order of `location`, `state_location`, `country_location`, ``sp.plotting.plkwargs.make_title()`` will look for the first available string to prefix the figure title.
+- This update also changes behavior of some logging statements when using plotting methods. Instead of always sending users information about kwargs missing and the value of defaults being used in place, this behavior is now available under the debug mode for SynthPops.
+- *Github Info*: PR `498 <https://github.com/amath-idm/synthpops/pull/498>`__
+
+
+Version 1.9.2 (2021-05-20)
+--------------------------
+- *Fix*: Fix to how different layer classes get ages of members in the group or subgroups within. Specifically, this fixes how ages for members of schools and long term care facilities are calculated so that these layer classes can also call on the ages of members with specific roles in the class (i.e., students vs. teachers vs. non-teaching staff, or residents vs. staff). Tests have been added to verify these methods now work as expected.
+- Slight reorganizing of module imports in ``pop.py``
+- *Github Info*: PR `495 <https://github.com/amath-idm/synthpops/pull/495>`__
+
+
+Version 1.9.1 (2021-05-20)
+--------------------------
+- *Fix*: Fixing the logic in ``sp.contact_networks.get_contact_counts_by_layer`` so that it no longer returns an empty list in the dictionary counting contacts by layer group id, but rather returns lists populated with actual counts. Test assertions have also been added to catch this in case of future refactor work; see ``test_plotting.py:test_plot_contact_counts_on_pop``.
+- *Github Info*: PR `483 <https://github.com/amath-idm/synthpops/pull/483>`__
+
+
 Version 1.9.0 (2021-05-16)
 --------------------------
 - Data folder cleaned up and removed individual csv data files now that synthpops has json data files instead for the collection of data used for each location.

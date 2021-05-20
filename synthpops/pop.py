@@ -5,17 +5,18 @@ This module provides the main class for interacting with SynthPops, the Pop clas
 import numpy as np
 import sciris as sc
 from .config import logger as log
+from . import version as spv
+from . import defaults
+from . import base as spb
 from . import config as cfg
 from . import sampling as spsamp
-from . import base as spb
 from . import data_distributions as spdata
-from . import contact_networks as spcnx
 from . import ltcfs as spltcf
 from . import households as sphh
 from . import schools as spsch
 from . import workplaces as spw
+from . import contact_networks as spcnx
 from . import plotting as sppl
-from . import defaults
 from . import people as spp
 
 
@@ -1153,20 +1154,6 @@ class Pop(sc.prettyobj):
         """
         fig, ax = sppl.plot_household_sizes(self, **kwargs)
         return fig, ax
-
-    # # TBC: placeholder for now
-    # def plot_household_head_ages(self, **kwargs):
-    #     """
-    #     Plot a comparison of the expected and generated head of household ages.
-
-    #     **Examples**::
-
-    #         pars = {'n': 10e3, 'location':'seattle_metro', 'state_location':'Washington', 'country_location':'usa'}
-    #         pop = sp.Pop(**pars)
-    #         fig, ax = pop.plot_household_head_ages()
-    #     """
-    #     fig, ax = sppl.plot_household_head_ages(self, **kwargs)
-    #     return fig, ax
 
     def plot_household_head_ages_by_size(self, **kwargs):
         """

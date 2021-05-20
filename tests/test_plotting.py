@@ -331,6 +331,8 @@ def test_plot_contact_counts_on_pop(create_pop, do_show=False, do_save=False):
     sp.logger.info("Test plot_contact_counts on sp.Pop object.")
     pop = create_pop
     contact_counter = pop.get_contact_counts_by_layer(layer='S')
+    assert len(contact_counter['sc_student'])>0, 'contact counter for student should not return 0.'
+    assert len(contact_counter['sc_teacher']) > 0, 'contact counter for teacher should not return 0.'
     kwargs = sc.objdict()
     kwargs.do_show = do_show
     kwargs.do_save = do_save
