@@ -1,6 +1,6 @@
 {
   "location_name": "test_location_child",
-  "parent": "unittests/test_location_A.json",
+  "parent": "test_location_A.json",
   "employment_rates_by_age": [
     [19,0.300],
     [20,0.693]

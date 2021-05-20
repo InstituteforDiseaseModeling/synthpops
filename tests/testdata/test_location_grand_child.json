@@ -1,0 +1,8 @@
+{
+  "location_name": "test_location_grand_child",
+  "parent": "test_location_child.json",
+   "school_size_distribution": [
+            0.5,
+            0.5
+        ]
+}
