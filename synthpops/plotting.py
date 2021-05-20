@@ -1781,7 +1781,6 @@ def plot_degree_by_age_boxplot(pop, layer='H', ages=None, uids=None, uids_includ
     cmap = sns.cubehelix_palette(light=1, as_cmap=True)
     method_defaults = sc.objdict(cmap=cmap, alpha=0.99, thresh=0.001, cbar=True,
                                  shade=True, xlim=[0, 101], height=7,
-                                 # title_prefix=f"Degree by Age for Layer: {layer}",
                                  fontsize=10, save_dpi=400,
                                  )
     plkwargs.update_defaults(method_defaults, kwargs)
