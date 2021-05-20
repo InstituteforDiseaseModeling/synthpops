@@ -13,7 +13,7 @@ def test_household_average_contact_by_age(do_show, do_save, create_sample_pop_e2
     plotting_kwargs = sc.objdict(do_show=do_show, do_save=do_save, figdir=get_fig_dir_by_module)
     fig = create_sample_pop_e2e.plot_contacts(**plotting_kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
-
+    mplt.pyplot.close(fig)
 
 def test_age_distribution():
     # todo: require statistics methods
@@ -34,7 +34,7 @@ def test_household_head_ages_by_household_size_e2e(do_show, do_save, create_samp
     fig, ax = sp.plot_household_head_ages_by_size(create_sample_pop_e2e, **plotting_kwargs)
     assert isinstance(fig, mplt.figure.Figure), 'Check failed. Figure not generated.'
     print('Check passed. Figure made.')
-
+    mplt.pyplot.close(fig)
 
 if __name__ == "__main__":
     # you can pass --do-save --do-show --artifact-dir argument to view/save the figures
