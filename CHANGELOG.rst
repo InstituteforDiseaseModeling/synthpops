@@ -27,6 +27,12 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.10.2 (2021-05-20)
+--------------------------
+- Adding new json data files plus some example scripts to show users how to make their own json data files from individual raw data files for a given location.
+- *Github Info*: PR `494 <https://github.com/amath-idm/synthpops/pull/494>`__
+
+
 Version 1.10.1 (2021-05-20)
 ---------------------------
 - *Fix*: Reinstating previous tests on methods within ``sp.data.py`` and updating ``sp.load_location_from_json_str()`` to take an optional parameter to control when checks on data loading are performed.
@@ -60,12 +66,6 @@ Version 1.9.1 (2021-05-20)
 --------------------------
 - *Fix*: Fixing the logic in ``sp.contact_networks.get_contact_counts_by_layer`` so that it no longer returns an empty list in the dictionary counting contacts by layer group id, but rather returns lists populated with actual counts. Test assertions have also been added to catch this in case of future refactor work; see ``test_plotting.py:test_plot_contact_counts_on_pop``.
 - *Github Info*: PR `483 <https://github.com/amath-idm/synthpops/pull/483>`__
-
-
-Version 1.9.1 (2021-05-19)
---------------------------
-- Adding new json data objects plus some scripts to show users how to make their own from individual raw data files.
-- *Github Info*: PR `494 <https://github.com/amath-idm/synthpops/pull/494>`__
 
 
 Version 1.9.0 (2021-05-16)
