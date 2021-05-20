@@ -1,9 +1,26 @@
 {
   "location_name": "Senegal-Dakar",
   "data_provenance_notices": [],
-  "reference_links": [],
-  "citations": [],
-  "notes": [],
+  "reference_links": [
+    "https://microdata.worldbank.org/index.php/catalog/3485/related-materials",
+    "https://www.ansd.sn/ressources/ses/chapitres/3-SES-2015_Emploi.pdf",
+    "https://dhsprogram.com/publications/publication-fr345-dhs-final-reports.cfm",
+    "https://hal.archives-ouvertes.fr/tel-01150504v2",
+    "https://labordoc.ilo.org/permalink/41ILO_INST/8s7mv9/alma995060592602676"
+  ],
+  "citations": [
+    "Situation des Enfants et des Femmes Dakar Urbain 2015-2016, Agence Nationale de la Statistique et de la Demographie",
+    "Situation Economique et Social du Senegal en 2015, Agence Nationale de la Statistique et de la Demographie (2015)",
+    "Agence Nationale de la Statistique et de la Démographie - ANSD/Sénégal, et ICF. 2018. Sénégal : Enquête Démographique et de Santé Continue - EDS-Continue 2017. Rockville, Maryland, USA : ANSD et ICF.",
+    "Oswald Koussihouede. Three Essays in the Economics of Education. Economics and Finance. Université Gaston Berger, 2015. English. tel-01150504v2",
+    "Recensement Général des Entreprises (2016)",
+    "Diagnostic de l’Économie Informelle au Sénégal"
+  ],
+  "notes": [
+    "Employment rates are taken from Figure 3.12 of 3-SES-2015_Emploi.pdf",
+    "Enrollment rates for Urban Dakar are taken from the Situation des Enfants at des Femmes Dakar Urbain 2015-2016, Table ED.4 and Table ED.5",
+    "Age of head of household taken from Table 2.12 of Senegal Enquete Demographique et de Sante Continue 2017"
+  ],
   "parent": "Senegal.json",
   "population_age_distributions": [{
     "num_bins": 18,

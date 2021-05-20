@@ -453,34 +453,34 @@ class Pop(sc.prettyobj):
         homes_by_uids = homes_by_uids[len(facilities_by_uid_lists):]
         homes = homes[len(facilities_by_uid_lists):]
 
-        # population, schools_in_groups = spcnx.make_contacts_from_microstructure_objects(age_by_uid=age_by_uid,
-        population, schools_in_groups = spcnx.make_contacts(age_by_uid=age_by_uid,
-                                                            homes_by_uids=homes_by_uids,
-                                                            students_by_uid_lists=student_uid_lists,
-                                                            teachers_by_uid_lists=teacher_uid_lists,
-                                                            non_teaching_staff_uid_lists=non_teaching_staff_uid_lists,
-                                                            workplace_by_uid_lists=workplace_uid_lists,
-                                                            facilities_by_uid_lists=facilities_by_uid_lists,
-                                                            facilities_staff_uid_lists=facilities_staff_uid_lists,
-                                                            use_two_group_reduction=use_two_group_reduction,
-                                                            average_LTCF_degree=average_LTCF_degree,
-                                                            with_school_types=with_school_types,
-                                                            school_mixing_type=school_mixing_type,
-                                                            average_class_size=average_class_size,
-                                                            inter_grade_mixing=inter_grade_mixing,
-                                                            average_student_teacher_ratio=average_student_teacher_ratio,
-                                                            average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                            average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                            average_additional_staff_degree=average_additional_staff_degree,
-                                                            school_type_by_age=school_type_by_age,
-                                                            max_contacts=max_contacts)
+        population = spcnx.make_contacts(self,
+                                         age_by_uid=age_by_uid,
+                                         homes_by_uids=homes_by_uids,
+                                         students_by_uid_lists=student_uid_lists,
+                                         teachers_by_uid_lists=teacher_uid_lists,
+                                         non_teaching_staff_uid_lists=non_teaching_staff_uid_lists,
+                                         workplace_by_uid_lists=workplace_uid_lists,
+                                         facilities_by_uid_lists=facilities_by_uid_lists,
+                                         facilities_staff_uid_lists=facilities_staff_uid_lists,
+                                         use_two_group_reduction=use_two_group_reduction,
+                                         average_LTCF_degree=average_LTCF_degree,
+                                         with_school_types=with_school_types,
+                                         school_mixing_type=school_mixing_type,
+                                         average_class_size=average_class_size,
+                                         inter_grade_mixing=inter_grade_mixing,
+                                         average_student_teacher_ratio=average_student_teacher_ratio,
+                                         average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                         average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                         average_additional_staff_degree=average_additional_staff_degree,
+                                         school_type_by_age=school_type_by_age,
+                                         max_contacts=max_contacts)
 
         # Change types
         for key, person in population.items():
             for layerkey in population[key]['contacts'].keys():
                 population[key]['contacts'][layerkey] = list(population[key]['contacts'][layerkey])
 
-        school_mixing_types = [schools_in_groups[ns]['school_mixing_type'] for ns in range(len(schools_in_groups))]
+        school_mixing_types = [self.schools_in_groups[ns]['school_mixing_type'] for ns in range(len(self.schools_in_groups))]
 
         # temporarily store some information
         self.homes_by_uids = homes_by_uids
@@ -490,15 +490,15 @@ class Pop(sc.prettyobj):
         self.non_teaching_staff_uid_lists = non_teaching_staff_uid_lists
         self.school_types = school_types
         self.school_mixing_types = school_mixing_types
-        self.schools_in_groups = schools_in_groups
         if self.ltcf_pars.with_facilities:
             self.facilities_by_uid_lists = facilities_by_uid_lists
             self.facilities_staff_uid_lists = facilities_staff_uid_lists
 
             sum_ltcf_res = sum([len(f) for f in self.facilities_by_uid_lists])
             if sum_ltcf_res == 0:
-                log.warning(f"Heads up: Population and long term care facility use rates were too low, no facilities were created for this population. If you wish to include people living in this type of layer, consider using a larger population size or checking your data.")
+                log.warning(f"Heads up: Population size and long term care facility use rates were too low, no facilities were created for this population. If you wish to include people living in this type of layer, consider using a larger population size or checking your data on long term care facility use rates. Changing pop.with_facilities to False.")
                 self.layers.remove('LTCF')
+                self.ltcf_pars.with_facilities = False
 
         self.set_layer_classes()
         self.clean_up_layer_info()

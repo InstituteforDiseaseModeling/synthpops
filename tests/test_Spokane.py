@@ -9,9 +9,10 @@ pars = sc.objdict(
     n                               = settings.pop_sizes.medium,
     rand_seed                       = 123,
     location                        = 'Spokane_County',
+    # location = 'seattle_metro',
     state_location                  = 'Washington',
     country_location                = 'usa',
-    use_default                     = 0,  # must search for Spokane County data
+    use_default                     = 1,  # search for seattle metro data for ltcfs
 
     household_method                = 'fixed_ages',
 
