@@ -170,7 +170,7 @@ def test_households_basic():
     print('Check passed. Cannot get a household with hhid larger than the number of households')
 
     sp.logger.info("Check member_ages")
-    assert set(pop_2.households[0].member_ages(np.array([v for v in age_by_uid.values()]))) == set([88, 45, 47]), \
+    assert set(pop_2.households[0].member_ages(np.array(list(age_by_uid.values())))) == set([88, 45, 47]), \
         'Check failed for member_ages.'
 
 
