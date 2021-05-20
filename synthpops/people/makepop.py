@@ -31,6 +31,8 @@ def make_people(n=None, popdict=None, rand_seed=1, pop_type='synthpops', locatio
 
     Returns:
         people (People): people
+
+    New in version 1.10.0.
     '''
     if popdict is not None:
         popdict = sc.dcp(popdict) # Otherwise, modifies in place
@@ -102,6 +104,8 @@ def make_randpop(sim, use_age_data=True, use_household_data=True, sex_ratio=0.5,
 
     Returns:
         popdict (dict): a dictionary representing the population, with the following keys for a population of N agents with M contacts between them:
+    
+    New in version 1.10.0.
     '''
 
     pop_size = int(sim['pop_size']) # Number of people
@@ -173,6 +177,8 @@ def make_random_contacts(pop_size, contacts, overshoot=1.2, dispersion=None):
     Returns:
         contacts_list (list): a list of length N, where each entry is a dictionary by layer, and each dictionary entry is the UIDs of the agent's contacts
         layer_keys (list): a list of layer keys, which is the same as the keys of the input "contacts" dictionary
+    
+    New in version 1.10.0.
     '''
 
     # Preprocessing
@@ -255,6 +261,8 @@ def make_hybrid_contacts(pop_size, ages, contacts, school_ages=None, work_ages=N
     random contacts for schools and workplaces, both of which have extremely
     basic age structure. A combination of both make_random_contacts() and
     make_microstructured_contacts().
+
+    New in version 1.10.0.
     '''
 
     # Handle inputs and defaults
@@ -304,6 +312,8 @@ def parse_synthpop(population, layer_mapping=None, community_contacts=0):
         population (list): a pre-generated SynthPops population
         layer_mapping (dict): a custom mapping from SynthPops layers to Covasim layers
         community_contacts (int): create this many community contacts on average
+
+    New in version 1.10.0.
     '''
     # Handle layer mapping
     default_layer_mapping = {'H':'h', 'S':'s', 'W':'w', 'C':'c', 'LTCF':'l'} # Remap keys from old names to new names

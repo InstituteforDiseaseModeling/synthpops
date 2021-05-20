@@ -123,9 +123,11 @@ def show_locations(location=None, output=False):
 
     **Examples**::
 
-        cv.data.show_locations() # Print a list of valid locations
-        cv.data.show_locations('lithuania') # Check if Lithuania is a valid location
-        cv.data.show_locations('Viet-Nam') # Check if Viet-Nam is a valid location
+        sp.people.show_locations() # Print a list of valid locations
+        sp.people.show_locations('lithuania') # Check if Lithuania is a valid location
+        sp.people.show_locations('Viet-Nam') # Check if Viet-Nam is a valid location
+
+    New in version 1.10.0.
     '''
     country_json   = sc.dcp(cad.data)
     state_json     = sc.dcp(sad.data)
@@ -168,6 +170,8 @@ def get_age_distribution(location=None):
 
     Returns:
         age_data (array): Numpy array of age distributions, or dict if multiple locations
+
+    New in version 1.10.0.
     '''
 
     # Load the raw data
@@ -206,6 +210,8 @@ def get_household_size(location=None):
 
     Returns:
         house_size (float): Size of household, or dict if multiple locations
+
+    New in version 1.10.0.
     '''
     # Load the raw data
     json = sc.dcp(hsd.data)

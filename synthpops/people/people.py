@@ -20,6 +20,8 @@ class FlexPretty(sc.prettyobj):
     '''
     A class that supports multiple different display options: namely obj.brief()
     for a one-line description and obj.disp() for a full description.
+
+    New in version 1.10.0.
     '''
 
     def __repr__(self):
@@ -61,6 +63,8 @@ class BasePeople(FlexPretty):
     A class to handle all the boilerplate for people -- note that as with the
     BaseSim vs Sim classes, everything interesting happens in the People class,
     whereas this class exists to handle the less interesting implementation details.
+
+    New in version 1.10.0.
     '''
 
     def __init__(self):
@@ -517,8 +521,10 @@ class BasePeople(FlexPretty):
 
 class Person(sc.prettyobj):
     '''
-    Class for a single person. Note: this is largely deprecated since sim.people
+    Class for a single person. Note: this is largely deprecated since People
     is now based on arrays rather than being a list of people.
+
+    New in version 1.10.0.
     '''
     def __init__(self, pars=None, uid=None, age=-1, sex=-1, contacts=None):
         self.uid         = uid # This person's unique identifier
@@ -558,6 +564,8 @@ class FlexDict(dict):
 class Contacts(FlexDict):
     '''
     A simple (for now) class for storing different contact layers.
+
+    New in version 1.10.0.
     '''
     def __init__(self, layer_keys=None):
         if layer_keys is not None:
@@ -674,6 +682,8 @@ class Layer(FlexDict):
         index = np.arange(n)
         self_conn = p1 == p2
         layer2 = cv.Layer(**layer, index=index, self_conn=self_conn, label=layer.label)
+
+    New in version 1.10.0.
     '''
 
     def __init__(self, label=None, **kwargs):
@@ -920,6 +930,8 @@ class People(BasePeople):
 
         sim = cv.Sim()
         ppl2 = cv.People(sim.pars)
+
+    New in version 1.10.0.
     '''
 
     def __init__(self, pars, strict=False, **kwargs):
