@@ -3,3 +3,4 @@ pytest-parallel
 pytest-cov
 coverage
 coverage-badge
+fpdf
