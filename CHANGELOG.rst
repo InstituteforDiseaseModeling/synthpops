@@ -27,7 +27,7 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Version 1.10.0 (2021-05-18)
+Version 1.10.0 (2021-05-20)
 ---------------------------
 - *Feature*: Ports Covasim's ``People`` class to SynthPops, and adds a new method to the ``Pop`` object, ``to_people()``. 
 - While the differences are numerous, the major difference is that the ``People`` class stores data as NumPy arrays rather than as dicts or objects. This leads to performance improvements, at a cost of reduced flexibility. Most notable, ``people.contacts`` is a single edge list per layer, which is very fast to iterate over. Other quantities, such as ``people['age']``, are also flat vectors. 

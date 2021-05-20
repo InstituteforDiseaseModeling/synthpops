@@ -30,16 +30,18 @@ pars = sc.objdict(
                                'hs': 'random', 'uv': 'random'},  # you should know what school types you're working with
 )
 
+
 @pytest.fixture(scope="module")
 def create_pop():
     return sp.Pop(**pars)
+
 
 def test_plots(create_pop, do_plot=False):
     ''' Basic plots '''
     if not do_plot:
         plt.switch_backend('agg')  # Plot but don't show
     pop = create_pop  # default parameters, 5k people
-    fig1 = pop.plot_people()  # equivalent to cv.Sim.people.plot()
+    fig1 = pop.plot_people()  # equivalent to pop.to_people().plot()
     fig2 = pop.plot_contacts()  # equivalent to sp.plot_contact_matrix(popdict)
     return [fig1, fig2]
 
@@ -58,7 +60,7 @@ def test_calculate_contact_matrix_errors(create_pop):
 def test_catch_pop_type_errors():
     """
     Test that synthpops.plotting methods raise error when pop type is not in
-    sp.Pop, dict, or cv.people.People.
+    sp.Pop, dict, or sp.people.People.
     """
     sp.logger.info("Catch NotImplementedError when pop type is invalid.")
     pop = 'not a pop object'
@@ -145,20 +147,20 @@ def test_pop_without_plkwargs(create_pop):
     print('Check passed. Figure 1 made.')
 
 
-def test_plot_with_cvpeople(create_pop, do_show=False, do_save=False):
+def test_plot_with_sppeople(create_pop, do_show=False, do_save=False):
     """
-    Test plotting method works on covasim.people.People object.
+    Test plotting method works on synthpops.people.People object.
 
     Notes:
         With this pop type, you will need to supply more information to
         tell the method where to look for expected data.
     """
-    sp.logger.info("Test that the age comparison plotting method works on cv.people.People and plotting styles can be easily updated.")
+    sp.logger.info("Test that the age comparison plotting method works on sp.people.People and plotting styles can be easily updated.")
     pop = create_pop
     people = pop.to_people()
     kwargs = sc.objdict(sc.mergedicts(pars, pop.loc_pars))
     kwargs.datadir = sp.settings.datadir
-    kwargs.figname = f"test_ages_{kwargs.location}_cvpeople"
+    kwargs.figname = f"test_ages_{kwargs.location}_sppeople"
     kwargs.do_show = do_show
     kwargs.do_save = do_save
 
@@ -352,7 +354,7 @@ if __name__ == '__main__':
     test_plot_array()
     test_pop_without_plkwargs(create_pop=pop)
     fig0, ax0, pop0 = test_plot_ages(create_pop=pop, do_show=True)
-    fig1, ax1, people1 = test_plot_with_cvpeople(create_pop=pop, do_show=True, do_save=True)
+    fig1, ax1, people1 = test_plot_with_sppeople(create_pop=pop, do_show=True, do_save=True)
     fig2, ax2, pop2 = test_plot_household_sizes_dist(create_pop=pop, do_show=True)
     fig3, ax3, pop3 = test_plot_ltcf_resident_sizes(create_pop=pop, do_show=True)
     fig4, ax4, pop4 = test_plot_enrollment_rates_by_age(create_pop=pop, do_show=True)
