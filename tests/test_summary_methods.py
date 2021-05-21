@@ -5,7 +5,6 @@ demographic distributions where possible.
 import numpy as np
 import sciris as sc
 import synthpops as sp
-import covasim as cv
 import pytest
 import settings
 
