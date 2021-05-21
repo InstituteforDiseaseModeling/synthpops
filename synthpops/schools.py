@@ -552,10 +552,8 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
     sorted_size_brackets = sorted(school_size_brackets.keys())
 
-    ages_in_school_distr = spb.norm_dic(ages_in_school_count)  # maybe not needed
+    ages_in_school_distr = spb.norm_dic(ages_in_school_count)
     age_keys = list(ages_in_school_count.keys())
-    # for a in uids_in_school_by_age.keys():
-        # print(a, len(uids_in_school_by_age[a]))
 
     while len(uids_in_school):
 
@@ -563,8 +561,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         new_student_uids = []
 
         aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
-        # aindex = age_keys[spsamp.fast_choice(ages_in_school_count.values())]
-        print(aindex, ages_in_school_count.values())
 
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
