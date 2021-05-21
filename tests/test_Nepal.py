@@ -51,20 +51,8 @@ def pop_exploration():
 
 if __name__ == '__main__':
     test_Nepal()
-    pop_exploration()
-    # sp.set_location_defaults(country_location="Senegal")
+    # pop_exploration()
 
-    # pop = sp.Pop(**pars)
-    # print(pop.summarize())
-    # pop.plot_ages()
-    # pop.plot_household_sizes()
-    # pop.plot_enrollment_rates_by_age()
-    # pop.plot_contacts(layer='H', density_or_frequency='density', logcolors_flag=0, title_prefix="Nepal Age Mixing")
-    # pop.plot_school_sizes(with_school_types=1)
-    # pop.plot_employment_rates_by_age()
-    # pop.plot_workplace_sizes()
-    # sp.set_location_defaults()
-    # plt.show()
 
 
 
