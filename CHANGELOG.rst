@@ -27,6 +27,12 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.10.3 (2021-05-21)
+---------------------------
+- *Fix*: Addressing a bug when schools smaller than expected by the school size distributions are created in the case where there are not enough students left to place in the selected type of school.
+- *Github Info*: PR `505 <https://github.com/amath-idm/synthpops/pull/505>`__
+
+
 Version 1.10.1 (2021-05-20)
 ---------------------------
 - *Fix*: Reinstating previous tests on methods within ``sp.data.py`` and updating ``sp.load_location_from_json_str()`` to take an optional parameter to control when checks on data loading are performed.
