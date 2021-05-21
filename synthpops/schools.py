@@ -518,8 +518,8 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
         aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
         # aindex = age_keys[spsamp.fast_choice(ages_in_school_count.values())]
-        print(ages_in_school_count.values())
-        print(aindex)
+        print(aindex, ages_in_school_count.values())
+
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
         uids_in_school.pop(uid, None)
@@ -561,14 +561,9 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
                 for n, a in enumerate(school_type_age_range):
                     count = len(uids_in_school_by_age[a])
                     school_uids_in_age = uids_in_school_by_age[a]
-                    uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
-                    ages_in_school_count[a] -= count
                     new_student_ages.extend([a for i in range(count)])
                     new_student_uids.extend(school_uids_in_age)
 
-                for uid in new_student_uids:
-                    uids_in_school.pop(uid, None)
-                ages_in_school_distr = spb.norm_dic(ages_in_school_count)
                 student_age_lists[rns].extend(new_student_ages)
                 student_uid_lists[rns].extend(new_student_uids)
 

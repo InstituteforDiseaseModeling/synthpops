@@ -11,7 +11,7 @@ import pytest
 default_nbrackets = sp.settings.nbrackets
 
 pars = sc.objdict(
-    n                = settings.pop_sizes.large,
+    n                = settings.pop_sizes.small,
     rand_seed        = 0,
 
     household_method = 'fixed_ages',
