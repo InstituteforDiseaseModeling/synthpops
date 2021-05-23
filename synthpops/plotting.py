@@ -1825,6 +1825,7 @@ def plot_multi_degree_by_age(pop_list, layer='H', ages=None, kind='kde', **kwarg
                                  subplot_height=3, subplot_width=3.1, left=0.06, right=0.97, bottom=0.10)
     plkwargs.update_defaults(method_defaults, kwargs)
     plkwargs.set_default_pop_pars()
+
     plkwargs.height = np.ceil(len(pop_list) / 3) * plkwargs.subplot_height
     plkwargs.width = (len(pop_list) % 3 + 3) * plkwargs.subplot_width
 

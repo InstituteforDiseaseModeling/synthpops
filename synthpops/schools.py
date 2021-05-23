@@ -561,7 +561,6 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
         new_student_uids = []
 
         aindex = age_keys[spsamp.fast_choice(ages_in_school_distr.values())]
-
         uid = uids_in_school_by_age[aindex][0]
         uids_in_school_by_age[aindex].remove(uid)
         uids_in_school.pop(uid, None)

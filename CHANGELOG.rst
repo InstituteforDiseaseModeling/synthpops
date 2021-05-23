@@ -27,6 +27,12 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.10.2 (2021-05-22)
+--------------------------
+- Adding new json data files plus some example scripts to show users how to make their own json data files from individual raw data files for a given location.
+- *Github Info*: PRs `494 <https://github.com/amath-idm/synthpops/pull/494>`__, `506 <https://github.com/amath-idm/synthpops/pull/506>`__
+
+
 Version 1.10.1 (2021-05-20)
 ---------------------------
 - *Fix*: Reinstating previous tests on methods within ``sp.data.py`` and updating ``sp.load_location_from_json_str()`` to take an optional parameter to control when checks on data loading are performed.
