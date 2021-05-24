@@ -24,7 +24,6 @@ def process_age_tables():
     data = dict(age_min=sc.dcp(age_range), age_max=sc.dcp(age_range), age_dist=age_dist)
     data['age_max'][-1] = 100
     new_df = pd.DataFrame.from_dict(data)
-    print(new_df)
 
     new_file_path = os.path.join(dir_path, 'Malawi_national_ages.csv')
     new_df.to_csv(new_file_path, index=False)
@@ -33,7 +32,7 @@ def process_age_tables():
     census_age_by_brackets = sp.get_age_by_brackets(census_age_brackets)
 
     agg_ages = sp.get_aggregate_ages(age_dist_mapping, census_age_by_brackets)
-    print(agg_ages)
+
     agg_data = dict()
     agg_data['age_min'] = np.array([census_age_brackets[b][0] for b in census_age_brackets])
     agg_data['age_max'] = np.array([census_age_brackets[b][-1] for b in census_age_brackets])
@@ -98,8 +97,7 @@ def process_education_tables():
 if __name__ == '__main__':
     print(f"processing files from {dir_path}.")
 
-    
-
+    # # turn the following on as needed to process raw data files
     # process_age_tables()
     # process_labor_tables()
     # process_education_tables()

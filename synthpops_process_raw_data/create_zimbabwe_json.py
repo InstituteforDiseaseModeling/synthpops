@@ -24,6 +24,7 @@ def get_age_dist_arr(location_data, num_agebrackets=16):
     age_dist = sp.PopulationAgeDistribution()
     age_dist.num_bins = len(age_dist_arr)
     age_dist.distribution = age_dist_arr
+
     return age_dist
 
 
@@ -102,6 +103,7 @@ def get_school_type_age_ranges(location_data):
         s.school_type = school_type
         s.age_range = [arr[si][1], arr[si][2]]
         school_type_age_ranges.append(s)
+
     return school_type_age_ranges
 
 

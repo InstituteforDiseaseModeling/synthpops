@@ -8,8 +8,6 @@ import settings
 import pytest
 
 
-default_nbrackets = sp.settings.nbrackets
-
 pars = sc.objdict(
     n                = settings.pop_sizes.small_medium,
     rand_seed        = 0,
@@ -33,7 +31,7 @@ def test_Zimbabwe():
     # make a basic population
     pop = sp.Pop(**pars)
     assert pop.country_location == 'Zimbabwe', "population location information is not set to Zimbabwe"
-    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+    sp.reset_default_settings()  # reset defaults
 
 
 def pop_exploration():
@@ -48,22 +46,10 @@ def pop_exploration():
     pop.plot_school_sizes(with_school_types=1)
     pop.plot_employment_rates_by_age()
     pop.plot_workplace_sizes()
-    sp.reset_default_settings()  # reset defaults so that other tests in parallel are not impacted
+    sp.reset_default_settings()  # reset defaults
     plt.show()
 
 
 if __name__ == '__main__':
     test_Zimbabwe()
     pop_exploration()
-    # sp.set_location_defaults(country_location="Senegal")
-    # pop = sp.Pop(**pars)
-    # print(pop.summarize())
-    # pop.plot_ages()
-    # pop.plot_household_sizes()
-    # pop.plot_enrollment_rates_by_age()
-    # pop.plot_contacts(layer='H', density_or_frequency='density', logcolors_flag=0, title_prefix="Zimbabwe Age Mixing")
-    # pop.plot_school_sizes(with_school_types=1)
-    # pop.plot_employment_rates_by_age()
-    # pop.plot_workplace_sizes()
-    # sp.set_location_defaults()
-    # plt.show()
