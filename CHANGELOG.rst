@@ -28,7 +28,7 @@ Latest versions (1.9.x  – 1.10.x)
 
 
 Version 1.10.2 (2021-05-22)
---------------------------
+---------------------------
 - Adding new json data files plus some example scripts to show users how to make their own json data files from individual raw data files for a given location.
 - *Github Info*: PRs `494 <https://github.com/amath-idm/synthpops/pull/494>`__, `506 <https://github.com/amath-idm/synthpops/pull/506>`__
 
