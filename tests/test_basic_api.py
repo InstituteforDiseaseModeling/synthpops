@@ -68,6 +68,18 @@ def test_small_pop_n(caplog):
     print('Check passed')
 
 
+def test_default_pop():
+    sp.logger.info("Testing default pop")
+    pop_default = sp.Pop()
+    for i in pop_default.loc_pars:
+        if 'location' in i:
+            assert pop_default.loc_pars[i] == sp.defaults.default_data['defaults'][i], f"{i} should be set correctly."
+    assert pop_default.n == len(pop_default.popdict) == sp.defaults.default_pop_size, "default population n should be set correctly."
+    assert len(pop_default.households) > 0, "default pop should have households created."
+    assert len(pop_default.schools) > 0, "default pop should have schools created."
+    assert len(pop_default.workplaces) > 0, "default pop should have workplace created."
+
+
 if __name__ == '__main__':
     T = sc.tic()
     pop = test_basic_api()
