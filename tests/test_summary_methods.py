@@ -131,8 +131,8 @@ def test_information_in_generation():
         average_degree_dict = sum([len(p['contacts'][layer]) for p in pop.popdict.values()]) / len(
             [p for p in pop.popdict.values() if p[id] is not None])
         average_degree_stats = pop.information['layer_stats'][layer]['degree']['mean']
-        assert abs(average_degree_dict - average_degree_reported) < 1e-6 and abs(
-            average_degree_stats - average_degree_reported) < 1e-6, \
+        assert np.isclose(average_degree_dict, average_degree_reported) and \
+               np.isclose(average_degree_stats, average_degree_reported),\
             f'degree information for {layer} not matching\n' \
             f'popdict:{round(average_degree_dict, 2)} reported: {round(average_degree_reported, 2)}, stats: {round(average_degree_stats, 2)}.'
 
