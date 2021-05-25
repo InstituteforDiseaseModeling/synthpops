@@ -93,10 +93,10 @@ def validate_list_schools(school_type_age_ranges,
             f"average age for {school_types[i]} must be between {min_age} and {max_age}, but we got {average_age} for {student_age_lists[i]}"
         min_size = min(school_size_brackets[[k for k, v in school_size_distr_by_type[school_types[i]].items() if v == 1][0]])
         max_size = max(school_size_brackets[[k for k, v in school_size_distr_by_type[school_types[i]].items() if v == 1][0]])
-        assert len(student_uid_lists[i]) <= max_size, f"size for {school_types[i]} must not exceed max_size: {max_size}\n" \
+        assert len(student_uid_lists[i]) <= 2 * max_size, f"size for {school_types[i]} must not exceed twice the max_size: {max_size}\n" \
                                                       f"generated students by age: {student_age_lists[i]}"
 
-        # normally this may happens if not enough students are available, school size may be smaller than expected?
+        # normally this may happens if not enough students are available, school size may be smaller than expected.
         if not allow_smallschool_size:
             assert len(student_uid_lists[0]) >= min_size, f"size for {school_types[i]} not exceed min_size: {min_size}"
 
