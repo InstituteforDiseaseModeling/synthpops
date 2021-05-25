@@ -595,7 +595,7 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
 
             # school is too small, try to merge it without another school of the same type
             if (size < school_size_brackets[0][0]) & (len(other_schools) > 0):
-                log.debug(f'School size ({size+1}) smaller than minimum school size {school_size_brackets[0][0]}. Will try now to merge with another school of the same type already made.')
+                log.debug(f'School size ({size + 1}) smaller than minimum school size {school_size_brackets[0][0]}. Will try now to merge with another school of the same type already made.')
 
                 # another random school of the same type
                 rns = other_schools[spsamp.fast_choice(np.ones(len(other_schools)))]
@@ -605,30 +605,47 @@ def send_students_to_school_with_school_types(school_size_distr_by_type, school_
                     school_uids_in_age = uids_in_school_by_age[a]
                     new_student_ages.extend([a for i in range(count)])
                     new_student_uids.extend(school_uids_in_age)
+                    ages_in_school_count[a] -= count
 
+                # add to a previously generated school, add their ages and their uids, school type was already determined
                 student_age_lists[rns].extend(new_student_ages)
                 student_uid_lists[rns].extend(new_student_uids)
+
+            else:
+                log.debug(f'School size ({size + 1}) smaller than minimum school size {school_size_brackets[0][0]} but there are no other schools of the same type to merge with, so creating this one with however many students are available.')
+                for n, a in enumerate(school_type_age_range):
+                    count = len(uids_in_school_by_age[a])
+                    school_uids_in_age = uids_in_school_by_age[a]
+                    new_student_ages.extend([a for i in range(count)])
+                    new_student_uids.extend(school_uids_in_age)
+                    ages_in_school_count[a] -= count
+
+                # add new school to lists although smaller than expected from school size distribution data
+                student_age_lists.append(new_student_ages)
+                student_uid_lists.append(new_student_uids)
+                school_types.append(school_type)
 
         else:
             chosen = np.random.choice(potential_student_ages, size=size, replace=False)
             school_age_count = Counter(chosen)
 
-        for n, a in enumerate(school_type_age_range):
-            count = school_age_count[a]
+            for n, a in enumerate(school_type_age_range):
+                count = school_age_count[a]
+                school_uids_in_age = uids_in_school_by_age[a][:count]
+                uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
+                new_student_ages += [a for i in range(count)]
+                new_student_uids += school_uids_in_age
+                ages_in_school_count[a] -= count
 
-            school_uids_in_age = uids_in_school_by_age[a][:count]  # assign students to the school
-            uids_in_school_by_age[a] = uids_in_school_by_age[a][count:]
-            new_student_ages += [a for i in range(count)]
-            new_student_uids += school_uids_in_age
-            ages_in_school_count[a] -= count
+            # have created a new school and now adding the school with students to the lists for each data type (age, uid, and school type)
+            student_age_lists.append(new_student_ages)
+            student_uid_lists.append(new_student_uids)
+            school_types.append(school_type)
 
+        # having placed the students in the appropriate school, either a new one or an old one when sizes are too small, remove these students from those available to place in future schools
         for uid in new_student_uids:
             uids_in_school.pop(uid, None)
         ages_in_school_distr = spb.norm_dic(ages_in_school_count)
-
-        student_age_lists.append(new_student_ages)
-        student_uid_lists.append(new_student_uids)
-        school_types.append(school_type)
 
     return student_age_lists, student_uid_lists, school_types
 
