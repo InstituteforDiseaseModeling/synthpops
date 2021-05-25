@@ -27,6 +27,13 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+
+Version 1.10.3 (2021-05-25)
+---------------------------
+- *Fix*: Addressing a bug when schools smaller than expected by the school size distributions are created in the case where there are not enough students left to place in the selected type of school.
+- *Github Info*: PR `505 <https://github.com/amath-idm/synthpops/pull/505>`__
+
+
 Version 1.10.2 (2021-05-22)
 ---------------------------
 - Adding new json data files plus some example scripts to show users how to make their own json data files from individual raw data files for a given location.
