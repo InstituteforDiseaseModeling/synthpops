@@ -125,6 +125,17 @@ def test_information_in_generation():
         assert workplace_size_dist[0] > 0, f"Check failed. Expected some workplaces to be created in the smallest bin size but there are none in this bin."
         print("Check passed for workplaces in the smallest bin.")
 
+    # check layers_degree
+    for (layer, id) in [('H', 'hhid'), ('S', 'scid'), ('W', 'wpid'), ('LTCF', 'ltcfid')]:
+        average_degree_reported = pop.information['layer_degrees'][layer]['degree'].mean()
+        average_degree_dict = sum([len(p['contacts'][layer]) for p in pop.popdict.values()]) / len(
+            [p for p in pop.popdict.values() if p[id] is not None])
+        average_degree_stats = pop.information['layer_stats'][layer]['degree']['mean']
+        assert np.isclose(average_degree_dict, average_degree_reported) and \
+               np.isclose(average_degree_stats, average_degree_reported),\
+            f'degree information for {layer} not matching\n' \
+            f'popdict:{round(average_degree_dict, 2)} reported: {round(average_degree_reported, 2)}, stats: {round(average_degree_stats, 2)}.'
+
 
 def test_contact_matrices_used():
     """
