@@ -112,12 +112,13 @@ def test_other_distributions():
 
 
 def test_statistic_test():
+    np.random.seed(0)
     sp.logger.info("Test sp.statistic_test method. This performs specified scipy statistical tests on expected and actual data to see if they are likely to be from the same distribution. By default the test is the chi squared test.")
     low, high, size = 0, 10, 500
     mu, sigma = 5, 3
     bins = range(low, high, 1)
 
-    # generate data from the truncated normal distribution
+    # generate data from the truncated normal distribution -- this should work but for some reason truncated normal is causing failures
     # expected = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
     # actual_good = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
     expected = scipy.stats.norm.rvs(loc=mu, scale=sigma, size=size)
