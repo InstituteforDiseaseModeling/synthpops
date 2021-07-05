@@ -115,7 +115,7 @@ def test_statistic_test():
     sp.logger.info("Test sp.statistic_test method. This performs specified scipy statistical tests on expected and actual data to see if they are likely to be from the same distribution. By default the test is the chi squared test.")
     low, high, size = 0, 10, 500
     mu, sigma = 5, 3
-    bins = range(low, high, 1)
+    bins = range(low, high + 1, 1)
 
     # generate data from the truncated normal distribution -- this should work but for some reason truncated normal is causing failures
     expected = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
@@ -124,8 +124,19 @@ def test_statistic_test():
     # generate data uniformly from low+2 to high-2 --- this should not match
     actual_bad = np.random.randint(low=low + 2, high=high - 2, size=size)
 
-    # default test is chisquare
-    # sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass
+    # what are we giving to statistic_test???
+    eh = np.histogram(expected, bins)[0]
+    ah = np.histogram(actual_good, bins)[0]
+    bh = np.histogram(actual_bad, bins)[0]
+
+    print('HI')
+    print(bins)
+    print(sum(eh), len(expected), min(expected), max(expected))
+    print(sum(ah), len(actual_good), min(actual_good), max(actual_good))
+    print(sum(bh), len(actual_bad), min(actual_bad), max(actual_bad))
+
+    # default test is chisquare -- not 
+    sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass
     with pytest.warns(UserWarning):
         sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_bad, bins)[0])  # should fail
 
