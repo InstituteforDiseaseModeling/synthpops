@@ -1,6 +1,19 @@
 # SynthPops
 
-SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. **Note**: SynthPops is currently under active development and most features are fully tested and documented, but not all. We are in the process of expanding to include data and validation on additional regions beyond the original scope of the Seattle-King County region of Washington, USA.
+SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. **Note**: SynthPops is currently under active development and most features are fully tested and documented, but not all. We are in the process of expanding to include data and validation on additional regions beyond the original scope of the Seattle-King County region of Washington, USA. At the moment we have data for the following locations (in the synthpops/data folder) :
+
+    Seattle Metro, Washington, USA
+    Spokane County, Washington, USA
+    Franklin County, Washington, USA
+    Island County, Washington, USA
+    Dakar, Dakar Region, Senegal
+    Zimbabwe\*
+    Malawi\*
+    Nepal\*
+
+
+\* Data for these locations are at the national scale. In the future, we hope to provide data at a more fine grained resolution for these locations.
+
 
 The code was originally developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim). This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
 
