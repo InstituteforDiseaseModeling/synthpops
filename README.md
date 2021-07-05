@@ -8,7 +8,7 @@ More extensive installation and usage instructions are in the [SynthPops documen
 
 A scientific manuscript describing the model is currently in progress. If you use the model, in the mean time the recommended citation is:
 
-    **SynthPops: a generative model of human contact networks**. Mistry D, Kerr CC, Abeysuriya R, Wu M, Fisher M, Thompson A, Skrip L, Cohen JA, Althouse BM, Klein DJ (2021). (in preparation). 
+**SynthPops: a generative model of human contact networks**. Mistry D, Kerr CC, Abeysuriya R, Wu M, Fisher M, Thompson A, Skrip L, Cohen JA, Althouse BM, Klein DJ (2021). (in preparation). 
 
 
 ## Installation
