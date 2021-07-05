@@ -1,3 +1,3 @@
-__version__ = '1.10.3'
-__versiondate__ = '2021-05-25'
+__version__ = '1.10.4'
+__versiondate__ = '2021-07-05'
 

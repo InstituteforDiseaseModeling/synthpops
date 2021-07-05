@@ -5,6 +5,7 @@ import synthpops as sp
 import matplotlib as mplt
 from collections import Counter
 import setup_e2e as e2e
+import scipy
 from setup_e2e import create_sample_pop_e2e, get_fig_dir_by_module
 
 
@@ -25,7 +26,10 @@ def test_household_distribution( create_sample_pop_e2e):
     actual_households_size = [actual_households_count[i] for i in sorted(actual_households_count)]
     expected_households_dist = sp.get_household_size_distr(**create_sample_pop_e2e.loc_pars)
     expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.n_households for i in sorted(expected_households_dist)]
-    sp.statistic_test(expected_households_size, actual_households_size)
+
+    # use t-test to compare instead
+    test = scipy.stats.ttest_rel
+    sp.statistic_test(expected_households_size, actual_households_size, test)
 
 
 def test_household_head_ages_by_household_size_e2e(do_show, do_save, create_sample_pop_e2e, get_fig_dir_by_module):

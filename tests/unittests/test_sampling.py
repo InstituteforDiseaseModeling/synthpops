@@ -115,14 +115,14 @@ def test_statistic_test():
     sp.logger.info("Test sp.statistic_test method. This performs specified scipy statistical tests on expected and actual data to see if they are likely to be from the same distribution. By default the test is the chi squared test.")
     low, high, size = 0, 10, 500
     mu, sigma = 5, 3
-    bins = range(low, high, 1)
+    bins = range(low, high + 1, 1)
 
     # generate data from the truncated normal distribution
-    expected = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
-    actual_good = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
+    expected = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
+    actual_good = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
 
     # generate data uniformly from low+2 to high-2 --- this should not match
-    actual_bad = np.random.randint(low=low+2, high=high-2, size=size)
+    actual_bad = np.random.randint(low=low + 2, high=high - 2, size=size)
 
     # default test is chisquare
     sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass

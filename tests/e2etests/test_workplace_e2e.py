@@ -34,7 +34,9 @@ def test_work_size_distribution(do_show, do_save, create_sample_pop_e2e, get_fig
     # calculate expected count by using actual number of workplaces
     expected_count = {k: expected_distr[k] * sum(actual_count.values())for k in expected_distr}
     # perform statistical check
-    sp.statistic_test([expected_count[i] for i in sorted(expected_count)], [actual_count[i] for i in sorted(actual_count)])
+    # use t-test to compare instead
+    test = scipy.stats.ttest_rel
+    sp.statistic_test([expected_count[i] for i in sorted(expected_count)], [actual_count[i] for i in sorted(actual_count)], test)
 
     create_sample_pop_e2e.plot_workplace_sizes(**plotting_kwargs)
 
@@ -134,7 +136,10 @@ def test_workplace_contact_distribution_2(create_sample_pop_e2e):
             passed += int(result)
             if not result:
                 failedsize.append(wsize_index[wsize])
-                sp.statistic_test(degree, contacts_by_id[wpid], verbose=True)
+
+                # use t-test to compare instead
+                test = scipy.stats.ttest_rel
+                sp.statistic_test(degree, contacts_by_id[wpid], test=test, verbose=True)
             print('workplace id', wpid)
             print('\n\n')
     print(f'total workplaces: {runs}, passing checks: {passed}, passed rate:{round(passed/runs,2) *100} %')

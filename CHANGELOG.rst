@@ -27,6 +27,10 @@ Latest versions (1.9.x  – 1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Version 1.10.4 (2021-07-05)
+---------------------------
+- Update to README to include the working title of the manuscript. We're doing this so that if people start using the model prior to the manuscript being available, they will still cite the work appropriately instead of using just the website.
+
 
 Version 1.10.3 (2021-05-25)
 ---------------------------
