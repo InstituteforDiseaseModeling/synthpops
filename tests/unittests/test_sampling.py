@@ -118,11 +118,13 @@ def test_statistic_test():
     bins = range(low, high, 1)
 
     # generate data from the truncated normal distribution
-    expected = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
-    actual_good = scipy.stats.truncnorm.rvs((low-mu)/sigma, (high-mu)/sigma, loc=mu, scale=sigma, size=size)
+    # expected = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
+    # actual_good = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
+    expected = scipy.stats.norm.rvs(loc=mu, scale=sigma, size=size)
+    actual_good = scipy.stats.norm.rvs(loc=mu, scale=sigma, size=size)
 
     # generate data uniformly from low+2 to high-2 --- this should not match
-    actual_bad = np.random.randint(low=low+2, high=high-2, size=size)
+    actual_bad = np.random.randint(low=low + 2, high=high - 2, size=size)
 
     # default test is chisquare
     sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass
