@@ -47,7 +47,7 @@ setup(
         "sciris>=1.1.1",
         "matplotlib>=3.3.0",
         "numpy",
-        "scipy>=1.6.0,<1.7.0",
+        "scipy",
         "pandas>=1.2.3",
         "numba",
         "networkx>=2.3",
