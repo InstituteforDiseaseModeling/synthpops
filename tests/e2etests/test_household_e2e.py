@@ -26,6 +26,7 @@ def test_household_distribution( create_sample_pop_e2e):
     actual_households_size = [actual_households_count[i] for i in sorted(actual_households_count)]
     expected_households_dist = sp.get_household_size_distr(**create_sample_pop_e2e.loc_pars)
     expected_households_size = [expected_households_dist[i] * create_sample_pop_e2e.n_households for i in sorted(expected_households_dist)]
+
     # use t-test to compare instead
     test = scipy.stats.ttest_rel
     sp.statistic_test(expected_households_size, actual_households_size, test)

@@ -124,18 +124,7 @@ def test_statistic_test():
     # generate data uniformly from low+2 to high-2 --- this should not match
     actual_bad = np.random.randint(low=low + 2, high=high - 2, size=size)
 
-    # what are we giving to statistic_test???
-    eh = np.histogram(expected, bins)[0]
-    ah = np.histogram(actual_good, bins)[0]
-    bh = np.histogram(actual_bad, bins)[0]
-
-    print('HI')
-    print(bins)
-    print(sum(eh), len(expected), min(expected), max(expected))
-    print(sum(ah), len(actual_good), min(actual_good), max(actual_good))
-    print(sum(bh), len(actual_bad), min(actual_bad), max(actual_bad))
-
-    # default test is chisquare -- not 
+    # default test is chisquare
     sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_good, bins)[0])  # should pass
     with pytest.warns(UserWarning):
         sp.statistic_test(np.histogram(expected, bins)[0], np.histogram(actual_bad, bins)[0])  # should fail
