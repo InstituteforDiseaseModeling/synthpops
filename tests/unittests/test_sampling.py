@@ -117,7 +117,7 @@ def test_statistic_test():
     mu, sigma = 5, 3
     bins = range(low, high + 1, 1)
 
-    # generate data from the truncated normal distribution -- this should work but for some reason truncated normal is causing failures
+    # generate data from the truncated normal distribution
     expected = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
     actual_good = scipy.stats.truncnorm.rvs((low - mu) / sigma, (high - mu) / sigma, loc=mu, scale=sigma, size=size)
 
