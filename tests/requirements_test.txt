@@ -2,5 +2,5 @@ pytest
 pytest-parallel
 pytest-cov
 coverage
-coverage-badge
+coverage-badge==5.3.0
 fpdf
