@@ -689,7 +689,7 @@ def get_household_head_ages_by_size(pop):
     """
     popdict = pop.popdict
     loc_pars = sc.dcp(pop.loc_pars)
-    loc_pars.location = None
+    # loc_pars.location = None
     hha_brackets = spdata.get_head_age_brackets(**loc_pars)  # temporarily location should be None until data json work will automatically search up when data are not available
 
     # hha_index use age as key and bracket index as value
