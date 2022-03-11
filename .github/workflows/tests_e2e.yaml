@@ -1,0 +1,57 @@
+name: Synthpops E2E workflow
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+ 
+  
+jobs:
+  install_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        python-version: [ '3.8' ]
+    name: Install and test e2e
+    if: ${{ github.event.pull_request.merged && github.event.action == 'closed' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Check github event source
+        run: echo ${{ github.event_name }}   
+      - name: Checkout sources
+        uses: actions/checkout@v1
+      - uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install synthpops
+        run: pip install -e . 
+      - name: Install tests
+        run: pip install -r tests/requirements_test.txt
+      - name: Run API tests
+        id: test
+        working-directory: ./tests
+        run: |
+          pytest -rfp -s e2etests --do-save --artifact-dir=artifact --workers auto > e2etest-results.txt # Run e2e tests and spit out all stdout with short summary
+          echo "::set-output name=summary::$(cat e2etest-results.txt)"
+      - name: Upload test results
+        uses: actions/upload-artifact@v1
+        with:
+          name: test_results
+          path: tests/e2etest-results.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: tests/artifact/
+     
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: E2E Tests
+          conclusion: ${{ job.status }}
+

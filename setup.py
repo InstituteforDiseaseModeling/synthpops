@@ -1,3 +1,9 @@
+"""
+Setup script to install SynthPops and its dependencies.
+
+Run 'python setup.py develop' to install.
+
+"""
 import os
 import runpy
 from setuptools import setup, find_packages
@@ -20,34 +26,37 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 
 setup(
     name="synthpops",
     version=version,
-    author="Dina Mistry",
+    author="Dina Mistry, Cliff Kerr, Meikang Wu, Mary Fisher, Ace Thompson, and Daniel Klein on behalf of the IDM COVID-19 Response Team",
     author_email="covid@idmod.org",
     description="Synthetic contact network generation",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='http://synthpops.org',
-    keywords=['human contact networks', 'synthetic population', 'census', 'demography'],
+    keywords=["human contact networks", "synthetic population", "age mixing patterns", "census", "demography"],
     platforms=["OS Independent"],
     classifiers=CLASSIFIERS,
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "sciris>=0.16.5",
-        "matplotlib",
+        "sciris>=1.1.1",
+        "matplotlib>=3.3.0",
         "numpy",
         "scipy",
-        "pandas",
+        "pandas>=1.2.3",
         "numba",
-        "networkx",
+        "networkx>=2.3",
         "cmocean",
         "cmasher",
         "seaborn",
         "graphviz",
         "pydot",
+        "jsonobject",
+        "jsbeautifier"
     ],
 )

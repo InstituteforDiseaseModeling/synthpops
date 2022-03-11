@@ -1,0 +1,12 @@
+{
+  "location_name": "test_location_child",
+  "parent": "test_location_A.json",
+  "employment_rates_by_age": [
+    [19,0.300],
+    [20,0.693]
+  ],
+  "school_size_distribution": [
+    0.45,
+    0.55
+  ]
+}

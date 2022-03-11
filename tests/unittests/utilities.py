@@ -148,7 +148,8 @@ def plot_array(expected,
                expect_label='Expected',
                value_text=False,
                xlabels=None,
-               xlabel_rotation=0):
+               xlabel_rotation=0,
+               binned = True):
     """
     Plot histogram on a sorted array based by names. If names not provided the
     order will be used. If actual data is not provided, plot only the expected values.
@@ -164,6 +165,7 @@ def plot_array(expected,
         expect_label    : Label to show in the plot, default to "expected"
         value_text      : display the values on top of the bar if specified
         xlabel_rotation : rotation degree for x labels if specified
+        binned          : default to True, if False, it will just plot a simple histogram for expected data
 
     Returns:
         None.
@@ -179,31 +181,43 @@ def plot_array(expected,
     title = testprefix if actual is None else f"Comparison for \n{testprefix}"
     ax.set_title(title)
     x = np.arange(len(expected))
-    width = np.min(np.diff(x))/3
-    rect1 = ax.bar(x, expected, width, label=expect_label.title(), color='skyblue')
-    # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
-    if actual is not None:
-        line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
-        # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
-    if value_text:
-        autolabel(ax, rect1, 0, 5)
-        for j, v in enumerate(actual):
-            ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
-    if names is not None:
-        if isinstance(names, dict):
-            xticks = sorted(names.keys())
-            xticklabels = [names[k] for k in xticks]
-        else:
-            xticks = np.arange(len(names))
-            xticklabels = names
-        # plt.locator_params(axis='x', nbins=len(xticks))
-        ax.set_xticks(xticks)
-        ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
-        # ax.set_xlim(left=-1)
+    # if len(x) > 1:
+    #     width = np.min(np.diff(x))/3   # not necessary
+    # else:
+    #     width = 1.
+    if not binned:
+        ax.hist(expected, label=expect_label.title(), color='skyblue')
+    else:
+        rect1 = ax.bar(x, expected, label=expect_label.title(), color='mediumseagreen')
+        # ax.hist(x=names, histtype='bar', weights=expected, label=expect_label.title(), bins=bin, rwidth=1, color='#1a9ac0', align='left')
+        if actual is not None:
+            line, = ax.plot(x, actual, color='#3f75a2', marker='o', markersize=4, label='Actual')
+            # arr = ax.hist(x=names, histtype='step', linewidth=3, weights=actual, label='Actual', bins=len(actual), rwidth=1, color='#ff957a', align='left')
+        if value_text:
+            autolabel(ax, rect1, 0, 5)
+            if actual is not None:
+                for j, v in enumerate(actual):
+                    ax.text(j, v, str(round(v, 3)), fontsize=10, horizontalalignment='right', verticalalignment='top', color='#3f75a2')
+        if names is not None:
+            if isinstance(names, dict):
+                xticks = sorted(names.keys())
+                xticklabels = [names[k] for k in xticks]
+            else:
+                xticks = np.arange(len(names))
+                xticklabels = names
+            # plt.locator_params(axis='x', nbins=len(xticks))
+            # if the labels are too many it will look crowded so we only show every 10 ticks
+            if len(names) > 30:
+                xticks = xticks[0::10]
+                xticklabels = xticklabels[0::10]
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xticklabels, rotation=xlabel_rotation)
+            # ax.set_xlim(left=-1)
     ax.legend(loc='upper right')
 
     if datadir:
-        plt.savefig(os.path.join(datadir, f"{testprefix}_graph.png"), format="png")
+        os.makedirs(datadir, exist_ok=True)
+        plt.savefig(os.path.join(datadir, f"{testprefix}_graph.png".replace('\n', '_')), format="png")
     if do_close:
         plt.close()
     else:
@@ -259,7 +273,6 @@ def statistic_test(expected, actual, test="ks", comments=""):
         print("use Chi-square statistic")
         s, p = stats.chisquare(actual, f_exp=expected, ddof=0, axis=0)
         print(f"chi square statistics: {s} pvalue:{p}")
-
     assert p > 0.05, f"Under the null hypothesis the expected/actual distributions are identical." \
                      f" If statistics is small or the p-value is high (greater than the significance level 5%)" \
                      f", then we cannot reject the hypothesis. But we got p={p} and s={s}"
@@ -380,9 +393,9 @@ def get_age_distribution_from_pop(pop, brackets, normalized=True):
     Get age distribution from the population dictionary
 
     Args:
-        pop: population dictionary
-        brackets: age brackets
-        normalized: weather the result is normalized, default to True
+        pop        : population dictionary
+        brackets   : age brackets
+        normalized : weather the result is normalized, default to True
 
     Returns:
         a dictionary with age distribution by brackets
@@ -419,6 +432,7 @@ def sort_dict(d):
     """
 
     Helper method to sort the dictionary by it's key
+
     Args:
         d: input dictionary
 
@@ -431,16 +445,18 @@ def sort_dict(d):
     return new_dict
 
 
-def get_ids_count_by_param(pop, condition_name, param=None):
+def get_ids_count_by_param(pop, condition_name, param=None, condition_value=None, filter_expression=None):
     """
     Helper method to count by parameter from the population dictionary
     for example get_ids_count_by_param(pop, "wpid", param="age") will count by age
     with respect to nodes with or without "wpid"
 
     Args:
-        pop            : population dictionary
-        condition_name : the field to be used for filtering the target population, use param if not specified
-        param          : the field to be used for counting
+        pop               : population dictionary
+        condition_name    : the field to be used for filtering the target population, use param if not specified
+        param             : the field to be used for counting
+        condition_value   : the value to be used for filtering the condition_name, if set to None, all values will be considered
+        filter_expression : dictionary represent filters used to further filter the data, e,g. {sc_type:'es'}
 
     Returns:
         ret      : a dictionary with count by param of which condition_name exists
@@ -449,17 +465,30 @@ def get_ids_count_by_param(pop, condition_name, param=None):
     ret = {}
     ret_none = {}
     param = condition_name if param is None else param
+    # allow condition_name/values to be list, note that condition should be exclusive
+    # otherwise it may count the same person twice
+    if type(condition_name) != list:
+        condition_name = [condition_name]
+    if condition_value and type(condition_value) != list:
+        condition_value = [condition_value]
     for p in pop.values():
-        if p[condition_name] is None:
-            if p[param] in ret_none:
-                ret_none[p[param]] += 1
-            else:
-                ret_none[p[param]] = 1
-        else:
-            if p[param] in ret:
-                ret[p[param]] += 1
-            else:
-                ret[p[param]] = 1
+        matched = False
+        for i in range(len(condition_name)):
+            if p[condition_name[i]] is not None:
+                matched =True
+                if condition_value is None or (condition_value[i] is not None and p[condition_name[i]] == condition_value[i]):
+                    skip = False
+                    if filter_expression is not None:
+                        for f in filter_expression:
+                            if str(p[f]) != filter_expression[f]:
+                                skip = True
+                                break
+                    if not skip:
+                        ret.setdefault(p[param], 0)
+                        ret[p[param]] += 1
+        if not matched:
+            ret_none.setdefault(p[param], 0)
+            ret_none[p[param]] += 1
     return ret, ret_none
 
 
@@ -481,6 +510,8 @@ def get_bucket_count(index, brackets, values):
     for i in values:
         if i < min(index):
             values_by_brackets[index[min(index)]] += values[i]
+        elif i > max(index):
+            values_by_brackets[index[max(index)]] += values[i]
         else:
             values_by_brackets[index[i]] += values[i]
     return values_by_brackets

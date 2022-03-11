@@ -19,6 +19,7 @@ For more information on |Cov_s| see `Covasim on GitHub`_.
 
    installation
    overview
+   whatsnew
    algorithm
    usage
    modules

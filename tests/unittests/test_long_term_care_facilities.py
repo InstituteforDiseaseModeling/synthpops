@@ -2,13 +2,13 @@ import sciris as sc
 import synthpops as sp
 
 plot = False
-verbose = False
 # write = True
 write = False
 return_popdict = True
 use_default = False
 
-datadir = sp.datadir
+# datadir = sp.datadir
+datadir = sp.settings.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
@@ -51,52 +51,50 @@ n = 1000
 n = int(n)
 
 
-
 def test_generate_microstructures_with_non_teaching_staff():
     # # generate and write to file
-
     population1 = sp.make_population(datadir=datadir,
-                                                             location=location,
-                                                             state_location=state_location,
-                                                             country_location=country_location,
-                                                             n=n,
-                                                             use_two_group_reduction=use_two_group_reduction,
-                                                             average_LTCF_degree=average_LTCF_degree,
-                                                             ltcf_staff_age_min=ltcf_staff_age_min,
-                                                             ltcf_staff_age_max=ltcf_staff_age_max,
-                                                             with_school_types=with_school_types,
-                                                             school_mixing_type=school_mixing_type,
-                                                             average_class_size=average_class_size,
-                                                             inter_grade_mixing=inter_grade_mixing,
-                                                             average_student_teacher_ratio=average_student_teacher_ratio,
-                                                             average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                             teacher_age_min=teacher_age_min,
-                                                             teacher_age_max=teacher_age_max,
-                                                             average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                             average_additional_staff_degree=average_additional_staff_degree,
-                                                             staff_age_min=staff_age_min,
-                                                             staff_age_max=staff_age_max,
-                                                             write=write,
-                                                             plot=plot,
-                                                             return_popdict=return_popdict,
-                                                             use_default=use_default)
+                                     location=location,
+                                     state_location=state_location,
+                                     country_location=country_location,
+                                     n=n,
+                                     use_two_group_reduction=use_two_group_reduction,
+                                     average_LTCF_degree=average_LTCF_degree,
+                                     ltcf_staff_age_min=ltcf_staff_age_min,
+                                     ltcf_staff_age_max=ltcf_staff_age_max,
+                                     with_school_types=with_school_types,
+                                     school_mixing_type=school_mixing_type,
+                                     average_class_size=average_class_size,
+                                     inter_grade_mixing=inter_grade_mixing,
+                                     average_student_teacher_ratio=average_student_teacher_ratio,
+                                     average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                     teacher_age_min=teacher_age_min,
+                                     teacher_age_max=teacher_age_max,
+                                     average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                     average_additional_staff_degree=average_additional_staff_degree,
+                                     staff_age_min=staff_age_min,
+                                     staff_age_max=staff_age_max,
+                                     write=write,
+                                     plot=plot,
+                                     return_popdict=return_popdict,
+                                     use_default=use_default)
 
     # # # read in from file
     population2 = sp.make_population(datadir=datadir,
-                                                                       location=location,
-                                                                       state_location=state_location,
-                                                                       country_location=country_location,
-                                                                       n=n,
-                                                                       use_two_group_reduction=use_two_group_reduction,
-                                                                       average_LTCF_degree=average_LTCF_degree,
-                                                                       with_school_types=with_school_types,
-                                                                       school_mixing_type=school_mixing_type,
-                                                                       average_class_size=average_class_size,
-                                                                       inter_grade_mixing=inter_grade_mixing,
-                                                                       average_student_teacher_ratio=average_student_teacher_ratio,
-                                                                       average_teacher_teacher_degree=average_teacher_teacher_degree,
-                                                                       average_student_all_staff_ratio=average_student_all_staff_ratio,
-                                                                       average_additional_staff_degree=average_additional_staff_degree)
+                                     location=location,
+                                     state_location=state_location,
+                                     country_location=country_location,
+                                     n=n,
+                                     use_two_group_reduction=use_two_group_reduction,
+                                     average_LTCF_degree=average_LTCF_degree,
+                                     with_school_types=with_school_types,
+                                     school_mixing_type=school_mixing_type,
+                                     average_class_size=average_class_size,
+                                     inter_grade_mixing=inter_grade_mixing,
+                                     average_student_teacher_ratio=average_student_teacher_ratio,
+                                     average_teacher_teacher_degree=average_teacher_teacher_degree,
+                                     average_student_all_staff_ratio=average_student_all_staff_ratio,
+                                     average_additional_staff_degree=average_additional_staff_degree)
 
     # # generate on the fly
     sc.tic()
@@ -143,7 +141,6 @@ def test_make_contacts_with_facilities_from_microstructure():
 
     # verify these keys are either None or set to a value and LTCF contacts exist
     for i, uid in enumerate(popdict):
-        print(popdict[uid]['hhid'])
         if popdict[uid]['hhid'] is None:
             assert popdict[uid]['hhid'] is None
         else:
@@ -215,13 +212,13 @@ def test_make_population_with_industry_code():
 #     # First create contact_networks_facilities
 #     # set write to False and instead use return_popdict = True to get a population dict
 #     popdict = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
-#                                                          n=n, school_enrollment_counts_available=True,
+#                                                          n=n,
 #                                                          write=False, plot=False, return_popdict=True)
 
 #     # Make 2 groups of contacts
 #     # Facility contacts - use generating function so that data can be generated as needed to run this test
 #     contacts_group_1 = sp.make_population(datadir=datadir, location=location, state_location=state_location, country_location=country_location,
-#                                                                   n=n, plot=False, verbose=False,
+#                                                                   n=n, plot=False,
 #                                                                   write=False, return_popdict=True,
 #                                                                   use_two_group_reduction=False, average_LTCF_degree=20)
 
@@ -244,10 +241,10 @@ def test_make_population_with_industry_code():
 
 #     for i in popdict:
 #         person = reduced_contacts[i]
-#         if person['snf_res'] == 1:
+#         if person['ltcf_res'] == 1:
 
 #             contacts = person['contacts']['LTCF']
-#             staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+#             staff_contacts = [j for j in contacts if popdict[j]['ltcf_staff'] == 1]
 
 #             if len(staff_contacts) == 0:
 #                 errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
@@ -262,14 +259,13 @@ def check_all_residents_are_connected_to_staff(popdict):
     flag = True
     for i in popdict:
         person = popdict[i]
-        if person['snf_res'] == 1:
+        if person['ltcf_res'] == 1:
 
             contacts = person['contacts']['LTCF']
-            staff_contacts = [j for j in contacts if popdict[j]['snf_staff'] == 1]
+            staff_contacts = [j for j in contacts if popdict[j]['ltcf_staff'] == 1]
 
             if len(staff_contacts) == 0:
                 flag = False
-                print('i', person['snf_res'], [popdict[j]['snf_staff'] for j in person['contacts']['LTCF']])
                 errormsg = f'At least one LTCF or Skilled Nursing Facility resident has no contacts with staff members.'
                 raise ValueError(errormsg)
 

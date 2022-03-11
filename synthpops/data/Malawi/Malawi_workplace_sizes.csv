@@ -1,0 +1,5 @@
+workplace_size_min,workplace_size_max,percent
+1,4,0.417
+5,20,0.34
+21,100,0.185
+101,200,0.058

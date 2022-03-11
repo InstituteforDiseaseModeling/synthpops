@@ -88,3 +88,4 @@ for each of the :term:`contact layers`.
     households
     schools
     workplaces
+    input_data

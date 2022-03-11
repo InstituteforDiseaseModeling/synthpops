@@ -1,0 +1,11 @@
+#!/bin/bash
+pytest test_*.py unittests/test_*.py --cov-config=.coveragerc --cov=../synthpops --workers auto --durations=0
+
+echo 'Creating HTML report...'
+coverage html
+
+echo 'Running report...'
+coverage report
+
+echo 'Report location:'
+echo "`pwd`/htmlcov/index.html"

@@ -1,15 +1,31 @@
 # SynthPops
 
-SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. **Note**: SynthPops is currently under active development and not all features are fully tested and documented. Currently, synthetic populations are only implemented for one region (Seattle, USA). We are in the process of expanding to include data on additional regions.
+SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. **Note**: SynthPops is currently under active development and most features are fully tested and documented, but not all. We are in the process of expanding to include data and validation on additional regions beyond the original scope of the Seattle-King County region of Washington, USA. At the moment we have data for the following locations (in the synthpops/data folder) :
+
+* Seattle Metro, Washington, USA
+* Spokane County, Washington, USA
+* Franklin County, Washington, USA
+* Island County, Washington, USA
+* Dakar, Dakar Region, Senegal
+* Zimbabwe\*
+* Malawi\*
+* Nepal\*
+
+\* Data for these locations are at the national scale. In the future, we hope to provide data at a more fine grained resolution for these locations.
 
 
 The code was originally developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim). This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
 
 More extensive installation and usage instructions are in the [SynthPops documentation](https://docs.idmod.org/projects/synthpops/en/latest).
 
+A scientific manuscript describing the model is currently in progress. If you use the model, in the mean time the recommended citation is:
+
+**SynthPops: a generative model of human contact networks**. Mistry D, Kerr CC, Abeysuriya R, Wu M, Fisher M, Thompson A, Skrip L, Cohen JA, Althouse BM, Klein DJ (2021). (in preparation). 
+
+
 ## Installation
 
-Python >=3.6 is required. Python 2 is not supported. Virtual environments are recommended but not required.
+Python >=3.7, <3.9 is required. Python 2 is not supported. Virtual environments are strongly recommended but not required.
 
 To install, first clone the GitHub repository:
 
@@ -19,28 +35,25 @@ Then install via:
 
 `python setup.py develop`
 
-Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended.
+Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended. We recommend using Python virtual environments managed with [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#) to help with installation. Currently, our recommended installation steps are:
+
+1. Install Anaconda. 
+
+2. Working either in an existing conda environment or creating a new environment with Anaconda, install synthpops by navigating to the directory for this package and running `python setup.py develop` via terminal.
+
 
 ## Quick Start
 
-The following code creates a synthetic population for Seattle, Washington::
+The following code creates and plots a the household layer of a synthetic population (using defaults for Seattle, Washington):
+
 ```python
 import synthpops as sp
+import matplotlib.pyplot as plt
 
-sp.validate()
-
-datadir = sp.datadir # this should be where your demographics data folder resides
-
-location = 'seattle_metro'
-state_location = 'Washington'
-country_location = 'usa'
-sheet_name = 'United States of America'
-level = 'county'
-
-npop = 10000 # how many people in your population
-sp.generate_synthetic_population(npop,datadir,location=location,
-                                 state_location=state_location,country_location=country_location,
-                                 sheet_name=sheet_name,level=level)
+n = 10000 # how many people in your population
+pop = sp.Pop(n) # create the population
+pop.plot_contacts() # plot the contact matrix
+plt.show() # display contact matrix to screen
 ```
 
 ## Usage
@@ -53,33 +66,31 @@ All core modeling is in the `synthpops` folder; standard usage is `import synthp
 
 ### data
 
-The `data` folder contains demographic data needed and some pre-generated contact networks for populations of different sizes. Please update synthpops.datadir to point at this directory.
-
-### licenses
-
-The `licenses` folder contains:
-* `NOTICE`: Third-party software notices and information
-* `notice.py`: Scraper to auto-generate the NOTICE file.
+The `data` folder contains demographic data used by the algorithms.
 
 ### synthpops
 
-The `synthpops` folder contains:
+The `synthpops` folder contains the library, including:
 
-* `__init__.py`
-* `api.py`
-* `config.py`: Methods to set where `datadir` points; this should be the path to the data folder.
+* `base.py`: Frequently-used functions that do not neatly fit into other areas of the code base.
+* `config.py`: Methods to set general configuration options.
 * `contact_networks.py`: Functions to create a synthetic population with demographic data and places people into households, schools, and workplaces.
-* `contacts.py`: Functions to create other types of contact networks and load multilayer networks.
-* `plot_tools.py`: Functions to plot an age-mixing matrix for a layer in the contact network.
-* `synthpops.py`: Functions to call in demographic data and sampling functions.
-* `version.py`: Version and date.
+* `data_distributions.py`: Functions for processing the data.
+* `households.py`: Functions for creating household contact networks.
+* `ltcfs.py`: Functions for creating long-term care facility contact networks.
+* `plotting.py`: Functions to plot age-mixing matrices.
+* `pop.py`: The `Pop` class, which is the foundation of SynthPops.
+* `process_census.py`: Functions to process US Census data.
+* `sampling.py`: Statistical sampling functions.
+* `schools.py`: Functions for creating school contact networks.
+* `workplaces.py`: Functions for creating workplace contact networks.
 
 ### tests
 
 The `tests` folder contains tests of different functions available in SynthPops.
 
-## Disclaimer
 
+## Disclaimer
 
 The code in this repository was developed by IDM to support our research in disease transmission and managing epidemics. We’ve made it publicly available under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 License to provide others with a better understanding of our research and an opportunity to build upon it for their own work. We make no representations that the code works as intended or that we will provide support, address issues that are found, or accept pull requests. You are welcome to create your own fork and modify the code to suit your own modeling needs as contemplated under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 License.
 

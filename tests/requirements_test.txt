@@ -1,4 +1,6 @@
 pytest
 pytest-parallel
-fpdf>=1.7.2
-covasim>=1.7.0
+pytest-cov
+coverage
+coverage-badge
+fpdf

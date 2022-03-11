@@ -7,7 +7,7 @@ default_n = 1000
 default_social_layers = True
 directed = False
 
-datadir = sp.datadir
+datadir = sp.settings.datadir
 country_location = 'usa'
 state_location = 'Washington'
 location = 'seattle_metro'
@@ -190,16 +190,15 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
                                                            country_location='usa', n=1000):
     # First generate microstructure with facilities
     sp.make_population(n, datadir, location, state_location, country_location,
-                                               school_enrollment_counts_available=False,
                                                write=False, plot=False, return_popdict=True)
 
     # sp.generate_microstructure_with_facilities(datadir, location, state_location,
     #                                         country_location, n, sheet_name='United States of America',
     #                                         use_two_group_reduction=False, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
-    #                                         school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+    #                                         with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
     #                                         average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
     #                                         average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-    #                                         verbose=False, plot=False, write=False, return_popdict=False, use_default=False):
+    #                                         plot=False, write=False, return_popdict=False, use_default=False):
 
 
     # Then make contacts
@@ -215,9 +214,9 @@ def test_make_contacts_with_facilities_from_microstructure(location='seattle_met
     return popdict
 
 
-def test_make_population(location='seattle_metro', state_location='Washington', n=10000):
+def test_make_population(location='seattle_metro', state_location='Washington', n=5000):
     contacts = sp.make_population(datadir=datadir, location=location, state_location=state_location,
-                                                    country_location=country_location, n=n, with_industry_code=False)
+                                  country_location=country_location, n=n, with_industry_code=False)
     uids = contacts.keys()
     uids = [uid for uid in uids]
     for n, uid in enumerate(uids):
@@ -255,7 +254,8 @@ def test_make_population(location='seattle_metro', state_location='Washington', 
 if __name__ == '__main__':
     sc.tic()
 
-    datadir = sp.datadir
+    # datadir = sp.datadir
+    datadir = sp.default_config.datadir
 
     location = 'seattle_metro'
     state_location = 'Washington'
