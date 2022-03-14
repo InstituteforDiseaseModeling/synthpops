@@ -78,6 +78,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
+
 project = 'SynthPops'
 copyright = f'1999 - {datetime.today().year}, Bill & Melinda Gates Foundation. All rights reserved.\nThese docs were built for SynthPops version {sp.__version__}.\n'
 author = 'Institute for Disease Modeling'
