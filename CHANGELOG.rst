@@ -23,8 +23,13 @@ Legend for changelog
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Latest versions (1.9.x  – 1.10.x)
+Latest versions (1.10.x)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Version 1.10.5 (2022-03-14)
+---------------------------
+- Updating the license to Creative Commons Attribution-ShareAlike 4.0 International License.
 
 
 Version 1.10.4 (2021-07-05)

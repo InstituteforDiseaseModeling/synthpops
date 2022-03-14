@@ -60,8 +60,8 @@ def test_ltcf_resident_to_staff_ratios(do_show=False):
 
     xlabels = [f'{resident_to_staff_ratio_brackets[b][0]:.0f}' for b in resident_to_staff_ratio_brackets]
 
-    fig, ax = sppl.plot_array(expected_ltcf_ratio_distr.values(),
-                              generated=gen_ltcf_ratio_distr.values(),
+    fig, ax = sppl.plot_array(list(expected_ltcf_ratio_distr.values()),
+                              generated=list(gen_ltcf_ratio_distr.values()),
                               names=xlabels, do_show=False, binned=True)
 
     ax.set_xlabel('LTCF Resident to Staff Ratio')
@@ -89,7 +89,6 @@ def test_ltcf_resident_ages(do_show=False):
                                                                           country_location=pop.country_location,
                                                                           state_location=pop.state_location,
                                                                           )
-    expected_ltcf_rates = ltcf_resident_rates_by_age.values()
     ltcf_resident_ages = dict.fromkeys(ltcf_resident_rates_by_age.keys(), 0)
     age_count = pop.count_pop_ages()
 
@@ -98,8 +97,9 @@ def test_ltcf_resident_ages(do_show=False):
             ltcf_resident_ages[person['age']] += 1
 
     gen_ltcf_rates = {a: ltcf_resident_ages[a] / age_count[a] for a in ltcf_resident_ages}
-
-    fig, ax = sppl.plot_array(expected_ltcf_rates, generated=gen_ltcf_rates.values(), do_show=False, binned=True)
+    fig, ax = sppl.plot_array([ltcf_resident_rates_by_age[a] for a in age_count], 
+        generated=[gen_ltcf_rates[a] for a in age_count],
+        do_show=False, binned=True)
     ax.set_xlabel('LTCF Resident Ages')
     ax.set_title('LTCF Resident Use Rates by Age')
     ax.set_ylim(0., 1.)
