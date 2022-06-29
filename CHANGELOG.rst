@@ -189,7 +189,7 @@ Version 1.7.3 (2021-04-16)
 
 Version 1.7.2 (2021-04-13)
 --------------------------
-- *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accomodate this flexibility.
+- *Feature*: Re-enabled support of age distributions for any number of age brackets. Json data files have been updated to accommodate this flexibility.
 - *Fix*: Catching division by zero when calculating enrollment, employment, etc. rates by age and the number of people in a given age is zero (can occur when population size is very small, e.g. n~200).
 - *Github Info*: PRs `401 <https://github.com/amath-idm/synthpops/pull/401>`__, `422 <https://github.com/amath-idm/synthpops/pull/422>`__
 
@@ -229,7 +229,7 @@ Version 1.6.1 (2021-03-25)
 
 Version 1.6.0 (2021-03-20)
 --------------------------
-- *Feature*: Adding summary methods for SynthPops pop objects accesible as pop.summary and computed using pop.compute_summary(). Also adding several plotting methods for these summary data.
+- *Feature*: Adding summary methods for SynthPops pop objects accessible as pop.summary and computed using pop.compute_summary(). Also adding several plotting methods for these summary data.
 - Updating ``sp.workplaces.assign_rest_of_workers()`` to work off a copy of the workplace age mixing matrix so that the copy stored in SynthPops pop objects is not modified during generation.
 - More tests for summary methods in pop.py, methods in config.py, plotting methods in plotting.py
 - *Regression Information*: Adding new workplace size data specific for the Seattle metro area which changes the regression results. The previous data from the Washington state level and the new data for the metropolitan statistical area (MSA) of Seattle for the 2019 year are very similar, however the use of this data with random number generators does result in slight stochastic differences in the populations generated. 

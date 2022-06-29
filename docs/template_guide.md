@@ -43,4 +43,4 @@ Users can also supply the file paths to their own data by setting the parameter 
     2101,2300
     2301,2700
 
-Many places will have different school sizes that do not fit welll within these brackets, so users should consider making their own files for this that are more specific for their population. In particular, if the location under study has much larger schools, these brackets will not capture that.
+Many places will have different school sizes that do not fit well within these brackets, so users should consider making their own files for this that are more specific for their population. In particular, if the location under study has much larger schools, these brackets will not capture that.
