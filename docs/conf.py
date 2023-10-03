@@ -50,7 +50,6 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',  # Add a link to the Python source code for classes, functions etc.
     'sphinx_search.extension', # search across multiple docsets in domain
-
 ]
 
 autodoc_default_options = {
