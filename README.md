@@ -37,10 +37,10 @@ Then install via:
 
 Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended. We recommend using Python virtual environments managed with [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#) to help with installation. Currently, our recommended installation steps are:
 
-1. Install Anaconda. 
-
-2. Working either in an existing conda environment or creating a new environment with Anaconda, install synthpops by navigating to the directory for this package and running `python setup.py develop` via terminal.
-
+1. Install Anaconda.
+2. Working either in an existing conda environment or creating a new environment with Anaconda, verify that you are running an acceptable version of python (currently >=3.7, <3.9). To create a new environment: `conda create -n synthpops python=3.8.11 anaconda`. The argument to `-n` is the name for your environment. You can get a list of the available python versions (for `python=X.Y.Z` with `conda search python`.
+3. If you created a new environment, activate it with `conda activate synthpops` (or whatever you named your environment).
+4. Install synthpops by navigating to the directory for this package and running `python setup.py develop` via terminal. The installation process may fail with missing packages, add those using `pip` or you could start with this set, and then run the setup command: `pip install jsonobject cmasher cmocean graphviz pydot sciris`.
 
 ## Quick Start
 
