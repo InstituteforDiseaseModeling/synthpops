@@ -14,8 +14,8 @@
 import os
 import subprocess
 import sys
-from datetime import datetime
 import synthpops as sp
+import sphinx_rtd_theme
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
@@ -42,6 +42,7 @@ with open(filename, "w") as f: # Write new file
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_rtd_theme',
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
     'sphinx.ext.autodoc',
