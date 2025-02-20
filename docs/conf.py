@@ -14,7 +14,6 @@
 import os
 import subprocess
 import sys
-import sphinx_rtd_theme
 from datetime import datetime
 import synthpops as sp
 
@@ -80,7 +79,7 @@ master_doc = 'index'
 # General information about the project.
 
 project = 'SynthPops'
-copyright = f'1999 - {datetime.today().year}, Bill & Melinda Gates Foundation. All rights reserved.\nThese docs were built for SynthPops version {sp.__version__}.\n'
+copyright = f'2020 - 2021, Institute for Disease Modeling. All rights reserved.\nThese docs were built for SynthPops version {sp.__version__}.\n'
 author = 'Institute for Disease Modeling'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -97,7 +96,7 @@ release = sp.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -121,10 +120,6 @@ rst_epilog = "\n.. include:: /variables.txt"
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
-
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
 
 html_logo = "images/IDM_white.png"
 html_favicon = "images/favicon.ico"
