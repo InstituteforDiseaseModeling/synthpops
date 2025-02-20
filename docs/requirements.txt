@@ -1,7 +1,9 @@
-pytest
-sphinx-rtd-theme
-sphinxcontrib-napoleon
-sphinx
-plantweb
 pandoc
 pypandoc
+sphinx>=7.3.7
+sphinx-autodoc-typehints
+pydata-sphinx-theme
+sphinx-design
+readthedocs-sphinx-search
+sphinxcontrib-napoleon
+plantweb
