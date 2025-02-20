@@ -2,6 +2,8 @@
 Welcome to |SP|
 =================
 
+**Note: SynthPops is no longer actively maintained.**
+
 |SP| is used construct synthetic networks of people that satisfy statistical properties of
 real-world populations (such as the age distribution, household size, etc.). |SP| can create
 generic populations with different network characteristics, as well as synthetic populations that

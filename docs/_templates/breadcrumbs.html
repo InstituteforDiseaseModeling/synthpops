@@ -1,9 +1,0 @@
-{% extends '!breadcrumbs.html' %}
-{% block breadcrumbs %}
-    <li><a href="//idmod.org/documentation">IDM docs</a> &raquo;</li>
-    <li><a href="{{ pathto(master_doc) }}">SynthPops</a> &raquo;</li>
-    {% for doc in parents %}
-        <li><a href="{{ doc.link|e }}">{{ doc.title }}</a> &raquo;</li>
-    {% endfor %}
-    <li>{{ title }}</li>
-{% endblock %}
