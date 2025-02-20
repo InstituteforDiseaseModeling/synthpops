@@ -24,4 +24,4 @@ jobs:
         run: pip install -r tests/requirements_test.txt
       - name: Run API tests
         working-directory: ./tests
-        run: pytest --cov-config=.coveragerc --cov=../synthpops --junitxml=test-results.xml -n auto --durations=0
+        run: pytest test_*.py -n auto --durations=0 --junitxml=test-results.xml # Run actual tests
