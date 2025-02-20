@@ -1,16 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
-#
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
 
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
 import synthpops as sp
@@ -29,19 +20,7 @@ version = sp.__version__
 release = sp.__version__
 
 
-# Rename "synthpops package" to "API reference"
-filename = 'modules.rst' # This must match the Makefile
-with open(filename) as f: # Read existing file
-    lines = f.readlines()
-lines[0] = "API reference\n" # Blast away the existing heading and replace with this
-lines[1] = "=============\n" # Ensure the heading is the right length
-with open(filename, "w") as f: # Write new file
-    f.writelines(lines)
-
-# -- General configuration ------------------------------------------------
-
-# If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.0'
+# -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here
 extensions = [
@@ -91,10 +70,10 @@ html_theme_options = {
     "navigation_depth": 3,
     "show_prev_next": True,
     "icon_links": [
-        {"name": "Web", "url": "https://starsim.org", "icon": "fas fa-home"},
+        {"name": "Web", "url": "https://synthpops.org", "icon": "fas fa-home"},
         {
             "name": "GitHub",
-            "url": "https://github.com/starsimhub/starsim",
+            "url": "https://github.com/synthpops/synthpops",
             "icon": "fab fa-github-square",
         },
     ],
@@ -123,7 +102,6 @@ if not on_rtd:
     html_extra_path = ['robots.txt']
 
 
-# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_last_updated_fmt = '%Y-%b-%d'
 html_show_sourcelink = True

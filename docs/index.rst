@@ -24,6 +24,6 @@ For more information on |Cov_s| see `Covasim on GitHub`_.
    whatsnew
    algorithm
    usage
-   modules
+   api/index
    glossary
 
