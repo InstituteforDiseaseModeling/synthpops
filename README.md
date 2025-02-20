@@ -1,6 +1,8 @@
 # SynthPops
 
-SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. **Note**: SynthPops is currently under active development and most features are fully tested and documented, but not all. We are in the process of expanding to include data and validation on additional regions beyond the original scope of the Seattle-King County region of Washington, USA. At the moment we have data for the following locations (in the synthpops/data folder) :
+**Note: SynthPops is no longer being actively maintained.**
+
+SynthPops is a module designed to generate synthetic populations that are used for COVID-19 (SARS-CoV-2) epidemic analyses. SynthPops can create generic populations with different network characteristics, as well as synthetic populations that interact in different layers of a multilayer contact network. At the moment we have data for the following locations (in the synthpops/data folder):
 
 * Seattle Metro, Washington, USA
 * Spokane County, Washington, USA
@@ -20,12 +22,12 @@ More extensive installation and usage instructions are in the [SynthPops documen
 
 A scientific manuscript describing the model is currently in progress. If you use the model, in the mean time the recommended citation is:
 
-**SynthPops: a generative model of human contact networks**. Mistry D, Kerr CC, Abeysuriya R, Wu M, Fisher M, Thompson A, Skrip L, Cohen JA, Althouse BM, Klein DJ (2021). (in preparation). 
+**SynthPops: a generative model of human contact networks**. Mistry D, Kerr CC, Abeysuriya R, Wu M, Fisher M, Thompson A, Skrip L, Cohen JA, Althouse BM, Klein DJ (in preparation). 
 
 
 ## Installation
 
-Python >=3.7, <3.9 is required. Python 2 is not supported. Virtual environments are strongly recommended but not required.
+Python >=3.7 is required. Python 2 is not supported. Virtual environments are strongly recommended but not required.
 
 To install, first clone the GitHub repository:
 
@@ -33,14 +35,14 @@ To install, first clone the GitHub repository:
 
 Then install via:
 
-`python setup.py develop`
+`pip install -e .`
 
 Note: while `synthpops` can also be installed via [pypi](https://pypi.org/project/synthpops), this method does not currently include the data files which are required to function, and thus is not recommended. We recommend using Python virtual environments managed with [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#) to help with installation. Currently, our recommended installation steps are:
 
-1. Install Anaconda. 
-
-2. Working either in an existing conda environment or creating a new environment with Anaconda, install synthpops by navigating to the directory for this package and running `python setup.py develop` via terminal.
-
+1. Install Anaconda.
+2. Working either in an existing conda environment or creating a new environment with Anaconda, verify that you are running an acceptable version of python (currently >=3.7). To create a new environment: `conda create -n synthpops`. The argument to `-n` is the name for your environment. You can get a list of the available python versions (for `python=X.Y.Z` with `conda search python`.
+3. If you created a new environment, activate it with `conda activate synthpops` (or whatever you named your environment).
+4. Install synthpops by navigating to the directory for this package and running `pip install -e .` via terminal. The installation process may fail with missing packages, add those using `pip` or you could start with this set, and then run the setup command: `pip install jsonobject cmasher cmocean graphviz pydot sciris`.
 
 ## Quick Start
 
@@ -92,5 +94,4 @@ The `tests` folder contains tests of different functions available in SynthPops.
 
 ## Disclaimer
 
-The code in this repository was developed by IDM to support our research in disease transmission and managing epidemics. We’ve made it publicly available under the Creative Commons Attribution-ShareAlike 4.0 International License to provide others with a better understanding of our research and an opportunity to build upon it for their own work. We make no representations that the code works as intended or that we will provide support, address issues that are found, or accept pull requests. You are welcome to create your own fork and modify the code to suit your own modeling needs as contemplated under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 License.
-
+The code in this repository was developed by [IDM](https://idmod.org>) and other collaborators to support our joint research on flexible agent-based modeling. We've made it publicly available under the MIT License to provide others with a better understanding of our research and an opportunity to build upon it for their own work. We make no representations that the code works as intended or that we will provide support, address issues that are found, or accept pull requests. You are welcome to create your own fork and modify the code to suit your own modeling needs as permitted under the MIT License.

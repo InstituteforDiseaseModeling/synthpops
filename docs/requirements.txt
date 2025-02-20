@@ -5,4 +5,3 @@ sphinx
 plantweb
 pandoc
 pypandoc
-numba==0.48
