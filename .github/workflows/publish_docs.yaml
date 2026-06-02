@@ -3,12 +3,21 @@ name: Docs
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
+# Grant the deploy job the permissions it needs to publish to GitHub Pages.
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one Pages deployment at a time; let an in-progress run finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,10 +26,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install -r requirements_frozen.txt
-      - run: ./docs/build_docs
+      - name: Install dependencies
+        run: |
+          pip install -r requirements_frozen.txt
+          pip install -e . --no-deps  # docs/conf.py does `import synthpops`
 
-      - uses: peaceiris/actions-gh-pages@v4
+      - name: Build HTML
+        working-directory: docs
+        run: make html
+
+      - uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
+          path: docs/_build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
