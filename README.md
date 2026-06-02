@@ -18,7 +18,7 @@ SynthPops is a module designed to generate synthetic populations that are used f
 
 The code was originally developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim). This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
 
-More extensive installation and usage instructions are in the [SynthPops documentation](https://docs.idmod.org/projects/synthpops/en/latest).
+More extensive installation and usage instructions are in the [SynthPops documentation](https://synthpop.readthedocs.io/en/stable/).
 
 A scientific manuscript describing the model is currently in progress. If you use the model, in the mean time the recommended citation is:
 
@@ -60,7 +60,7 @@ plt.show() # display contact matrix to screen
 
 ## Usage
 
-In addition to the [documentation](https://docs.idmod.org/projects/synthpops/en/latest/usage.html), see the `examples` folder for usage examples.
+In addition to the [documentation](https://synthpop.readthedocs.io/en/stable/usage.html), see the `examples` folder for usage examples.
 
 ## Structure
 
@@ -90,8 +90,3 @@ The `synthpops` folder contains the library, including:
 ### tests
 
 The `tests` folder contains tests of different functions available in SynthPops.
-
-
-## Disclaimer
-
-The code in this repository was developed by [IDM](https://idmod.org>) and other collaborators to support our joint research on flexible agent-based modeling. We've made it publicly available under the MIT License to provide others with a better understanding of our research and an opportunity to build upon it for their own work. We make no representations that the code works as intended or that we will provide support, address issues that are found, or accept pull requests. You are welcome to create your own fork and modify the code to suit your own modeling needs as permitted under the MIT License.
