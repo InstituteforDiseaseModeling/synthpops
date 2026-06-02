@@ -18,7 +18,7 @@ SynthPops is a module designed to generate synthetic populations that are used f
 
 The code was originally developed to explore the impact of contact tracing and testing in human contact networks in combination with our [Covasim repository](https://github.com/InstituteforDiseaseModeling/covasim). This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
 
-More extensive installation and usage instructions are in the [SynthPops documentation](https://synthpop.readthedocs.io/en/stable/).
+More extensive installation and usage instructions are in the [SynthPops documentation](https://synthpops.github.io/synthpops).
 
 A scientific manuscript describing the model is currently in progress. If you use the model, in the mean time the recommended citation is:
 
@@ -60,7 +60,7 @@ plt.show() # display contact matrix to screen
 
 ## Usage
 
-In addition to the [documentation](https://synthpop.readthedocs.io/en/stable/usage.html), see the `examples` folder for usage examples.
+In addition to the [documentation](https://synthpops.github.io/synthpops/usage.html), see the `examples` folder for usage examples.
 
 ## Structure
 
