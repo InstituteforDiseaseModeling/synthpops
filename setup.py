@@ -48,7 +48,7 @@ setup(
         "matplotlib>=3.3.0",
         "numpy",
         "scipy",
-        "pandas>=1.2.3",
+        "pandas>=1.2.3,<3", # pandas 3.0 removed the integer-position fallback in Series.__getitem__ (see pop.py summarize)
         "numba",
         "networkx>=2.3",
         "cmocean",
